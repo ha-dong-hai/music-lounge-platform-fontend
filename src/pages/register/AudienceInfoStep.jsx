@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { User, Mail, Lock, Eye, EyeOff, Phone, Calendar } from 'lucide-react';
 import { audienceRegisterSchema } from '../../schemas/authSchema';
 
-export default function AudienceInfoStep({ defaultValues, onNext }) {
+export default function AudienceInfoStep({ defaultValues, onNext, onPrev }) {
   const [showPassword, setShowPassword] = useState(false);
 
   const {
@@ -123,12 +123,14 @@ export default function AudienceInfoStep({ defaultValues, onNext }) {
           {errors.password && <span className="auth-error">{errors.password.message}</span>}
         </div>
 
-        <button
-          type="submit"
-          className="auth-btn mt-4"
-        >
-          Confirm
-        </button>
+        <div className="step-navigation">
+          <button type="button" className="step-nav-btn step-nav-btn--outline" onClick={onPrev}>
+            Back
+          </button>
+          <button type="submit" className="step-nav-btn">
+            Next
+          </button>
+        </div>
       </form>
     </div>
   );

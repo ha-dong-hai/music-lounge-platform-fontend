@@ -46,12 +46,7 @@ export default function HomePage() {
 
   return (
     <div className="home-page">
-      {}
-      <div className="auth-bg">
-        <div className="auth-bg-orb auth-bg-orb--1" />
-        <div className="auth-bg-orb auth-bg-orb--2" />
-        <div className="auth-bg-orb auth-bg-orb--3" />
-      </div>
+
 
       {}
       <motion.nav

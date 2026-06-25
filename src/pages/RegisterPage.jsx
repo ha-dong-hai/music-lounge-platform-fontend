@@ -45,11 +45,10 @@ export default function RegisterPage() {
   
   const nextStep = () => setStep((s) => s + 1);
   const prevStep = () => {
-    if (step === 0 && role) {
+    if (step === 1) {
       setRole(null);
-    } else {
-      setStep((s) => s - 1);
     }
+    setStep((s) => Math.max(0, s - 1));
   };
 
   const handleRoleSelect = (selectedRole) => {
@@ -165,8 +164,8 @@ export default function RegisterPage() {
   const progressPercent = role && step > 0 ? (step / totalSteps) * 100 : 0;
 
   return (
-    <div className="auth-page wizard-page">
-      <div className="auth-bg"></div>
+    <div className={`auth-page ${role === 'Owner' && step === 3 ? '' : 'wizard-page'}`}>
+
 
 
       <div className={`auth-card wizard-card ${step === 0 ? 'wizard-card--wide' : ''} ${role === 'Owner' && step === 2 ? 'wizard-card--extra-wide' : ''}`}>
@@ -198,7 +197,7 @@ export default function RegisterPage() {
 
           {}
           {role === 'Audience' && step === 1 && (
-            <AudienceInfoStep key="aud-info" defaultValues={formData} onNext={handleAudienceInfoSubmit} />
+            <AudienceInfoStep key="aud-info" defaultValues={formData} onNext={handleAudienceInfoSubmit} onPrev={prevStep} />
           )}
           {role === 'Audience' && step === 2 && (
             <GenreStep

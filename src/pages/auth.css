@@ -1,5 +1,3 @@
-
-
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 
@@ -14,11 +12,153 @@
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
 }
 
+.auth-page::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: conic-gradient(from 0deg at 50% 80%,
+      transparent 10deg, rgba(255, 160, 0, 0.12) 15deg, transparent 25deg,
+      transparent 35deg, rgba(255, 150, 0, 0.4) 55deg, transparent 75deg,
+      transparent 80deg, rgba(218, 140, 20, 0.15) 85deg, transparent 90deg,
+
+      transparent 95deg, rgba(218, 140, 20, 0.08) 100deg, transparent 105deg,
+      transparent 105deg, rgba(255, 150, 0, 0.2) 125deg, transparent 145deg,
+      transparent 155deg, rgba(255, 160, 0, 0.04) 165deg, transparent 170deg,
+
+      transparent 190deg, rgba(255, 160, 0, 0.04) 195deg, transparent 205deg,
+      transparent 215deg, rgba(255, 150, 0, 0.2) 235deg, transparent 255deg,
+      transparent 255deg, rgba(218, 140, 20, 0.08) 260deg, transparent 265deg,
+
+      transparent 270deg, rgba(218, 140, 20, 0.15) 275deg, transparent 280deg,
+      transparent 285deg, rgba(255, 150, 0, 0.4) 305deg, transparent 325deg,
+      transparent 335deg, rgba(255, 160, 0, 0.12) 345deg, transparent 350deg);
+  filter: blur(14px);
+  pointer-events: none;
+  opacity: 0.85;
+  animation: stageFlicker 8s ease-in-out infinite alternate;
+  z-index: 0;
+}
+
 
 .auth-bg {
-  position: absolute;
+  position: fixed;
   inset: 0;
-  background: radial-gradient(circle at 50% 0%, rgba(212, 175, 55, 0.05), transparent 70%);
+  background-color: #050505;
+  background-image: 
+    /* Floor shading (darker below horizon) - TOP LAYER */
+    linear-gradient(to bottom, transparent 80%, rgba(0,0,0,0.8) 80%, #000 100%),
+
+    /* Horizon glow (wide and short) */
+    radial-gradient(ellipse 60% 8% at 50% 80%, rgba(255, 180, 50, 0.3) 0%, transparent 100%),
+    radial-gradient(ellipse 25% 3% at 50% 80%, rgba(255, 240, 150, 0.7) 0%, transparent 100%),
+    
+    /* MASK LAYER for the Fan Rays */
+    /* Fades from transparent center to solid background color to cut off rays */
+    radial-gradient(ellipse 35% 20% at 50% 80%, transparent 20%, #050505 100%),
+
+    /* FAN RAYS REFLECTION (conic-gradient pointing DOWN) */
+    conic-gradient(from 180deg at 50% 80%,
+      transparent 290deg, rgba(255,200,100,0.02) 295deg, transparent 300deg,
+      transparent 310deg, rgba(255,220,120,0.05) 315deg, transparent 320deg,
+      transparent 330deg, rgba(255,240,150,0.1) 335deg, transparent 340deg,
+      transparent 345deg, rgba(255,250,180,0.15) 350deg, transparent 355deg,
+      transparent 357deg, rgba(255,255,200,0.25) 0deg, transparent 3deg,
+      transparent 5deg, rgba(255,250,180,0.15) 10deg, transparent 15deg,
+      transparent 20deg, rgba(255,240,150,0.1) 25deg, transparent 30deg,
+      transparent 40deg, rgba(255,220,120,0.05) 45deg, transparent 50deg,
+      transparent 60deg, rgba(255,200,100,0.02) 65deg, transparent 70deg,
+      transparent 70deg
+    ),
+
+    /* FAN RAYS (conic-gradient pointing UP) */
+    conic-gradient(from 0deg at 50% 80%,
+      transparent 290deg, rgba(255,200,100,0.05) 295deg, transparent 300deg,
+      transparent 310deg, rgba(255,220,120,0.15) 315deg, transparent 320deg,
+      transparent 330deg, rgba(255,240,150,0.3) 335deg, transparent 340deg,
+      transparent 345deg, rgba(255,250,180,0.4) 350deg, transparent 355deg,
+      transparent 357deg, rgba(255,255,200,0.7) 0deg, transparent 3deg,
+      transparent 5deg, rgba(255,250,180,0.4) 10deg, transparent 15deg,
+      transparent 20deg, rgba(255,240,150,0.3) 25deg, transparent 30deg,
+      transparent 40deg, rgba(255,220,120,0.15) 45deg, transparent 50deg,
+      transparent 60deg, rgba(255,200,100,0.05) 65deg, transparent 70deg,
+      transparent 70deg
+    );
+  background-size: 100% 100%;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.auth-bg::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 45%;
+  background-image: 
+    radial-gradient(circle at 10% 20%, rgba(255, 215, 0, 0.9) 1.5px, transparent 2px),
+    radial-gradient(circle at 25% 40%, rgba(255, 200, 100, 0.9) 2px, transparent 2.5px),
+    radial-gradient(circle at 40% 10%, rgba(218, 140, 20, 0.8) 1.5px, transparent 2px),
+    radial-gradient(circle at 60% 30%, rgba(255, 215, 0, 0.9) 1px, transparent 1.5px),
+    radial-gradient(circle at 75% 50%, rgba(218, 140, 20, 0.9) 2px, transparent 2.5px),
+    radial-gradient(circle at 90% 15%, rgba(255, 200, 100, 0.7) 1.5px, transparent 2px),
+    radial-gradient(circle at 50% 25%, rgba(255, 215, 0, 0.9) 1px, transparent 1.5px),
+    radial-gradient(circle at 30% 60%, rgba(255, 215, 0, 0.6) 1.5px, transparent 2px),
+    radial-gradient(circle at 80% 45%, rgba(218, 140, 20, 0.5) 1px, transparent 1.5px),
+    /* Soft glowing bokeh */
+    radial-gradient(circle at 35% 15%, rgba(255, 200, 100, 0.3) 4px, transparent 6px),
+    radial-gradient(circle at 65% 25%, rgba(255, 220, 150, 0.2) 6px, transparent 8px),
+    radial-gradient(circle at 15% 5%, rgba(218, 140, 20, 0.25) 5px, transparent 7px);
+  background-size: 
+    113px 137px, 157px 193px, 127px 149px, 191px 173px, 139px 181px, 163px 109px, 97px 113px, 181px 197px, 103px 127px,
+    211px 239px, 257px 271px, 199px 223px;
+  -webkit-mask-image: radial-gradient(ellipse 70% 100% at 50% 0%, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 40%, rgba(0,0,0,0) 100%);
+  mask-image: radial-gradient(ellipse 70% 100% at 50% 0%, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 40%, rgba(0,0,0,0) 100%);
+  animation: particlesFallTop 100s linear infinite, twinkleStars 3s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+
+.auth-bg::after {
+  content: '';
+  position: absolute;
+  top: 80%; bottom: -50%; left: -50%; right: -50%;
+  background-image: 
+    radial-gradient(circle at 10% 20%, rgba(255, 215, 0, 0.9) 1px, transparent 1.5px),
+    radial-gradient(circle at 25% 40%, rgba(255, 200, 100, 0.9) 1.5px, transparent 2px),
+    radial-gradient(circle at 40% 10%, rgba(218, 140, 20, 0.8) 1px, transparent 1.5px),
+    radial-gradient(circle at 60% 30%, rgba(255, 215, 0, 0.9) 1.5px, transparent 2px),
+    radial-gradient(circle at 75% 50%, rgba(218, 140, 20, 0.9) 1px, transparent 1.5px),
+    radial-gradient(circle at 90% 15%, rgba(255, 200, 100, 0.7) 1.5px, transparent 2px),
+    radial-gradient(circle at 50% 25%, rgba(255, 215, 0, 0.9) 1px, transparent 1.5px),
+    radial-gradient(circle at 30% 60%, rgba(255, 215, 0, 0.6) 1px, transparent 1.5px),
+    radial-gradient(circle at 80% 45%, rgba(218, 140, 20, 0.5) 1.5px, transparent 2px);
+  background-size: 
+    73px 89px, 97px 113px, 83px 101px, 107px 127px, 109px 131px, 79px 103px, 101px 137px, 113px 149px, 89px 107px;
+  transform: perspective(300px) rotateX(75deg);
+  transform-origin: top center;
+  -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%);
+  mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%);
+  animation: particlesDriftFloor 60s linear infinite, twinkleStars 4s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+
+@keyframes particlesFallTop {
+  0% { background-position: 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0; }
+  100% { 
+    background-position: 
+      113px 137px, -157px 193px, 127px 149px, -191px 173px, 139px 181px, -163px 109px, 97px 113px, -181px 197px, 103px 127px,
+      211px 239px, -257px 271px, 199px 223px; 
+  }
+}
+
+@keyframes particlesDriftFloor {
+  0% { background-position: 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0; }
+  100% { 
+    background-position: 
+      73px 89px, -97px 113px, 83px 101px, -107px 127px, 109px 131px, -79px 103px, 101px 137px, -113px 149px, 89px 107px; 
+  }
+}
+
+@keyframes twinkleStars {
+  0% { opacity: 0.5; filter: brightness(0.6); }
+  100% { opacity: 1; filter: brightness(1.4); }
 }
 
 .auth-bg-orb {
@@ -60,10 +200,23 @@
 }
 
 @keyframes orbFloat {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  25% { transform: translate(30px, -40px) scale(1.1); }
-  50% { transform: translate(-20px, 20px) scale(0.95); }
-  75% { transform: translate(15px, 30px) scale(1.05); }
+
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+
+  25% {
+    transform: translate(30px, -40px) scale(1.1);
+  }
+
+  50% {
+    transform: translate(-20px, 20px) scale(0.95);
+  }
+
+  75% {
+    transform: translate(15px, 30px) scale(1.05);
+  }
 }
 
 
@@ -71,10 +224,15 @@
   position: relative;
   z-index: 1;
   width: 100%;
-  max-width: 440px;
-  padding: 40px 36px;
-  background: #111111;
-  border-radius: 8px;
+  max-width: 500px;
+  padding: 44px 48px;
+  background: rgba(10, 10, 10, 0.6);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-top: 1px solid rgba(218, 140, 20, 0.2);
+  border-radius: 16px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.8);
 }
 
 @media (max-width: 480px) {
@@ -185,15 +343,16 @@
   gap: 10px;
   padding: 0 14px;
   height: 48px;
-  background: #1a1a1a;
-  border: 1px solid #333333;
-  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
   transition: all 0.25s ease;
 }
 
 .auth-input-wrapper:focus-within {
-  border-color: var(--accent);
-  background: #222222;
+  border-color: rgba(218, 140, 20, 0.5);
+  background: rgba(0, 0, 0, 0.6);
+  box-shadow: 0 0 0 1px rgba(218, 140, 20, 0.15);
 }
 
 .auth-input-wrapper--error {
@@ -297,6 +456,7 @@
     font-size: 20px;
     border-radius: 10px;
   }
+
   .auth-otp-group {
     gap: 6px;
   }
@@ -314,18 +474,19 @@
   border-radius: 12px;
   font-size: 15px;
   font-weight: 600;
+  letter-spacing: 0.5px;
   font-family: inherit;
-  color: #fff;
+  color: #000;
   cursor: pointer;
-  background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
-  box-shadow: 0 4px 14px rgba(124, 58, 237, 0.35);
+  background: linear-gradient(135deg, #d4af37 0%, #c59b27 100%);
+  box-shadow: 0 8px 24px rgba(212, 175, 55, 0.25);
   transition: all 0.3s ease;
   margin-top: 4px;
 }
 
 .auth-btn:hover:not(:disabled) {
-  box-shadow: 0 6px 20px rgba(124, 58, 237, 0.45);
-  filter: brightness(1.05);
+  box-shadow: 0 12px 32px rgba(212, 175, 55, 0.4);
+  filter: brightness(1.1);
 }
 
 .auth-btn:disabled {
@@ -338,7 +499,9 @@
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 
@@ -621,16 +784,20 @@
   .home-nav {
     padding: 12px 16px;
   }
+
   .home-content {
     padding: 24px 16px;
   }
+
   .home-welcome-card,
   .home-profile-card {
     padding: 24px 20px;
   }
+
   .home-greeting {
     font-size: 20px;
   }
+
   .home-avatar-placeholder,
   .home-avatar-img {
     width: 52px;
@@ -699,8 +866,10 @@
 }
 
 .role-card {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border-radius: 16px;
   padding: 24px;
   display: flex;
@@ -708,15 +877,15 @@
   align-items: center;
   text-align: center;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
   color: #f1f5f9;
 }
 
 .role-card:hover {
-  background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(212, 175, 55, 0.4);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  background: rgba(218, 140, 20, 0.05);
+  border-color: rgba(218, 140, 20, 0.4);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
 }
 
 .role-card-icon {
@@ -894,28 +1063,40 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 8px 16px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 24px;
+  padding: 10px 20px;
+  background: rgba(10, 10, 10, 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02);
+  border-radius: 30px;
   color: #cbd5e1;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   user-select: none;
 }
 
 .tag-chip:hover {
-  background: rgba(255, 255, 255, 0.08);
-  color: #f1f5f9;
+  background: rgba(20, 20, 20, 0.8);
+  border-color: rgba(218, 140, 20, 0.3);
+  box-shadow: 0 0 15px rgba(218, 140, 20, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  transform: translateY(-2px);
+  color: #fff;
 }
 
 .tag-chip--selected {
-  background: rgba(212, 175, 55, 0.15);
-  border-color: rgba(212, 175, 55, 0.5);
-  color: var(--accent-light);
-  box-shadow: 0 0 12px rgba(212, 175, 55, 0.1);
+  background: rgba(218, 140, 20, 0.15);
+  border-color: rgba(218, 140, 20, 0.8);
+  color: #fff;
+  box-shadow: 0 0 20px rgba(218, 140, 20, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.tag-chip--selected:hover {
+  background: rgba(218, 140, 20, 0.25);
+  border-color: rgba(218, 140, 20, 1);
+  box-shadow: 0 0 25px rgba(218, 140, 20, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 .tag-chip-check {
@@ -1029,12 +1210,29 @@
   color: #22c55e;
 }
 
-.mt-6 { margin-top: 24px; }
-.mb-8 { margin-bottom: 32px; }
-.mb-2 { margin-bottom: 8px; }
-.text-center { text-align: center; }
-.w-full { width: 100%; }
-.block { display: block; }
+.mt-6 {
+  margin-top: 24px;
+}
+
+.mb-8 {
+  margin-bottom: 32px;
+}
+
+.mb-2 {
+  margin-bottom: 8px;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.w-full {
+  width: 100%;
+}
+
+.block {
+  display: block;
+}
 
 
 
@@ -1097,9 +1295,17 @@
   height: 120px;
 }
 
-.mt-3 { margin-top: 12px; }
-.mt-4 { margin-top: 16px; }
-.text-left { text-align: left; }
+.mt-3 {
+  margin-top: 12px;
+}
+
+.mt-4 {
+  margin-top: 16px;
+}
+
+.text-left {
+  text-align: left;
+}
 
 
 

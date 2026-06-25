@@ -5,6 +5,7 @@ import './App.css';
 function App() {
   return (
     <>
+      <div className="auth-bg"></div>
       <AppRouter />
       <Toaster
         position="top-center"

@@ -123,7 +123,7 @@ export default function VerifyEmailPage() {
 
   return (
     <div className="auth-page">
-      <div className="auth-bg"></div>
+
 
 
       <div className="auth-card">
