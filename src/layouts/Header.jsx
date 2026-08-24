@@ -1,5 +1,5 @@
 // src/components/layouts/Header.jsx
-import { Search, User, ChevronDown, LogOut, Ticket, Settings, X } from 'lucide-react'
+import { Search, User, ChevronDown, LogOut, Ticket, Settings, X, Languages, Check } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 
@@ -10,6 +10,9 @@ const Header = ({ searchQuery, setSearchQuery }) => {
   });
 
   const [localSearch, setLocalSearch] = useState(searchQuery || '')
+  const [isLangOpen, setIsLangOpen] = useState(false)
+  const [currentLang, setCurrentLang] = useState(localStorage.getItem('lang') || 'vi')
+
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -37,19 +40,20 @@ const Header = ({ searchQuery, setSearchQuery }) => {
 
   }
 
-  const [isLangOpen, setIsLangOpen] = useState(false)
-  const [currentLang, setCurrentLang] = useState('VN')
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
 
-  const handleSelectLang = (lang) => {
+  const handleChangeLang = (lang) => {
     setCurrentLang(lang)
+    localStorage.setItem('lang', lang) // Lưu lại để F5 không mất trạng thái nút
     setIsLangOpen(false)
+    // Toast thông báo cho người dùng biết (tùy chọn)
+    toast.success(lang === 'vi' ? 'Đã chuyển sang Tiếng Việt' : 'Switched to English')
   }
 
   return (
     <header className="sticky top-0 z-50 w-full bg-black border-b border-[#C3B665]/30 px-6 py-4 shadow">
 
-      {/* ⭐ THAY ĐỔI: Chia làm 2 khối chính: Trái (Logo + Search) và Phải (Actions) */}
+      {/* THAY ĐỔI: Chia làm 2 khối chính: Trái (Logo + Search) và Phải (Actions) */}
       <div className="flex items-center justify-between gap-8">
 
         {/* === KHỐI TRÁI === */}
@@ -138,21 +142,38 @@ const Header = ({ searchQuery, setSearchQuery }) => {
 
           {/* Ngôn ngữ */}
           <div className="relative">
-            <button onClick={() => setIsLangOpen(!isLangOpen)} className="flex items-center gap-1 text-white hover:text-[#C3B665] focus:outline-none">
-              <span className="text-xl">{currentLang === "VN" ? "VN" : "ENG"}</span>
+            <button 
+              onClick={() => setIsLangOpen(!isLangOpen)} 
+              className="flex items-center gap-1.5 px-3 py-2 rounded-full border border-gray-700 hover:border-[#C3B665] text-sm font-medium text-gray-300 hover:text-[#C3B665] transition-colors"
+            >
+              <Languages size={16} />
+              <span>{currentLang === 'vi' ? 'VN' : 'EN'}</span>
               <ChevronDown size={14} className={`transition-transform duration-200 ${isLangOpen ? 'rotate-180' : ''}`} />
             </button>
+            
             {isLangOpen && (
-              <div className="absolute right-0 top-full mt-3 w-40 bg-[#1a1a1a] rounded-xl shadow-lg border border-[#C3B665]/20 py-2 z-50">
-                <button onClick={() => handleSelectLang('VN')} className={`w-full px-4 py-2 text-sm text-left hover:bg-gray-800 ${currentLang === 'VN' ? 'font-bold text-[#C3B665]' : 'text-gray-300'}`}>Tiếng Việt</button>
-                <button onClick={() => handleSelectLang('ENG')} className={`w-full px-4 py-2 text-sm text-left hover:bg-gray-800 ${currentLang === 'ENG' ? 'font-bold text-[#C3B665]' : 'text-gray-300'}`}>English</button>
+              <div className="absolute right-0 top-full mt-3 w-44 bg-[#1a1a1a] rounded-xl shadow-lg border border-[#C3B665]/20 py-2 z-50 animate-in fade-in slide-in-from-top-2">
+                <button 
+                  onClick={() => handleChangeLang('vi')} 
+                  className={`w-full flex items-center justify-between px-4 py-2.5 text-sm transition-colors ${currentLang === 'vi' ? 'text-[#C3B665] bg-gray-800/50' : 'text-gray-300 hover:bg-gray-800 hover:text-white'}`}
+                >
+                  Tiếng Việt
+                  {currentLang === 'vi' && <Check size={14} />}
+                </button>
+                <button 
+                  onClick={() => handleChangeLang('en')} 
+                  className={`w-full flex items-center justify-between px-4 py-2.5 text-sm transition-colors ${currentLang === 'en' ? 'text-[#C3B665] bg-gray-800/50' : 'text-gray-300 hover:bg-gray-800 hover:text-white'}`}
+                >
+                  English
+                  {currentLang === 'en' && <Check size={14} />}
+                </button>
               </div>
             )}
           </div>
         </div>
       </div>
 
-      {(isLangOpen || isUserMenuOpen) && <div className=" inset-0 z-40" onClick={() => { setIsLangOpen(false); setIsUserMenuOpen(false) }} />}
+      {(isLangOpen || isUserMenuOpen) && <div className="fixed inset-0 z-40" onClick={() => { setIsLangOpen(false); setIsUserMenuOpen(false) }} />}
     </header>
   )
 }
