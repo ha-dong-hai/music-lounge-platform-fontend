@@ -1,12 +1,27 @@
-import { useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { ChevronLeft, ChevronRight, X } from 'lucide-react'
 
 const HorizontalTagSlider = ({ label, options, selectedItems, onSelect, onRemove }) => {
   const scrollRef = useRef(null)
+  const [canScrollLeft, setCanScrollLeft] = useState(false)
+  const [canScrollRight, setCanScrollRight] = useState(false)
+
+  const checkScrollPosition = () => {
+    const el = scrollRef.current
+    if (!el) return
+    const { scrollLeft, clientWidth, scrollWidth } = el
+    setCanScrollLeft(scrollLeft > 2)
+    setCanScrollRight(scrollLeft + clientWidth < scrollWidth - 2)
+  }
+
+  useEffect(() => {
+    checkScrollPosition()
+    window.addEventListener('resize', checkScrollPosition)
+    return () => window.removeEventListener('resize', checkScrollPosition)
+  }, [options])
 
   const scroll = (direction) => {
     if (scrollRef.current) {
-      // Cuộn ngang 150px mỗi lần bấm mũi tên
       scrollRef.current.scrollBy({ left: direction === 'left' ? -150 : 150, behavior: 'smooth' })
     }
   }
@@ -15,25 +30,24 @@ const HorizontalTagSlider = ({ label, options, selectedItems, onSelect, onRemove
     <div className="space-y-2">
       <label className="block text-sm font-semibold text-gray-900">{label}</label>
       
-      {/* Container bọc ngoài dạng relative để chứa nút mũi tên */}
       <div className="relative group/slider">
-        
-        {/* Nút Mũi tên Trái */}
-        <button 
-          onClick={() => scroll('left')}
-          className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-7 h-7 rounded-full bg-white shadow-md border border-gray-200 flex items-center justify-center opacity-0 group-hover/slider:opacity-100 transition-opacity"
-        >
-          <ChevronLeft size={16} />
-        </button>
+        {canScrollLeft && (
+          <button 
+            onClick={() => scroll('left')}
+            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-7 h-7 rounded-full bg-white text-black shadow-md border border-gray-200 flex items-center justify-center opacity-0 group-hover/slider:opacity-100 transition-opacity"
+          >
+            <ChevronLeft size={16} />
+          </button>
+        )}
 
-        {/* Vùng Cuộn Ngang */}
         <div 
           ref={scrollRef}
-          className="flex gap-2 overflow-x-auto scroll-smooth py-1 px-1 scrollbar-hide"
-          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }} // Ẩn thanh cuộn xấu xí
+          onScroll={checkScrollPosition}
+          className="flex gap-2 overflow-x-auto scroll-smooth py-1 px-1 hide-scrollbar"
         >
           {options.map((opt) => {
-            const value = typeof opt === 'string' ? opt : opt.label
+            // ⭐ SỬA Ở ĐÂY: Thêm opt.name
+            const value = typeof opt === 'string' ? opt : (opt.name || opt.label)
             const isSelected = selectedItems.includes(value)
             
             return (
@@ -52,16 +66,16 @@ const HorizontalTagSlider = ({ label, options, selectedItems, onSelect, onRemove
           })}
         </div>
 
-        {/* Nút Mũi tên Phải */}
-        <button 
-          onClick={() => scroll('right')}
-          className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-7 h-7 rounded-full bg-white shadow-md border border-gray-200 flex items-center justify-center opacity-0 group-hover/slider:opacity-100 transition-opacity"
-        >
-          <ChevronRight size={16} />
-        </button>
+        {canScrollRight && (
+          <button 
+            onClick={() => scroll('right')}
+            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-7 h-7 rounded-full bg-white text-black shadow-md border border-gray-200 flex items-center justify-center opacity-0 group-hover/slider:opacity-100 transition-opacity"
+          >
+            <ChevronRight size={16} />
+          </button>
+        )}
       </div>
 
-      {/* Selected Tags */}
       {selectedItems.length > 0 && (
         <div className="flex flex-wrap gap-1.5 pt-1">
           {selectedItems.map(item => (

@@ -3,13 +3,53 @@ import { useState, useEffect } from 'react'
 import { X } from 'lucide-react'
 import SearchableDropdown from '../shared/SearchableDropdown'
 import HorizontalTagSlider from './HorizontalTagSlider'
-import { MOCK_LOCATIONS, MOCK_MUSIC_TYPES, MOCK_LOUNGE_SPACES, MOCK_MOODS } from '../../constants/filterData'
+import { getDistricts, getFilterOptions } from '../../services/showServices'
+
+const baseButtonClasses = "px-4 py-2 rounded-lg border text-sm font-medium transition-all"
+const activeBtnClasses = "bg-gray-900 text-white border-gray-900"
+const inactiveBtnClasses = "bg-white text-gray-700 border-gray-300 hover:border-gray-400 active:bg-gray-50"
 
 const FilterModal = ({ isOpen, onClose, initialFilters, onApply }) => {
-  // ⭐ LOCAL STATE CHỈ TỒN TẠI TRONG MODAL
   const [localFilters, setLocalFilters] = useState(initialFilters)
+  
+  // ⭐ STATE CHỨA DATA TỪ BE
+  const [options, setOptions] = useState({ genres: [], moods: [], atmospheres: [], cities: [] })
+  const [districts, setDistricts] = useState([])
 
-  // ⭐ MỖI LẦN MỞ MODAL, ĐỒNG BỘ DỮ LIỆU TỪ CHA VÀO
+  // ⭐ GỌI API LẤY FILTER OPTIONS LẦN ĐẦU
+  useEffect(() => {
+    const fetchOptions = async () => {
+      try {
+        const res = await getFilterOptions()
+        if (res.success) {
+          setOptions(res.data)
+        }
+      } catch (err) {
+        console.error('Lỗi tải filter options:', err)
+      }
+    }
+    fetchOptions()
+  }, [])
+
+  // ⭐ GỌI API LẤY DISTRICTS KHI CHỌN PROVINCE
+  useEffect(() => {
+    if (localFilters.selectedProvince) {
+      const fetchDistricts = async () => {
+        try {
+          const res = await getDistricts(localFilters.selectedProvince)
+          if (res.success) {
+            setDistricts(res.data)
+          }
+        } catch (err) {
+          console.error('Lỗi tải districts:', err)
+        }
+      }
+      fetchDistricts()
+    } else {
+      setDistricts([])
+    }
+  }, [localFilters.selectedProvince])
+
   useEffect(() => {
     if (isOpen) {
       setLocalFilters(initialFilters)
@@ -18,7 +58,6 @@ const FilterModal = ({ isOpen, onClose, initialFilters, onApply }) => {
 
   if (!isOpen) return null
 
-  // --- Handlers nội bộ (chỉ update local state) ---
   const toggleArrItem = (key, item) => {
     setLocalFilters(prev => {
       const list = prev[key] || []
@@ -29,8 +68,6 @@ const FilterModal = ({ isOpen, onClose, initialFilters, onApply }) => {
   const handleAddSpace = (s) => {
     setLocalFilters(prev => {
       let spaces = prev.selectedSpaces || []
-      if (s === 'Không gian') return { ...prev, selectedSpaces: ['Không gian'] }
-      if (spaces.includes('Không gian')) return { ...prev, selectedSpaces: [s] }
       return { ...prev, selectedSpaces: spaces.includes(s) ? spaces.filter(i => i !== s) : [...spaces, s] }
     })
   }
@@ -38,21 +75,18 @@ const FilterModal = ({ isOpen, onClose, initialFilters, onApply }) => {
   const handleAddMood = (m) => {
     setLocalFilters(prev => {
       let moods = prev.selectedMoods || []
-      if (m === 'Cảm xúc') return { ...prev, selectedMoods: ['Cảm xúc'] }
-      if (moods.includes('Cảm xúc')) return { ...prev, selectedMoods: [m] }
       return { ...prev, selectedMoods: moods.includes(m) ? moods.filter(i => i !== m) : [...moods, m] }
     })
   }
 
   const handleReset = () => {
     setLocalFilters({
-      selectedProvince: null, selectedDistricts: [], selectedWards: [],
-      selectedGenres: [], selectedSubGenres: [], selectedSpaces: [], selectedMoods: [],
+      selectedProvince: null, selectedDistricts: [],
+      selectedGenres: [], selectedSpaces: [], selectedMoods: [],
       minPrice: '', maxPrice: ''
     })
   }
 
-  // ⭐ KHI BẤM ÁP DỤNG MỚI TRẢ DỮ LIỆU VỀ PAGE CHA
   const handleApplyClick = () => {
     onApply(localFilters)
     onClose()
@@ -65,8 +99,8 @@ const FilterModal = ({ isOpen, onClose, initialFilters, onApply }) => {
       <div className="relative bg-white w-full max-w-3xl h-[90vh] max-h-[90vh] sm:h-auto sm:max-h-[85vh] flex flex-col rounded-t-2xl sm:rounded-2xl shadow-2xl animate-in slide-in-from-bottom duration-300 overflow-hidden">
         
         <div className="flex-none w-full flex items-center justify-between p-6 border-b border-gray-100 bg-white z-10">
-          <h2 className="text-xl font-bold text-gray-900">Bộ lọc</h2>
-          <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-full transition-colors">
+          <h2 className="text-xl font-bold text-gray-900">Filter</h2>
+          <button onClick={onClose} className="p-2 hover:bg-gray-100 text-gray-500 rounded-full transition-colors">
             <X size={24} strokeWidth={2} />
           </button>
         </div>
@@ -75,31 +109,21 @@ const FilterModal = ({ isOpen, onClose, initialFilters, onApply }) => {
           
           <section className="space-y-4 relative">
             <SearchableDropdown
-              label="Tỉnh thành"
-              options={MOCK_LOCATIONS.provinces}
+              label="City"
+              options={options.cities}
               selectedItems={localFilters.selectedProvince ? [localFilters.selectedProvince] : []}
-              onAdd={(val) => setLocalFilters(prev => ({ ...prev, selectedProvince: val }))}
-              onRemove={() => setLocalFilters(prev => ({ ...prev, selectedProvince: null }))}
+              onAdd={(val) => setLocalFilters(prev => ({ ...prev, selectedProvince: val, selectedDistricts: [] }))}
+              onRemove={() => setLocalFilters(prev => ({ ...prev, selectedProvince: null, selectedDistricts: [] }))}
               placeholder="Tỉnh thành"
               multiSelect={false}
             />
             <SearchableDropdown
-              label="Phường"
-              options={MOCK_LOCATIONS.wards.q1 || []}
-              selectedItems={localFilters.selectedWards}
-              onAdd={(val) => toggleArrItem('selectedWards', val)}
-              onRemove={(val) => toggleArrItem('selectedWards', val)}
-              placeholder="Phường"
-              isDisabled={!localFilters.selectedProvince}
-              multiSelect={true}
-            />
-            <SearchableDropdown
-              label="Quận"
-              options={MOCK_LOCATIONS.districts.hcm || []}
+              label="District"
+              options={districts}
               selectedItems={localFilters.selectedDistricts}
               onAdd={(val) => toggleArrItem('selectedDistricts', val)}
               onRemove={(val) => toggleArrItem('selectedDistricts', val)}
-              placeholder="Quận"
+              placeholder="Quận/Huyện"
               isDisabled={!localFilters.selectedProvince}
               multiSelect={true}
             />
@@ -108,36 +132,29 @@ const FilterModal = ({ isOpen, onClose, initialFilters, onApply }) => {
           <hr className="border-gray-200"/>
 
           <section className="space-y-6">
-            <h3 className="font-bold text-lg text-gray-900">Nhạc</h3>
+            <h3 className="font-bold text-lg text-gray-900">Music</h3>
             <HorizontalTagSlider
-              label="Thể loại"
-              options={MOCK_MUSIC_TYPES}
+              label="Genre"
+              options={options.genres}
               selectedItems={localFilters.selectedGenres}
               onSelect={(val) => toggleArrItem('selectedGenres', val)}
               onRemove={(val) => toggleArrItem('selectedGenres', val)}
-            />
-            <HorizontalTagSlider
-              label="Dòng nhạc"
-              options={['Ballad', 'Bolero', 'Remix', 'Underground', 'Chill step', 'Latin']}
-              selectedItems={localFilters.selectedSubGenres}
-              onSelect={(val) => toggleArrItem('selectedSubGenres', val)}
-              onRemove={(val) => toggleArrItem('selectedSubGenres', val)}
             />
           </section>
 
           <hr className="border-gray-200"/>
 
           <section className="space-y-4">
-            <h3 className="font-bold text-lg text-gray-900">Khoảng giá</h3>
+            <h3 className="font-bold text-lg text-gray-900">Pricing</h3>
             <div className="flex items-center gap-3">
               <div className="relative flex-1">
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm font-medium">đ</span>
                 <input 
                   type="number"
-                  placeholder="Từ"
+                  placeholder="From"
                   value={localFilters.minPrice}
                   onChange={e => setLocalFilters(prev => ({ ...prev, minPrice: e.target.value }))}
-                  className="w-full pl-7 pr-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  className="w-full pl-7 pr-3 py-2.5 border border-gray-300 rounded-lg text-sm text-black focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 />
               </div>
               <span className="text-gray-400 font-light">—</span>
@@ -145,10 +162,10 @@ const FilterModal = ({ isOpen, onClose, initialFilters, onApply }) => {
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm font-medium">đ</span>
                 <input 
                   type="number"
-                  placeholder="Đến"
+                  placeholder="To"
                   value={localFilters.maxPrice}
                   onChange={e => setLocalFilters(prev => ({ ...prev, maxPrice: e.target.value }))}
-                  className="w-full pl-7 pr-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  className="w-full pl-7 pr-3 py-2.5 border border-gray-300 rounded-lg text-sm text-black focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 />
               </div>
             </div>
@@ -157,21 +174,19 @@ const FilterModal = ({ isOpen, onClose, initialFilters, onApply }) => {
           <hr className="border-gray-200"/>
 
           <section className="space-y-5">
-            <h3 className="font-bold text-lg text-gray-900">Phòng trà</h3>
+            <h3 className="font-bold text-lg text-gray-900">Music Lounge</h3>
             <div className="space-y-2">
-              <label className="block text-sm font-semibold text-gray-900">Không gian</label>
+              <label className="block text-sm font-semibold text-gray-900">Atmosphere</label>
               <div className="flex flex-wrap gap-2">
-                {MOCK_LOUNGE_SPACES.map((space) => {
-                  const isSelected = localFilters.selectedSpaces.includes(space.label)
+                {options.atmospheres.map((space) => {
+                  const isSelected = localFilters.selectedSpaces.includes(space.name)
                   return (
                     <button
                       key={space.id}
-                      onClick={() => handleAddSpace(space.label)}
-                      className={`px-4 py-2 rounded-lg border text-sm font-medium transition-all ${
-                        isSelected ? 'bg-gray-900 text-white border-gray-900' : 'bg-white text-gray-700 border-gray-300 hover:border-gray-400 active:bg-gray-50'
-                      }`}
+                      onClick={() => handleAddSpace(space.name)}
+                      className={`${baseButtonClasses} ${isSelected ? activeBtnClasses : inactiveBtnClasses}`}
                     >
-                      {space.label}
+                      {space.name}
                     </button>
                   )
                 })}
@@ -179,19 +194,17 @@ const FilterModal = ({ isOpen, onClose, initialFilters, onApply }) => {
             </div>
 
             <div className="space-y-2 pt-2">
-              <label className="block text-sm font-semibold text-gray-900">Cảm xúc</label>
+              <label className="block text-sm font-semibold text-gray-900">Mood</label>
               <div className="flex flex-wrap gap-2">
-                {MOCK_MOODS.map((mood) => {
-                  const isSelected = localFilters.selectedMoods.includes(mood.label)
+                {options.moods.map((mood) => {
+                  const isSelected = localFilters.selectedMoods.includes(mood.name)
                   return (
                     <button
                       key={mood.id}
-                      onClick={() => handleAddMood(mood.label)}
-                      className={`px-4 py-2 rounded-lg border text-sm font-medium transition-all ${
-                        isSelected ? 'bg-gray-900 text-white border-gray-900' : 'bg-white text-gray-700 border-gray-300 hover:border-gray-400 active:bg-gray-50'
-                      }`}
+                      onClick={() => handleAddMood(mood.name)}
+                      className={`${baseButtonClasses} ${isSelected ? activeBtnClasses : inactiveBtnClasses}`}
                     >
-                      {mood.label}
+                      {mood.name}
                     </button>
                   )
                 })}
@@ -206,13 +219,13 @@ const FilterModal = ({ isOpen, onClose, initialFilters, onApply }) => {
             onClick={handleReset}
             className="py-3 rounded-xl border border-gray-300 text-gray-700 font-semibold hover:bg-gray-50 transition-colors cursor-pointer"
           >
-            Thiết lập lại
+            Reset
           </button>
           <button
             onClick={handleApplyClick}
             className="py-3 rounded-xl bg-gray-900 text-white font-semibold hover:bg-gray-800 transition-colors shadow-lg cursor-pointer"
           >
-            Áp dụng
+            Apply
           </button>
         </div>
       </div>

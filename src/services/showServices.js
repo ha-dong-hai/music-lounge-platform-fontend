@@ -19,3 +19,7 @@ export const getFilterOptions = async () => {
 export const getTrendingShows = async (params = {}) => {
   return axiosClient.get('/lounge-shows/trending', { params });
 };
+
+export const getDistricts = async (city) => {
+  return axiosClient.get('/lounge-shows/filter-options/districts', { params: { city } });
+};
