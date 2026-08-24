@@ -82,7 +82,7 @@ const SearchableDropdown = ({
                     placeholder="Tìm kiếm..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-9 pr-3 py-2 bg-gray-50 border-none rounded-lg text-sm focus:ring-2 focus:ring-blue-100 outline-none"
+                    className="w-full pl-9 pr-3 py-2 bg-gray-50 border-none rounded-lg text-black text-sm focus:ring-2 focus:ring-blue-100 outline-none"
                   />
                 </div>
               </div>
