@@ -1,6 +1,6 @@
 // src/pages/home/HomePage.jsx
 import { useState, useEffect, useMemo } from 'react'
-import { useNavigate } from 'react-router-dom' // ⭐ THÊM useNavigate
+import { useNavigate } from 'react-router-dom' 
 import EventCarousel from '../../components/home/ShowCarousel'
 import SectionHeader from '../../components/home/SectionHeader'
 import FilterModal from '../../components/home/FilterModal'
@@ -15,7 +15,7 @@ const initialFilterState = {
 }
 
 const HomePage = () => {
-  const navigate = useNavigate() // ⭐
+  const navigate = useNavigate() 
 
   const [isLoading, setIsLoading] = useState(true)
   const [allEvents, setAllEvents] = useState([]) 
@@ -98,17 +98,17 @@ const HomePage = () => {
     })
   }, [allEvents])
 
-  // ⭐ KHI BẤM APPLY TRONG MODAL FILTER, CHUYỂN TRANG
+  // KHI BẤM APPLY TRONG MODAL FILTER, CHUYỂN TRANG
   const handleApplyFilters = (filters) => {
     setAppliedFilters(filters)
     setIsFilterOpen(false)
     navigate('/shows/search', { state: { appliedFilters: filters } })
   }
 
-  // ⭐ KHI CHỌN NGÀY XONG, CHUYỂN TRANG
-  const handleApplyDates = () => {
-    if (startDate || endDate) {
-      navigate('/shows/search', { state: { startDate, endDate } })
+  // KHI CHỌN NGÀY XONG, CHUYỂN TRANG
+  const handleApplyDates = (start, end) => {
+    if (start || end) {
+      navigate('/shows/search', { state: { startDate: start, endDate: end } })
     }
   }
 
@@ -143,7 +143,7 @@ const HomePage = () => {
           appliedFilters={appliedFilters}
           startDate={startDate} setStartDate={setStartDate} 
           endDate={endDate} setEndDate={setEndDate}
-          onApplyDates={handleApplyDates} // ⭐ TRUYỀN PROP MỚI
+          onApplyDates={handleApplyDates} // TRUYỀN PROP MỚI
         />
       </div>
 

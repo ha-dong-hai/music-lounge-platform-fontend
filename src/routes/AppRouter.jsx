@@ -5,6 +5,7 @@ import MainLayout from '../layouts/MainLayout'
 // Pages Public & Auth
 import HomePage from '../pages/home/HomePage'
 import ShowListPage from '../pages/home/ShowListPage'
+import ShowSearchPage from '../pages/home/ShowSearchPage'
 
 const AppRouter = createBrowserRouter([
   {
@@ -13,6 +14,7 @@ const AppRouter = createBrowserRouter([
     children: [
       { index: true, element: <HomePage /> },
       { path: 'shows', element: <ShowListPage /> },
+      { path: 'shows/search', element: <ShowSearchPage /> },
     ],
   },
 

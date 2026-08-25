@@ -36,9 +36,7 @@ const MonthGrid = ({ monthDate, startDate, endDate, hoverDate, onDayClick, onDay
     <div className="flex-1 min-w-[240px]">
       <div className="grid grid-cols-7 gap-1 mb-2">
         {weekDays.map(day => (
-          <div key={day} className="text-center text-xs font-medium text-gray-500 py-1">
-            {day}
-          </div>
+          <div key={day} className="text-center text-xs font-medium text-gray-500 py-1">{day}</div>
         ))}
       </div>
       <div className="grid grid-cols-7 gap-1">
@@ -56,8 +54,7 @@ const MonthGrid = ({ monthDate, startDate, endDate, hoverDate, onDayClick, onDay
               key={date.toString()}
               onClick={() => onDayClick(date)}
               onMouseEnter={() => start && !end && onDayHover(date)}
-              className={`
-                relative aspect-square flex items-center justify-center text-xs rounded-md transition-colors
+              className={`relative aspect-square flex items-center justify-center text-xs rounded-md transition-colors
                 ${isEdge ? 'bg-[#C3B665] text-black font-bold z-10' : 'text-gray-300 hover:bg-white/10'}
                 ${(inRange || hoverRange) ? 'bg-[#C3B665]/20 text-white' : ''}
               `}
@@ -71,112 +68,74 @@ const MonthGrid = ({ monthDate, startDate, endDate, hoverDate, onDayClick, onDay
   )
 }
 
-const DateRangeCalendar = ({ startDate, endDate, setStartDate, setEndDate, onClose }) => {
-  const [currentMonth, setCurrentMonth] = useState(dayjs(startDate || undefined))
+const DateRangeCalendar = ({ initialStartDate = '', initialEndDate = '', onConfirm }) => {
+  // TOÀN BỘ STATE LÀ BẢN NHÁP CỤC BỘ - KHÔNG ĐỤNG STATE CỦA PAGE
+  const [startDate, setStartDate] = useState(initialStartDate)
+  const [endDate, setEndDate] = useState(initialEndDate)
   const [hoverDate, setHoverDate] = useState(null)
-  
-  // Tạo state tạm thời từ dữ liệu ban đầu truyền vào
-  const [tempStart, setTempStart] = useState(startDate || '')
-  const [tempEnd, setTempEnd] = useState(endDate || '')
+  const [currentMonth, setCurrentMonth] = useState(dayjs(initialStartDate || undefined))
 
-  // Chỉ cập nhật state tạm thời
   const handleDayClick = (date) => {
     if (!date) return
     const dateStr = date.format('YYYY-MM-DD')
-    const start = tempStart ? dayjs(tempStart) : null
-    const end = tempEnd ? dayjs(tempEnd) : null
+    const start = startDate ? dayjs(startDate) : null
+    const end = endDate ? dayjs(endDate) : null
 
+    // TH1: Chưa có ngày đi, HOẶC đã có đủ cả cặp -> Bắt đầu chọn cặp mới
     if (!start || (start && end)) {
-      setTempStart(dateStr)
-      setTempEnd('')
+      setStartDate(dateStr)
+      setEndDate('')
       setHoverDate(date)
-    } else {
+    } 
+    // TH2: Đã có ngày đi, đang chọn ngày về
+    else {
       if (date.isBefore(start)) {
-        setTempStart(dateStr)
+        setStartDate(dateStr)
       } else {
-        setTempEnd(dateStr)
+        setEndDate(dateStr)
         setHoverDate(null)
       }
     }
   }
 
-  const handleDayHover = (date) => {
-    setHoverDate(date)
-  }
-
-  // Khi bấm Accept mới đẩy dữ liệu tạm thời lên component cha
-  const handleAccept = () => {
-    setStartDate(tempStart)
-    setEndDate(tempEnd)
-    onClose()
-  }
-
-  // Khi bấm Remove chỉ xóa dữ liệu tạm thời
-  const handleRemove = () => {
-    setTempStart('')
-    setTempEnd('')
-    setHoverDate(null)
-  }
+  const handleDayHover = (date) => setHoverDate(date)
 
   return (
     <div className="bg-[#1a1a1a] border border-[#C3B665]/30 rounded-xl p-4 shadow-2xl w-auto max-w-[560px] select-none">
       {/* Header Tháng/Năm */}
       <div className="flex items-center justify-between mb-4">
-        <button 
-          onClick={() => setCurrentMonth(prev => prev.subtract(1, 'month'))}
-          className="p-1 rounded-md hover:bg-white/10 text-gray-400 hover:text-[#C3B665] transition-colors"
-        >
+        <button onClick={() => setCurrentMonth(prev => prev.subtract(1, 'month'))} className="p-1 rounded-md hover:bg-white/10 text-gray-400 hover:text-[#C3B665] transition-colors">
           <ChevronLeft size={20} />
         </button>
         <div className="flex gap-8 flex-1 justify-center">
-          <h3 className="text-white font-bold text-sm w-[140px] text-center">
-            {currentMonth.format('MMMM, YYYY')}
-          </h3>
-          <h3 className="text-white font-bold text-sm w-[140px] text-center">
-            {currentMonth.add(1, 'month').format('MMMM, YYYY')}
-          </h3>
+          <h3 className="text-white font-bold text-sm w-[140px] text-center">{currentMonth.format('MMMM, YYYY')}</h3>
+          <h3 className="text-white font-bold text-sm w-[140px] text-center">{currentMonth.add(1, 'month').format('MMMM, YYYY')}</h3>
         </div>
-        <button 
-          onClick={() => setCurrentMonth(prev => prev.add(1, 'month'))}
-          className="p-1 rounded-md hover:bg-white/10 text-gray-400 hover:text-[#C3B665] transition-colors"
-        >
+        <button onClick={() => setCurrentMonth(prev => prev.add(1, 'month'))} className="p-1 rounded-md hover:bg-white/10 text-gray-400 hover:text-[#C3B665] transition-colors">
           <ChevronRight size={20} />
         </button>
       </div>
 
-      {/* Hiển thị 2 tháng cạnh nhau - Truyền state tạm thời vào đây */}
+      {/* Hiển thị 2 tháng cạnh nhau */}
       <div className="flex gap-8">
-        <MonthGrid 
-          monthDate={currentMonth} 
-          startDate={tempStart} 
-          endDate={tempEnd} 
-          hoverDate={hoverDate}
-          onDayClick={handleDayClick}
-          onDayHover={handleDayHover}
-        />
-        <MonthGrid 
-          monthDate={currentMonth.add(1, 'month')} 
-          startDate={tempStart} 
-          endDate={tempEnd} 
-          hoverDate={hoverDate}
-          onDayClick={handleDayClick}
-          onDayHover={handleDayHover}
-        />
+        <MonthGrid monthDate={currentMonth} startDate={startDate} endDate={endDate} hoverDate={hoverDate} onDayClick={handleDayClick} onDayHover={handleDayHover} />
+        <MonthGrid monthDate={currentMonth.add(1, 'month')} startDate={startDate} endDate={endDate} hoverDate={hoverDate} onDayClick={handleDayClick} onDayHover={handleDayHover} />
       </div>
 
       {/* Footer nhanh */}
       <div className="flex justify-between items-center mt-4 pt-3 border-t border-white/10">
         <button 
-          onClick={handleRemove}
+          onClick={() => { setStartDate(''); setEndDate(''); setHoverDate(null) }} 
           className="text-xs text-gray-400 hover:text-red-400 transition-colors"
         >
-          Remove date
+          Xóa ngày
         </button>
+        {/* BẤM XONG 1 LẦN DUY NHẤT - TRUYỀN TRỰC TIẾP GIÁ TRỊ NHÁP HIỆN TẠI */}
         <button 
-          onClick={handleAccept}
+          onClick={() => onConfirm(startDate, endDate)} 
           className="text-xs bg-[#C3B665] text-black px-3 py-1 rounded-md font-bold hover:bg-[#d4c87f] transition-colors"
         >
-          Accept
+          Xong
         </button>
       </div>
     </div>
