@@ -2,7 +2,7 @@
 export const HOME_DATA = {
   featured: [
     // Thêm các thuộc tính lọc vào đây
-    { id: 1, title: "Nhạc Acoustic Thư Giãn", price: "Miễn phí", priceValue: 0, thumbnail: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTQHZDgz0ZI0tnKSysnRO0o7KnPVtQ_hNlbaGi0AdEM3Q&s=10", start_date: '2026-07-20T20:00:00', genre: 'Acoustic', mood: 'Cảm xúc', space: 'Cozy', province: 'TP. Hồ Chí Minh', subGenre: 'Ballad' },
+    { id: 1, title: "Nhạc Acoustic Thư Giãn", price: "Miễn phí", priceValue: 0, thumbnail: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTQHZDgz0ZI0tnKSysnRO0o7KnPVtQ_hNlbaGi0AdEM3Q&s=10", start_date: '2026-07-20T20:00:00', genre: 'Acoustic', mood: 'Cảm xúc', space: 'Cozy', province: 'TP.HCM', subGenre: 'Ballad' },
     { id: 2, title: "EDM Night Party", price: "250.000đ", priceValue: 250000, thumbnail: null, start_date: '2026-07-21T21:00:00', genre: 'EDM', mood: 'Energetic', space: 'Basement', province: 'hcm', subGenre: 'Remix' },
     { id: 3, title: "Jazz & Wine Evening", price: "500.000đ",priceValue: 500000,  thumbnail: null, start_date: '2026-07-22T19:00:00', genre: 'Jazz', mood: 'Romantic', space: 'Rooftop', province: 'hcm' },
     { id: 4, title: "Indie Band Live Show", price: "150.000đ", priceValue: 150000, thumbnail: null, start_date: '2026-07-23T20:00:00', genre: 'Indie', mood: 'Cảm xúc', space: 'Garden', province: 'hn' },
