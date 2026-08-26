@@ -7,6 +7,7 @@ import HomePage from '../pages/home/HomePage'
 import ShowListPage from '../pages/home/ShowListPage'
 import ShowSearchPage from '../pages/home/ShowSearchPage'
 import AccountPage from '../pages/user/AccountPage'
+import EventDetailPage from '../pages/events/EventDetailPage'
 
 const AppRouter = createBrowserRouter([
   {
@@ -16,6 +17,7 @@ const AppRouter = createBrowserRouter([
       { index: true, element: <HomePage /> },
       { path: 'shows', element: <ShowListPage /> },
       { path: 'shows/search', element: <ShowSearchPage /> },
+      { path: 'shows/:id', element: <EventDetailPage /> },
       { path: 'account', element: <AccountPage /> },
     ],
   },
