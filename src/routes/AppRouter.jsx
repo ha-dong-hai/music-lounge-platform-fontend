@@ -8,6 +8,7 @@ import ShowListPage from '../pages/home/ShowListPage'
 import ShowSearchPage from '../pages/home/ShowSearchPage'
 import AccountPage from '../pages/user/AccountPage'
 import EventDetailPage from '../pages/events/EventDetailPage'
+import MyShowsPage from '../pages/user/MyShowsPage'
 
 const AppRouter = createBrowserRouter([
   {
@@ -19,6 +20,7 @@ const AppRouter = createBrowserRouter([
       { path: 'shows/search', element: <ShowSearchPage /> },
       { path: 'shows/:id', element: <EventDetailPage /> },
       { path: 'account', element: <AccountPage /> },
+      { path: 'my-shows', element: <MyShowsPage /> },
     ],
   },
 
