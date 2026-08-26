@@ -1,16 +1,23 @@
 // src/pages/events/EventDetailPage.jsx
 import { useState, useRef, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { CalendarDays, MapPin, Share2, ArrowLeft, Check, X, Copy } from 'lucide-react'
+import { CalendarDays, MapPin, Heart, Share2, ArrowLeft, Check, X, Copy } from 'lucide-react'
+import axios from 'axios'
 import dayjs from 'dayjs'
+import toast from 'react-hot-toast'
 import ShowCarousel from '../../components/home/ShowCarousel'
-import ShowIntro from '../../components/mshow-detail/ShowIntro'
 import ShowMap from '../../components/mshow-detail/ShowMap'
+import ShowIntro from '../../components/mshow-detail/ShowIntro'
 import Skeleton from '../../components/shared/Skeleton'
 import { getShowDetail, getShows } from '../../services/showServices'
+import { getFollowedLounges, toggleWishlist } from '../../services/interactionServices'
+import { toggleFollowLounge } from '../../services/interactionServices' 
+
+import { useAuthStore } from '../../store/useAuthStore'
 
 const EventDetailPage = () => {
   const { id } = useParams()
+  const { user } = useAuthStore() 
   const [activeTab, setActiveTab] = useState('intro')
   const tabsRef = useRef(null)
 
@@ -20,6 +27,9 @@ const EventDetailPage = () => {
   const [apiError, setApiError] = useState(null)
   const [data, setData] = useState(null)
   const [relatedEvents, setRelatedEvents] = useState([])
+  const [isWishlisted, setIsWishlisted] = useState(false)
+  const [isFollowing, setIsFollowing] = useState(false)
+  const [isUpdating, setIsUpdating] = useState(false)
 
   useEffect(() => {
     const fetchEventData = async () => {
@@ -27,7 +37,7 @@ const EventDetailPage = () => {
       setApiError(null)
       try {
         const detailRes = await getShowDetail(id)
-
+        
         if (detailRes.success) {
           const beData = detailRes.data
           const mappedData = {
@@ -48,6 +58,25 @@ const EventDetailPage = () => {
           }
 
           setData(mappedData)
+          setIsWishlisted(beData.isWishlisted || false)
+
+          // XỬ LÝ LẤY TRẠNG THÁI FOLLOW CHÍNH XÁC KHI RELOAD
+          if (beData.isFollowing === true) {
+            setIsFollowing(true)
+          } else if (user && beData.lounge?.id) {
+            // Nếu BE không trả isFollowing, và user đang login, thì gọi API check
+            try {
+              const followRes = await getFollowedLounges({ page: 1, pageSize: 100 })
+              if (followRes.success) {
+                const followedIds = followRes.data.items.map(l => l.id)
+                setIsFollowing(followedIds.includes(beData.lounge.id))
+              }
+            } catch (e) {
+              console.log("Lỗi check follow status")
+            }
+          } else {
+            setIsFollowing(false)
+          }
 
           try {
             const listRes = await getShows({ page: 1, pageSize: 10, includeSoldOut: true })
@@ -77,7 +106,43 @@ const EventDetailPage = () => {
       }
     }
     fetchEventData()
-  }, [id])
+  }, [id, user]) 
+
+  // HÀM TOGGLE WISHLIST (GỌI API)
+  const handleToggleWishlist = async () => {
+    if (isUpdating) return
+    const prevStatus = isWishlisted
+    setIsWishlisted(!prevStatus)
+    setIsUpdating(true)
+    try {
+      // GỌI SERVICE
+      await toggleWishlist(id, prevStatus)
+      toast.success(prevStatus ? 'Đã xóa khỏi Wishlist!' : 'Đã thêm vào Wishlist!')
+    } catch (err) {
+      setIsWishlisted(prevStatus)
+      toast.error("Thao tác thất bại.")
+    } finally {
+      setIsUpdating(false)
+    }
+  }
+
+  // HÀM TOGGLE FOLLOW (GỌI API)
+  const handleToggleFollow = async () => {
+    if (isUpdating || !data?.loungeId) return
+    const prevStatus = isFollowing
+    setIsFollowing(!prevStatus)
+    setIsUpdating(true)
+    try {
+      // GỌI SERVICE
+      await toggleFollowLounge(data.loungeId, prevStatus)
+      toast.success(prevStatus ? `Đã bỏ theo dõi ${data.loungeName}` : `Đang theo dõi ${data.loungeName}`)
+    } catch (err) {
+      setIsFollowing(prevStatus)
+      toast.error('Thao tác thất bại.')
+    } finally {
+      setIsUpdating(false)
+    }
+  }
 
   const handleBookTicket = () => {
     setActiveTab('map')
@@ -143,6 +208,11 @@ const EventDetailPage = () => {
             </div>
             <button onClick={handleBookTicket} className="bg-[#C3B665] text-black hover:bg-[#d4c87f] px-8 py-3 md:py-3.5 rounded-lg text-base md:text-lg font-bold transition-colors shadow-xl mb-6 w-full md:w-auto">Book Ticket</button>
             <div className="flex items-center gap-6">
+              {/* NÚT WISHLIST */}
+              <button onClick={handleToggleWishlist} disabled={isUpdating} className={`flex items-center gap-2 transition-colors group ${isWishlisted ? "text-red-500" : "text-gray-400 hover:text-[#C3B665]"}`}>
+                <Heart size={20} className={`transition-all ${isWishlisted ? 'fill-red-500' : 'group-hover:fill-[#C3B665]'}`} />
+                <span className="font-medium text-sm md:text-base">{isWishlisted ? 'Wishlisted' : 'Wishlist'}</span>
+              </button>
               <button onClick={() => setIsShareModalOpen(true)} className="flex items-center gap-2 text-gray-400 hover:text-[#C3B665] transition-colors">
                 <Share2 size={20} /><span className="font-medium text-sm md:text-base">Share</span>
               </button>
@@ -161,7 +231,8 @@ const EventDetailPage = () => {
 
       {/* CONTENT */}
       <div className="max-w-[1600px] mx-auto px-6">
-        {activeTab === 'intro' && <ShowIntro data={data} />}
+        {/* TRUYỀN PROPS QUA EVENT INTRO */}
+        {activeTab === 'intro' && <ShowIntro data={data} isFollowing={isFollowing} onToggleFollow={handleToggleFollow} />}
         {activeTab === 'map' && <ShowMap loungeId={data.loungeId} showData={data} />}
       </div>
 

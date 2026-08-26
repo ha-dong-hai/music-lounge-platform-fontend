@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { Heart, CalendarDays, ChevronLeft, ChevronRight } from 'lucide-react'
 import dayjs from 'dayjs'
+import { toggleWishlist } from '../../services/interactionServices'
 import toast from 'react-hot-toast'
 
 const HeroBanner = ({ events = [] }) => {
@@ -27,6 +28,20 @@ const HeroBanner = ({ events = [] }) => {
 
   const goToNext = () => {
     setCurrentIndex((prev) => (prev + 1) % events.length)
+  }
+
+  const handleToggleWishlist = async (e, id, isWishlisted) => {
+    e.preventDefault()
+    e.stopPropagation()
+    
+    setWishlistStates(prev => ({ ...prev, [id]: !isWishlisted }))
+    try {
+      await toggleWishlist(id, isWishlisted)
+      toast.success(isWishlisted ? 'Đã xóa khỏi Wishlist!' : 'Đã thêm vào Wishlist!')
+    } catch (err) {
+      setWishlistStates(prev => ({ ...prev, [id]: isWishlisted }))
+      toast.error('Thao tác thất bại.')
+    }
   }
 
   return (
@@ -63,6 +78,12 @@ const HeroBanner = ({ events = [] }) => {
                   Get Ticket
                 </Link>
                 
+                <button 
+                  onClick={(e) => handleToggleWishlist(e, event.id, isWishlisted)}
+                  className={`flex items-center justify-center w-12 h-12 rounded-lg border-2 transition-colors backdrop-blur-sm ${isWishlisted ? 'bg-red-500/20 border-red-500 text-red-500' : 'bg-black/40 border-white/30 text-white hover:bg-black/70'}`}
+                >
+                  <Heart size={20} className={isWishlisted ? 'fill-red-500' : ''} />
+                </button>
               </div>
             </div>
           </div>
