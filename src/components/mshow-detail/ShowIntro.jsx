@@ -35,10 +35,6 @@ const ShowIntro  = ({ data, isFollowing, onToggleFollow }) => {
             </Link>
           </div>
           <div className="p-5">
-            <h3 className="text-sm font-bold text-[#C3B665] mb-1">Rewatch</h3>
-            <p className="text-gray-400 leading-snug">{data.replayCondition}</p>
-          </div>
-          <div className="p-5">
             <h3 className="text-sm font-bold text-[#C3B665] mb-1">Genres</h3>
             <p className="text-white">{data.genre}</p>
           </div>
