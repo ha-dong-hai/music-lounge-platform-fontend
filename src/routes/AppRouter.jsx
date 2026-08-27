@@ -11,6 +11,8 @@ import EventDetailPage from '../pages/events/EventDetailPage'
 import MyShowsPage from '../pages/user/MyShowsPage'
 import ProtectedRoute from './ProtectedRoute'
 import AdminLayout from '../layouts/AdminLayout'
+import AdminDashboard from '../pages/admin/AdminDashboard'
+import AdminAccountsPage from '../pages/admin/AdminAccountsPage'
 
 const AppRouter = createBrowserRouter([
   {
@@ -34,10 +36,10 @@ const AppRouter = createBrowserRouter([
       </ProtectedRoute>
     ),
     children: [
-      //{ index: true, element: <AdminDashboard /> },
+      { index: true, element: <AdminDashboard /> },
       //{ path: 'shows', element: <AdminShowsPage /> },
       //{ path: 'packages', element: <AdminPackagesPage /> },
-      //{ path: 'accounts', element: <AdminAccountsPage /> },
+      { path: 'accounts', element: <AdminAccountsPage /> },
     ]
   }
 
