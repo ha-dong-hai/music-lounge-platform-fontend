@@ -29,3 +29,7 @@ export const toggleUserBan = async (id, isActive) => {
   }
   return axiosClient.post(`/admin/users/${id}/reactivate`);
 };
+
+export const getPendingModerations = async (params = {}) => {
+  return axiosClient.get('/moderations/pending', { params });
+};
