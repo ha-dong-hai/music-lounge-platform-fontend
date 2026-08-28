@@ -13,6 +13,7 @@ import ProtectedRoute from './ProtectedRoute'
 import AdminLayout from '../layouts/AdminLayout'
 import AdminDashboard from '../pages/admin/AdminDashboard'
 import AdminAccountsPage from '../pages/admin/AdminAccountsPage'
+import AdminShowsPage from '../pages/admin/AdminShowsPage'
 
 const AppRouter = createBrowserRouter([
   {
@@ -37,7 +38,7 @@ const AppRouter = createBrowserRouter([
     ),
     children: [
       { index: true, element: <AdminDashboard /> },
-      //{ path: 'shows', element: <AdminShowsPage /> },
+      { path: 'shows', element: <AdminShowsPage /> },
       //{ path: 'packages', element: <AdminPackagesPage /> },
       { path: 'accounts', element: <AdminAccountsPage /> },
     ]
