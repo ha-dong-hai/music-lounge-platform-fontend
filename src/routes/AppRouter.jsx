@@ -14,6 +14,7 @@ import AdminLayout from '../layouts/AdminLayout'
 import AdminDashboard from '../pages/admin/AdminDashboard'
 import AdminAccountsPage from '../pages/admin/AdminAccountsPage'
 import AdminShowsPage from '../pages/admin/AdminShowsPage'
+import AdminShowDetailPage from '../pages/admin/AdminShowDetailPage'
 
 const AppRouter = createBrowserRouter([
   {
@@ -40,6 +41,7 @@ const AppRouter = createBrowserRouter([
       { index: true, element: <AdminDashboard /> },
       { path: 'shows', element: <AdminShowsPage /> },
       //{ path: 'packages', element: <AdminPackagesPage /> },
+      { path: 'shows/:id', element: <AdminShowDetailPage /> },
       { path: 'accounts', element: <AdminAccountsPage /> },
     ]
   }
