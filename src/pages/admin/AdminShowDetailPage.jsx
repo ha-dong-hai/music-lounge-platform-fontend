@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useParams, Link } from 'react-router-dom'
+import { useParams, useLocation, Link } from 'react-router-dom'
 import { ArrowLeft } from 'lucide-react'
 import dayjs from 'dayjs'
 import toast from 'react-hot-toast'
@@ -7,31 +7,38 @@ import ShowIntro from '../../components/mshow-detail/ShowIntro'
 import ShowMap from '../../components/mshow-detail/ShowMap'
 import Skeleton from '../../components/shared/Skeleton'
 import { getShowDetail } from '../../services/showServices'
+import { getPendingModerations, reviewShowModeration } from '../../services/adminServices'
 import AdminShowHero from '../../components/admin/show-detail/AdminShowHero'
+import ModerationModal from '../../components/admin/show-detail/ModerationModal'
 import ShareModal from '../../components/admin/show-detail/ShareModal'
 
 const AdminShowDetailPage = () => {
   const { id } = useParams()
+  const location = useLocation()
 
   const [activeTab, setActiveTab] = useState('intro')
   const [isLoading, setIsLoading] = useState(true)
   const [apiError, setApiError] = useState(null)
   const [data, setData] = useState(null)
+  const [moderation, setModeration] = useState(null)
 
-  // Modal states
+  const [isModerationOpen, setIsModerationOpen] = useState(false)
   const [isShareOpen, setIsShareOpen] = useState(false)
+  const [processingDecision, setProcessingDecision] = useState(null) // 'approve' | 'reject' | null
 
-  // 1. FETCH: chi tiết show
+  // 1. FETCH: chi tiết show + check moderation pending (song song)
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true)
       setApiError(null)
       try {
-        const detailRes = await getShowDetail(id)
+        const [detailRes, pendingRes] = await Promise.all([
+          getShowDetail(id),
+          getPendingModerations({ page: 1, pageSize: 100, targetType: 'Show' }).catch(() => null)
+        ])
 
         if (detailRes.success) {
           const beData = detailRes.data
-          // Mapping y hệt EventDetailPage để reuse EventIntro + EventMap
           setData({
             ...beData,
             title: beData.name,
@@ -47,6 +54,11 @@ const AdminShowDetailPage = () => {
             description: beData.description || "Chưa có mô tả cho sự kiện này.",
             loungeLogo: `https://api.dicebear.com/7.x/initials/svg?seed=${beData.lounge?.name || 'ML'}&backgroundColor=10b981`
           })
+
+          if (pendingRes?.success) {
+            const found = pendingRes.data.items.find(m => String(m.targetId) === String(id))
+            setModeration(found || null)
+          }
         } else {
           setApiError(detailRes.message || 'Không tìm thấy chương trình')
         }
@@ -59,6 +71,46 @@ const AdminShowDetailPage = () => {
     }
     fetchData()
   }, [id])
+
+  // MODAL DUYỆT khi điều hướng từ tab "Cảnh báo AI"
+  useEffect(() => {
+    if (!isLoading && moderation && location.state?.fromModeration) {
+      setIsModerationOpen(false)
+    }
+  }, [isLoading, moderation, location.state])
+
+  // XỬ LÝ DUYỆT / TỪ CHỐI
+  const handleDecision = async (decision, reviewNote) => {
+    if (!moderation || processingDecision) return
+    setProcessingDecision(decision)
+    try {
+      const res = await reviewShowModeration(
+        id,                                                
+        decision === 'approve' ? 'Approved' : 'Rejected',  
+        reviewNote || ''
+      )
+
+      if (res.success) {
+        toast.success(decision === 'approve' ? 'Đã phê duyệt nội dung!' : 'Đã từ chối nội dung!')
+        setIsModerationOpen(false)
+        setModeration(null)
+        // Refresh lại show (status có thể đổi sau khi duyệt, VD: Draft → Published)
+        const detailRes = await getShowDetail(id)
+        if (detailRes.success) {
+          setData(prev => ({ ...prev, status: detailRes.data.status }))
+        }
+      } else {
+        toast.error(res.message || 'Thao tác thất bại.')
+      }
+    } catch (err) {
+      console.error('Lỗi duyệt:', err)
+      // Hiển thị message BE trả về (VD: moderation đã được xử lý, không tồn tại...)
+      const beMessage = err?.response?.data?.message
+      toast.error(beMessage || 'Thao tác thất bại. Vui lòng thử lại.')
+    } finally {
+      setProcessingDecision(null)
+    }
+  }
 
   // ===== LOADING =====
   if (isLoading) {
@@ -101,6 +153,8 @@ const AdminShowDetailPage = () => {
       {/* HERO */}
       <AdminShowHero
         data={data}
+        moderation={moderation}
+        onOpenModeration={() => setIsModerationOpen(true)}
         onOpenShare={() => setIsShareOpen(true)}
       />
 
@@ -125,6 +179,15 @@ const AdminShowDetailPage = () => {
       </div>
 
       {/* ===== MODALS ===== */}
+      {isModerationOpen && moderation && (
+        <ModerationModal
+          moderation={moderation}
+          onClose={() => setIsModerationOpen(false)}
+          onDecision={handleDecision}
+          isProcessing={processingDecision}
+        />
+      )}
+
       {isShareOpen && <ShareModal onClose={() => setIsShareOpen(false)} />}
     </div>
   )

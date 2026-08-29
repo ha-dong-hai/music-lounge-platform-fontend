@@ -33,3 +33,13 @@ export const toggleUserBan = async (id, isActive) => {
 export const getPendingModerations = async (params = {}) => {
   return axiosClient.get('/moderations/pending', { params });
 };
+
+export const reviewShowModeration = async (showId, decision, reviewNote = '') => {
+  if (decision !== 'Approved' && decision !== 'Rejected') {
+    return Promise.reject(new Error('decision chỉ nhận "Approved" hoặc "Rejected"'));
+  }
+  return axiosClient.post(`/moderations/shows/${showId}/review`, {
+    decision,
+    reviewNote,
+  });
+};

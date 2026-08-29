@@ -8,7 +8,7 @@ import toast from 'react-hot-toast'
 import { getLoungeZones } from '../../services/loungeServices'
 import Skeleton from '../shared/Skeleton'
 
-const EventMap = ({ loungeId, showData }) => {
+const ShowMap = ({ loungeId, showData }) => {
 
     const [isLoading, setIsLoading] = useState(true)
     const user = JSON.parse(localStorage.getItem('user') || 'null')
@@ -95,4 +95,4 @@ const EventMap = ({ loungeId, showData }) => {
     )
 }
 
-export default EventMap
+export default ShowMap
