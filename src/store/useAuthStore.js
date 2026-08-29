@@ -4,49 +4,59 @@ import { persist } from 'zustand/middleware';
 export const useAuthStore = create(
   persist(
     (set, get) => ({
-      
       user: null,
-      accessToken: null,
-      expiresAtUtc: null,
+      token: null,
+      expiresAt: null,
       isAuthenticated: false,
 
-      
       setAuth: (data) => {
-        const { accessToken, expiresAtUtc, ...userProfile } = data;
         set({
-          user: userProfile,
-          accessToken,
-          expiresAtUtc,
+          user: {
+            userId: data.id || data.userId,
+            email: data.email,
+            fullName: data.fullName,
+            role: data.role,
+            loungeId: data.loungeId || null,
+            avatarUrl: data.avatarUrl || null,
+          },
+          token: data.accessToken || data.token,
+          expiresAt: data.expiresAtUtc || data.expiresAt,
           isAuthenticated: true,
         });
       },
 
+      // Alias for setAuth (used by LoginPage)
+      login: (data) => {
+        get().setAuth(data);
+      },
+
       setUser: (userData) => {
-        set({ user: userData });
+        set((state) => ({
+          user: { ...state.user, ...userData },
+        }));
       },
 
       logout: () => {
         set({
           user: null,
-          accessToken: null,
-          expiresAtUtc: null,
+          token: null,
+          expiresAt: null,
           isAuthenticated: false,
         });
       },
 
-      
       isTokenExpired: () => {
-        const { expiresAtUtc } = get();
-        if (!expiresAtUtc) return true;
-        return new Date(expiresAtUtc) < new Date();
+        const { expiresAt } = get();
+        if (!expiresAt) return true;
+        return new Date(expiresAt) < new Date();
       },
     }),
     {
-      name: 'auth-storage', 
+      name: 'auth-storage',
       partialize: (state) => ({
         user: state.user,
-        accessToken: state.accessToken,
-        expiresAtUtc: state.expiresAtUtc,
+        token: state.token,
+        expiresAt: state.expiresAt,
         isAuthenticated: state.isAuthenticated,
       }),
     }

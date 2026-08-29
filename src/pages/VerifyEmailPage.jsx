@@ -80,20 +80,23 @@ export default function VerifyEmailPage() {
 
     setIsLoading(true);
     try {
-      const res = await authService.verifyEmail({ email, verificationCode });
+      const res = await authService.verifyEmail({ email, code: verificationCode });
 
-      if (res.result === 1) {
+      if (res.result === 1 || res.success) {
         toast.success('Email verified successfully! Please log in.');
         navigate('/login');
       } else {
         toast.error(res.error?.message || 'Invalid verification code');
       }
     } catch (err) {
-      const msg =
-        err.response?.data?.error?.message ||
-        err.response?.data?.message ||
-        'Server connection error';
-      toast.error(msg);
+      console.error(err);
+      if (err.response?.data?.errors) {
+        const firstError = Object.values(err.response.data.errors)[0][0];
+        toast.error(firstError);
+      } else {
+        const msg = err.response?.data?.error?.message || err.response?.data?.title || 'Server connection error';
+        toast.error(msg);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -115,7 +118,14 @@ export default function VerifyEmailPage() {
         toast.error(res.error?.message || 'Failed to resend code');
       }
     } catch (err) {
-      toast.error('Server connection error');
+      console.error(err);
+      if (err.response?.data?.errors) {
+        const firstError = Object.values(err.response.data.errors)[0][0];
+        toast.error(firstError);
+      } else {
+        const msg = err.response?.data?.error?.message || err.response?.data?.title || 'Server connection error';
+        toast.error(msg);
+      }
     } finally {
       setIsResending(false);
     }
@@ -132,7 +142,7 @@ export default function VerifyEmailPage() {
           <div className="auth-logo-icon auth-logo-icon--verify">
             <MailCheck size={28} />
           </div>
-          <h1 className="auth-logo-text">Music Lounge</h1>
+          <h1 className="auth-logo-text">TuneRoom</h1>
         </div>
 
         <h2 className="auth-title">Verify Email</h2>

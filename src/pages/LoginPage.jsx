@@ -6,6 +6,7 @@ import { Mail, Lock, Eye, EyeOff, Music, Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { loginSchema } from '../schemas/authSchema';
 import { authService } from '../services/authService';
+import { loungeService } from '../services/loungeService';
 import { useAuthStore } from '../store/useAuthStore';
 import './auth.css';
 
@@ -28,19 +29,82 @@ export default function LoginPage() {
     setIsLoading(true);
     try {
       const res = await authService.login(data);
-      if (res.result === 1 && res.data) {
+      if ((res.success || res.result === 1) && res.data) {
         setAuth(res.data);
         toast.success('Login successful!');
-        navigate('/');
+
+        const role = res.data.role;
+
+        // Auto-create pending lounge if Owner
+        if (role === 'Owner') {
+          const pendingStr = localStorage.getItem('pendingOwnerLounge');
+          if (pendingStr) {
+            try {
+              const pendingLounge = JSON.parse(pendingStr);
+              const loungeRes = await loungeService.create({
+                name: pendingLounge.name || 'My Lounge',
+                description: pendingLounge.description || 'Lounge tạo mới từ lúc đăng ký',
+                atmosphereId: pendingLounge.atmosphereId || null,
+                street: pendingLounge.street || 'N/A',
+                ward: pendingLounge.ward || 'N/A',
+                district: pendingLounge.district || 'N/A',
+                city: pendingLounge.city || 'N/A'
+              });
+              
+              if (loungeRes.success || loungeRes.data) {
+                const loungeId = loungeRes.data;
+                // Add business license if exists
+                if (pendingLounge.documentUrl) {
+                  await loungeService.setBusinessLicense(loungeId, pendingLounge.documentUrl);
+                }
+                
+                // Also create an initial zone based on capacity if capacity > 0
+                if (pendingLounge.capacity > 0) {
+                  await loungeService.createZone(loungeId, {
+                    name: "Khu vực chung",
+                    description: "Khu vực mặc định tạo lúc đăng ký",
+                    capacity: pendingLounge.capacity
+                  });
+                }
+                
+                toast.success('Lounge của bạn đã được tạo thành công!');
+              }
+            } catch (err) {
+              console.error('Failed to auto-create lounge:', err);
+              if (err.response?.data?.errors) {
+                const firstError = Object.values(err.response.data.errors)[0][0];
+                toast.error(`Lỗi tạo Lounge: ${firstError}`);
+              } else if (err.response?.data?.error?.message) {
+                toast.error(`Lỗi tạo Lounge: ${err.response.data.error.message}`);
+              } else {
+                toast.error('Không thể tạo tự động Lounge từ thông tin đăng ký.');
+              }
+            } finally {
+              localStorage.removeItem('pendingOwnerLounge');
+            }
+          }
+        }
+
+        // Role-based navigation
+        if (role === 'Admin') {
+          navigate('/admin/dashboard', { replace: true });
+        } else if (role === 'Owner') {
+          navigate('/owner/revenue', { replace: true });
+        } else {
+          navigate('/', { replace: true });
+        }
       } else {
         toast.error(res.error?.message || 'Login failed');
       }
     } catch (err) {
-      const msg =
-        err.response?.data?.error?.message ||
-        err.response?.data?.message ||
-        'Server connection error';
-      toast.error(msg);
+      console.error(err);
+      if (err.response?.data?.errors) {
+        const firstError = Object.values(err.response.data.errors)[0][0];
+        toast.error(firstError);
+      } else {
+        const msg = err.response?.data?.error?.message || err.response?.data?.title || 'Login failed';
+        toast.error(msg);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -57,7 +121,7 @@ export default function LoginPage() {
           <div className="auth-logo-icon">
             <Music size={28} />
           </div>
-          <h1 className="auth-logo-text">Music Lounge</h1>
+          <h1 className="auth-logo-text">TuneRoom</h1>
         </div>
 
         <h2 className="auth-title">Welcome back</h2>

@@ -1,0 +1,237 @@
+/* ============================================
+   ADMIN PAGES BASE & DASHBOARD
+   ============================================ */
+
+.admin-dash-page {
+  padding: 32px 32px 40px;
+  max-width: 1200px;
+}
+
+.admin-dash-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-height: 60vh;
+  color: var(--text-muted);
+}
+
+/* ---- HEADER ---- */
+.admin-dash-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 40px;
+}
+
+.admin-dash-title-group {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.admin-dash-icon {
+  color: #3b82f6; /* Blue for admin */
+  margin-top: 4px;
+}
+
+.admin-dash-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 4px;
+}
+
+.admin-dash-subtitle {
+  font-size: 15px;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* ---- PANELS (Reusable Admin Card) ---- */
+.admin-dash-content {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.admin-panel {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.admin-panel-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.admin-panel-header h2 {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.admin-panel-body {
+  padding: 24px;
+}
+
+/* ---- BUTTONS ---- */
+.admin-btn-outline {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: 1px solid rgba(59, 130, 246, 0.5); /* Blue */
+  background: rgba(59, 130, 246, 0.1);
+  color: #60a5fa;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.admin-btn-outline:hover:not(:disabled) {
+  background: rgba(59, 130, 246, 0.2);
+}
+
+.admin-btn-outline:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.admin-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.admin-btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* ---- INTEGRITY COMPONENT ---- */
+.admin-integrity-success {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 40px;
+  text-align: center;
+}
+
+.admin-integrity-success h3 {
+  font-size: 20px;
+  color: #22c55e;
+  margin: 0;
+}
+
+.admin-integrity-success p {
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.admin-integrity-issues {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.admin-alert-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: 12px;
+  color: #fca5a5;
+}
+
+/* ---- ADMIN TABLE (Reusable) ---- */
+.admin-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.admin-table th {
+  padding: 12px 16px;
+  background: rgba(0, 0, 0, 0.2);
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 600;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.admin-table td {
+  padding: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  color: var(--text-primary);
+  font-size: 14px;
+}
+
+.admin-table tbody tr:hover td {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.text-red-400 {
+  color: #f87171 !important;
+}
+.text-green-500 {
+  color: #22c55e !important;
+}
+
+/* ---- JOBS GRID ---- */
+.admin-jobs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.admin-job-card {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  padding: 20px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.admin-job-card h4 {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.admin-job-card p {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin: 0 0 8px;
+  line-height: 1.5;
+}

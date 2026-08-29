@@ -1,12 +1,12 @@
 import { Toaster } from 'react-hot-toast';
+import { RouterProvider } from 'react-router-dom';
 import AppRouter from './routes/AppRouter';
 import './App.css';
 
 function App() {
   return (
     <>
-      <div className="auth-bg"></div>
-      <AppRouter />
+      <RouterProvider router={AppRouter} />
       <Toaster
         position="top-center"
         toastOptions={{
@@ -33,3 +33,4 @@ function App() {
 }
 
 export default App;
+

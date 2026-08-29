@@ -84,12 +84,9 @@ export default function RegisterPage() {
         password: formData.password,
         fullName: formData.fullName,
         phone: formData.phone || null,
-        
-        
-        
       });
 
-      if (res.result === 1) {
+      if (res.success || res.result === 1) {
         
         
         console.log('Saved preferences (mock):', preferences);
@@ -100,7 +97,15 @@ export default function RegisterPage() {
         toast.error(res.error?.message || 'Registration failed');
       }
     } catch (err) {
-      toast.error(err.response?.data?.error?.message || 'Server connection error');
+      console.error(err);
+      if (err.response?.data?.errors) {
+        // ValidationProblemDetails from ASP.NET
+        const firstError = Object.values(err.response.data.errors)[0][0];
+        toast.error(firstError);
+      } else {
+        const msg = err.response?.data?.error?.message || err.response?.data?.title || 'An error occurred during registration.';
+        toast.error(msg);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -130,30 +135,40 @@ export default function RegisterPage() {
         password: formData.password,
         fullName: formData.fullName,
         phone: formData.phone,
+        role: 'Owner',
       });
 
-      if (registerRes.result === 1) {
+      if (registerRes.success || registerRes.result === 1) {
+        // Ghi nhớ thông tin lounge để tạo tự động sau khi đăng nhập thành công
+        const pendingLounge = {
+          name: verifyData.loungeName,
+          description: 'Lounge tạo mới từ lúc đăng ký',
+          atmosphereId: verifyData.atmospheres?.[0] || null, // CreateLoungeCommand takes a single ID
+          street: verifyData.addressNote || 'N/A',
+          ward: verifyData.ward || 'N/A',
+          district: verifyData.province || 'N/A', // Using province as district fallback if not provided
+          city: verifyData.province || 'N/A',
+          capacity: parseInt(verifyData.capacity, 10) || 100,
+          documentUrl: verificationUrls[0] || null
+        };
         
-        console.log('Mock: Update Owner Verification Info', {
-          userId: registerRes.data?.id,
-          loungeName: verifyData.loungeName,
-          province: verifyData.province,
-          ward: verifyData.ward,
-          addressNote: verifyData.addressNote,
-          atmospheres: verifyData.atmospheres,
-          capacity: verifyData.capacity,
-          verificationDocumentUrls: verificationUrls,
-          StorageProvider: 'Firebase',
-        });
+        localStorage.setItem('pendingOwnerLounge', JSON.stringify(pendingLounge));
 
-        
-        nextStep();
+        toast.success('Registration successful! Please verify your email.');
+        navigate('/verify-email', { state: { email: formData.email } });
       } else {
         toast.error(registerRes.error?.message || 'Registration failed');
       }
     } catch (err) {
       console.error(err);
-      toast.error('An error occurred during registration and file upload.');
+      if (err.response?.data?.errors) {
+        // ValidationProblemDetails from ASP.NET
+        const firstError = Object.values(err.response.data.errors)[0][0];
+        toast.error(firstError);
+      } else {
+        const msg = err.response?.data?.error?.message || err.response?.data?.title || 'An error occurred during registration.';
+        toast.error(msg);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -185,7 +200,7 @@ export default function RegisterPage() {
              <div className="auth-logo-icon auth-logo-icon--small mb-2">
                <Music size={20} />
              </div>
-             <span className="wizard-brand">Music Lounge</span>
+             <span className="wizard-brand">TuneRoom</span>
            </div>
         )}
 

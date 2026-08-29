@@ -1,0 +1,344 @@
+/* ============================================
+   LOUNGE MANAGER PAGE
+   ============================================ */
+
+.lounge-mgr-page {
+  padding: 32px 32px 40px;
+  max-width: 1000px;
+}
+
+.lounge-mgr-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-height: 60vh;
+  color: var(--text-muted);
+}
+
+.lounge-mgr-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.lounge-mgr-actions {
+  display: flex;
+  gap: 12px;
+}
+
+/* ---- SHARED OWNER BUTTONS ---- */
+.owner-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 16px;
+  height: 38px;
+  border-radius: var(--radius-full);
+  background: var(--accent);
+  color: #000;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.owner-btn-primary:hover {
+  background: var(--accent-light);
+  text-decoration: none;
+}
+
+.owner-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 16px;
+  height: 38px;
+  border-radius: var(--radius-full);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.owner-btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.1);
+  text-decoration: none;
+}
+
+.owner-btn-icon {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: var(--radius-full);
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.owner-btn-icon:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-primary);
+  text-decoration: none;
+}
+
+.owner-text-link {
+  color: var(--accent);
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.owner-text-link:hover {
+  text-decoration: underline;
+}
+
+/* ---- COVER ---- */
+.lounge-mgr-cover {
+  position: relative;
+  width: 100%;
+  height: 280px;
+  border-radius: 16px;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  margin-bottom: 24px;
+}
+
+.lounge-mgr-cover-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.lounge-mgr-cover-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.lounge-mgr-cover-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.lounge-mgr-cover:hover .lounge-mgr-cover-overlay,
+.lounge-mgr-cover-overlay:focus-within {
+  opacity: 1;
+}
+
+.lounge-mgr-upload-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.9);
+  color: #000;
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.lounge-mgr-upload-btn:hover {
+  transform: scale(1.05);
+}
+
+.lounge-mgr-upload-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* ---- INFO ---- */
+.lounge-mgr-info {
+  margin-bottom: 40px;
+}
+
+.lounge-mgr-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 8px;
+}
+
+.lounge-mgr-address {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin: 0 0 16px;
+}
+
+.lounge-mgr-desc {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-muted);
+  margin: 0;
+  max-width: 800px;
+}
+
+/* ---- CONTENT SECTIONS ---- */
+.lounge-mgr-content {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.lounge-mgr-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.lounge-mgr-section-header h2 {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+/* ---- SHOW LIST ---- */
+.lounge-mgr-shows {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.owner-show-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 12px;
+  transition: background 0.2s;
+}
+
+.owner-show-row:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.owner-show-row-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+}
+
+.owner-show-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.owner-show-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.owner-show-row-status {
+  width: 120px;
+  display: flex;
+  justify-content: flex-end;
+  padding: 0 16px;
+}
+
+.show-status-badge {
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border: 1px solid;
+}
+
+.status-draft {
+  color: var(--text-secondary);
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.status-published {
+  color: #22c55e;
+  background: rgba(34, 197, 94, 0.1);
+  border-color: rgba(34, 197, 94, 0.2);
+}
+
+.status-ended {
+  color: #f59e0b;
+  background: rgba(245, 158, 11, 0.1);
+  border-color: rgba(245, 158, 11, 0.2);
+}
+
+.owner-show-row-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.lounge-mgr-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 40px;
+  color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.01);
+  border: 1px dashed rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+}
+
+.lounge-mgr-empty p {
+  margin: 0;
+  font-size: 14px;
+}
+
+@media (max-width: 600px) {
+  .owner-show-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  
+  .owner-show-row-status {
+    justify-content: flex-start;
+    padding: 0;
+  }
+  
+  .owner-show-row-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}

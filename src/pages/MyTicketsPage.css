@@ -1,0 +1,323 @@
+/* ============================================
+   MY TICKETS PAGE
+   ============================================ */
+
+.tickets-page {
+  padding: 32px 32px 40px;
+  max-width: 900px;
+}
+
+.tickets-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-height: 60vh;
+  color: var(--text-muted);
+}
+
+.tickets-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 28px;
+}
+
+.tickets-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.tickets-title svg {
+  color: var(--accent);
+}
+
+.tickets-count {
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+/* ---- TICKET LIST ---- */
+.tickets-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ticket-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 16px;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+
+.ticket-card:hover {
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.ticket-card-main {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 20px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.ticket-card-main:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+/* ---- DATE BADGE ---- */
+.ticket-date-badge {
+  width: 52px;
+  height: 56px;
+  border-radius: 12px;
+  background: rgba(212, 175, 55, 0.08);
+  border: 1px solid rgba(212, 175, 55, 0.15);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.ticket-date-month {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--accent);
+  letter-spacing: 0.5px;
+}
+
+.ticket-date-day {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1;
+}
+
+/* ---- TICKET INFO ---- */
+.ticket-card-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.ticket-show-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ticket-meta {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 8px;
+}
+
+.ticket-meta span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.ticket-tags {
+  display: flex;
+  gap: 6px;
+}
+
+.ticket-tier-tag,
+.ticket-price-tag {
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.ticket-tier-tag {
+  background: rgba(212, 175, 55, 0.08);
+  color: var(--accent);
+}
+
+.ticket-price-tag {
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-muted);
+}
+
+/* ---- RIGHT SIDE ---- */
+.ticket-card-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.ticket-status {
+  padding: 3px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  border: 1px solid;
+}
+
+.ticket-amount {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.ticket-expand-icon {
+  color: var(--text-muted);
+  transition: transform 0.2s;
+}
+
+.ticket-expand-icon--open {
+  transform: rotate(90deg);
+}
+
+/* ---- EXPANDED ---- */
+.ticket-card-expanded {
+  padding: 0 20px 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+  animation: slideDown 0.2s ease;
+}
+
+.ticket-qr-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 20px;
+  margin: 16px 0;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px dashed rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+}
+
+.ticket-qr-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: var(--accent);
+}
+
+.ticket-qr-code {
+  font-size: 12px;
+  font-family: monospace;
+  color: var(--text-muted);
+  word-break: break-all;
+}
+
+.ticket-qr-hint {
+  font-size: 12px;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.ticket-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin: 16px 0;
+}
+
+.ticket-detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ticket-detail-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.ticket-detail-value {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.ticket-view-show {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  background: rgba(212, 175, 55, 0.08);
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: background 0.2s;
+}
+
+.ticket-view-show:hover {
+  background: rgba(212, 175, 55, 0.14);
+  text-decoration: none;
+}
+
+/* ---- EMPTY ---- */
+.tickets-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 60px 20px;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.tickets-empty h3 {
+  font-size: 20px;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.tickets-discover-btn {
+  padding: 10px 24px;
+  border-radius: 10px;
+  background: rgba(212, 175, 55, 0.1);
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  color: var(--accent);
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.tickets-discover-btn:hover {
+  background: rgba(212, 175, 55, 0.16);
+  text-decoration: none;
+}
+
+@media (max-width: 768px) {
+  .tickets-page {
+    padding: 20px 16px 40px;
+  }
+
+  .ticket-card-main {
+    flex-wrap: wrap;
+  }
+
+  .ticket-detail-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}

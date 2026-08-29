@@ -59,7 +59,7 @@ export default function HomePage() {
           <div className="auth-logo-icon auth-logo-icon--small">
             <Music size={20} />
           </div>
-          <span className="home-nav-title">Music Lounge</span>
+          <span className="home-nav-title">TuneRoom</span>
         </div>
         <motion.button
           className="home-logout-btn"
