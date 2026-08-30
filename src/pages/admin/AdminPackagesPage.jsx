@@ -1,14 +1,20 @@
-// src/pages/admin/AdminPackagesPage.jsx
 import { useState, useEffect } from 'react'
-import { Ticket, Sparkles, Loader2, Box } from 'lucide-react'
+import { Plus, Loader2 } from 'lucide-react'
 import toast from 'react-hot-toast'
-import { getPackages } from '../../services/packageServices'
+import { getPackages, createPackage, updatePackage } from '../../services/packageService'
+import PackageCard from '../../components/admin/packages/PackageCard'
+import PackageFormModal from '../../components/admin/packages/PackageFormModal'
 
 const AdminPackagesPage = () => {
   const [packages, setPackages] = useState([])
   const [isLoading, setIsLoading] = useState(true)
 
-  // 1. FETCH PACKAGES TỪ BE
+  // Modal state: currentPkg = null → tạo mới, có object → đang sửa
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [currentPkg, setCurrentPkg] = useState(null)
+  const [isSaving, setIsSaving] = useState(false)
+
+  // 1. FETCH PACKAGES
   useEffect(() => {
     const fetchPackages = async () => {
       setIsLoading(true)
@@ -26,6 +32,90 @@ const AdminPackagesPage = () => {
     fetchPackages()
   }, [])
 
+  // 2. MỞ MODAL
+  const openCreateModal = () => {
+    setCurrentPkg(null)
+    setIsModalOpen(true)
+  }
+
+  const openEditModal = (pkg) => {
+    setCurrentPkg(pkg)
+    setIsModalOpen(true)
+  }
+
+  // 3. TOGGLE ẨN/HIỆN GÓI — gửi ĐẦY ĐỦ field để không bị reset hạn mức về 0
+  const handleToggleStatus = async (pkg) => {
+    try {
+      const payload = {
+        description: pkg.description,
+        price: pkg.price,
+        maxTicketsPerEvent: pkg.maxTicketsPerEvent,
+        hasAiPoster: pkg.hasAiPoster,
+        maxAiPostersPerMonth: pkg.maxAiPostersPerMonth,
+        maxTourScenes: pkg.maxTourScenes,
+        isActive: !pkg.isActive
+      }
+      await updatePackage(pkg.id, payload)
+      toast.success(`Đã ${!pkg.isActive ? 'hiển thị' : 'ẩn'} gói ${pkg.name}`)
+      setPackages(prev => prev.map(p => p.id === pkg.id ? { ...p, isActive: !pkg.isActive } : p))
+    } catch (err) {
+      toast.error('Thao tác thất bại')
+    }
+  }
+
+  // 4. SUBMIT FORM (từ modal) — build payload theo contract từng loại rồi gọi API
+  const handleFormSubmit = async (formData) => {
+    setIsSaving(true)
+    try {
+      if (currentPkg) {
+        // ===== UPDATE (PUT): BE không nhận name + billingCycle =====
+        const payload = {
+          description: formData.description,
+          price: formData.price,
+          maxTicketsPerEvent: Number(formData.maxTicketsPerEvent),
+          hasAiPoster: formData.hasAiPoster,
+          maxAiPostersPerMonth: formData.hasAiPoster ? Number(formData.maxAiPostersPerMonth) : 0,
+          maxTourScenes: Number(formData.maxTourScenes),
+          isActive: formData.isActive
+        }
+        const res = await updatePackage(currentPkg.id, payload)
+        if (res.success) {
+          setPackages(prev => prev.map(p => p.id === currentPkg.id ? { ...p, ...payload } : p))
+          toast.success('Cập nhật gói Package thành công!')
+          setIsModalOpen(false)
+        } else {
+          toast.error(res.message || 'Thao tác thất bại.')
+        }
+      } else {
+        // ===== CREATE (POST): không cần isActive (BE tự default true) =====
+        const payload = {
+          name: formData.name,
+          description: formData.description,
+          price: formData.price,
+          billingCycle: formData.billingCycle,
+          maxTicketsPerEvent: Number(formData.maxTicketsPerEvent),
+          hasAiPoster: formData.hasAiPoster,
+          maxAiPostersPerMonth: formData.hasAiPoster ? Number(formData.maxAiPostersPerMonth) : 0,
+          maxTourScenes: Number(formData.maxTourScenes)
+        }
+        const res = await createPackage(payload)
+        if (res.success) {
+          setPackages(prev => [...prev, res.data])
+          toast.success('Tạo gói Package mới thành công!')
+          setIsModalOpen(false)
+        } else {
+          toast.error(res.message || 'Thao tác thất bại.')
+        }
+      }
+    } catch (err) {
+      console.error(err)
+      toast.error('Thao tác thất bại. Vui lòng thử lại.')
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  // ===== LOADING =====
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-20">
@@ -36,60 +126,35 @@ const AdminPackagesPage = () => {
 
   return (
     <div className="space-y-6">
-      
+
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-white mb-1">Quản lý Gói Package</h1>
           <p className="text-gray-400 text-sm">Thiết lập các gói đăng ký cho Chủ phòng trà.</p>
         </div>
-       
+        <button
+          onClick={openCreateModal}
+          className="flex items-center gap-2 bg-[#C3B665] text-black px-4 py-2.5 rounded-lg font-bold text-sm hover:bg-[#d4c87f] transition-colors"
+        >
+          <Plus size={18} /> Tạo gói mới
+        </button>
       </div>
 
       {/* GRID PACKAGES */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {packages.map(pkg => (
-          <div key={pkg.id} className="bg-gray-900 border border-gray-800 rounded-2xl p-6 flex flex-col relative group">
-
-            <div className="flex items-center gap-2 mb-1">
-              <h3 className="text-xl font-bold text-white">{pkg.name}</h3>
-              {!pkg.isActive && <span className="text-xs px-2 py-0.5 bg-red-500/10 text-red-400 border border-red-500/30 rounded-full">Đang ẩn</span>}
-            </div>
-            <p className="text-xs text-gray-500 mb-4">Loại hình: Đăng ký theo {pkg.billingCycle === 'Monthly' ? 'Tháng' : pkg.billingCycle}</p>
-            
-            <div className="mb-6 flex items-baseline gap-1">
-                <span className="text-3xl font-bold text-[#C3B665]">{pkg.price?.toLocaleString('vi-VN')}</span>
-                <span className="text-xl font-bold text-[#C3B665]">đ</span>
-                {pkg.price > 0 && <span className="text-gray-500 text-sm">/tháng</span>}
-            </div>
-
-            <div className="space-y-3 flex-1 border-t border-gray-800 pt-4">
-              <p className="text-sm text-gray-300 min-h-[40px]">{pkg.description || "Chưa có mô tả"}</p>
-              
-              <div className="flex items-center gap-2 text-sm text-gray-300">
-                <Ticket size={16} className="text-[#C3B665] flex-shrink-0" />
-                <span>Tối đa {pkg.maxTicketsPerEvent?.toLocaleString('vi-VN')} vé / sự kiện</span>
-              </div>
-
-              {/* HIỂN THỊ HẠN MỨC POSTER AI */}
-              {pkg.hasAiPoster && (
-                <div className="flex items-center gap-2 text-sm text-gray-300">
-                  <Sparkles size={16} className="text-[#C3B665] flex-shrink-0" />
-                  <span>Tối đa {pkg.maxAiPostersPerMonth} poster AI / tháng</span>
-                </div>
-              )}
-
-              {/* HIỂN THỊ HẠN MỨC TOUR ẢO */}
-              {pkg.maxTourScenes > 0 && (
-                <div className="flex items-center gap-2 text-sm text-gray-300">
-                  <Box size={16} className="text-[#C3B665] flex-shrink-0" />
-                  <span>Tối đa {pkg.maxTourScenes} tour ảo 360°</span>
-                </div>
-              )}
-            </div>
-          </div>
+          <PackageCard key={pkg.id} pkg={pkg} onEdit={openEditModal} onToggleStatus={handleToggleStatus} />
         ))}
       </div>
 
+      {/* MODAL TẠO/CHỈNH SỬA */}
+      <PackageFormModal
+        isOpen={isModalOpen}
+        editingPkg={currentPkg}
+        isSaving={isSaving}
+        onClose={() => setIsModalOpen(false)}
+        onSubmit={handleFormSubmit}
+      />
     </div>
   )
 }
