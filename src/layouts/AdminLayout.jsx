@@ -1,5 +1,5 @@
 import { Outlet, NavLink, useNavigate } from 'react-router-dom'
-import { LayoutDashboard, Music, Package, LogOut, Users, Receipt } from 'lucide-react'
+import { LayoutDashboard, Music, Package, LogOut, Users, Receipt, MessageSquareWarning } from 'lucide-react'
 
 const AdminLayout = () => {
   const navigate = useNavigate()
@@ -40,6 +40,9 @@ const AdminLayout = () => {
           </NavLink>
           <NavLink to="/admin/ledger" className={linkClasses}>
             <Receipt size={18} /> Sổ cái (Ledger)
+          </NavLink>
+          <NavLink to="/admin/complaint" className={linkClasses}>
+            <MessageSquareWarning size={18} /> Phàn nàn (Complaint)
           </NavLink>
         </nav>
 

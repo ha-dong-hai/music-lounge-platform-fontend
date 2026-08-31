@@ -17,6 +17,7 @@ import AdminAccountsPage from '../pages/admin/AdminAccountsPage'
 import AdminShowsPage from '../pages/admin/AdminShowsPage'
 import AdminShowDetailPage from '../pages/admin/AdminShowDetailPage'
 import AdminPackagesPage from '../pages/admin/AdminPackagesPage'
+import AdminComplaintPage from '../pages/admin/AdminComplaintPage'
 
 const AppRouter = createBrowserRouter([
   {
@@ -45,6 +46,7 @@ const AppRouter = createBrowserRouter([
       { path: 'packages', element: <AdminPackagesPage /> },
       { path: 'shows/:id', element: <AdminShowDetailPage /> },
       { path: 'accounts', element: <AdminAccountsPage /> },
+      { path: 'complaint', element: <AdminComplaintPage /> },
     ]
   }
 
