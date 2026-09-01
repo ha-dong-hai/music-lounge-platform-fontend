@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import dayjs from 'dayjs'
 import toast from 'react-hot-toast'
-import { getAdminComplaints } from '../../services/adminService'
+import { getAdminComplaints } from '../../services/adminServices'
 import { CATEGORY_CONFIG, STATUS_CONFIG, TARGET_TYPE_LABELS } from '../../components/admin/complaints/ComplaintBadges'
 import ComplaintsTable from '../../components/admin/complaints/ComplaintsTable'
 import ComplaintDetailModal from '../../components/admin/complaints/ComplaintDetailModal'

@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react'
 import { Plus, Loader2, Box } from 'lucide-react'
 import toast from 'react-hot-toast'
-import { getPackages, createPackage, updatePackage } from '../../services/packageService'
+import { getPackages, createPackage, updatePackage } from '../../services/packageServices'
 import { PackageCard, HiddenPackageCard } from '../../components/admin/packages/PackageCard'
 import PackageFormModal from '../../components/admin/packages/PackageFormModal'
 
