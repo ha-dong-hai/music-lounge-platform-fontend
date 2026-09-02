@@ -19,6 +19,7 @@ import AdminShowDetailPage from '../pages/admin/AdminShowDetailPage'
 import AdminPackagesPage from '../pages/admin/AdminPackagesPage'
 import AdminComplaintPage from '../pages/admin/AdminComplaintPage'
 import LoungeDetailPage from '../pages/lounge/LoungeDetailPage'
+import TicketDetailPage from '../pages/user/TicketDetailPage'
 
 const AppRouter = createBrowserRouter([
   {
@@ -31,9 +32,11 @@ const AppRouter = createBrowserRouter([
       { path: 'shows/:id', element: <EventDetailPage /> },
       { path: 'account', element: <AccountPage /> },
       { path: 'my-shows', element: <MyShowsPage /> },
+      { path: 'my-shows/ticket/:ticketId', element: <TicketDetailPage /> },
       { path: 'lounge/:id', element: <LoungeDetailPage /> }, 
     ],
   },
+
   {
     path: '/admin',
     element: (
