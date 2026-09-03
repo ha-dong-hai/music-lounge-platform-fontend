@@ -12,8 +12,10 @@ export default defineConfig({
     )
   ],
   server: {
+    proxy: {
     '/api': { target: 'https://musiclounge-api.azurewebsites.net', changeOrigin: true },
     '/uploads': { target: 'https://musiclounge-api.azurewebsites.net', changeOrigin: true },
     '/hubs': { target: 'https://musiclounge-api.azurewebsites.net', changeOrigin: true, ws: true },
+    }
   }
 })
