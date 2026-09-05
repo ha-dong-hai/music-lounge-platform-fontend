@@ -19,7 +19,8 @@ const ShowCard = ({
   thumbnail,
   start_date,
   format,          
-  isWishlisted = false 
+  isWishlisted = false,
+  onWishlistChange
 }) => {
   const [wished, setWished] = useState(isWishlisted)
   
@@ -77,6 +78,7 @@ const ShowCard = ({
     try {
       await toggleWishlist(id, prev)
       toast.success(prev ? 'Remove from Wishlist!' : 'Added to Wishlist!')
+      onWishlistChange?.(!prev)
     } catch (err) {
       setWished(prev)
       toast.error('Thao tác thất bại.')
