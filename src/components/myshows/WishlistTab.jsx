@@ -1,4 +1,3 @@
-// src/components/myshows/WishlistTab.jsx
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { Heart } from 'lucide-react'
@@ -8,9 +7,9 @@ import { getWishlist } from '../../services/interactionServices'
 
 const WishlistTab = () => {
   const [isLoading, setIsLoading] = useState(true)
-  const [wishlistEvents, setWishlistEvents] = useState([])
+  const [wishlistShows, setWishlistShows] = useState([])
 
-  // GỌI API WISHLIST 
+  // GỌI API WISHLIST
   useEffect(() => {
     const fetchWishlist = async () => {
       setIsLoading(true)
@@ -24,9 +23,10 @@ const WishlistTab = () => {
             format: show.format,
             thumbnail: show.coverImageUrl,
             start_date: show.scheduledStart,
-            price: show.minPrice === 0 && show.maxPrice === 0 ? 'Miễn phí' : `${show.minPrice.toLocaleString('vi-VN')}đ`
+            price: show.minPrice === 0 && show.maxPrice === 0 ? 'Miễn phí' : `${show.minPrice.toLocaleString('vi-VN')}đ`,
+            isWishlisted: true // MỌI item trong tab này đều đang được wishlist
           }))
-          setWishlistEvents(mapped)
+          setWishlistShows(mapped)
         }
       } catch (err) {
         console.error('Lỗi load wishlist:', err)
@@ -36,6 +36,14 @@ const WishlistTab = () => {
     }
     fetchWishlist()
   }, [])
+
+  // CALLBACK từ ShowCard sau khi toggle wishlist thành công
+  const handleWishlistChange = (id, isNowWishlisted) => {
+    // Bỏ wishlist → gỡ item khỏi danh sách hiển thị ngay lập tức
+    if (!isNowWishlisted) {
+      setWishlistShows(prev => prev.filter(ev => ev.id !== id))
+    }
+  }
 
   return (
     <div>
@@ -49,9 +57,15 @@ const WishlistTab = () => {
             </div>
           ))}
         </div>
-      ) : wishlistEvents.length > 0 ? (
+      ) : wishlistShows.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-5 md:gap-x-6 gap-y-8">
-          {wishlistEvents.map(ev => <ShowCard key={ev.id} {...ev} />)}
+          {wishlistShows.map(ev => (
+            <ShowCard
+              key={ev.id}
+              {...ev}
+              onWishlistChange={(newStatus) => handleWishlistChange(ev.id, newStatus)}
+            />
+          ))}
         </div>
       ) : (
         <div className="bg-gray-900 border border-gray-800 rounded-2xl p-12 text-center min-h-[300px] flex flex-col items-center justify-center">
