@@ -1,7 +1,7 @@
 // src/components/account/FollowedLoungesTab.jsx
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { Building2, UserMinus, Loader2 } from 'lucide-react'
+import { Building2, UserMinus, Loader2, ChevronRight, Compass } from 'lucide-react'
 import Skeleton from '../shared/Skeleton'
 import toast from 'react-hot-toast'
 import { getFollowedLounges, toggleFollowLounge } from '../../services/interactionServices'
@@ -9,7 +9,7 @@ import { getFollowedLounges, toggleFollowLounge } from '../../services/interacti
 const FollowedLoungesTab = () => {
   const [followedLounges, setFollowedLounges] = useState([])
   const [isLoadingLounges, setIsLoadingLounges] = useState(true)
-  const [unfollowingId, setUnfollowingId] = useState(null) 
+  const [unfollowingId, setUnfollowingId] = useState(null)
 
   // GỌI API LẤY DANH SÁCH PHÒNG TRÀ ĐANG THEO DÕI (chuyên trách của tab này)
   useEffect(() => {
@@ -53,13 +53,25 @@ const FollowedLoungesTab = () => {
   return (
     <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6 md:p-8">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-bold text-[#C3B665]">Followed Musical Lounge</h2>
-        {!isLoadingLounges && (
-          <span className="px-2.5 py-1 rounded-full bg-[#C3B665]/10 border border-[#C3B665]/25 text-[#C3B665] text-xs font-bold">
-            {followedLounges.length}
-          </span>
-        )}
+        <div className="flex items-center gap-3">
+          <h2 className="text-xl font-bold text-[#C3B665]">Followed Lounges</h2>
+          {!isLoadingLounges && (
+            <span className="px-2.5 py-1 rounded-full bg-[#C3B665]/10 border border-[#C3B665]/25 text-[#C3B665] text-xs font-bold">
+              {followedLounges.length}
+            </span>
+          )}
+        </div>
+
+        <Link
+          to="/lounges"
+          className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#C3B665] hover:text-[#d4c87f] transition-all hover:gap-2 flex-shrink-0"
+        >
+          <Compass size={16} />
+          View more
+          <ChevronRight size={16} />
+        </Link>
       </div>
+
       {isLoadingLounges ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
           {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-48 rounded-xl" />)}
