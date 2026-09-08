@@ -1,44 +1,49 @@
 import axios from 'axios';
 
-const axiosInstance = axios.create({
+const axiosClient = axios.create({
+  baseURL: 'https://musiclounge-api.azurewebsites.net/api/v1',
   headers: {
     'Content-Type': 'application/json',
   },
-  timeout: 15000,
+  paramsSerializer: (params) => {
+    const parts = [];
+    for (const key in params) {
+      const value = params[key];
+      if (value !== undefined && value !== null) {
+        if (Array.isArray(value)) {
+          // Nếu là mảng: genreIds=1&genreIds=2
+          value.forEach(v => parts.push(`${encodeURIComponent(key)}=${encodeURIComponent(v)}`));
+        } else {
+          parts.push(`${encodeURIComponent(key)}=${encodeURIComponent(value)}`);
+        }
+      }
+    }
+    return parts.join('&');
+  }
 });
 
-// Attach auth token to every request
-axiosInstance.interceptors.request.use(
+// Interceptor Request: Tự động gắn token
+axiosClient.interceptors.request.use(
   (config) => {
-    const stored = localStorage.getItem('auth-storage');
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored);
-        const token = parsed?.state?.token;
-        if (token) {
-          config.headers.Authorization = `Bearer ${token}`;
-        }
-      } catch {
-        // ignore parse errors
-      }
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },
   (error) => Promise.reject(error)
 );
 
-// Handle 401 globally
-axiosInstance.interceptors.response.use(
-  (response) => response,
+// Interceptor Response: Trả về thẳng data để service xử lý
+axiosClient.interceptors.response.use(
+  (response) => response.data,
   (error) => {
+    // Xử lý lỗi tập trung (VD: 401 thì logout)
     if (error.response?.status === 401) {
-      localStorage.removeItem('auth-storage');
-      if (window.location.pathname !== '/login') {
-        window.location.href = '/login';
-      }
+      console.warn('Unauthorized! Cần đăng nhập lại.');
     }
     return Promise.reject(error);
   }
 );
 
-export default axiosInstance;
+export default axiosClient;

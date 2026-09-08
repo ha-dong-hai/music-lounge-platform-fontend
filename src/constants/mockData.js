@@ -2,7 +2,7 @@
 export const HOME_DATA = {
   featured: [
     // Thêm các thuộc tính lọc vào đây
-    { id: 1, title: "Nhạc Acoustic Thư Giãn", price: "50.000đ", priceValue: 0, thumbnail: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTQHZDgz0ZI0tnKSysnRO0o7KnPVtQ_hNlbaGi0AdEM3Q&s=10", start_date: '2026-07-20T20:00:00', genre: 'Acoustic', mood: 'Cảm xúc', space: 'Cozy', province: 'TP. Hồ Chí Minh', subGenre: 'Ballad' },
+    { id: 1, title: "Nhạc Acoustic Thư Giãn", price: "Miễn phí", priceValue: 0, thumbnail: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTQHZDgz0ZI0tnKSysnRO0o7KnPVtQ_hNlbaGi0AdEM3Q&s=10", start_date: '2026-07-20T20:00:00', genre: 'Acoustic', mood: 'Cảm xúc', space: 'Cozy', province: 'TP.HCM', subGenre: 'Ballad' },
     { id: 2, title: "EDM Night Party", price: "250.000đ", priceValue: 250000, thumbnail: null, start_date: '2026-07-21T21:00:00', genre: 'EDM', mood: 'Energetic', space: 'Basement', province: 'hcm', subGenre: 'Remix' },
     { id: 3, title: "Jazz & Wine Evening", price: "500.000đ",priceValue: 500000,  thumbnail: null, start_date: '2026-07-22T19:00:00', genre: 'Jazz', mood: 'Romantic', space: 'Rooftop', province: 'hcm' },
     { id: 4, title: "Indie Band Live Show", price: "150.000đ", priceValue: 150000, thumbnail: null, start_date: '2026-07-23T20:00:00', genre: 'Indie', mood: 'Cảm xúc', space: 'Garden', province: 'hn' },
@@ -19,7 +19,7 @@ export const HOME_DATA = {
       events: [
         { id: 101, title: "Rock Festival Mini", price: "350.000đ", thumbnail: null, start_date: '2026-07-20T20:00:00', genre: 'Rock', mood: 'Energetic', space: 'Garden', province: 'hn' },
         { id: 102, title: "Hard Rock Night", price: "250.000đ", thumbnail: null, start_date: '2026-07-21T21:00:00', genre: 'Rock', mood: 'Energetic', space: 'Basement', province: 'hn' },
-        { id: 103, title: "Indie Rock Vibes", price: "25.000đ", thumbnail: null, start_date: '2026-07-22T18:00:00', genre: 'Rock', mood: 'Melancholy', space: 'Garden', province: 'hcm' },
+        { id: 103, title: "Indie Rock Vibes", price: "Miễn phí", thumbnail: null, start_date: '2026-07-22T18:00:00', genre: 'Rock', mood: 'Melancholy', space: 'Garden', province: 'hcm' },
         { id: 104, title: "Classic Rock Covers", price: "150.000đ", thumbnail: null, start_date: '2026-07-23T19:00:00', genre: 'Rock', mood: 'Cảm xúc', space: 'Cozy', province: 'dn' },
         { id: 105, title: "Metal Hammer", price: "400.000đ", thumbnail: null, start_date: '2026-07-24T22:00:00', genre: 'Rock', mood: 'Energetic', space: 'Basement', province: 'hcm' },
         { id: 106, title: "Punk Headbanger", price: "400.000đ", thumbnail: null, start_date: '2026-07-24T22:00:00', genre: 'Rock', mood: 'Energetic', space: 'Basement', province: 'hcm' },
@@ -33,7 +33,7 @@ export const HOME_DATA = {
       events: [
         { id: 201, title: "Pop Hit Covers", price: "100.000đ", thumbnail: null, start_date: '2026-07-20T20:00:00', genre: 'Pop', mood: 'Cảm xúc', space: 'Cozy', province: 'hcm' },
         { id: 202, title: "K-Pop Dance Night", price: "200.000đ", thumbnail: null, start_date: '2026-07-21T21:00:00', genre: 'Pop', mood: 'Energetic', space: 'Basement', province: 'hcm' },
-        { id: 203, title: "V-Pop Acoustic", price: "40.000đ", thumbnail: null, start_date: '2026-07-22T18:00:00', genre: 'Pop', mood: 'Romantic', space: 'Garden', province: 'hn' },
+        { id: 203, title: "V-Pop Acoustic", price: "Miễn phí", thumbnail: null, start_date: '2026-07-22T18:00:00', genre: 'Pop', mood: 'Romantic', space: 'Garden', province: 'hn' },
         { id: 204, title: "Synthpop Retro", price: "150.000đ", thumbnail: null, start_date: '2026-07-23T19:00:00', genre: 'Pop', mood: 'Focus', space: 'Cozy', province: 'dn' },
         { id: 205, title: "Dance Pop Party", price: "250.000đ", thumbnail: null, start_date: '2026-07-24T22:00:00', genre: 'Pop', mood: 'Energetic', space: 'Rooftop', province: 'hcm' },
         { id: 206, title: "Karaoke Night", price: "150.000đ", thumbnail: null, start_date: '2024-07-21T20:00:00', genre: 'Pop', mood: 'Energetic', space: 'Cozy', province: 'hcm' },
@@ -59,7 +59,7 @@ export const HOME_DATA = {
       moodName: 'Vui vẻ',
       slug: '/shows?mood=vui-ve',
       events: [
-        { id: 401, title: "Energetic Workout Beats", price: "60.000đ", thumbnail: null, start_date: '2024-07-20T18:00:00', genre: 'EDM', mood: 'Energetic', space: 'Basement', province: 'tsn' },
+        { id: 401, title: "Energetic Workout Beats", price: "Miễn phí", thumbnail: null, start_date: '2024-07-20T18:00:00', genre: 'EDM', mood: 'Energetic', space: 'Basement', province: 'tsn' },
         { id: 402, title: "Karaoke Night", price: "150.000đ", thumbnail: null, start_date: '2024-07-21T20:00:00', genre: 'Pop', mood: 'Energetic', space: 'Cozy', province: 'hcm' },
         { id: 403, title: "Latin Dance Party", price: "200.000đ", thumbnail: null, start_date: '2024-07-22T21:00:00', genre: 'Latin', mood: 'Energetic', space: 'Garden', province: 'hcm' },
         { id: 404, title: "Disco Funk Night", price: "250.000đ", thumbnail: null, start_date: '2024-07-23T21:00:00', genre: 'Funk', mood: 'Energetic', space: 'Basement', province: 'hn' },
@@ -173,54 +173,3 @@ export const LOUNGE_SEATING_AREAS = [
         description: "Khu vực ban công riêng tư, ghế đệm thoải mái, không gian phù hợp tâm sự."
     }
 ]
-
-export const MOCK_SHOWS = [
-  {
-    id: 1, name: "Nhạc Acoustic Thư Giãn", coverImageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTQHZDgz0ZI0tnKSysnRO0o7KnPVtQ_hNlbaGi0AdEM3Q&s=10",
-    loungeName: "Music Lounge Jazz", loungeDistrict: "Quận 1", loungeCity: "TP. Hồ Chí Minh",
-    scheduledStart: '2026-07-20T20:00:00', format: "Offline", status: "Published",
-    minPrice: 50000, maxPrice: 100000,
-    genres: [{ id: 1, name: 'Acoustic' }], performerNames: ["Ca sĩ A", "Ca sĩ B"],
-    offlineQuota: 50, onlineQuota: 0, isWishlisted: false
-  },
-  {
-    id: 2, name: "EDM Night Party", coverImageUrl: null,
-    loungeName: "Bass Drop Club", loungeDistrict: "Quận 3", loungeCity: "TP. Hồ Chí Minh",
-    scheduledStart: '2026-07-21T21:00:00', format: "Offline", status: "Published",
-    minPrice: 250000, maxPrice: 250000,
-    genres: [{ id: 2, name: 'EDM' }], performerNames: ["DJ C"],
-    offlineQuota: 100, onlineQuota: 0, isWishlisted: true
-  },
-  {
-    id: 3, name: "Jazz & Wine Evening", coverImageUrl: null,
-    loungeName: "Sax & Wine", loungeDistrict: "Quận 1", loungeCity: "TP. Hồ Chí Minh",
-    scheduledStart: '2026-07-22T19:00:00', format: "Hybrid", status: "Published",
-    minPrice: 500000, maxPrice: 800000,
-    genres: [{ id: 3, name: 'Jazz' }], performerNames: ["Nghệ sĩ D"],
-    offlineQuota: 40, onlineQuota: 200, isWishlisted: false
-  },
-  {
-    id: 4, name: "Indie Band Live Show", coverImageUrl: null,
-    loungeName: "Acoustic Corner", loungeDistrict: "Hoàn Kiếm", loungeCity: "Hà Nội",
-    scheduledStart: '2026-07-23T20:00:00', format: "Offline", status: "Published",
-    minPrice: 150000, maxPrice: 150000,
-    genres: [{ id: 4, name: 'Indie' }], performerNames: ["Band E"],
-    offlineQuota: 80, onlineQuota: 0, isWishlisted: false
-  },
-  {
-    id: 5, name: "Pop Hit Covers", coverImageUrl: null,
-    loungeName: "Neon Disco", loungeDistrict: "Tây Hồ", loungeCity: "Hà Nội",
-    scheduledStart: '2026-07-24T20:00:00', format: "Livestream", status: "Published",
-    minPrice: 100000, maxPrice: 100000,
-    genres: [{ id: 5, name: 'Pop' }], performerNames: ["Ca sĩ F"],
-    offlineQuota: 0, onlineQuota: 500, isWishlisted: true
-  },
-  {
-    id: 6, name: "Jazz Trio Live", coverImageUrl: null,
-    loungeName: "Music Lounge Jazz", loungeDistrict: "Quận 1", loungeCity: "TP. Hồ Chí Minh",
-    scheduledStart: '2026-07-25T19:00:00', format: "Offline", status: "Published",
-    minPrice: 300000, maxPrice: 300000,
-    genres: [{ id: 3, name: 'Jazz' }], performerNames: ["Trio G"],
-    offlineQuota: 60, onlineQuota: 0, isWishlisted: false
-  }
-];

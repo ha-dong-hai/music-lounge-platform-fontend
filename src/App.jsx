@@ -1,36 +1,28 @@
-import { Toaster } from 'react-hot-toast';
-import { RouterProvider } from 'react-router-dom';
-import AppRouter from './routes/AppRouter';
-import './App.css';
+import { RouterProvider } from 'react-router-dom'
+import AppRouter from './routes/AppRouter'
+import { Toaster } from 'react-hot-toast'
 
 function App() {
   return (
+
     <>
       <RouterProvider router={AppRouter} />
+
       <Toaster
         position="top-center"
         toastOptions={{
-          duration: 3500,
           style: {
-            background: 'rgba(30, 30, 50, 0.95)',
-            color: '#f1f5f9',
-            border: '1px solid rgba(255, 255, 255, 0.08)',
-            backdropFilter: 'blur(12px)',
-            borderRadius: '12px',
-            fontSize: '14px',
-            fontFamily: "'Inter', system-ui, sans-serif",
+            background: '#1f2937', // Màu nền gray-800 cho đồng bộ theme
+            color: '#fff',
+            border: '1px solid #374151'
           },
-          success: {
-            iconTheme: { primary: '#22c55e', secondary: '#fff' },
-          },
-          error: {
-            iconTheme: { primary: '#ef4444', secondary: '#fff' },
-          },
+          success: { iconTheme: { primary: '#25ca35', secondary: '#000' } },
+          error: { iconTheme: { primary: '#ca2525', secondary: '#000' } }
         }}
       />
     </>
-  );
+
+  )
 }
 
-export default App;
-
+export default App

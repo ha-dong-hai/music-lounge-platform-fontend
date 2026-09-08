@@ -1,6 +1,5 @@
-// src/layouts/AdminLayout.jsx
 import { Outlet, NavLink, useNavigate } from 'react-router-dom'
-import { LayoutDashboard, Music, Package, LogOut, Users, Receipt } from 'lucide-react'
+import { LayoutDashboard, Music, Package, LogOut, Users, Receipt, MessageSquareWarning } from 'lucide-react'
 
 const AdminLayout = () => {
   const navigate = useNavigate()
@@ -42,6 +41,9 @@ const AdminLayout = () => {
           <NavLink to="/admin/ledger" className={linkClasses}>
             <Receipt size={18} /> Sổ cái (Ledger)
           </NavLink>
+          <NavLink to="/admin/complaint" className={linkClasses}>
+            <MessageSquareWarning size={18} /> Phàn nàn (Complaint)
+          </NavLink>
         </nav>
 
         <div className="p-4 border-t border-gray-900">
@@ -57,7 +59,7 @@ const AdminLayout = () => {
       {/* MAIN CONTENT */}
       <div className="flex-1 flex flex-col h-full overflow-hidden">
         <header className="h-16 bg-gray-950 border-b border-gray-900 flex items-center justify-between px-8 flex-shrink-0">
-          <h2 className="text-lg font-semibold text-white">Hệ thống quản trị TuneRoom</h2>
+          <h2 className="text-lg font-semibold text-white">Hệ thống quản trị Music Lounge</h2>
           <div className="w-8 h-8 bg-[#C3B665] rounded-full flex items-center justify-center text-black text-xs font-bold">
             AD
           </div>
