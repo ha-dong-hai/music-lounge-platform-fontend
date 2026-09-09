@@ -37,10 +37,10 @@ const AppRouter = createBrowserRouter([
       { path: 'my-shows/ticket/:ticketId', element: <TicketDetailPage /> },
       { path: 'lounges', element: <LoungeListPage /> },
       { path: 'lounge/:id', element: <LoungeDetailPage /> }, 
-    
-      { path: 'livestream/:showId', element: <LivestreamWatchPage /> },
     ],
   },
+
+  { path: '/livestream/:showId', element: <LivestreamWatchPage /> },
 
   {
     path: '/admin',
