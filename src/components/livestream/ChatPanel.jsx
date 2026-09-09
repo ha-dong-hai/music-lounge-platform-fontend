@@ -1,37 +1,52 @@
 import { useState, useRef, useEffect } from 'react'
-import { Send, DollarSign, Smile, ChevronDown } from 'lucide-react'
+import { Send, DollarSign, Smile, ChevronDown, MoreVertical, Flag } from 'lucide-react'
 import EmojiPicker from 'emoji-picker-react'
 import DonateModal from './DonateModal'
+import ReportModal from './ReportModal'
 
-const ChatPanel = ({ messages, performers, onSendMessage, onSendDonation }) => {
+const ChatPanel = ({ messages, performers, onSendMessage, onSendDonation, onReport }) => {
   const [text, setText] = useState('')
   const [showEmoji, setShowEmoji] = useState(false)
   const [showDonate, setShowDonate] = useState(false)
+  const [showReport, setShowReport] = useState(false)
 
   const chatContainerRef = useRef(null)
   const inputRef = useRef(null)
+  const actionMenuRef = useRef(null)
 
   // SMART SCROLL: user đang ở đáy hay đang cuộn lên đọc?
   const isNearBottomRef = useRef(true)
   const [unreadCount, setUnreadCount] = useState(0)
+
+  // ĐÓNG MENU 3 CHẤM KHI CLICK NGOÀI
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (actionMenuRef.current && !actionMenuRef.current.contains(e.target)) {
+        setShowActionMenu(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+  const [showActionMenu, setShowActionMenu] = useState(false)
 
   // 1. THEO DÕI VỊ TRÍ CUỘN (chỉ của container chat)
   const handleScroll = () => {
     const el = chatContainerRef.current
     if (!el) return
     const distanceFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight
-    isNearBottomRef.current = distanceFromBottom < 80 // dung sai 80px
+    isNearBottomRef.current = distanceFromBottom < 80
     if (isNearBottomRef.current) setUnreadCount(0)
   }
 
-  // 2. TIN MỚI → CHỈ cuộn container chat (el.scrollTop), KHÔNG đụng page
+  // 2. TIN MỚI → chỉ cuộn container chat, KHÔNG đụng page
   useEffect(() => {
     const el = chatContainerRef.current
     if (!el) return
     if (isNearBottomRef.current) {
-      el.scrollTop = el.scrollHeight // instant — chat nhanh cần jump ngay, không smooth
+      el.scrollTop = el.scrollHeight
     } else {
-      setUnreadCount(prev => prev + 1) // đang đọc trên → chỉ hiện badge, không giật
+      setUnreadCount(prev => prev + 1)
     }
   }, [messages])
 
@@ -45,7 +60,7 @@ const ChatPanel = ({ messages, performers, onSendMessage, onSendDonation }) => {
   const handleSubmit = (e) => {
     e.preventDefault()
     if (!text.trim()) return
-    isNearBottomRef.current = true // tin của mình → luôn cuộn xuống theo
+    isNearBottomRef.current = true
     onSendMessage(text.trim())
     setText('')
     setShowEmoji(false)
@@ -56,21 +71,48 @@ const ChatPanel = ({ messages, performers, onSendMessage, onSendDonation }) => {
     inputRef.current?.focus()
   }
 
+  const handleReportSubmit = async (reason, description) => {
+    // Gọi callback từ page (sau này nối API/SignalR ở đó)
+    if (onReport) await onReport(reason, description)
+  }
+
   return (
     <div className="flex flex-col h-full min-h-0">
 
-      {/* HEADER */}
+      {/* ===== HEADER — nút Donate thay bằng menu 3 chấm ===== */}
       <div className="flex-none px-4 py-3 border-b border-gray-800 flex items-center justify-between">
         <h3 className="font-bold text-sm">Live Chat</h3>
-        <button
-          onClick={() => setShowDonate(true)}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#C3B665] text-black text-xs font-bold hover:bg-[#d4c87f] transition-colors"
-        >
-          <DollarSign size={14} /> Donate
-        </button>
+
+        {/* MENU 3 CHẤM DỌC */}
+        <div className="relative" ref={actionMenuRef}>
+          <button
+            onClick={() => setShowActionMenu(!showActionMenu)}
+            className={`p-2 rounded-lg transition-colors ${showActionMenu ? 'text-[#C3B665] bg-gray-800' : 'text-gray-400 hover:text-white hover:bg-gray-800'}`}
+            aria-label="Chat actions"
+          >
+            <MoreVertical size={18} />
+          </button>
+
+          {showActionMenu && (
+            <div className="absolute right-0 top-full mt-2 w-44 bg-[#1a1a1a] rounded-xl shadow-lg border border-gray-700 py-1.5 z-50 animate-in fade-in slide-in-from-top-2 duration-100">
+              <button
+                onClick={() => {
+                  setShowActionMenu(false)
+                  setShowReport(true)
+                }}
+                className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-300 hover:bg-gray-800 hover:text-white transition-colors text-left"
+              >
+                <Flag size={15} className="text-gray-400" />
+                Báo cáo vi phạm
+              </button>
+
+              {/* Sẵn slot cho action tương lai: collapse chat, chặn user,... */}
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* MESSAGE LIST — wrapper relative + min-h-0 để scroll NỘI BỘ */}
+      {/* ===== MESSAGE LIST ===== */}
       <div className="flex-1 relative min-h-0">
         <div
           ref={chatContainerRef}
@@ -102,7 +144,7 @@ const ChatPanel = ({ messages, performers, onSendMessage, onSendDonation }) => {
           ))}
         </div>
 
-        {/* NÚT "TIN NHẮN MỚI" — hiện khi user đang đọc phía trên */}
+        {/* NÚT "TIN NHẮN MỚI" */}
         {unreadCount > 0 && (
           <button
             onClick={scrollToBottom}
@@ -114,7 +156,7 @@ const ChatPanel = ({ messages, performers, onSendMessage, onSendDonation }) => {
         )}
       </div>
 
-      {/* INPUT AREA */}
+      {/* ===== INPUT AREA — Donate nằm bên phải Send ===== */}
       <div className="flex-none border-t border-gray-800 p-3 relative">
 
         {showEmoji && (
@@ -131,7 +173,7 @@ const ChatPanel = ({ messages, performers, onSendMessage, onSendDonation }) => {
         )}
 
         <form onSubmit={handleSubmit} className="flex items-center gap-2">
-          <button type="button" onClick={() => setShowEmoji(!showEmoji)} className={`p-2 rounded-lg transition-colors ${showEmoji ? 'text-[#C3B665] bg-gray-800' : 'text-gray-400 hover:text-white'}`}>
+          <button type="button" onClick={() => setShowEmoji(!showEmoji)} className={`p-2 rounded-lg transition-colors flex-shrink-0 ${showEmoji ? 'text-[#C3B665] bg-gray-800' : 'text-gray-400 hover:text-white'}`}>
             <Smile size={20} />
           </button>
           <input
@@ -140,20 +182,37 @@ const ChatPanel = ({ messages, performers, onSendMessage, onSendDonation }) => {
             value={text}
             onChange={e => setText(e.target.value)}
             placeholder="Say something..."
-            className="flex-1 bg-gray-800 text-white text-sm rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-[#C3B665] placeholder:text-gray-500"
+            className="flex-1 min-w-0 bg-gray-800 text-white text-sm rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-[#C3B665] placeholder:text-gray-500"
           />
-          <button type="submit" className="p-2 text-[#C3B665] hover:text-[#d4c87f] transition-colors disabled:opacity-30" disabled={!text.trim()}>
+          {/* NÚT SEND — donate chuyển sang phải của nó */}
+          <button type="submit" className="p-2 text-[#C3B665] hover:text-[#d4c87f] transition-colors disabled:opacity-30 flex-shrink-0" disabled={!text.trim()}>
             <Send size={20} />
+          </button>
+          {/* NÚT DONATE — vị trí mới */}
+          <button
+            type="button"
+            onClick={() => setShowDonate(true)}
+            className="flex-shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-lg bg-[#C3B665] text-black text-xs font-bold hover:bg-[#d4c87f] transition-colors"
+            aria-label="Donate"
+          >
+            <DollarSign size={16} />
           </button>
         </form>
       </div>
 
-      {/* DONATE MODAL */}
+      {/* ===== MODALS ===== */}
       {showDonate && (
         <DonateModal
           performers={performers}
           onClose={() => setShowDonate(false)}
           onSendDonation={onSendDonation}
+        />
+      )}
+
+      {showReport && (
+        <ReportModal
+          onClose={() => setShowReport(false)}
+          onSubmit={handleReportSubmit}
         />
       )}
     </div>

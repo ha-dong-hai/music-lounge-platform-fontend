@@ -120,6 +120,13 @@ const LivestreamWatchPage = () => {
     setDonationAlerts(prev => [...prev.slice(-4), { ...donation, id: Date.now() }])
   }
 
+  const handleReport = async (reason, description) => {
+  // TẠM GIẢ LẬP — khi BE có API report chat thì thay bằng axiosClient.post(...)
+  console.log('REPORT SUBMITTED:', { showId, reason, description })
+  await new Promise(r => setTimeout(r, 800)) // giả lập latency
+  // throw new Error('test') // bỏ comment dòng này để test UI lỗi
+}
+
   const handleRemoveAlert = (id) => {
     setDonationAlerts(prev => prev.filter(a => a.id !== id))
   }
@@ -180,6 +187,7 @@ const LivestreamWatchPage = () => {
             performers={showData?.performers || []}
             onSendMessage={handleSendMessage}
             onSendDonation={handleSendDonation}
+            onReport={handleReport}
           />
         </div>
       </div>
