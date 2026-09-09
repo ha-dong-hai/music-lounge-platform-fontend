@@ -43,7 +43,7 @@ const LivestreamWatchPage = () => {
   const [messages, setMessages] = useState([])
   const [donationAlerts, setDonationAlerts] = useState([])
 
-  // ⭐ FILE MỚI ĐỌC SHOW DATA (thật) — để có tên show + performers từ BE
+  // FILE MỚI ĐỌC SHOW DATA (thật) — để có tên show + performers từ BE
   useEffect(() => {
     const initData = async () => {
       setIsLoading(true)
@@ -63,7 +63,7 @@ const LivestreamWatchPage = () => {
     initData()
   }, [showId])
 
-  // ⭐ SIMULATE: chat tự nhảy mỗi 2.5s
+  // SIMULATE: chat tự nhảy mỗi 2.5s
   useEffect(() => {
     let i = 0
     const chatTimer = setInterval(() => {
@@ -74,7 +74,7 @@ const LivestreamWatchPage = () => {
     return () => clearInterval(chatTimer)
   }, [])
 
-  // ⭐ SIMULATE: donate tự nhảy mỗi ~12s
+  // SIMULATE: donate tự nhảy mỗi ~12s
   useEffect(() => {
     let i = 0
     const donateTimer = setInterval(() => {
@@ -86,7 +86,7 @@ const LivestreamWatchPage = () => {
     return () => clearInterval(donateTimer)
   }, [])
 
-  // ⭐ SIMULATE: viewer count dao động
+  // SIMULATE: viewer count dao động
   useEffect(() => {
     let i = 1
     const viewerTimer = setInterval(() => {
@@ -96,7 +96,7 @@ const LivestreamWatchPage = () => {
     return () => clearInterval(viewerTimer)
   }, [])
 
-  // ⭐ GỬI CHAT (mock): tin của mình hiện ngay kèm tag "You"
+  // GỬI CHAT (mock): tin của mình hiện ngay kèm tag "You"
   const handleSendMessage = async (text) => {
     setMessages(prev => [...prev, {
       user: { name: user?.name || 'Bạn', avatarUrl: user?.avatarUrl },
@@ -106,7 +106,7 @@ const LivestreamWatchPage = () => {
     }])
   }
 
-  // ⭐ DONATE (mock): tự thêm alert + message vào chat sau 1s "xử lý"
+  // DONATE (mock): tự thêm alert + message vào chat sau 1s "xử lý"
   const handleSendDonation = async (performerId, amount, message) => {
     await new Promise(r => setTimeout(r, 1000)) // giả lập latency BE
     const performerName = showData?.performers?.find(p => p.id === performerId)?.name || 'Nghệ sĩ'
