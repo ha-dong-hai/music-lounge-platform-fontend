@@ -3,6 +3,7 @@ import { Send, DollarSign, Smile, ChevronDown, MoreVertical, Flag } from 'lucide
 import EmojiPicker from 'emoji-picker-react'
 import DonateModal from './DonateModal'
 import ReportModal from './ReportModal'
+import TopDonorsBar from './TopDonorsBar'
 
 const ChatPanel = ({ messages, performers, onSendMessage, onSendDonation, onReport }) => {
   const [text, setText] = useState('')
@@ -111,6 +112,8 @@ const ChatPanel = ({ messages, performers, onSendMessage, onSendDonation, onRepo
           )}
         </div>
       </div>
+
+      <TopDonorsBar messages={messages} />
 
       {/* ===== MESSAGE LIST ===== */}
       <div className="flex-1 relative min-h-0">
