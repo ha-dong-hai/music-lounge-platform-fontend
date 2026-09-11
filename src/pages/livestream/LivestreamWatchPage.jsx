@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom'
 import { ArrowLeft, Loader2, AlertCircle, WifiOff, Eye } from 'lucide-react'
 import StreamPlayer from '../../components/livestream/StreamPlayer'
 import ChatPanel from '../../components/livestream/ChatPanel'
-import { getShowDetail } from '../../services/showService'
+import { getShowDetail } from '../../services/showServices'
 import { useAuthStore } from '../../store/useAuthStore'
 
 // ===== MOCK DATA (giả lập viewer + chat + donate) =====

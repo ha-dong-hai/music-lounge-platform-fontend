@@ -100,14 +100,21 @@ const AdminPackagesPage = () => {
           maxTourScenes: Number(formData.maxTourScenes)
         }
         const res = await createPackage(payload)
-        if (res.success) {
-          setPackages(prev => [...prev, res.data])
-          toast.success('Tạo gói Package mới thành công!')
-          setIsModalOpen(false)
-        } else {
-          toast.error(res.message || 'Thao tác thất bại.')
-        }
+        if (!res.success) {
+          toast.success(res.message || 'Thao tác thất bại.')
+          return
+        } 
       }
+
+      const listRes = await getPackages(false)
+      if (listRes.success) {
+        setPackages(listRes.data)
+        toast.success(currentPkg ? 'Cập nhật gói Package thành công!' : 'Tạo gói Package mới thành công!')
+        setIsModalOpen(false)
+      } else {
+        toast.error('Đã lưu nhưng không tải lại được danh sách.')
+      }
+
     } catch (err) {
       console.error(err)
       toast.error('Thao tác thất bại. Vui lòng thử lại.')
