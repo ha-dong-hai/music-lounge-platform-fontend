@@ -20,7 +20,7 @@ const AdminAccountsPage = () => {
   const [statusFilter, setStatusFilter] = useState('all')
 
   // State Stats Cards
-  const [stats, setStats] = useState({ total: 0, users: 0, owners: 0, banned: 0 })
+  const [stats, setStats] = useState({ total: 0, users: 0, owners: 0, staff: 0, banned: 0 })
 
   // State Modal
   const [selectedAcc, setSelectedAcc] = useState(null)

@@ -1,4 +1,4 @@
-import { Ban, Building2, User as UserIcon, Users as UsersIcon } from 'lucide-react'
+import { Ban, Building2, UserCog, User as UserIcon, Users as UsersIcon } from 'lucide-react'
 
 const StatsCards = ({ stats, roleFilter, statusFilter, onSelectFilter }) => {
   const cards = [
@@ -21,6 +21,12 @@ const StatsCards = ({ stats, roleFilter, statusFilter, onSelectFilter }) => {
       onClick: () => onSelectFilter('Owner', 'all'),
     },
     {
+      key: 'staff', label: 'Nhân viên', value: stats.staff,
+      icon: <UserCog size={24} className="text-orange-400" />, iconBg: 'bg-orange-500/10',
+      active: roleFilter === 'Staff', activeStyle: 'border-orange-500 ring-1 ring-orange-500',
+      onClick: () => onSelectFilter('Staff', 'all'),
+    },
+    {
       key: 'banned', label: 'Bị khóa', value: stats.banned,
       icon: <Ban size={24} className="text-red-400" />, iconBg: 'bg-red-500/10',
       active: statusFilter === 'banned', activeStyle: 'border-red-500 ring-1 ring-red-500',
@@ -29,7 +35,7 @@ const StatsCards = ({ stats, roleFilter, statusFilter, onSelectFilter }) => {
   ]
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
       {cards.map(card => (
         <button
           key={card.key}
