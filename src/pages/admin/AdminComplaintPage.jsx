@@ -30,8 +30,8 @@ const AdminComplaintPage = () => {
                     setPagination(prev => ({ ...prev, totalPages: res.data.totalPages, totalCount: res.data.totalCount }))
                 }
             } catch (err) {
-                console.error('Lỗi tải complaints:', err)
-                toast.error('Không thể tải danh sách khiếu nại')
+                console.error('Error loading complaints:', err)
+                toast.error('Unable to load complaint list')
             } finally {
                 setIsLoading(false)
             }
@@ -63,10 +63,10 @@ const AdminComplaintPage = () => {
     // 4. EXPORT CSV các dòng đã lọc
     const handleExportCSV = () => {
         if (filteredComplaints.length === 0) {
-            toast.error('Không có dữ liệu để xuất')
+            toast.error('No data to export')
             return
         }
-        const header = ['ID', 'Danh mục', 'Đối tượng', 'Nội dung', 'SĐT liên hệ', 'Trạng thái', 'Thời gian tạo']
+        const header = ['ID', 'Category', 'Target', 'Description', 'Contact number', 'Status', 'Create']
         const rows = filteredComplaints.map(c => [
             c.id,
             CATEGORY_CONFIG[c.category]?.label || c.category,
@@ -85,7 +85,7 @@ const AdminComplaintPage = () => {
         a.download = `complaints_page${pagination.page}_${dayjs().format('YYYYMMDD_HHmm')}.csv`
         a.click()
         URL.revokeObjectURL(url)
-        toast.success('Đã xuất CSV!')
+        toast.success('Exported CSV!')
     }
 
     return (
@@ -93,8 +93,8 @@ const AdminComplaintPage = () => {
 
             {/* HEADER */}
             <div>
-                <h1 className="text-2xl font-bold text-white mb-1">Quản lý Khiếu nại</h1>
-                <p className="text-gray-400 text-sm">Các khiếu nại từ người dùng về phòng trà, chương trình và nghệ sĩ.</p>
+                <h1 className="text-2xl font-bold text-white mb-1">Report Management</h1>
+                <p className="text-gray-400 text-sm">User complaints.</p>
             </div>
 
             {/* FILTERS */}

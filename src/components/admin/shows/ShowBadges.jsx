@@ -26,7 +26,7 @@ export const StatusBadge = ({ status }) => {
     ended: 'bg-red-500/10 text-red-400 border-red-500/20',
     cancelled: 'bg-red-500/10 text-red-400 border-red-500/20',
   }
-  const labels = { published: 'Đã đăng', ongoing: 'Đang diễn ra', draft: 'Nháp', ended: 'Đã kết thúc', cancelled: 'Đã hủy' }
+  const labels = { published: 'Published', ongoing: 'Ongoing', draft: 'Draft', ended: 'Ended', cancelled: 'Cancelled' }
   const key = status ? status.toLowerCase() : 'draft'
   return (
     <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border ${styles[key] || styles.draft}`}>
@@ -55,8 +55,8 @@ export const RiskLevelBadge = ({ level }) => {
     High: 'bg-orange-500/10 text-orange-400 border-orange-500/20',
     Critical: 'bg-red-500/10 text-red-400 border-red-500/20',
   }
-  const labels = { Low: 'Thấp', Medium: 'Trung bình', High: 'Cao', Critical: 'Nghiêm trọng' }
-  if (!level) return <span className="text-xs text-gray-500">Chưa đánh giá</span>
+  const labels = { Low: 'Low', Medium: 'Medium', High: 'High', Critical: 'Critical' }
+  if (!level) return <span className="text-xs text-gray-500">Not rated</span>
   return (
     <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border ${styles[level]}`}>
       {labels[level] || level}

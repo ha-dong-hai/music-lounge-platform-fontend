@@ -20,10 +20,10 @@ const DonateModal = ({ performers, onClose, onSendDonation }) => {
     setIsProcessing(true)
     try {
       await onSendDonation(selectedPerformer.id, finalAmount, message)
-      toast.success('Donate thành công!')
+      toast.success('Donate successful!')
       onClose()
     } catch (err) {
-      toast.error('Donate thất bại!')
+      toast.error('Donate fail!')
     } finally {
       setIsProcessing(false)
     }
@@ -42,7 +42,7 @@ const DonateModal = ({ performers, onClose, onSendDonation }) => {
         <div className="p-5 space-y-5 overflow-y-auto">
           {/* CHỌN NGHỆ SĨ */}
           <div>
-            <label className="text-sm font-semibold text-gray-400 mb-2 block">Chọn nghệ sĩ</label>
+            <label className="text-sm font-semibold text-gray-400 mb-2 block">Choose performer</label>
             <div className="flex flex-wrap gap-2">
               {performers.map(p => (
                 <button
@@ -77,7 +77,7 @@ const DonateModal = ({ performers, onClose, onSendDonation }) => {
             </div>
             <input 
               type="number"
-              placeholder="Hoặc nhập số tiền khác..."
+              placeholder="Choose another amount..."
               value={customAmount}
               onChange={e => setCustomAmount(e.target.value)}
               className="mt-2 w-full bg-black border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-[#C3B665]"
@@ -92,7 +92,7 @@ const DonateModal = ({ performers, onClose, onSendDonation }) => {
               value={message}
               onChange={e => setMessage(e.target.value)}
               className="w-full bg-black border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-[#C3B665] resize-none"
-              placeholder="Gửi lời chúc cho nghệ sĩ..."
+              placeholder="Send wishes to performer..."
             />
           </div>
         </div>

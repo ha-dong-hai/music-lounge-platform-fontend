@@ -52,10 +52,10 @@ const LivestreamWatchPage = () => {
         if (res.success) {
           setShowData(res.data)
         } else {
-          setError('Không tìm thấy chương trình.')
+          setError('Streaming show not found.')
         }
       } catch (err) {
-        setError('Lỗi kết nối máy chủ.')
+        setError('Server connection error.')
       } finally {
         setIsLoading(false)
       }
@@ -99,7 +99,7 @@ const LivestreamWatchPage = () => {
   // GỬI CHAT (mock): tin của mình hiện ngay kèm tag "You"
   const handleSendMessage = async (text) => {
     setMessages(prev => [...prev, {
-      user: { name: user?.name || 'Bạn', avatarUrl: user?.avatarUrl },
+      user: { name: user?.name || 'You', avatarUrl: user?.avatarUrl },
       content: text,
       isMine: true,
       type: 'chat',
@@ -109,9 +109,9 @@ const LivestreamWatchPage = () => {
   // DONATE (mock): tự thêm alert + message vào chat sau 1s "xử lý"
   const handleSendDonation = async (performerId, amount, message) => {
     await new Promise(r => setTimeout(r, 1000)) // giả lập latency BE
-    const performerName = showData?.performers?.find(p => p.id === performerId)?.name || 'Nghệ sĩ'
+    const performerName = showData?.performers?.find(p => p.id === performerId)?.name || 'Performer'
     const donation = {
-      user: { name: user?.name || 'Bạn', avatarUrl: user?.avatarUrl },
+      user: { name: user?.name || 'You', avatarUrl: user?.avatarUrl },
       performerName,
       amount,
       message,
@@ -144,7 +144,7 @@ const LivestreamWatchPage = () => {
       <div className="min-h-screen bg-black flex flex-col items-center justify-center text-white">
         <AlertCircle size={40} className="text-red-400 mb-4" />
         <p className="text-xl mb-4">{error}</p>
-        <Link to="/" className="text-[#C3B665] underline flex items-center gap-2"><ArrowLeft size={16} /> Quay lại</Link>
+        <Link to="/" className="text-[#C3B665] underline flex items-center gap-2"><ArrowLeft size={16} /> Return</Link>
       </div>
     )
   }
@@ -165,7 +165,7 @@ const LivestreamWatchPage = () => {
             </span>
             <span className="flex items-center gap-1"><Eye size={12} /> {viewerCount.toLocaleString('vi-VN')}</span>
             {!isChatConnected && (
-              <span className="flex items-center gap-1 text-yellow-500"><WifiOff size={11} /> Đang kết nối lại...</span>
+              <span className="flex items-center gap-1 text-yellow-500"><WifiOff size={11} /> Reconecting...</span>
             )}
           </p>
         </div>

@@ -12,7 +12,7 @@ const AccountDetailModal = ({ selectedAcc, isModalLoading, isUpdating, onClose, 
         {isModalLoading ? (
           <div className="flex flex-col items-center justify-center py-10">
             <Loader2 size={32} className="animate-spin text-[#C3B665] mb-3" />
-            <p className="text-gray-400">Đang tải thông tin...</p>
+            <p className="text-gray-400">Loading info...</p>
           </div>
         ) : (
           <>
@@ -30,25 +30,25 @@ const AccountDetailModal = ({ selectedAcc, isModalLoading, isUpdating, onClose, 
             <div className="space-y-4 border-t border-gray-800 pt-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <p className="text-xs text-gray-500 mb-1">Số điện thoại</p>
+                  <p className="text-xs text-gray-500 mb-1">Phone number</p>
                   <p className="text-sm text-white font-medium">{selectedAcc.phone}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500 mb-1">Ngày đăng ký</p>
+                  <p className="text-xs text-gray-500 mb-1">Created at</p>
                   <p className="text-sm text-white font-medium">{dayjs(selectedAcc.createdAt).format('HH:mm DD/MM/YYYY')}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500 mb-1">Vai trò</p>
+                  <p className="text-xs text-gray-500 mb-1">Role</p>
                   <RoleBadge role={selectedAcc.role} />
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500 mb-1">Trạng thái</p>
+                  <p className="text-xs text-gray-500 mb-1">Status</p>
                   <StatusBadge isActive={selectedAcc.isActive} />
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500 mb-1">Xác thực Email</p>
+                  <p className="text-xs text-gray-500 mb-1">Verify Email</p>
                   <p className={`text-sm font-medium ${selectedAcc.isEmailVerified ? 'text-green-400' : 'text-red-400'}`}>
-                    {selectedAcc.isEmailVerified ? 'Đã xác thực' : 'Chưa xác thực'}
+                    {selectedAcc.isEmailVerified ? 'Verified' : 'Unverified '}
                   </p>
                 </div>
               </div>
@@ -56,7 +56,7 @@ const AccountDetailModal = ({ selectedAcc, isModalLoading, isUpdating, onClose, 
               {selectedAcc.role === 'Admin' && (
                 <div className="bg-purple-500/5 border border-purple-500/20 rounded-lg p-4 flex items-center gap-2">
                   <ShieldCheck size={18} className="text-purple-400" />
-                  <p className="text-sm text-purple-300">Tài khoản Quản trị viên Hệ thống</p>
+                  <p className="text-sm text-purple-300">Administration system</p>
                 </div>
               )}
             </div>
@@ -72,11 +72,11 @@ const AccountDetailModal = ({ selectedAcc, isModalLoading, isUpdating, onClose, 
                       : 'bg-green-500 text-white hover:bg-green-600'
                   }`}
                 >
-                  {selectedAcc.isActive ? <><Ban size={18} /> Khóa tài khoản</> : <><Unlock size={18} /> Mở khóa tài khoản</>}
+                  {selectedAcc.isActive ? <><Ban size={18} /> Ban account</> : <><Unlock size={18} /> Unbanned account</>}
                 </button>
               )}
               <button onClick={onClose} className={`py-2.5 border border-gray-600 text-gray-300 rounded-lg font-medium hover:bg-gray-800 transition-colors ${selectedAcc.role === 'Admin' ? 'flex-1' : 'px-6'}`}>
-                Đóng
+                Close
               </button>
             </div>
           </>

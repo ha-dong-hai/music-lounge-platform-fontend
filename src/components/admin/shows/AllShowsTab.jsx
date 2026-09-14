@@ -32,7 +32,7 @@ const StatusBadge = ({ status }) => {
     ended: 'bg-red-500/10 text-red-400 border-red-500/20',
     cancelled: 'bg-red-500/10 text-red-400 border-red-500/20',
   }
-  const labels = { published: 'Đã đăng', ongoing: 'Đang diễn ra', draft: 'Nháp', ended: 'Đã kết thúc', cancelled: 'Đã hủy' }
+  const labels = { published: 'Published', ongoing: 'Ongoing', draft: 'Draft', ended: 'Ended', cancelled: 'Cancelled' }
   const key = status ? status.toLowerCase() : 'draft'
   return (
     <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border ${styles[key] || styles.draft}`}>
@@ -55,7 +55,7 @@ const AllShowsTab = () => {
           page: pagination.page, 
           pageSize: 10, 
           includeSoldOut: true,
-          // ⚠️ LƯU Ý: nếu BE hỗ trợ param keyword/searchText cho API này thì thêm vào đây
+          // LƯU Ý: nếu BE hỗ trợ param keyword/searchText cho API này thì thêm vào đây
         }
         const res = await getShows(params)
         if (res.success) {
@@ -79,7 +79,7 @@ const AllShowsTab = () => {
     if (pagination.totalPages <= 1) return null
     return (
       <div className="flex items-center justify-between p-4 border-t border-gray-800">
-        <p className="text-sm text-gray-500">Trang {pagination.page} / {pagination.totalPages} (Tổng: {pagination.totalCount} show)</p>
+        <p className="text-sm text-gray-500">Page {pagination.page} / {pagination.totalPages} (Total: {pagination.totalCount} show)</p>
         <div className="flex gap-2">
           <button 
             onClick={() => setPagination(prev => ({ ...prev, page: prev.page - 1 }))} 
@@ -108,13 +108,13 @@ const AllShowsTab = () => {
           <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
           <input
             type="text"
-            placeholder="Tìm nhanh trong trang hiện tại..."
+            placeholder="Search current page..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-10 pr-4 py-2.5 bg-black border border-gray-800 rounded-lg text-sm text-white focus:outline-none focus:border-[#C3B665]/50"
           />
         </div>
-        <p className="text-sm text-gray-500 whitespace-nowrap">Tổng: {pagination.totalCount} chương trình</p>
+        <p className="text-sm text-gray-500 whitespace-nowrap">Total: {pagination.totalCount} Show</p>
       </div>
 
       <div className="bg-gray-950 border border-gray-800 rounded-xl overflow-hidden">
@@ -122,12 +122,12 @@ const AllShowsTab = () => {
           <table className="w-full text-left whitespace-nowrap">
             <thead className="bg-black/50 border-b border-gray-800">
               <tr>
-                <th className="p-4 text-[#C3B665] font-semibold text-sm">Tên chương trình</th>
-                <th className="p-4 text-[#C3B665] font-semibold text-sm">Phòng trà</th>
-                <th className="p-4 text-[#C3B665] font-semibold text-sm">Loại hình</th>
-                <th className="p-4 text-[#C3B665] font-semibold text-sm">Thời gian</th>
-                <th className="p-4 text-[#C3B665] font-semibold text-sm">Trạng thái</th>
-                <th className="p-4 text-[#C3B665] font-semibold text-sm text-right">Hành động</th>
+                <th className="p-4 text-[#C3B665] font-semibold text-sm">Show name</th>
+                <th className="p-4 text-[#C3B665] font-semibold text-sm">Lounge</th>
+                <th className="p-4 text-[#C3B665] font-semibold text-sm">Type</th>
+                <th className="p-4 text-[#C3B665] font-semibold text-sm">Schedule</th>
+                <th className="p-4 text-[#C3B665] font-semibold text-sm">Status</th>
+                <th className="p-4 text-[#C3B665] font-semibold text-sm text-right">Action</th>
               </tr>
             </thead>
             <tbody>
@@ -169,7 +169,7 @@ const AllShowsTab = () => {
                         to={`/admin/shows/${show.id}`} 
                         className="inline-flex items-center gap-1.5 text-[#C3B665] border border-[#C3B665]/30 hover:bg-[#C3B665]/10 px-3 py-1.5 rounded-md text-xs font-bold transition-colors"
                       >
-                        Xem chi tiết
+                        View detail
                       </Link>
                     </td>
                   </tr>
@@ -178,7 +178,7 @@ const AllShowsTab = () => {
                 <tr>
                   <td colSpan="6" className="p-10 text-center text-gray-500">
                     <Music2 size="32" className="mx-auto mb-3 opacity-50" />
-                    Không tìm thấy chương trình nào.
+                    Show not found.
                   </td>
                 </tr>
               )}

@@ -23,11 +23,11 @@ const TicketDetailPage = () => {
                 if (res.success) {
                     setTicket(res.data)
                 } else {
-                    setApiError('Không tìm thấy vé')
+                    setApiError('Ticket not found')
                 }
             } catch (err) {
-                console.error('Lỗi tải vé:', err)
-                setApiError('Không thể tải thông tin vé.')
+                console.error('Ticket loading error:', err)
+                setApiError('Ticket information cannot be loaded.')
             } finally {
                 setIsLoading(false)
             }
@@ -58,7 +58,7 @@ const TicketDetailPage = () => {
             <div className="min-h-screen bg-black flex flex-col items-center justify-center text-white">
                 <h1 className="text-2xl font-bold mb-4">{apiError || 'Không tìm thấy vé'}</h1>
                 <Link to="/my-shows" className="text-[#C3B665] flex items-center gap-2">
-                    <ArrowLeft size={18} /> Quay lại danh sách
+                    <ArrowLeft size={18} /> Return to list
                 </Link>
             </div>
         )
@@ -76,7 +76,7 @@ const TicketDetailPage = () => {
                 <div className="mb-8">
                     <Link to="/my-shows" className="inline-flex items-center gap-2 text-sm font-medium text-gray-400 hover:text-[#C3B665] transition-colors">
                         <ArrowLeft size={18} />
-                        Quay lại danh sách vé
+                        Return to ticket list
                     </Link>
                 </div>
 
@@ -94,15 +94,15 @@ const TicketDetailPage = () => {
                 <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6 mb-6">
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 text-center sm:text-left">
                         <div>
-                            <p className="text-gray-500 text-sm mb-1">Loại vé</p>
+                            <p className="text-gray-500 text-sm mb-1">Ticket tier</p>
                             <p className="text-white font-bold text-lg">{ticket.tierName}</p>
                         </div>
                         <div className="sm:border-l sm:border-gray-800 sm:pl-6">
-                            <p className="text-gray-500 text-sm mb-1">Phòng trà</p>
+                            <p className="text-gray-500 text-sm mb-1">Lounge</p>
                             <p className="text-white font-bold text-lg">{ticket.loungeName}</p>
                         </div>
                         <div className="sm:border-l sm:border-gray-800 sm:pl-6">
-                            <p className="text-gray-500 text-sm mb-1">Thời gian</p>
+                            <p className="text-gray-500 text-sm mb-1">Time</p>
                             <p className="text-white font-bold text-lg">{eventDate.format('HH:mm DD/MM')}</p>
                         </div>
                     </div>
@@ -110,7 +110,7 @@ const TicketDetailPage = () => {
 
                 {/* PHẦN MÃ QR ĐỂ QUÉT CỬA (DÙNG MÃ QR THẬT TỪ BE) */}
                 <div className="bg-gray-900 rounded-2xl p-8 mb-6 flex flex-col items-center justify-center">
-                    <p className="text-white font-bold text-lg mb-4">Mã QR Check-in</p>
+                    <p className="text-white font-bold text-lg mb-4">QR code Check-in</p>
                     <div className="p-4 bg-black border-2 border-[#C3B665] rounded-xl">
                         <QRCode
                             value={ticket.qrCode || ticket.id}
@@ -121,7 +121,7 @@ const TicketDetailPage = () => {
                         />
                     </div>
                     <p className="text-gray-500 font-mono text-sm mt-4 break-all px-4 text-center">{ticket.id}</p>
-                    <p className="text-gray-400 text-xs mt-1">Chìa màn hình này cho nhân viên soát vé tại cửa</p>
+                    <p className="text-gray-400 text-xs mt-1">Show this screen to the ticket staff at the entrance</p>
                 </div>
 
                 {/* ================================ */}
@@ -129,28 +129,28 @@ const TicketDetailPage = () => {
                 {/* ================================ */}
                 <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6 mb-6">
                     <div className="flex justify-between items-center mb-4">
-                        <h2 className="text-xl font-bold text-[#C3B665]">Chi tiết đơn hàng</h2>
-                        <span className="text-gray-400 font-mono text-xs break-all">Mã ĐH: {ticket.id}</span>
+                        <h2 className="text-xl font-bold text-[#C3B665]">Order detail</h2>
+                        <span className="text-gray-400 font-mono text-xs break-all">Order code: {ticket.id}</span>
                     </div>
 
                     <div className="border border-gray-800 rounded-lg overflow-hidden">
                         <table className="w-full text-left">
                             <tbody>
                                 <tr className="border-b border-gray-800">
-                                    <td className="p-4 text-gray-500 text-sm align-top w-1/3">Ngày đặt đơn hàng</td>
+                                    <td className="p-4 text-gray-500 text-sm align-top w-1/3">Order date</td>
                                     <td className="p-4 text-white text-sm">{orderDate}</td>
                                 </tr>
                                 <tr className="border-b border-gray-800">
-                                    <td className="p-4 text-gray-500 text-sm align-top">Hình thức vé</td>
+                                    <td className="p-4 text-gray-500 text-sm align-top">Ticket type</td>
                                     <td className="p-4 text-white text-sm">
                                         {ticket.accessType === 'Physical' ? 'Vé trực tiếp (Offline)' : 'Vé Livestream (Online)'}
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td className="p-4 text-gray-500 text-sm align-top">Tình trạng đơn hàng</td>
+                                    <td className="p-4 text-gray-500 text-sm align-top">Order status</td>
                                     <td className="p-4 text-right">
                                         <span className="inline-flex items-center gap-1.5 bg-green-500/15 text-green-400 px-3 py-1 rounded-full text-xs font-bold border border-green-500/30">
-                                            <CheckCircle2 size={14} /> {ticket.status === 'Confirmed' ? 'Đã thanh toán' : ticket.status}
+                                            <CheckCircle2 size={14} /> {ticket.status === 'Confirmed' ? 'Paid' : ticket.status}
                                         </span>
                                     </td>
                                 </tr>
@@ -160,14 +160,14 @@ const TicketDetailPage = () => {
                 </div>
 
                 <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6">
-                    <h2 className="text-xl font-bold text-[#C3B665] mb-4">Thông tin đơn hàng</h2>
+                    <h2 className="text-xl font-bold text-[#C3B665] mb-4">Ticket detail</h2>
 
                     <div className="border border-gray-800 rounded-lg overflow-hidden">
                         <table className="w-full text-left">
                             <thead className="bg-black/40">
                                 <tr>
-                                    <th className="p-4 text-gray-400 font-medium text-sm">Loại vé</th>
-                                    <th className="p-4 text-gray-400 font-medium text-sm text-right">Thành tiền</th>
+                                    <th className="p-4 text-gray-400 font-medium text-sm">Ticket tier</th>
+                                    <th className="p-4 text-gray-400 font-medium text-sm text-right">Price</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -179,7 +179,7 @@ const TicketDetailPage = () => {
                                     <td className="p-4 text-white font-bold text-right">{formattedPrice}</td>
                                 </tr>
                                 <tr className="border-t-2 border-gray-700 bg-black/20">
-                                    <td className="p-4 text-white font-bold">Tổng cộng</td>
+                                    <td className="p-4 text-white font-bold">Total</td>
                                     <td className="p-4 text-[#C3B665] font-bold text-right text-lg">{formattedPrice}</td>
                                 </tr>
                             </tbody>

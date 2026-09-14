@@ -68,13 +68,13 @@ const HomePage = () => {
           const mapped = res.data.items.map(show => ({
             id: show.id, title: show.name, thumbnail: show.coverImageUrl,
             start_date: show.scheduledStart, province: show.loungeCity,
-            genre: show.genres?.[0]?.name || 'Khác', genreId: show.genres?.[0]?.id || null,
-            price: show.minPrice === 0 && show.maxPrice === 0 ? 'Miễn phí' : `${show.minPrice.toLocaleString('vi-VN')}đ`,
+            genre: show.genres?.[0]?.name || 'Other', genreId: show.genres?.[0]?.id || null,
+            price: show.minPrice === 0 && show.maxPrice === 0 ? 'Free' : `${show.minPrice.toLocaleString('vi-VN')}đ`,
             format: show.format, isWishlisted: show.isWishlisted
           }))
           setAllEvents(mapped)
         }
-      } catch (err) { console.error('Lỗi API mặc định:', err) } 
+      } catch (err) { console.error('Recommendation API Error:', err) } 
       finally { setIsLoading(false) }
     }
     fetchDefaultShows()
@@ -92,7 +92,7 @@ const HomePage = () => {
       return {
         genreId: genreId ? String(genreId) : genreName.toLowerCase(),
         genreName: genreName,
-        slug: genreId ? `/shows/search?genreId=${genreId}` : `/shows/search?genre=${genreName.toLowerCase()}`, // ⭐ ĐỔI SLUG
+        slug: genreId ? `/shows/search?genreId=${genreId}` : `/shows/search?genre=${genreName.toLowerCase()}`, // ĐỔI SLUG
         events: limitedEvents
       }
     })

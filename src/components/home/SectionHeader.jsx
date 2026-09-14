@@ -23,9 +23,9 @@ const SectionHeader = ({ onOpenFilter, appliedFilters = {}, startDate, setStartD
 
   const getLabel = () => {
     if (startDate && endDate) return `${dayjs(startDate).format('DD/MM')} → ${dayjs(endDate).format('DD/MM')}`
-    if (startDate) return `Từ ${dayjs(startDate).format('DD/MM')}`
-    if (endDate) return `Đến ${dayjs(endDate).format('DD/MM')}`
-    return 'Chọn ngày'
+    if (startDate) return `From ${dayjs(startDate).format('DD/MM')}`
+    if (endDate) return `To ${dayjs(endDate).format('DD/MM')}`
+    return 'Choose date'
   }
 
   const handleClearDates = (e) => {
