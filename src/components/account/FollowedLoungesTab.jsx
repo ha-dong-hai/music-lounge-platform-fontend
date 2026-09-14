@@ -20,7 +20,7 @@ const FollowedLoungesTab = () => {
           setFollowedLounges(res.data.items || [])
         }
       } catch (err) {
-        console.log("Chưa tải được danh sách follow")
+        console.log("Error loading the following list")
       } finally {
         setIsLoadingLounges(false)
       }
@@ -40,10 +40,10 @@ const FollowedLoungesTab = () => {
 
     try {
       await toggleFollowLounge(lounge.id, true) // true = đang follow → BE DELETE
-      toast.success(`Đã bỏ theo dõi ${lounge.name}`)
+      toast.success(`Unfollow ${lounge.name}`)
     } catch (err) {
       setFollowedLounges(prevLounges) // rollback
-      toast.error('Thao tác thất bại.')
+      toast.error('Process failed.')
     } finally {
       setUnfollowingId(null)
     }
@@ -90,8 +90,8 @@ const FollowedLoungesTab = () => {
                 className="mt-4 w-full flex items-center justify-center gap-1.5 py-2 rounded-lg border border-gray-700 text-gray-400 text-xs font-bold hover:bg-red-500/10 hover:border-red-500/40 hover:text-red-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {unfollowingId === lounge.id
-                  ? <><Loader2 size={13} className="animate-spin" /> Đang xử lý...</>
-                  : <><UserMinus size={13} /> Bỏ theo dõi</>}
+                  ? <><Loader2 size={13} className="animate-spin" /> Processing...</>
+                  : <><UserMinus size={13} /> Unfollow</>}
               </button>
             </Link>
           ))}
@@ -100,7 +100,7 @@ const FollowedLoungesTab = () => {
         <div className="text-center py-12">
           <Building2 size={40} className="mx-auto text-gray-700 mb-4" />
           <p className="text-gray-400">No Followed Lounge.</p>
-          <Link to="/" className="mt-4 inline-block text-[#C3B665] font-semibold underline hover:text-[#d4c87f]">Khám phá phòng trà ngay!</Link>
+          <Link to="/lounges" className="mt-4 inline-block text-[#C3B665] font-semibold underline hover:text-[#d4c87f]">Discover musical lounge now!</Link>
         </div>
       )}
     </div>

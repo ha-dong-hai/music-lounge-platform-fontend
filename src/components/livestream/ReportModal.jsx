@@ -4,11 +4,11 @@ import toast from 'react-hot-toast'
 
 // Tạm dùng các lý do UI — khi BE có enum complaint thật thì thay
 const REPORT_REASONS = [
-  { value: 'Spam', label: 'Tin nhắn spam / quảng cáo' },
-  { value: 'Harassment', label: 'Quấy rối, công kích cá nhân' },
-  { value: 'Inappropriate', label: 'Ngôn từ không phù hợp' },
-  { value: 'Scam', label: 'Lừa đảo, dụ dập chuyển tiền' },
-  { value: 'Other', label: 'Lý do khác' },
+  { value: 'Spam', label: 'Spam message / advertisement' },
+  { value: 'Harassment', label: 'Harassment and personal attacks' },
+  { value: 'Inappropriate', label: 'Inappropriate language' },
+  { value: 'Scam', label: 'Scams' },
+  { value: 'Other', label: 'Others' },
 ]
 
 const ReportModal = ({ onClose, onSubmit }) => {
@@ -25,10 +25,10 @@ const ReportModal = ({ onClose, onSubmit }) => {
     setIsSubmitting(true)
     try {
       await onSubmit(selectedReason, description.trim())
-      toast.success('Đã gửi báo cáo! Quản trị viên sẽ xem xét sớm.')
+      toast.success('Report sent! An administrator will review it soon.')
       onClose()
     } catch (err) {
-      toast.error('Gửi báo cáo thất bại. Vui lòng thử lại.')
+      toast.error('Failed to send report. Please try again.')
     } finally {
       setIsSubmitting(false)
     }
@@ -47,8 +47,8 @@ const ReportModal = ({ onClose, onSubmit }) => {
               <Flag size={18} className="text-red-400" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-white">Báo cáo vi phạm</h2>
-              <p className="text-xs text-gray-500">Báo cáo nội dung chat của buổi livestream này</p>
+              <h2 className="text-lg font-bold text-white">Report</h2>
+              <p className="text-xs text-gray-500">Report the content of this livestream.</p>
             </div>
           </div>
           <button onClick={onClose} disabled={isSubmitting} className="p-2 hover:bg-gray-800 rounded-full text-gray-400 disabled:opacity-30">
@@ -61,7 +61,7 @@ const ReportModal = ({ onClose, onSubmit }) => {
           {/* CHỌN LÝ DO */}
           <div>
             <label className="block text-sm font-medium text-gray-400 mb-2.5">
-              Lý do báo cáo <span className="text-red-400">*</span>
+              Reason for report <span className="text-red-400">*</span>
             </label>
             <div className="space-y-2">
               {REPORT_REASONS.map(r => (
@@ -90,18 +90,18 @@ const ReportModal = ({ onClose, onSubmit }) => {
           {/* MÔ TẢ */}
           <div>
             <label className="block text-sm font-medium text-gray-400 mb-2.5">
-              Mô tả chi tiết <span className="text-red-400">*</span>
+              Description <span className="text-red-400">*</span>
             </label>
             <textarea
               rows={4}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               disabled={isSubmitting}
-              placeholder="Mô tả rõ hành vi vi phạm để chúng tôi xử lý nhanh hơn (VD: ai, gửi gì, lúc nào)..."
+              placeholder="Make a description..."
               className="w-full px-4 py-3 bg-black border border-gray-800 rounded-xl text-white text-sm focus:outline-none focus:border-[#C3B665]/50 resize-none disabled:opacity-50 placeholder:text-gray-600"
             />
             <p className={`text-xs mt-1.5 ${description.trim().length > 0 && description.trim().length < 10 ? 'text-yellow-500' : 'text-gray-600'}`}>
-              Tối thiểu 10 ký tự ({description.trim().length}/10)
+              Minimum of 10 characters ({description.trim().length}/10)
             </p>
           </div>
         </form>
@@ -123,8 +123,8 @@ const ReportModal = ({ onClose, onSubmit }) => {
             className="flex-1 py-2.5 rounded-lg font-bold transition-colors flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed bg-red-500 text-white hover:bg-red-600"
           >
             {isSubmitting
-              ? <><Loader2 size={16} className="animate-spin" /> Đang gửi...</>
-              : <><Flag size={15} /> Gửi báo cáo</>}
+              ? <><Loader2 size={16} className="animate-spin" /> sending...</>
+              : <><Flag size={15} /> Submit report</>}
           </button>
         </div>
       </div>

@@ -12,11 +12,11 @@ const AccountsTable = ({
         <table className="w-full text-left whitespace-nowrap">
           <thead className="bg-black/40 border-b border-gray-800">
             <tr>
-              <th className="p-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Tài khoản</th>
-              <th className="p-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Vai trò</th>
-              <th className="p-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Ngày tạo</th>
-              <th className="p-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Trạng thái</th>
-              <th className="p-4 text-xs font-semibold text-gray-400 uppercase tracking-wider text-right">Hành động</th>
+              <th className="p-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Account</th>
+              <th className="p-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Role</th>
+              <th className="p-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Created at</th>
+              <th className="p-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Status</th>
+              <th className="p-4 text-xs font-semibold text-gray-400 uppercase tracking-wider text-right">Action</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-800">
@@ -51,7 +51,7 @@ const AccountsTable = ({
                           onClick={() => onToggleBan(acc.id, acc.isActive)}
                           disabled={isUpdating}
                           className={`p-2 rounded-lg transition-colors disabled:opacity-50 ${acc.isActive ? 'bg-red-500/10 text-red-400 hover:bg-red-500/20' : 'bg-green-500/10 text-green-400 hover:bg-green-500/20'}`}
-                          title={acc.isActive ? 'Khóa tài khoản' : 'Mở khóa tài khoản'}
+                          title={acc.isActive ? 'Banned account' : 'Unbanned account'}
                         >
                           {acc.isActive ? <Ban size={16} /> : <Unlock size={16} />}
                         </button>
@@ -64,7 +64,7 @@ const AccountsTable = ({
               <tr>
                 <td colSpan="5" className="p-10 text-center text-gray-500">
                   <UsersIcon size="32" className="mx-auto mb-3 opacity-50" />
-                  Không tìm thấy tài khoản nào phù hợp.
+                  No matching account found.
                 </td>
               </tr>
             )}
@@ -76,7 +76,7 @@ const AccountsTable = ({
       {!isLoading && accounts.length > 0 && (
         <div className="flex items-center justify-between p-4 border-t border-gray-800">
           <p className="text-sm text-gray-500">
-            Trang {pagination.page} / {pagination.totalPages} (Tổng: {pagination.totalCount} tài khoản)
+            Trang {pagination.page} / {pagination.totalPages} (Total: {pagination.totalCount} account)
           </p>
           <div className="flex gap-2">
             <button

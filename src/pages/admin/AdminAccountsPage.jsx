@@ -59,7 +59,7 @@ const AdminAccountsPage = () => {
         }
       } catch (err) {
         console.error('Lỗi load users:', err)
-        toast.error('Không thể tải danh sách tài khoản')
+        toast.error('Error loading account list.')
       } finally {
         setIsLoading(false)
       }
@@ -87,7 +87,7 @@ const AdminAccountsPage = () => {
       const res = await getAdminUserDetail(id)
       if (res.success) { setSelectedAcc(res.data) }
     } catch (err) {
-      toast.error('Không thể tải chi tiết tài khoản')
+      toast.error('Error loading account details.')
       setSelectedAcc(null)
     } finally {
       setIsModalLoading(false)
@@ -99,14 +99,14 @@ const AdminAccountsPage = () => {
     if (isUpdating) return
     const acc = accounts.find(a => a.id === id)
     if (acc?.role === 'Admin') {
-      toast.error('Không thể khóa tài khoản Admin!')
+      toast.error('Cannot ban roll Admin!')
       return
     }
 
     setIsUpdating(true)
     try {
       await toggleUserBan(id, currentStatus)
-      toast.success(currentStatus ? 'Đã khóa tài khoản' : 'Đã mở khóa tài khoản')
+      toast.success(currentStatus ? 'Banned account' : 'Unban account')
 
       const newStatus = !currentStatus
 
@@ -122,7 +122,7 @@ const AdminAccountsPage = () => {
         banned: newStatus ? prevStats.banned - 1 : prevStats.banned + 1
       }))
     } catch (err) {
-      toast.error('Thao tác thất bại')
+      toast.error('Process failed')
     } finally {
       setIsUpdating(false)
     }

@@ -34,7 +34,7 @@ const ShowSearchPage = () => {
   const [isLoading, setIsLoading] = useState(true)
   const [apiError, setApiError] = useState(null)
   const [pagination, setPagination] = useState({ page: 1, totalPages: 1 })
-  const [pageTitle, setPageTitle] = useState("Danh sách sự kiện")
+  const [pageTitle, setPageTitle] = useState("List of shows")
 
   const [isFilterOpen, setIsFilterOpen] = useState(false)
   // ⭐ LẤY STATE TỪ HOMEPAGE TRUYỀN QUA, NẾU KHÔNG CÓ THÌ DÙNG DEFAULT
@@ -45,7 +45,7 @@ const ShowSearchPage = () => {
   // LẤY TÊN GENRE TỪ BE
   useEffect(() => {
     if (!genreId) {
-      setPageTitle(keyword ? `Kết quả tìm kiếm: "${keyword}"` : "Danh sách sự kiện")
+      setPageTitle(keyword ? `Search results: "${keyword}"` : "List of shows")
       return
     }
     const fetchGenreName = async () => {
@@ -53,9 +53,9 @@ const ShowSearchPage = () => {
         const res = await getFilterOptions()
         if (res.success) {
           const genre = res.data.genres.find(g => String(g.id) === String(genreId))
-          setPageTitle(genre ? `Thể loại nhạc ${genre.name}` : "Danh sách sự kiện")
+          setPageTitle(genre ? `Genre ${genre.name}` : "List of shows")
         }
-      } catch (err) { console.error('Lỗi lấy filter options:', err) }
+      } catch (err) { console.error('Error retrieving filter options:', err) }
     }
     fetchGenreName()
   }, [genreId, keyword])
@@ -95,18 +95,18 @@ const ShowSearchPage = () => {
             title: show.name,
             thumbnail: show.coverImageUrl,
             start_date: show.scheduledStart,
-            genre: show.genres && show.genres.length > 0 ? show.genres[0].name : 'Khác',
-            price: show.minPrice === 0 && show.maxPrice === 0 ? 'Miễn phí' : `${show.minPrice.toLocaleString('vi-VN')}đ`,
+            genre: show.genres && show.genres.length > 0 ? show.genres[0].name : 'Other',
+            price: show.minPrice === 0 && show.maxPrice === 0 ? 'Free' : `${show.minPrice.toLocaleString('vi-VN')}đ`,
             format: show.format,
             isWishlisted: show.isWishlisted
           }))
           setEvents(mapped)
           setPagination(prev => ({ ...prev, totalPages: res.data.totalPages }))
         } else {
-          setApiError(res.message || 'Lỗi tải dữ liệu')
+          setApiError(res.message || 'Data loading error')
         }
       } catch (err) {
-        setApiError('Không thể kết nối tới Backend.')
+        setApiError('Unable to connect to backend.')
       } finally {
         setIsLoading(false)
       }
@@ -185,8 +185,8 @@ const ShowSearchPage = () => {
             {appliedFilters.selectedGenres.map(g => (<RemovableTag key={g} label={g} onRemove={() => removeFromFilterArray('selectedGenres', g)} />))}
             {appliedFilters.selectedSpaces.map(s => (<RemovableTag key={s} label={s} onRemove={() => removeFromFilterArray('selectedSpaces', s)} />))}
             {appliedFilters.selectedMoods.map(m => (<RemovableTag key={m} label={m} onRemove={() => removeFromFilterArray('selectedMoods', m)} />))}
-            {(appliedFilters.minPrice || appliedFilters.maxPrice) && (<RemovableTag label={appliedFilters.minPrice && appliedFilters.maxPrice ? `${Number(appliedFilters.minPrice).toLocaleString('vi-VN')}đ - ${Number(appliedFilters.maxPrice).toLocaleString('vi-VN')}đ` : appliedFilters.minPrice ? `Từ ${Number(appliedFilters.minPrice).toLocaleString('vi-VN')}đ` : `Đến ${Number(appliedFilters.maxPrice).toLocaleString('vi-VN')}đ`} onRemove={() => setAppliedFilters(prev => ({ ...prev, minPrice: '', maxPrice: '' }))} />)}
-            {(startDate || endDate) && (<RemovableTag icon={CalendarDays} label={startDate && endDate ? `${startDate} → ${endDate}` : startDate ? `Từ ${startDate}` : `Đến ${endDate}`} onRemove={() => { setStartDate(''); setEndDate('') }} />)}
+            {(appliedFilters.minPrice || appliedFilters.maxPrice) && (<RemovableTag label={appliedFilters.minPrice && appliedFilters.maxPrice ? `${Number(appliedFilters.minPrice).toLocaleString('vi-VN')}đ - ${Number(appliedFilters.maxPrice).toLocaleString('vi-VN')}đ` : appliedFilters.minPrice ? `From ${Number(appliedFilters.minPrice).toLocaleString('vi-VN')}đ` : `To ${Number(appliedFilters.maxPrice).toLocaleString('vi-VN')}đ`} onRemove={() => setAppliedFilters(prev => ({ ...prev, minPrice: '', maxPrice: '' }))} />)}
+            {(startDate || endDate) && (<RemovableTag icon={CalendarDays} label={startDate && endDate ? `${startDate} → ${endDate}` : startDate ? `From ${startDate}` : `To ${endDate}`} onRemove={() => { setStartDate(''); setEndDate('') }} />)}
           </div>
         )}
       </div>

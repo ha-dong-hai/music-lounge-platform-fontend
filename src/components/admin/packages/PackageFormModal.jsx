@@ -50,7 +50,7 @@ const PackageFormModal = ({ isOpen, editingPkg, isSaving, onClose, onSubmit }) =
   const handleSubmit = (e) => {
     e.preventDefault()
     if (!formData.name.trim()) {
-      toast.error('Vui lòng nhập tên gói')
+      toast.error('Please fill package name')
       return
     }
     onSubmit(formData)
@@ -65,7 +65,7 @@ const PackageFormModal = ({ isOpen, editingPkg, isSaving, onClose, onSubmit }) =
       <div className="relative bg-gray-900 border border-gray-700 rounded-2xl w-full max-w-lg shadow-2xl flex flex-col max-h-[90vh]">
         {/* HEADER */}
         <div className="flex justify-between items-center p-6 border-b border-gray-800">
-          <h2 className="text-xl font-bold text-white">{isEditing ? 'Chỉnh sửa gói Package' : 'Tạo gói Package mới'}</h2>
+          <h2 className="text-xl font-bold text-white">{isEditing ? 'Edit Package' : 'Create new Package'}</h2>
           <button onClick={onClose} disabled={isSaving} className="p-2 hover:bg-gray-800 rounded-full text-gray-400 disabled:opacity-30">
             <X size={20} />
           </button>
@@ -76,7 +76,7 @@ const PackageFormModal = ({ isOpen, editingPkg, isSaving, onClose, onSubmit }) =
           {/* Tên gói & Giá */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-400 mb-2">Tên gói</label>
+              <label className="block text-sm font-medium text-gray-400 mb-2">Package name</label>
               <input
                 type="text" required
                 disabled={isEditing} // BE không cho sửa tên khi EDIT
@@ -86,7 +86,7 @@ const PackageFormModal = ({ isOpen, editingPkg, isSaving, onClose, onSubmit }) =
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-400 mb-2">Giá (VNĐ)</label>
+              <label className="block text-sm font-medium text-gray-400 mb-2">Price (VNĐ)</label>
               <div className="relative">
                 <input
                   type="text" required
@@ -104,19 +104,19 @@ const PackageFormModal = ({ isOpen, editingPkg, isSaving, onClose, onSubmit }) =
           {/* Chu kỳ & Max Tickets */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-400 mb-2">Chu kỳ thanh toán</label>
+              <label className="block text-sm font-medium text-gray-400 mb-2">Payment cycle</label>
               <select
                 disabled={isEditing} // BE không cho sửa chu kỳ khi EDIT
                 value={formData.billingCycle}
                 onChange={e => setFormData({...formData, billingCycle: e.target.value})}
                 className={`${inputCls} cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed`}
               >
-                <option value="Monthly">Theo Tháng</option>
-                <option value="Yearly">Theo Năm</option>
+                <option value="Monthly">Monthly</option>
+                <option value="Yearly">Yearly</option>
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-400 mb-2">Max vé/sự kiện</label>
+              <label className="block text-sm font-medium text-gray-400 mb-2">Max Ticket/Show</label>
               <input
                 type="number" required min="0"
                 value={formData.maxTicketsPerEvent}
@@ -130,7 +130,7 @@ const PackageFormModal = ({ isOpen, editingPkg, isSaving, onClose, onSubmit }) =
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-400 mb-2 flex items-center gap-1.5">
-                <Sparkles size={14} className="text-[#C3B665]" /> Poster AI / tháng
+                <Sparkles size={14} className="text-[#C3B665]" /> Poster AI / month
               </label>
               <input
                 type="number" min="0"
@@ -143,7 +143,7 @@ const PackageFormModal = ({ isOpen, editingPkg, isSaving, onClose, onSubmit }) =
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-400 mb-2 flex items-center gap-1.5">
-                <Box size={14} className="text-[#C3B665]" /> Tour ảo 360°
+                <Box size={14} className="text-[#C3B665]" /> Tour 360°
               </label>
               <input
                 type="number" min="0"
@@ -163,7 +163,7 @@ const PackageFormModal = ({ isOpen, editingPkg, isSaving, onClose, onSubmit }) =
               value={formData.description}
               onChange={e => setFormData({...formData, description: e.target.value})}
               className={`${inputCls} resize-none`}
-              placeholder="Mô tả ngắn gọn quyền lợi của gói..."
+              placeholder="Briefly describe the package benefits...."
             />
           </div>
 
@@ -176,7 +176,7 @@ const PackageFormModal = ({ isOpen, editingPkg, isSaving, onClose, onSubmit }) =
                 onChange={e => handleToggleAiPoster(e.target.checked)}
                 className="w-4 h-4 rounded border-gray-600 bg-gray-800 text-[#C3B665] focus:ring-[#C3B665] focus:ring-offset-0"
               />
-              <span className="text-sm text-white flex items-center gap-1.5"><Sparkles size={14} className="text-[#C3B665]" /> Hỗ trợ tạo Poster bằng AI</span>
+              <span className="text-sm text-white flex items-center gap-1.5"><Sparkles size={14} className="text-[#C3B665]" /> Support Poster with AI</span>
             </label>
 
             {/* Chỉ hiện khi Edit, vì Create BE tự mặc định true */}
@@ -188,7 +188,7 @@ const PackageFormModal = ({ isOpen, editingPkg, isSaving, onClose, onSubmit }) =
                   onChange={e => setFormData({...formData, isActive: e.target.checked})}
                   className="w-4 h-4 rounded border-gray-600 bg-gray-800 text-[#C3B665] focus:ring-[#C3B665] focus:ring-offset-0"
                 />
-                <span className="text-sm text-white">Hiển thị gói này cho Chủ phòng trà</span>
+                <span className="text-sm text-white">Show this package to Buyer.</span>
               </label>
             )}
           </div>
@@ -202,7 +202,7 @@ const PackageFormModal = ({ isOpen, editingPkg, isSaving, onClose, onSubmit }) =
             disabled={isSaving}
             className="flex-1 py-2.5 border border-gray-600 text-gray-300 rounded-lg font-medium hover:bg-gray-800 transition-colors disabled:opacity-50"
           >
-            Hủy
+            Cancel
           </button>
           <button
             type="submit"
@@ -210,7 +210,7 @@ const PackageFormModal = ({ isOpen, editingPkg, isSaving, onClose, onSubmit }) =
             disabled={isSaving}
             className="flex-1 py-2.5 bg-[#C3B665] text-black rounded-lg font-bold hover:bg-[#d4c87f] transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
           >
-            {isSaving ? <><Loader2 size={16} className="animate-spin" /> Đang lưu...</> : (isEditing ? 'Lưu thay đổi' : 'Tạo gói')}
+            {isSaving ? <><Loader2 size={16} className="animate-spin" /> Saving...</> : (isEditing ? 'Save' : 'Create')}
           </button>
         </div>
       </div>

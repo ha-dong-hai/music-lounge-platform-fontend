@@ -19,9 +19,9 @@ const Feature = ({ icon: Icon, label, enabled }) => (
 // ============ CARD FULL — dành cho gói ĐANG HIỂN THỊ ============
 export const PackageCard = ({ pkg, onEdit, onToggleStatus }) => {
   const features = [
-    { icon: Ticket, label: `${pkg.maxTicketsPerEvent?.toLocaleString('vi-VN')} vé / sự kiện`, enabled: true },
-    { icon: Sparkles, label: pkg.hasAiPoster ? `${pkg.maxAiPostersPerMonth} poster AI / tháng` : 'Không hỗ trợ Poster AI', enabled: pkg.hasAiPoster },
-    { icon: Box, label: pkg.maxTourScenes > 0 ? `${pkg.maxTourScenes} tour ảo 360°` : 'Không hỗ trợ Tour ảo 360°', enabled: pkg.maxTourScenes > 0 },
+    { icon: Ticket, label: `${pkg.maxTicketsPerEvent?.toLocaleString('vi-VN')} Ticket / Show`, enabled: true },
+    { icon: Sparkles, label: pkg.hasAiPoster ? `${pkg.maxAiPostersPerMonth} poster AI / Month` : 'Do not suport Poster AI', enabled: pkg.hasAiPoster },
+    { icon: Box, label: pkg.maxTourScenes > 0 ? `${pkg.maxTourScenes} tour digital 360°` : 'Do not support Tour digital 360°', enabled: pkg.maxTourScenes > 0 },
   ]
 
   return (
@@ -35,14 +35,14 @@ export const PackageCard = ({ pkg, onEdit, onToggleStatus }) => {
         <button
           onClick={() => onEdit(pkg)}
           className="p-2 bg-black/70 backdrop-blur-md border border-white/10 text-gray-300 hover:text-[#C3B665] hover:border-[#C3B665]/50 rounded-lg transition-colors"
-          title="Chỉnh sửa gói"
+          title="Edit Package"
         >
           <Pencil size={13} />
         </button>
         <button
           onClick={() => onToggleStatus(pkg)}
           className="p-2 bg-black/70 backdrop-blur-md border border-white/10 text-gray-300 hover:text-[#C3B665] hover:border-[#C3B665]/50 rounded-lg transition-colors"
-          title="Ẩn gói khỏi trang đăng ký"
+          title="Hide Package"
         >
           <EyeOff size={13} />
         </button>
@@ -54,10 +54,10 @@ export const PackageCard = ({ pkg, onEdit, onToggleStatus }) => {
           <h3 className="text-xl font-bold text-white truncate">{pkg.name}</h3>
         </div>
         <span className="inline-flex px-2.5 py-1 rounded-full text-[11px] font-bold bg-[#C3B665]/10 text-[#C3B665] border border-[#C3B665]/25 uppercase tracking-wide">
-          {pkg.billingCycle === 'Yearly' ? 'Theo năm' : 'Theo tháng'}
+          {pkg.billingCycle === 'Yearly' ? 'Yearly' : 'Monthly'}
         </span>
         <p className="text-sm text-gray-500 line-clamp-2 min-h-[40px] mt-3">
-          {pkg.description || "Chưa có mô tả"}
+          {pkg.description || "No description"}
         </p>
       </div>
 
@@ -69,11 +69,11 @@ export const PackageCard = ({ pkg, onEdit, onToggleStatus }) => {
               {pkg.price.toLocaleString('vi-VN')}
             </span>
             <span className="text-lg font-bold text-[#C3B665] mb-0.5">đ</span>
-            <span className="text-gray-500 text-xs mb-1">/ {pkg.billingCycle === 'Yearly' ? 'năm' : 'tháng'}</span>
+            <span className="text-gray-500 text-xs mb-1">/ {pkg.billingCycle === 'Yearly' ? 'Yearly' : 'Monthly'}</span>
           </>
         ) : (
           <span className="text-[34px] leading-none font-bold bg-gradient-to-r from-[#C3B665] to-[#ede2a0] bg-clip-text text-transparent">
-            Miễn phí
+            Free
           </span>
         )}
       </div>
@@ -99,9 +99,9 @@ export const PackageCard = ({ pkg, onEdit, onToggleStatus }) => {
 // ============ CARD MINI — dành cho gói ĐANG ẨN (1 hàng ngang, mờ nhẹ) ============
 export const HiddenPackageCard = ({ pkg, onEdit, onRestore }) => {
   const miniFeatures = [
-    { label: `${pkg.maxTicketsPerEvent?.toLocaleString('vi-VN')} vé`, enabled: true },
+    { label: `${pkg.maxTicketsPerEvent?.toLocaleString('vi-VN')} Ticket`, enabled: true },
     { label: 'Poster AI', enabled: pkg.hasAiPoster },
-    { label: 'Tour ảo', enabled: pkg.maxTourScenes > 0 },
+    { label: 'Tour Scenes', enabled: pkg.maxTourScenes > 0 },
   ]
 
   return (
@@ -115,7 +115,7 @@ export const HiddenPackageCard = ({ pkg, onEdit, onRestore }) => {
         <div className="min-w-0">
           <h4 className="text-base font-bold text-gray-300 truncate">{pkg.name}</h4>
           <p className="text-xs text-gray-600">
-            {pkg.price > 0 ? `${pkg.price.toLocaleString('vi-VN')}đ / ${pkg.billingCycle === 'Yearly' ? 'năm' : 'tháng'}` : 'Miễn phí'} · #{pkg.id}
+            {pkg.price > 0 ? `${pkg.price.toLocaleString('vi-VN')}đ / ${pkg.billingCycle === 'Yearly' ? 'Yearly' : 'Monthly'}` : 'Free'} · #{pkg.id}
           </p>
         </div>
       </div>
@@ -141,7 +141,7 @@ export const HiddenPackageCard = ({ pkg, onEdit, onRestore }) => {
         <button
           onClick={() => onEdit(pkg)}
           className="p-2 rounded-lg border border-gray-700/60 text-gray-500 hover:text-[#C3B665] hover:border-[#C3B665]/50 transition-colors"
-          title="Chỉnh sửa gói"
+          title="Edit Package"
         >
           <Pencil size={14} />
         </button>
@@ -149,7 +149,7 @@ export const HiddenPackageCard = ({ pkg, onEdit, onRestore }) => {
           onClick={() => onRestore(pkg)}
           className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-[#C3B665] text-black text-xs font-bold hover:bg-[#d4c87f] transition-colors"
         >
-          <EyeOff size={13} className="rotate-180" /> Hiện lại
+          <EyeOff size={13} className="rotate-180" /> Unhide
         </button>
       </div>
     </div>

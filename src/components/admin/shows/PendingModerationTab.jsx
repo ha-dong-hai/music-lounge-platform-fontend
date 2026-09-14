@@ -24,8 +24,8 @@ const RiskLevelBadge = ({ level }) => {
     High: 'bg-orange-500/10 text-orange-400 border-orange-500/20',
     Critical: 'bg-red-500/10 text-red-400 border-red-500/20',
   }
-  const labels = { Low: 'Thấp', Medium: 'Trung bình', High: 'Cao', Critical: 'Nghiêm trọng' }
-  if (!level) return <span className="text-xs text-gray-500">Chưa đánh giá</span>
+  const labels = { Low: 'Low', Medium: 'Medium', High: 'High', Critical: 'Critical' }
+  if (!level) return <span className="text-xs text-gray-500">Not rated</span>
   return (
     <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border ${styles[level]}`}>
       {labels[level] || level}
@@ -64,12 +64,12 @@ const PendingModerationTab = () => {
           <table className="w-full text-left whitespace-nowrap">
             <thead className="bg-black/50 border-b border-gray-800">
               <tr>
-                <th className="p-4 text-[#C3B665] font-semibold text-sm">Đối tượng (Show ID)</th>
-                <th className="p-4 text-[#C3B665] font-semibold text-sm">Mức độ rủi ro</th>
-                <th className="p-4 text-[#C3B665] font-semibold text-sm">Lý do AI Flag</th>
-                <th className="p-4 text-[#C3B665] font-semibold text-sm">Điểm AI</th>
-                <th className="p-4 text-[#C3B665] font-semibold text-sm">Hạn SLA</th>
-                <th className="p-4 text-[#C3B665] font-semibold text-sm text-right">Hành động</th>
+                <th className="p-4 text-[#C3B665] font-semibold text-sm">Show (Show ID)</th>
+                <th className="p-4 text-[#C3B665] font-semibold text-sm">Rick level</th>
+                <th className="p-4 text-[#C3B665] font-semibold text-sm">Flag reason</th>
+                <th className="p-4 text-[#C3B665] font-semibold text-sm">AI score</th>
+                <th className="p-4 text-[#C3B665] font-semibold text-sm">Deadlin SLA</th>
+                <th className="p-4 text-[#C3B665] font-semibold text-sm text-right">Action</th>
               </tr>
             </thead>
             <tbody>
@@ -84,7 +84,7 @@ const PendingModerationTab = () => {
                   <tr key={item.id} className="border-b border-gray-900 hover:bg-gray-900/50 transition-colors">
                     <td className="p-4 text-white font-medium">
                       Show #{item.targetId}
-                      <p className="text-xs text-gray-500 mt-1">Tạo lúc: {dayjs(item.createdAt).format('HH:mm DD/MM/YYYY')}</p>
+                      <p className="text-xs text-gray-500 mt-1">Created: {dayjs(item.createdAt).format('HH:mm DD/MM/YYYY')}</p>
                     </td>
                     <td className="p-4"><RiskLevelBadge level={item.riskLevel} /></td>
                     <td className="p-4">
@@ -93,7 +93,7 @@ const PendingModerationTab = () => {
                           <AlertTriangle size={12} /> {item.flagReason}
                         </p>
                       ) : (
-                        <p className="text-xs text-gray-600">Không có</p>
+                        <p className="text-xs text-gray-600">None</p>
                       )}
                     </td>
                     <td className="p-4"><AIScoreCircle score={item.aiScore} /></td>
@@ -105,7 +105,7 @@ const PendingModerationTab = () => {
                         to={`/admin/shows/${item.targetId}`} 
                         className="inline-flex items-center gap-1.5 bg-[#C3B665] text-black px-3 py-1.5 rounded-md text-xs font-bold hover:bg-[#d4c87f] transition-colors"
                       >
-                        <Eye size={14} /> Xem & Xử lý
+                        <Eye size={14} /> Review
                       </Link>
                     </td>
                   </tr>
@@ -114,7 +114,7 @@ const PendingModerationTab = () => {
                 <tr>
                   <td colSpan="6" className="p-12 text-center text-gray-500">
                     <Check size={32} className="mx-auto mb-3 text-green-500/50" />
-                    Không có chương trình nào bị AI gắn cờ. Hệ thống đã duyệt hết!
+                    No programs were flagged. The system has reviewed everything!
                   </td>
                 </tr>
               )}
@@ -125,7 +125,7 @@ const PendingModerationTab = () => {
         {/* PAGINATION */}
         {!isLoading && items.length > 0 && pagination.totalPages > 1 && (
           <div className="flex items-center justify-between p-4 border-t border-gray-800">
-            <p className="text-sm text-gray-500">Trang {pagination.page} / {pagination.totalPages}</p>
+            <p className="text-sm text-gray-500">Page {pagination.page} / {pagination.totalPages}</p>
             <div className="flex gap-2">
               <button 
                 onClick={() => setPagination(prev => ({ ...prev, page: prev.page - 1 }))} 

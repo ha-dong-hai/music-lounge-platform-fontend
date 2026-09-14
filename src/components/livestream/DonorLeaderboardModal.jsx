@@ -24,10 +24,10 @@ const DonorLeaderboardModal = ({ donors, onClose }) => {
         <div className="flex-none flex justify-between items-start p-5 border-b border-gray-800">
           <div>
             <h2 className="text-lg font-bold text-white flex items-center gap-2">
-              <Trophy size={18} className="text-[#C3B665]" /> Bảng xếp hạng donate
+              <Trophy size={18} className="text-[#C3B665]" /> Donate leaderboard
             </h2>
             <p className="text-xs text-gray-500 mt-1">
-              Tổng <span className="text-[#C3B665] font-bold">{fmt(totalAmount)}</span> · {totalCount} lượt từ {donors.length} người
+              Total <span className="text-[#C3B665] font-bold">{fmt(totalAmount)}</span> · {totalCount} total {donors.length} donor
             </p>
           </div>
           <button onClick={onClose} className="p-2 hover:bg-gray-800 rounded-full text-gray-400 transition-colors">
@@ -55,7 +55,7 @@ const DonorLeaderboardModal = ({ donors, onClose }) => {
                 />
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-white truncate">{d.name}</p>
-                  <p className="text-[11px] text-gray-500">{d.count} lượt donate</p>
+                  <p className="text-[11px] text-gray-500">{d.count} donate count</p>
                 </div>
 
                 {/* Tổng tiền */}

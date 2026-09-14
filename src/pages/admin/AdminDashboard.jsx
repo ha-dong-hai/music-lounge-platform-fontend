@@ -78,8 +78,8 @@ const AdminDashboard = () => {
     <div className="space-y-6">
       
       <div>
-        <h1 className="text-2xl font-bold text-white mb-1">Tổng quan Hệ thống</h1>
-        <p className="text-gray-400 text-sm">Chào mừng trở lại, đây là những gì đang diễn ra trên Music Lounge hôm nay.</p>
+        <h1 className="text-2xl font-bold text-white mb-1">System Overview</h1>
+        <p className="text-gray-400 text-sm">Welcome back; here whats happening on Music Lounge today.</p>
       </div>
 
       {/* === 1. STAT CARDS === */}
@@ -106,8 +106,8 @@ const AdminDashboard = () => {
         
         {/* Stacked Bar Chart (2/3 chiều rộng) */}
         <div className="lg:col-span-2 bg-gray-900 border border-gray-800 rounded-xl p-6">
-          <h3 className="text-lg font-semibold text-white mb-1">Doanh thu 6 tháng gần đây</h3>
-          <p className="text-gray-500 text-xs mb-6">Tổng doanh thu phân chia theo Vé, Package và Donate</p>
+          <h3 className="text-lg font-semibold text-white mb-1">Revenue over the last six months</h3>
+          <p className="text-gray-500 text-xs mb-6">Total revenue by tickets, packages, and donations.</p>
           
           <div className="h-[320px] w-full">
             <ResponsiveContainer width="100%" height="100%">
@@ -117,8 +117,8 @@ const AdminDashboard = () => {
                 <YAxis tick={{ fill: '#888', fontSize: 12 }} axisLine={{ stroke: '#333' }} tickLine={false} tickFormatter={formatCurrency} />
                 <Tooltip content={<DashboardChartTooltip />} cursor={{ fill: 'rgba(255, 255, 255, 0.05)' }} />
                 <Legend wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }} />
-                <Bar dataKey="ve" name="Bán vé" stackId="a" fill="#C3B665" radius={[0, 0, 0, 0]} />
-                <Bar dataKey="package" name="Gói Package" stackId="a" fill="#3b82f6" radius={[0, 0, 0, 0]} />
+                <Bar dataKey="ve" name="Ticket sold" stackId="a" fill="#C3B665" radius={[0, 0, 0, 0]} />
+                <Bar dataKey="package" name="Package" stackId="a" fill="#3b82f6" radius={[0, 0, 0, 0]} />
                 <Bar dataKey="donate" name="Donate" stackId="a" fill="#a855f7" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
@@ -127,8 +127,8 @@ const AdminDashboard = () => {
 
         {/* Doughnut Chart (1/3 chiều rộng) */}
         <div className="lg:col-span-1 bg-gray-900 border border-gray-800 rounded-xl p-6 flex flex-col">
-          <h3 className="text-lg font-semibold text-white mb-1">Tỷ lệ doanh thu tháng này</h3>
-          <p className="text-gray-500 text-xs mb-4">Phân bổ nguồn thu</p>
+          <h3 className="text-lg font-semibold text-white mb-1">This month Revenue</h3>
+          <p className="text-gray-500 text-xs mb-4">Revenue Allocation</p>
           
           <div className="relative h-[200px] w-full mt-2">
             <ResponsiveContainer width="100%" height="100%">
@@ -143,7 +143,7 @@ const AdminDashboard = () => {
             </ResponsiveContainer>
             {/* Text ở giữa Doughnut */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none">
-              <p className="text-xs text-gray-500">Tổng</p>
+              <p className="text-xs text-gray-500">Total</p>
               <p className="text-lg font-bold text-white">{formatCurrency(totalRevenueThisMonth)}đ</p>
             </div>
           </div>
@@ -170,17 +170,17 @@ const AdminDashboard = () => {
         {/* Top Shows Table (2/3 chiều rộng) */}
         <div className="lg:col-span-2 bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
           <div className="p-6 pb-4">
-            <h3 className="text-lg font-semibold text-white">Top chương trình xuất sắc</h3>
-            <p className="text-gray-500 text-xs">Xếp hạng theo doanh thu tháng này</p>
+            <h3 className="text-lg font-semibold text-white">Top shows</h3>
+            <p className="text-gray-500 text-xs">Ranked revenue this month</p>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left whitespace-nowrap">
               <thead className="bg-black/40 border-y border-gray-800">
                 <tr>
-                  <th className="p-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Chương trình</th>
-                  <th className="p-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Vé bán</th>
-                  <th className="p-4 text-xs font-semibold text-gray-400 uppercase tracking-wider text-right">Doanh thu</th>
-                  <th className="p-4 text-xs font-semibold text-gray-400 uppercase tracking-wider text-center">Xu hướng</th>
+                  <th className="p-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Show</th>
+                  <th className="p-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Tickets sold</th>
+                  <th className="p-4 text-xs font-semibold text-gray-400 uppercase tracking-wider text-right">Revenue</th>
+                  <th className="p-4 text-xs font-semibold text-gray-400 uppercase tracking-wider text-center">Treding</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-800">
@@ -216,9 +216,9 @@ const AdminDashboard = () => {
         <div className="lg:col-span-1 bg-gray-900 border border-gray-800 rounded-xl p-6">
           <div className="flex items-center gap-2 mb-1">
             <Flame size={20} className="text-orange-400" />
-            <h3 className="text-lg font-semibold text-white">Thể loại Trending</h3>
+            <h3 className="text-lg font-semibold text-white">Trending type</h3>
           </div>
-          <p className="text-gray-500 text-xs mb-6">Dựa trên lượt tương tác & tìm kiếm</p>
+          <p className="text-gray-500 text-xs mb-6">Based on interactions and search activity</p>
 
           <div className="space-y-4">
             {trendingGenresData.map((item, index) => (

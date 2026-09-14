@@ -11,13 +11,13 @@ const ComplaintsTable = ({ complaints, isLoading, pagination, onViewDetail, onPa
           <thead className="bg-black/40 border-b border-gray-800">
             <tr>
               <th className="p-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">#ID</th>
-              <th className="p-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Danh mục</th>
-              <th className="p-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Nội dung</th>
-              <th className="p-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Đối tượng</th>
-              <th className="p-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">SĐT</th>
-              <th className="p-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Trạng thái</th>
-              <th className="p-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Thời gian</th>
-              <th className="p-4 text-xs font-semibold text-gray-400 uppercase tracking-wider text-center">Chi tiết</th>
+              <th className="p-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Categories</th>
+              <th className="p-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Description</th>
+              <th className="p-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Target</th>
+              <th className="p-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Contact Number</th>
+              <th className="p-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Status</th>
+              <th className="p-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Created</th>
+              <th className="p-4 text-xs font-semibold text-gray-400 uppercase tracking-wider text-center">Action</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-800">
@@ -54,7 +54,7 @@ const ComplaintsTable = ({ complaints, isLoading, pagination, onViewDetail, onPa
               <tr>
                 <td colSpan="8" className="p-10 text-center text-gray-500">
                   <MessageSquareWarning size="32" className="mx-auto mb-3 opacity-50" />
-                  Không tìm thấy khiếu nại nào.
+                  No complaint.
                 </td>
               </tr>
             )}
@@ -66,7 +66,7 @@ const ComplaintsTable = ({ complaints, isLoading, pagination, onViewDetail, onPa
       {!isLoading && complaints.length > 0 && (
         <div className="flex items-center justify-between p-4 border-t border-gray-800">
           <p className="text-sm text-gray-500">
-            Trang {pagination.page} / {pagination.totalPages} (Tổng: {pagination.totalCount} khiếu nại)
+            Trang {pagination.page} / {pagination.totalPages} (Total: {pagination.totalCount} complaint)
           </p>
           <div className="flex gap-2">
             <button

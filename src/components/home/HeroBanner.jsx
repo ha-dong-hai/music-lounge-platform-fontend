@@ -37,10 +37,10 @@ const HeroBanner = ({ events = [] }) => {
     setWishlistStates(prev => ({ ...prev, [id]: !isWishlisted }))
     try {
       await toggleWishlist(id, isWishlisted)
-      toast.success(isWishlisted ? 'Đã xóa khỏi Wishlist!' : 'Đã thêm vào Wishlist!')
+      toast.success(isWishlisted ? 'Removed from Wishlist!' : 'Add to Wishlist!')
     } catch (err) {
       setWishlistStates(prev => ({ ...prev, [id]: isWishlisted }))
-      toast.error('Thao tác thất bại.')
+      toast.error('Process failed.')
     }
   }
 

@@ -27,9 +27,9 @@ const LoungeHero = ({ lounge, isFollowing, onToggleFollow }) => {
   const handleShare = async () => {
     try {
       await navigator.clipboard.writeText(window.location.href)
-      toast.success('Đã sao chép link phòng trà!')
+      toast.success('Link copied!')
     } catch {
-      toast.error('Không thể sao chép link.')
+      toast.error('Unable to copy.')
     }
   }
 
@@ -60,7 +60,7 @@ const LoungeHero = ({ lounge, isFollowing, onToggleFollow }) => {
             onClick={handleShare}
             className="flex items-center gap-2 px-4 py-2 bg-black/40 hover:bg-black/70 text-white rounded-full backdrop-blur-sm transition-all border border-white/10 text-sm font-medium"
           >
-            <Share2 size={18} /> Chia sẻ
+            <Share2 size={18} /> Share
           </button>
 
           {/* NÚT FOLLOW — props từ cha */}
@@ -72,7 +72,7 @@ const LoungeHero = ({ lounge, isFollowing, onToggleFollow }) => {
                 : 'bg-[#C3B665] hover:bg-[#d4c87f] text-black'
             }`}
           >
-            {isFollowing ? <><Check size={18} /> Đang theo dõi</> : <><UserPlus size={18} /> Theo dõi</>}
+            {isFollowing ? <><Check size={18} /> Following</> : <><UserPlus size={18} /> Follow</>}
           </button>
         </div>
       </div>

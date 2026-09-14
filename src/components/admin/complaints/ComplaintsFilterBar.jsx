@@ -14,7 +14,7 @@ const ComplaintsFilterBar = ({
         <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
         <input
           type="text"
-          placeholder="Tìm nội dung, SĐT, #ID... (trong trang hiện tại)"
+          placeholder="Search Complaint, Number, #ID... (trong trang hiện tại)"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="w-full pl-10 pr-4 py-2.5 bg-black border border-gray-800 rounded-lg text-sm text-white focus:outline-none focus:border-[#C3B665]/50"
@@ -26,7 +26,7 @@ const ComplaintsFilterBar = ({
         onChange={(e) => setCategoryFilter(e.target.value)}
         className="w-full lg:w-auto px-4 py-2.5 bg-black border border-gray-800 rounded-lg text-sm text-white focus:outline-none focus:border-[#C3B665]/50 cursor-pointer"
       >
-        <option value="all">Tất cả danh mục</option>
+        <option value="all">All categories</option>
         {Object.keys(CATEGORY_CONFIG).map(key => (
           <option key={key} value={key}>{CATEGORY_CONFIG[key].label}</option>
         ))}
@@ -37,10 +37,10 @@ const ComplaintsFilterBar = ({
         onChange={(e) => setStatusFilter(e.target.value)}
         className="w-full lg:w-auto px-4 py-2.5 bg-black border border-gray-800 rounded-lg text-sm text-white focus:outline-none focus:border-[#C3B665]/50 cursor-pointer"
       >
-        <option value="all">Tất cả trạng thái</option>
+        <option value="all">All categories</option>
         {/* Tạm chỉ 2 option chắc chắn có ở BE */}
-        <option value="Open">Chờ xử lý</option>
-        <option value="Resolved">Đã giải quyết</option>
+        <option value="Open">Pending</option>
+        <option value="Resolved">Resolved</option>
       </select>
     </div>
   )

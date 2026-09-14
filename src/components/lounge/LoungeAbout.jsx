@@ -21,7 +21,7 @@ const LoungeAbout = ({ lounge, zones = [] }) => {
       {/* KHU VỰC CHỖ NGỒI — từ BE zones thật */}
       {hasZones && (
         <div>
-          <h2 className="text-2xl font-bold text-white mb-6">Khu vực chỗ ngồi</h2>
+          <h2 className="text-2xl font-bold text-white mb-6">Seating area</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             {zones.map(zone => (
               <div key={zone.id} className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden hover:border-[#C3B665]/40 transition-colors">
@@ -35,7 +35,7 @@ const LoungeAbout = ({ lounge, zones = [] }) => {
                       {zone.name}
                     </h3>
                     <span className="flex-shrink-0 inline-flex items-center gap-1 bg-black/60 text-white text-xs font-medium px-3 py-1 rounded-full border border-white/10">
-                      <Users size={12} /> {zone.capacity} chỗ
+                      <Users size={12} /> {zone.capacity} seats
                     </span>
                   </div>
                   <p className="text-gray-400 text-sm leading-snug min-h-[40px]">
@@ -51,7 +51,7 @@ const LoungeAbout = ({ lounge, zones = [] }) => {
       {/* FALLBACK: ảnh sơ đồ layout tổng nếu không có zones */}
       {!hasZones && hasLayoutImage && (
         <div>
-          <h2 className="text-2xl font-bold text-white mb-6">Sơ đồ khu vực</h2>
+          <h2 className="text-2xl font-bold text-white mb-6">Area map</h2>
           <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
             <img src={lounge.areaLayoutImageUrl} alt="Sơ đồ khu vực" className="w-full object-contain" />
           </div>

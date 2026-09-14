@@ -30,19 +30,19 @@ const AdminLayout = () => {
             <LayoutDashboard size={18} /> Dashboard
           </NavLink>
           <NavLink to="/admin/shows" className={linkClasses}>
-            <Music size={18} /> Chương trình âm nhạc
+            <Music size={18} /> Musical Shows
           </NavLink>
           <NavLink to="/admin/accounts" className={linkClasses}>
-            <Users size={18} /> Quản lý tài khoản
+            <Users size={18} /> Account management
           </NavLink>
           <NavLink to="/admin/packages" className={linkClasses}>
-            <Package size={18} /> Gói Package
+            <Package size={18} /> Package
           </NavLink>
           <NavLink to="/admin/ledger" className={linkClasses}>
             <Receipt size={18} /> Sổ cái (Ledger)
           </NavLink>
           <NavLink to="/admin/complaint" className={linkClasses}>
-            <MessageSquareWarning size={18} /> Phàn nàn (Complaint)
+            <MessageSquareWarning size={18} /> Report
           </NavLink>
         </nav>
 
@@ -51,7 +51,7 @@ const AdminLayout = () => {
             onClick={handleLogout}
             className="flex items-center gap-3 px-4 py-3 w-full rounded-lg text-sm font-medium text-red-500 hover:text-white hover:bg-red-500/10 transition-colors"
           >
-            <LogOut size={18} /> Đăng xuất
+            <LogOut size={18} /> Logout
           </button>
         </div>
       </aside>

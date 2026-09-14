@@ -104,7 +104,7 @@ const ChatPanel = ({ messages, performers, onSendMessage, onSendDonation, onRepo
                 className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-300 hover:bg-gray-800 hover:text-white transition-colors text-left"
               >
                 <Flag size={15} className="text-gray-400" />
-                Báo cáo vi phạm
+                Report
               </button>
 
               {/* Sẵn slot cho action tương lai: collapse chat, chặn user,... */}
@@ -138,7 +138,7 @@ const ChatPanel = ({ messages, performers, onSendMessage, onSendDonation, onRepo
                 <img src={msg.user?.avatarUrl || `https://api.dicebear.com/7.x/initials/svg?seed=${msg.user?.name}`} className="w-6 h-6 rounded-full flex-shrink-0 border border-gray-700" alt="" />
                 <div className="min-w-0">
                   <p className={`text-xs font-semibold truncate ${msg.isMine ? 'text-[#C3B665]' : 'text-gray-400'}`}>
-                    {msg.user?.name}{msg.isMine && ' (Bạn)'}
+                    {msg.user?.name}{msg.isMine && ' (You)'}
                   </p>
                   <p className="text-sm text-white break-words">{msg.content}</p>
                 </div>
@@ -154,7 +154,7 @@ const ChatPanel = ({ messages, performers, onSendMessage, onSendDonation, onRepo
             className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#C3B665] text-black text-xs font-bold shadow-lg shadow-black/50 hover:bg-[#d4c87f] transition-colors z-10"
           >
             <ChevronDown size={14} />
-            {unreadCount} tin nhắn mới
+            {unreadCount} new message
           </button>
         )}
       </div>

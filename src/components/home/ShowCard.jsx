@@ -81,7 +81,7 @@ const ShowCard = ({
       onWishlistChange?.(!prev)
     } catch (err) {
       setWished(prev)
-      toast.error('Thao tác thất bại.')
+      toast.error('Process failed.')
     }
   }
 

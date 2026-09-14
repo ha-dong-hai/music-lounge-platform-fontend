@@ -17,7 +17,7 @@ const Header = () => {
   const handleLogout = () => {
     logout()
     setIsUserMenuOpen(false)
-    toast.success('Đã đăng xuất')
+    toast.success('Logout account')
   }
 
   // ÀM SUBMIT TÌM KIẾM SẼ CHUYỂN TRANG
