@@ -56,7 +56,9 @@ export const PackageCard = ({ pkg, onEdit, onToggleStatus }) => {
         <span className="inline-flex px-2.5 py-1 rounded-full text-[11px] font-bold bg-[#C3B665]/10 text-[#C3B665] border border-[#C3B665]/25 uppercase tracking-wide">
           {pkg.billingCycle === 'Yearly' ? 'Yearly' : 'Monthly'}
         </span>
-        <p className="text-sm text-gray-500 line-clamp-2 min-h-[40px] mt-3">
+        <p 
+        title={pkg.description || ''}
+        className="text-sm text-gray-500 line-clamp-2 min-h-[40px] mt-3">
           {pkg.description || "No description"}
         </p>
       </div>

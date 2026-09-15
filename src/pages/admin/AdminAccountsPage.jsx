@@ -6,6 +6,7 @@ import StatsCards from '../../components/admin/accounts/StatsCards'
 import AccountsFilterBar from '../../components/admin/accounts/AccountsFilterBar'
 import AccountsTable from '../../components/admin/accounts/AccountsTable'
 import AccountDetailModal from '../../components/admin/accounts/AccountDetailModal'
+import ConfirmModal from '../../components/shared/ConfirmModal'
 
 // --- MAIN COMPONENT: giữ State + Logic, giao UI cho các component con ---
 const AdminAccountsPage = () => {
@@ -13,6 +14,8 @@ const AdminAccountsPage = () => {
   const [accounts, setAccounts] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [pagination, setPagination] = useState({ page: 1, totalPages: 1, totalCount: 0 })
+
+  const [confirmTarget, setConfirmTarget] = useState(null) // account sắp bị ban/unban
 
   // State Filters
   const [searchQuery, setSearchQuery] = useState('')
@@ -99,30 +102,34 @@ const AdminAccountsPage = () => {
     if (isUpdating) return
     const acc = accounts.find(a => a.id === id)
     if (acc?.role === 'Admin') {
-      toast.error('Cannot ban roll Admin!')
+      toast.error('Can not banned role Admin!')
       return
     }
+    setConfirmTarget({ id, currentStatus, name: acc?.fullName })
+  }
+
+  // 5. HANDLER: User ĐỒNG Ý trong modal → thực thi (logic cũ giữ nguyên)
+  const executeToggleBan = async () => {
+    if (!confirmTarget) return
+    const { id, currentStatus } = confirmTarget
 
     setIsUpdating(true)
     try {
       await toggleUserBan(id, currentStatus)
-      toast.success(currentStatus ? 'Banned account' : 'Unban account')
+      toast.success(currentStatus ? 'Đã khóa tài khoản' : 'Đã mở khóa tài khoản')
 
       const newStatus = !currentStatus
-
-      // Cập nhật bảng
       setAccounts(prev => prev.map(a => a.id === id ? { ...a, isActive: newStatus } : a))
-      // Cập nhật modal nếu đang mở
       if (selectedAcc?.id === id) {
         setSelectedAcc(prev => ({ ...prev, isActive: newStatus }))
       }
-      // Cập nhật thẻ thống kê (mở khóa -> giảm, khóa -> tăng)
       setStats(prevStats => ({
         ...prevStats,
         banned: newStatus ? prevStats.banned - 1 : prevStats.banned + 1
       }))
+      setConfirmTarget(null) // đóng modal
     } catch (err) {
-      toast.error('Process failed')
+      toast.error('Process Failed')
     } finally {
       setIsUpdating(false)
     }
@@ -164,6 +171,22 @@ const AdminAccountsPage = () => {
         onClose={() => setSelectedAcc(null)}
         onToggleBan={handleToggleBan}
       />
+
+      <ConfirmModal
+        isOpen={!!confirmTarget}
+        title={confirmTarget?.currentStatus ? 'Khóa tài khoản?' : 'Mở khóa tài khoản?'}
+        message={
+          confirmTarget?.currentStatus
+            ? `Tài khoản "${confirmTarget?.name}" sẽ không thể đăng nhập và sử dụng hệ thống cho tới khi được mở khóa.`
+            : `Tài khoản "${confirmTarget?.name}" sẽ có thể đăng nhập và hoạt động trở lại bình thường.`
+        }
+        confirmText={confirmTarget?.currentStatus ? 'Khóa ngay' : 'Mở khóa'}
+        danger={confirmTarget?.currentStatus}
+        isProcessing={isUpdating}
+        onClose={() => setConfirmTarget(null)}
+        onConfirm={executeToggleBan}
+      />
+
     </div>
   )
 }
