@@ -1,16 +1,5 @@
 import { X, AlertTriangle, Loader2 } from 'lucide-react'
 
-/**
- * Modal xác nhận hành động — dùng chung toàn app
- * @param {boolean} isOpen
- * @param {string} title - Tiêu đề (VD: "Khóa tài khoản?")
- * @param {string} message - Nội dung mô tả (VD: "Bạn có chắc muốn khóa Nguyễn Văn A?")
- * @param {string} confirmText - Text nút confirm (VD: "Khóa")
- * @param {string} danger - true: nút đỏ (hành động nguy hiểm) | false: nút vàng
- * @param {boolean} isProcessing - đang gọi API → khóa nút
- * @param {function} onClose - hủy
- * @param {function} onConfirm - đồng ý
- */
 const ConfirmModal = ({
   isOpen,
   title,
