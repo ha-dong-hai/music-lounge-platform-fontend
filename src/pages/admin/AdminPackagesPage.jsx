@@ -5,10 +5,13 @@ import toast from 'react-hot-toast'
 import { getPackages, createPackage, updatePackage } from '../../services/packageServices'
 import { PackageCard, HiddenPackageCard } from '../../components/admin/packages/PackageCard'
 import PackageFormModal from '../../components/admin/packages/PackageFormModal'
+import ConfirmModal from '../../components/shared/ConfirmModal'
 
 const AdminPackagesPage = () => {
   const [packages, setPackages] = useState([])
   const [isLoading, setIsLoading] = useState(true)
+
+  const [confirmPkg, setConfirmPkg] = useState(null) // package sắp hide/unhide
 
   // Modal state: currentPkg = null → tạo mới, có object → đang sửa
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -46,6 +49,13 @@ const AdminPackagesPage = () => {
 
   // 3. TOGGLE ẨN/HIỆN GÓI — gửi ĐẦY ĐỦ field để không bị reset hạn mức về 0
   const handleToggleStatus = async (pkg) => {
+    setConfirmPkg(pkg)
+  }
+
+  // User đồng ý → thực thi (payload đầy đủ field để không reset hạn mức về 0)
+  const executeToggleStatus = async () => {
+    if (!confirmPkg) return
+    const pkg = confirmPkg
     try {
       const payload = {
         description: pkg.description,
@@ -57,8 +67,9 @@ const AdminPackagesPage = () => {
         isActive: !pkg.isActive
       }
       await updatePackage(pkg.id, payload)
-      toast.success(`${!pkg.isActive ? 'Reveal' : 'Unhide'} gói ${pkg.name}`)
+      toast.success(`${!pkg.isActive ? 'Show' : 'Hide'} ${pkg.name} Package`)
       setPackages(prev => prev.map(p => p.id === pkg.id ? { ...p, isActive: !pkg.isActive } : p))
+      setConfirmPkg(null)
     } catch (err) {
       toast.error('Process failed')
     }
@@ -236,6 +247,23 @@ const AdminPackagesPage = () => {
         onClose={() => setIsModalOpen(false)}
         onSubmit={handleFormSubmit}
       />
+
+      {/* CONFIRM HIDE/UNHIDE MODAL */}
+      <ConfirmModal
+        isOpen={!!confirmPkg}
+        title={confirmPkg?.isActive ? 'Hide Package?' : 'Show Package?'}
+        message={
+          confirmPkg?.isActive
+            ? `Package "${confirmPkg?.name}" will be hidden from the Package list — Owners currently using this plan will retain their current benefits (can't renew another one)`
+            : `Package "${confirmPkg?.name}" will return to Package list for the owner to select.`
+        }
+        confirmText={confirmPkg?.isActive ? 'Hide' : 'Show'}
+        danger={confirmPkg?.isActive}
+        isProcessing={false}
+        onClose={() => setConfirmPkg(null)}
+        onConfirm={executeToggleStatus}
+      />
+
     </div>
   )
 }
