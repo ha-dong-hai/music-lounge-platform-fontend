@@ -1,10 +1,12 @@
 import { useState, useEffect, useRef } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { ArrowLeft, Loader2, AlertCircle, WifiOff, Eye } from 'lucide-react'
+import { ArrowLeft, Loader2, AlertCircle, WifiOff, Eye, Square} from 'lucide-react'
 import StreamPlayer from '../../components/livestream/StreamPlayer'
 import ChatPanel from '../../components/livestream/ChatPanel'
 import { getShowDetail } from '../../services/showServices'
 import { useAuthStore } from '../../store/useAuthStore'
+
+import RatingModal from '../../components/livestream/RatingModal'
 
 // ===== MOCK DATA (giả lập viewer + chat + donate) =====
 const MOCK_VIEWERS = [254, 271, 268, 289, 305, 298, 312, 328]
@@ -35,6 +37,8 @@ const LivestreamWatchPage = () => {
   const [showData, setShowData] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(null)
+
+  const [showRatingModal, setShowRatingModal] = useState(false)
 
   // UI STATE (mock — BE sẽ thay bằng trạng thái connection thật)
   const [isChatConnected, setIsChatConnected] = useState(true)
@@ -96,6 +100,59 @@ const LivestreamWatchPage = () => {
     return () => clearInterval(viewerTimer)
   }, [])
 
+  useEffect(() => {
+    if (!showData) return
+    if (!user) return                        // đánh giá gắn tài khoản → chỉ hỏi user đã login
+    if (localStorage.getItem(`rated_show_${showId}`)) return // đã hỏi rồi → thôi
+
+    const hasEnded = () => {
+      // Ưu tiên scheduledEnd, fallback status 'Ended' (BE đang trả field này)
+      if (showData.scheduledEnd) return dayjs().isAfter(dayjs(showData.scheduledEnd))
+      if (showData.status) return String(showData.status).toLowerCase() === 'ended'
+      return false
+    }
+
+    let modalTimer = null
+    let interval = null
+
+    const triggerIfEnded = () => {
+      if (hasEnded()) {
+        if (interval) clearInterval(interval)
+        // Delay 3s cho tự nhiên — kiểu YouTube hiện survey sau khi stream tắt
+        modalTimer = setTimeout(() => setShowRatingModal(true), 3000)
+        return true
+      }
+      return false
+    }
+
+    if (!triggerIfEnded()) {
+      // Show đang live → check lại mỗi 30s (bắt được lúc kết thúc khi user vẫn đang xem)
+      interval = setInterval(triggerIfEnded, 30000)
+    }
+
+    return () => {
+      if (interval) clearInterval(interval)
+      if (modalTimer) clearTimeout(modalTimer)
+    }
+  }, [showData, showId, user])
+
+  // SUBMIT ĐÁNH GIÁ — mock, thay bằng API thật khi BE có
+  const handleRateSubmit = async (rating, comment) => {
+    console.log('RATING SUBMITTED:', { showId, rating, comment })
+    await new Promise(r => setTimeout(r, 800)) // giả lập latency
+    // throw new Error('test') // bỏ comment để test UI lỗi
+  }
+
+  // Đóng modal (skip hoặc sau khi gửi xong) → đánh dấu đã hỏi, không hiện lại
+  const handleCloseRating = () => {
+    setShowRatingModal(false)
+    localStorage.setItem(`rated_show_${showId}`, 'true')
+  }
+
+  const handleEndStreamClick = () => {
+    setShowRatingModal(true)
+  }
+
   // GỬI CHAT (mock): tin của mình hiện ngay kèm tag "You"
   const handleSendMessage = async (text) => {
     setMessages(prev => [...prev, {
@@ -121,11 +178,11 @@ const LivestreamWatchPage = () => {
   }
 
   const handleReport = async (reason, description) => {
-  // TẠM GIẢ LẬP — khi BE có API report chat thì thay bằng axiosClient.post(...)
-  console.log('REPORT SUBMITTED:', { showId, reason, description })
-  await new Promise(r => setTimeout(r, 800)) // giả lập latency
-  // throw new Error('test') // bỏ comment dòng này để test UI lỗi
-}
+    // TẠM GIẢ LẬP — khi BE có API report chat thì thay bằng axiosClient.post(...)
+    console.log('REPORT SUBMITTED:', { showId, reason, description })
+    await new Promise(r => setTimeout(r, 800)) // giả lập latency
+    // throw new Error('test') // bỏ comment dòng này để test UI lỗi
+  }
 
   const handleRemoveAlert = (id) => {
     setDonationAlerts(prev => prev.filter(a => a.id !== id))
@@ -169,6 +226,15 @@ const LivestreamWatchPage = () => {
             )}
           </p>
         </div>
+
+        <button
+          onClick={handleEndStreamClick}
+          className="flex-shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-lg bg-red-500/10 border border-red-500/40 text-red-400 text-xs font-bold hover:bg-red-500/20 transition-colors"
+          title="Kết thúc stream (test modal đánh giá)"
+        >
+          <Square size={12} className="fill-red-400" /> Kết thúc
+        </button>
+
       </div>
 
       {/* BODY: VIDEO + CHAT */}
@@ -191,7 +257,17 @@ const LivestreamWatchPage = () => {
           />
         </div>
       </div>
+
+      {showRatingModal && (
+        <RatingModal
+          showName={showData?.name}
+          onClose={handleCloseRating}
+          onSubmit={handleRateSubmit}
+        />
+      )}
+
     </div>
+
   )
 }
 
