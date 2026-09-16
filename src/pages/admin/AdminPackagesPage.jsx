@@ -253,9 +253,25 @@ const AdminPackagesPage = () => {
         isOpen={!!confirmPkg}
         title={confirmPkg?.isActive ? 'Hide Package?' : 'Show Package?'}
         message={
-          confirmPkg?.isActive
-            ? `Package "${confirmPkg?.name}" will be hidden from the Package list — Owners currently using this plan will retain their current benefits (can't renew another one)`
-            : `Package "${confirmPkg?.name}" will return to Package list for the owner to select.`
+          confirmPkg?.isActive ? (
+            <>
+              <div>
+                Package "<span className="font-bold text-white">{confirmPkg?.name}</span>" will be hidden from the Package list.
+              </div>
+              <div className="text-xs text-white mt-1.5">
+                Owners using this plan keep their current benefits, but can't renew it.
+              </div>
+            </>
+          ) : (
+            <>
+              <div>
+                Package "<span className="font-bold text-white">{confirmPkg?.name}</span>" will return to the Package list.
+              </div>
+              <div className="text-xs text-gray-500 mt-1.5">
+                Owners can select this plan when subscribing.
+              </div>
+            </>
+          )
         }
         confirmText={confirmPkg?.isActive ? 'Hide' : 'Show'}
         danger={confirmPkg?.isActive}

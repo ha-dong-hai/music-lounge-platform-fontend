@@ -177,8 +177,8 @@ const AdminAccountsPage = () => {
         title={confirmTarget?.currentStatus ? 'Khóa tài khoản?' : 'Mở khóa tài khoản?'}
         message={
           confirmTarget?.currentStatus
-            ? `Tài khoản "${confirmTarget?.name}" sẽ không thể đăng nhập và sử dụng hệ thống cho tới khi được mở khóa.`
-            : `Tài khoản "${confirmTarget?.name}" sẽ có thể đăng nhập và hoạt động trở lại bình thường.`
+            ? <>Account "<span className="font-bold text-white">{confirmTarget?.name}</span>" will not be able to login system until it is unlocked.</>
+            : <>Account "<span className="font-bold text-white">{confirmTarget?.name}</span>" will be able to Login normally.</>
         }
         confirmText={confirmTarget?.currentStatus ? 'Khóa ngay' : 'Mở khóa'}
         danger={confirmTarget?.currentStatus}

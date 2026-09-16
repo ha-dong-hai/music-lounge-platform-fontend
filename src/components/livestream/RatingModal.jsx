@@ -3,11 +3,11 @@ import { X, Star, Loader2, PartyPopper } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 const RATING_LABELS = {
-  1: 'Rất tệ 😞',
-  2: 'Tạm chưa ổn 😕',
-  3: 'Tạm được 🙂',
-  4: 'Tốt lắm! 😃',
-  5: 'Tuyệt vời! 🤩',
+  1: 'Very bad 😞',
+  2: 'Not so good 😕',
+  3: 'Okay 🙂',
+  4: 'Very good! 😃',
+  5: 'Great! 🤩',
 }
 
 const RatingModal = ({ showName, onClose, onSubmit }) => {
