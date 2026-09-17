@@ -53,7 +53,7 @@ const ShowIntro  = ({ data, isFollowing, onToggleFollow }) => {
                       <p className="text-white text-sm font-medium truncate">{p.name}</p>
                       {p.acceptsDonation && (
                         <span className="inline-flex items-center gap-1 text-xs text-[#C3B665] mt-0.5">
-                          <Star size={10} className="fill-[#C3B665]" /> Nhận Donate
+                          <Star size={10} className="fill-[#C3B665]" /> Accept Donate
                         </span>
                       )}
                     </div>
@@ -61,7 +61,7 @@ const ShowIntro  = ({ data, isFollowing, onToggleFollow }) => {
                 ))}
               </div>
             ) : (
-              <p className="text-white text-sm">Đang cập nhật</p>
+              <p className="text-white text-sm">Updating</p>
             )}
           </div>
         </div>
@@ -82,9 +82,9 @@ const ShowIntro  = ({ data, isFollowing, onToggleFollow }) => {
             }`}
           >
             {isFollowing ? (
-              <><Check size={16} strokeWidth={3}/> Đang theo dõi</>
+              <><Check size={16} strokeWidth={3}/> Following</>
             ) : (
-              <><Plus size={16} strokeWidth={3}/> Theo dõi</>
+              <><Plus size={16} strokeWidth={3}/> Follow</>
             )}
           </button>
         </div>

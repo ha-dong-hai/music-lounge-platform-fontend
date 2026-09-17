@@ -6,6 +6,7 @@ import StatsCards from '../../components/admin/accounts/StatsCards'
 import AccountsFilterBar from '../../components/admin/accounts/AccountsFilterBar'
 import AccountsTable from '../../components/admin/accounts/AccountsTable'
 import AccountDetailModal from '../../components/admin/accounts/AccountDetailModal'
+import ConfirmModal from '../../components/shared/ConfirmModal'
 
 // --- MAIN COMPONENT: giữ State + Logic, giao UI cho các component con ---
 const AdminAccountsPage = () => {
@@ -14,13 +15,15 @@ const AdminAccountsPage = () => {
   const [isLoading, setIsLoading] = useState(true)
   const [pagination, setPagination] = useState({ page: 1, totalPages: 1, totalCount: 0 })
 
+  const [confirmTarget, setConfirmTarget] = useState(null) // account sắp bị ban/unban
+
   // State Filters
   const [searchQuery, setSearchQuery] = useState('')
   const [roleFilter, setRoleFilter] = useState('all')
   const [statusFilter, setStatusFilter] = useState('all')
 
   // State Stats Cards
-  const [stats, setStats] = useState({ total: 0, users: 0, owners: 0, banned: 0 })
+  const [stats, setStats] = useState({ total: 0, users: 0, owners: 0, staff: 0, banned: 0 })
 
   // State Modal
   const [selectedAcc, setSelectedAcc] = useState(null)
@@ -59,7 +62,7 @@ const AdminAccountsPage = () => {
         }
       } catch (err) {
         console.error('Lỗi load users:', err)
-        toast.error('Không thể tải danh sách tài khoản')
+        toast.error('Error loading account list.')
       } finally {
         setIsLoading(false)
       }
@@ -87,7 +90,7 @@ const AdminAccountsPage = () => {
       const res = await getAdminUserDetail(id)
       if (res.success) { setSelectedAcc(res.data) }
     } catch (err) {
-      toast.error('Không thể tải chi tiết tài khoản')
+      toast.error('Error loading account details.')
       setSelectedAcc(null)
     } finally {
       setIsModalLoading(false)
@@ -99,9 +102,16 @@ const AdminAccountsPage = () => {
     if (isUpdating) return
     const acc = accounts.find(a => a.id === id)
     if (acc?.role === 'Admin') {
-      toast.error('Không thể khóa tài khoản Admin!')
+      toast.error('Can not banned role Admin!')
       return
     }
+    setConfirmTarget({ id, currentStatus, name: acc?.fullName })
+  }
+
+  // 5. HANDLER: User ĐỒNG Ý trong modal → thực thi (logic cũ giữ nguyên)
+  const executeToggleBan = async () => {
+    if (!confirmTarget) return
+    const { id, currentStatus } = confirmTarget
 
     setIsUpdating(true)
     try {
@@ -109,20 +119,17 @@ const AdminAccountsPage = () => {
       toast.success(currentStatus ? 'Đã khóa tài khoản' : 'Đã mở khóa tài khoản')
 
       const newStatus = !currentStatus
-
-      // Cập nhật bảng
       setAccounts(prev => prev.map(a => a.id === id ? { ...a, isActive: newStatus } : a))
-      // Cập nhật modal nếu đang mở
       if (selectedAcc?.id === id) {
         setSelectedAcc(prev => ({ ...prev, isActive: newStatus }))
       }
-      // Cập nhật thẻ thống kê (mở khóa -> giảm, khóa -> tăng)
       setStats(prevStats => ({
         ...prevStats,
         banned: newStatus ? prevStats.banned - 1 : prevStats.banned + 1
       }))
+      setConfirmTarget(null) // đóng modal
     } catch (err) {
-      toast.error('Thao tác thất bại')
+      toast.error('Process Failed')
     } finally {
       setIsUpdating(false)
     }
@@ -164,6 +171,22 @@ const AdminAccountsPage = () => {
         onClose={() => setSelectedAcc(null)}
         onToggleBan={handleToggleBan}
       />
+
+      <ConfirmModal
+        isOpen={!!confirmTarget}
+        title={confirmTarget?.currentStatus ? 'Khóa tài khoản?' : 'Mở khóa tài khoản?'}
+        message={
+          confirmTarget?.currentStatus
+            ? <>Account "<span className="font-bold text-white">{confirmTarget?.name}</span>" will not be able to login system until it is unlocked.</>
+            : <>Account "<span className="font-bold text-white">{confirmTarget?.name}</span>" will be able to Login normally.</>
+        }
+        confirmText={confirmTarget?.currentStatus ? 'Khóa ngay' : 'Mở khóa'}
+        danger={confirmTarget?.currentStatus}
+        isProcessing={isUpdating}
+        onClose={() => setConfirmTarget(null)}
+        onConfirm={executeToggleBan}
+      />
+
     </div>
   )
 }

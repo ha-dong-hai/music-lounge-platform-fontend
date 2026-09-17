@@ -17,7 +17,7 @@ const ComplaintDetailModal = ({ complaint, onClose }) => {
         {/* HEADER */}
         <div className="flex-none flex justify-between items-start p-6 border-b border-gray-800">
           <div>
-            <p className="text-sm text-gray-500 mb-1">Chi tiết Khiếu nại</p>
+            <p className="text-sm text-gray-500 mb-1">Report detail</p>
             <h2 className="text-xl font-bold text-white font-mono">#{c.id}</h2>
           </div>
           <button onClick={onClose} className="p-2 hover:bg-gray-800 rounded-full text-gray-400">
@@ -29,32 +29,32 @@ const ComplaintDetailModal = ({ complaint, onClose }) => {
         <div className="flex-1 overflow-y-auto p-6 space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <p className="text-xs text-gray-500 mb-1.5">Đối tượng bị khiếu nại</p>
+              <p className="text-xs text-gray-500 mb-1.5">Complaint Target</p>
               <p className="text-sm text-white font-medium">
                 {TARGET_TYPE_LABELS[c.targetType] || c.targetType} <span className="text-gray-500">#{c.targetId}</span>
               </p>
             </div>
             <div>
-              <p className="text-xs text-gray-500 mb-1.5">Danh mục</p>
+              <p className="text-xs text-gray-500 mb-1.5">Catergory</p>
               <CategoryBadge category={c.category} />
             </div>
             <div>
-              <p className="text-xs text-gray-500 mb-1.5">Trạng thái</p>
+              <p className="text-xs text-gray-500 mb-1.5">Status</p>
               <StatusBadge status={c.status} />
             </div>
             <div>
-              <p className="text-xs text-gray-500 mb-1.5">Thời gian gửi</p>
+              <p className="text-xs text-gray-500 mb-1.5">Created at</p>
               <p className="text-sm text-white">{dayjs(c.createdAt).format('HH:mm:ss DD/MM/YYYY')}</p>
             </div>
             <div>
-              <p className="text-xs text-gray-500 mb-1.5">Người gửi</p>
+              <p className="text-xs text-gray-500 mb-1.5">Sender</p>
               <p className="text-sm text-white font-medium flex items-center gap-1.5">
                 <User size={13} className="text-gray-500" />
-                {c.complainantName || <span className="italic text-gray-500">Ẩn danh</span>}
+                {c.complainantName || <span className="italic text-gray-500">Anonymous</span>}
               </p>
             </div>
             <div>
-              <p className="text-xs text-gray-500 mb-1.5">SĐT liên hệ</p>
+              <p className="text-xs text-gray-500 mb-1.5">Contact Number</p>
               <p className="text-sm text-white font-mono flex items-center gap-1.5">
                 <Phone size={13} className="text-gray-500" />
                 {c.contactPhone || '—'}
@@ -64,9 +64,9 @@ const ComplaintDetailModal = ({ complaint, onClose }) => {
 
           {/* NỘI DUNG KHIẾU NẠI */}
           <div>
-            <p className="text-xs text-gray-500 mb-1.5">Nội dung khiếu nại</p>
+            <p className="text-xs text-gray-500 mb-1.5">Complaint description</p>
             <p className="text-sm text-gray-300 leading-relaxed bg-gray-800/50 p-3 rounded-md whitespace-pre-line">
-              {c.description || 'Không có nội dung'}
+              {c.description || 'None'}
             </p>
           </div>
 
@@ -74,7 +74,7 @@ const ComplaintDetailModal = ({ complaint, onClose }) => {
           {evidences.length > 0 && (
             <div>
               <p className="text-xs text-gray-500 mb-1.5 flex items-center gap-1.5">
-                <Paperclip size={12} /> Bằng chứng đính kèm
+                <Paperclip size={12} /> Attached evidence
               </p>
               <div className="space-y-1.5">
                 {evidences.map((url, i) => (
@@ -91,26 +91,26 @@ const ComplaintDetailModal = ({ complaint, onClose }) => {
           {isResolved ? (
             <div className="bg-green-500/5 border border-green-500/20 rounded-lg p-4 space-y-2">
               <p className="text-xs font-bold text-green-400 flex items-center gap-1.5">
-                <ShieldCheck size={14} /> KẾT QUẢ XỬ LÝ
+                <ShieldCheck size={14} /> RESULT
               </p>
               {c.adminName && (
-                <p className="text-sm text-gray-300">Người xử lý: <span className="text-white font-medium">{c.adminName}</span></p>
+                <p className="text-sm text-gray-300">Handler: <span className="text-white font-medium">{c.adminName}</span></p>
               )}
               {c.resolvedAction && (
-                <p className="text-sm text-gray-300">Hành động: <span className="text-white">{c.resolvedAction}</span></p>
+                <p className="text-sm text-gray-300">Action: <span className="text-white">{c.resolvedAction}</span></p>
               )}
               {c.resolution && (
                 <p className="text-sm text-gray-300 bg-black/30 rounded-md p-2.5 italic">"{c.resolution}"</p>
               )}
               {c.resolvedAt && (
                 <p className="text-xs text-gray-500 flex items-center gap-1.5">
-                  <Clock size={11} /> Hoàn tất lúc {dayjs(c.resolvedAt).format('HH:mm DD/MM/YYYY')}
+                  <Clock size={11} /> Resolved at {dayjs(c.resolvedAt).format('HH:mm DD/MM/YYYY')}
                 </p>
               )}
             </div>
           ) : (
             <div className="bg-yellow-500/5 border border-yellow-500/20 rounded-lg p-4">
-              <p className="text-sm text-yellow-300/80 font-medium">⏳ Khiếu nại này chưa được xử lý</p>
+              <p className="text-sm text-yellow-300/80 font-medium">⏳ This complaint has not yet been processed.</p>
             </div>
           )}
         </div>
@@ -118,7 +118,7 @@ const ComplaintDetailModal = ({ complaint, onClose }) => {
         {/* FOOTER */}
         <div className="flex-none p-6 pt-4 border-t border-gray-800">
           <button onClick={onClose} className="w-full py-2.5 border border-gray-600 text-gray-300 rounded-lg font-medium hover:bg-gray-800 transition-colors">
-            Đóng
+            Close
           </button>
         </div>
       </div>

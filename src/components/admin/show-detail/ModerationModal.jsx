@@ -22,8 +22,8 @@ const ModerationModal = ({ moderation, onClose, onDecision, isProcessing }) => {
             <ShieldAlert size={22} className="text-yellow-400" />
           </div>
           <div className="flex-1 min-w-0">
-            <h2 className="text-lg font-bold text-white">Phê duyệt nội dung</h2>
-            <p className="text-sm text-gray-500">Show #{moderation.targetId} • Cần quyết định của Admin</p>
+            <h2 className="text-lg font-bold text-white">Content approval</h2>
+            <p className="text-sm text-gray-500">Show #{moderation.targetId} • Need Admin approval</p>
           </div>
           <button onClick={onClose} disabled={isProcessing} className="p-2 hover:bg-gray-800 rounded-full text-gray-400 disabled:opacity-30">
             <X size={20} />
@@ -36,23 +36,23 @@ const ModerationModal = ({ moderation, onClose, onDecision, isProcessing }) => {
           {/* 4 thông số AI */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             <div className="bg-black/30 rounded-xl p-4 flex flex-col items-center gap-2">
-              <p className="text-xs text-gray-500">Điểm AI</p>
+              <p className="text-xs text-gray-500">AI Score</p>
               <AIScoreCircle score={moderation.aiScore} />
             </div>
             <div className="bg-black/30 rounded-xl p-4 flex flex-col items-center gap-2">
-              <p className="text-xs text-gray-500">Rủi ro</p>
+              <p className="text-xs text-gray-500">Risk</p>
               <RiskLevelBadge level={moderation.riskLevel} />
             </div>
             <div className="bg-black/30 rounded-xl p-4 flex flex-col items-center gap-2">
-              <p className="text-xs text-gray-500">Khuyến nghị</p>
+              <p className="text-xs text-gray-500">Recomendation</p>
               <AiRecommendationBadge recommendation={moderation.aiRecommendation} />
             </div>
             <div className="bg-black/30 rounded-xl p-4 flex flex-col items-center justify-center gap-1 text-center">
-              <p className="text-xs text-gray-500">Hạn SLA</p>
+              <p className="text-xs text-gray-500">Deadline SLA</p>
               <p className={`text-sm font-bold ${isSlaOverdue ? 'text-red-400' : 'text-white'}`}>
                 {moderation.slaDeadline ? dayjs(moderation.slaDeadline).format('HH:mm DD/MM') : '-'}
               </p>
-              {isSlaOverdue && <p className="text-[10px] text-red-400 font-bold">ĐÃ QUÁ HẠN</p>}
+              {isSlaOverdue && <p className="text-[10px] text-red-400 font-bold">OVERDUE</p>}
             </div>
           </div>
 
@@ -61,7 +61,7 @@ const ModerationModal = ({ moderation, onClose, onDecision, isProcessing }) => {
             <div className="flex items-start gap-2 bg-yellow-500/5 border border-yellow-500/20 rounded-lg p-3">
               <AlertTriangle size={16} className="text-yellow-400 flex-shrink-0 mt-0.5" />
               <div>
-                <p className="text-xs font-bold text-yellow-400 mb-1">Lý do AI đánh dấu</p>
+                <p className="text-xs font-bold text-yellow-400 mb-1">Flag reason</p>
                 <p className="text-sm text-yellow-300/90">{moderation.flagReason}</p>
               </div>
             </div>
@@ -69,12 +69,12 @@ const ModerationModal = ({ moderation, onClose, onDecision, isProcessing }) => {
 
           {/* Ghi chú duyệt */}
           <div>
-            <label className="block text-sm font-medium text-gray-400 mb-2">Ghi chú duyệt (tùy chọn)</label>
+            <label className="block text-sm font-medium text-gray-400 mb-2">Review note (Optional)</label>
             <textarea
               rows={3}
               value={reviewNote}
               onChange={(e) => setReviewNote(e.target.value)}
-              placeholder="Lý do phê duyệt / từ chối..."
+              placeholder="Reason for approval / rejection..."
               disabled={isProcessing}
               className="w-full px-4 py-2.5 bg-black border border-gray-800 rounded-lg text-white text-sm focus:outline-none focus:border-[#C3B665]/50 resize-none disabled:opacity-50"
             />
@@ -89,8 +89,8 @@ const ModerationModal = ({ moderation, onClose, onDecision, isProcessing }) => {
             className="flex-1 py-3 rounded-xl bg-green-500 text-white font-bold hover:bg-green-600 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isProcessing === 'approve'
-              ? <><Loader2 size={18} className="animate-spin" /> Đang xử lý...</>
-              : <><Check size={18} strokeWidth={3} /> Xác nhận duyệt</>}
+              ? <><Loader2 size={18} className="animate-spin" /> Processing...</>
+              : <><Check size={18} strokeWidth={3} /> Approval</>}
           </button>
           <button
             onClick={() => onDecision('reject', reviewNote)}
@@ -98,8 +98,8 @@ const ModerationModal = ({ moderation, onClose, onDecision, isProcessing }) => {
             className="flex-1 py-3 rounded-xl bg-red-500 text-white font-bold hover:bg-red-600 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isProcessing === 'reject'
-              ? <><Loader2 size={18} className="animate-spin" /> Đang xử lý...</>
-              : <><X size={18} strokeWidth={3} /> Từ chối nội dung</>}
+              ? <><Loader2 size={18} className="animate-spin" /> Processing...</>
+              : <><X size={18} strokeWidth={3} /> Reject</>}
           </button>
         </div>
       </div>

@@ -37,7 +37,7 @@ const LoungeDetailPage = () => {
         const resLounge = await getLoungeDetail(id)
 
         if (!resLounge.success) {
-          setApiError(resLounge.message || 'Không tìm thấy phòng trà')
+          setApiError(resLounge.message || 'Lounge not found')
           return
         }
 
@@ -59,7 +59,7 @@ const LoungeDetailPage = () => {
           ...beData,
           images,
           tags: [beData.atmosphereName, beData.city].filter(Boolean),
-          description: beData.description || 'Chưa có mô tả cho phòng trà này.',
+          description: beData.description || 'There is no description for this lounge yet.',
           areaLayoutImageUrl: beData.areaLayoutImageUrl, // dùng trực tiếp (null nếu không có)
         }
         setLounge(mappedLounge)
@@ -74,7 +74,7 @@ const LoungeDetailPage = () => {
               const followedIds = followRes.data.items.map(l => l.id)
               setIsFollowing(followedIds.includes(beData.id))
             }
-          } catch (e) { console.log('Lỗi check follow status') }
+          } catch (e) { console.log('Error check follow status') }
         }
 
         // ===== FETCH SONG SONG: ZONES + SHOWS =====
@@ -100,13 +100,13 @@ const LoungeDetailPage = () => {
               start_date: show.scheduledStart,
               genre: show.genres?.[0]?.name || 'Acoustic',
               mood: 'Chill',
-              price: show.minPrice === 0 && show.maxPrice === 0 ? 'Miễn phí' : `${show.minPrice.toLocaleString('vi-VN')}đ`
+              price: show.minPrice === 0 && show.maxPrice === 0 ? 'Free' : `${show.minPrice.toLocaleString('vi-VN')}đ`
             }))
           setLoungeShows(filteredShows)
         }
       } catch (err) {
-        console.error('Lỗi tải lounge:', err)
-        setApiError('Không thể tải thông tin phòng trà.')
+        console.error('Lounge loading error:', err)
+        setApiError('Unable to load lounge data.')
       } finally {
         setIsLoading(false)
       }
@@ -117,20 +117,20 @@ const LoungeDetailPage = () => {
   // HÀM TOGGLE FOLLOW (GỌI API)
   const handleToggleFollow = async () => {
     if (isUpdatingFollow || !lounge) return
-    if (!user) { toast.error('Vui lòng đăng nhập để theo dõi.'); return }
+    if (!user) { toast.error('Please log in to follow.'); return }
 
     const prevStatus = isFollowing
     setIsFollowing(!prevStatus)
     setIsUpdatingFollow(true)
     try {
       await toggleFollowLounge(lounge.id, prevStatus)
-      toast.success(prevStatus ? `Đã bỏ theo dõi ${lounge.name}` : `Đang theo dõi ${lounge.name}`)
+      toast.success(prevStatus ? `Unfollowed ${lounge.name}` : `Following ${lounge.name}`)
       // Cập nhật đồng bộ followerCount hiển thị
       setLounge(prev => ({ ...prev, followerCount: prev.followerCount + (prevStatus ? -1 : 1) }))
     } catch (err) {
       setIsFollowing(prevStatus)
       setLounge(prev => ({ ...prev, followerCount: prev.followerCount + (prevStatus ? 1 : -1) }))
-      toast.error('Thao tác thất bại.')
+      toast.error('The process failed.')
     } finally {
       setIsUpdatingFollow(false)
     }
@@ -158,8 +158,8 @@ const LoungeDetailPage = () => {
   if (apiError || !lounge) {
     return (
       <div className="min-h-screen bg-black flex flex-col items-center justify-center text-white">
-        <h1 className="text-2xl font-bold mb-4">{apiError || 'Không tìm thấy phòng trà'}</h1>
-        <Link to="/" className="text-[#C3B665] flex items-center gap-2"><ArrowLeft size={18} /> Quay lại trang chủ</Link>
+        <h1 className="text-2xl font-bold mb-4">{apiError || 'Lounge not found'}</h1>
+        <Link to="/" className="text-[#C3B665] flex items-center gap-2"><ArrowLeft size={18} /> Return to homepage</Link>
       </div>
     )
   }

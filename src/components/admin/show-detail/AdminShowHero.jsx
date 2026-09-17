@@ -11,7 +11,7 @@ const AdminShowHero = ({ data, moderation, onOpenModeration, onOpenShare }) => {
 
       {/* Nút về trang quản lý */}
       <Link to="/admin/shows" className="absolute top-6 left-6 z-20 flex items-center gap-2 text-sm font-medium text-gray-300 bg-black/50 backdrop-blur-sm px-4 py-2 rounded-full border border-white/10 hover:border-[#C3B665] hover:text-[#C3B665] transition-colors">
-        <ArrowLeft size={16} /> Về quản lý
+        <ArrowLeft size={16} /> Return
       </Link>
 
       {/* Badge Admin View */}
@@ -47,7 +47,7 @@ const AdminShowHero = ({ data, moderation, onOpenModeration, onOpenShare }) => {
               onClick={onOpenModeration}
               className="bg-yellow-500 text-black hover:bg-yellow-400 px-8 py-3 md:py-3.5 rounded-lg text-base md:text-lg font-bold transition-colors shadow-xl mb-6 w-full md:w-auto flex items-center gap-2 animate-pulse"
             >
-              <ShieldAlert size={20} /> Nội dung chờ duyệt — Xử lý ngay
+              <ShieldAlert size={20} /> Pending approval — Process immediately
             </button>
           ) : (
             <Link 
@@ -55,7 +55,7 @@ const AdminShowHero = ({ data, moderation, onOpenModeration, onOpenShare }) => {
               target="_blank"
               className="bg-[#C3B665] text-black hover:bg-[#d4c87f] px-8 py-3 md:py-3.5 rounded-lg text-base md:text-lg font-bold transition-colors shadow-xl mb-6 w-full md:w-auto"
             >
-              Xem trang khán giả
+              View audience page
             </Link>
           )}
 
@@ -65,7 +65,7 @@ const AdminShowHero = ({ data, moderation, onOpenModeration, onOpenShare }) => {
             </button>
             {moderation && (
               <span className="text-sm text-yellow-400 font-medium flex items-center gap-1.5">
-                <AlertTriangle size={16} /> Đang chờ quyết định Admin
+                <AlertTriangle size={16} /> Awaiting admin decision
               </span>
             )}
           </div>

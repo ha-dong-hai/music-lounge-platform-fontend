@@ -21,6 +21,8 @@ import AdminComplaintPage from '../pages/admin/AdminComplaintPage'
 import LoungeDetailPage from '../pages/lounge/LoungeDetailPage'
 import TicketDetailPage from '../pages/user/TicketDetailPage'
 import LoungeListPage from '../pages/lounge/LoungeListPage'
+import LivestreamWatchPage from '../pages/livestream/LivestreamWatchPage'
+import RatingModal from '../components/livestream/RatingModal'
 
 const AppRouter = createBrowserRouter([
   {
@@ -36,8 +38,12 @@ const AppRouter = createBrowserRouter([
       { path: 'my-shows/ticket/:ticketId', element: <TicketDetailPage /> },
       { path: 'lounges', element: <LoungeListPage /> },
       { path: 'lounge/:id', element: <LoungeDetailPage /> }, 
+      { path: 'rating', element: <RatingModal /> }, 
+      
     ],
   },
+
+  { path: '/livestream/:showId', element: <LivestreamWatchPage /> },
 
   {
     path: '/admin',

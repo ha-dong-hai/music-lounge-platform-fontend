@@ -10,7 +10,7 @@ const AccountPage = () => {
   return (
     <div className="min-h-screen bg-black text-white pb-16">
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6 py-8">
-        <h1 className="text-3xl font-bold text-white mb-8">Tài khoản của tôi</h1>
+        <h1 className="text-3xl font-bold text-white mb-8">My account</h1>
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           
           {/* SIDEBAR TABS */}
@@ -20,13 +20,13 @@ const AccountPage = () => {
                 onClick={() => setActiveTab('profile')} 
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${activeTab === 'profile' ? 'bg-gray-800 text-[#C3B665]' : 'text-gray-400 hover:text-white hover:bg-gray-800/50'}`}
               >
-                <User size={18} /> Thông tin tài khoản
+                <User size={18} /> Account information
               </button>
               <button 
                 onClick={() => setActiveTab('followed')} 
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${activeTab === 'followed' ? 'bg-gray-800 text-[#C3B665]' : 'text-gray-400 hover:text-white hover:bg-gray-800/50'}`}
               >
-                <Heart size={18} /> Phòng trà đang theo dõi
+                <Heart size={18} /> Followed lounge
               </button>
             </div>
           </div>

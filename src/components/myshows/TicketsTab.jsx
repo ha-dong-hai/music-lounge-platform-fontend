@@ -98,13 +98,13 @@ const TicketsTab = () => {
   }, [tickets, activeSubTab, typeFilter, searchQuery])
 
   const subTabs = [
-    { key: 'all', label: 'Tất cả' },
-    { key: 'upcoming', label: 'Sắp diễn ra' },
-    { key: 'ended', label: 'Kết thúc' }
+    { key: 'all', label: 'All' },
+    { key: 'upcoming', label: 'Upcoming' },
+    { key: 'ended', label: 'Ended' }
   ]
   const typeTabs = [
-    { key: 'all', label: 'Mọi loại vé' },
-    { key: 'offline', label: 'Tại chỗ' },
+    { key: 'all', label: 'All' },
+    { key: 'offline', label: 'Offline' },
     { key: 'online', label: 'Livestream' }
   ]
 
@@ -145,7 +145,7 @@ const TicketsTab = () => {
         <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
         <input
           type="text"
-          placeholder="Tìm vé: tên show, phòng trà, loại vé, mã vé... (trong trang hiện tại)"
+          placeholder="Search Ticket... (only in current page)"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="w-full pl-10 pr-10 py-2.5 bg-gray-900 border border-gray-800 rounded-xl text-sm text-white placeholder:text-gray-500 focus:outline-none focus:border-[#C3B665]/50"
@@ -193,8 +193,8 @@ const TicketsTab = () => {
         /* CHƯA CÓ VÉ GÌ CẢ */
         <div className="bg-gray-900 border border-gray-800 rounded-2xl p-12 text-center min-h-[300px] flex flex-col items-center justify-center">
           <Ticket size={40} className="text-gray-700 mb-4" />
-          <p className="text-gray-400 text-lg">Chưa có vé nào trong mục này</p>
-          <Link to="/" className="mt-4 text-[#C3B665] font-semibold underline hover:text-[#d4c87f]">Khám phá các shows ngay!</Link>
+          <p className="text-gray-400 text-lg">There are no tickets in this section.</p>
+          <Link to="/" className="mt-4 text-[#C3B665] font-semibold underline hover:text-[#d4c87f]">Discover more shows!</Link>
         </div>
       ) : filteredTickets.length > 0 ? (
         <>
@@ -251,11 +251,11 @@ const TicketsTab = () => {
                       {/* KHÁC NHAU THEO LOẠI VÉ */}
                       {online ? (
                         <span className="flex-shrink-0 flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-purple-500/10 border border-purple-500/40 text-purple-300 text-xs font-bold group-hover:bg-purple-500/20 transition-colors">
-                          <Video size={14} /> Xem Livestream
+                          <Video size={14} /> View Livestream
                         </span>
                       ) : (
                         <span className="flex-shrink-0 flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-[#C3B665]/10 border border-[#C3B665]/40 text-[#C3B665] text-xs font-bold group-hover:bg-[#C3B665]/20 transition-colors">
-                          <QrCode size={14} /> Vé QR tại cửa
+                          <QrCode size={14} /> Scan QR Ticket
                         </span>
                       )}
                     </div>
@@ -270,10 +270,10 @@ const TicketsTab = () => {
         /* CÓ VÉ NHƯNG BỘ LỌC KHÔNG KHỚP */
         <div className="bg-gray-900 border border-dashed border-gray-800 rounded-2xl p-12 text-center">
           <Search size={36} className="mx-auto text-gray-700 mb-4" />
-          <p className="text-gray-400 mb-1">Không có vé nào khớp với bộ lọc</p>
-          <p className="text-gray-600 text-sm mb-5">Thử đổi từ khóa hoặc bỏ filter để xem tất cả vé của trang này</p>
+          <p className="text-gray-400 mb-1">No tickets match the filters.</p>
+          <p className="text-gray-600 text-sm mb-5">Try changing the keywords or filters</p>
           <button onClick={resetFilters} className="text-[#C3B665] font-semibold text-sm underline hover:text-[#d4c87f]">
-            Xóa tất cả bộ lọc
+            Remove all filters
           </button>
         </div>
       )}

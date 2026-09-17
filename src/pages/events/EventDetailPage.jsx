@@ -47,13 +47,13 @@ const EventDetailPage = () => {
             loungeName: beData.lounge?.name,
             loungeId: beData.lounge?.id,
             address: beData.lounge?.fullAddress,
-            dateStr: beData.scheduledStart ? dayjs(beData.scheduledStart).format('HH:mm - dddd, DD/MM/YYYY') : 'Đang cập nhật',
-            genre: beData.genres && beData.genres.length > 0 ? beData.genres[0].name : 'Đang cập nhật',
+            dateStr: beData.scheduledStart ? dayjs(beData.scheduledStart).format('HH:mm - dddd, DD/MM/YYYY') : 'Updating...',
+            genre: beData.genres && beData.genres.length > 0 ? beData.genres[0].name : 'Updating...',
             //subGenre: 'Đang cập nhật',
             performers: beData.performers || [],
             moodTags: [beData.format, beData.genres?.[0]?.name].filter(Boolean),
-            replayCondition: "Được xem lại trong vòng 48h sau sự kiện đối với vé VIP",
-            description: beData.description || "Chưa có mô tả cho sự kiện này.",
+            replayCondition: "Replay available within 48 hours after the Show for VIP tickets.",
+            description: beData.description || "There is no description for this Show yet..",
             loungeLogo: `https://api.dicebear.com/7.x/initials/svg?seed=${beData.lounge?.name || 'ML'}&backgroundColor=10b981`
           }
 
@@ -72,7 +72,7 @@ const EventDetailPage = () => {
                 setIsFollowing(followedIds.includes(beData.lounge.id))
               }
             } catch (e) {
-              console.log("Lỗi check follow status")
+              console.log("Error check follow status")
             }
           } else {
             setIsFollowing(false)
@@ -89,18 +89,18 @@ const EventDetailPage = () => {
                   title: ev.name,
                   thumbnail: ev.coverImageUrl,
                   start_date: ev.scheduledStart,
-                  price: ev.minPrice === 0 && ev.maxPrice === 0 ? 'Miễn phí' : `${ev.minPrice.toLocaleString('vi-VN')}đ`,
+                  price: ev.minPrice === 0 && ev.maxPrice === 0 ? 'Free' : `${ev.minPrice.toLocaleString('vi-VN')}đ`,
                   format: ev.format
                 }))
               setRelatedEvents(related)
             }
-          } catch (listErr) { console.log("Không tải được sự kiện liên quan") }
+          } catch (listErr) { console.log("Unable to load related shows.") }
         } else {
-          setApiError(detailRes.message || 'Không tìm thấy sự kiện')
+          setApiError(detailRes.message || 'Show not found')
         }
       } catch (err) {
-        console.error('Lỗi API Detail:', err)
-        setApiError('Không thể tải chi tiết sự kiện.')
+        console.error('API Detail Error:', err)
+        setApiError('Unable to load show details..')
       } finally {
         setIsLoading(false)
       }
@@ -117,10 +117,10 @@ const EventDetailPage = () => {
     try {
       // GỌI SERVICE
       await toggleWishlist(id, prevStatus)
-      toast.success(prevStatus ? 'Đã xóa khỏi Wishlist!' : 'Đã thêm vào Wishlist!')
+      toast.success(prevStatus ? 'Removed from Wishlist!' : 'Added to Wishlist!')
     } catch (err) {
       setIsWishlisted(prevStatus)
-      toast.error("Thao tác thất bại.")
+      toast.error("The process failed.")
     } finally {
       setIsUpdating(false)
     }
@@ -135,10 +135,10 @@ const EventDetailPage = () => {
     try {
       // GỌI SERVICE
       await toggleFollowLounge(data.loungeId, prevStatus)
-      toast.success(prevStatus ? `Đã bỏ theo dõi ${data.loungeName}` : `Đang theo dõi ${data.loungeName}`)
+      toast.success(prevStatus ? `Unfollow ${data.loungeName}` : `Follow ${data.loungeName}`)
     } catch (err) {
       setIsFollowing(prevStatus)
-      toast.error('Thao tác thất bại.')
+      toast.error('The process failed.')
     } finally {
       setIsUpdating(false)
     }
@@ -182,8 +182,8 @@ const EventDetailPage = () => {
   if (apiError || !data) {
     return (
       <div className="min-h-screen bg-black flex flex-col items-center justify-center text-white">
-        <h1 className="text-2xl font-bold text-white mb-4">{apiError || 'Không tìm thấy sự kiện'}</h1>
-        <Link to="/" className="text-[#C3B665] hover:text-[#d4c87f] flex items-center gap-2 font-medium"><ArrowLeft size={18} /> Quay lại trang chủ</Link>
+        <h1 className="text-2xl font-bold text-white mb-4">{apiError || 'Show not found'}</h1>
+        <Link to="/" className="text-[#C3B665] hover:text-[#d4c87f] flex items-center gap-2 font-medium"><ArrowLeft size={18} /> Return to homepage</Link>
       </div>
     )
   }
@@ -252,11 +252,11 @@ const EventDetailPage = () => {
               <h2 className="text-xl font-bold text-white">Chia sẻ sự kiện</h2>
               <button onClick={() => setIsShareModalOpen(false)} className="p-2 hover:bg-gray-800 rounded-full text-gray-400 transition-colors"><X size={20} /></button>
             </div>
-            <p className="text-gray-400 text-sm mb-3">Sao chép đường link bên dưới để gửi cho bạn bè:</p>
+            <p className="text-gray-400 text-sm mb-3">Copy the link below to send to friends:</p>
             <div className="flex items-center gap-2 bg-black border border-gray-800 rounded-lg p-2 pl-4">
               <span className="text-gray-300 text-sm flex-1 truncate">{window.location.href}</span>
               <button onClick={handleCopyLink} className={`px-4 py-2 rounded-md text-sm font-bold transition-colors flex items-center gap-1.5 ${isCopied ? 'bg-green-500 text-white' : 'bg-[#C3B665] text-black hover:bg-[#d4c87f]'}`}>
-                {isCopied ? <><Check size={14} /> Đã copy</> : <><Copy size={14} /> Copy</>}
+                {isCopied ? <><Check size={14} /> Copied</> : <><Copy size={14} /> Copy</>}
               </button>
             </div>
           </div>

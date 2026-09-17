@@ -91,7 +91,7 @@ const AdminShowDetailPage = () => {
       )
 
       if (res.success) {
-        toast.success(decision === 'approve' ? 'Đã phê duyệt nội dung!' : 'Đã từ chối nội dung!')
+        toast.success(decision === 'approve' ? 'Content approved!' : 'Content rejected!')
         setIsModerationOpen(false)
         setModeration(null)
         // Refresh lại show (status có thể đổi sau khi duyệt, VD: Draft → Published)
@@ -100,13 +100,13 @@ const AdminShowDetailPage = () => {
           setData(prev => ({ ...prev, status: detailRes.data.status }))
         }
       } else {
-        toast.error(res.message || 'Thao tác thất bại.')
+        toast.error(res.message || 'Process failed.')
       }
     } catch (err) {
       console.error('Lỗi duyệt:', err)
       // Hiển thị message BE trả về (VD: moderation đã được xử lý, không tồn tại...)
       const beMessage = err?.response?.data?.message
-      toast.error(beMessage || 'Thao tác thất bại. Vui lòng thử lại.')
+      toast.error(beMessage || 'Process failed. Try again.')
     } finally {
       setProcessingDecision(null)
     }
@@ -141,7 +141,7 @@ const AdminShowDetailPage = () => {
   if (apiError || !data) {
     return (
       <div className="min-h-screen bg-black flex flex-col items-center justify-center text-white">
-        <h1 className="text-2xl font-bold text-white mb-4">{apiError || 'Không tìm thấy sự kiện'}</h1>
+        <h1 className="text-2xl font-bold text-white mb-4">{apiError || 'Show not found'}</h1>
         <Link to="/admin/shows" className="text-[#C3B665] hover:text-[#d4c87f] flex items-center gap-2 font-medium"><ArrowLeft size={18} /> Quay lại danh sách</Link>
       </div>
     )
@@ -172,7 +172,7 @@ const AdminShowDetailPage = () => {
           <ShowIntro
             data={data}
             isFollowing={false}
-            onToggleFollow={() => toast('Chế độ Admin — không thể theo dõi lounge')}
+            onToggleFollow={() => toast('Admin view — cant follow lounge')}
           />
         )}
         {activeTab === 'map' && <ShowMap loungeId={data.loungeId} showData={data} readOnly />}

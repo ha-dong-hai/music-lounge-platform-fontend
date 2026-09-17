@@ -25,7 +25,7 @@ const FilterModal = ({ isOpen, onClose, initialFilters, onApply }) => {
           setOptions(res.data)
         }
       } catch (err) {
-        console.error('Lỗi tải filter options:', err)
+        console.error('Error loading filter options:', err)
       }
     }
     fetchOptions()
@@ -41,7 +41,7 @@ const FilterModal = ({ isOpen, onClose, initialFilters, onApply }) => {
             setDistricts(res.data)
           }
         } catch (err) {
-          console.error('Lỗi tải districts:', err)
+          console.error('Error loading districts:', err)
         }
       }
       fetchDistricts()
@@ -114,7 +114,7 @@ const FilterModal = ({ isOpen, onClose, initialFilters, onApply }) => {
               selectedItems={localFilters.selectedProvince ? [localFilters.selectedProvince] : []}
               onAdd={(val) => setLocalFilters(prev => ({ ...prev, selectedProvince: val, selectedDistricts: [] }))}
               onRemove={() => setLocalFilters(prev => ({ ...prev, selectedProvince: null, selectedDistricts: [] }))}
-              placeholder="Tỉnh thành"
+              placeholder="City"
               multiSelect={false}
             />
             <SearchableDropdown

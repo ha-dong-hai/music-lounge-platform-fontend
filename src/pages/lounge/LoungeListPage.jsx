@@ -39,8 +39,8 @@ const LoungeListPage = () => {
           setFollowedIds(new Set(ids))
         }
       } catch (err) {
-        console.error('Lỗi tải danh sách phòng trà:', err)
-        toast.error('Không thể tải danh sách phòng trà')
+        console.error('Error loading the list of lounges:', err)
+        toast.error('Unable to load the list of tea rooms.')
       } finally {
         setIsLoading(false)
       }
@@ -54,7 +54,7 @@ const LoungeListPage = () => {
     e.stopPropagation()
 
     if (!user) {
-      toast.error('Vui lòng đăng nhập để theo dõi phòng trà')
+      toast.error('Please log in to follow the tea room.')
       return
     }
 
@@ -92,7 +92,7 @@ const LoungeListPage = () => {
         }
         return next
       })
-      toast.error('Thao tác thất bại, vui lòng thử lại.')
+      toast.error('Operation failed, please try again.')
     } finally {
       setUpdatingId(null)
     }
@@ -124,9 +124,9 @@ const LoungeListPage = () => {
             <ArrowLeft size={22} />
           </Link>
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-white">Khám phá Phòng trà</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-white">Discover Lounge</h1>
             <p className="text-gray-400 text-sm mt-0.5">
-              Khám phá không gian âm nhạc yêu thích và theo dõi để cập nhật các show mới nhất
+              Explore your favorite musical space and follow to stay updated on the latest shows.
             </p>
           </div>
         </div>
@@ -136,7 +136,7 @@ const LoungeListPage = () => {
           <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" />
           <input
             type="text"
-            placeholder="Tìm theo tên phòng trà, quận huyện, thành phố..."
+            placeholder="Search by tea room name, district, city..."
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
             className="w-full pl-11 pr-10 py-3 bg-gray-900 border border-gray-800 rounded-xl text-sm text-white placeholder:text-gray-500 focus:outline-none focus:border-[#C3B665]/60 transition-colors"
@@ -193,13 +193,13 @@ const LoungeListPage = () => {
                   {/* ĐỊA CHỈ */}
                   <p className="text-gray-400 text-xs flex items-center justify-center gap-1 mb-3 line-clamp-1">
                     <MapPin size={13} className="text-[#C3B665] flex-shrink-0" />
-                    <span>{[lounge.district, lounge.city].filter(Boolean).join(', ') || lounge.fullAddress || 'Đang cập nhật'}</span>
+                    <span>{[lounge.district, lounge.city].filter(Boolean).join(', ') || lounge.fullAddress || 'Updating'}</span>
                   </p>
 
                   {/* NGƯỜI THEO DÕI NẾU CÓ */}
                   {typeof lounge.followerCount === 'number' && (
                     <span className="text-[11px] text-gray-500 flex items-center gap-1 mb-5">
-                      <Users size={12} /> {lounge.followerCount.toLocaleString('vi-VN')} người theo dõi
+                      <Users size={12} /> {lounge.followerCount.toLocaleString('vi-VN')} following
                     </span>
                   )}
 
@@ -214,11 +214,11 @@ const LoungeListPage = () => {
                     }`}
                   >
                     {isProcessing ? (
-                      <><Loader2 size={13} className="animate-spin" /> Đang lưu...</>
+                      <><Loader2 size={13} className="animate-spin" /> Saving...</>
                     ) : isFollowing ? (
-                      <><Check size={14} strokeWidth={3} /> Đang theo dõi</>
+                      <><Check size={14} strokeWidth={3} /> Following</>
                     ) : (
-                      <><UserPlus size={14} /> Theo dõi</>
+                      <><UserPlus size={14} /> Follow</>
                     )}
                   </button>
                 </Link>
@@ -229,9 +229,9 @@ const LoungeListPage = () => {
           /* KHÔNG TÌM THẤY KẾT QUẢ */
           <div className="bg-gray-900 border border-dashed border-gray-800 rounded-2xl py-16 text-center">
             <Building2 size={44} className="mx-auto text-gray-700 mb-3" />
-            <p className="text-gray-300 font-semibold mb-1">Không tìm thấy phòng trà nào</p>
+            <p className="text-gray-300 font-semibold mb-1">No musical lounge found.</p>
             <p className="text-gray-500 text-sm">
-              Không có kết quả khớp với từ khóa "{searchQuery}". Thử nhập tên khác hoặc kiểm tra lại chính tả.
+              No results match the keyword. "{searchQuery}". Try entering different name.
             </p>
           </div>
         )}

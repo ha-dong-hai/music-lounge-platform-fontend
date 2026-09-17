@@ -9,8 +9,8 @@ import toast from 'react-hot-toast'
 import { getMyProfile, updateProfile, uploadImage } from '../../services/userServices'
 
 const accountSchema = z.object({
-  name: z.string().min(1, "Họ và tên không được để trống"),
-  phone: z.string().min(1, "Số điện thoại không được để trống").regex(/^[0-9]+$/, "Chỉ chứa ký tự số").min(9, "SĐT không hợp lệ").max(11, "SĐT không hợp lệ"),
+  name: z.string().min(1, "Full name cannot be left blank"),
+  phone: z.string().min(1, "The phone number cannot be left blank").regex(/^[0-9]+$/, "Only numeric characters").min(9, "Invalid phone number").max(11, "Invalid phone number"),
 })
 
 const ProfileTab = () => {
@@ -32,7 +32,7 @@ const ProfileTab = () => {
     }
   })
 
-  // ⭐ GỌI API LẤY PROFILE (chuyên trách của tab này)
+  // GỌI API LẤY PROFILE (chuyên trách của tab này)
   useEffect(() => {
     const fetchMyProfile = async () => {
       setIsFetchingProfile(true)
@@ -63,8 +63,8 @@ const ProfileTab = () => {
           }
         }
       } catch (err) {
-        console.error('Lỗi tải profile:', err)
-        toast.error('Không thể tải thông tin tài khoản')
+        console.error('Error loading profile:', err)
+        toast.error('Error loading account information')
       } finally {
         setIsFetchingProfile(false)
       }
@@ -88,10 +88,10 @@ const ProfileTab = () => {
       if (res.success) {
         const uploadedUrl = res.data.url
         setAvatarUrlToSave(uploadedUrl)
-        toast.success('Tải ảnh lên thành công!')
+        toast.success('Image uploaded successfully.!')
       }
     } catch (err) {
-      toast.error('Tải ảnh lên thất bại.')
+      toast.error('Image upload failed.')
       setAvatarPreview(user?.avatarUrl || defaultAvatar)
       setAvatarUrlToSave(user?.avatarUrl || null)
     } finally {
@@ -101,7 +101,7 @@ const ProfileTab = () => {
 
   const onSubmit = async (data) => {
     if (!avatarUrlToSave) {
-      toast.error('Vui lòng đợi ảnh tải lên hoàn tất')
+      toast.error('Please wait for the image upload to complete')
       return
     }
 
@@ -118,9 +118,9 @@ const ProfileTab = () => {
       const updatedUser = { ...user, name: data.name, phone: data.phone, avatarUrl: avatarUrlToSave }
       useAuthStore.setState({ user: updatedUser })
       localStorage.setItem('user', JSON.stringify(updatedUser))
-      toast.success('Đã lưu thông tin tài khoản!')
+      toast.success('Account information saved!')
     } catch (err) {
-      toast.error('Cập nhật thất bại.')
+      toast.error('Update failed.')
     } finally {
       setIsSaving(false)
     }
@@ -147,7 +147,7 @@ const ProfileTab = () => {
 
   return (
     <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6 md:p-8">
-      <h2 className="text-xl font-bold text-[#C3B665] mb-6">Thông tin cá nhân</h2>
+      <h2 className="text-xl font-bold text-[#C3B665] mb-6">Personal information</h2>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         
         <div className="flex items-center gap-6 pb-6 border-b border-gray-800">
@@ -161,25 +161,25 @@ const ProfileTab = () => {
           </div>
           <div>
             <h3 className="text-white font-bold text-lg">{user?.name || 'User Name'}</h3>
-            <p className="text-gray-400 text-sm">Click vào ảnh để đổi ảnh đại diện</p>
+            <p className="text-gray-400 text-sm">Click the image to change your profile picture.</p>
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label className="block text-sm font-medium text-gray-400 mb-2">Họ và tên</label>
+            <label className="block text-sm font-medium text-gray-400 mb-2">Fullname</label>
             <input type="text" {...register('name')} className={`w-full px-4 py-2.5 bg-black border rounded-lg text-white text-sm focus:outline-none focus:border-[#C3B665]/50 ${errors.name ? 'border-red-500' : 'border-gray-800'}`} />
             {errors.name && <p className="mt-1 text-xs text-red-500">{errors.name.message}</p>}
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-gray-400 mb-2">Số điện thoại</label>
+            <label className="block text-sm font-medium text-gray-400 mb-2">Phone number</label>
             <input type="tel" {...register('phone')} className={`w-full px-4 py-2.5 bg-black border rounded-lg text-white text-sm focus:outline-none focus:border-[#C3B665]/50 ${errors.phone ? 'border-red-500' : 'border-gray-800'}`} />
             {errors.phone && <p className="mt-1 text-xs text-red-500">{errors.phone.message}</p>}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-400 mb-2">Email (Không thể thay đổi)</label>
+            <label className="block text-sm font-medium text-gray-400 mb-2">Email (Cannot be changed)</label>
             <input type="email" value={user?.email || ''} disabled className="w-full px-4 py-2.5 bg-gray-800/50 border border-gray-700 rounded-lg text-gray-500 text-sm cursor-not-allowed" />
           </div>
         </div>
