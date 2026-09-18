@@ -121,7 +121,7 @@ const PackageFormModal = ({ isOpen, editingPkg, isSaving, onClose, onSubmit }) =
                 type="number" required min="0"
                 value={formData.maxTicketsPerEvent}
                 onChange={e => setFormData({...formData, maxTicketsPerEvent: e.target.value})}
-                className={inputCls}
+                className={`${inputCls} no-spin`}
               />
             </div>
           </div>
@@ -138,7 +138,7 @@ const PackageFormModal = ({ isOpen, editingPkg, isSaving, onClose, onSubmit }) =
                 disabled={!formData.hasAiPoster} // Chỉ nhập được khi bật AI Poster
                 onChange={e => setFormData({...formData, maxAiPostersPerMonth: e.target.value})}
                 placeholder="0"
-                className={`${inputCls} disabled:opacity-40 disabled:cursor-not-allowed`}
+                className={`${inputCls} no-spin disabled:opacity-40 disabled:cursor-not-allowed`}
               />
             </div>
             <div>
@@ -150,7 +150,7 @@ const PackageFormModal = ({ isOpen, editingPkg, isSaving, onClose, onSubmit }) =
                 value={formData.maxTourScenes}
                 onChange={e => setFormData({...formData, maxTourScenes: e.target.value})}
                 placeholder="0"
-                className={inputCls}
+                className={`${inputCls} no-spin`}
               />
             </div>
           </div>

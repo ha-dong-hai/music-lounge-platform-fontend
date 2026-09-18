@@ -23,3 +23,14 @@
 .chat-scrollbar::-webkit-scrollbar-thumb:hover {
   background: rgba(195, 182, 101, 0.7);
 }
+
+/* ===== ẨN MŨI TÊN LÊN/XUỐNG CỦA INPUT NUMBER ===== */
+.no-spin::-webkit-outer-spin-button,
+.no-spin::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.no-spin {
+  -moz-appearance: textfield; /* Firefox cũ */
+  appearance: textfield;      /* Firefox mới + chuẩn */
+}

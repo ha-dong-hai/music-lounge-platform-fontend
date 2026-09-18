@@ -7,6 +7,7 @@ import { getShowDetail } from '../../services/showServices'
 import { useAuthStore } from '../../store/useAuthStore'
 
 import RatingModal from '../../components/livestream/RatingModal'
+import { formatCompactNumber } from '../../utils/format'
 
 // ===== MOCK DATA (giả lập viewer + chat + donate) =====
 const MOCK_VIEWERS = [254, 271, 268, 289, 305, 298, 312, 328]
@@ -220,7 +221,7 @@ const LivestreamWatchPage = () => {
             <span className="flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse inline-block"></span> LIVE
             </span>
-            <span className="flex items-center gap-1"><Eye size={12} /> {viewerCount.toLocaleString('vi-VN')}</span>
+            <span className="flex items-center gap-1"><Eye size={12} /> {formatCompactNumber(viewerCount)}</span>
             {!isChatConnected && (
               <span className="flex items-center gap-1 text-yellow-500"><WifiOff size={11} /> Reconecting...</span>
             )}
