@@ -1,5 +1,6 @@
-// src/components/lounge/LoungeSidebar.jsx
+// src/lounge/LoungeSidebar.jsx
 import { MapPin, Users, Heart, ExternalLink } from 'lucide-react'
+import { formatCompactNumber } from '../../utils/format'
 
 const LoungeSidebar = ({ lounge }) => {
   if (!lounge) return null

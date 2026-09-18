@@ -6,6 +6,7 @@ import toast from 'react-hot-toast'
 import { getLounges } from '../../services/loungeServices'
 import { getFollowedLounges, toggleFollowLounge } from '../../services/interactionServices'
 import { useAuthStore } from '../../store/useAuthStore'
+import { formatCompactNumber } from '../../utils/format'
 
 const LoungeListPage = () => {
   const { user } = useAuthStore()
