@@ -23,6 +23,7 @@ import TicketDetailPage from '../pages/user/TicketDetailPage'
 import LoungeListPage from '../pages/lounge/LoungeListPage'
 import LivestreamWatchPage from '../pages/livestream/LivestreamWatchPage'
 import RatingModal from '../components/livestream/RatingModal'
+import AdminVenuesPage from '../pages/admin/AdminVenuesPage'
 
 const AppRouter = createBrowserRouter([
   {
@@ -39,7 +40,6 @@ const AppRouter = createBrowserRouter([
       { path: 'lounges', element: <LoungeListPage /> },
       { path: 'lounge/:id', element: <LoungeDetailPage /> }, 
       { path: 'rating', element: <RatingModal /> }, 
-      
     ],
   },
 
@@ -60,6 +60,7 @@ const AppRouter = createBrowserRouter([
       { path: 'shows/:id', element: <AdminShowDetailPage /> },
       { path: 'accounts', element: <AdminAccountsPage /> },
       { path: 'complaint', element: <AdminComplaintPage /> },
+      { path: 'venues', element: <AdminVenuesPage /> },
     ]
   }
 
