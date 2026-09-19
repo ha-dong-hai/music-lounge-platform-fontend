@@ -32,6 +32,9 @@ const AdminLayout = () => {
           <NavLink to="/admin/shows" className={linkClasses}>
             <Music size={18} /> Musical Shows
           </NavLink>
+          <NavLink to="/admin/venues" className={linkClasses}>
+            <Music size={18} /> Venues
+          </NavLink>
           <NavLink to="/admin/accounts" className={linkClasses}>
             <Users size={18} /> Account management
           </NavLink>

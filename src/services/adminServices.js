@@ -49,3 +49,7 @@ export const reviewShowModeration = async (showId, decision, reviewNote = '') =>
 export const getAdminComplaints = async (params = {}) => {
   return axiosClient.get('/admin/complaints', { params });
 };
+
+export const getAdminVenues = async (params = {}) => {
+  return axiosClient.get('/admin/venues/pending', { params });
+};
