@@ -11,9 +11,13 @@
 // - `reviewNote` là thứ chủ phòng trà đọc để biết vì sao khiếu nại của họ được chấp nhận hay bị bác.
 //   Bắt buộc nhập cho cả hai quyết định: "bác đơn" không kèm lý do là câu trả lời vô nghĩa.
 // - Không có đường hoàn tác quyết định. Xử lý xong là xong.
-// - `appealResult` là null khi chưa xử lý, còn lại 'Overturned' / 'Upheld'. Dùng ĐÚNG trường này để
-//   biết đơn đã được quyết hay chưa — đừng suy từ `status` của án phạt, vì án phạt có thể vẫn ở
-//   'Active' trong lúc khiếu nại đang chờ.
+// - MÁY TRẠNG THÁI THẬT của án phạt (theo SubmitAppealCommandHandler / ReviewAppealCommandHandler):
+//     Active → (chủ gửi khiếu nại) → Appealed → (Admin quyết) → Overturned | Upheld
+//   Nên trong tab CHỜ XỬ LÝ mọi dòng đều là 'Appealed', còn tab ĐÃ XỬ LÝ là 'Overturned'/'Upheld'
+//   với `appealResult` trùng giá trị đó. Nhãn 'Appealed' trong bảng bên dưới là nhãn sống, đừng bỏ.
+// - Điều kiện hiện nút dùng `appealResult == null` thay vì `status === 'Appealed'`: hai cách tương
+//   đương, nhưng cách này không phụ thuộc vào tên giá trị trong enum, nên đổi tên enum không làm
+//   nút biến mất.
 import { useState, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import {
@@ -205,11 +209,9 @@ const AdminPenaltyAppealsPage = () => {
             const loai = TYPE_VIEW[p.penaltyType] ?? { label: p.penaltyType, cls: 'bg-gray-500/10 text-gray-400 border-gray-500/30', icon: ShieldAlert }
             const tt = STATUS_VIEW[p.status] ?? { label: p.status, cls: 'text-gray-400' }
             const Icon = loai.icon
-            // Điều kiện hiện nút: đang ở tab CHỜ XỬ LÝ và chưa có kết quả nào được ghi.
-            // KHÔNG dựa vào `status === 'Appealed'`: mẫu dữ liệu thật của endpoint này có hàng
-            // status = 'Active' dù đang chờ xử lý, nghĩa là trạng thái án phạt không nhất thiết đổi
-            // khi có khiếu nại. Bám vào nó thì nút biến mất và cả màn thành vô dụng.
-            // `resolved=false` đã lọc sẵn ở máy chủ, nên trong tab này mọi hàng đều cần quyết định.
+            // Đang ở tab CHỜ XỬ LÝ và chưa có kết quả nào được ghi. `resolved=false` đã lọc sẵn ở
+            // máy chủ; thêm điều kiện appealResult để không hiện nút cho dòng đã có quyết định
+            // (bấm vào sẽ bị 409).
             const xuLyDuoc = !daXuLy && !p.appealResult
 
             return (

@@ -10,12 +10,13 @@
 //   bỏ sót một dòng là xoá mất giá trị của dòng đó.
 // - TIÊU CHÍ ĐÃ TẮT (criteriaIsActive = false) VẪN ĐƯỢC TRẢ VỀ và vẫn phải hiện — hiện mờ thôi.
 //   Lọc bỏ chúng rồi bấm Lưu là xoá mất giá trị cũ của những tiêu chí đó, vì ghi là thay thế toàn bộ.
-// - `value` ĐỌC VỀ LÀ CHUỖI ĐÃ JSON-STRINGIFY: backend trả "\"Acoustic\"", tức chuỗi có cặp nháy
-//   kép nằm bên trong. Đổ thẳng vào ô nhập là người dùng thấy cả dấu nháy. Phải gỡ một lớp — xem
-//   docGiaTri() bên dưới.
-// - CHIỀU GHI thì gửi chuỗi trần (validator backend chỉ đòi NotEmpty, tối đa 1000 ký tự). Nếu sau
-//   này backend đổi sang đòi JSON-stringify ở chiều ghi thì phải sửa cả hai chiều cùng lúc, đừng
-//   sửa một bên.
+// - `value` đi và về đều là CHUỖI TRẦN. Backend lưu y nguyên chuỗi gửi lên, không bọc JSON.
+//   (docGiaTri() bên dưới chỉ để đọc dữ liệu CŨ do nơi khác ghi dạng JSON — không phải hợp đồng.)
+// - BACKEND KHÔNG KIỂM KIỂU DỮ LIỆU. Đã thử thật: gửi chữ bừa vào tiêu chí `Boolean` vẫn 204.
+//   Validator máy chủ chỉ có NotEmpty + tối đa 1000 ký tự. Nghĩa là TOÀN BỘ việc giữ cho giá trị
+//   khớp `dataType` nằm ở màn này — xem kiemTraGiaTri(). Đây là lớp tiện cho người dùng, KHÔNG phải
+//   bảo đảm: ai gọi thẳng API vẫn ghi được rác. Nếu dữ liệu rác bắt đầu xuất hiện thì phải yêu cầu
+//   backend chặn, đừng cố vá thêm ở đây.
 // - Ô để trống được bỏ khỏi payload thay vì gửi chuỗi rỗng — gửi rỗng là bị 422 cho cả lượt.
 // - `dataType` quyết định ô nhập: Select (chọn trong options), Range (số trong khoảng), Boolean
 //   (có/không), Text (chữ). `options` backend lưu là MỘT CHUỖI, nên phải tự đọc: mảng JSON cho
@@ -28,9 +29,9 @@ import { getShowCustomValues, setShowCustomValues } from '../../services/customC
 
 const inputCls = 'mt-1 w-full px-3 py-2 bg-black border border-gray-700 rounded-lg text-sm text-white focus:outline-none focus:border-[#C3B665]/50'
 
-// Gỡ một lớp JSON cho giá trị đọc về. CHỈ gỡ khi chuỗi thật sự là một chuỗi JSON (mở và đóng bằng
-// dấu nháy kép) — cố ý hẹp như vậy để không đụng vào giá trị số hay true/false, vốn hiện ra y hệt
-// dù có gỡ hay không, và để giá trị trần (chưa từng qua JSON) đi thẳng qua không bị đổi.
+// CHỈ DÙNG CHO DỮ LIỆU CŨ: một số giá trị trong cơ sở dữ liệu được ghi dạng JSON ("\"Acoustic\"")
+// từ trước. Hợp đồng hiện tại là chuỗi trần, nên hàm này cố ý HẸP — chỉ gỡ khi chuỗi mở và đóng
+// bằng nháy kép, để không đụng vào số hay true/false và để chuỗi trần đi thẳng qua.
 const docGiaTri = (v) => {
   if (typeof v !== 'string') return v ?? ''
   if (!(v.startsWith('"') && v.endsWith('"'))) return v
@@ -51,6 +52,43 @@ const docOptions = (chuoi) => {
   } catch {
     return null
   }
+}
+
+// Kiểm giá trị có khớp `dataType` không. Trả về câu lỗi, hoặc null nếu hợp lệ.
+// KHÔNG kiểm được khi `options` không đọc được (chủ phòng trà tự gõ chuỗi lúc tạo tiêu chí) — lúc
+// đó ô nhập cũng đã rơi về chữ tự do, nên coi như chữ tự do và chỉ kiểm độ dài.
+const kiemTraGiaTri = (c, v) => {
+  const chuoi = String(v ?? '').trim()
+  if (chuoi === '') return null // ô trống được bỏ khỏi payload, không phải lỗi
+  if (chuoi.length > 1000) return `"${c.name}": tối đa 1000 ký tự.`
+
+  const opts = docOptions(c.options)
+
+  if (c.dataType === 'Boolean') {
+    if (chuoi !== 'true' && chuoi !== 'false') return `"${c.name}": chỉ nhận có hoặc không.`
+    return null
+  }
+
+  if (c.dataType === 'Select' && Array.isArray(opts)) {
+    if (!opts.some((o) => String(o) === chuoi)) {
+      return `"${c.name}": phải chọn một trong ${opts.map((o) => `"${o}"`).join(', ')}.`
+    }
+    return null
+  }
+
+  if (c.dataType === 'Range') {
+    // Kiểm "có phải số không" TRƯỚC và không phụ thuộc vào options: kiểu đã là Range thì giá trị
+    // phải là số, kể cả khi chủ phòng trà gõ options hỏng nên không biết khoảng cho phép.
+    const so = Number(chuoi)
+    if (!Number.isFinite(so)) return `"${c.name}": phải là một con số.`
+    if (opts && typeof opts === 'object') {
+      if (opts.min != null && so < Number(opts.min)) return `"${c.name}": không được nhỏ hơn ${opts.min}.`
+      if (opts.max != null && so > Number(opts.max)) return `"${c.name}": không được lớn hơn ${opts.max}.`
+    }
+    return null
+  }
+
+  return null
 }
 
 const ShowCustomValuesSection = ({ showId }) => {
@@ -102,6 +140,15 @@ const ShowCustomValuesSection = ({ showId }) => {
         return
       }
     }
+    // Máy chủ nhận mọi chuỗi, nên chặn ở đây. Báo TẤT CẢ lỗi một lần thay vì sửa xong lại báo tiếp.
+    const loi = criteria
+      .map((c) => kiemTraGiaTri(c, giaTri[c.criteriaId]))
+      .filter(Boolean)
+    if (loi.length > 0) {
+      toast.error(loi.join('\n'), { duration: 7000 })
+      return
+    }
+
     setIsBusy(true)
     try {
       await setShowCustomValues(showId, values)
