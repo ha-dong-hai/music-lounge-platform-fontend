@@ -3,7 +3,7 @@ import dayjs from 'dayjs'
 import { CategoryBadge, StatusBadge, TARGET_TYPE_LABELS } from './ComplaintBadges'
 
 // Component thuần UI: nhận complaint + onClose từ cha
-const ComplaintDetailModal = ({ complaint, onClose }) => {
+const ComplaintDetailModal = ({ complaint, onClose, onResolve }) => {
   if (!complaint) return null
   const c = complaint
   const isResolved = !!c.resolvedAt || c.status === 'Resolved'
@@ -128,10 +128,17 @@ const ComplaintDetailModal = ({ complaint, onClose }) => {
         </div>
 
         {/* FOOTER */}
-        <div className="flex-none p-6 pt-4 border-t border-gray-800">
-          <button onClick={onClose} className="w-full py-2.5 border border-gray-600 text-gray-300 rounded-lg font-medium hover:bg-gray-800 transition-colors">
+        <div className="flex-none p-6 pt-4 border-t border-gray-800 flex gap-3">
+          <button onClick={onClose} className="flex-1 py-2.5 border border-gray-600 text-gray-300 rounded-lg font-medium hover:bg-gray-800 transition-colors">
             Close
           </button>
+          {/* Chưa xử lý xong thì mới có việc để làm — đã Resolved/Rejected rồi thì chỉ còn xem kết quả. */}
+          {!isResolved && onResolve && (
+            <button onClick={() => onResolve(c)}
+              className="flex-1 py-2.5 bg-[#C3B665] text-black rounded-lg font-bold hover:bg-[#d4c87f] transition-colors">
+              Xử lý khiếu nại
+            </button>
+          )}
         </div>
       </div>
     </div>

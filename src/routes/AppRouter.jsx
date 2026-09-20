@@ -45,6 +45,7 @@ import OwnerStaffPage from '../pages/owner/OwnerStaffPage'
 import OwnerPerformersPage from '../pages/owner/OwnerPerformersPage'
 import OwnerDonationsPage from '../pages/owner/OwnerDonationsPage'
 import OwnerPenaltiesPage from '../pages/owner/OwnerPenaltiesPage'
+import ComplaintPage from '../pages/user/ComplaintPage'
 import OwnerShowsPage from '../pages/owner/OwnerShowsPage'
 import OwnerShowDetailPage from '../pages/owner/OwnerShowDetailPage'
 import FnbOrderPage from '../pages/fnb/FnbOrderPage'
@@ -70,6 +71,8 @@ const AppRouter = createBrowserRouter([
 
   { path: '/livestream/:showId', element: <LivestreamWatchPage /> },
 
+  // Trang cong khai: khach chua dang nhap cung gui khieu nai duoc
+  { path: '/complaints', element: <ComplaintPage /> },
   { path: '/login', element: <LoginPage /> },
   { path: '/register', element: <RegisterPage /> },
   { path: '/verify-email', element: <VerifyEmailPage /> },

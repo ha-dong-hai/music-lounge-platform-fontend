@@ -16,6 +16,7 @@ import { CATEGORY_CONFIG, STATUS_CONFIG, TARGET_TYPE_LABELS } from '../../compon
 import ComplaintsFilterBar from '../../components/admin/complaints/ComplaintsFilterBar'
 import ComplaintsTable from '../../components/admin/complaints/ComplaintsTable'
 import ComplaintDetailModal from '../../components/admin/complaints/ComplaintDetailModal'
+import ResolveComplaintModal from '../../components/admin/complaints/ResolveComplaintModal'
 
 
 const AdminComplaintPage = () => {
@@ -29,6 +30,7 @@ const AdminComplaintPage = () => {
     const [statusFilter, setStatusFilter] = useState('all')
 
     const [selectedComplaint, setSelectedComplaint] = useState(null)
+    const [resolvingComplaint, setResolvingComplaint] = useState(null)
 
     // 1. FETCH (phân trang + lọc trạng thái phía server)
     // statusFilter PHẢI nằm trong deps: đang ở trang 1 mà đổi trạng thái thì page vẫn là 1, nếu chỉ
@@ -141,6 +143,15 @@ const AdminComplaintPage = () => {
                 <ComplaintDetailModal
                     complaint={selectedComplaint}
                     onClose={() => setSelectedComplaint(null)}
+                    onResolve={(c) => { setSelectedComplaint(null); setResolvingComplaint(c) }}
+                />
+            )}
+
+            {resolvingComplaint && (
+                <ResolveComplaintModal
+                    complaint={resolvingComplaint}
+                    onClose={() => setResolvingComplaint(null)}
+                    onSaved={() => setPagination((prev) => ({ ...prev, page: 1 }))}
                 />
             )}
         </div>
