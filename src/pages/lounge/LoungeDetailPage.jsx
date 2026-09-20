@@ -8,9 +8,10 @@ import LoungeHero from '../../components/lounge/LoungeHero'
 import LoungeAbout from '../../components/lounge/LoungeAbout'
 import LoungeSidebar from '../../components/lounge/LoungeSidebar'
 import Skeleton from '../../components/shared/Skeleton'
+import ShowCarousel from '../../components/home/ShowCarousel'
 import { useAuthStore } from '../../store/useAuthStore'
-import { getLoungeDetail } from '../../services/loungeServices'
-import { getShows } from '../../services/showServices'
+import { getLoungeDetail, getLoungeZones } from '../../services/loungeServices'
+import { getShowsByLounge } from '../../services/showServices'
 import { getFollowedLounges, toggleFollowLounge } from '../../services/interactionServices'
 
 const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?q=80&w=2670&auto=format&fit=crop'
@@ -74,25 +75,28 @@ const LoungeDetailPage = () => {
               const followedIds = followRes.data.items.map(l => l.id)
               setIsFollowing(followedIds.includes(beData.id))
             }
-          } catch (e) { console.log('Error check follow status') }
+          } catch { console.log('Error check follow status') }
         }
 
-        // ===== FETCH SONG SONG: ZONES + SHOWS =====
+        // ===== FETCH SONG SONG: KHU VỰC + BUỔI DIỄN CỦA PHÒNG TRÀ NÀY =====
+        // SỬA LỖI CŨ: chỗ này từng destructure [zonesRes, showsRes] từ một Promise.all CHỈ CÓ MỘT
+        // phần tử, nên showsRes luôn undefined (danh sách buổi diễn chưa bao giờ hiện) và zonesRes
+        // lại nhận kết quả getShows — một object phân trang, không phải mảng — nên Array.isArray
+        // trả false và khu vực cũng không hiện. Cả hai khối đều là code chết.
+        // Đồng thời đổi sang /lounge-shows/by-lounge/{id}: backend lọc theo phòng trà sẵn, không
+        // phải tải 50 buổi của toàn hệ thống rồi lọc ở FE (cách cũ bỏ sót buổi nằm ngoài 50 đầu).
         const [zonesRes, showsRes] = await Promise.all([
-          getShows({ page: 1, pageSize: 50, includeSoldOut: true }).catch(() => null),
+          getLoungeZones(beData.id).catch(() => null),
+          getShowsByLounge(beData.id, { page: 1, pageSize: 6 }).catch(() => null),
         ])
 
-        // Zones thật
         if (zonesRes?.success && Array.isArray(zonesRes.data)) {
           setZones(zonesRes.data)
         }
 
-        // Shows của phòng trà này
         if (showsRes?.success) {
-          const filteredShows = showsRes.data.items
-            .filter(show => show.loungeId === beData.id || show.loungeName === beData.name)
+          const filteredShows = (showsRes.data?.items ?? [])
             .sort((a, b) => dayjs(b.scheduledStart).valueOf() - dayjs(a.scheduledStart).valueOf())
-            .slice(0, 6)
             .map(show => ({
               id: show.id,
               title: show.name,
@@ -106,6 +110,7 @@ const LoungeDetailPage = () => {
         }
       } catch (err) {
         console.error('Lounge loading error:', err)
+        // Giữ err lại trong log: lỗi tải phòng trà thường là 404 hoặc phòng trà bị đình chỉ.
         setApiError('Unable to load lounge data.')
       } finally {
         setIsLoading(false)
@@ -130,7 +135,7 @@ const LoungeDetailPage = () => {
     } catch (err) {
       setIsFollowing(prevStatus)
       setLounge(prev => ({ ...prev, followerCount: prev.followerCount + (prevStatus ? 1 : -1) }))
-      toast.error('The process failed.')
+      toast.error(err.response?.data?.message || 'The process failed.')
     } finally {
       setIsUpdatingFollow(false)
     }
@@ -177,6 +182,14 @@ const LoungeDetailPage = () => {
           </div>
         </div>
       </div>
+
+      {/* BUỔI DIỄN CỦA PHÒNG TRÀ NÀY — trước đây state loungeShows được set nhưng không render ở
+          đâu, nên dù fetch có chạy cũng không ai thấy. Danh sách rỗng thì không hiện cả khối. */}
+      {loungeShows.length > 0 && (
+        <div className="mt-16 bg-black text-[#C3B665] rounded-2xl mx-6 md:mx-auto md:max-w-[1600px] p-6 md:p-10">
+          <ShowCarousel title={`Buổi diễn tại ${lounge.name}`} events={loungeShows} showViewMore={false} />
+        </div>
+      )}
     </div>
   )
 }

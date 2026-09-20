@@ -42,22 +42,23 @@ const ShowIntro  = ({ data, isFollowing, onToggleFollow }) => {
             <h3 className="text-sm font-bold text-[#C3B665] mb-3">Performer</h3>
             {data.performers && data.performers.length > 0 ? (
               <div className="space-y-3">
+                {/* Mỗi nghệ sĩ dẫn sang trang riêng: lịch diễn của họ + sao kê donate công khai. */}
                 {data.performers.map(p => (
-                  <div key={p.id} className="flex items-center gap-3">
+                  <Link key={p.id} to={`/performers/${p.id}`} className="flex items-center gap-3 group">
                     <img 
                       src={p.avatarUrl || `https://api.dicebear.com/7.x/initials/svg?seed=${p.name}&backgroundColor=1f2937`} 
                       alt={p.name} 
                       className="w-10 h-10 rounded-full object-cover border border-gray-700 flex-shrink-0"
                     />
                     <div className="min-w-0">
-                      <p className="text-white text-sm font-medium truncate">{p.name}</p>
+                      <p className="text-white text-sm font-medium truncate group-hover:text-[#C3B665] transition-colors">{p.name}</p>
                       {p.acceptsDonation && (
                         <span className="inline-flex items-center gap-1 text-xs text-[#C3B665] mt-0.5">
                           <Star size={10} className="fill-[#C3B665]" /> Accept Donate
                         </span>
                       )}
                     </div>
-                  </div>
+                  </Link>
                 ))}
               </div>
             ) : (

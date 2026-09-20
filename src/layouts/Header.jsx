@@ -1,9 +1,19 @@
-import { Search, User, ChevronDown, LogOut, Ticket, Settings, X, Languages, Check } from 'lucide-react'
-import { useState } from 'react'
+import { Search, User, ChevronDown, LogOut, Ticket, Settings, X, Languages, Check, Loader2 } from 'lucide-react'
+import { useState, useEffect, useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom' 
 import { useAuthStore } from '../store/useAuthStore'
 import toast from 'react-hot-toast'
 import NotificationBell from '../components/notifications/NotificationBell'
+import { getShowSuggestions } from '../services/showServices'
+
+// GỢI Ý TÌM KIẾM — GHI CHÚ CHO ĐỘI FE:
+// - Gọi /lounge-shows/suggestions, trả về { id, name, coverImageUrl }. Chỉ có tên và ảnh, KHÔNG có
+//   ngày diễn hay giá — đừng bày thêm trường không có rồi hiện "undefined".
+// - Backend trả mảng rỗng khi q rỗng, nhưng vẫn phải chặn ở FE: gọi API cho chuỗi rỗng là gọi vô ích.
+// - CHỐNG DỘI 300ms là bắt buộc: không có nó thì mỗi ký tự gõ vào là một request, và các phản hồi
+//   về không theo thứ tự sẽ làm danh sách nhảy. Mỗi lần gõ mới huỷ luôn lượt chờ cũ.
+// - Bấm vào một gợi ý là đi THẲNG tới buổi diễn đó (/shows/:id), không phải đi tới trang tìm kiếm.
+const DO_TRE_GOI_Y = 300
 
 // ⭐ BỎ PROPS searchQuery, setSearchQuery ĐI
 const Header = () => {
@@ -11,9 +21,72 @@ const Header = () => {
   const navigate = useNavigate() //
   
   const [localSearch, setLocalSearch] = useState('')
+  const [goiY, setGoiY] = useState([])
+  const [moGoiY, setMoGoiY] = useState(false)
+  const [dangTaiGoiY, setDangTaiGoiY] = useState(false)
+  const [chiSoChon, setChiSoChon] = useState(-1)
+  const oTimKiemRef = useRef(null)
   const [isLangOpen, setIsLangOpen] = useState(false)
   const [currentLang, setCurrentLang] = useState(localStorage.getItem('lang') || 'vi')
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
+
+  // Gõ tới đâu gợi ý tới đó, nhưng chỉ gọi API sau khi người dùng ngừng gõ 300ms.
+  // Cờ "đang tải" được bật trong handler onChange (hành động của người dùng) chứ không trong effect:
+  // đặt state ngay trong thân effect gây render lặp và bị eslint chặn.
+  useEffect(() => {
+    const tuKhoa = localSearch.trim()
+    let conHieuLuc = true
+    const hen = setTimeout(async () => {
+      if (tuKhoa.length < 2) {
+        setGoiY([])
+        setDangTaiGoiY(false)
+        return
+      }
+      try {
+        const res = await getShowSuggestions(tuKhoa, 8)
+        // Bỏ kết quả của lượt đã bị thay thế: phản hồi về không theo thứ tự sẽ làm danh sách nhảy.
+        if (conHieuLuc && res.success) setGoiY(res.data ?? [])
+      } catch {
+        if (conHieuLuc) setGoiY([])
+      } finally {
+        if (conHieuLuc) setDangTaiGoiY(false)
+      }
+    }, DO_TRE_GOI_Y)
+    return () => { conHieuLuc = false; clearTimeout(hen) }
+  }, [localSearch])
+
+  // Bấm ra ngoài thì đóng danh sách gợi ý.
+  useEffect(() => {
+    const dong = (e) => {
+      if (oTimKiemRef.current && !oTimKiemRef.current.contains(e.target)) setMoGoiY(false)
+    }
+    document.addEventListener('mousedown', dong)
+    return () => document.removeEventListener('mousedown', dong)
+  }, [])
+
+  const chonGoiY = (item) => {
+    setMoGoiY(false)
+    setLocalSearch('')
+    navigate(`/shows/${item.id}`)
+  }
+
+  // Điều hướng bằng bàn phím: mũi tên lên/xuống chọn, Enter mở, Esc đóng. Không có phần này thì
+  // người dùng bàn phím không với tới được danh sách.
+  const handleKeyDown = (e) => {
+    if (!moGoiY || goiY.length === 0) return
+    if (e.key === 'ArrowDown') {
+      e.preventDefault()
+      setChiSoChon((i) => (i + 1) % goiY.length)
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault()
+      setChiSoChon((i) => (i <= 0 ? goiY.length - 1 : i - 1))
+    } else if (e.key === 'Enter' && chiSoChon >= 0) {
+      e.preventDefault()
+      chonGoiY(goiY[chiSoChon])
+    } else if (e.key === 'Escape') {
+      setMoGoiY(false)
+    }
+  }
 
   const handleLogout = () => {
     logout()
@@ -44,21 +117,61 @@ const Header = () => {
             LOGO
           </Link>
 
-          <form onSubmit={handleSearchSubmit} className="relative w-full max-w-md hidden md:block">
+          <form onSubmit={handleSearchSubmit} ref={oTimKiemRef} className="relative w-full max-w-md hidden md:block">
             <button type="submit" className="absolute left-3 top-1/2 -translate-y-1/2 text-[#C3B665] cursor-pointer" aria-label="Search">
               <Search size={18} strokeWidth={2.5}/>
             </button>
             <input
               type="text"
               value={localSearch}
-              onChange={e => setLocalSearch(e.target.value)}
+              onChange={e => {
+                setLocalSearch(e.target.value)
+                setMoGoiY(true)
+                setChiSoChon(-1)
+                setDangTaiGoiY(e.target.value.trim().length >= 2)
+              }}
+              onFocus={() => setMoGoiY(true)}
+              onKeyDown={handleKeyDown}
+              autoComplete="off"
               placeholder="What would you like to search today"
               className="w-full pl-10 pr-10 py-2.5 bg-gray-800 text-white placeholder:text-gray-400 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-[#C3B665] transition-all"
             />
             {localSearch && (
-              <button type="button" onClick={() => setLocalSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white">
+              <button type="button" onClick={() => { setLocalSearch(''); setMoGoiY(false) }} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white">
                 <X size={18} />
               </button>
+            )}
+
+            {/* DANH SÁCH GỢI Ý */}
+            {moGoiY && localSearch.trim().length >= 2 && (
+              <div className="absolute top-full left-0 right-0 mt-2 bg-gray-900 border border-gray-800 rounded-xl shadow-2xl overflow-hidden z-50">
+                {dangTaiGoiY ? (
+                  <div className="py-6 flex justify-center">
+                    <Loader2 size={20} className="animate-spin text-[#C3B665]" />
+                  </div>
+                ) : goiY.length === 0 ? (
+                  <p className="px-4 py-4 text-sm text-gray-500">
+                    Không có buổi diễn nào khớp. Nhấn Enter để tìm rộng hơn.
+                  </p>
+                ) : (
+                  <ul>
+                    {goiY.map((item, i) => (
+                      <li key={item.id}>
+                        <button type="button" onClick={() => chonGoiY(item)}
+                          onMouseEnter={() => setChiSoChon(i)}
+                          className={`w-full flex items-center gap-3 px-3 py-2.5 text-left transition-colors ${i === chiSoChon ? 'bg-gray-800' : 'hover:bg-gray-800/60'}`}>
+                          {item.coverImageUrl ? (
+                            <img src={item.coverImageUrl} alt="" className="w-10 h-10 rounded-md object-cover flex-shrink-0" />
+                          ) : (
+                            <div className="w-10 h-10 rounded-md bg-gray-800 flex-shrink-0" />
+                          )}
+                          <span className="text-sm text-white truncate">{item.name}</span>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
             )}
           </form>
         </div>

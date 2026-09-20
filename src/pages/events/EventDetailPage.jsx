@@ -2,14 +2,14 @@
 import { useState, useRef, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { CalendarDays, MapPin, Heart, Share2, ArrowLeft, Check, X, Copy } from 'lucide-react'
-import axios from 'axios'
 import dayjs from 'dayjs'
 import toast from 'react-hot-toast'
 import ShowCarousel from '../../components/home/ShowCarousel'
 import ShowMap from '../../components/mshow-detail/ShowMap'
 import ShowIntro from '../../components/mshow-detail/ShowIntro'
+import ShowRatings from '../../components/mshow-detail/ShowRatings'
 import Skeleton from '../../components/shared/Skeleton'
-import { getShowDetail, getShows } from '../../services/showServices'
+import { getShowDetail, getSimilarShows } from '../../services/showServices'
 import { getFollowedLounges, toggleWishlist } from '../../services/interactionServices'
 import { toggleFollowLounge } from '../../services/interactionServices' 
 
@@ -71,30 +71,30 @@ const EventDetailPage = () => {
                 const followedIds = followRes.data.items.map(l => l.id)
                 setIsFollowing(followedIds.includes(beData.lounge.id))
               }
-            } catch (e) {
+            } catch {
               console.log("Error check follow status")
             }
           } else {
             setIsFollowing(false)
           }
 
+          // BUỔI DIỄN TƯƠNG TỰ — dùng endpoint /similar thay vì lấy 10 buổi đầu của danh sách chung.
+          // Backend chọn buổi CÙNG PHÒNG TRÀ hoặc CHUNG ÍT NHẤT MỘT THỂ LOẠI với buổi đang xem, đã
+          // loại sẵn chính buổi này và chỉ trả Published/Ongoing, tối đa 6. Không cần lọc lại ở FE.
           try {
-            const listRes = await getShows({ page: 1, pageSize: 10, includeSoldOut: true })
-            if (listRes.success) {
-              const related = listRes.data.items
-                .filter(ev => ev.id !== beData.id)
-                .slice(0, 8)
-                .map(ev => ({
-                  id: ev.id,
-                  title: ev.name,
-                  thumbnail: ev.coverImageUrl,
-                  start_date: ev.scheduledStart,
-                  price: ev.minPrice === 0 && ev.maxPrice === 0 ? 'Free' : `${ev.minPrice.toLocaleString('vi-VN')}đ`,
-                  format: ev.format
-                }))
+            const simRes = await getSimilarShows(beData.id)
+            if (simRes.success) {
+              const related = (simRes.data ?? []).map(ev => ({
+                id: ev.id,
+                title: ev.name,
+                thumbnail: ev.coverImageUrl,
+                start_date: ev.scheduledStart,
+                price: ev.minPrice === 0 && ev.maxPrice === 0 ? 'Free' : `${ev.minPrice.toLocaleString('vi-VN')}đ`,
+                format: ev.format
+              }))
               setRelatedEvents(related)
             }
-          } catch (listErr) { console.log("Unable to load related shows.") }
+          } catch { console.log("Unable to load similar shows.") }
         } else {
           setApiError(detailRes.message || 'Show not found')
         }
@@ -120,7 +120,8 @@ const EventDetailPage = () => {
       toast.success(prevStatus ? 'Removed from Wishlist!' : 'Added to Wishlist!')
     } catch (err) {
       setIsWishlisted(prevStatus)
-      toast.error("The process failed.")
+      // Hiện lý do thật của backend (vé đã hết, buổi diễn đã đóng...) thay vì một câu chung chung.
+      toast.error(err.response?.data?.message || 'The process failed.')
     } finally {
       setIsUpdating(false)
     }
@@ -138,7 +139,7 @@ const EventDetailPage = () => {
       toast.success(prevStatus ? `Unfollow ${data.loungeName}` : `Follow ${data.loungeName}`)
     } catch (err) {
       setIsFollowing(prevStatus)
-      toast.error('The process failed.')
+      toast.error(err.response?.data?.message || 'The process failed.')
     } finally {
       setIsUpdating(false)
     }
@@ -226,6 +227,7 @@ const EventDetailPage = () => {
         <div className="flex gap-8">
           <button onClick={() => setActiveTab('intro')} className={`pb-4 text-lg font-bold border-b-2 transition-colors ${activeTab === 'intro' ? 'border-[#C3B665] text-[#C3B665]' : 'border-transparent text-gray-500 hover:text-white'}`}>Detail</button>
           <button onClick={() => setActiveTab('map')} className={`pb-4 text-lg font-bold border-b-2 transition-colors ${activeTab === 'map' ? 'border-[#C3B665] text-[#C3B665]' : 'border-transparent text-gray-500 hover:text-white'}`}>Seating area</button>
+          <button onClick={() => setActiveTab('ratings')} className={`pb-4 text-lg font-bold border-b-2 transition-colors ${activeTab === 'ratings' ? 'border-[#C3B665] text-[#C3B665]' : 'border-transparent text-gray-500 hover:text-white'}`}>Đánh giá</button>
         </div>
       </div>
 
@@ -234,12 +236,14 @@ const EventDetailPage = () => {
         {/* TRUYỀN PROPS QUA EVENT INTRO */}
         {activeTab === 'intro' && <ShowIntro data={data} isFollowing={isFollowing} onToggleFollow={handleToggleFollow} />}
         {activeTab === 'map' && <ShowMap loungeId={data.loungeId} showData={data} />}
+        {/* Tab đánh giá tự gọi API của nó, chỉ khi người dùng bấm vào — trang chi tiết đã đủ nặng. */}
+        {activeTab === 'ratings' && <ShowRatings showId={id} />}
       </div>
 
       {/* RELATED EVENTS */}
       {relatedEvents.length > 0 && (
         <div className="mt-20 bg-black text-[#C3B665] rounded-2xl mx-6 md:mx-auto md:max-w-[1600px] p-6 md:p-10">
-          <ShowCarousel title="You may like" events={relatedEvents} showViewMore={false} />
+          <ShowCarousel title="Buổi diễn tương tự" events={relatedEvents} showViewMore={false} />
         </div>
       )}
 

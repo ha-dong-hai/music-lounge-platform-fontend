@@ -7,6 +7,7 @@ import { getTicketTiers } from '../../services/showServices'
 import { holdTicket, cancelHold, purchaseTicket } from '../../services/ticketServices'
 import { useAuthStore } from '../../store/useAuthStore'
 import Skeleton from '../shared/Skeleton'
+import SeatingMapView from './SeatingMapView'
 
 const formatVnd = (amount) => `${Number(amount || 0).toLocaleString('vi-VN')}đ`
 
@@ -27,6 +28,9 @@ const ShowMap = ({ showData }) => {
   const [isProcessing, setIsProcessing] = useState(false)
   const [hold, setHold] = useState(null) // { holdId, expiresAt, priceId, quantity }
   const [secondsLeft, setSecondsLeft] = useState(0)
+  // Khu vực đang chọn trên sơ đồ — chỉ để LỌC danh sách hạng vé bên dưới, không tham gia vào việc
+  // giữ chỗ hay thanh toán. null = xem tất cả khu vực.
+  const [zoneDangChon, setZoneDangChon] = useState(null)
   const countdownRef = useRef(null)
 
   const showId = showData?.id
@@ -68,11 +72,16 @@ const ShowMap = ({ showData }) => {
     return () => clearInterval(countdownRef.current)
   }, [hold])
 
-  const allPrices = tiers.flatMap((tier) =>
-    (tier.prices || [])
-      .filter((p) => p.purchaseChannel !== 'Offline')
-      .map((p) => ({ ...p, tierName: tier.name, tierId: tier.id }))
-  )
+  // Lọc theo khu vực chọn trên sơ đồ. TicketTierSummaryDto có zoneId, nên lọc được ngay ở FE
+  // không cần gọi lại API. Hạng vé không gắn khu vực nào (zoneId null) chỉ hiện khi xem tất cả —
+  // hiện nó trong lúc đang lọc một khu vực là nói sai rằng nó thuộc khu đó.
+  const allPrices = tiers
+    .filter((tier) => zoneDangChon == null || tier.zoneId === zoneDangChon)
+    .flatMap((tier) =>
+      (tier.prices || [])
+        .filter((p) => p.purchaseChannel !== 'Offline')
+        .map((p) => ({ ...p, tierName: tier.name, tierId: tier.id }))
+    )
   const selectedPrice = allPrices.find((p) => p.id === selectedPriceId) || null
 
   const handleSelectPrice = (price) => {
@@ -146,6 +155,22 @@ const ShowMap = ({ showData }) => {
 
   return (
     <>
+      {/* SƠ ĐỒ KHU VỰC — lớp xem đặt TRÊN luồng mua vé, không thay thế nó. Chọn một khu vực ở đây
+          chỉ lọc danh sách hạng vé bên dưới; mọi bước giữ chỗ và thanh toán vẫn đi đường cũ. */}
+      <div className="mb-6">
+        <SeatingMapView
+          showId={showId}
+          selectedZoneId={zoneDangChon}
+          onSelectZone={(id) => {
+            // Đang giữ chỗ dở dang thì không cho đổi khu vực: đổi là lựa chọn hiện tại biến khỏi
+            // danh sách trong khi vé vẫn đang bị giữ.
+            if (hold) { toast.error('Đang giữ chỗ — hãy hoàn tất hoặc huỷ trước khi đổi khu vực.'); return }
+            setZoneDangChon(id)
+            setSelectedPriceId(null)
+          }}
+        />
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
         {/* DANH SÁCH HẠNG VÉ */}
@@ -157,7 +182,11 @@ const ShowMap = ({ showData }) => {
           {allPrices.length === 0 ? (
             <div className="flex flex-col items-center justify-center text-center py-16">
               <MapPin size={40} className="text-gray-700 mb-4" />
-              <p className="text-gray-500 font-medium">No tickets available for this show yet.</p>
+              <p className="text-gray-500 font-medium">
+                {zoneDangChon != null
+                  ? 'Khu vực này không còn hạng vé nào bán trực tuyến.'
+                  : 'No tickets available for this show yet.'}
+              </p>
             </div>
           ) : (
             <div className="flex flex-col gap-3">

@@ -36,6 +36,8 @@ import PaymentResultPage from '../pages/payment/PaymentResultPage'
 import LoginPage from '../pages/auth/LoginPage'
 import RegisterPage from '../pages/auth/RegisterPage'
 import VerifyEmailPage from '../pages/auth/VerifyEmailPage'
+import ForgotPasswordPage from '../pages/auth/ForgotPasswordPage'
+import ResetPasswordPage from '../pages/auth/ResetPasswordPage'
 import OwnerLayout from '../layouts/OwnerLayout'
 import OwnerLivestreamsPage from '../pages/owner/OwnerLivestreamsPage'
 import OwnerSubscriptionPage from '../pages/owner/OwnerSubscriptionPage'
@@ -55,6 +57,7 @@ import OwnerPenaltiesPage from '../pages/owner/OwnerPenaltiesPage'
 import ComplaintPage from '../pages/user/ComplaintPage'
 import PerformerConfirmationPage from '../pages/public/PerformerConfirmationPage'
 import PerformerDonationsPage from '../pages/public/PerformerDonationsPage'
+import PerformerPage from '../pages/public/PerformerPage'
 import OwnerShowsPage from '../pages/owner/OwnerShowsPage'
 import OwnerShowDetailPage from '../pages/owner/OwnerShowDetailPage'
 import FnbOrderPage from '../pages/fnb/FnbOrderPage'
@@ -85,10 +88,15 @@ const AppRouter = createBrowserRouter([
   // Nghe si mo tu lien ket email, KHONG co tai khoan — khong duoc doi dang nhap
   { path: '/performer-confirmation', element: <PerformerConfirmationPage /> },
   // Sao kê donate công khai — cố tình KHÔNG bọc ProtectedRoute: khán giả chưa đăng nhập phải xem được.
+  { path: '/performers/:performerId', element: <PerformerPage /> },
   { path: '/performers/:performerId/donations', element: <PerformerDonationsPage /> },
   { path: '/login', element: <LoginPage /> },
   { path: '/register', element: <RegisterPage /> },
   { path: '/verify-email', element: <VerifyEmailPage /> },
+  // LoginPage da link san toi /forgot-password; duong dan trong email tro toi
+  // /reset-password?token=... (token o query string, khong phai path param).
+  { path: '/forgot-password', element: <ForgotPasswordPage /> },
+  { path: '/reset-password', element: <ResetPasswordPage /> },
 
   { path: '/payment/success', element: <PaymentResultPage status="success" /> },
   { path: '/payment/failed', element: <PaymentResultPage status="failed" /> },
