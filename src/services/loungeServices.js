@@ -43,3 +43,27 @@ export const setLoungeBusinessLicense = async (loungeId, documentUrl) => {
 export const getLoungeBusinessLicense = async (loungeId) => {
   return axiosClient.get(`/lounges/${loungeId}/business-license`, { responseType: 'blob' });
 };
+
+// ===== NHÂN VIÊN PHÒNG TRÀ =====
+// Nhân viên là TÀI KHOẢN ĐÃ CÓ trên hệ thống được chủ gán vào phòng trà — không phải tạo tài khoản mới.
+// Quy tắc của backend: MỖI TÀI KHOẢN chỉ làm nhân viên ở ĐÚNG MỘT phòng trà đang hoạt động tại một
+// thời điểm. Gán một người đang làm ở phòng trà khác sẽ bị từ chối — hiện nguyên câu backend trả về,
+// vì "email này đang làm chỗ khác" và "lỗi hệ thống" là hai chuyện khác nhau với người đang thao tác.
+export const getLoungeStaff = async (loungeId) => {
+  return axiosClient.get(`/lounges/${loungeId}/staff`);
+};
+
+// Tra cứu người dùng theo email để mời làm nhân viên. Cố tình CHỬ trả vai trò: endpoint này không
+// phải công cụ tra thông tin người khác. 404 nếu email không có tài khoản.
+export const lookupUserByEmail = async (email) => {
+  return axiosClient.get('/lounges/staff/lookup', { params: { email } });
+};
+
+export const assignStaff = async (loungeId, userId) => {
+  return axiosClient.post(`/lounges/${loungeId}/staff`, { userId });
+};
+
+// Gọi là "deactivate": bản ghi được giữ lại kèm mốc thời gian, không xóa lịch sử đã từng làm việc.
+export const deactivateStaff = async (loungeId, staffId) => {
+  return axiosClient.delete(`/lounges/${loungeId}/staff/${staffId}`);
+};

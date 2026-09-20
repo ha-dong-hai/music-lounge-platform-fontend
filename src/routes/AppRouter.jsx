@@ -39,6 +39,12 @@ import OwnerAnalyticsPage from '../pages/owner/OwnerAnalyticsPage'
 import OwnerLoungePage from '../pages/owner/OwnerLoungePage'
 import OwnerBankAccountsPage from '../pages/owner/OwnerBankAccountsPage'
 import OwnerOperatePage from '../pages/owner/OwnerOperatePage'
+import OwnerFnbOrdersPage from '../pages/owner/OwnerFnbOrdersPage'
+import OwnerFnbMenusPage from '../pages/owner/OwnerFnbMenusPage'
+import OwnerStaffPage from '../pages/owner/OwnerStaffPage'
+import OwnerPerformersPage from '../pages/owner/OwnerPerformersPage'
+import OwnerDonationsPage from '../pages/owner/OwnerDonationsPage'
+import OwnerPenaltiesPage from '../pages/owner/OwnerPenaltiesPage'
 import OwnerShowsPage from '../pages/owner/OwnerShowsPage'
 import OwnerShowDetailPage from '../pages/owner/OwnerShowDetailPage'
 import FnbOrderPage from '../pages/fnb/FnbOrderPage'
@@ -95,6 +101,12 @@ const AppRouter = createBrowserRouter([
       { path: 'shows/:id', element: <ProtectedRoute requiredRoles={['Owner']}><OwnerShowDetailPage /></ProtectedRoute> },
       { path: 'livestreams', element: <OwnerLivestreamsPage /> },
       { path: 'operate', element: <OwnerOperatePage /> },
+      { path: 'fnb-orders', element: <OwnerFnbOrdersPage /> },
+      { path: 'fnb-menus', element: <ProtectedRoute requiredRoles={['Owner']}><OwnerFnbMenusPage /></ProtectedRoute> },
+      { path: 'staff', element: <ProtectedRoute requiredRoles={['Owner']}><OwnerStaffPage /></ProtectedRoute> },
+      { path: 'performers', element: <ProtectedRoute requiredRoles={['Owner']}><OwnerPerformersPage /></ProtectedRoute> },
+      { path: 'donations', element: <ProtectedRoute requiredRoles={['Owner']}><OwnerDonationsPage /></ProtectedRoute> },
+      { path: 'penalties', element: <ProtectedRoute requiredRoles={['Owner']}><OwnerPenaltiesPage /></ProtectedRoute> },
       { path: 'subscription', element: <ProtectedRoute requiredRoles={['Owner']}><OwnerSubscriptionPage /></ProtectedRoute> },
       { path: 'analytics', element: <ProtectedRoute requiredRoles={['Owner']}><OwnerAnalyticsPage /></ProtectedRoute> },
     ]

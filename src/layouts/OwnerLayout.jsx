@@ -8,7 +8,7 @@
 // xem FnbMenusController, BankAccountsController, LoungesController, DonationsController,
 // VenuePenaltiesController.
 import { Outlet, NavLink } from 'react-router-dom'
-import { Radio, LogOut, Package, BarChart3, CalendarDays, Store, Landmark, ScanLine } from 'lucide-react'
+import { Radio, LogOut, Package, BarChart3, CalendarDays, Store, Landmark, ScanLine, UtensilsCrossed, BookOpen, Mic2, Users, HeartHandshake, ShieldAlert } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../store/useAuthStore'
 
@@ -46,6 +46,21 @@ const OwnerLayout = () => {
             </NavLink>
           )}
           {isOwner && (
+            <NavLink to="/owner/performers" className={linkClasses}>
+              <Mic2 size={18} /> Nghệ sĩ
+            </NavLink>
+          )}
+          {isOwner && (
+            <NavLink to="/owner/staff" className={linkClasses}>
+              <Users size={18} /> Nhân viên
+            </NavLink>
+          )}
+          {isOwner && (
+            <NavLink to="/owner/fnb-menus" className={linkClasses}>
+              <BookOpen size={18} /> Thực đơn
+            </NavLink>
+          )}
+          {isOwner && (
             <NavLink to="/owner/shows" className={linkClasses}>
               <CalendarDays size={18} /> Buổi diễn
             </NavLink>
@@ -54,11 +69,20 @@ const OwnerLayout = () => {
           <NavLink to="/owner/operate" className={linkClasses}>
             <ScanLine size={18} /> Vận hành đêm diễn
           </NavLink>
+          <NavLink to="/owner/fnb-orders" className={linkClasses}>
+            <UtensilsCrossed size={18} /> Đơn gọi món
+          </NavLink>
           <NavLink to="/owner/livestreams" className={linkClasses}>
             <Radio size={18} /> Livestreams
           </NavLink>
           {isOwner && (
             <>
+              <NavLink to="/owner/donations" className={linkClasses}>
+                <HeartHandshake size={18} /> Tiền donate
+              </NavLink>
+              <NavLink to="/owner/penalties" className={linkClasses}>
+                <ShieldAlert size={18} /> Án phạt
+              </NavLink>
               <NavLink to="/owner/analytics" className={linkClasses}>
                 <BarChart3 size={18} /> Báo cáo doanh thu
               </NavLink>

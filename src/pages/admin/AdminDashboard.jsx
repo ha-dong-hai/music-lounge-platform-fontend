@@ -15,9 +15,43 @@ import { useState, useEffect } from 'react'
 import { DollarSign, Ticket, Users, AlertCircle, Store, Music2, HeartHandshake, Loader2, Brain } from 'lucide-react'
 import toast from 'react-hot-toast'
 import dayjs from 'dayjs'
-import { getPlatformAnalytics, getAdminOverview, getRecommenderEvaluation } from '../../services/analyticsServices'
+import { getPlatformAnalytics, getAdminOverview, getRecommenderEvaluation, getAdminDashboard } from '../../services/analyticsServices'
+import {
+  RevenueByMonthChart, RevenueShareBar, TopShowsTable, GenreDemandChart,
+} from '../../components/admin/dashboard/DashboardCharts'
 
 const fmtMoney = (v) => `${Number(v || 0).toLocaleString('vi-VN')}đ`
+
+// Khoá = LoungeStatus của backend; thứ tự mảng = thứ tự hiển thị (đang hoạt động trước).
+const VENUE_STATUS_LABELS = [
+  ['Approved', 'hoạt động'],
+  ['Warned', 'bị cảnh cáo'],
+  ['Pending', 'chờ duyệt'],
+  ['Suspended', 'tạm đình chỉ'],
+  ['Locked', 'bị khoá'],
+  ['Rejected', 'bị từ chối'],
+]
+const venueBreakdown = (byStatus) => {
+  if (!byStatus) return null
+  const parts = VENUE_STATUS_LABELS
+    .filter(([key]) => byStatus[key] > 0)
+    .map(([key, label]) => `${byStatus[key]} ${label}`)
+  return parts.length ? parts.join(' · ') : null
+}
+
+// MỘT nút chuyển cho CẢ HAI khối doanh thu, đặt phía trên chúng — hai khối luôn cùng đại lượng.
+const MEASURES = [
+  { key: 'platformRevenue', label: 'Doanh thu nền tảng' },
+  { key: 'gmv', label: 'Tổng giá trị giao dịch (GMV)' },
+]
+
+const ChartCard = ({ title, subtitle, children, className = '' }) => (
+  <div className={`bg-gray-900 border border-gray-800 rounded-xl p-6 ${className}`}>
+    <h3 className="text-base font-semibold text-white">{title}</h3>
+    {subtitle && <p className="text-xs text-gray-500 mt-0.5">{subtitle}</p>}
+    <div className="mt-4">{children}</div>
+  </div>
+)
 
 const StatCard = ({ title, value, note, icon: Icon, color, bg }) => (
   <div className="bg-gray-900 border border-gray-800 rounded-xl p-5 flex items-start justify-between">
@@ -36,6 +70,8 @@ const AdminDashboard = () => {
   const [platform, setPlatform] = useState(null)
   const [overview, setOverview] = useState(null)
   const [recommender, setRecommender] = useState(null)
+  const [dashboard, setDashboard] = useState(null)
+  const [measure, setMeasure] = useState('platformRevenue')
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
@@ -43,11 +79,18 @@ const AdminDashboard = () => {
       setIsLoading(true)
       try {
         // Gọi song song: 3 endpoint độc lập, không cái nào cần kết quả của cái nào.
-        const [pRes, oRes, rRes] = await Promise.all([
+        // allSettled chứ không phải all: với Promise.all, chỉ cần một endpoint lỗi (ví dụ
+        // admin-dashboard trả 404 khi backend chưa deploy) là mất luôn cả những thẻ đang chạy tốt.
+        const ketQua = await Promise.allSettled([
           getPlatformAnalytics(),
           getAdminOverview(),
           getRecommenderEvaluation(),
+          getAdminDashboard(),
         ])
+        const [pRes, oRes, rRes, dRes] = ketQua.map(
+          (x) => (x.status === 'fulfilled' ? x.value : { success: false })
+        )
+        if (dRes.success) setDashboard(dRes.data)
         if (pRes.success) setPlatform(pRes.data)
         if (oRes.success) setOverview(oRes.data)
         if (rRes.success) setRecommender(rRes.data)
@@ -102,7 +145,9 @@ const AdminDashboard = () => {
           />
           <StatCard
             title="Phòng trà đang hoạt động"
-            value={overview?.activeVenuesCount ?? 0}
+            // operatingVenues và activeVenuesCount cùng định nghĩa (Approved + Warned); ưu tiên cái
+            // đầu vì nó đi kèm venuesByStatus để giải thích chênh lệch. Cái sau là dự phòng cho bản BE cũ.
+            value={platform?.operatingVenues ?? overview?.activeVenuesCount ?? 0}
             note="Tính tại thời điểm hiện tại, không theo kỳ"
             icon={Store} color="text-[#C3B665]" bg="bg-[#C3B665]/10"
           />
@@ -137,8 +182,9 @@ const AdminDashboard = () => {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
           <StatCard
-            title="Tổng phòng trà"
+            title="Phòng trà đã đăng ký"
             value={platform?.totalVenues ?? 0}
+            note={venueBreakdown(platform?.venuesByStatus) || 'Mọi trạng thái, kể cả chờ duyệt'}
             icon={Store} color="text-[#C3B665]" bg="bg-[#C3B665]/10"
           />
           <StatCard
@@ -153,6 +199,65 @@ const AdminDashboard = () => {
           />
         </div>
       </div>
+
+      {/* === DOANH THU 6 THÁNG — một nút chuyển đại lượng, áp cho cả hai khối bên dưới === */}
+      {dashboard ? (
+        <div className="space-y-4">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h2 className="text-sm font-semibold text-gray-400">Doanh thu 6 tháng gần nhất</h2>
+            <div className="inline-flex rounded-lg border border-gray-800 p-0.5 bg-black/40" role="group" aria-label="Đại lượng doanh thu">
+              {MEASURES.map((m) => (
+                <button key={m.key} onClick={() => setMeasure(m.key)} aria-pressed={measure === m.key}
+                  className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${measure === m.key
+                    ? 'bg-gray-800 text-[#C3B665]' : 'text-gray-400 hover:text-white'}`}>
+                  {m.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <p className="text-xs text-gray-500 leading-relaxed">
+            {measure === 'platformRevenue'
+              ? 'Phần nền tảng thực nhận: hoa hồng trên vé và donate, cộng toàn bộ phí gói dịch vụ. Không gồm tiền giữ hộ phòng trà chờ quyết toán; vé bán tại quầy bằng tiền mặt không đi qua nền tảng nên gần như không có ở đây.'
+              : 'Tổng tiền người mua trả, GỒM cả vé bán tại quầy bằng tiền mặt. Đây KHÔNG phải doanh thu của nền tảng — phần lớn thuộc về phòng trà và nghệ sĩ.'}
+          </p>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            <ChartCard title="Theo tháng, tách theo nguồn" className="lg:col-span-2">
+              <RevenueByMonthChart months={dashboard.months} measure={measure} />
+            </ChartCard>
+            <ChartCard
+              title="Cơ cấu tháng này"
+              subtitle={`Tháng ${dayjs(`${dashboard.months.at(-1)?.month}-01`).format('MM/YYYY')}, chưa trọn tháng`}
+            >
+              <RevenueShareBar month={dashboard.months.at(-1)} measure={measure} />
+            </ChartCard>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <ChartCard
+              title="Top buổi diễn theo doanh thu vé"
+              subtitle={`${dayjs(dashboard.periodFrom).format('DD/MM/YYYY')} – ${dayjs(dashboard.periodTo).format('DD/MM/YYYY')}`}
+            >
+              <TopShowsTable shows={dashboard.topShows} />
+            </ChartCard>
+            <ChartCard
+              title="Thể loại theo số vé bán"
+              subtitle={`${dayjs(dashboard.periodFrom).format('DD/MM/YYYY')} – ${dayjs(dashboard.periodTo).format('DD/MM/YYYY')}`}
+            >
+              <GenreDemandChart genres={dashboard.genres} />
+              <p className="text-xs text-gray-600 mt-3 leading-relaxed">
+                Một buổi diễn nhiều thể loại được tính vé cho từng thể loại, nên cộng các thanh sẽ lớn hơn tổng vé bán.
+              </p>
+            </ChartCard>
+          </div>
+        </div>
+      ) : (
+        <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
+          <p className="text-sm text-gray-400">Chưa tải được biểu đồ doanh thu và xếp hạng.</p>
+          <p className="text-xs text-gray-600 mt-1">Các số liệu tổng quan phía trên không bị ảnh hưởng.</p>
+        </div>
+      )}
 
       {/* === CHẤT LƯỢNG MÔ HÌNH GỢI Ý === */}
       {recommender && (
