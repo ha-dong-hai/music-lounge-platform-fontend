@@ -146,7 +146,11 @@ export const removeTourScene = async (loungeId, sceneId) => {
   return axiosClient.delete(`/lounges/${loungeId}/tour/scenes/${sceneId}`);
 };
 
-// Vị trí của scene trong không gian — quyết định thứ tự và hướng khi khán giả di chuyển.
+// Vị trí ĐÁNH DẤU của scene TRÊN ẢNH MẶT BẰNG (area-layout-image) — ghi chú cũ ở đây sai:
+// nó KHÔNG quyết định thứ tự hay hướng di chuyển, chỉ là chấm định vị trên bản đồ để khán giả biết
+// cảnh 360° đó nằm ở đâu trong phòng trà.
+// X/Y theo PHẦN TRĂM 0–100. Backend bắt hai giá trị phải CÙNG có hoặc CÙNG null; gửi cả hai null
+// là xoá chấm định vị. Điền một cái bỏ một cái là bị từ chối.
 export const setTourScenePosition = async (loungeId, sceneId, payload) => {
   return axiosClient.put(`/lounges/${loungeId}/tour/scenes/${sceneId}/position`, payload);
 };

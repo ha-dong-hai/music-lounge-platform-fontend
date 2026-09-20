@@ -6,6 +6,7 @@ import VenuesStatsCards from '../../components/admin/venues/VenuesStatsCards'
 import VenuesFilterBar from '../../components/admin/venues/VenuesFilterBar'
 import VenuesTable from '../../components/admin/venues/VenuesTable'
 import ReviewVenueModal from '../../components/admin/venues/ReviewVenueModal'
+import IssuePenaltyModal from '../../components/admin/venues/IssuePenaltyModal'
 
 // 6 status BE hỗ trợ
 const ALL_STATUSES = ['Pending', 'Approved', 'Warned', 'Suspended', 'Locked', 'Rejected']
@@ -17,6 +18,7 @@ const AdminVenuesPage = () => {
 
   // Filters (status = server-side, search = client-side)
   const [statusFilter, setStatusFilter] = useState('all')
+  const [penalizeTarget, setPenalizeTarget] = useState(null)
   const [searchQuery, setSearchQuery] = useState('')
 
   // Stats cho 6 thẻ (fetch song song 7 request pageSize=1 — pattern getAdminStats)
@@ -78,9 +80,11 @@ const AdminVenuesPage = () => {
   }, [pagination.page, statusFilter, reloadKey])
 
   // 3. ĐỔI FILTER → VỀ TRANG 1
-  useEffect(() => {
-    setPagination(prev => ({ ...prev, page: 1 }))
-  }, [statusFilter, searchQuery])
+  // Đặt lại ngay trong handler chứ không trong useEffect: đặt state trong thân effect gây render
+  // lặp, và ở đây còn làm effect tải danh sách chạy hai lượt cho mỗi lần đổi bộ lọc.
+  const veTrangDau = () => setPagination(prev => ({ ...prev, page: 1 }))
+  const doiTrangThai = (v) => { setStatusFilter(v); veTrangDau() }
+  const doiTuKhoa = (v) => { setSearchQuery(v); veTrangDau() }
 
   // 4. SEARCH CLIENT-SIDE trong trang hiện tại
   const filteredVenues = useMemo(() => {
@@ -110,13 +114,13 @@ const AdminVenuesPage = () => {
       <VenuesStatsCards
         counts={counts}
         statusFilter={statusFilter}
-        onSelectStatus={setStatusFilter}
+        onSelectStatus={doiTrangThai}
       />
 
       {/* FILTERS */}
       <VenuesFilterBar
-        searchQuery={searchQuery} setSearchQuery={setSearchQuery}
-        statusFilter={statusFilter} setStatusFilter={setStatusFilter}
+        searchQuery={searchQuery} setSearchQuery={doiTuKhoa}
+        statusFilter={statusFilter} setStatusFilter={doiTrangThai}
       />
 
       {/* TABLE */}
@@ -126,7 +130,16 @@ const AdminVenuesPage = () => {
         pagination={pagination}
         onPageChange={(page) => setPagination(prev => ({ ...prev, page }))}
         onReview={(venue, decision) => setReviewTarget({ venue, decision })}
+        onPenalize={(venue) => setPenalizeTarget(venue)}
       />
+
+      {penalizeTarget && (
+        <IssuePenaltyModal
+          venue={penalizeTarget}
+          onClose={() => setPenalizeTarget(null)}
+          onSaved={() => setReloadKey(k => k + 1)}
+        />
+      )}
 
       {reviewTarget && (
         <ReviewVenueModal

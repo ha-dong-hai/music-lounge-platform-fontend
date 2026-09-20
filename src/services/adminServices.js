@@ -46,15 +46,14 @@ export const reviewShowModeration = async (showId, decision, reviewNote = '') =>
   });
 };
 
-// Hàng đợi khiếu nại cho Admin. Đường cũ '/admin/complaints' KHÔNG TỎN TẠI trên backend
-// (đã gọi thật: 404) — đúng là '/complaints/pending'.
-// Lưu ý phạm vi: endpoint này CHỈ trả khiếu nại status Open + Investigating, sắp xếp id
-// giảm dần. Backend chưa có đường nào xem khiếu nại ĐÃ xử lý, nên đừng trông đợi
-// Resolved/Rejected xuất hiện ở đây.
-// Tham số: page (mặc định 1), pageSize (mặc định 10, backend kẹp 1..50).
-export const getAdminComplaints = async (params = {}) => {
-  return axiosClient.get('/complaints/pending', { params });
-};
+// ĐÃ BỎ hàm getAdminComplaints (gọi GET /complaints/pending). Ghi lại lý do để không ai thêm lại:
+//   - Endpoint đó vẫn tồn tại trên backend và trả cùng kiểu dữ liệu, nhưng nó KHÔNG GHI LOG ai xem.
+//     Dữ liệu khiếu nại có mô tả sự việc và số điện thoại người khiếu nại (kể cả khách không có tài
+//     khoản), nên phải trả lời được câu "ai đã đọc dữ liệu của tôi" — chỉ /admin/complaints làm được.
+//   - Hàng đợi đang mở lấy được từ chính /admin/complaints bằng ?status=Open&status=Investigating,
+//     nên không mất chức năng gì.
+// (Ghi chú cũ ở đây nói '/admin/complaints' trả 404 — đúng vào thời điểm đó, nhưng MLACP-462 đã thêm
+//  endpoint này, và nó là đường nên dùng.)
 
 // Lịch sử khiếu nại cho Admin — MỌI trạng thái, không chỉ hàng đợi đang mở (MLACP-462).
 // status: mảng, gửi lặp kiểu ?status=Resolved&status=Rejected (paramsSerializer trong axios.js lo sẵn).

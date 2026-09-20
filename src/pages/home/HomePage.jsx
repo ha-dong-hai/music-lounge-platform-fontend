@@ -1,6 +1,7 @@
 // src/pages/home/HomePage.jsx
 import { useState, useEffect, useMemo } from 'react'
-import { useNavigate } from 'react-router-dom' 
+import { useNavigate, Link } from 'react-router-dom'
+import { ArrowRight } from 'lucide-react'
 import EventCarousel from '../../components/home/ShowCarousel'
 import SectionHeader from '../../components/home/SectionHeader'
 import FilterModal from '../../components/home/FilterModal'
@@ -166,6 +167,15 @@ const HomePage = () => {
               <EventCarousel title={`Genre ${section.genreName}`} events={section.events} showViewMore={true} viewMoreLink={section.slug} />
             </section>
           ))}
+
+          {/* Đường vào trang xem tất cả. Trước đây /shows không có chỗ nào dẫn tới, nên nó hỏng mà
+              không ai thấy — có link thì lỗi ở đó sẽ lộ ra ngay lần sau. */}
+          <div className="flex justify-center pt-2">
+            <Link to="/shows"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg border border-[#C3B665]/40 text-[#C3B665] text-sm font-bold hover:bg-[#C3B665]/10 transition-colors">
+              Xem tất cả buổi diễn <ArrowRight size={16} />
+            </Link>
+          </div>
         </>
       </div>
 

@@ -10,14 +10,19 @@
 // - HOTSPOT chỉ có Thêm và Xoá — backend không có endpoint sửa. Muốn đổi thì xoá rồi thêm lại.
 // - Mô hình 3D là MỘT file .glb/.gltf cho cả không gian, tải qua endpoint riêng (/uploads/models),
 //   khác endpoint ảnh.
+// - VỊ TRÍ SCENE là chấm định vị TRÊN ẢNH MẶT BẰNG của phòng trà (ảnh đặt ở màn Khu vực chỗ ngồi),
+//   theo phần trăm 0–100. Nó KHÔNG quyết định thứ tự hay hướng di chuyển — việc nhảy giữa các scene
+//   do hotspot quyết định. Backend bắt X/Y phải cùng có hoặc cùng trống; trống cả hai = xoá chấm.
 import { useState, useEffect, useCallback } from 'react'
 import {
   Loader2, Plus, Trash2, Upload, Layers, Box, RefreshCw, Link2, X, AlertTriangle, Clock,
+  MapPin, Save, Eraser,
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import {
   getLounges, getLoungeDetail, getLoungeTour, addTourScene, stitchTourScene,
   getTourStitchAttempt, removeTourScene, addTourHotspot, removeTourHotspot, setLoungeModel3D,
+  setTourScenePosition,
 } from '../../services/loungeServices'
 import { uploadImage, uploadModel } from '../../services/userServices'
 import ConfirmModal from '../../components/shared/ConfirmModal'
@@ -132,6 +137,11 @@ const OwnerTourPage = () => {
   const [tour, setTour] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
   const [busy, setBusy] = useState(null)
+  // Chấm định vị của từng scene trên ảnh mặt bằng. Chuỗi rỗng = chưa đặt (khác với đặt ở 0,0).
+  const [viTri, setViTri] = useState({}) // { [sceneId]: { x, y } }
+  const [busyViTri, setBusyViTri] = useState(null)
+  // Scene đang nhắm để bấm đặt chấm trên ảnh mặt bằng. null = không ở chế độ đặt.
+  const [sceneDangDat, setSceneDangDat] = useState(null)
   const [xoaScene, setXoaScene] = useState(null)
   const [hotspotOf, setHotspotOf] = useState(null)
   const [donGhep, setDonGhep] = useState(null) // { id, status }
@@ -147,7 +157,16 @@ const OwnerTourPage = () => {
 
       const [ct, tRes] = await Promise.allSettled([getLoungeDetail(cuaToi.id), getLoungeTour(cuaToi.id)])
       setLounge(ct.status === 'fulfilled' && ct.value?.success ? ct.value.data : cuaToi)
-      setTour(tRes.status === 'fulfilled' && tRes.value?.success ? tRes.value.data : null)
+      const duLieuTour = tRes.status === 'fulfilled' && tRes.value?.success ? tRes.value.data : null
+      setTour(duLieuTour)
+
+      // Nạp chấm định vị đang lưu. KHÔNG có giá trị mặc định: chưa đặt thì để trống thật, vì
+      // backend phân biệt "chưa đặt" với "đặt ở góc trên bên trái (0,0)".
+      const nhapViTri = {}
+      ;(duLieuTour?.scenes ?? []).forEach((sc) => {
+        nhapViTri[sc.id] = { x: sc.positionX ?? '', y: sc.positionY ?? '' }
+      })
+      setViTri(nhapViTri)
     } catch (err) {
       toast.error(err.response?.data?.message || 'Không tải được tour.')
     } finally {
@@ -156,6 +175,33 @@ const OwnerTourPage = () => {
   }, [])
 
   useEffect(() => { const chay = async () => { await load() }; chay() }, [load])
+
+  const doiViTri = (sceneId, truc, value) => {
+    setViTri((p) => ({ ...p, [sceneId]: { ...(p[sceneId] ?? {}), [truc]: value } }))
+  }
+
+  const luuViTri = async (sceneId) => {
+    const o = viTri[sceneId] ?? {}
+    const so = (v) => (v === '' || v == null ? null : Number(v))
+    const [x, y] = [so(o.x), so(o.y)]
+    const soOTrong = [x, y].filter((v) => v === null).length
+    if (soOTrong === 1) {
+      toast.error('X và Y phải điền cả hai, hoặc để trống cả hai để xoá chấm định vị.')
+      return
+    }
+    if (soOTrong === 0 && [x, y].some((v) => v < 0 || v > 100)) {
+      toast.error('X và Y là phần trăm, phải nằm trong khoảng 0–100.')
+      return
+    }
+    setBusyViTri(sceneId)
+    try {
+      await setTourScenePosition(lounge.id, sceneId, { x, y })
+      toast.success(soOTrong === 2 ? 'Đã xoá chấm định vị.' : 'Đã lưu vị trí scene.')
+      await load()
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Không lưu được vị trí scene.')
+    } finally { setBusyViTri(null) }
+  }
 
   const themScene = async (file) => {
     if (!file) return
@@ -284,6 +330,67 @@ const OwnerTourPage = () => {
           </label>
         </div>
 
+        {/* BẢN ĐỒ MẶT BẰNG — cùng ảnh mà màn Khu vực chỗ ngồi dùng để vẽ khu vực (backend cố ý
+            dùng lại một ảnh chứ không thêm trường ảnh thứ hai). Bấm vào ảnh để đặt chấm cho scene
+            đang nhắm; toạ độ lưu theo phần trăm nên ảnh co giãn thế nào chấm vẫn đúng chỗ. */}
+        {tour?.floorPlanImageUrl ? (
+          <div className="mb-5">
+            <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+              <p className="text-xs text-gray-500">
+                {sceneDangDat
+                  ? 'Bấm vào ảnh để đặt chấm cho scene đang nhắm.'
+                  : 'Chọn một scene bên dưới rồi bấm vào ảnh để đặt chấm định vị.'}
+              </p>
+              {sceneDangDat && (
+                <button onClick={() => setSceneDangDat(null)}
+                  className="px-2.5 py-1 rounded-lg border border-gray-700 text-gray-400 text-xs font-bold hover:bg-gray-800">
+                  Thôi đặt
+                </button>
+              )}
+            </div>
+
+            <div
+              onClick={(e) => {
+                if (!sceneDangDat) return
+                const r = e.currentTarget.getBoundingClientRect()
+                // Làm tròn 1 chữ số: không ai cần độ chính xác hơn thế trên một bản đồ tương đối,
+                // và số ngắn thì ô nhập bên dưới còn đọc được.
+                const x = Math.round(((e.clientX - r.left) / r.width) * 1000) / 10
+                const y = Math.round(((e.clientY - r.top) / r.height) * 1000) / 10
+                doiViTri(sceneDangDat, 'x', String(x))
+                doiViTri(sceneDangDat, 'y', String(y))
+              }}
+              className={`relative w-full rounded-xl overflow-hidden border ${sceneDangDat ? 'border-[#C3B665] cursor-crosshair' : 'border-gray-800'}`}
+              style={{ aspectRatio: '16 / 9' }}
+            >
+              <img src={tour.floorPlanImageUrl} alt="Mặt bằng phòng trà"
+                className="absolute inset-0 w-full h-full object-contain bg-black" />
+
+              {scenes.map((sc) => {
+                const o = viTri[sc.id] ?? {}
+                if (o.x === '' || o.y === '' || o.x == null || o.y == null) return null
+                const dangNham = sceneDangDat === sc.id
+                return (
+                  <span key={sc.id}
+                    title={sc.name || `Scene #${sc.id}`}
+                    className={`absolute -translate-x-1/2 -translate-y-1/2 px-1.5 py-0.5 rounded-md text-[10px] font-bold whitespace-nowrap ${
+                      dangNham ? 'bg-[#C3B665] text-black ring-2 ring-white/50' : 'bg-black/80 text-[#C3B665] border border-[#C3B665]/50'
+                    }`}
+                    style={{ left: `${o.x}%`, top: `${o.y}%` }}>
+                    {sc.name || `#${sc.id}`}
+                  </span>
+                )
+              })}
+            </div>
+          </div>
+        ) : scenes.length > 0 && (
+          <p className="mb-4 text-xs text-gray-500 flex items-start gap-1.5 leading-relaxed">
+            <AlertTriangle size={12} className="mt-0.5 flex-shrink-0 text-yellow-400" />
+            Chưa có ảnh mặt bằng nên không xem được chấm định vị trên bản đồ. Tải ảnh ở màn Khu vực
+            chỗ ngồi — backend dùng chung một ảnh cho cả hai màn.
+          </p>
+        )}
+
         {scenes.length === 0 ? (
           <p className="py-8 text-center text-sm text-gray-500">Chưa có scene nào.</p>
         ) : (
@@ -305,6 +412,44 @@ const OwnerTourPage = () => {
                       className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-gray-700 text-red-400 text-xs font-bold hover:bg-red-500/10">
                       <Trash2 size={12} /> Xoá
                     </button>
+                  </div>
+
+                  {/* CHẤM ĐỊNH VỊ TRÊN ẢNH MẶT BẰNG — không liên quan tới hotspot hay thứ tự */}
+                  <div className="mt-3 pt-3 border-t border-gray-800">
+                    <p className="text-xs text-gray-500 flex items-center gap-1.5">
+                      <MapPin size={12} /> Vị trí trên ảnh mặt bằng (%)
+                    </p>
+                    <div className="mt-2 flex flex-wrap items-end gap-2">
+                      {['x', 'y'].map((truc) => (
+                        <div key={truc} className="w-16">
+                          <label className="text-xs text-gray-600 uppercase">{truc}</label>
+                          <input type="number" step="any" min="0" max="100"
+                            value={(viTri[sc.id] ?? {})[truc] ?? ''}
+                            onChange={(e) => doiViTri(sc.id, truc, e.target.value)}
+                            className="mt-1 w-full px-2 py-1.5 bg-black border border-gray-700 rounded-md text-xs text-white focus:outline-none focus:border-[#C3B665]/50 tabular-nums" />
+                        </div>
+                      ))}
+                      <button onClick={() => luuViTri(sc.id)} disabled={busyViTri === sc.id}
+                        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-gray-700 text-gray-300 text-xs font-bold hover:bg-gray-800 disabled:opacity-50">
+                        {busyViTri === sc.id ? <Loader2 size={12} className="animate-spin" /> : <Save size={12} />} Lưu
+                      </button>
+                      <button onClick={() => { doiViTri(sc.id, 'x', ''); doiViTri(sc.id, 'y', '') }}
+                        disabled={busyViTri === sc.id}
+                        title="Xoá trống cả hai ô rồi bấm Lưu để xoá chấm định vị"
+                        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-gray-700 text-gray-500 text-xs font-bold hover:bg-gray-800 disabled:opacity-50">
+                        <Eraser size={12} />
+                      </button>
+                      {tour?.floorPlanImageUrl && (
+                        <button onClick={() => setSceneDangDat(sceneDangDat === sc.id ? null : sc.id)}
+                          className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-xs font-bold ${
+                            sceneDangDat === sc.id
+                              ? 'border-[#C3B665] bg-[#C3B665]/10 text-[#C3B665]'
+                              : 'border-gray-700 text-gray-300 hover:bg-gray-800'
+                          }`}>
+                          <MapPin size={12} /> {sceneDangDat === sc.id ? 'Đang nhắm' : 'Đặt trên bản đồ'}
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
               </li>

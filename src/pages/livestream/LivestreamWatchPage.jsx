@@ -1,11 +1,11 @@
 import { useState, useEffect, useRef } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { ArrowLeft, Loader2, AlertCircle, WifiOff, Eye, Square, Lock } from 'lucide-react'
+import { ArrowLeft, Loader2, AlertCircle, WifiOff, Eye, Square, Lock, ShieldOff, X } from 'lucide-react'
 import toast from 'react-hot-toast'
 import StreamPlayer from '../../components/livestream/StreamPlayer'
 import ChatPanel from '../../components/livestream/ChatPanel'
 import { getShowDetail, rateShow } from '../../services/showServices'
-import { getLivestreamDetail, getChatHistory, sendHeartbeat } from '../../services/livestreamServices'
+import { getLivestreamDetail, getChatHistory, sendHeartbeat, terminateLivestream } from '../../services/livestreamServices'
 import { createDonation } from '../../services/donationServices'
 import { submitContentReport } from '../../services/contentReportServices'
 import { useAuthStore } from '../../store/useAuthStore'
@@ -30,6 +30,10 @@ const LivestreamWatchPage = () => {
   const [viewerCount, setViewerCount] = useState(0)
   const [messages, setMessages] = useState([])
   const [donationAlerts, setDonationAlerts] = useState([])
+  // Cắt sóng (chỉ Admin): hộp thoại riêng vì `reason` bắt buộc và hành động KHÔNG hoàn tác được.
+  const [moCatSong, setMoCatSong] = useState(false)
+  const [lyDoCatSong, setLyDoCatSong] = useState('')
+  const [dangCatSong, setDangCatSong] = useState(false)
 
   const heartbeatRef = useRef(null)
 
@@ -210,6 +214,27 @@ const LivestreamWatchPage = () => {
     }
   }
 
+  // CẮT SÓNG — W22. Trạng thái Terminated là TRẠNG THÁI CUỐI: sau khi cắt, stream không thể phát
+  // lại và buổi diễn bị đồng bộ sang Ended. Backend ghi lại ai cắt và lý do, rồi thông báo cho mọi
+  // người đang xem qua SignalR để client ngừng gọi HLS. Vì vậy không có nút "bật lại".
+  const handleCatSong = async () => {
+    if (!lyDoCatSong.trim()) {
+      toast.error('Phải ghi lý do cắt sóng — lý do được lưu lại cùng tên người cắt.')
+      return
+    }
+    setDangCatSong(true)
+    try {
+      await terminateLivestream(livestream.id, lyDoCatSong.trim())
+      toast.success('Đã cắt sóng buổi phát này.')
+      setMoCatSong(false)
+      setLyDoCatSong('')
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Không cắt được sóng.')
+    } finally {
+      setDangCatSong(false)
+    }
+  }
+
   const handleReport = async (reason, description) => {
     if (!livestream?.id) {
       toast.error('Chưa xác định được buổi livestream để báo cáo.')
@@ -296,6 +321,18 @@ const LivestreamWatchPage = () => {
           <Square size={12} className="fill-red-400" /> Kết thúc
         </button>
 
+        {/* CẮT SÓNG — chỉ Admin. Khác hẳn "Kết thúc" của người vận hành: đây là can thiệp từ ngoài
+            vào buổi đang phát vì vi phạm nội dung, và là trạng thái cuối. */}
+        {user?.role === 'Admin' && livestream?.id && (
+          <button
+            onClick={() => setMoCatSong(true)}
+            className="flex-shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-lg bg-red-600/20 border border-red-600 text-red-300 text-xs font-bold hover:bg-red-600/30 transition-colors"
+            title="Admin dừng buổi phát vì vi phạm nội dung"
+          >
+            <ShieldOff size={12} /> Cắt sóng
+          </button>
+        )}
+
       </div>
 
       {/* BODY: VIDEO + CHAT */}
@@ -318,6 +355,48 @@ const LivestreamWatchPage = () => {
           />
         </div>
       </div>
+
+      {moCatSong && (
+        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/85 backdrop-blur-sm" onClick={() => !dangCatSong && setMoCatSong(false)} />
+          <div className="relative bg-gray-900 border border-red-500/40 rounded-2xl w-full max-w-md shadow-2xl">
+            <div className="flex justify-between items-center p-5 border-b border-gray-800">
+              <h2 className="text-lg font-bold text-red-400 flex items-center gap-2">
+                <ShieldOff size={19} /> Cắt sóng buổi phát này?
+              </h2>
+              <button onClick={() => setMoCatSong(false)} disabled={dangCatSong}
+                className="p-2 hover:bg-gray-800 rounded-full text-gray-400 disabled:opacity-30">
+                <X size={20} />
+              </button>
+            </div>
+            <div className="p-5 space-y-4">
+              <p className="text-sm text-gray-300 leading-relaxed">
+                Buổi phát sẽ dừng NGAY và <strong className="text-red-400">không phát lại được</strong> —
+                đây là trạng thái cuối. Buổi diễn cũng bị chuyển sang đã kết thúc, và mọi người đang
+                xem bị ngắt.
+              </p>
+              <div>
+                <label className="text-xs text-gray-500">Lý do <span className="text-red-400">*</span></label>
+                <textarea rows={3} value={lyDoCatSong} maxLength={500}
+                  onChange={(e) => setLyDoCatSong(e.target.value)}
+                  placeholder="Nội dung vi phạm cụ thể là gì"
+                  className="mt-1 w-full px-3 py-2 bg-black border border-gray-700 rounded-lg text-sm text-white resize-none focus:outline-none focus:border-red-500/50" />
+                <p className="text-xs text-gray-600 mt-1">Lý do được lưu lại cùng tên người cắt.</p>
+              </div>
+              <div className="flex gap-3">
+                <button onClick={() => setMoCatSong(false)} disabled={dangCatSong}
+                  className="flex-1 py-2.5 border border-gray-600 text-gray-300 rounded-lg font-medium hover:bg-gray-800 disabled:opacity-50">
+                  Huỷ
+                </button>
+                <button onClick={handleCatSong} disabled={dangCatSong || !lyDoCatSong.trim()}
+                  className="flex-1 py-2.5 bg-red-600 text-white rounded-lg font-bold hover:bg-red-700 flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed">
+                  {dangCatSong && <Loader2 size={16} className="animate-spin" />} Cắt sóng
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {showRatingModal && (
         <RatingModal

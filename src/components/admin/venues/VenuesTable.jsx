@@ -1,10 +1,11 @@
-import { Loader2, ChevronLeft, ChevronRight, Building2, ExternalLink } from 'lucide-react'
+import { Loader2, ChevronLeft, ChevronRight, Building2, ExternalLink, ShieldAlert } from 'lucide-react'
 import dayjs from 'dayjs'
 import { Link } from 'react-router-dom'
 import { VenueStatusBadge, LicenseBadge } from './VenueBadges'
 
 // Component thuần UI: nhận data đã lọc + callbacks từ cha
-const VenuesTable = ({ venues, isLoading, pagination, onViewPublicPage, onPageChange, onReview }) => {
+// onViewPublicPage cu bi bo: bang dung <Link> mo trang cong khai, khong qua callback nao.
+const VenuesTable = ({ venues, isLoading, pagination, onPageChange, onReview, onPenalize }) => {
   return (
     <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
       <div className="overflow-x-auto">
@@ -80,6 +81,16 @@ const VenuesTable = ({ venues, isLoading, pagination, onViewPublicPage, onPageCh
                           Từ chối
                         </button>
                       </>
+                    )}
+                    {/* Ra án phạt: KHÔNG hiện cho hồ sơ chưa duyệt (Pending/Rejected) — phòng trà
+                        chưa hoạt động thì phạt không có nghĩa, và duyệt hồ sơ là việc khác hẳn. */}
+                    {onPenalize && !['Pending', 'Rejected'].includes(v.status) && (
+                      <button
+                        onClick={() => onPenalize(v)}
+                        className="ml-2 inline-flex items-center gap-1.5 text-orange-400 border border-orange-500/40 hover:bg-orange-500/10 px-3 py-1.5 rounded-md text-xs font-bold transition-colors"
+                      >
+                        <ShieldAlert size={12} /> Án phạt
+                      </button>
                     )}
                   </td>
                 </tr>
