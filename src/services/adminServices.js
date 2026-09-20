@@ -53,3 +53,15 @@ export const getAdminComplaints = async (params = {}) => {
 export const getAdminVenues = async (params = {}) => {
   return axiosClient.get('/admin/venues/pending', { params });
 };
+
+export const createFilterOption = async (type, payload) => {
+  return axiosClient.post(`/admin/${type}`, payload);
+};
+
+export const updateFilterOption = async (type, id, payload) => {
+  return axiosClient.put(`/admin/${type}/${id}`, payload);
+};
+
+export const deleteFilterOption = async (type, id) => {
+  return axiosClient.delete(`/admin/${type}/${id}`);
+};

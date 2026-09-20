@@ -9,7 +9,7 @@ import ShowCarousel from '../../components/home/ShowCarousel'
 import ShowMap from '../../components/mshow-detail/ShowMap'
 import ShowIntro from '../../components/mshow-detail/ShowIntro'
 import Skeleton from '../../components/shared/Skeleton'
-import { getShowDetail, getShows } from '../../services/showServices'
+import { getShowDetail, getShows, getSimilarShows } from '../../services/showServices'
 import { getFollowedLounges, toggleWishlist } from '../../services/interactionServices'
 import { toggleFollowLounge } from '../../services/interactionServices' 
 
@@ -79,18 +79,22 @@ const EventDetailPage = () => {
           }
 
           try {
-            const listRes = await getShows({ page: 1, pageSize: 10, includeSoldOut: true })
-            if (listRes.success) {
-              const related = listRes.data.items
-                .filter(ev => ev.id !== beData.id)
+            const similarRes = await getSimilarShows(beData.id)
+            if (similarRes.success && Array.isArray(similarRes.data)) {
+              const related = similarRes.data
+                .filter(ev => ev.id !== beData.id) // phòng BE trả chính nó
                 .slice(0, 8)
                 .map(ev => ({
                   id: ev.id,
                   title: ev.name,
                   thumbnail: ev.coverImageUrl,
                   start_date: ev.scheduledStart,
+                  province: ev.loungeCity,
+                  genre: ev.genres?.[0]?.name || 'Other',
+                  genreId: ev.genres?.[0]?.id || null,
                   price: ev.minPrice === 0 && ev.maxPrice === 0 ? 'Free' : `${ev.minPrice.toLocaleString('vi-VN')}đ`,
-                  format: ev.format
+                  format: ev.format,
+                  isWishlisted: ev.isWishlisted
                 }))
               setRelatedEvents(related)
             }

@@ -23,3 +23,7 @@ export const getTrendingShows = async (params = {}) => {
 export const getDistricts = async (city) => {
   return axiosClient.get('/lounge-shows/filter-options/districts', { params: { city } });
 };
+
+export const getSimilarShows = async (id) => {
+  return axiosClient.get(`/lounge-shows/${id}/similar`);
+};
