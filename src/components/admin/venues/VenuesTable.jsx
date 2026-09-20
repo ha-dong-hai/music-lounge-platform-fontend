@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom'
 import { VenueStatusBadge, LicenseBadge } from './VenueBadges'
 
 // Component thuần UI: nhận data đã lọc + callbacks từ cha
-const VenuesTable = ({ venues, isLoading, pagination, onViewPublicPage, onPageChange }) => {
+const VenuesTable = ({ venues, isLoading, pagination, onViewPublicPage, onPageChange, onReview }) => {
   return (
     <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
       <div className="overflow-x-auto">
@@ -63,6 +63,24 @@ const VenuesTable = ({ venues, isLoading, pagination, onViewPublicPage, onPageCh
                     >
                       <ExternalLink size={12} /> Xem
                     </Link>
+                    {/* Phòng trà ở Pending không hiện công khai và không bán vé được — không duyệt
+                        thì chủ phòng trà treo vô thời hạn. */}
+                    {onReview && v.status === 'Pending' && (
+                      <>
+                        <button
+                          onClick={() => onReview(v, 'Approved')}
+                          className="ml-2 inline-flex items-center gap-1.5 text-green-400 border border-green-500/40 hover:bg-green-500/10 px-3 py-1.5 rounded-md text-xs font-bold transition-colors"
+                        >
+                          Duyệt
+                        </button>
+                        <button
+                          onClick={() => onReview(v, 'Rejected')}
+                          className="ml-2 inline-flex items-center gap-1.5 text-red-400 border border-red-500/40 hover:bg-red-500/10 px-3 py-1.5 rounded-md text-xs font-bold transition-colors"
+                        >
+                          Từ chối
+                        </button>
+                      </>
+                    )}
                   </td>
                 </tr>
               ))

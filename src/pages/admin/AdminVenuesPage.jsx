@@ -5,6 +5,7 @@ import { getAdminVenues } from '../../services/adminServices'
 import VenuesStatsCards from '../../components/admin/venues/VenuesStatsCards'
 import VenuesFilterBar from '../../components/admin/venues/VenuesFilterBar'
 import VenuesTable from '../../components/admin/venues/VenuesTable'
+import ReviewVenueModal from '../../components/admin/venues/ReviewVenueModal'
 
 // 6 status BE hỗ trợ
 const ALL_STATUSES = ['Pending', 'Approved', 'Warned', 'Suspended', 'Locked', 'Rejected']
@@ -20,6 +21,12 @@ const AdminVenuesPage = () => {
 
   // Stats cho 6 thẻ (fetch song song 7 request pageSize=1 — pattern getAdminStats)
   const [counts, setCounts] = useState({ total: 0 })
+
+  // Duyet ho so phong tra: khong duyet thi phong tra treo mai o Pending, khong ban ve duoc.
+  const [reviewTarget, setReviewTarget] = useState(null) // { venue, decision }
+  // Khoa tai lai: effect lay danh sach chi phu thuoc [page, statusFilter], nen dat lai cung mot
+  // trang se KHONG chay lai. Tang khoa nay moi buoc effect chay.
+  const [reloadKey, setReloadKey] = useState(0)
 
   // 1. FETCH STATS (chạy 1 lần) — mỗi status 1 request chỉ lấy totalCount
   useEffect(() => {
@@ -68,7 +75,7 @@ const AdminVenuesPage = () => {
       }
     }
     fetchVenues()
-  }, [pagination.page, statusFilter])
+  }, [pagination.page, statusFilter, reloadKey])
 
   // 3. ĐỔI FILTER → VỀ TRANG 1
   useEffect(() => {
@@ -118,7 +125,17 @@ const AdminVenuesPage = () => {
         isLoading={isLoading}
         pagination={pagination}
         onPageChange={(page) => setPagination(prev => ({ ...prev, page }))}
+        onReview={(venue, decision) => setReviewTarget({ venue, decision })}
       />
+
+      {reviewTarget && (
+        <ReviewVenueModal
+          venue={reviewTarget.venue}
+          decision={reviewTarget.decision}
+          onClose={() => setReviewTarget(null)}
+          onSaved={() => setReloadKey((k) => k + 1)}
+        />
+      )}
     </div>
   )
 }

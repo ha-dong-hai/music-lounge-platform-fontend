@@ -28,6 +28,8 @@ import LivestreamWatchPage from '../pages/livestream/LivestreamWatchPage'
 import RatingModal from '../components/livestream/RatingModal'
 import AdminVenuesPage from '../pages/admin/AdminVenuesPage'
 import AdminFilterOptionsPage from '../pages/admin/AdminFilterOptionsPage'
+import AdminKycReviewsPage from '../pages/admin/AdminKycReviewsPage'
+import AdminSystemConfigPage from '../pages/admin/AdminSystemConfigPage'
 import PaymentResultPage from '../pages/payment/PaymentResultPage'
 import LoginPage from '../pages/auth/LoginPage'
 import RegisterPage from '../pages/auth/RegisterPage'
@@ -132,6 +134,8 @@ const AppRouter = createBrowserRouter([
       { path: 'complaint', element: <AdminComplaintPage /> },
       { path: 'venues', element: <AdminVenuesPage /> },
       { path: 'filter-options', element: <AdminFilterOptionsPage /> },
+      { path: 'kyc-reviews', element: <AdminKycReviewsPage /> },
+      { path: 'system-config', element: <AdminSystemConfigPage /> },
       { path: 'content-reports', element: <AdminContentReportsPage /> },
       { path: 'refunds', element: <AdminRefundsPage /> },
       { path: 'settlements', element: <AdminSettlementsPage /> },
