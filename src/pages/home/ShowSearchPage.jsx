@@ -10,9 +10,24 @@ import { getShows, searchShows, getFilterOptions } from '../../services/showServ
 import dayjs from 'dayjs'
 
 const initialFilterState = {
-  selectedProvince: null, selectedDistricts: [], selectedWards: [],
-  selectedGenres: [], selectedSubGenres: [], selectedSpaces: [], selectedMoods: [],
+  selectedProvince: null,
+  selectedGenres: [], selectedSpaces: [], selectedMoods: [],
   minPrice: '', maxPrice: '',
+}
+
+// FilterModal lưu TÊN của thể loại / tâm trạng / không gian, còn API cần ID.
+// Đổi tên → id ở đây, và BỎ những tên không khớp thay vì để undefined lọt vào mảng:
+// axios sẽ serialize undefined thành tham số rỗng và backend nhận một mảng id hỏng.
+// Mất thầm một bộ lọc vẫn hơn gửi truy vấn sai.
+// Tên có thể không khớp nếu Admin đổi tên mục sau khi người dùng đã chọn (bộ lọc được
+// chụp lại qua navigate state), hoặc nếu sau này tồn tại hai mục trùng tên — backend
+// KHÔNG bảo đảm tên duy nhất vì Admin có CRUD taxonomy.
+const namesToIds = (names, options) => {
+  if (!names || names.length === 0 || !options || options.length === 0) return undefined
+  const ids = names
+    .map(name => options.find(o => o.name === name)?.id)
+    .filter(id => id !== undefined && id !== null)
+  return ids.length > 0 ? ids : undefined
 }
 
 const RemovableTag = ({ label, onRemove, icon: Icon }) => (
@@ -36,29 +51,34 @@ const ShowSearchPage = () => {
   const [pagination, setPagination] = useState({ page: 1, totalPages: 1 })
   const [pageTitle, setPageTitle] = useState("List of shows")
 
+  const [filterOptions, setFilterOptions] = useState({ genres: [], moods: [], atmospheres: [], cities: [] })
+
   const [isFilterOpen, setIsFilterOpen] = useState(false)
   // ⭐ LẤY STATE TỪ HOMEPAGE TRUYỀN QUA, NẾU KHÔNG CÓ THÌ DÙNG DEFAULT
   const [appliedFilters, setAppliedFilters] = useState(location.state?.appliedFilters || initialFilterState)
   const [startDate, setStartDate] = useState(location.state?.startDate || '')
   const [endDate, setEndDate] = useState(location.state?.endDate || '')
 
-  // LẤY TÊN GENRE TỪ BE
+  // TẢI TUỲ CHỌN LỌC MỘT LẦN — dùng cho cả tiêu đề trang và việc đổi tên → id khi gọi search
+  useEffect(() => {
+    const fetchOptions = async () => {
+      try {
+        const res = await getFilterOptions()
+        if (res.success) setFilterOptions(res.data)
+      } catch (err) { console.error('Error retrieving filter options:', err) }
+    }
+    fetchOptions()
+  }, [])
+
+  // TIÊU ĐỀ TRANG
   useEffect(() => {
     if (!genreId) {
       setPageTitle(keyword ? `Search results: "${keyword}"` : "List of shows")
       return
     }
-    const fetchGenreName = async () => {
-      try {
-        const res = await getFilterOptions()
-        if (res.success) {
-          const genre = res.data.genres.find(g => String(g.id) === String(genreId))
-          setPageTitle(genre ? `Genre ${genre.name}` : "List of shows")
-        }
-      } catch (err) { console.error('Error retrieving filter options:', err) }
-    }
-    fetchGenreName()
-  }, [genreId, keyword])
+    const genre = filterOptions.genres.find(g => String(g.id) === String(genreId))
+    setPageTitle(genre ? `Genre ${genre.name}` : "List of shows")
+  }, [genreId, keyword, filterOptions])
 
   // GỌI API SEARCH
   useEffect(() => {
@@ -71,17 +91,23 @@ const ShowSearchPage = () => {
         const isFiltering = Object.values(appliedFilters).some(val => Array.isArray(val) ? val.length > 0 : val !== null && val !== '') || startDate || endDate
 
         if (keyword || genreId || isFiltering) {
+          // Thể loại đến từ hai nguồn: tham số genreId trên URL, và lựa chọn trong modal.
+          // Gộp lại và bỏ trùng để không gửi một id hai lần.
+          const genreIdsFromModal = namesToIds(appliedFilters.selectedGenres, filterOptions.genres) || []
+          const genreIds = [...new Set([...(genreId ? [Number(genreId)] : []), ...genreIdsFromModal])]
+
           const params = {
             ...commonParams,
             keyword: keyword || undefined,
             city: appliedFilters.selectedProvince || undefined,
-            district: appliedFilters.selectedDistricts.length > 0 ? appliedFilters.selectedDistricts[0] : undefined,
             dateFrom: startDate ? dayjs(startDate).toISOString() : undefined,
             dateTo: endDate ? dayjs(endDate).toISOString() : undefined,
             minPrice: appliedFilters.minPrice || undefined,
             maxPrice: appliedFilters.maxPrice || undefined,
+            genreIds: genreIds.length > 0 ? genreIds : undefined,
+            moodIds: namesToIds(appliedFilters.selectedMoods, filterOptions.moods),
+            atmosphereIds: namesToIds(appliedFilters.selectedSpaces, filterOptions.atmospheres),
           }
-          if (genreId) params.genreIds = [Number(genreId)]
 
           Object.keys(params).forEach(key => params[key] === undefined && delete params[key])
           res = await searchShows(params)
@@ -106,13 +132,22 @@ const ShowSearchPage = () => {
           setApiError(res.message || 'Data loading error')
         }
       } catch (err) {
-        setApiError('Unable to connect to backend.')
+        // Backend trả 400 kèm `message` tiếng Việt khi khoảng giá không hợp lệ (giá âm, giá
+        // có phần lẻ, maxPrice < minPrice). Gộp nó vào "lỗi kết nối" là nói sai nguyên nhân:
+        // người dùng gõ sai khoảng giá sẽ tưởng hệ thống đang hỏng. Hiện thẳng message của backend.
+        const status = err?.response?.status
+        const beMessage = err?.response?.data?.message
+        setApiError(
+          status >= 400 && status < 500 && beMessage
+            ? beMessage
+            : 'Unable to connect to backend.'
+        )
       } finally {
         setIsLoading(false)
       }
     }
     fetchShows()
-  }, [keyword, genreId, appliedFilters, startDate, endDate, pagination.page])
+  }, [keyword, genreId, appliedFilters, startDate, endDate, pagination.page, filterOptions])
 
   // RESET TRANG VỀ 1 KHI ĐỔI FILTER
   useEffect(() => { setPagination(prev => ({ ...prev, page: 1 })) }, [keyword, genreId, appliedFilters, startDate, endDate])
@@ -181,7 +216,6 @@ const ShowSearchPage = () => {
         {isFiltering && (
           <div className="flex flex-wrap gap-1.5 sm:gap-2 items-center pb-3 sm:pb-4">
             {appliedFilters.selectedProvince && (<RemovableTag label={appliedFilters.selectedProvince} onRemove={() => setAppliedFilters(prev => ({ ...prev, selectedProvince: null }))} />)}
-            {appliedFilters.selectedDistricts.map(d => (<RemovableTag key={d} label={d} onRemove={() => removeFromFilterArray('selectedDistricts', d)} />))}
             {appliedFilters.selectedGenres.map(g => (<RemovableTag key={g} label={g} onRemove={() => removeFromFilterArray('selectedGenres', g)} />))}
             {appliedFilters.selectedSpaces.map(s => (<RemovableTag key={s} label={s} onRemove={() => removeFromFilterArray('selectedSpaces', s)} />))}
             {appliedFilters.selectedMoods.map(m => (<RemovableTag key={m} label={m} onRemove={() => removeFromFilterArray('selectedMoods', m)} />))}

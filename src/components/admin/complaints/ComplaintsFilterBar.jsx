@@ -37,10 +37,13 @@ const ComplaintsFilterBar = ({
         onChange={(e) => setStatusFilter(e.target.value)}
         className="w-full lg:w-auto px-4 py-2.5 bg-black border border-gray-800 rounded-lg text-sm text-white focus:outline-none focus:border-[#C3B665]/50 cursor-pointer"
       >
-        <option value="all">All categories</option>
-        {/* Tạm chỉ 2 option chắc chắn có ở BE */}
+        <option value="all">All statuses</option>
+        {/* Trang dùng GET /admin/complaints (mọi trạng thái) và gửi lựa chọn này lên server qua tham số status.
+            Đúng 4 giá trị Complaint.Status của backend — sai tên thì backend trả 422. */}
         <option value="Open">Pending</option>
+        <option value="Investigating">Investigating</option>
         <option value="Resolved">Resolved</option>
+        <option value="Rejected">Rejected</option>
       </select>
     </div>
   )

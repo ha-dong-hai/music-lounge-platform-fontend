@@ -6,23 +6,29 @@ export const CATEGORY_CONFIG = {
   TechnicalIssue:         { label: 'Technical Issue', cls: 'bg-purple-500/15 text-purple-400 border-purple-500/30' },
   VenueConduct:           { label: 'Venue Conduct', cls: 'bg-pink-500/15 text-pink-400 border-pink-500/30' },
   PenaltyAppeal:          { label: 'Penalty Appeal', cls: 'bg-red-500/15 text-red-400 border-red-500/30' },
+  ContentViolation:       { label: 'Content Violation', cls: 'bg-rose-500/15 text-rose-400 border-rose-500/30' },
   Other:                  { label: 'Other', cls: 'bg-gray-500/15 text-gray-400 border-gray-500/30' },
 }
 
-// Target type → tiếng Việt (dự phòng thêm các loại BE có thể trả)
+// Đúng 6 giá trị ComplaintDto.targetType của backend (origin/master), chữ thường.
+// Lưu ý: 'show' trỏ LoungeShow.Id còn 'livestream' trỏ Livestream.Id — hai mã khác nhau.
 export const TARGET_TYPE_LABELS = {
-  venue: 'Lounge',
   show: 'Show',
-  performer: 'Performer',
-  user: 'Audience',
+  venue: 'Lounge',
+  donation: 'Donation',
+  ticket: 'Ticket',
+  penalty: 'Penalty',
+  livestream: 'Livestream',
 }
 
-// ⚠️ Chỉ "Open" là chắc chắn có trong BE. Status lạ sẽ tự fallback xám + hiện nguyên text BE
+// Đúng 4 giá trị Complaint.Status của backend. Status lạ vẫn fallback xám + hiện nguyên text BE.
+// GET /complaints/pending chỉ trả Open + Investigating; Resolved/Rejected chỉ xuất hiện khi
+// nào backend có endpoint xem khiếu nại đã xử lý.
 export const STATUS_CONFIG = {
-  Open:       { label: 'Pending', cls: 'bg-blue-500/15 text-blue-400 border-blue-500/30' },
-  InProgress: { label: 'Progressing', cls: 'bg-yellow-500/15 text-yellow-400 border-yellow-500/30' },
-  Resolved:   { label: 'Resolved', cls: 'bg-green-500/15 text-green-400 border-green-500/30' },
-  Dismissed:  { label: 'Dismissed', cls: 'bg-gray-500/15 text-gray-500 border-gray-500/30' },
+  Open:          { label: 'Pending', cls: 'bg-blue-500/15 text-blue-400 border-blue-500/30' },
+  Investigating: { label: 'Investigating', cls: 'bg-yellow-500/15 text-yellow-400 border-yellow-500/30' },
+  Resolved:      { label: 'Resolved', cls: 'bg-green-500/15 text-green-400 border-green-500/30' },
+  Rejected:      { label: 'Rejected', cls: 'bg-gray-500/15 text-gray-500 border-gray-500/30' },
 }
 
 // ===== BADGES =====

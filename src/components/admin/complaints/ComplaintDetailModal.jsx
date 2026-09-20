@@ -7,7 +7,19 @@ const ComplaintDetailModal = ({ complaint, onClose }) => {
   if (!complaint) return null
   const c = complaint
   const isResolved = !!c.resolvedAt || c.status === 'Resolved'
-  const evidences = Array.isArray(c.evidenceUrls) ? c.evidenceUrls : []
+  // Backend khai EvidenceUrls la string? — mot CHUOI chua mang JSON, khong phai mang san.
+  // Array.isArray tren chuoi luon false nen anh bang chung truoc day khong bao gio hien.
+  const evidences = (() => {
+    if (Array.isArray(c.evidenceUrls)) return c.evidenceUrls
+    if (typeof c.evidenceUrls !== 'string' || !c.evidenceUrls.trim()) return []
+    try {
+      const parsed = JSON.parse(c.evidenceUrls)
+      return Array.isArray(parsed) ? parsed.filter(Boolean) : [c.evidenceUrls]
+    } catch {
+      // Khong phai JSON hop le: coi nguyen chuoi la 1 duong dan de khong mat bang chung.
+      return [c.evidenceUrls]
+    }
+  })()
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4" onClick={onClose}>

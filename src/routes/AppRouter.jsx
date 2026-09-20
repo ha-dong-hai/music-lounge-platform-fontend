@@ -18,6 +18,9 @@ import AdminShowsPage from '../pages/admin/AdminShowsPage'
 import AdminShowDetailPage from '../pages/admin/AdminShowDetailPage'
 import AdminPackagesPage from '../pages/admin/AdminPackagesPage'
 import AdminComplaintPage from '../pages/admin/AdminComplaintPage'
+import AdminContentReportsPage from '../pages/admin/AdminContentReportsPage'
+import AdminRefundsPage from '../pages/admin/AdminRefundsPage'
+import AdminSettlementsPage from '../pages/admin/AdminSettlementsPage'
 import LoungeDetailPage from '../pages/lounge/LoungeDetailPage'
 import TicketDetailPage from '../pages/user/TicketDetailPage'
 import LoungeListPage from '../pages/lounge/LoungeListPage'
@@ -25,6 +28,17 @@ import LivestreamWatchPage from '../pages/livestream/LivestreamWatchPage'
 import RatingModal from '../components/livestream/RatingModal'
 import AdminVenuesPage from '../pages/admin/AdminVenuesPage'
 import AdminFilterOptionsPage from '../pages/admin/AdminFilterOptionsPage'
+import PaymentResultPage from '../pages/payment/PaymentResultPage'
+import LoginPage from '../pages/auth/LoginPage'
+import RegisterPage from '../pages/auth/RegisterPage'
+import VerifyEmailPage from '../pages/auth/VerifyEmailPage'
+import OwnerLayout from '../layouts/OwnerLayout'
+import OwnerLivestreamsPage from '../pages/owner/OwnerLivestreamsPage'
+import OwnerSubscriptionPage from '../pages/owner/OwnerSubscriptionPage'
+import OwnerAnalyticsPage from '../pages/owner/OwnerAnalyticsPage'
+import OwnerShowsPage from '../pages/owner/OwnerShowsPage'
+import OwnerShowDetailPage from '../pages/owner/OwnerShowDetailPage'
+import FnbOrderPage from '../pages/fnb/FnbOrderPage'
 
 const AppRouter = createBrowserRouter([
   {
@@ -40,11 +54,45 @@ const AppRouter = createBrowserRouter([
       { path: 'my-shows/ticket/:ticketId', element: <TicketDetailPage /> },
       { path: 'lounges', element: <LoungeListPage /> },
       { path: 'lounge/:id', element: <LoungeDetailPage /> }, 
-      { path: 'rating', element: <RatingModal /> }, 
+      { path: 'lounge/:id/order', element: <FnbOrderPage /> },
+      { path: 'rating', element: <RatingModal /> },
     ],
   },
 
   { path: '/livestream/:showId', element: <LivestreamWatchPage /> },
+
+  { path: '/login', element: <LoginPage /> },
+  { path: '/register', element: <RegisterPage /> },
+  { path: '/verify-email', element: <VerifyEmailPage /> },
+
+  { path: '/payment/success', element: <PaymentResultPage status="success" /> },
+  { path: '/payment/failed', element: <PaymentResultPage status="failed" /> },
+  { path: '/payment/processing', element: <PaymentResultPage status="processing" /> },
+
+  {
+    path: '/owner',
+    element: (
+      // Chỉ livestream mới là RequireVenueOperator (Owner + Staff) ở backend, nên cổng ngoài
+      // cho cả hai vào, còn từng trang bên trong tự siết theo đúng policy của API nó gọi.
+      <ProtectedRoute requiredRoles={['Owner', 'Staff']}>
+        <OwnerLayout />
+      </ProtectedRoute>
+    ),
+    // CẢNH BÁO CHO NGƯỜI SỬA SAU: đừng gộp hết về một mức quyền ở cổng ngoài.
+    // Trước đây cả khối này chỉ có một guard ['Owner','Staff'], trong khi 3/4 trang gọi
+    // endpoint RequireOwner: /lounge-shows/mine, /ticket-tiers (POST/PUT/DELETE),
+    // /analytics/my-lounge, /analytics/revenue-report, /subscriptions/my. Hậu quả là tài khoản
+    // Staff đi qua được route rồi ăn 403 từ API — trang tải ra một lỗi chung, không ai hiểu
+    // vì sao. Giữ mức quyền ở đây khớp với policy của backend.
+    children: [
+      { index: true, element: <OwnerLivestreamsPage /> },
+      { path: 'shows', element: <ProtectedRoute requiredRoles={['Owner']}><OwnerShowsPage /></ProtectedRoute> },
+      { path: 'shows/:id', element: <ProtectedRoute requiredRoles={['Owner']}><OwnerShowDetailPage /></ProtectedRoute> },
+      { path: 'livestreams', element: <OwnerLivestreamsPage /> },
+      { path: 'subscription', element: <ProtectedRoute requiredRoles={['Owner']}><OwnerSubscriptionPage /></ProtectedRoute> },
+      { path: 'analytics', element: <ProtectedRoute requiredRoles={['Owner']}><OwnerAnalyticsPage /></ProtectedRoute> },
+    ]
+  },
 
   {
     path: '/admin',
@@ -63,6 +111,9 @@ const AppRouter = createBrowserRouter([
       { path: 'complaint', element: <AdminComplaintPage /> },
       { path: 'venues', element: <AdminVenuesPage /> },
       { path: 'filter-options', element: <AdminFilterOptionsPage /> },
+      { path: 'content-reports', element: <AdminContentReportsPage /> },
+      { path: 'refunds', element: <AdminRefundsPage /> },
+      { path: 'settlements', element: <AdminSettlementsPage /> },
     ]
   }
 

@@ -1,10 +1,11 @@
 // src/pages/user/TicketDetailPage.jsx
 import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { ArrowLeft, CheckCircle2, Loader2 } from 'lucide-react'
+import { ArrowLeft, CheckCircle2, XCircle } from 'lucide-react'
 import QRCode from 'react-qr-code'
 import dayjs from 'dayjs'
-import { getTicketDetail } from '../../services/ticketServices'
+import toast from 'react-hot-toast'
+import { getTicketDetail, cancelTicket } from '../../services/ticketServices'
 import Skeleton from '../../components/shared/Skeleton'
 
 const TicketDetailPage = () => {
@@ -13,6 +14,23 @@ const TicketDetailPage = () => {
     const [ticket, setTicket] = useState(null)
     const [isLoading, setIsLoading] = useState(true)
     const [apiError, setApiError] = useState(null)
+    const [isCancelling, setIsCancelling] = useState(false)
+    const [cancelDone, setCancelDone] = useState(false)
+
+    const handleCancel = async () => {
+        setIsCancelling(true)
+        try {
+            const res = await cancelTicket(ticketId)
+            // data = id yêu cầu hoàn tiền, hoặc 0 với vé Pending (không sinh yêu cầu nào).
+            const refundId = res?.data
+            toast.success(refundId ? 'Đã gửi yêu cầu huỷ vé và hoàn tiền.' : 'Đã huỷ vé.')
+            setCancelDone(true)
+        } catch (err) {
+            toast.error(err.response?.data?.message || 'Không huỷ được vé.', { duration: 6000 })
+        } finally {
+            setIsCancelling(false)
+        }
+    }
 
     // ⭐ GỌI API LẤY CHI TIẾT VÉ
     useEffect(() => {
@@ -186,6 +204,31 @@ const TicketDetailPage = () => {
                         </table>
                     </div>
                 </div>
+
+                {/* HUỶ VÉ — chỉ hiện với vé còn hiệu lực. Vé Confirmed huỷ xong KHÔNG hoàn tiền ngay:
+                    backend tạo một yêu cầu hoàn tiền để Admin duyệt, mức hoàn theo đúng chính sách
+                    của buổi diễn. Vé Pending (chưa từng thanh toán thật) thì huỷ đứt luôn. */}
+                {['Confirmed', 'Pending'].includes(ticket.status) && (
+                    <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6 mt-6">
+                        <h2 className="text-xl font-bold text-[#C3B665] mb-2">Huỷ vé</h2>
+                        <p className="text-gray-400 text-sm mb-4">
+                            {ticket.status === 'Confirmed'
+                                ? 'Huỷ vé sẽ tạo yêu cầu hoàn tiền gửi tới quản trị viên. Số tiền hoàn theo đúng chính sách của buổi diễn.'
+                                : 'Vé này chưa thanh toán nên huỷ sẽ có hiệu lực ngay.'}
+                        </p>
+                        {cancelDone ? (
+                            <p className="text-green-400 text-sm">Đã gửi yêu cầu huỷ vé.</p>
+                        ) : (
+                            <button
+                                onClick={handleCancel}
+                                disabled={isCancelling}
+                                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-red-500/40 text-red-400 text-sm font-bold hover:bg-red-500/10 disabled:opacity-50"
+                            >
+                                <XCircle size={16} /> {isCancelling ? 'Đang gửi...' : 'Huỷ vé này'}
+                            </button>
+                        )}
+                    </div>
+                )}
 
             </div>
         </div>

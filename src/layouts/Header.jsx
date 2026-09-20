@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom' 
 import { useAuthStore } from '../store/useAuthStore'
 import toast from 'react-hot-toast'
+import NotificationBell from '../components/notifications/NotificationBell'
 
 // ⭐ BỎ PROPS searchQuery, setSearchQuery ĐI
 const Header = () => {
@@ -73,6 +74,9 @@ const Header = () => {
               <Link to="/register" className="bg-black text-white px-3 py-2 rounded-xl text-sm font-medium hover:bg-gray-800 transition-colors">Register</Link>
             </div>
           ) : (
+            <>
+            {/* Thông báo chỉ có nghĩa với người đã đăng nhập — API /notifications yêu cầu xác thực. */}
+            <NotificationBell />
             <div className="relative">
               <button onClick={() => setIsUserMenuOpen(!isUserMenuOpen)} className="flex items-center gap-2 hover:text-white transition-colors focus:outline-none">
                 {user.avatarUrl ? (
@@ -104,6 +108,7 @@ const Header = () => {
                 </div>
               )}
             </div>
+            </>
           )}
 
           <div className="relative">

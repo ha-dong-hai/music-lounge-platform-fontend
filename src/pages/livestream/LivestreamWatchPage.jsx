@@ -1,114 +1,138 @@
 import { useState, useEffect, useRef } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { ArrowLeft, Loader2, AlertCircle, WifiOff, Eye, Square} from 'lucide-react'
+import { ArrowLeft, Loader2, AlertCircle, WifiOff, Eye, Square, Lock } from 'lucide-react'
+import toast from 'react-hot-toast'
 import StreamPlayer from '../../components/livestream/StreamPlayer'
 import ChatPanel from '../../components/livestream/ChatPanel'
-import { getShowDetail } from '../../services/showServices'
+import { getShowDetail, rateShow } from '../../services/showServices'
+import { getLivestreamDetail, getChatHistory, sendHeartbeat } from '../../services/livestreamServices'
+import { createDonation } from '../../services/donationServices'
+import { submitContentReport } from '../../services/contentReportServices'
 import { useAuthStore } from '../../store/useAuthStore'
+import { useLivestreamHub } from '../../hooks/useLivestreamHub'
 
 import RatingModal from '../../components/livestream/RatingModal'
 import { formatCompactNumber } from '../../utils/format'
 
-// ===== MOCK DATA (giả lập viewer + chat + donate) =====
-const MOCK_VIEWERS = [254, 271, 268, 289, 305, 298, 312, 328]
-
-const MOCK_CHATS = [
-  { user: { name: 'Minh Anh', avatarUrl: null }, content: ' Âm thanh quá tuyệt vời 😍' },
-  { user: { name: 'Trần Quốc Bảo', avatarUrl: null }, content: 'Xin một bài Khôngpromissa!' },
-  { user: { name: 'Lan Nguyễn', avatarUrl: null }, content: 'Ngồi góc phải view sân khấu đẹp xỉu 🎤' },
-  { user: { name: 'hoanglee.99', avatarUrl: null }, content: 'Ai ở Quận 1 đo hop các bạn 🍻' },
-  { user: { name: 'Thảo Vy', avatarUrl: null }, content: 'Band chơi bài gì vậy ạ?' },
-  { user: { name: 'David Phạm', avatarUrl: null }, content: 'Livestream mượt ghê 👏' },
-  { user: { name: 'Bảo Trân', avatarUrl: null }, content: 'Guitarist đỉnh thật sự 🎸' },
-  { user: { name: 'Khánh Vy', avatarUrl: null }, content: 'Đến giờ chưa mọi người?' },
-  { user: { name: 'Phúc Đạt', avatarUrl: null }, content: 'Saxophone nghe là mê luôn 😭' },
-]
-
-const MOCK_DONATIONS = [
-  { user: { name: 'Thảo Vy', avatarUrl: null }, performerName: 'Lê Cường', amount: 50000, message: 'Bài này hay quá anh ơi!' },
-  { user: { name: 'Minh Tuấn', avatarUrl: null }, performerName: 'Minh Tuyết', amount: 200000, message: 'Chúc show thành công rực rỡ 🎉' },
-  { user: { name: 'Ẩn danh', avatarUrl: null }, performerName: 'Lê Cường', amount: 100000, message: '' },
-  { user: { name: 'Hải Yến', avatarUrl: null }, performerName: 'Minh Tuyết', amount: 50000, message: 'Một bài nữa đi ạ 🙏' },
-]
+const HEARTBEAT_INTERVAL_MS = 30000
 
 const LivestreamWatchPage = () => {
   const { showId } = useParams()
   const { user } = useAuthStore()
 
   const [showData, setShowData] = useState(null)
+  const [livestream, setLivestream] = useState(null) // LivestreamDetailDto thật
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(null)
 
   const [showRatingModal, setShowRatingModal] = useState(false)
 
-  // UI STATE (mock — BE sẽ thay bằng trạng thái connection thật)
-  const [isChatConnected, setIsChatConnected] = useState(true)
-  const [viewerCount, setViewerCount] = useState(MOCK_VIEWERS[0])
-
+  const [viewerCount, setViewerCount] = useState(0)
   const [messages, setMessages] = useState([])
   const [donationAlerts, setDonationAlerts] = useState([])
 
-  // FILE MỚI ĐỌC SHOW DATA (thật) — để có tên show + performers từ BE
+  const heartbeatRef = useRef(null)
+
+  // 1. Lấy show detail thật -> lấy livestreamId -> lấy chi tiết livestream thật (HlsUrl/quyền xem)
   useEffect(() => {
     const initData = async () => {
       setIsLoading(true)
+      setError(null)
       try {
-        const res = await getShowDetail(showId)
-        if (res.success) {
-          setShowData(res.data)
-        } else {
+        const showRes = await getShowDetail(showId)
+        if (!showRes.success) {
           setError('Streaming show not found.')
+          return
         }
-      } catch (err) {
+        setShowData(showRes.data)
+
+        if (!showRes.data.livestreamId) {
+          setError('This show has no livestream session.')
+          return
+        }
+
+        const lsRes = await getLivestreamDetail(showRes.data.livestreamId)
+        if (lsRes.success) {
+          setLivestream(lsRes.data)
+          setViewerCount(lsRes.data.viewerCount || 0)
+        }
+
+        try {
+          const chatRes = await getChatHistory(showRes.data.livestreamId, { pageSize: 50 })
+          if (chatRes.success) {
+            setMessages(
+              chatRes.data.items.map((m) => ({
+                user: { name: m.displayName, avatarUrl: null },
+                content: m.message,
+                type: 'chat',
+                isMine: m.userId === user?.id,
+              }))
+            )
+          }
+        } catch {
+          // Lịch sử chat không tải được không nên chặn cả trang — vẫn xem được livestream/chat mới.
+        }
+      } catch {
         setError('Server connection error.')
       } finally {
         setIsLoading(false)
       }
     }
     initData()
-  }, [showId])
+  }, [showId, user?.id])
 
-  // SIMULATE: chat tự nhảy mỗi 2.5s
+  // 2. Giữ phiên xem sống (chỉ khi có ViewingSessionId thật — vé PPV thật)
   useEffect(() => {
-    let i = 0
-    const chatTimer = setInterval(() => {
-      const mock = MOCK_CHATS[i % MOCK_CHATS.length]
-      setMessages(prev => [...prev, { ...mock, type: 'chat' }])
-      i++
-    }, 2500)
-    return () => clearInterval(chatTimer)
-  }, [])
+    if (!livestream?.viewingSessionId) return
+    heartbeatRef.current = setInterval(() => {
+      sendHeartbeat(livestream.id, livestream.viewingSessionId).catch(() => {})
+    }, HEARTBEAT_INTERVAL_MS)
+    return () => clearInterval(heartbeatRef.current)
+  }, [livestream?.id, livestream?.viewingSessionId])
 
-  // SIMULATE: donate tự nhảy mỗi ~12s
-  useEffect(() => {
-    let i = 0
-    const donateTimer = setInterval(() => {
-      const mock = MOCK_DONATIONS[i % MOCK_DONATIONS.length]
-      setMessages(prev => [...prev, { ...mock, type: 'donate' }])
-      setDonationAlerts(prev => [...prev.slice(-4), { ...mock, id: Date.now() }])
-      i++
-    }, 12000)
-    return () => clearInterval(donateTimer)
-  }, [])
-
-  // SIMULATE: viewer count dao động
-  useEffect(() => {
-    let i = 1
-    const viewerTimer = setInterval(() => {
-      setViewerCount(MOCK_VIEWERS[i % MOCK_VIEWERS.length])
-      i++
-    }, 4000)
-    return () => clearInterval(viewerTimer)
-  }, [])
+  // 3. Kết nối SignalR thật
+  const { connectionState, sendMessage: hubSendMessage } = useLivestreamHub(
+    livestream?.userHasAccess ? livestream.id : null,
+    {
+      onReceiveMessage: (msg) => {
+        setMessages((prev) => [
+          ...prev,
+          {
+            user: { name: msg.displayName, avatarUrl: null },
+            content: msg.message,
+            type: 'chat',
+            isMine: msg.userId === user?.id,
+          },
+        ])
+      },
+      onDonationAlert: (donation) => {
+        // DonationAlertDto thật: { donorName, amount, message, donationId } — không có tên nghệ sĩ.
+        const entry = {
+          id: donation.donationId,
+          user: { name: donation.donorName, avatarUrl: null },
+          amount: donation.amount,
+          message: donation.message,
+        }
+        setMessages((prev) => [...prev, { ...entry, type: 'donate' }])
+        setDonationAlerts((prev) => [...prev.slice(-4), entry])
+      },
+      onDonationMessageHidden: ({ donationId }) => {
+        setMessages((prev) => prev.filter((m) => m.id !== donationId))
+        setDonationAlerts((prev) => prev.filter((a) => a.id !== donationId))
+      },
+      onViewerCountUpdated: ({ count }) => setViewerCount(count),
+      onTerminated: () => toast.error('Buổi livestream đã bị dừng bởi quản trị viên.'),
+      onFailed: () => toast.error('Kết nối livestream gặp sự cố.'),
+    }
+  )
 
   useEffect(() => {
     if (!showData) return
-    if (!user) return                        // đánh giá gắn tài khoản → chỉ hỏi user đã login
-    if (localStorage.getItem(`rated_show_${showId}`)) return // đã hỏi rồi → thôi
+    if (!user) return
+    if (localStorage.getItem(`rated_show_${showId}`)) return
 
     const hasEnded = () => {
-      // Ưu tiên scheduledEnd, fallback status 'Ended' (BE đang trả field này)
-      if (showData.scheduledEnd) return dayjs().isAfter(dayjs(showData.scheduledEnd))
+      if (showData.scheduledEnd) return new Date() > new Date(showData.scheduledEnd)
       if (showData.status) return String(showData.status).toLowerCase() === 'ended'
       return false
     }
@@ -119,7 +143,6 @@ const LivestreamWatchPage = () => {
     const triggerIfEnded = () => {
       if (hasEnded()) {
         if (interval) clearInterval(interval)
-        // Delay 3s cho tự nhiên — kiểu YouTube hiện survey sau khi stream tắt
         modalTimer = setTimeout(() => setShowRatingModal(true), 3000)
         return true
       }
@@ -127,7 +150,6 @@ const LivestreamWatchPage = () => {
     }
 
     if (!triggerIfEnded()) {
-      // Show đang live → check lại mỗi 30s (bắt được lúc kết thúc khi user vẫn đang xem)
       interval = setInterval(triggerIfEnded, 30000)
     }
 
@@ -137,14 +159,18 @@ const LivestreamWatchPage = () => {
     }
   }, [showData, showId, user])
 
-  // SUBMIT ĐÁNH GIÁ — mock, thay bằng API thật khi BE có
   const handleRateSubmit = async (rating, comment) => {
-    console.log('RATING SUBMITTED:', { showId, rating, comment })
-    await new Promise(r => setTimeout(r, 800)) // giả lập latency
-    // throw new Error('test') // bỏ comment để test UI lỗi
+    try {
+      await rateShow(showId, { score: rating, comment })
+    } catch (err) {
+      if (err.response?.status === 409) {
+        toast.error('Bạn đã đánh giá buổi diễn này rồi.')
+        return
+      }
+      throw err
+    }
   }
 
-  // Đóng modal (skip hoặc sau khi gửi xong) → đánh dấu đã hỏi, không hiện lại
   const handleCloseRating = () => {
     setShowRatingModal(false)
     localStorage.setItem(`rated_show_${showId}`, 'true')
@@ -154,39 +180,60 @@ const LivestreamWatchPage = () => {
     setShowRatingModal(true)
   }
 
-  // GỬI CHAT (mock): tin của mình hiện ngay kèm tag "You"
   const handleSendMessage = async (text) => {
-    setMessages(prev => [...prev, {
-      user: { name: user?.name || 'You', avatarUrl: user?.avatarUrl },
-      content: text,
-      isMine: true,
-      type: 'chat',
-    }])
+    try {
+      await hubSendMessage(text)
+    } catch {
+      toast.error('Không gửi được tin nhắn, thử lại.')
+    }
   }
 
-  // DONATE (mock): tự thêm alert + message vào chat sau 1s "xử lý"
+  // Donate đi qua VNPay thật — không thêm alert cục bộ, chờ sự kiện DonationAlert dội về cho mọi người.
   const handleSendDonation = async (performerId, amount, message) => {
-    await new Promise(r => setTimeout(r, 1000)) // giả lập latency BE
-    const performerName = showData?.performers?.find(p => p.id === performerId)?.name || 'Performer'
-    const donation = {
-      user: { name: user?.name || 'You', avatarUrl: user?.avatarUrl },
-      performerName,
-      amount,
-      message,
+    const performance = showData?.performers?.find((p) => p.id === performerId)
+    if (!performance?.performanceId) {
+      toast.error('Không xác định được buổi trình diễn của nghệ sĩ này.')
+      return
     }
-    setMessages(prev => [...prev, { ...donation, type: 'donate', isMine: true }])
-    setDonationAlerts(prev => [...prev.slice(-4), { ...donation, id: Date.now() }])
+    try {
+      const res = await createDonation({
+        performanceId: performance.performanceId,
+        amount,
+        message: message || null,
+        isMessagePublic: true,
+      })
+      if (res.success && res.data?.paymentUrl) {
+        window.location.href = res.data.paymentUrl
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Không thể khởi tạo donate.')
+    }
   }
 
   const handleReport = async (reason, description) => {
-    // TẠM GIẢ LẬP — khi BE có API report chat thì thay bằng axiosClient.post(...)
-    console.log('REPORT SUBMITTED:', { showId, reason, description })
-    await new Promise(r => setTimeout(r, 800)) // giả lập latency
-    // throw new Error('test') // bỏ comment dòng này để test UI lỗi
+    if (!livestream?.id) {
+      toast.error('Chưa xác định được buổi livestream để báo cáo.')
+      return
+    }
+    // Backend chỉ nhận 3 mức đối tượng: Show / Livestream / Rating — KHÔNG báo cáo được từng tin
+    // nhắn chat riêng lẻ, nên quy về cả buổi livestream và ghi lý do người dùng chọn vào nội dung.
+    // reason tối đa 500 ký tự nên phải cắt trước khi gửi, tránh bị 400 vì lỗi độ dài.
+    const fullReason = `${reason}: ${description}`.slice(0, 500)
+    try {
+      await submitContentReport({
+        targetType: 'Livestream',
+        targetId: livestream.id,
+        reason: fullReason,
+      })
+    } catch (err) {
+      // 409 = chính người này đã báo cáo buổi này và báo cáo cũ còn đang chờ Admin xử lý.
+      toast.error(err.response?.data?.message || 'Không gửi được báo cáo.')
+      throw err
+    }
   }
 
   const handleRemoveAlert = (id) => {
-    setDonationAlerts(prev => prev.filter(a => a.id !== id))
+    setDonationAlerts((prev) => prev.filter((a) => a.id !== id))
   }
 
   if (isLoading) {
@@ -207,6 +254,17 @@ const LivestreamWatchPage = () => {
     )
   }
 
+  if (livestream && !livestream.userHasAccess) {
+    return (
+      <div className="min-h-screen bg-black flex flex-col items-center justify-center text-white px-4 text-center">
+        <Lock size={40} className="text-[#C3B665] mb-4" />
+        <p className="text-xl mb-2 font-bold">You need a ticket to watch this livestream</p>
+        <p className="text-gray-400 mb-6">Buy a livestream ticket for this show to unlock viewing.</p>
+        <Link to={`/shows/${showId}`} className="text-[#C3B665] underline flex items-center gap-2"><ArrowLeft size={16} /> Back to show</Link>
+      </div>
+    )
+  }
+
   return (
     <div className="h-screen bg-black text-white flex flex-col overflow-hidden">
 
@@ -222,8 +280,10 @@ const LivestreamWatchPage = () => {
               <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse inline-block"></span> LIVE
             </span>
             <span className="flex items-center gap-1"><Eye size={12} /> {formatCompactNumber(viewerCount)}</span>
-            {!isChatConnected && (
-              <span className="flex items-center gap-1 text-yellow-500"><WifiOff size={11} /> Reconecting...</span>
+            {connectionState !== 'connected' && (
+              <span className="flex items-center gap-1 text-yellow-500">
+                <WifiOff size={11} /> {connectionState === 'reconnecting' ? 'Reconnecting...' : 'Connecting...'}
+              </span>
             )}
           </p>
         </div>
@@ -242,7 +302,7 @@ const LivestreamWatchPage = () => {
       <div className="flex-1 flex overflow-hidden">
         <div className="flex-1 bg-black relative">
           <StreamPlayer
-            streamUrl={showData?.streamUrl}
+            streamUrl={livestream?.hlsUrl}
             donationAlerts={donationAlerts}
             onAlertEnd={handleRemoveAlert}
           />
