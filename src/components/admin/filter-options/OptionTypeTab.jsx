@@ -1,17 +1,17 @@
 import { useState } from 'react'
-import { Plus, Pencil, Trash2, Music2, EyeOff } from 'lucide-react'
+import { Plus, Pencil, Trash2, Music2, EyeOff, Eye } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { createFilterOption, updateFilterOption, deleteFilterOption } from '../../../services/adminServices'
 import ConfirmModal from '../../shared/ConfirmModal'
 import OptionFormModal from './OptionFormModal'
 
 
-const OptionTypeTab = ({ typeKey, typeLabel, hasNameEn, hasDescription, options, onRefresh }) => {
+const OptionTypeTab = ({ typeKey, typeLabel, hasNameEn, hasDescription, hasIsActive, options, onRefresh }) => {
   // Loại buổi diễn là loại DUY NHẤT có isActive. Xoá bị backend chặn (409) khi đang có buổi diễn
-  // dùng tới, nên "tắt" là cách thật để cho một loại nghỉ hưu — nhưng danh sách chỉ trả mục đang
-  // bật, nên tắt rồi là KHÔNG BẬT LẠI ĐƯỢC trên giao diện. Vì vậy nó là một hành động riêng, có
-  // hỏi lại, chứ không phải một ô tích trong form.
-  const coTat = typeKey === 'eventCategories'
+  // dùng tới, nên "tắt" là cách thật để cho một loại nghỉ hưu.
+  // Trang cha đọc qua /admin/event-categories (không lọc mục đã tắt) nên BẬT LẠI ĐƯỢC — trước đây
+  // đọc bằng đường công khai thì tắt xong là mất hẳn khỏi giao diện.
+  const coTat = !!hasIsActive
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [editingOption, setEditingOption] = useState(null)
   const [isSaving, setIsSaving] = useState(false)
@@ -77,30 +77,34 @@ const OptionTypeTab = ({ typeKey, typeLabel, hasNameEn, hasDescription, options,
     }
   }
 
-  // ===== TẮT (chỉ loại buổi diễn) =====
-  // Gửi isActive: false. PUT ghi đè toàn bộ nên vẫn phải gửi lại name; description thì danh sách
-  // không trả về, gửi rỗng là mất — đó là lý do câu xác nhận nói rõ chuyện này.
-  const executeHide = async () => {
-    if (!hideTarget) return
+  // ===== BẬT / TẮT (chỉ loại buổi diễn) =====
+  // PUT ghi đè toàn bộ nên phải gửi lại cả name và description, không chỉ mỗi isActive.
+  // Danh sách nay có description thật (đọc từ /admin/event-categories) nên gửi lại không mất gì.
+  const doiTrangThai = async (muc, bat) => {
     setIsHiding(true)
     try {
-      const res = await updateFilterOption(typeKey, hideTarget.id, {
-        name: hideTarget.name,
-        description: hideTarget.description ?? null,
-        isActive: false,
+      const res = await updateFilterOption(typeKey, muc.id, {
+        name: muc.name,
+        description: muc.description ?? null,
+        isActive: bat,
       })
       if (res.success) {
-        toast.success(`Đã tắt "${hideTarget.name}"`)
+        toast.success(bat ? `Đã bật lại "${muc.name}"` : `Đã tắt "${muc.name}"`)
         setHideTarget(null)
         onRefresh()
       } else {
-        toast.error(res.message || 'Không tắt được.')
+        toast.error(res.message || 'Không đổi được trạng thái.')
       }
     } catch (err) {
-      toast.error(err?.response?.data?.message || 'Không tắt được.')
+      toast.error(err?.response?.data?.message || 'Không đổi được trạng thái.')
     } finally {
       setIsHiding(false)
     }
+  }
+
+  const executeHide = async () => {
+    if (!hideTarget) return
+    await doiTrangThai(hideTarget, false)
   }
 
   return (
@@ -133,6 +137,9 @@ const OptionTypeTab = ({ typeKey, typeLabel, hasNameEn, hasDescription, options,
                 {hasDescription && (
                   <th className="p-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Mô tả</th>
                 )}
+                {coTat && (
+                  <th className="p-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Trạng thái</th>
+                )}
                 <th className="p-4 text-xs font-semibold text-gray-400 uppercase tracking-wider text-right">Actions</th>
               </tr>
             </thead>
@@ -146,10 +153,17 @@ const OptionTypeTab = ({ typeKey, typeLabel, hasNameEn, hasDescription, options,
                       <td className="p-4 text-sm text-gray-400">{opt.nameEn || <span className="text-gray-600 italic">—</span>}</td>
                     )}
                     {hasDescription && (
-                      // Danh sách của backend chỉ trả id + name. Để trống thì người dùng tưởng mô tả
-                      // rỗng, nên nói thẳng là không đọc được chứ không phải không có.
                       <td className="p-4 text-sm text-gray-400 whitespace-normal max-w-xs leading-relaxed">
-                        {opt.description || <span className="text-gray-600 italic">không đọc được</span>}
+                        {opt.description || <span className="text-gray-600 italic">—</span>}
+                      </td>
+                    )}
+                    {coTat && (
+                      <td className="p-4">
+                        {opt.isActive === false ? (
+                          <span className="px-2 py-0.5 rounded-md bg-gray-800 text-gray-500 text-xs">Đã tắt</span>
+                        ) : (
+                          <span className="px-2 py-0.5 rounded-md bg-green-500/10 text-green-400 text-xs">Đang bật</span>
+                        )}
                       </td>
                     )}
                     <td className="p-4">
@@ -162,13 +176,24 @@ const OptionTypeTab = ({ typeKey, typeLabel, hasNameEn, hasDescription, options,
                           <Pencil size={14} />
                         </button>
                         {coTat && (
-                          <button
-                            onClick={() => setHideTarget(opt)}
-                            className="p-2 rounded-lg bg-gray-700/30 text-gray-400 hover:bg-gray-700/50 hover:text-yellow-400 transition-colors"
-                            title="Tắt (ẩn khỏi danh sách chọn)"
-                          >
-                            <EyeOff size={14} />
-                          </button>
+                          opt.isActive === false ? (
+                            <button
+                              onClick={() => doiTrangThai(opt, true)}
+                              disabled={isHiding}
+                              className="p-2 rounded-lg bg-gray-700/30 text-gray-400 hover:bg-gray-700/50 hover:text-green-400 transition-colors disabled:opacity-40"
+                              title="Bật lại (hiện trong danh sách chọn)"
+                            >
+                              <Eye size={14} />
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => setHideTarget(opt)}
+                              className="p-2 rounded-lg bg-gray-700/30 text-gray-400 hover:bg-gray-700/50 hover:text-yellow-400 transition-colors"
+                              title="Tắt (ẩn khỏi danh sách chọn)"
+                            >
+                              <EyeOff size={14} />
+                            </button>
+                          )
                         )}
                         <button
                           onClick={() => setDeleteTarget(opt)}
@@ -183,7 +208,7 @@ const OptionTypeTab = ({ typeKey, typeLabel, hasNameEn, hasDescription, options,
                 ))
               ) : (
                 <tr>
-                  <td colSpan={3 + (hasNameEn ? 1 : 0) + (hasDescription ? 1 : 0)} className="p-10 text-center text-gray-500">
+                  <td colSpan={3 + (hasNameEn ? 1 : 0) + (hasDescription ? 1 : 0) + (coTat ? 1 : 0)} className="p-10 text-center text-gray-500">
                     <Music2 size="32" className="mx-auto mb-3 opacity-50" />
                     No {typeLabel.toLowerCase()}s yet.
                   </td>
@@ -226,7 +251,7 @@ const OptionTypeTab = ({ typeKey, typeLabel, hasNameEn, hasDescription, options,
       <ConfirmModal
         isOpen={!!hideTarget}
         title="Tắt loại buổi diễn này?"
-        message={`"${hideTarget?.name}" sẽ không còn hiện trong danh sách chọn khi tạo buổi diễn. Buổi diễn cũ đang dùng nó KHÔNG bị ảnh hưởng. Lưu ý: backend không có đường liệt kê loại đã tắt, nên bật lại phải làm trực tiếp dưới cơ sở dữ liệu — và mô tả của loại này sẽ bị xoá vì danh sách không trả về mô tả cũ.`}
+        message={`"${hideTarget?.name}" sẽ không còn hiện trong danh sách chọn khi tạo buổi diễn. Buổi diễn cũ đang dùng nó KHÔNG bị ảnh hưởng, và bạn bật lại được bất cứ lúc nào bằng nút trong danh sách này.`}
         confirmText="Tắt"
         processingText="Đang tắt..."
         isProcessing={isHiding}

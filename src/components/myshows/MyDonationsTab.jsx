@@ -4,12 +4,13 @@
 // - Donate đi qua VNPay giống mua vé: tạo xong là ở trạng thái CHỜ THANH TOÁN, chỉ thành "đã trả"
 //   khi VNPay xác nhận. `paymentConfirmedAt` là mốc đó — chưa có nghĩa là tiền chưa vào.
 // - KHÔNG CÓ LUỒNG HOÀN DONATE. Đã xác nhận trả là xong, đừng dựng nút "yêu cầu hoàn donate".
-// - Backend KHÔNG trả performerId trong danh sách này (MyDonationDto chỉ có performerName), nên
-//   không dẫn sang được trang sao kê công khai của nghệ sĩ. Muốn có link thì cần backend thêm
-//   performerId vào DTO — đừng đoán id từ tên.
+// - `performerId` nay có trong từng dòng, nên tên nghệ sĩ dẫn thẳng sang trang sao kê công khai của
+//   họ — đó chính là chỗ trả lời câu "tiền tôi tặng đã tới nghệ sĩ chưa". Dòng nào thiếu
+//   performerId (dữ liệu cũ) thì hiện tên trơn, KHÔNG đoán id từ tên.
 // - `isAnonymous` là ẩn danh VỚI NGƯỜI KHÁC, không phải ẩn với chính mình: dòng này vẫn hiện ở đây.
 import { useState, useEffect, useCallback } from 'react'
-import { Loader2, Heart, Clock, CheckCircle2, EyeOff } from 'lucide-react'
+import { Link } from 'react-router-dom'
+import { Loader2, Heart, Clock, CheckCircle2, EyeOff, ExternalLink } from 'lucide-react'
 import dayjs from 'dayjs'
 import toast from 'react-hot-toast'
 import { getMyDonations } from '../../services/donationServices'
@@ -73,7 +74,15 @@ const MyDonationsTab = () => {
             <div key={d.id} className="p-5 flex flex-wrap items-start justify-between gap-4">
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2">
-                  <p className="text-base font-semibold text-white">{d.performerName}</p>
+                  {d.performerId ? (
+                    <Link to={`/performers/${d.performerId}/donations`}
+                      className="text-base font-semibold text-white hover:text-[#C3B665] inline-flex items-center gap-1.5"
+                      title="Xem sao kê donate công khai của nghệ sĩ này">
+                      {d.performerName} <ExternalLink size={13} className="text-gray-600" />
+                    </Link>
+                  ) : (
+                    <p className="text-base font-semibold text-white">{d.performerName}</p>
+                  )}
                   {d.isAnonymous && (
                     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-gray-800 text-gray-400 text-xs">
                       <EyeOff size={11} /> Ẩn danh

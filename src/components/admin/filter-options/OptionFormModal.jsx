@@ -2,13 +2,15 @@ import { useState } from 'react'
 import { X, Loader2, AlertTriangle } from 'lucide-react'
 import toast from 'react-hot-toast'
 
-// GHI CHÚ CHO ĐỘI FE — BẪY GHI ĐÈ, ĐỌC TRƯỚC KHI SỬA FORM NÀY:
-// Backend nhận PUT là GHI ĐÈ TOÀN BỘ, nhưng danh sách trả về lại thiếu trường:
-//   genres          → /shows/filter-options không trả nameEn
-//   eventCategories → /catalog/event-categories không trả description
-// Nghĩa là mở form sửa lên, ô đó trống KHÔNG PHẢI vì dữ liệu rỗng mà vì ta không đọc được nó, và
-// bấm Lưu là ghi rỗng lên giá trị cũ. Không tự ý bỏ dòng cảnh báo phía dưới: nó là thứ duy nhất cho
-// người dùng biết họ đang sắp xoá một giá trị mà họ không nhìn thấy.
+// GHI CHÚ CHO ĐỘI FE:
+// - Backend nhận PUT là GHI ĐÈ TOÀN BỘ: trường nào không gửi là bị xoá. Vì vậy form phải nạp đủ
+//   giá trị hiện tại rồi gửi lại tất cả, kể cả trường người dùng không chạm vào.
+// - Trước đây nameEn và description KHÔNG đọc được (đường công khai không trả), nên form phải hiện
+//   cảnh báo bắt người dùng tự gõ lại. Nay trang cha đọc qua /admin/genres và /admin/event-categories
+//   nên hai trường đó có thật — cảnh báo đã bỏ. NẾU AI ĐỔI TRANG CHA VỀ ĐƯỜNG CÔNG KHAI thì bẫy
+//   ghi đè quay lại ngay, và lúc đó phải dựng lại cảnh báo chứ không để im.
+// - `isActive` chỉ loại buổi diễn mới có. Form giữ nguyên giá trị đang có và không cho sửa ở đây:
+//   bật/tắt là hành động riêng ngoài danh sách, có hỏi lại, vì nó ẩn mục khỏi mọi chỗ chọn.
 const OptionFormModal = ({ isOpen, typeLabel, hasNameEn, hasDescription, editingOption, isSaving, onClose, onSubmit }) => {
     // FORM ĐƯỢC NẠP MỘT LẦN LÚC DỰNG, không đồng bộ lại bằng useEffect: OptionTypeTab chỉ dựng
     // modal khi mở và truyền `key` theo mục đang sửa, nên mỗi lần mở là một component mới với giá
@@ -16,9 +18,7 @@ const OptionFormModal = ({ isOpen, typeLabel, hasNameEn, hasDescription, editing
     // dùng đang gõ nếu component cha render lại.
     const [formData, setFormData] = useState({
         name: editingOption?.name || '',
-        // ⚠️ GET /filter-options KHÔNG trả nameEn → edit luôn trống (xem ghi chú đầu tệp)
         nameEn: editingOption?.nameEn || '',
-        // ⚠️ GET /catalog/event-categories KHÔNG trả description → cũng luôn trống
         description: editingOption?.description || '',
     })
 
@@ -35,9 +35,12 @@ const OptionFormModal = ({ isOpen, typeLabel, hasNameEn, hasDescription, editing
             name: formData.name.trim(),
             // chỉ kèm nameEn khi type có hỗ trợ
             ...(hasNameEn ? { nameEn: formData.nameEn.trim() } : {}),
-            // isActive: true vì danh sách chỉ trả mục đang bật — sửa một mục đọc được từ danh sách
-            // thì nó chắc chắn đang bật, và PUT thiếu trường này sẽ tắt mất nó.
-            ...(hasDescription ? { description: formData.description.trim(), isActive: true } : {}),
+            // Giữ nguyên isActive đang có. Mục mới (không có editingOption) luôn là đang bật.
+            // KHÔNG dán cứng true: làm vậy là mỗi lần sửa tên một mục đã tắt lại vô tình bật nó lên.
+            ...(hasDescription ? {
+                description: formData.description.trim(),
+                isActive: editingOption ? editingOption.isActive !== false : true,
+            } : {}),
         })
     }
 
@@ -106,16 +109,12 @@ const OptionFormModal = ({ isOpen, typeLabel, hasNameEn, hasDescription, editing
                             />
                         </div>
                     )}
-                    {/* CẢNH BÁO GHI ĐÈ — chỉ khi đang SỬA, vì tạo mới thì không có gì để mất */}
-                    {isEditing && (hasNameEn || hasDescription) && (
-                        <p className="text-xs text-yellow-400 flex items-start gap-1.5 leading-relaxed bg-yellow-500/5 border border-yellow-500/30 rounded-lg p-3">
-                            <AlertTriangle size={13} className="mt-px flex-shrink-0" />
-                            <span>
-                                Danh sách của backend không trả về {hasNameEn ? 'tên tiếng Anh' : 'mô tả'} cũ, nên ô
-                                đó đang trống dù dữ liệu có thể đang có giá trị. Bấm Lưu là ghi rỗng lên giá trị cũ —
-                                nếu không muốn đổi {hasNameEn ? 'tên tiếng Anh' : 'mô tả'}, hãy điền lại đúng giá trị
-                                trước khi lưu.
-                            </span>
+                    {/* Mục đang tắt vẫn sửa được, nhưng phải nói rõ trạng thái để người dùng không
+                        tưởng mình đang sửa một mục đang dùng. Bật lại là nút riêng ngoài danh sách. */}
+                    {isEditing && hasDescription && editingOption?.isActive === false && (
+                        <p className="text-xs text-gray-400 flex items-start gap-1.5 leading-relaxed bg-gray-800/40 border border-gray-700 rounded-lg p-3">
+                            <AlertTriangle size={13} className="mt-px flex-shrink-0 text-yellow-400" />
+                            Mục này đang TẮT — sửa ở đây không bật nó lên. Bật lại bằng nút trong danh sách.
                         </p>
                     )}
                 </form>

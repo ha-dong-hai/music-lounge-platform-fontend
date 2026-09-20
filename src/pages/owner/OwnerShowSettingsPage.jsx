@@ -380,7 +380,7 @@ const OwnerShowSettingsPage = () => {
       </Card>
 
       {/* TIÊU CHÍ RIÊNG — đây là chỗ đã hứa ở CustomCriteriaSection (màn Hồ sơ phòng trà) */}
-      <ShowCustomValuesSection loungeId={show.lounge?.id} showId={id} />
+      <ShowCustomValuesSection showId={id} />
     </div>
   )
 }

@@ -1,19 +1,20 @@
 // src/pages/admin/AdminFilterOptionsPage.jsx
 //
-// GHI CHÚ CHO ĐỘI FE — BỐN TAB NHƯNG HAI NGUỒN DỮ LIỆU KHÁC NHAU:
-//   genres / moods / atmospheres  →  GET /shows/filter-options (một lần trả gộp cả ba)
-//   eventCategories               →  GET /catalog/event-categories (endpoint RIÊNG)
-// Đừng cố nhồi loại buổi diễn vào filter-options: backend không trả nó ở đó.
-//
-// Loại buổi diễn còn khác ở ba điểm nữa, xem thêm ghi chú trong OptionFormModal:
-//   - có trường `description`, nhưng danh sách CHỈ trả id + name → vào sửa là mô tả cũ bị ghi rỗng
-//   - có `isActive`, và danh sách CHỈ trả mục đang bật → tắt đi là không còn đường bật lại trên giao diện
-//   - PUT là ghi đè toàn bộ, thiếu trường nào là xoá trường đó
+// GHI CHÚ CHO ĐỘI FE — BA NGUỒN DỮ LIỆU, ĐỪNG GỘP:
+//   moods / atmospheres  →  GET /shows/filter-options (trả gộp, chỉ id + name — đủ cho hai loại này)
+//   genres               →  GET /admin/genres         (có nameEn; đường công khai KHÔNG trả nameEn)
+//   eventCategories      →  GET /admin/event-categories (có description + isActive, và KHÔNG lọc
+//                                                        mục đã tắt)
+// VÌ SAO PHẢI DÙNG ĐƯỜNG /admin CHO HAI LOẠI SAU: PUT là ghi đè toàn bộ. Nếu đọc bằng đường công
+// khai thì nameEn / description không đọc được, và bấm Lưu là ghi rỗng lên giá trị cũ. Trước đây FE
+// phải hiện cảnh báo cho người dùng tự gõ lại — nay đọc được thật nên bỏ cảnh báo đó.
+// Riêng loại buổi diễn: đường công khai chỉ trả mục đang bật, nên nếu đọc bằng nó thì tắt một mục
+// đi là không còn đường bật lại. Đường /admin trả cả mục đã tắt, nên bật lại được.
 import { useState, useEffect, useCallback } from 'react'
 import { Loader2, SlidersHorizontal } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { getFilterOptions } from '../../services/showServices' //  TÁI DÙNG service sẵn có
-import { getEventCategories } from '../../services/catalogServices'
+import { getAdminEventCategories, getAdminGenres } from '../../services/adminServices'
 import OptionTypeTab from '../../components/admin/filter-options/OptionTypeTab'
 
 // Cấu hình 4 tab — genres có nameEn, eventCategories có description, 2 loại kia chỉ có name.
@@ -22,7 +23,7 @@ const TABS = [
   { key: 'genres',          label: 'Genres',          typeLabel: 'Genre',          hasNameEn: true },
   { key: 'moods',           label: 'Moods',           typeLabel: 'Mood',           hasNameEn: false },
   { key: 'atmospheres',     label: 'Atmospheres',     typeLabel: 'Atmosphere',     hasNameEn: false },
-  { key: 'eventCategories', label: 'Loại buổi diễn',  typeLabel: 'Loại buổi diễn', hasNameEn: false, hasDescription: true },
+  { key: 'eventCategories', label: 'Loại buổi diễn',  typeLabel: 'Loại buổi diễn', hasNameEn: false, hasDescription: true, hasIsActive: true },
 ]
 
 const AdminFilterOptionsPage = () => {
@@ -30,22 +31,31 @@ const AdminFilterOptionsPage = () => {
   const [options, setOptions] = useState({ genres: [], moods: [], atmospheres: [], cities: [], eventCategories: [] })
   const [isLoading, setIsLoading] = useState(true)
 
-  // HAI NGUỒN, GỌI SONG SONG VÀ ĐỘC LẬP: một cái lỗi chỉ làm trống tab của nó, không trắng cả trang.
+  // BA NGUỒN, GỌI SONG SONG VÀ ĐỘC LẬP: một cái lỗi chỉ làm trống tab của nó, không trắng cả trang.
   const fetchOptions = useCallback(async () => {
     setIsLoading(true)
-    const [loc, loai] = await Promise.allSettled([getFilterOptions(), getEventCategories()])
+    const [loc, theLoai, loai] = await Promise.allSettled([
+      getFilterOptions(), getAdminGenres(), getAdminEventCategories(),
+    ])
 
+    // filter-options giờ chỉ còn dùng cho moods + atmospheres; thể loại nhạc lấy từ /admin/genres
+    // vì đường này mới có nameEn.
     if (loc.status === 'fulfilled' && loc.value?.success) {
       const d = loc.value.data || {}
       setOptions((prev) => ({
         ...prev,
-        genres: d.genres || [],
         moods: d.moods || [],
         atmospheres: d.atmospheres || [],
         cities: d.cities || [],
       }))
     } else {
       toast.error('Failed to load filter options')
+    }
+
+    if (theLoai.status === 'fulfilled' && theLoai.value?.success) {
+      setOptions((prev) => ({ ...prev, genres: theLoai.value.data || [] }))
+    } else {
+      toast.error('Không tải được danh sách thể loại nhạc.')
     }
 
     if (loai.status === 'fulfilled' && loai.value?.success) {
@@ -110,6 +120,7 @@ const AdminFilterOptionsPage = () => {
             typeLabel={tab.typeLabel}
             hasNameEn={tab.hasNameEn}
             hasDescription={tab.hasDescription}
+            hasIsActive={tab.hasIsActive}
             options={options[tab.key]}
             onRefresh={fetchOptions}
           />

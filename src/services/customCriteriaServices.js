@@ -13,6 +13,16 @@ export const getLoungeCustomCriteria = async (loungeId) => {
   return axiosClient.get('/custom-criteria', { params: { loungeId } });
 };
 
+// Đọc giá trị tiêu chí đã gán cho một buổi diễn. Trả về KÈM ĐỊNH NGHĨA tiêu chí
+// ({criteriaId, name, key, dataType, options, criteriaIsActive, value}) nên không cần gọi thêm
+// getLoungeCustomCriteria rồi tự ghép.
+// TIÊU CHÍ ĐÃ TẮT VẪN ĐƯỢC TRẢ VỀ kèm criteriaIsActive=false — PHẢI hiện (mờ đi) chứ đừng lọc bỏ:
+// thao tác ghi là THAY THẾ TOÀN BỘ, nên bỏ qua rồi lưu là xoá mất giá trị cũ của tiêu chí đó.
+// Quyền đọc theo đúng quyền ghi: chủ phòng trà của chính buổi diễn, hoặc Admin.
+export const getShowCustomValues = async (showId) => {
+  return axiosClient.get(`/custom-criteria/shows/${showId}/values`);
+};
+
 // Gán giá trị tiêu chí cho một buổi diễn. Body là MẢNG TRẦN các cặp tiêu chí – giá trị,
 // không phải object bọc ngoài. Gửi lại đầy đủ những gì muốn lưu.
 export const setShowCustomValues = async (showId, values) => {

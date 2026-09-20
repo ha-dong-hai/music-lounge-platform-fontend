@@ -19,14 +19,13 @@
 // - Phần khai VCPMC nằm ở trang Livestream, không nằm ở đây (cũng cùng lỗ hổng: không đọc lại được).
 // - Mọi thứ trên trang này chỉ sửa được khi buổi diễn còn ở trạng thái Nháp.
 // - SỬA LINE-UP: backend nhận PUT với đủ (role, orderIndex, setTime, acceptsDonation) — ghi đè
-//   toàn bộ. Nhưng PerformerSummaryDto KHÔNG trả orderIndex, nên FE không biết số thứ tự hiện tại.
-//   CHỖ NÀY TỪNG SAI, ĐỌC KỸ TRƯỚC KHI SỬA LẠI:
-//     Gửi orderIndex = vị trí trong mảng CHO MỘT NGƯỜI là sai. Nếu số đang lưu là 0, 5, 10 (A, B, C)
-//     thì sửa vai trò của C sẽ gửi 2, thành 0, 5, 2 — và C nhảy lên trước B dù người dùng không hề
-//     đổi thứ tự. Vị trí trong mảng và số đang lưu là HAI KHÔNG GIAN KHÁC NHAU, không so được.
-//   Cách đúng: mỗi lần ghi là ĐÁNH SỐ LẠI CẢ DANH SÁCH thành 0,1,2... theo đúng thứ tự đang hiện.
-//   Sau một lượt như vậy hai không gian trùng nhau, nên lần ghi sau luôn nhất quán. Tốn N lệnh PUT
-//   cho N nghệ sĩ, nhưng line-up chỉ vài người và đây là cái giá để không âm thầm đổi thứ tự.
+//   toàn bộ. `performers[].orderIndex` nay CÓ trong chi tiết buổi diễn, nên sửa một người là gửi
+//   lại ĐÚNG SỐ ĐANG LƯU của người đó, một lệnh PUT.
+//   ĐỪNG QUAY LẠI CÁCH CŨ: trước khi backend trả orderIndex, FE suy ra bằng vị trí trong mảng —
+//   sai, vì nếu số đang lưu là 0, 5, 10 (A, B, C) thì sửa vai trò của C sẽ gửi 2, thành 0, 5, 2 và
+//   C nhảy lên trước B dù người dùng không đổi thứ tự. Vị trí trong mảng và số đang lưu là hai
+//   không gian khác nhau. Nếu có hàng nào thiếu orderIndex (dữ liệu cũ), code dưới rơi về đánh số
+//   lại cả danh sách thay vì đoán.
 // - Đổi sang nghệ sĩ khác thì phải xoá rồi thêm lại; PUT không đổi được người.
 // - SỬA HẠNG VÉ chỉ đổi được tên / mô tả / sức chứa. GIÁ KHÔNG SỬA Ở ĐÂY — giá thuộc đợt giá riêng.
 import { useState, useEffect, useCallback } from 'react'
@@ -151,46 +150,56 @@ const OwnerShowDetailPage = () => {
     } finally { setBusy(null) }
   }
 
-  // Ghi lại CẢ danh sách theo đúng thứ tự truyền vào, đánh số 0,1,2... Đây là hàm duy nhất được
-  // phép gửi orderIndex — xem ghi chú đầu tệp về việc vì sao không gửi cho một người.
+  // Mọi hàng đều có orderIndex thì mới tin được số đang lưu. Thiếu một hàng (dữ liệu cũ, hoặc
+  // backend chưa deploy bản có trường này) là không so sánh được nữa — lúc đó phải đánh số lại cả
+  // danh sách chứ KHÔNG đoán bằng vị trí mảng cho một người.
+  const coDuThuTu = (ds) => ds.every((p) => Number.isInteger(p.orderIndex))
+
   // setTime là TimeOnly ở backend: gửi "HH:mm" (từ ô input) hoặc "HH:mm:ss" (từ DTO) đều được,
   // nhưng KHÔNG gửi chuỗi rỗng — phải quy về null.
-  // Gửi TUẦN TỰ: nhiều PUT song song lên cùng một buổi diễn thì thứ tự cuối cùng phụ thuộc lệnh nào
-  // về trước.
+  const guiTietMuc = (p, orderIndex) => updatePerformance(id, p.performanceId, {
+    role: p.role,
+    orderIndex,
+    setTime: p.setTime ? String(p.setTime) : null,
+    acceptsDonation: !!p.acceptsDonation,
+  })
+
+  // Đánh số lại cả danh sách thành 0,1,2... theo đúng thứ tự truyền vào. Gửi TUẦN TỰ: nhiều PUT
+  // song song lên cùng một buổi diễn thì thứ tự cuối cùng phụ thuộc lệnh nào về trước.
   const ghiLaiThuTu = async (danhSach) => {
     for (let i = 0; i < danhSach.length; i += 1) {
-      const p = danhSach[i]
-      await updatePerformance(id, p.performanceId, {
-        role: p.role,
-        orderIndex: i,
-        setTime: p.setTime ? String(p.setTime) : null,
-        acceptsDonation: !!p.acceptsDonation,
-      })
+      await guiTietMuc(danhSach[i], i)
     }
   }
 
   const handleLuuTietMuc = async () => {
     if (!suaTietMuc) return
     const ds = show.performers ?? []
-    // Thay người đang sửa bằng giá trị mới, giữ nguyên thứ tự đang hiện, rồi ghi lại cả danh sách.
-    const dsMoi = ds.map((p) => (p.performanceId === suaTietMuc.performanceId
-      ? {
-        ...p,
-        role: suaTietMuc.role,
-        setTime: suaTietMuc.setTime || null,
-        acceptsDonation: suaTietMuc.acceptsDonation,
-      }
-      : p))
+    const goc = ds.find((x) => x.performanceId === suaTietMuc.performanceId)
+    if (!goc) return
+
+    const daSua = {
+      ...goc,
+      role: suaTietMuc.role,
+      setTime: suaTietMuc.setTime || null,
+      acceptsDonation: suaTietMuc.acceptsDonation,
+    }
+
     setBusy(`perf-${suaTietMuc.performanceId}`)
     try {
-      await ghiLaiThuTu(dsMoi)
+      if (Number.isInteger(goc.orderIndex)) {
+        // Đường thường: gửi lại đúng số đang lưu, một lệnh, không đụng tới ai khác.
+        await guiTietMuc(daSua, goc.orderIndex)
+      } else {
+        // Dữ liệu cũ không có orderIndex — chuẩn hoá cả danh sách về 0,1,2... giữ nguyên thứ tự
+        // đang hiện, rồi từ lần sau lại về đường một lệnh.
+        await ghiLaiThuTu(ds.map((p) => (p.performanceId === daSua.performanceId ? daSua : p)))
+      }
       toast.success('Đã lưu tiết mục.')
       setSuaTietMuc(null)
       await load()
     } catch (err) {
       toast.error(err.response?.data?.message || 'Không lưu được tiết mục.')
-      // Ghi dở nửa đường thì thứ tự trên máy chủ đang lệch với màn hình — tải lại để người dùng
-      // thấy đúng hiện trạng thay vì tin vào cái đang hiện.
       await load()
     } finally { setBusy(null) }
   }
@@ -200,13 +209,23 @@ const OwnerShowDetailPage = () => {
     const i = ds.findIndex((x) => x.performanceId === performanceId)
     const j = i + huong
     if (i < 0 || j < 0 || j >= ds.length) return
-    ;[ds[i], ds[j]] = [ds[j], ds[i]]
+
     setBusy(`perf-${performanceId}`)
     try {
-      await ghiLaiThuTu(ds)
+      if (coDuThuTu(ds)) {
+        // Đổi chỗ đúng hai số đang lưu của hai người — không đụng tới phần còn lại của danh sách.
+        const a = ds[i]
+        const b = ds[j]
+        await guiTietMuc(a, b.orderIndex)
+        await guiTietMuc(b, a.orderIndex)
+      } else {
+        ;[ds[i], ds[j]] = [ds[j], ds[i]]
+        await ghiLaiThuTu(ds)
+      }
       await load()
     } catch (err) {
       toast.error(err.response?.data?.message || 'Không đổi được thứ tự.')
+      // Ghi dở nửa đường thì thứ tự trên máy chủ đang lệch với màn hình.
       await load()
     } finally { setBusy(null) }
   }

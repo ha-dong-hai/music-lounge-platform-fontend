@@ -169,11 +169,35 @@ export const getUserCitizenCardImage = async (userId, side) => {
 };
 
 // ===== DUYỆT TÀI KHOẢN NHẬN TIỀN =====
-// LƯU Ý: backend CHƯA có endpoint liệt kê tài khoản chờ duyệt, nên chưa dựng được hàng đợi riêng.
-// Hàm này dùng khi đã biết mã tài khoản từ ngữ cảnh khác (ví dụ màn quyết toán).
+// Chỉ liệt kê tài khoản của PHÒNG TRÀ — tài khoản nhận tiền của nghệ sĩ không duyệt ở đây nên
+// không xuất hiện trong danh sách này.
+// verified=false là hàng đợi chờ duyệt; verified=true để tra lại cái đã duyệt.
+// Mỗi dòng có BA CỜ ứng với đúng ba điều kiện mà lệnh duyệt sẽ kiểm:
+//   holderNameMatches      — tên chủ tài khoản khớp tên định danh hợp pháp của chủ phòng trà
+//   ownerIdentityApproved  — hồ sơ định danh của chủ đã được duyệt
+//   accountNumberUnreadable— số tài khoản lưu bị hỏng, không giải mã đọc được
+// Hiện ba cờ này NGAY TRÊN DANH SÁCH: không có chúng thì người duyệt bấm xong mới nhận lỗi.
+export const getAdminBankAccounts = async (params = {}) => {
+  return axiosClient.get('/admin/bank-accounts', { params });
+};
+
 // Tên chủ tài khoản phải khớp tên định danh hợp pháp của chủ phòng trà; lệch thì từ chối.
 export const reviewPayoutBankAccount = async (bankAccountId, { approve, note = null }) => {
   return axiosClient.post(`/admin/bank-accounts/${bankAccountId}/review`, { approve, note });
+};
+
+// ===== DANH MỤC PHÍA ADMIN (khác đường công khai) =====
+// Hai endpoint này tồn tại VÌ đường công khai cố tình giấu bớt:
+//   /catalog/event-categories chỉ trả mục đang bật, và chỉ (id, name)
+//   /shows/filter-options không trả nameEn của thể loại nhạc
+// Màn quản trị PHẢI dùng hai đường dưới đây, nếu không thì sửa một mục là ghi rỗng lên trường mình
+// không đọc được, và tắt một mục đi là không còn đường bật lại.
+export const getAdminEventCategories = async () => {
+  return axiosClient.get('/admin/event-categories');
+};
+
+export const getAdminGenres = async () => {
+  return axiosClient.get('/admin/genres');
 };
 
 // ===== GỠ ĐÁNH GIÁ =====

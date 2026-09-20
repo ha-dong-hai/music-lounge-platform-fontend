@@ -20,6 +20,13 @@ export const submitPenaltyAppeal = async (id, appealReason) => {
   return axiosClient.post(`/venue-penalties/${id}/appeal`, { appealReason });
 };
 
+// Hàng đợi khiếu nại án phạt cho Admin. resolved=false là chưa xử lý; resolved=true để tra lại.
+// Trả về CÙNG VenuePenaltyDto mà /venue-penalties/mine trả cho chủ phòng trà, nên dùng lại được
+// cách hiển thị — khác nhau ở chỗ đây là mọi phòng trà, còn /mine chỉ phòng trà của người gọi.
+export const getPenaltyAppeals = async (params = {}) => {
+  return axiosClient.get('/venue-penalties/appeals', { params });
+};
+
 // Admin xử lý khiếu nại. decision PHẢI là 'Overturned' (huỷ án phạt) hoặc 'Upheld' (giữ nguyên) —
 // backend từ chối giá trị khác kèm câu giải thích.
 export const reviewPenaltyAppeal = async (id, { decision, reviewNote = null }) => {
