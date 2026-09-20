@@ -1,11 +1,11 @@
 // src/pages/user/TicketDetailPage.jsx
 import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { ArrowLeft, CheckCircle2, XCircle } from 'lucide-react'
+import { ArrowLeft, CheckCircle2, XCircle, Send, Loader2, Undo2 } from 'lucide-react'
 import QRCode from 'react-qr-code'
 import dayjs from 'dayjs'
 import toast from 'react-hot-toast'
-import { getTicketDetail, cancelTicket } from '../../services/ticketServices'
+import { getTicketDetail, cancelTicket, initiateTicketTransfer, cancelTicketTransfer } from '../../services/ticketServices'
 import Skeleton from '../../components/shared/Skeleton'
 
 const TicketDetailPage = () => {
@@ -16,6 +16,45 @@ const TicketDetailPage = () => {
     const [apiError, setApiError] = useState(null)
     const [isCancelling, setIsCancelling] = useState(false)
     const [cancelDone, setCancelDone] = useState(false)
+
+    // Chuyển nhượng vé: người nhận phải đã có tài khoản và phải TỰ ĐỒNG Ý nhận.
+    // Trước khi họ đồng ý, người gửi vẫn huỷ được lượt chuyển.
+    const [recipientEmail, setRecipientEmail] = useState('')
+    const [busyTransfer, setBusyTransfer] = useState(null)
+
+    const taiLaiVe = async () => {
+        const res = await getTicketDetail(ticketId)
+        if (res.success) setTicket(res.data)
+    }
+
+    const handleTransfer = async (e) => {
+        e.preventDefault()
+        if (!recipientEmail.trim()) return
+        setBusyTransfer('send')
+        try {
+            await initiateTicketTransfer(ticketId, recipientEmail.trim())
+            toast.success('Đã gửi lượt chuyển vé. Vé chỉ sang tay khi người nhận đồng ý.')
+            setRecipientEmail('')
+            await taiLaiVe()
+        } catch (err) {
+            toast.error(err.response?.data?.message || 'Không gửi được lượt chuyển vé.')
+        } finally {
+            setBusyTransfer(null)
+        }
+    }
+
+    const handleCancelTransfer = async () => {
+        setBusyTransfer('cancel')
+        try {
+            await cancelTicketTransfer(ticketId)
+            toast.success('Đã huỷ lượt chuyển vé.')
+            await taiLaiVe()
+        } catch (err) {
+            toast.error(err.response?.data?.message || 'Không huỷ được lượt chuyển.')
+        } finally {
+            setBusyTransfer(null)
+        }
+    }
 
     const handleCancel = async () => {
         setIsCancelling(true)
@@ -208,6 +247,44 @@ const TicketDetailPage = () => {
                 {/* HUỶ VÉ — chỉ hiện với vé còn hiệu lực. Vé Confirmed huỷ xong KHÔNG hoàn tiền ngay:
                     backend tạo một yêu cầu hoàn tiền để Admin duyệt, mức hoàn theo đúng chính sách
                     của buổi diễn. Vé Pending (chưa từng thanh toán thật) thì huỷ đứt luôn. */}
+                {/* CHUYỂN NHƯỢNG VÉ — vé KHÔNG sang tay ngay khi bấm gửi: người nhận phải tự đồng ý,
+                    và trước lúc đó người gửi vẫn huỷ được lượt chuyển. */}
+                {ticket.status === 'Confirmed' && (
+                    <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6 mt-6">
+                        <h2 className="text-xl font-bold text-[#C3B665] mb-2">Chuyển vé cho người khác</h2>
+                        {ticket.transferPending ? (
+                            <>
+                                <p className="text-gray-400 text-sm mb-4">
+                                    Đang chờ người nhận đồng ý
+                                    {ticket.transferRecipientEmail && <> (<span className="text-gray-300">{ticket.transferRecipientEmail}</span>)</>}.
+                                    Vé vẫn thuộc về bạn cho tới khi họ nhận.
+                                </p>
+                                <button onClick={handleCancelTransfer} disabled={busyTransfer !== null}
+                                    className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-700 text-gray-300 text-sm font-bold hover:bg-gray-800 disabled:opacity-50">
+                                    {busyTransfer === 'cancel' ? <Loader2 size={16} className="animate-spin" /> : <Undo2 size={16} />}
+                                    Huỷ lượt chuyển
+                                </button>
+                            </>
+                        ) : (
+                            <>
+                                <p className="text-gray-400 text-sm mb-4">
+                                    Nhập email người nhận. Họ phải đã có tài khoản trên hệ thống và phải tự bấm nhận vé.
+                                </p>
+                                <form onSubmit={handleTransfer} className="flex flex-wrap gap-2">
+                                    <input type="email" value={recipientEmail} onChange={(e) => setRecipientEmail(e.target.value)}
+                                        placeholder="email@example.com"
+                                        className="flex-1 min-w-[200px] px-3 py-2 bg-black border border-gray-700 rounded-lg text-sm text-white focus:outline-none focus:border-[#C3B665]/50" />
+                                    <button type="submit" disabled={busyTransfer !== null || !recipientEmail.trim()}
+                                        className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#C3B665] text-black text-sm font-bold hover:bg-[#d4c87f] disabled:opacity-50">
+                                        {busyTransfer === 'send' ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
+                                        Gửi vé
+                                    </button>
+                                </form>
+                            </>
+                        )}
+                    </div>
+                )}
+
                 {['Confirmed', 'Pending'].includes(ticket.status) && (
                     <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6 mt-6">
                         <h2 className="text-xl font-bold text-[#C3B665] mb-2">Huỷ vé</h2>

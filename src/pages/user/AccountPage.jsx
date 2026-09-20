@@ -1,8 +1,11 @@
 // src/pages/user/AccountPage.jsx
 import { useState } from 'react'
-import { User, Heart } from 'lucide-react'
+import { User, Heart, ShieldCheck, Sparkles, Lock } from 'lucide-react'
 import ProfileTab from '../../components/account/ProfileTab'
 import FollowedLoungesTab from '../../components/account/FollowedLoungesTab'
+import IdentityTab from '../../components/account/IdentityTab'
+import PreferencesTab from '../../components/account/PreferencesTab'
+import PrivacyTab from '../../components/account/PrivacyTab'
 
 const AccountPage = () => {
   const [activeTab, setActiveTab] = useState('profile')
@@ -28,6 +31,24 @@ const AccountPage = () => {
               >
                 <Heart size={18} /> Followed lounge
               </button>
+              <button
+                onClick={() => setActiveTab('identity')}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${activeTab === 'identity' ? 'bg-gray-800 text-[#C3B665]' : 'text-gray-400 hover:text-white hover:bg-gray-800/50'}`}
+              >
+                <ShieldCheck size={18} /> Định danh &amp; thuế
+              </button>
+              <button
+                onClick={() => setActiveTab('preferences')}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${activeTab === 'preferences' ? 'bg-gray-800 text-[#C3B665]' : 'text-gray-400 hover:text-white hover:bg-gray-800/50'}`}
+              >
+                <Sparkles size={18} /> Sở thích gợi ý
+              </button>
+              <button
+                onClick={() => setActiveTab('privacy')}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${activeTab === 'privacy' ? 'bg-gray-800 text-[#C3B665]' : 'text-gray-400 hover:text-white hover:bg-gray-800/50'}`}
+              >
+                <Lock size={18} /> Dữ liệu &amp; tài khoản
+              </button>
             </div>
           </div>
 
@@ -35,6 +56,9 @@ const AccountPage = () => {
           <div className="lg:col-span-3">
             {activeTab === 'profile' && <ProfileTab />}
             {activeTab === 'followed' && <FollowedLoungesTab />}
+            {activeTab === 'identity' && <IdentityTab />}
+            {activeTab === 'preferences' && <PreferencesTab />}
+            {activeTab === 'privacy' && <PrivacyTab />}
           </div>
         </div>
       </div>

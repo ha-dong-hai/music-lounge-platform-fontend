@@ -52,3 +52,39 @@ export const checkInTicket = async (qrCode) => {
 export const sellWalkInTicket = async ({ priceId, quantity, clientRequestId }) => {
   return axiosClient.post('/tickets/walk-in', { priceId, quantity, clientRequestId });
 };
+
+// ===== CHUYỂN NHƯỢNG VÉ =====
+// Người nhận phải ĐÃ CÓ tài khoản trên hệ thống (định danh bằng email) và phải TỰ ĐỒNG Ý nhận —
+// vé không tự sang tay ngay khi bạn bấm gửi. Trước khi họ đồng ý, bạn còn huỷ được lượt chuyển.
+export const initiateTicketTransfer = async (ticketId, recipientEmail) => {
+  return axiosClient.post(`/tickets/${ticketId}/transfer`, { recipientEmail });
+};
+
+// Vé người khác đang chuyển cho TÔI, đang chờ tôi đồng ý nhận.
+export const getIncomingTicketTransfers = async () => {
+  return axiosClient.get('/tickets/incoming-transfers');
+};
+
+export const acceptTicketTransfer = async (ticketId) => {
+  return axiosClient.post(`/tickets/${ticketId}/transfer/accept`);
+};
+
+// Người gửi huỷ lượt chuyển, khi người nhận chưa đồng ý.
+export const cancelTicketTransfer = async (ticketId) => {
+  return axiosClient.post(`/tickets/${ticketId}/transfer/cancel`);
+};
+
+// ===== HOÀN TIỀN =====
+// Khi cổng thanh toán không hoàn được vào giao dịch gốc thì phải chuyển khoản tay — người mua
+// khai tài khoản nhận ở đây. `consent` là sự đồng ý cho dùng thông tin ngân hàng để hoàn tiền,
+// bắt buộc phải true.
+export const provideRefundPayoutAccount = async (refundRequestId, { bankName, accountNumber, accountHolder, consent }) => {
+  return axiosClient.put(`/tickets/refund-requests/${refundRequestId}/payout-account`, {
+    bankName, accountNumber, accountHolder, consent,
+  });
+};
+
+// Người mua xác nhận đã nhận lại TIỀN MẶT tại quầy — vé bán tại quầy không hoàn qua cổng thanh toán.
+export const confirmCashRefundHandedBack = async (refundRequestId) => {
+  return axiosClient.post(`/tickets/refund-requests/${refundRequestId}/cash-handed-back`);
+};

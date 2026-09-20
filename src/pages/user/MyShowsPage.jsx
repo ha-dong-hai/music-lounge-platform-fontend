@@ -5,6 +5,8 @@ import { Ticket, ArrowLeft } from 'lucide-react'
 import { useAuthStore } from '../../store/useAuthStore'
 import TicketsTab from '../../components/myshows/TicketsTab'
 import WishlistTab from '../../components/myshows/WishlistTab'
+import IncomingTransfersTab from '../../components/myshows/IncomingTransfersTab'
+import RefundRequestsTab from '../../components/myshows/RefundRequestsTab'
 
 const MyShowsPage = () => {
   const { user } = useAuthStore()
@@ -36,12 +38,16 @@ const MyShowsPage = () => {
               <div className="flex justify-end gap-8">
                 <button onClick={() => setActiveMainTab('shows')} className={`pb-4 text-lg font-bold border-b-2 transition-colors ${activeMainTab === 'shows' ? 'border-[#C3B665] text-[#C3B665]' : 'border-transparent text-gray-500 hover:text-white'}`}>Shows</button>
                 <button onClick={() => setActiveMainTab('wishlist')} className={`pb-4 text-lg font-bold border-b-2 transition-colors ${activeMainTab === 'wishlist' ? 'border-[#C3B665] text-[#C3B665]' : 'border-transparent text-gray-500 hover:text-white'}`}>Wishlist</button>
+                <button onClick={() => setActiveMainTab('transfers')} className={`pb-4 text-lg font-bold border-b-2 transition-colors ${activeMainTab === 'transfers' ? 'border-[#C3B665] text-[#C3B665]' : 'border-transparent text-gray-500 hover:text-white'}`}>Vé chuyển đến</button>
+                <button onClick={() => setActiveMainTab('refunds')} className={`pb-4 text-lg font-bold border-b-2 transition-colors ${activeMainTab === 'refunds' ? 'border-[#C3B665] text-[#C3B665]' : 'border-transparent text-gray-500 hover:text-white'}`}>Hoàn tiền</button>
               </div>
             </div>
 
             {/* MỖI TAB TỰ QUẢN LÝ STATE + API RIÊNG */}
             {activeMainTab === 'shows' && <TicketsTab />}
             {activeMainTab === 'wishlist' && <WishlistTab />}
+            {activeMainTab === 'transfers' && <IncomingTransfersTab />}
+            {activeMainTab === 'refunds' && <RefundRequestsTab />}
           </>
         )}
       </div>
