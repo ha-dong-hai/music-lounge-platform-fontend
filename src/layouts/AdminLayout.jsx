@@ -1,5 +1,5 @@
 import { Outlet, NavLink, useNavigate } from 'react-router-dom'
-import { LayoutDashboard, Music, Package, LogOut, Users, Receipt, MessageSquareWarning, SlidersHorizontal, ShieldAlert, Banknote, Landmark, ShieldCheck, Settings2 } from 'lucide-react'
+import { LayoutDashboard, Music, Package, LogOut, Users, Receipt, MessageSquareWarning, SlidersHorizontal, ShieldAlert, Banknote, Landmark, ShieldCheck, Settings2, TrendingUp } from 'lucide-react'
 import { useAuthStore } from '../store/useAuthStore'
 
 const AdminLayout = () => {
@@ -44,6 +44,9 @@ const AdminLayout = () => {
           </NavLink>
           <NavLink to="/admin/kyc-reviews" className={linkClasses}>
             <ShieldCheck size={18} /> Duyệt định danh
+          </NavLink>
+          <NavLink to="/admin/insights" className={linkClasses}>
+            <TrendingUp size={18} /> Nội dung &amp; tương tác
           </NavLink>
           <NavLink to="/admin/system-config" className={linkClasses}>
             <Settings2 size={18} /> Cấu hình hệ thống

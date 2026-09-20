@@ -8,7 +8,7 @@
 // xem FnbMenusController, BankAccountsController, LoungesController, DonationsController,
 // VenuePenaltiesController.
 import { Outlet, NavLink } from 'react-router-dom'
-import { Radio, LogOut, Package, BarChart3, CalendarDays, Store, Landmark, ScanLine, UtensilsCrossed, BookOpen, Mic2, Users, HeartHandshake, ShieldAlert, LayoutGrid } from 'lucide-react'
+import { Radio, LogOut, Package, BarChart3, CalendarDays, Store, Landmark, ScanLine, UtensilsCrossed, BookOpen, Mic2, Users, HeartHandshake, ShieldAlert, LayoutGrid, Box } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../store/useAuthStore'
 
@@ -48,6 +48,11 @@ const OwnerLayout = () => {
           {isOwner && (
             <NavLink to="/owner/zones" className={linkClasses}>
               <LayoutGrid size={18} /> Khu vực chỗ ngồi
+            </NavLink>
+          )}
+          {isOwner && (
+            <NavLink to="/owner/tour" className={linkClasses}>
+              <Box size={18} /> Tour 360°
             </NavLink>
           )}
           {isOwner && (

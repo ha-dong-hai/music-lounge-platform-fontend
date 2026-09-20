@@ -18,3 +18,16 @@ export const markNotificationRead = async (id) => {
 export const markAllNotificationsRead = async () => {
   return axiosClient.post('/notifications/read-all');
 };
+
+// ===== THÔNG BÁO ĐẨY TRÊN THIẾT BỊ =====
+// `token` là mã thiết bị do Firebase Messaging cấp, KHÔNG phải token đăng nhập.
+// Mỗi trình duyệt / thiết bị một mã riêng; đăng xuất thì nên gọi unregister để thiết bị đó
+// không nhận thông báo của người khác nữa.
+// Lưu ý: DELETE có BODY — axios cần truyền qua { data }, không phải tham số thứ hai như POST.
+export const registerDevice = async (token, platform) => {
+  return axiosClient.post('/notifications/devices', { token, platform });
+};
+
+export const unregisterDevice = async (token) => {
+  return axiosClient.delete('/notifications/devices', { data: { token } });
+};

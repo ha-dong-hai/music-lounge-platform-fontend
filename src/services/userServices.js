@@ -80,3 +80,12 @@ export const getMyTransactions = async (params = {}) => {
 export const getMyEarnings = async () => {
   return axiosClient.get('/me/earnings');
 };
+
+// Tải mô hình 3D (.glb/.gltf) — riêng một endpoint khác ảnh, và chỉ chủ phòng trà dùng được.
+export const uploadModel = async (file) => {
+  const formData = new FormData();
+  formData.append('file', file);
+  return axiosClient.post('/uploads/models', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+};

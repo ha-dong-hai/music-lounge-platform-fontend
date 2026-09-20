@@ -175,3 +175,13 @@ export const getSystemConfigHistory = async (key) => {
 export const updateSystemConfig = async (key, { configValue, note }) => {
   return axiosClient.put(`/admin/system-config/${encodeURIComponent(key)}`, { configValue, note });
 };
+
+// Duyệt HẠNG VÉ bị đưa vào diện kiểm duyệt (cùng hệ với duyệt buổi phát).
+// decision: 'Approved' | 'Rejected'. Hạng vé chưa duyệt KHÔNG được tính vào khoảng giá hiển thị
+// trên thẻ buổi diễn, nên bỏ quên hàng đợi này là vé của chủ không bán được mà họ không hiểu vì sao.
+export const reviewTicketTier = async (tierId, decision, reviewNote = '') => {
+  if (decision !== 'Approved' && decision !== 'Rejected') {
+    return Promise.reject(new Error('decision chỉ nhận "Approved" hoặc "Rejected"'));
+  }
+  return axiosClient.post(`/moderations/ticket-tiers/${tierId}/review`, { decision, reviewNote });
+};

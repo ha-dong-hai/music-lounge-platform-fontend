@@ -119,3 +119,44 @@ export const reorderGalleryImages = async (loungeId, orderedImageIds) => {
 export const setLoungeModel3D = async (loungeId, modelUrl) => {
   return axiosClient.put(`/lounges/${loungeId}/model-3d`, { modelUrl });
 };
+
+// ===== TOUR 360° =====
+// Tour gồm nhiều SCENE (ảnh 360° của một điểm đứng), mỗi scene có HOTSPOT để nhảy sang scene khác.
+// Endpoint đọc là CÔNG KHAI (khán giả xem được), các endpoint sửa chỉ dành cho chủ.
+export const getLoungeTour = async (loungeId) => {
+  return axiosClient.get(`/lounges/${loungeId}/tour`);
+};
+
+// Thêm một scene từ ảnh 360° ĐÃ CÓ sẵn (tải lên /uploads/images trước).
+export const addTourScene = async (loungeId, { imageUrl, name = null }) => {
+  return axiosClient.post(`/lounges/${loungeId}/tour/scenes`, { imageUrl, name });
+};
+
+// Ghép nhiều ảnh thường thành MỘT ảnh 360°. Việc ghép chạy NỀN và mất thời gian, nên endpoint này
+// trả về một đơn ghép (attempt) — hỏi lại trạng thái qua getTourStitchAttempt, đừng chờ ảnh ngay.
+export const stitchTourScene = async (loungeId, { sourceImageUrls, name = null }) => {
+  return axiosClient.post(`/lounges/${loungeId}/tour/scenes/stitch`, { sourceImageUrls, name });
+};
+
+export const getTourStitchAttempt = async (loungeId, attemptId) => {
+  return axiosClient.get(`/lounges/${loungeId}/tour/scenes/stitch/${attemptId}`);
+};
+
+export const removeTourScene = async (loungeId, sceneId) => {
+  return axiosClient.delete(`/lounges/${loungeId}/tour/scenes/${sceneId}`);
+};
+
+// Vị trí của scene trong không gian — quyết định thứ tự và hướng khi khán giả di chuyển.
+export const setTourScenePosition = async (loungeId, sceneId, payload) => {
+  return axiosClient.put(`/lounges/${loungeId}/tour/scenes/${sceneId}/position`, payload);
+};
+
+// Hotspot: điểm bấm trên ảnh 360° để nhảy sang scene khác. CHỈ có Thêm và Xoá — backend
+// không có endpoint sửa, muốn đổi thì xoá rồi thêm lại.
+export const addTourHotspot = async (loungeId, sceneId, payload) => {
+  return axiosClient.post(`/lounges/${loungeId}/tour/scenes/${sceneId}/hotspots`, payload);
+};
+
+export const removeTourHotspot = async (loungeId, hotspotId) => {
+  return axiosClient.delete(`/lounges/${loungeId}/tour/hotspots/${hotspotId}`);
+};

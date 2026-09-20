@@ -29,6 +29,7 @@ import RatingModal from '../components/livestream/RatingModal'
 import AdminVenuesPage from '../pages/admin/AdminVenuesPage'
 import AdminFilterOptionsPage from '../pages/admin/AdminFilterOptionsPage'
 import AdminKycReviewsPage from '../pages/admin/AdminKycReviewsPage'
+import AdminInsightsPage from '../pages/admin/AdminInsightsPage'
 import AdminSystemConfigPage from '../pages/admin/AdminSystemConfigPage'
 import PaymentResultPage from '../pages/payment/PaymentResultPage'
 import LoginPage from '../pages/auth/LoginPage'
@@ -42,6 +43,7 @@ import OwnerLoungePage from '../pages/owner/OwnerLoungePage'
 import OwnerBankAccountsPage from '../pages/owner/OwnerBankAccountsPage'
 import OwnerZonesPage from '../pages/owner/OwnerZonesPage'
 import OwnerShowSettingsPage from '../pages/owner/OwnerShowSettingsPage'
+import OwnerTourPage from '../pages/owner/OwnerTourPage'
 import OwnerOperatePage from '../pages/owner/OwnerOperatePage'
 import OwnerFnbOrdersPage from '../pages/owner/OwnerFnbOrdersPage'
 import OwnerFnbMenusPage from '../pages/owner/OwnerFnbMenusPage'
@@ -108,6 +110,7 @@ const AppRouter = createBrowserRouter([
       { path: 'lounge', element: <ProtectedRoute requiredRoles={['Owner']}><OwnerLoungePage /></ProtectedRoute> },
       { path: 'bank-accounts', element: <ProtectedRoute requiredRoles={['Owner']}><OwnerBankAccountsPage /></ProtectedRoute> },
       { path: 'zones', element: <ProtectedRoute requiredRoles={['Owner']}><OwnerZonesPage /></ProtectedRoute> },
+      { path: 'tour', element: <ProtectedRoute requiredRoles={['Owner']}><OwnerTourPage /></ProtectedRoute> },
       { path: 'shows', element: <ProtectedRoute requiredRoles={['Owner']}><OwnerShowsPage /></ProtectedRoute> },
       { path: 'shows/:id', element: <ProtectedRoute requiredRoles={['Owner']}><OwnerShowDetailPage /></ProtectedRoute> },
       { path: 'shows/:id/settings', element: <ProtectedRoute requiredRoles={['Owner']}><OwnerShowSettingsPage /></ProtectedRoute> },
@@ -142,6 +145,7 @@ const AppRouter = createBrowserRouter([
       { path: 'venues', element: <AdminVenuesPage /> },
       { path: 'filter-options', element: <AdminFilterOptionsPage /> },
       { path: 'kyc-reviews', element: <AdminKycReviewsPage /> },
+      { path: 'insights', element: <AdminInsightsPage /> },
       { path: 'system-config', element: <AdminSystemConfigPage /> },
       { path: 'content-reports', element: <AdminContentReportsPage /> },
       { path: 'refunds', element: <AdminRefundsPage /> },
