@@ -19,10 +19,14 @@
 // - Phần khai VCPMC nằm ở trang Livestream, không nằm ở đây (cũng cùng lỗ hổng: không đọc lại được).
 // - Mọi thứ trên trang này chỉ sửa được khi buổi diễn còn ở trạng thái Nháp.
 // - SỬA LINE-UP: backend nhận PUT với đủ (role, orderIndex, setTime, acceptsDonation) — ghi đè
-//   toàn bộ. Nhưng PerformerSummaryDto KHÔNG trả orderIndex, nên FE không biết thứ tự hiện tại là
-//   số mấy. Cách xử lý: danh sách backend trả về ĐÃ được sắp theo orderIndex (xem
-//   LoungeShowMappingExtensions), nên dùng vị trí trong mảng làm orderIndex. Ghi lại thứ tự thành
-//   0,1,2... có thể khác số cũ (0,5,10) nhưng giữ đúng THỨ TỰ — và thứ tự là thứ duy nhất được dùng.
+//   toàn bộ. Nhưng PerformerSummaryDto KHÔNG trả orderIndex, nên FE không biết số thứ tự hiện tại.
+//   CHỖ NÀY TỪNG SAI, ĐỌC KỸ TRƯỚC KHI SỬA LẠI:
+//     Gửi orderIndex = vị trí trong mảng CHO MỘT NGƯỜI là sai. Nếu số đang lưu là 0, 5, 10 (A, B, C)
+//     thì sửa vai trò của C sẽ gửi 2, thành 0, 5, 2 — và C nhảy lên trước B dù người dùng không hề
+//     đổi thứ tự. Vị trí trong mảng và số đang lưu là HAI KHÔNG GIAN KHÁC NHAU, không so được.
+//   Cách đúng: mỗi lần ghi là ĐÁNH SỐ LẠI CẢ DANH SÁCH thành 0,1,2... theo đúng thứ tự đang hiện.
+//   Sau một lượt như vậy hai không gian trùng nhau, nên lần ghi sau luôn nhất quán. Tốn N lệnh PUT
+//   cho N nghệ sĩ, nhưng line-up chỉ vài người và đây là cái giá để không âm thầm đổi thứ tự.
 // - Đổi sang nghệ sĩ khác thì phải xoá rồi thêm lại; PUT không đổi được người.
 // - SỬA HẠNG VÉ chỉ đổi được tên / mô tả / sức chứa. GIÁ KHÔNG SỬA Ở ĐÂY — giá thuộc đợt giá riêng.
 import { useState, useEffect, useCallback } from 'react'
@@ -147,50 +151,63 @@ const OwnerShowDetailPage = () => {
     } finally { setBusy(null) }
   }
 
-  // Lưu một tiết mục đã sửa. orderIndex = vị trí hiện tại trong mảng (xem ghi chú đầu tệp).
-  // setTime là TimeOnly ở backend: gửi "HH:mm" hoặc null, KHÔNG gửi chuỗi rỗng.
+  // Ghi lại CẢ danh sách theo đúng thứ tự truyền vào, đánh số 0,1,2... Đây là hàm duy nhất được
+  // phép gửi orderIndex — xem ghi chú đầu tệp về việc vì sao không gửi cho một người.
+  // setTime là TimeOnly ở backend: gửi "HH:mm" (từ ô input) hoặc "HH:mm:ss" (từ DTO) đều được,
+  // nhưng KHÔNG gửi chuỗi rỗng — phải quy về null.
+  // Gửi TUẦN TỰ: nhiều PUT song song lên cùng một buổi diễn thì thứ tự cuối cùng phụ thuộc lệnh nào
+  // về trước.
+  const ghiLaiThuTu = async (danhSach) => {
+    for (let i = 0; i < danhSach.length; i += 1) {
+      const p = danhSach[i]
+      await updatePerformance(id, p.performanceId, {
+        role: p.role,
+        orderIndex: i,
+        setTime: p.setTime ? String(p.setTime) : null,
+        acceptsDonation: !!p.acceptsDonation,
+      })
+    }
+  }
+
   const handleLuuTietMuc = async () => {
     if (!suaTietMuc) return
-    const viTri = show.performers.findIndex((x) => x.performanceId === suaTietMuc.performanceId)
+    const ds = show.performers ?? []
+    // Thay người đang sửa bằng giá trị mới, giữ nguyên thứ tự đang hiện, rồi ghi lại cả danh sách.
+    const dsMoi = ds.map((p) => (p.performanceId === suaTietMuc.performanceId
+      ? {
+        ...p,
+        role: suaTietMuc.role,
+        setTime: suaTietMuc.setTime || null,
+        acceptsDonation: suaTietMuc.acceptsDonation,
+      }
+      : p))
     setBusy(`perf-${suaTietMuc.performanceId}`)
     try {
-      await updatePerformance(id, suaTietMuc.performanceId, {
-        role: suaTietMuc.role,
-        orderIndex: viTri < 0 ? 0 : viTri,
-        setTime: suaTietMuc.setTime ? suaTietMuc.setTime : null,
-        acceptsDonation: suaTietMuc.acceptsDonation,
-      })
+      await ghiLaiThuTu(dsMoi)
       toast.success('Đã lưu tiết mục.')
       setSuaTietMuc(null)
       await load()
     } catch (err) {
       toast.error(err.response?.data?.message || 'Không lưu được tiết mục.')
+      // Ghi dở nửa đường thì thứ tự trên máy chủ đang lệch với màn hình — tải lại để người dùng
+      // thấy đúng hiện trạng thay vì tin vào cái đang hiện.
+      await load()
     } finally { setBusy(null) }
   }
 
-  // Đổi thứ tự bằng cách gửi lại orderIndex mới cho HAI tiết mục đổi chỗ. Backend không có lệnh
-  // "đổi chỗ", nên phải tự tính. Làm tuần tự chứ không song song: hai PUT cùng lúc lên cùng một
-  // buổi diễn dễ dẫn tới thứ tự cuối cùng phụ thuộc vào cái nào về trước.
   const handleDoiThuTu = async (performanceId, huong) => {
-    const ds = show.performers ?? []
+    const ds = [...(show.performers ?? [])]
     const i = ds.findIndex((x) => x.performanceId === performanceId)
     const j = i + huong
     if (i < 0 || j < 0 || j >= ds.length) return
+    ;[ds[i], ds[j]] = [ds[j], ds[i]]
     setBusy(`perf-${performanceId}`)
     try {
-      const a = ds[i]
-      const b = ds[j]
-      const goi = (p, idx) => updatePerformance(id, p.performanceId, {
-        role: p.role,
-        orderIndex: idx,
-        setTime: p.setTime ?? null,
-        acceptsDonation: p.acceptsDonation,
-      })
-      await goi(a, j)
-      await goi(b, i)
+      await ghiLaiThuTu(ds)
       await load()
     } catch (err) {
       toast.error(err.response?.data?.message || 'Không đổi được thứ tự.')
+      await load()
     } finally { setBusy(null) }
   }
 
