@@ -10,8 +10,13 @@
 //   bỏ sót một dòng là xoá mất giá trị của dòng đó.
 // - TIÊU CHÍ ĐÃ TẮT (criteriaIsActive = false) VẪN ĐƯỢC TRẢ VỀ và vẫn phải hiện — hiện mờ thôi.
 //   Lọc bỏ chúng rồi bấm Lưu là xoá mất giá trị cũ của những tiêu chí đó, vì ghi là thay thế toàn bộ.
-// - `value` phải KHÔNG RỖNG và tối đa 1000 ký tự (validator backend). Ô để trống được bỏ khỏi
-//   payload thay vì gửi chuỗi rỗng — gửi rỗng là bị 422 cho cả lượt.
+// - `value` ĐỌC VỀ LÀ CHUỖI ĐÃ JSON-STRINGIFY: backend trả "\"Acoustic\"", tức chuỗi có cặp nháy
+//   kép nằm bên trong. Đổ thẳng vào ô nhập là người dùng thấy cả dấu nháy. Phải gỡ một lớp — xem
+//   docGiaTri() bên dưới.
+// - CHIỀU GHI thì gửi chuỗi trần (validator backend chỉ đòi NotEmpty, tối đa 1000 ký tự). Nếu sau
+//   này backend đổi sang đòi JSON-stringify ở chiều ghi thì phải sửa cả hai chiều cùng lúc, đừng
+//   sửa một bên.
+// - Ô để trống được bỏ khỏi payload thay vì gửi chuỗi rỗng — gửi rỗng là bị 422 cho cả lượt.
 // - `dataType` quyết định ô nhập: Select (chọn trong options), Range (số trong khoảng), Boolean
 //   (có/không), Text (chữ). `options` backend lưu là MỘT CHUỖI, nên phải tự đọc: mảng JSON cho
 //   Select, object {min,max,step} cho Range. Chuỗi không đọc được thì rơi về ô chữ tự do chứ không
@@ -22,6 +27,20 @@ import toast from 'react-hot-toast'
 import { getShowCustomValues, setShowCustomValues } from '../../services/customCriteriaServices'
 
 const inputCls = 'mt-1 w-full px-3 py-2 bg-black border border-gray-700 rounded-lg text-sm text-white focus:outline-none focus:border-[#C3B665]/50'
+
+// Gỡ một lớp JSON cho giá trị đọc về. CHỈ gỡ khi chuỗi thật sự là một chuỗi JSON (mở và đóng bằng
+// dấu nháy kép) — cố ý hẹp như vậy để không đụng vào giá trị số hay true/false, vốn hiện ra y hệt
+// dù có gỡ hay không, và để giá trị trần (chưa từng qua JSON) đi thẳng qua không bị đổi.
+const docGiaTri = (v) => {
+  if (typeof v !== 'string') return v ?? ''
+  if (!(v.startsWith('"') && v.endsWith('"'))) return v
+  try {
+    const da = JSON.parse(v)
+    return typeof da === 'string' ? da : v
+  } catch {
+    return v
+  }
+}
 
 // options là chuỗi do chủ phòng trà tự nhập lúc tạo tiêu chí → có thể không phải JSON hợp lệ.
 // Không đọc được thì trả null và ô nhập rơi về chữ tự do.
@@ -51,7 +70,7 @@ const ShowCustomValuesSection = ({ showId }) => {
         // Nạp sẵn giá trị đang có. Phải nạp CẢ dòng của tiêu chí đã tắt, nếu không thì lần lưu sau
         // sẽ xoá mất giá trị của chúng (ghi là thay thế toàn bộ).
         const nhap = {}
-        ds.forEach((c) => { nhap[c.criteriaId] = c.value ?? '' })
+        ds.forEach((c) => { nhap[c.criteriaId] = docGiaTri(c.value) })
         setGiaTri(nhap)
       }
     } catch (err) {
@@ -74,7 +93,7 @@ const ShowCustomValuesSection = ({ showId }) => {
     // Ghi là thay thế toàn bộ, nên gửi danh sách rỗng là XOÁ HẾT giá trị — đó có thể là ý thật của
     // người dùng, không phải lỗi nhập liệu. Nhưng phải hỏi lại, vì bấm nhầm là mất sạch.
     if (values.length === 0) {
-      const dangCoGiaTri = criteria.some((c) => (c.value ?? '') !== '')
+      const dangCoGiaTri = criteria.some((c) => docGiaTri(c.value) !== '')
       if (!dangCoGiaTri) {
         toast.error('Chưa điền tiêu chí nào.')
         return

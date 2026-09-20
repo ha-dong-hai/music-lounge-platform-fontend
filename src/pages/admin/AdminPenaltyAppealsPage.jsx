@@ -11,6 +11,9 @@
 // - `reviewNote` là thứ chủ phòng trà đọc để biết vì sao khiếu nại của họ được chấp nhận hay bị bác.
 //   Bắt buộc nhập cho cả hai quyết định: "bác đơn" không kèm lý do là câu trả lời vô nghĩa.
 // - Không có đường hoàn tác quyết định. Xử lý xong là xong.
+// - `appealResult` là null khi chưa xử lý, còn lại 'Overturned' / 'Upheld'. Dùng ĐÚNG trường này để
+//   biết đơn đã được quyết hay chưa — đừng suy từ `status` của án phạt, vì án phạt có thể vẫn ở
+//   'Active' trong lúc khiếu nại đang chờ.
 import { useState, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import {
@@ -202,8 +205,12 @@ const AdminPenaltyAppealsPage = () => {
             const loai = TYPE_VIEW[p.penaltyType] ?? { label: p.penaltyType, cls: 'bg-gray-500/10 text-gray-400 border-gray-500/30', icon: ShieldAlert }
             const tt = STATUS_VIEW[p.status] ?? { label: p.status, cls: 'text-gray-400' }
             const Icon = loai.icon
-            // Chỉ xử lý được đơn đang ở trạng thái Appealed; đơn đã quyết rồi chỉ để tra lại.
-            const xuLyDuoc = p.status === 'Appealed'
+            // Điều kiện hiện nút: đang ở tab CHỜ XỬ LÝ và chưa có kết quả nào được ghi.
+            // KHÔNG dựa vào `status === 'Appealed'`: mẫu dữ liệu thật của endpoint này có hàng
+            // status = 'Active' dù đang chờ xử lý, nghĩa là trạng thái án phạt không nhất thiết đổi
+            // khi có khiếu nại. Bám vào nó thì nút biến mất và cả màn thành vô dụng.
+            // `resolved=false` đã lọc sẵn ở máy chủ, nên trong tab này mọi hàng đều cần quyết định.
+            const xuLyDuoc = !daXuLy && !p.appealResult
 
             return (
               <li key={p.id} className="bg-gray-900 border border-gray-800 rounded-xl p-5">

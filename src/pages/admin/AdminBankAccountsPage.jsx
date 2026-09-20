@@ -9,10 +9,17 @@
 //     accountNumberUnreadable số tài khoản lưu bị hỏng, không giải mã đọc được
 //   Hiện chúng NGAY TRÊN DANH SÁCH và chặn nút Duyệt khi chưa đạt — không có phần này thì người
 //   duyệt bấm xong mới nhận lỗi, và tệ hơn là quen tay bấm bừa.
-// - `accountNumberMasked` là số đã che. KHÔNG có endpoint nào trả số đầy đủ, và đó là cố ý: người
-//   duyệt đối chiếu bằng TÊN chủ tài khoản, không phải bằng số.
+// - `accountNumberMasked` là chuỗi ĐÃ CHE SẴN từ backend (dùng ký tự •). Hiện nguyên văn, đừng cắt
+//   chuỗi thêm lần nữa. Không có endpoint nào trả số đầy đủ, và đó là cố ý: người duyệt đối chiếu
+//   bằng TÊN chủ tài khoản, không phải bằng số.
 // - Danh sách này CHỈ có tài khoản của phòng trà. Tài khoản nhận tiền của nghệ sĩ không duyệt ở đây.
 // - Từ chối thì `note` là thứ duy nhất cho chủ phòng trà biết phải sửa gì — bắt buộc nhập.
+// - `createdAt` của bảng này là cột DateTime KHÔNG kèm múi giờ ("2026-09-20T17:35:21.714"), giá trị
+//   là giờ UTC. Đưa thẳng vào dayjs là bị hiểu thành giờ máy → lệch đúng 7 tiếng ở Việt Nam, đủ để
+//   nhảy sang ngày hôm sau mà vẫn trông hợp lý. Phải bọc qua mocUtc(). Các mốc của án phạt thì có
+//   offset sẵn nên KHÔNG bọc.
+// - `expectedAccountHolder: null` kèm `holderNameMatches: false` là trạng thái CÓ THẬT khi chủ
+//   phòng trà chưa được chốt họ tên trên CCCD — đó đúng là lúc nút Duyệt phải chặn.
 import { useState, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import {
@@ -21,6 +28,7 @@ import {
 import dayjs from 'dayjs'
 import toast from 'react-hot-toast'
 import { getAdminBankAccounts, reviewPayoutBankAccount } from '../../services/adminServices'
+import { mocUtc } from '../../utils/format'
 
 // Một điều kiện duyệt. `dat` = đã thoả. Hiện cả khi đạt lẫn khi chưa, vì "không thấy cảnh báo"
 // và "chưa kiểm" trông giống nhau nếu chỉ hiện lúc hỏng.
@@ -223,7 +231,7 @@ const AdminBankAccountsPage = () => {
                       Chủ phòng trà: {it.ownerName} · tên định danh: {it.expectedAccountHolder || 'chưa có'}
                     </p>
                     <p className="text-xs text-gray-600 mt-0.5">
-                      Khai báo {dayjs(it.createdAt).format('DD/MM/YYYY')}
+                      Khai báo {dayjs(mocUtc(it.createdAt)).format('DD/MM/YYYY')}
                     </p>
 
                     <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1">
