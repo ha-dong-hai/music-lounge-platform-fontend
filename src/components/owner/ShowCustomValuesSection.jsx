@@ -12,11 +12,18 @@
 //   Lọc bỏ chúng rồi bấm Lưu là xoá mất giá trị cũ của những tiêu chí đó, vì ghi là thay thế toàn bộ.
 // - `value` đi và về đều là CHUỖI TRẦN. Backend lưu y nguyên chuỗi gửi lên, không bọc JSON.
 //   (docGiaTri() bên dưới chỉ để đọc dữ liệu CŨ do nơi khác ghi dạng JSON — không phải hợp đồng.)
-// - BACKEND KHÔNG KIỂM KIỂU DỮ LIỆU. Đã thử thật: gửi chữ bừa vào tiêu chí `Boolean` vẫn 204.
-//   Validator máy chủ chỉ có NotEmpty + tối đa 1000 ký tự. Nghĩa là TOÀN BỘ việc giữ cho giá trị
-//   khớp `dataType` nằm ở màn này — xem kiemTraGiaTri(). Đây là lớp tiện cho người dùng, KHÔNG phải
-//   bảo đảm: ai gọi thẳng API vẫn ghi được rác. Nếu dữ liệu rác bắt đầu xuất hiện thì phải yêu cầu
-//   backend chặn, đừng cố vá thêm ở đây.
+// - KIỂM KIỂU DỮ LIỆU CÓ Ở CẢ HAI PHÍA, và hai phía làm hai việc khác nhau — đừng bỏ bên nào:
+//     Máy chủ (MLACP-470) TỪ CHỐI 422 khi giá trị không khớp `dataType`. Đây là chỗ bảo đảm thật,
+//       vì nó chặn cả người gọi thẳng API.
+//     kiemTraGiaTri() ở đây báo lỗi NGAY, trước khi gửi, và báo TẤT CẢ lỗi một lượt. Đây là chỗ cho
+//       người dùng biết sai gì mà không phải đợi một vòng mạng rồi đọc một câu 422.
+//   Luật hai bên phải khớp nhau. Nếu sau này máy chủ đổi luật thì sửa ở đây cùng lúc, nếu không thì
+//   hoặc người dùng bị chặn thứ máy chủ cho qua, hoặc bấm Lưu xong mới nhận 422.
+// - MỘT CHỖ HAI BÊN CỐ Ý KHÁC NHAU: khi `options` của tiêu chí hỏng (không parse được), máy chủ
+//   KHÔNG bịa luật và cho qua. Màn này thì với `Range` vẫn bắt buộc là SỐ — kiểu đã là Range thì
+//   phải là số, kể cả khi không biết khoảng cho phép. Nghiêm hơn máy chủ ở đúng chỗ này là có chủ ý.
+// - Máy chủ bóc MỘT lớp nháy kép trước khi kiểm, nên gửi chuỗi trần (cách màn này làm) hay chuỗi
+//   bọc nháy đều qua được. Cứ gửi trần cho thẳng.
 // - Ô để trống được bỏ khỏi payload thay vì gửi chuỗi rỗng — gửi rỗng là bị 422 cho cả lượt.
 // - `dataType` quyết định ô nhập: Select (chọn trong options), Range (số trong khoảng), Boolean
 //   (có/không), Text (chữ). `options` backend lưu là MỘT CHUỖI, nên phải tự đọc: mảng JSON cho
@@ -55,8 +62,9 @@ const docOptions = (chuoi) => {
 }
 
 // Kiểm giá trị có khớp `dataType` không. Trả về câu lỗi, hoặc null nếu hợp lệ.
-// KHÔNG kiểm được khi `options` không đọc được (chủ phòng trà tự gõ chuỗi lúc tạo tiêu chí) — lúc
-// đó ô nhập cũng đã rơi về chữ tự do, nên coi như chữ tự do và chỉ kiểm độ dài.
+// Luật ở đây phải KHỚP với luật máy chủ (MLACP-470) — xem ghi chú đầu tệp, gồm cả chỗ cố ý
+// nghiêm hơn. Riêng `Select` khi `options` không đọc được thì không có danh sách để đối chiếu, nên
+// bỏ qua giống máy chủ: ô nhập lúc đó cũng đã rơi về chữ tự do.
 const kiemTraGiaTri = (c, v) => {
   const chuoi = String(v ?? '').trim()
   if (chuoi === '') return null // ô trống được bỏ khỏi payload, không phải lỗi
@@ -140,7 +148,8 @@ const ShowCustomValuesSection = ({ showId }) => {
         return
       }
     }
-    // Máy chủ nhận mọi chuỗi, nên chặn ở đây. Báo TẤT CẢ lỗi một lần thay vì sửa xong lại báo tiếp.
+    // Chặn trước khi gửi để người dùng biết ngay, và báo TẤT CẢ lỗi một lần thay vì sửa xong lại
+    // báo tiếp. Máy chủ vẫn kiểm lại và trả 422 — đây không thay thế cho nó.
     const loi = criteria
       .map((c) => kiemTraGiaTri(c, giaTri[c.criteriaId]))
       .filter(Boolean)
