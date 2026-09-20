@@ -8,7 +8,7 @@
 // xem FnbMenusController, BankAccountsController, LoungesController, DonationsController,
 // VenuePenaltiesController.
 import { Outlet, NavLink } from 'react-router-dom'
-import { Radio, LogOut, Package, BarChart3, CalendarDays } from 'lucide-react'
+import { Radio, LogOut, Package, BarChart3, CalendarDays, Store, Landmark, ScanLine } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../store/useAuthStore'
 
@@ -41,10 +41,19 @@ const OwnerLayout = () => {
 
         <nav className="flex-1 overflow-y-auto py-6 space-y-2 px-4">
           {isOwner && (
+            <NavLink to="/owner/lounge" className={linkClasses}>
+              <Store size={18} /> Hồ sơ phòng trà
+            </NavLink>
+          )}
+          {isOwner && (
             <NavLink to="/owner/shows" className={linkClasses}>
               <CalendarDays size={18} /> Buổi diễn
             </NavLink>
           )}
+          {/* Nhân viên dùng được: soát vé, bán vé quầy, bắt đầu/kết thúc đều là RequireVenueOperator */}
+          <NavLink to="/owner/operate" className={linkClasses}>
+            <ScanLine size={18} /> Vận hành đêm diễn
+          </NavLink>
           <NavLink to="/owner/livestreams" className={linkClasses}>
             <Radio size={18} /> Livestreams
           </NavLink>
@@ -52,6 +61,9 @@ const OwnerLayout = () => {
             <>
               <NavLink to="/owner/analytics" className={linkClasses}>
                 <BarChart3 size={18} /> Báo cáo doanh thu
+              </NavLink>
+              <NavLink to="/owner/bank-accounts" className={linkClasses}>
+                <Landmark size={18} /> Tài khoản nhận tiền
               </NavLink>
               <NavLink to="/owner/subscription" className={linkClasses}>
                 <Package size={18} /> Gói dịch vụ

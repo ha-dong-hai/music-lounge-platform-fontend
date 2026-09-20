@@ -36,6 +36,9 @@ import OwnerLayout from '../layouts/OwnerLayout'
 import OwnerLivestreamsPage from '../pages/owner/OwnerLivestreamsPage'
 import OwnerSubscriptionPage from '../pages/owner/OwnerSubscriptionPage'
 import OwnerAnalyticsPage from '../pages/owner/OwnerAnalyticsPage'
+import OwnerLoungePage from '../pages/owner/OwnerLoungePage'
+import OwnerBankAccountsPage from '../pages/owner/OwnerBankAccountsPage'
+import OwnerOperatePage from '../pages/owner/OwnerOperatePage'
 import OwnerShowsPage from '../pages/owner/OwnerShowsPage'
 import OwnerShowDetailPage from '../pages/owner/OwnerShowDetailPage'
 import FnbOrderPage from '../pages/fnb/FnbOrderPage'
@@ -86,9 +89,12 @@ const AppRouter = createBrowserRouter([
     // vì sao. Giữ mức quyền ở đây khớp với policy của backend.
     children: [
       { index: true, element: <OwnerLivestreamsPage /> },
+      { path: 'lounge', element: <ProtectedRoute requiredRoles={['Owner']}><OwnerLoungePage /></ProtectedRoute> },
+      { path: 'bank-accounts', element: <ProtectedRoute requiredRoles={['Owner']}><OwnerBankAccountsPage /></ProtectedRoute> },
       { path: 'shows', element: <ProtectedRoute requiredRoles={['Owner']}><OwnerShowsPage /></ProtectedRoute> },
       { path: 'shows/:id', element: <ProtectedRoute requiredRoles={['Owner']}><OwnerShowDetailPage /></ProtectedRoute> },
       { path: 'livestreams', element: <OwnerLivestreamsPage /> },
+      { path: 'operate', element: <OwnerOperatePage /> },
       { path: 'subscription', element: <ProtectedRoute requiredRoles={['Owner']}><OwnerSubscriptionPage /></ProtectedRoute> },
       { path: 'analytics', element: <ProtectedRoute requiredRoles={['Owner']}><OwnerAnalyticsPage /></ProtectedRoute> },
     ]

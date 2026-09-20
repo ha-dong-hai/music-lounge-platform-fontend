@@ -97,3 +97,21 @@ export const deletePerformance = async (showId, performanceId) => {
 export const setVcpmcRoyalty = async (id, vcpmcRoyaltyReference) => {
   return axiosClient.put(`/lounge-shows/${id}/vcpmc-royalty`, { vcpmcRoyaltyReference });
 };
+
+// ===== VẬN HÀNH ĐÊM DIỄN (chủ hoặc nhân viên — RequireVenueOperator) =====
+
+export const startShow = async (id) => {
+  return axiosClient.post(`/lounge-shows/${id}/start`);
+};
+
+// LƯU Ý: có tác vụ nền tự kết thúc buổi diễn sau 6 giờ quá giờ dự kiến. Nên nút "Kết thúc" có thể
+// gặp buổi đã tự chuyển Ended trước khi người dùng bấm — đó không phải lỗi, xử lý như "đã kết thúc rồi".
+export const endShow = async (id) => {
+  return axiosClient.post(`/lounge-shows/${id}/end`);
+};
+
+// Thống kê vé của một buổi diễn: tổng bán, tổng doanh thu, tổng đã soát, và chi tiết theo từng mức giá
+// (ByPrice) — chính là danh sách để bán vé tại quầy, vì priceId nằm sẵn trong đó.
+export const getShowTicketStats = async (id) => {
+  return axiosClient.get(`/lounge-shows/${id}/ticket-stats`);
+};

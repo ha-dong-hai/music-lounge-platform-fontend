@@ -32,3 +32,12 @@ export const resetPassword = async ({ token, newPassword }) => {
 export const logout = async () => {
   return axiosClient.post('/auth/logout');
 };
+
+// Lấy token mới bằng refresh token — dùng khi NỘI DUNG token cần được cấp lại, không phải khi token
+// hết hạn (trường hợp đó interceptor trong config/axios.js tự lo).
+// Trường hợp thực tế: chủ vừa TẠO phòng trà — claim lounge_id chỉ được đóng vào token lúc phát hành,
+// nên token đang cầm vẫn nói "chưa có phòng trà" cho tới khi đăng nhập lại hoặc gọi hàm này.
+// Trả về AuthResultDto — truyền thẳng vào login() của useAuthStore.
+export const refreshSession = async (refreshToken) => {
+  return axiosClient.post('/auth/refresh', { refreshToken });
+};
