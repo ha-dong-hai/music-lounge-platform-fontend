@@ -12,13 +12,17 @@
 //   màn này không hiển thị % hoa hồng cho vé quầy — hiện số đó sẽ là nói sai.
 // - Nút "Kết thúc": có tác vụ nền tự kết thúc buổi diễn sau 6 giờ quá giờ dự kiến, nên buổi diễn có
 //   thể đã Ended trước khi ai bấm. Đó không phải lỗi.
+// - DANH SÁCH KHÁCH có TÊN và EMAIL người mua. Vì vậy nó không tự tải khi mở trang: phải bấm mới
+//   tải, và chỉ tải cho buổi diễn đang chọn. Đừng đưa danh sách này ra màn nào người ngoài xem được,
+//   và đừng in nó ra log.
 import { useState, useEffect, useCallback, useRef } from 'react'
 import {
   Loader2, Play, Square, QrCode, Ticket, Search, CheckCircle2, XCircle, Users, Banknote, RefreshCw,
+  ClipboardList, Eye, EyeOff,
 } from 'lucide-react'
 import dayjs from 'dayjs'
 import toast from 'react-hot-toast'
-import { getMyShows, startShow, endShow, getShowTicketStats } from '../../services/showServices'
+import { getMyShows, startShow, endShow, getShowTicketStats, getShowOrders } from '../../services/showServices'
 import { getTicketByQr, checkInTicket, sellWalkInTicket } from '../../services/ticketServices'
 
 const fmtMoney = (v) => `${Number(v || 0).toLocaleString('vi-VN')}đ`
@@ -53,6 +57,9 @@ const OwnerOperatePage = () => {
   const [veTraCuu, setVeTraCuu] = useState(null)
 
   // Bán vé tại quầy — mã chống thu tiền hai lần, giữ qua các lần render bằng ref
+  // Danh sách khách: chỉ tải khi người dùng chủ động bấm (có dữ liệu cá nhân).
+  const [khach, setKhach] = useState(null)
+  const [moDanhSachKhach, setMoDanhSachKhach] = useState(false)
   const [priceId, setPriceId] = useState('')
   const [quantity, setQuantity] = useState(1)
   const clientRequestIdRef = useRef(null)
@@ -81,6 +88,27 @@ const OwnerOperatePage = () => {
   }, [])
 
   useEffect(() => { const chay = async () => { await loadShows() }; chay() }, [loadShows])
+
+  // Đổi buổi diễn thì ẩn và xoá danh sách khách cũ: hiện tên khách của buổi khác là sai nghiêm trọng.
+  const chonBuoiDien = (id) => {
+    setShowId(id)
+    setKhach(null)
+    setMoDanhSachKhach(false)
+  }
+
+  const taiDanhSachKhach = async () => {
+    if (!showId) return
+    setBusy('khach')
+    try {
+      const res = await getShowOrders(showId, { page: 1, pageSize: 200 })
+      if (res.success) {
+        setKhach(res.data?.items ?? [])
+        setMoDanhSachKhach(true)
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Không tải được danh sách khách.')
+    } finally { setBusy(null) }
+  }
 
   const loadStats = useCallback(async () => {
     if (!showId) { setStats(null); return }
@@ -209,7 +237,7 @@ const OwnerOperatePage = () => {
 
       <div>
         <label className="text-xs text-gray-500">Buổi diễn</label>
-        <select value={showId ?? ''} onChange={(e) => { setShowId(Number(e.target.value)); setVeTraCuu(null); setPriceId('') }}
+        <select value={showId ?? ''} onChange={(e) => { chonBuoiDien(Number(e.target.value)); setVeTraCuu(null); setPriceId('') }}
           className="mt-1 w-full max-w-xl px-3 py-2 bg-black border border-gray-700 rounded-lg text-sm text-white focus:outline-none focus:border-[#C3B665]/50">
           {shows.map((s) => (
             <option key={s.id} value={s.id}>
@@ -362,6 +390,83 @@ const OwnerOperatePage = () => {
           )}
         </Card>
       </div>
+
+      {/* DANH SÁCH KHÁCH ĐÃ MUA VÉ — có tên và email, nên phải bấm mới tải và ẩn được lại */}
+      {showId && (
+        <Card
+          title="Danh sách khách đã mua vé"
+          subtitle="Dùng để đối soát và đón khách. Danh sách có tên và email người mua — chỉ mở khi cần."
+          right={
+            khach == null ? (
+              <button onClick={taiDanhSachKhach} disabled={busy === 'khach'}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-gray-700 text-gray-300 text-xs font-bold hover:bg-gray-800 disabled:opacity-50 flex-shrink-0">
+                {busy === 'khach' ? <Loader2 size={14} className="animate-spin" /> : <ClipboardList size={14} />}
+                Tải danh sách
+              </button>
+            ) : (
+              <div className="flex gap-2 flex-shrink-0">
+                <button onClick={() => setMoDanhSachKhach((v) => !v)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-gray-700 text-gray-300 text-xs font-bold hover:bg-gray-800">
+                  {moDanhSachKhach ? <><EyeOff size={14} /> Ẩn</> : <><Eye size={14} /> Hiện</>}
+                </button>
+                <button onClick={taiDanhSachKhach} disabled={busy === 'khach'}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-gray-700 text-gray-300 text-xs font-bold hover:bg-gray-800 disabled:opacity-50">
+                  <RefreshCw size={14} className={busy === 'khach' ? 'animate-spin' : ''} /> Tải lại
+                </button>
+              </div>
+            )
+          }
+        >
+          {khach == null ? (
+            <p className="text-sm text-gray-500">Chưa tải. Bấm &quot;Tải danh sách&quot; khi cần đối soát.</p>
+          ) : !moDanhSachKhach ? (
+            <p className="text-sm text-gray-500">Đã tải {khach.length} khách — đang ẩn.</p>
+          ) : khach.length === 0 ? (
+            <p className="text-sm text-gray-500">Chưa có ai mua vé buổi diễn này.</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="text-xs text-gray-500 border-b border-gray-800">
+                    <th className="text-left py-2 pr-3 font-medium">Khách</th>
+                    <th className="text-left py-2 pr-3 font-medium">Hạng vé</th>
+                    <th className="text-right py-2 pr-3 font-medium">Đã trả</th>
+                    <th className="text-left py-2 pr-3 font-medium">Kênh</th>
+                    <th className="text-left py-2 font-medium">Vào cửa</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {khach.map((k) => (
+                    <tr key={k.ticketId} className="border-b border-gray-800/60">
+                      <td className="py-2.5 pr-3">
+                        <p className="text-white">{k.buyerName || 'Khách tại quầy'}</p>
+                        {k.buyerEmail && <p className="text-xs text-gray-600 break-all">{k.buyerEmail}</p>}
+                      </td>
+                      <td className="py-2.5 pr-3 text-gray-300">
+                        {k.tierName}
+                        <span className="text-gray-600"> · {k.priceName}</span>
+                      </td>
+                      <td className="py-2.5 pr-3 text-right text-gray-300 tabular-nums">{fmtMoney(k.pricePaid)}</td>
+                      <td className="py-2.5 pr-3 text-gray-500 text-xs">
+                        {k.purchaseChannel === 'Offline' ? 'tại quầy' : 'trực tuyến'}
+                      </td>
+                      <td className="py-2.5 text-xs">
+                        {k.checkedInAt ? (
+                          <span className="text-green-400 inline-flex items-center gap-1">
+                            <CheckCircle2 size={12} /> {dayjs(k.checkedInAt).format('HH:mm')}
+                          </span>
+                        ) : (
+                          <span className="text-gray-600">chưa vào</span>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </Card>
+      )}
     </div>
   )
 }

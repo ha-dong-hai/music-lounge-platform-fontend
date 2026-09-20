@@ -161,7 +161,10 @@ export const updatePerformance = async (showId, performanceId, payload) => {
   return axiosClient.put(`/lounge-shows/${showId}/performances/${performanceId}`, payload);
 };
 
-// Đơn gọi món của một buổi diễn — dùng ở màn vận hành, xem đêm diễn đó khách gọi gì.
+// DANH SÁCH NGƯỜI ĐÃ MUA VÉ của một buổi diễn — KHÔNG phải đơn gọi món (ghi chú cũ ở đây sai).
+// Dùng để chủ phòng trà đối soát và đón khách: có tên và email người mua, nên chỉ chủ venue đó hoặc
+// Admin gọi được (403 nếu khác). Khác getShowTicketStats vốn chỉ trả con số tổng.
+// Vì có dữ liệu cá nhân, đừng đưa danh sách này lên màn nào mà người ngoài xem được.
 export const getShowOrders = async (showId, params = {}) => {
   return axiosClient.get(`/lounge-shows/${showId}/orders`, { params });
 };

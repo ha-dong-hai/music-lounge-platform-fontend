@@ -12,13 +12,18 @@
 // - KHÔNG có luồng hoàn tiền cho donate đã xác nhận — đừng thêm nút hoàn tiền ở đây.
 // - `amountToPayPerformer` là số phải trả nghệ sĩ, KHÁC `gross` (khán giả trả) và `net` (sau phí).
 //   Ba con số này không được gộp.
+// - TAB "LỊCH SỬ" DÙNG ENDPOINT KHÁC và trả về HÌNH DẠNG KHÁC: /donations/owner-history trả một
+//   BẢN TỔNG HỢP (OwnerDonationHistorySummaryDto) có các con số đếm + `items` phân trang bên trong,
+//   không phải mảng trần như hai tab kia. Đừng dùng chung chỗ đọc dữ liệu.
+// - GỠ LỜI NHẮN chỉ ẩn lời nhắn khỏi livestream; KHÔNG hoàn tiền, và lời nhắn gốc vẫn được lưu để
+//   đối chiếu. Người đang xem nhận sự kiện SignalR DonationMessageHidden.
 import { useState, useEffect, useCallback } from 'react'
-import { Loader2, HeartHandshake, CheckCircle2, Clock, AlertTriangle, X, Send, RefreshCw } from 'lucide-react'
+import { Loader2, HeartHandshake, CheckCircle2, Clock, AlertTriangle, X, Send, RefreshCw, EyeOff, History } from 'lucide-react'
 import dayjs from 'dayjs'
 import toast from 'react-hot-toast'
 import {
-  getDonationsPendingAck, getDonationsAwaitingPayout,
-  acknowledgeDonation, confirmDonationPaid,
+  getDonationsPendingAck, getDonationsAwaitingPayout, getOwnerDonationHistory,
+  acknowledgeDonation, confirmDonationPaid, hideDonationMessage,
 } from '../../services/donationServices'
 import { uploadImage } from '../../services/userServices'
 
@@ -28,7 +33,15 @@ const inputCls = 'mt-1 w-full px-3 py-2 bg-black border border-gray-700 rounded-
 const TABS = [
   { key: 'ack', label: 'Chờ tôi xác nhận đã nhận tiền' },
   { key: 'payout', label: 'Chờ tôi chuyển cho nghệ sĩ' },
+  { key: 'history', label: 'Lịch sử' },
 ]
+
+// Trạng thái chuyển tiếp trong lịch sử — chuỗi của backend, chỉ ánh xạ giá trị đã biết.
+const TRANG_THAI_CHUYEN = {
+  Paid: { chu: 'Đã chuyển nghệ sĩ', mau: 'text-green-400 bg-green-500/10' },
+  Pending: { chu: 'Chưa chuyển', mau: 'text-yellow-400 bg-yellow-500/10' },
+  Overdue: { chu: 'Quá hạn', mau: 'text-red-400 bg-red-500/10' },
+}
 
 const ConfirmPaidModal = ({ donation, onClose, onSaved }) => {
   const [paymentRef, setPaymentRef] = useState('')
@@ -122,14 +135,25 @@ const OwnerDonationsPage = () => {
   const [isLoading, setIsLoading] = useState(true)
   const [busyId, setBusyId] = useState(null)
   const [traNgheSi, setTraNgheSi] = useState(null)
+  // Chỉ có ở tab Lịch sử: các con số đếm nằm NGOÀI mảng items của bản tổng hợp.
+  const [tongHop, setTongHop] = useState(null)
 
   const load = useCallback(async () => {
     setIsLoading(true)
     try {
-      const res = tab === 'ack'
-        ? await getDonationsPendingAck({ pageSize: 50 })
-        : await getDonationsAwaitingPayout({ pageSize: 50 })
-      if (res.success) setItems(res.data.items ?? [])
+      if (tab === 'history') {
+        const res = await getOwnerDonationHistory({ pageSize: 50 })
+        if (res.success) {
+          setTongHop(res.data ?? null)
+          setItems(res.data?.items?.items ?? [])
+        }
+      } else {
+        const res = tab === 'ack'
+          ? await getDonationsPendingAck({ pageSize: 50 })
+          : await getDonationsAwaitingPayout({ pageSize: 50 })
+        if (res.success) setItems(res.data.items ?? [])
+        setTongHop(null)
+      }
     } catch (err) {
       toast.error(err.response?.data?.message || 'Không tải được danh sách donate.')
       setItems([])
@@ -148,6 +172,22 @@ const OwnerDonationsPage = () => {
       await load()
     } catch (err) {
       toast.error(err.response?.data?.message || 'Không xác nhận được.')
+    } finally { setBusyId(null) }
+  }
+
+  // Gỡ lời nhắn khỏi livestream. Không hỏi lại bằng modal riêng vì việc này KHÔNG động tới tiền và
+  // lời nhắn gốc vẫn được lưu — nhưng vẫn phải xác nhận một lần, vì người đang xem thấy thay đổi ngay.
+  const goLoiNhan = async (d) => {
+    if (!window.confirm(`Gỡ lời nhắn của khoản donate này khỏi livestream?
+
+Không hoàn tiền, và lời nhắn gốc vẫn được lưu để đối chiếu.`)) return
+    setBusyId(d.id)
+    try {
+      await hideDonationMessage(d.id)
+      toast.success('Đã gỡ lời nhắn khỏi livestream.')
+      await load()
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Không gỡ được lời nhắn.')
     } finally { setBusyId(null) }
   }
 
@@ -183,9 +223,75 @@ const OwnerDonationsPage = () => {
         <div className="bg-gray-900 border border-gray-800 rounded-xl p-10 text-center">
           <HeartHandshake size={28} className="mx-auto mb-3 text-gray-700" />
           <p className="text-sm text-gray-500">
-            {tab === 'ack' ? 'Không có donate nào đang chờ bạn xác nhận.' : 'Không có donate nào đang chờ chuyển cho nghệ sĩ.'}
+            {tab === 'ack' ? 'Không có donate nào đang chờ bạn xác nhận.'
+              : tab === 'payout' ? 'Không có donate nào đang chờ chuyển cho nghệ sĩ.'
+              : 'Chưa có khoản donate nào trong kỳ này.'}
           </p>
         </div>
+      ) : tab === 'history' ? (
+        <>
+          {/* CÁC CON SỐ ĐẾM nằm ngoài mảng items — đây là bản tổng hợp, không phải mảng trần */}
+          {tongHop && (
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+              <div className="bg-gray-900 border border-gray-800 rounded-xl p-4">
+                <p className="text-xs text-gray-500">Tổng khán giả tặng</p>
+                <p className="text-lg font-bold text-[#C3B665] mt-1 tabular-nums">{fmtMoney(tongHop.totalGross)}</p>
+                <p className="text-[11px] text-gray-600 mt-1">{tongHop.totalCount} khoản</p>
+              </div>
+              <div className="bg-gray-900 border border-gray-800 rounded-xl p-4">
+                <p className="text-xs text-gray-500">Đã chuyển nghệ sĩ</p>
+                <p className="text-lg font-bold text-white mt-1 tabular-nums">{tongHop.paidCount}</p>
+              </div>
+              <div className="bg-gray-900 border border-gray-800 rounded-xl p-4">
+                <p className="text-xs text-gray-500">Còn trong hạn</p>
+                <p className="text-lg font-bold text-white mt-1 tabular-nums">{tongHop.withinHoldCount}</p>
+              </div>
+              <div className={`bg-gray-900 border rounded-xl p-4 ${tongHop.overdueCount > 0 ? 'border-red-500/40' : 'border-gray-800'}`}>
+                <p className="text-xs text-gray-500">Quá hạn</p>
+                <p className={`text-lg font-bold mt-1 tabular-nums ${tongHop.overdueCount > 0 ? 'text-red-400' : 'text-white'}`}>
+                  {tongHop.overdueCount}
+                </p>
+              </div>
+            </div>
+          )}
+
+          {tongHop && (
+            <p className="text-xs text-gray-600 flex items-center gap-1.5">
+              <History size={12} />
+              Kỳ {dayjs(tongHop.periodFrom).format('DD/MM/YYYY')} – {dayjs(tongHop.periodTo).format('DD/MM/YYYY')}
+            </p>
+          )}
+
+          <ul className="space-y-2">
+            {items.map((d) => {
+              const tt = TRANG_THAI_CHUYEN[d.payoutStatus]
+              return (
+                <li key={d.id} className="bg-gray-900 border border-gray-800 rounded-xl p-4 flex flex-wrap items-start justify-between gap-4">
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="text-white text-sm font-semibold">{d.performerName}</span>
+                      <span className={`px-2 py-0.5 rounded-md text-xs font-medium ${tt?.mau ?? 'text-gray-400 bg-gray-500/10'}`}>
+                        {tt?.chu ?? d.payoutStatus}
+                      </span>
+                    </div>
+                    <p className="text-xs text-gray-500 mt-0.5">{d.showName}</p>
+                    <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-gray-600">
+                      <span>Tạo {dayjs(d.createdAt).format('DD/MM/YYYY')}</span>
+                      {d.paymentConfirmedAt && <span>Thanh toán {dayjs(d.paymentConfirmedAt).format('DD/MM/YYYY')}</span>}
+                      {d.payoutDueAt && <span>Hạn chuyển {dayjs(d.payoutDueAt).format('DD/MM/YYYY')}</span>}
+                      {d.ownerPaidAt && <span>Bạn đã chuyển {dayjs(d.ownerPaidAt).format('DD/MM/YYYY')}</span>}
+                    </div>
+                  </div>
+                  <div className="text-right flex-shrink-0">
+                    <p className="text-base font-bold text-[#C3B665] tabular-nums">{fmtMoney(d.gross)}</p>
+                    <p className="text-[11px] text-gray-600">khán giả trả</p>
+                    <p className="text-[11px] text-gray-600 mt-1 tabular-nums">sau phí {fmtMoney(d.net)}</p>
+                  </div>
+                </li>
+              )
+            })}
+          </ul>
+        </>
       ) : (
         <ul className="space-y-3">
           {items.map((d) => {
@@ -243,7 +349,15 @@ const OwnerDonationsPage = () => {
                   </p>
                 )}
 
-                <div className="mt-4">
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {/* Gỡ lời nhắn: chỉ hiện khi khoản này CÓ lời nhắn — nút không làm gì thì không bày ra */}
+                  {d.message && (
+                    <button onClick={() => goLoiNhan(d)} disabled={dangBan}
+                      className="flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-700 text-gray-300 text-sm font-bold hover:bg-gray-800 disabled:opacity-50 order-last"
+                      title="Ẩn lời nhắn khỏi livestream; không hoàn tiền">
+                      <EyeOff size={15} /> Gỡ lời nhắn
+                    </button>
+                  )}
                   {tab === 'ack' ? (
                     <button onClick={() => xacNhanNhan(d)} disabled={dangBan}
                       className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#C3B665] text-black text-sm font-bold hover:bg-[#d4c87f] disabled:opacity-50">

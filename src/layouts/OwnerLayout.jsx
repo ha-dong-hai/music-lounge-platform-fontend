@@ -3,12 +3,10 @@
 // tồn tại, tránh link chết.
 // ĐÃ CÓ: buổi diễn (tạo/sửa/gửi duyệt + line-up + hạng vé), vận hành livestream, báo cáo doanh thu,
 // gói dịch vụ.
-// CHƯA CÓ: thực đơn F&B + màn bếp xử lý đơn, tài khoản nhận tiền (payout), quản lý nhân viên,
-// hồ sơ phòng trà, khu vực/zone, tour 360°, donate phía chủ, án phạt venue. Backend đã có đủ API —
-// xem FnbMenusController, BankAccountsController, LoungesController, DonationsController,
-// VenuePenaltiesController.
+// Các mục từng thiếu (thực đơn F&B, màn bếp, tài khoản nhận tiền, nhân viên, hồ sơ phòng trà,
+// khu vực/zone, tour 360°, donate phía chủ, án phạt venue, tiền & quyết toán) NAY ĐÃ CÓ ĐỦ.
 import { Outlet, NavLink } from 'react-router-dom'
-import { Radio, LogOut, Package, BarChart3, CalendarDays, Store, Landmark, ScanLine, UtensilsCrossed, BookOpen, Mic2, Users, HeartHandshake, ShieldAlert, LayoutGrid, Box } from 'lucide-react'
+import { Radio, LogOut, Package, BarChart3, CalendarDays, Store, Landmark, ScanLine, UtensilsCrossed, BookOpen, Mic2, Users, HeartHandshake, ShieldAlert, LayoutGrid, Box, Wallet } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../store/useAuthStore'
 
@@ -95,6 +93,9 @@ const OwnerLayout = () => {
               </NavLink>
               <NavLink to="/owner/analytics" className={linkClasses}>
                 <BarChart3 size={18} /> Báo cáo doanh thu
+              </NavLink>
+              <NavLink to="/owner/finance" className={linkClasses}>
+                <Wallet size={18} /> Tiền &amp; quyết toán
               </NavLink>
               <NavLink to="/owner/bank-accounts" className={linkClasses}>
                 <Landmark size={18} /> Tài khoản nhận tiền

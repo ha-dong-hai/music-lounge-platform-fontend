@@ -27,6 +27,7 @@ import {
   rescheduleShow, changeShowFormat, setShowPlaybackMode,
 } from '../../services/showServices'
 import { uploadImage } from '../../services/userServices'
+import ShowCustomValuesSection from '../../components/owner/ShowCustomValuesSection'
 
 const inputCls = 'mt-1 w-full px-3 py-2 bg-black border border-gray-700 rounded-lg text-sm text-white focus:outline-none focus:border-[#C3B665]/50'
 
@@ -377,6 +378,9 @@ const OwnerShowSettingsPage = () => {
           )}
         </div>
       </Card>
+
+      {/* TIÊU CHÍ RIÊNG — đây là chỗ đã hứa ở CustomCriteriaSection (màn Hồ sơ phòng trà) */}
+      <ShowCustomValuesSection loungeId={show.lounge?.id} showId={id} />
     </div>
   )
 }

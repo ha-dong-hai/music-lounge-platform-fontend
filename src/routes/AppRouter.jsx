@@ -42,6 +42,7 @@ import OwnerLayout from '../layouts/OwnerLayout'
 import OwnerLivestreamsPage from '../pages/owner/OwnerLivestreamsPage'
 import OwnerSubscriptionPage from '../pages/owner/OwnerSubscriptionPage'
 import OwnerAnalyticsPage from '../pages/owner/OwnerAnalyticsPage'
+import OwnerFinancePage from '../pages/owner/OwnerFinancePage'
 import OwnerLoungePage from '../pages/owner/OwnerLoungePage'
 import OwnerBankAccountsPage from '../pages/owner/OwnerBankAccountsPage'
 import OwnerZonesPage from '../pages/owner/OwnerZonesPage'
@@ -136,6 +137,7 @@ const AppRouter = createBrowserRouter([
       { path: 'penalties', element: <ProtectedRoute requiredRoles={['Owner']}><OwnerPenaltiesPage /></ProtectedRoute> },
       { path: 'subscription', element: <ProtectedRoute requiredRoles={['Owner']}><OwnerSubscriptionPage /></ProtectedRoute> },
       { path: 'analytics', element: <ProtectedRoute requiredRoles={['Owner']}><OwnerAnalyticsPage /></ProtectedRoute> },
+      { path: 'finance', element: <ProtectedRoute requiredRoles={['Owner']}><OwnerFinancePage /></ProtectedRoute> },
     ]
   },
 
