@@ -1,14 +1,18 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { Building2, UserMinus, Loader2, ChevronRight, Compass } from 'lucide-react'
+import { Building2, UserMinus, Loader2, ChevronRight, Compass, Bell, BellOff } from 'lucide-react'
 import Skeleton from '../shared/Skeleton'
 import toast from 'react-hot-toast'
-import { getFollowedLounges, toggleFollowLounge } from '../../services/interactionServices'
+import { getFollowedLounges, toggleFollowLounge, getMutedLounges, muteLounge, unmuteLounge } from '../../services/interactionServices'
 
 const FollowedLoungesTab = () => {
   const [followedLounges, setFollowedLounges] = useState([])
   const [isLoadingLounges, setIsLoadingLounges] = useState(true)
   const [unfollowingId, setUnfollowingId] = useState(null)
+  // Tat thong bao KHAC voi bo theo doi: van theo doi de phong tra con trong danh sach,
+  // nhung khong nhan thong bao moi lan ho dang buoi dien moi.
+  const [mutedIds, setMutedIds] = useState([])
+  const [mutingId, setMutingId] = useState(null)
 
   // GỌI API LẤY DANH SÁCH PHÒNG TRÀ ĐANG THEO DÕI (chuyên trách của tab này)
   useEffect(() => {
@@ -29,6 +33,41 @@ const FollowedLoungesTab = () => {
   }, [])
 
   // UNFOLLOW — optimistic update: xóa khỏi list ngay, lỗi thì rollback
+  useEffect(() => {
+    const chay = async () => {
+      try {
+        const res = await getMutedLounges()
+        if (res.success) setMutedIds((res.data ?? []).map((m) => m.loungeId ?? m.id))
+      } catch {
+        // Khong lam phien nguoi dung vi mot danh sach phu — im lang bo qua.
+      }
+    }
+    chay()
+  }, [])
+
+  const handleToggleMute = async (e, lounge) => {
+    e.preventDefault()
+    e.stopPropagation()
+    if (mutingId) return
+    const dangTat = mutedIds.includes(lounge.id)
+    setMutingId(lounge.id)
+    try {
+      if (dangTat) {
+        await unmuteLounge(lounge.id)
+        setMutedIds((p) => p.filter((x) => x !== lounge.id))
+        toast.success('Đã bật lại thông báo.')
+      } else {
+        await muteLounge(lounge.id)
+        setMutedIds((p) => [...p, lounge.id])
+        toast.success('Đã tắt thông báo từ phòng trà này.')
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Không đổi được trạng thái thông báo.')
+    } finally {
+      setMutingId(null)
+    }
+  }
+
   const handleUnfollow = async (e, lounge) => {
     e.preventDefault()      // button nằm trong <Link> → chặn navigate
     e.stopPropagation()
@@ -92,6 +131,19 @@ const FollowedLoungesTab = () => {
                 {unfollowingId === lounge.id
                   ? <><Loader2 size={13} className="animate-spin" /> Processing...</>
                   : <><UserMinus size={13} /> Unfollow</>}
+              </button>
+
+              {/* Tắt thông báo: vẫn theo dõi, chỉ không nhận thông báo buổi diễn mới */}
+              <button
+                onClick={(e) => handleToggleMute(e, lounge)}
+                disabled={mutingId === lounge.id}
+                className="mt-2 w-full flex items-center justify-center gap-1.5 py-2 rounded-lg border border-gray-800 text-gray-500 text-xs font-bold hover:bg-gray-800 hover:text-gray-300 transition-colors disabled:opacity-50"
+              >
+                {mutingId === lounge.id
+                  ? <><Loader2 size={13} className="animate-spin" /> Đang xử lý...</>
+                  : mutedIds.includes(lounge.id)
+                    ? <><BellOff size={13} /> Đang tắt thông báo</>
+                    : <><Bell size={13} /> Tắt thông báo</>}
               </button>
             </Link>
           ))}

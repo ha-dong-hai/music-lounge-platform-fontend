@@ -80,33 +80,58 @@ export const reviewLivestreamModeration = async (livestreamId, decision, reviewN
   });
 };
 
-// ===== DANH MỤC LỌC (thể loại nhạc / tâm trạng / không gian) — Admin CRUD =====
+// ===== DANH MỤC LỌC (thể loại nhạc / tâm trạng / không gian / loại buổi diễn) — Admin CRUD =====
 // typeKey trùng đoạn đường dẫn của backend, nhưng vẫn qua danh sách cho phép: không ghép thẳng
 // chuỗi gọi từ giao diện vào URL.
 // PUT và DELETE trả 204 không body — interceptor trong config/axios.js quy về { success: true, data: null }.
 // 409 khi trùng tên, hoặc khi xoá mục đang được buổi diễn sử dụng; message của backend nói rõ lý do.
-const FILTER_OPTION_SEGMENTS = { genres: 'genres', moods: 'moods', atmospheres: 'atmospheres' };
-
-const filterOptionPath = (typeKey) => {
-  const segment = FILTER_OPTION_SEGMENTS[typeKey];
-  if (!segment) throw new Error(`Loại danh mục lọc không hợp lệ: ${typeKey}`);
-  return `/admin/${segment}`;
+//
+// MỖI LOẠI MỘT BODY KHÁC NHAU, ĐỪNG GỬI CHUNG:
+//   genres          POST/PUT { name, nameEn }
+//   moods           POST/PUT { name }
+//   atmospheres     POST/PUT { name }
+//   eventCategories POST { name, description } — PUT { name, description, isActive }
+// Loại buổi diễn là cái duy nhất có isActive, và PUT là GHI ĐÈ TOÀN BỘ: thiếu trường nào là xoá
+// trường đó. Danh sách /catalog/event-categories CHỈ trả id + name của mục đang bật, nên giao diện
+// không biết description cũ — xem ghi chú ở OptionFormModal trước khi sửa chỗ này.
+const FILTER_OPTION_TYPES = {
+  genres: {
+    segment: 'genres',
+    body: (d) => ({ name: d.name, nameEn: d.nameEn || null }),
+  },
+  moods: {
+    segment: 'moods',
+    body: (d) => ({ name: d.name }),
+  },
+  atmospheres: {
+    segment: 'atmospheres',
+    body: (d) => ({ name: d.name }),
+  },
+  eventCategories: {
+    segment: 'event-categories',
+    // isActive chỉ có trong body PUT; POST không nhận trường này (mục mới luôn đang bật).
+    body: (d, { dangSua } = {}) => (dangSua
+      ? { name: d.name, description: d.description || null, isActive: d.isActive !== false }
+      : { name: d.name, description: d.description || null }),
+  },
 };
 
-// Chỉ thể loại nhạc có nameEn (CreateMusicGenreCommand). Mô tả tâm trạng / không gian chỉ nhận name,
-// gửi thêm trường là gửi thứ backend không đọc.
-const filterOptionBody = (typeKey, data) => (
-  typeKey === 'genres'
-    ? { name: data.name, nameEn: data.nameEn || null }
-    : { name: data.name }
-);
+const filterOptionType = (typeKey) => {
+  const cauHinh = FILTER_OPTION_TYPES[typeKey];
+  if (!cauHinh) throw new Error(`Loại danh mục lọc không hợp lệ: ${typeKey}`);
+  return cauHinh;
+};
+
+const filterOptionPath = (typeKey) => `/admin/${filterOptionType(typeKey).segment}`;
 
 export const createFilterOption = async (typeKey, data) => {
-  return axiosClient.post(filterOptionPath(typeKey), filterOptionBody(typeKey, data));
+  const cauHinh = filterOptionType(typeKey);
+  return axiosClient.post(`/admin/${cauHinh.segment}`, cauHinh.body(data, { dangSua: false }));
 };
 
 export const updateFilterOption = async (typeKey, id, data) => {
-  return axiosClient.put(`${filterOptionPath(typeKey)}/${id}`, filterOptionBody(typeKey, data));
+  const cauHinh = filterOptionType(typeKey);
+  return axiosClient.put(`/admin/${cauHinh.segment}/${id}`, cauHinh.body(data, { dangSua: true }));
 };
 
 export const deleteFilterOption = async (typeKey, id) => {
@@ -185,3 +210,35 @@ export const reviewTicketTier = async (tierId, decision, reviewNote = '') => {
   }
   return axiosClient.post(`/moderations/ticket-tiers/${tierId}/review`, { decision, reviewNote });
 };
+
+// ===== SOÁT CẤU HÌNH HỆ THỐNG =====
+// Trả về DANH SÁCH CÁI ĐANG THIẾU, không bao giờ trả giá trị cấu hình (không lộ secret).
+// Mỗi dòng: { feature, key, impact, severity } với severity: 'Broken' = tính năng không dùng được,
+// 'Degraded' = vẫn chạy nhưng mất một lớp. Danh sách rỗng = không thiếu gì.
+// Đây là thứ đọc TRƯỚC khi đi tìm lỗi "tự nhiên tính năng X không chạy trên môi trường này".
+export const getConfigurationAudit = async () => axiosClient.get('/admin/configuration-audit');
+
+// ===== KIỂM TRA TOÀN VẸN SỔ CÁI =====
+// Mỗi dòng là một bút toán LỆCH: { issueType, journalId, debitTotal, creditTotal, detail }.
+// Danh sách rỗng = sổ cái cân. Có dòng nào là chuyện của kế toán, KHÔNG phải lỗi giao diện —
+// đừng "sửa" bằng cách ẩn đi.
+export const getLedgerIntegrityCheck = async () => axiosClient.get('/admin/ledger/integrity-check');
+
+// ===== TÁC VỤ ĐỊNH KỲ (HANGFIRE) =====
+// getRecurringJobs trả về MẢNG CHUỖI (id của job), không phải object — không có tên hiển thị,
+// không có lần chạy gần nhất, không có trạng thái. Muốn xem chi tiết thì vào dashboard Hangfire.
+// triggerRecurringJob chạy job NGAY. Vài job trong số này động vào tiền (quyết toán, án phạt),
+// backend có ghi log ai bấm — nên giao diện phải hỏi lại trước khi chạy.
+export const getRecurringJobs = async () => axiosClient.get('/admin/jobs');
+
+export const triggerRecurringJob = async (jobId) => {
+  if (!jobId) return Promise.reject(new Error('Thiếu id tác vụ.'));
+  return axiosClient.post(`/admin/jobs/${encodeURIComponent(jobId)}/trigger`);
+};
+
+// ===== NHẬT KÝ BẰNG CHỨNG CỦA MỘT KHOẢN DONATE =====
+// Chuỗi sự kiện có băm nối tiếp nhau (hash / previousHash). `chainIntact = false` nghĩa là có dòng
+// bị sửa, bị xoá hoặc bị chèn thêm sau khi ghi — và `firstBrokenSequence` là dòng đầu tiên lệch.
+// Đây là bằng chứng dùng khi nghệ sĩ và phòng trà nói khác nhau về việc đã chuyển tiền chưa.
+export const getDonationEvidence = async (donationId) =>
+  axiosClient.get(`/admin/donations/${donationId}/evidence`);

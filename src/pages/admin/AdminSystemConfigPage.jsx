@@ -8,11 +8,18 @@
 // - `isMoneyRate` đánh dấu nhóm tham số tiền. Nhóm này có RÀNG BUỘC CHÉO với nhau: đổi một cái có thể
 //   bị backend từ chối vì tổng vượt ngưỡng. Lỗi trả về giải thích rõ, nên hiển thị nguyên văn.
 // - Backend trả MẢNG TRẦN cho danh sách, và lịch sử là mảng riêng theo từng khoá.
+// - KHỐI "CẤU HÌNH CÒN THIẾU" LÀ MỘT THỨ KHÁC HẲN phần dưới, đừng gộp vào cùng bảng:
+//     Phần dưới  = tham số nghiệp vụ, Admin sửa được ngay trên giao diện.
+//     Khối trên  = khoá hạ tầng (khoá Mux, khoá Firebase…) nằm trong biến môi trường của server,
+//                  SỬA Ở ĐÂY KHÔNG ĐƯỢC — phải vào cấu hình triển khai. Nó chỉ trả về TÊN khoá và
+//                  hậu quả khi thiếu, không bao giờ trả giá trị, nên không lo lộ secret.
 import { useState, useEffect, useCallback } from 'react'
-import { Loader2, SlidersHorizontal, History, Save, X, AlertTriangle, Coins } from 'lucide-react'
+import { Loader2, SlidersHorizontal, History, Save, X, AlertTriangle, Coins, PlugZap, CheckCircle2 } from 'lucide-react'
 import dayjs from 'dayjs'
 import toast from 'react-hot-toast'
-import { getSystemConfigs, getSystemConfigHistory, updateSystemConfig } from '../../services/adminServices'
+import {
+  getSystemConfigs, getSystemConfigHistory, updateSystemConfig, getConfigurationAudit,
+} from '../../services/adminServices'
 
 const EditModal = ({ config, onClose, onSaved }) => {
   const [configValue, setConfigValue] = useState(config.configValue ?? '')
@@ -156,22 +163,45 @@ const HistoryModal = ({ configKey, onClose }) => {
   )
 }
 
+// Một khoá hạ tầng còn thiếu. `severity`: 'Broken' = tính năng đó hiện KHÔNG dùng được,
+// 'Degraded' = vẫn chạy nhưng mất một lớp (thường là lớp bảo vệ). Hai mức phải trông khác nhau,
+// vì cách xử lý khác nhau: Broken là đi sửa ngay, Degraded là đưa vào việc cần làm.
+const GapRow = ({ gap }) => {
+  const vo = gap.severity === 'Broken'
+  return (
+    <div className={`p-4 rounded-lg border ${vo ? 'border-red-500/30 bg-red-500/5' : 'border-yellow-500/25 bg-yellow-500/5'}`}>
+      <div className="flex flex-wrap items-center gap-2">
+        <span className={`px-2 py-0.5 rounded-md text-xs font-bold ${vo ? 'bg-red-500/15 text-red-400' : 'bg-yellow-500/15 text-yellow-400'}`}>
+          {vo ? 'Không dùng được' : 'Chạy thiếu lớp'}
+        </span>
+        <p className="text-sm text-white font-medium">{gap.feature}</p>
+      </div>
+      <p className="text-xs text-gray-400 mt-2 leading-relaxed">{gap.impact}</p>
+      <p className="text-xs text-gray-600 mt-1.5 font-mono break-all">{gap.key}</p>
+    </div>
+  )
+}
+
 const AdminSystemConfigPage = () => {
   const [configs, setConfigs] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [editing, setEditing] = useState(null)
   const [historyKey, setHistoryKey] = useState(null)
+  // null = chưa soát được (gọi lỗi). [] = đã soát và không thiếu gì. Hai cái này KHÔNG được
+  // hiện giống nhau, nếu không thì gọi lỗi lại trông như "mọi thứ đủ".
+  const [gaps, setGaps] = useState(null)
 
   const load = useCallback(async () => {
     setIsLoading(true)
-    try {
-      const res = await getSystemConfigs()
-      if (res.success) setConfigs(res.data ?? [])
-    } catch (err) {
-      toast.error(err.response?.data?.message || 'Không tải được cấu hình hệ thống.')
-    } finally {
-      setIsLoading(false)
+    // Soát cấu hình chạy song song và độc lập: nó lỗi thì bảng tham số bên dưới vẫn phải hiện.
+    const [cfg, audit] = await Promise.allSettled([getSystemConfigs(), getConfigurationAudit()])
+    if (cfg.status === 'fulfilled' && cfg.value?.success) {
+      setConfigs(cfg.value.data ?? [])
+    } else {
+      toast.error(cfg.reason?.response?.data?.message || 'Không tải được cấu hình hệ thống.')
     }
+    setGaps(audit.status === 'fulfilled' && audit.value?.success ? (audit.value.data ?? []) : null)
+    setIsLoading(false)
   }, [])
 
   useEffect(() => { const chay = async () => { await load() }; chay() }, [load])
@@ -233,6 +263,35 @@ const AdminSystemConfigPage = () => {
           Những tham số này điều khiển cách hệ thống tính tiền và xử lý thời hạn. Mỗi lần đổi đều phải ghi lý do
           và được lưu vào lịch sử.
         </p>
+      </div>
+
+      {/* CẤU HÌNH HẠ TẦNG CÒN THIẾU — chỉ đọc, sửa ở biến môi trường của server chứ không ở đây */}
+      <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
+        <h2 className="text-base font-semibold text-white flex items-center gap-2">
+          <PlugZap size={16} /> Cấu hình hạ tầng
+        </h2>
+        <p className="text-xs text-gray-500 mt-1 leading-relaxed">
+          Những khoá kết nối dịch vụ ngoài (phát trực tiếp, thông báo đẩy, thanh toán). Đây là chỗ
+          xem TRƯỚC khi đi tìm lỗi &quot;tự nhiên tính năng này không chạy trên môi trường này&quot;.
+          Không sửa được trên giao diện — phải đổi trong cấu hình triển khai của server.
+        </p>
+
+        {gaps === null ? (
+          <p className="mt-4 text-xs text-yellow-400 flex items-start gap-1.5 leading-relaxed">
+            <AlertTriangle size={13} className="mt-px flex-shrink-0" />
+            Chưa soát được cấu hình hạ tầng. Đây KHÔNG có nghĩa là không thiếu gì.
+          </p>
+        ) : gaps.length === 0 ? (
+          <p className="mt-4 text-sm text-green-400 flex items-center gap-2">
+            <CheckCircle2 size={15} /> Không thiếu khoá cấu hình nào.
+          </p>
+        ) : (
+          <div className="mt-4 space-y-2">
+            {/* Broken lên trước: đó là thứ đang làm người dùng không dùng được tính năng. */}
+            {[...gaps].sort((a, b) => (a.severity === b.severity ? 0 : a.severity === 'Broken' ? -1 : 1))
+              .map((g) => <GapRow key={g.key} gap={g} />)}
+          </div>
+        )}
       </div>
 
       {tienTe.length > 0 && (

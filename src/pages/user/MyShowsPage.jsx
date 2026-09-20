@@ -7,6 +7,7 @@ import TicketsTab from '../../components/myshows/TicketsTab'
 import WishlistTab from '../../components/myshows/WishlistTab'
 import IncomingTransfersTab from '../../components/myshows/IncomingTransfersTab'
 import RefundRequestsTab from '../../components/myshows/RefundRequestsTab'
+import MyDonationsTab from '../../components/myshows/MyDonationsTab'
 
 const MyShowsPage = () => {
   const { user } = useAuthStore()
@@ -40,6 +41,7 @@ const MyShowsPage = () => {
                 <button onClick={() => setActiveMainTab('wishlist')} className={`pb-4 text-lg font-bold border-b-2 transition-colors ${activeMainTab === 'wishlist' ? 'border-[#C3B665] text-[#C3B665]' : 'border-transparent text-gray-500 hover:text-white'}`}>Wishlist</button>
                 <button onClick={() => setActiveMainTab('transfers')} className={`pb-4 text-lg font-bold border-b-2 transition-colors ${activeMainTab === 'transfers' ? 'border-[#C3B665] text-[#C3B665]' : 'border-transparent text-gray-500 hover:text-white'}`}>Vé chuyển đến</button>
                 <button onClick={() => setActiveMainTab('refunds')} className={`pb-4 text-lg font-bold border-b-2 transition-colors ${activeMainTab === 'refunds' ? 'border-[#C3B665] text-[#C3B665]' : 'border-transparent text-gray-500 hover:text-white'}`}>Hoàn tiền</button>
+                <button onClick={() => setActiveMainTab('donations')} className={`pb-4 text-lg font-bold border-b-2 transition-colors ${activeMainTab === 'donations' ? 'border-[#C3B665] text-[#C3B665]' : 'border-transparent text-gray-500 hover:text-white'}`}>Donate</button>
               </div>
             </div>
 
@@ -48,6 +50,7 @@ const MyShowsPage = () => {
             {activeMainTab === 'wishlist' && <WishlistTab />}
             {activeMainTab === 'transfers' && <IncomingTransfersTab />}
             {activeMainTab === 'refunds' && <RefundRequestsTab />}
+            {activeMainTab === 'donations' && <MyDonationsTab />}
           </>
         )}
       </div>

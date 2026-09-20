@@ -1,19 +1,26 @@
-import { useState, useEffect } from 'react'
-import { X, Loader2 } from 'lucide-react'
+import { useState } from 'react'
+import { X, Loader2, AlertTriangle } from 'lucide-react'
 import toast from 'react-hot-toast'
 
-const OptionFormModal = ({ isOpen, typeLabel, hasNameEn, editingOption, isSaving, onClose, onSubmit }) => {
-    const [formData, setFormData] = useState({ name: '', nameEn: '' })
-
-    // RESET FORM mỗi lần mở (tạo mới → rỗng, sửa → map từ option)
-    useEffect(() => {
-        if (!isOpen) return
-        setFormData({
-            name: editingOption?.name || '',
-            // ⚠️ GET /filter-options KHÔNG trả nameEn → edit luôn trống (xem ghi chú cuối)
-            nameEn: editingOption?.nameEn || '',
-        })
-    }, [isOpen, editingOption])
+// GHI CHÚ CHO ĐỘI FE — BẪY GHI ĐÈ, ĐỌC TRƯỚC KHI SỬA FORM NÀY:
+// Backend nhận PUT là GHI ĐÈ TOÀN BỘ, nhưng danh sách trả về lại thiếu trường:
+//   genres          → /shows/filter-options không trả nameEn
+//   eventCategories → /catalog/event-categories không trả description
+// Nghĩa là mở form sửa lên, ô đó trống KHÔNG PHẢI vì dữ liệu rỗng mà vì ta không đọc được nó, và
+// bấm Lưu là ghi rỗng lên giá trị cũ. Không tự ý bỏ dòng cảnh báo phía dưới: nó là thứ duy nhất cho
+// người dùng biết họ đang sắp xoá một giá trị mà họ không nhìn thấy.
+const OptionFormModal = ({ isOpen, typeLabel, hasNameEn, hasDescription, editingOption, isSaving, onClose, onSubmit }) => {
+    // FORM ĐƯỢC NẠP MỘT LẦN LÚC DỰNG, không đồng bộ lại bằng useEffect: OptionTypeTab chỉ dựng
+    // modal khi mở và truyền `key` theo mục đang sửa, nên mỗi lần mở là một component mới với giá
+    // trị khởi tạo đúng. Đặt state trong effect ở đây vừa gây render thừa vừa xoá mất chữ người
+    // dùng đang gõ nếu component cha render lại.
+    const [formData, setFormData] = useState({
+        name: editingOption?.name || '',
+        // ⚠️ GET /filter-options KHÔNG trả nameEn → edit luôn trống (xem ghi chú đầu tệp)
+        nameEn: editingOption?.nameEn || '',
+        // ⚠️ GET /catalog/event-categories KHÔNG trả description → cũng luôn trống
+        description: editingOption?.description || '',
+    })
 
     if (!isOpen) return null
     const isEditing = !!editingOption
@@ -28,6 +35,9 @@ const OptionFormModal = ({ isOpen, typeLabel, hasNameEn, editingOption, isSaving
             name: formData.name.trim(),
             // chỉ kèm nameEn khi type có hỗ trợ
             ...(hasNameEn ? { nameEn: formData.nameEn.trim() } : {}),
+            // isActive: true vì danh sách chỉ trả mục đang bật — sửa một mục đọc được từ danh sách
+            // thì nó chắc chắn đang bật, và PUT thiếu trường này sẽ tắt mất nó.
+            ...(hasDescription ? { description: formData.description.trim(), isActive: true } : {}),
         })
     }
 
@@ -65,6 +75,22 @@ const OptionFormModal = ({ isOpen, typeLabel, hasNameEn, editingOption, isSaving
                         />
                     </div>
 
+                    {/* CHỈ LOẠI BUỔI DIỄN CÓ description */}
+                    {hasDescription && (
+                        <div>
+                            <label className="block text-sm font-medium text-gray-400 mb-2">
+                                Mô tả <span className="text-gray-600 text-xs">(không bắt buộc)</span>
+                            </label>
+                            <textarea
+                                rows={3}
+                                value={formData.description}
+                                onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                                placeholder="VD: Đêm nhạc acoustic quy mô nhỏ, dưới 50 khách"
+                                className={`${inputCls} resize-none`}
+                            />
+                        </div>
+                    )}
+
                     {/* CHỈ GENRE CÓ nameEn */}
                     {hasNameEn && (
                         <div>
@@ -79,6 +105,18 @@ const OptionFormModal = ({ isOpen, typeLabel, hasNameEn, editingOption, isSaving
                                 className={inputCls}
                             />
                         </div>
+                    )}
+                    {/* CẢNH BÁO GHI ĐÈ — chỉ khi đang SỬA, vì tạo mới thì không có gì để mất */}
+                    {isEditing && (hasNameEn || hasDescription) && (
+                        <p className="text-xs text-yellow-400 flex items-start gap-1.5 leading-relaxed bg-yellow-500/5 border border-yellow-500/30 rounded-lg p-3">
+                            <AlertTriangle size={13} className="mt-px flex-shrink-0" />
+                            <span>
+                                Danh sách của backend không trả về {hasNameEn ? 'tên tiếng Anh' : 'mô tả'} cũ, nên ô
+                                đó đang trống dù dữ liệu có thể đang có giá trị. Bấm Lưu là ghi rỗng lên giá trị cũ —
+                                nếu không muốn đổi {hasNameEn ? 'tên tiếng Anh' : 'mô tả'}, hãy điền lại đúng giá trị
+                                trước khi lưu.
+                            </span>
+                        </p>
                     )}
                 </form>
 

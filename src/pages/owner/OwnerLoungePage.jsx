@@ -14,18 +14,24 @@
 // - LoungeDetailDto trả atmosphereName chứ không trả atmosphereId, nên khi sửa phải dò ngược tên
 //   sang id trong danh mục. Tên không khớp thì để trống và báo người dùng chọn lại, KHÔNG âm thầm
 //   gửi null (sẽ xoá mất không gian đang có).
+// - XOÁ PHÒNG TRÀ: backend chặn (409) nếu còn BẤT KỲ buổi diễn nào, kể cả đã kết thúc hoặc đã huỷ.
+//   Nghĩa là phòng trà đã từng hoạt động thì thực tế không xoá được — và đó là hành vi đúng, vì xoá
+//   đi là mất lịch sử show. Nút xoá vì vậy nói trước điều kiện này chứ không để chủ bấm rồi mới
+//   nhận lỗi. Xoá xong thì claim lounge_id trong token thành sai, nên phải refresh token như lúc tạo.
 import { useState, useEffect, useCallback } from 'react'
 import { Loader2, Store, Save, Upload, FileText, ExternalLink, AlertTriangle, CheckCircle2, Clock, Trash2, ArrowLeft, ArrowRight } from 'lucide-react'
 import toast from 'react-hot-toast'
 import {
   getLounges, getLoungeDetail, createLounge, updateLounge,
   setLoungeImage, setLoungeBusinessLicense, getLoungeBusinessLicense,
-  addGalleryImage, removeGalleryImage, reorderGalleryImages,
+  addGalleryImage, removeGalleryImage, reorderGalleryImages, deleteLounge,
 } from '../../services/loungeServices'
 import { getAtmospheres } from '../../services/catalogServices'
 import { uploadImage } from '../../services/userServices'
 import { refreshSession } from '../../services/aServices'
 import { useAuthStore } from '../../store/useAuthStore'
+import CustomCriteriaSection from '../../components/owner/CustomCriteriaSection'
+import ConfirmModal from '../../components/shared/ConfirmModal'
 
 // Trạng thái hồ sơ phòng trà — đúng 6 giá trị LoungeStatus của backend.
 const STATUS_VIEW = {
@@ -58,6 +64,8 @@ const OwnerLoungePage = () => {
   const login = useAuthStore((st) => st.login)
 
   const [lounge, setLounge] = useState(null)       // null = chưa có phòng trà nào
+  const [moXoa, setMoXoa] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
   const [atmospheres, setAtmospheres] = useState([])
   const [form, setForm] = useState(emptyForm)
   const [districtGiuLai, setDistrictGiuLai] = useState(null) // không hiển thị, chỉ gửi lại
@@ -162,6 +170,34 @@ const OwnerLoungePage = () => {
       toast.error(err.response?.data?.message || 'Không lưu được hồ sơ.')
     } finally {
       setIsSaving(false)
+    }
+  }
+
+  // XOÁ PHÒNG TRÀ — 409 là trường hợp THƯỜNG GẶP, không phải lỗi hệ thống: còn buổi diễn là không
+  // xoá được. Hiện nguyên văn message của backend vì nó nói rõ đang vướng cái gì.
+  const handleXoa = async () => {
+    setIsDeleting(true)
+    try {
+      await deleteLounge(lounge.id)
+      toast.success('Đã xoá phòng trà.')
+      setMoXoa(false)
+      // Token vẫn đang mang claim lounge_id của phòng trà vừa xoá — xin token mới, nếu không các
+      // màn Owner khác sẽ gọi API với id không còn tồn tại.
+      const { refreshToken } = useAuthStore.getState()
+      if (refreshToken) {
+        try {
+          const res = await refreshSession(refreshToken)
+          if (res.success) login(res.data)
+        } catch {
+          toast('Đã xoá, nhưng cần đăng nhập lại để các màn quản lý cập nhật.', { icon: '⚠️' })
+        }
+      }
+      setLounge(null)
+      await load()
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Không xoá được phòng trà.', { duration: 6000 })
+    } finally {
+      setIsDeleting(false)
     }
   }
 
@@ -410,6 +446,38 @@ const OwnerLoungePage = () => {
           )}
         </div>
       )}
+
+      {isEdit && <CustomCriteriaSection loungeId={lounge.id} />}
+
+      {/* VÙNG NGUY HIỂM — đặt cuối trang, tách khỏi mọi nút lưu, để không ai bấm nhầm khi đang sửa */}
+      {isEdit && (
+        <div className="bg-gray-900 border border-red-500/30 rounded-xl p-6">
+          <h3 className="text-base font-semibold text-red-400 flex items-center gap-2">
+            <AlertTriangle size={17} /> Xoá phòng trà
+          </h3>
+          <p className="text-xs text-gray-400 mt-1 leading-relaxed">
+            Chỉ xoá được khi phòng trà <strong className="text-gray-300">chưa từng có buổi diễn nào</strong> —
+            kể cả buổi đã kết thúc hoặc đã huỷ cũng chặn, vì xoá đi là mất lịch sử. Nếu phòng trà đã
+            hoạt động, đây không phải cách để dừng: hãy liên hệ Admin.
+          </p>
+          <button onClick={() => setMoXoa(true)} disabled={isSaving || isDeleting}
+            className="mt-4 flex items-center gap-2 px-4 py-2 rounded-lg border border-red-500/40 text-red-400 text-sm font-bold hover:bg-red-500/10 disabled:opacity-50">
+            <Trash2 size={15} /> Xoá phòng trà
+          </button>
+        </div>
+      )}
+
+      <ConfirmModal
+        isOpen={moXoa}
+        title="Xoá phòng trà này?"
+        message={`"${lounge?.name ?? ''}" cùng thư viện ảnh, khu vực chỗ ngồi và cấu hình sẽ bị xoá. Không hoàn tác được. Nếu phòng trà còn buổi diễn nào, backend sẽ từ chối và không có gì bị xoá.`}
+        confirmText="Xoá phòng trà"
+        processingText="Đang xoá..."
+        danger
+        isProcessing={isDeleting}
+        onClose={() => setMoXoa(false)}
+        onConfirm={handleXoa}
+      />
     </div>
   )
 }

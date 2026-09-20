@@ -1,0 +1,123 @@
+// src/components/myshows/MyDonationsTab.jsx
+//
+// GHI CHÚ CHO ĐỘI FE:
+// - Donate đi qua VNPay giống mua vé: tạo xong là ở trạng thái CHỜ THANH TOÁN, chỉ thành "đã trả"
+//   khi VNPay xác nhận. `paymentConfirmedAt` là mốc đó — chưa có nghĩa là tiền chưa vào.
+// - KHÔNG CÓ LUỒNG HOÀN DONATE. Đã xác nhận trả là xong, đừng dựng nút "yêu cầu hoàn donate".
+// - Backend KHÔNG trả performerId trong danh sách này (MyDonationDto chỉ có performerName), nên
+//   không dẫn sang được trang sao kê công khai của nghệ sĩ. Muốn có link thì cần backend thêm
+//   performerId vào DTO — đừng đoán id từ tên.
+// - `isAnonymous` là ẩn danh VỚI NGƯỜI KHÁC, không phải ẩn với chính mình: dòng này vẫn hiện ở đây.
+import { useState, useEffect, useCallback } from 'react'
+import { Loader2, Heart, Clock, CheckCircle2, EyeOff } from 'lucide-react'
+import dayjs from 'dayjs'
+import toast from 'react-hot-toast'
+import { getMyDonations } from '../../services/donationServices'
+
+const fmtTien = (v) => `${Number(v || 0).toLocaleString('vi-VN')}đ`
+
+// Status của backend là chuỗi; chỉ ánh xạ những giá trị đã biết, còn lại hiện nguyên văn thay vì
+// đoán bừa — hiện sai trạng thái của một khoản tiền tệ hơn là hiện chữ lạ.
+const NHAN_TRANG_THAI = {
+  Pending: { chu: 'Chờ thanh toán', mau: 'text-yellow-400 bg-yellow-500/10', icon: Clock },
+  Paid: { chu: 'Đã thanh toán', mau: 'text-green-400 bg-green-500/10', icon: CheckCircle2 },
+  Completed: { chu: 'Đã chuyển tới nghệ sĩ', mau: 'text-green-400 bg-green-500/10', icon: CheckCircle2 },
+  Failed: { chu: 'Thanh toán thất bại', mau: 'text-red-400 bg-red-500/10', icon: Clock },
+  Cancelled: { chu: 'Đã huỷ', mau: 'text-gray-400 bg-gray-500/10', icon: Clock },
+}
+
+const MyDonationsTab = () => {
+  const [items, setItems] = useState([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [page, setPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
+
+  const load = useCallback(async () => {
+    setIsLoading(true)
+    try {
+      const res = await getMyDonations({ page, pageSize: 10 })
+      if (res.success) {
+        setItems(res.data?.items ?? [])
+        setTotalPages(res.data?.totalPages ?? 1)
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Không tải được lịch sử donate.')
+    } finally {
+      setIsLoading(false)
+    }
+  }, [page])
+
+  useEffect(() => { const chay = async () => { await load() }; chay() }, [load])
+
+  if (isLoading) {
+    return <div className="py-20 flex justify-center"><Loader2 size={30} className="animate-spin text-[#C3B665]" /></div>
+  }
+
+  if (items.length === 0) {
+    return (
+      <div className="bg-gray-900 border border-gray-800 rounded-2xl p-12 text-center">
+        <Heart size={32} className="mx-auto mb-3 text-gray-700" />
+        <p className="text-lg font-semibold text-white mb-1">Bạn chưa donate cho nghệ sĩ nào.</p>
+        <p className="text-sm text-gray-500">Trong buổi phát trực tiếp, bạn có thể tặng tiền cho nghệ sĩ đang biểu diễn.</p>
+      </div>
+    )
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="bg-gray-900 border border-gray-800 rounded-2xl divide-y divide-gray-800">
+        {items.map((d) => {
+          const tt = NHAN_TRANG_THAI[d.status]
+          const Icon = tt?.icon
+          return (
+            <div key={d.id} className="p-5 flex flex-wrap items-start justify-between gap-4">
+              <div className="min-w-0">
+                <div className="flex flex-wrap items-center gap-2">
+                  <p className="text-base font-semibold text-white">{d.performerName}</p>
+                  {d.isAnonymous && (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-gray-800 text-gray-400 text-xs">
+                      <EyeOff size={11} /> Ẩn danh
+                    </span>
+                  )}
+                </div>
+                <p className="text-sm text-gray-400 mt-0.5">{d.showName}</p>
+                {d.message && (
+                  <p className="text-sm text-gray-300 mt-2 italic border-l-2 border-gray-700 pl-3 leading-relaxed">
+                    “{d.message}”
+                  </p>
+                )}
+                <p className="text-xs text-gray-600 mt-2">
+                  Gửi lúc {dayjs(d.createdAt).format('HH:mm DD/MM/YYYY')}
+                  {d.paymentConfirmedAt && ` · Xác nhận thanh toán ${dayjs(d.paymentConfirmedAt).format('HH:mm DD/MM/YYYY')}`}
+                </p>
+              </div>
+
+              <div className="text-right flex-shrink-0">
+                <p className="text-lg font-bold text-[#C3B665] tabular-nums">{fmtTien(d.gross)}</p>
+                <span className={`mt-1.5 inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium ${tt?.mau ?? 'text-gray-400 bg-gray-500/10'}`}>
+                  {Icon && <Icon size={11} />} {tt?.chu ?? d.status}
+                </span>
+              </div>
+            </div>
+          )
+        })}
+      </div>
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-3">
+          <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page <= 1}
+            className="px-4 py-2 rounded-lg border border-gray-700 text-sm text-gray-300 hover:bg-gray-800 disabled:opacity-40">
+            Trước
+          </button>
+          <span className="text-sm text-gray-500">Trang {page}/{totalPages}</span>
+          <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page >= totalPages}
+            className="px-4 py-2 rounded-lg border border-gray-700 text-sm text-gray-300 hover:bg-gray-800 disabled:opacity-40">
+            Sau
+          </button>
+        </div>
+      )}
+    </div>
+  )
+}
+
+export default MyDonationsTab

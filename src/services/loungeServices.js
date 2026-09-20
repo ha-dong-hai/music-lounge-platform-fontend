@@ -160,3 +160,10 @@ export const addTourHotspot = async (loungeId, sceneId, payload) => {
 export const removeTourHotspot = async (loungeId, hotspotId) => {
   return axiosClient.delete(`/lounges/${loungeId}/tour/hotspots/${hotspotId}`);
 };
+
+// ===== XOÁ PHÒNG TRÀ =====
+// Backend CHẶN (409) nếu phòng trà còn bất kỳ buổi diễn nào — kể cả buổi đã kết thúc hoặc đã huỷ,
+// vì xoá đi là mất lịch sử show. Nghĩa là: phòng trà đã từng hoạt động thì thực tế không xoá được,
+// và đó là hành vi đúng. Giao diện phải nói rõ điều này thay vì để chủ bấm rồi nhận lỗi khó hiểu.
+// Chỉ Owner sở hữu (hoặc Admin) xoá được — 403 nếu là phòng trà của người khác.
+export const deleteLounge = async (loungeId) => axiosClient.delete(`/lounges/${loungeId}`);

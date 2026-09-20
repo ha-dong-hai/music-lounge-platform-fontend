@@ -31,6 +31,7 @@ import AdminFilterOptionsPage from '../pages/admin/AdminFilterOptionsPage'
 import AdminKycReviewsPage from '../pages/admin/AdminKycReviewsPage'
 import AdminInsightsPage from '../pages/admin/AdminInsightsPage'
 import AdminSystemConfigPage from '../pages/admin/AdminSystemConfigPage'
+import AdminLedgerPage from '../pages/admin/AdminLedgerPage'
 import PaymentResultPage from '../pages/payment/PaymentResultPage'
 import LoginPage from '../pages/auth/LoginPage'
 import RegisterPage from '../pages/auth/RegisterPage'
@@ -53,6 +54,7 @@ import OwnerDonationsPage from '../pages/owner/OwnerDonationsPage'
 import OwnerPenaltiesPage from '../pages/owner/OwnerPenaltiesPage'
 import ComplaintPage from '../pages/user/ComplaintPage'
 import PerformerConfirmationPage from '../pages/public/PerformerConfirmationPage'
+import PerformerDonationsPage from '../pages/public/PerformerDonationsPage'
 import OwnerShowsPage from '../pages/owner/OwnerShowsPage'
 import OwnerShowDetailPage from '../pages/owner/OwnerShowDetailPage'
 import FnbOrderPage from '../pages/fnb/FnbOrderPage'
@@ -82,6 +84,8 @@ const AppRouter = createBrowserRouter([
   { path: '/complaints', element: <ComplaintPage /> },
   // Nghe si mo tu lien ket email, KHONG co tai khoan — khong duoc doi dang nhap
   { path: '/performer-confirmation', element: <PerformerConfirmationPage /> },
+  // Sao kê donate công khai — cố tình KHÔNG bọc ProtectedRoute: khán giả chưa đăng nhập phải xem được.
+  { path: '/performers/:performerId/donations', element: <PerformerDonationsPage /> },
   { path: '/login', element: <LoginPage /> },
   { path: '/register', element: <RegisterPage /> },
   { path: '/verify-email', element: <VerifyEmailPage /> },
@@ -147,6 +151,7 @@ const AppRouter = createBrowserRouter([
       { path: 'kyc-reviews', element: <AdminKycReviewsPage /> },
       { path: 'insights', element: <AdminInsightsPage /> },
       { path: 'system-config', element: <AdminSystemConfigPage /> },
+      { path: 'ledger', element: <AdminLedgerPage /> },
       { path: 'content-reports', element: <AdminContentReportsPage /> },
       { path: 'refunds', element: <AdminRefundsPage /> },
       { path: 'settlements', element: <AdminSettlementsPage /> },

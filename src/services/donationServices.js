@@ -43,3 +43,23 @@ export const confirmDonationPaid = async (id, { paymentRef, paymentEvidenceUrl =
 export const hideDonationMessage = async (id) => {
   return axiosClient.post(`/donations/${id}/hide-message`);
 };
+
+// ===== SAO KÊ DONATE CÔNG KHAI CỦA NGHỆ SĨ (không cần đăng nhập) =====
+// Đây là trang minh bạch: khán giả tặng tiền xong phải xem được tiền đã tới nghệ sĩ hay chưa.
+// KHÔNG chứa số tài khoản, mã chuyển khoản hay ảnh chứng từ — `hasTransferReceipt` chỉ nói là CÓ
+// chứng từ được lưu, còn bản thân chứng từ thì không công khai.
+//
+// Mỗi dòng có `stage` (PlatformHolding | VenueHolding | VenueReportedPaid | PerformerConfirmed |
+// PerformerDisputed) kèm `stageLabel` sẵn tiếng Việt — DÙNG stageLabel để hiện, dùng stage để so sánh.
+// `gross` có thể null với dữ liệu cũ không công khai số tiền; summary có `donationsWithHiddenAmount`
+// cho biết có bao nhiêu khoản như vậy để không ai tưởng tổng bị tính sai.
+export const getPerformerPublicDonations = async (performerId, params = {}) => {
+  return axiosClient.get(`/performers/${performerId}/donations`, { params });
+};
+
+// Trừ `totalGross`, mọi số tiền trong summary là PHẦN CỦA NGHỆ SĨ, chia theo nơi tiền đang nằm:
+// heldByPlatform → nền tảng còn giữ, heldByVenue → phòng trà còn giữ, overdueAtVenue → quá hạn chưa
+// chuyển. Cộng ba cái đó ra tổng chưa tới tay nghệ sĩ.
+export const getPerformerDonationSummary = async (performerId) => {
+  return axiosClient.get(`/performers/${performerId}/donations/summary`);
+};

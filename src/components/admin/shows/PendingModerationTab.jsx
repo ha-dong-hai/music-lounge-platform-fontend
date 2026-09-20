@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { AlertTriangle, Check, X, Eye, Loader2, ChevronLeft, ChevronRight } from 'lucide-react'
 import dayjs from 'dayjs'
 import toast from 'react-hot-toast'
-import { getPendingModerations, reviewLivestreamModeration } from '../../../services/adminServices'
+import { getPendingModerations, reviewLivestreamModeration, reviewTicketTier } from '../../../services/adminServices'
 
 // Vòng tròn điểm AI (0 -> 100)
 const AIScoreCircle = ({ score }) => {
@@ -34,7 +34,7 @@ const RiskLevelBadge = ({ level }) => {
 }
 
 const PendingModerationTab = () => {
-  const [targetType, setTargetType] = useState('Show') // 'Show' | 'Livestream'
+  const [targetType, setTargetType] = useState('Show') // 'Show' | 'Livestream' | 'TicketTier'
   const [items, setItems] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [busyId, setBusyId] = useState(null)
@@ -62,6 +62,21 @@ const PendingModerationTab = () => {
   const handleTabChange = (type) => {
     setTargetType(type)
     setPagination({ page: 1, totalPages: 1, totalCount: 0 })
+  }
+
+  // Duyệt HẠNG VÉ. Hạng vé chưa duyệt KHÔNG được tính vào khoảng giá hiện trên thẻ buổi diễn,
+  // nên bỏ quên hàng đợi này là vé của chủ phòng trà không bán được mà họ không hiểu vì sao.
+  const handleReviewTier = async (tierId, decision) => {
+    setBusyId(tierId)
+    try {
+      await reviewTicketTier(tierId, decision)
+      toast.success(decision === 'Approved' ? 'Đã duyệt hạng vé.' : 'Đã từ chối hạng vé.')
+      await fetchPending()
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Không xử lý được hạng vé.')
+    } finally {
+      setBusyId(null)
+    }
   }
 
   const handleReviewLivestream = async (livestreamId, decision) => {
@@ -92,6 +107,12 @@ const PendingModerationTab = () => {
           className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors ${targetType === 'Livestream' ? 'bg-[#C3B665] text-black' : 'bg-gray-900 text-gray-400 hover:text-white'}`}
         >
           Livestream
+        </button>
+        <button
+          onClick={() => handleTabChange('TicketTier')}
+          className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors ${targetType === 'TicketTier' ? 'bg-[#C3B665] text-black' : 'bg-gray-900 text-gray-400 hover:text-white'}`}
+        >
+          Hạng vé
         </button>
       </div>
 
@@ -137,7 +158,24 @@ const PendingModerationTab = () => {
                       {item.slaDeadline ? dayjs(item.slaDeadline).format('HH:mm DD/MM') : '-'}
                     </td>
                     <td className="p-4 text-right">
-                      {targetType === 'Show' ? (
+                      {targetType === 'TicketTier' ? (
+                        <div className="flex items-center justify-end gap-2">
+                          <button
+                            onClick={() => handleReviewTier(item.targetId, 'Approved')}
+                            disabled={busyId === item.targetId}
+                            className="inline-flex items-center gap-1.5 bg-green-500/10 border border-green-500/40 text-green-400 px-3 py-1.5 rounded-md text-xs font-bold hover:bg-green-500/20 disabled:opacity-50"
+                          >
+                            <Check size={14} /> Duyệt
+                          </button>
+                          <button
+                            onClick={() => handleReviewTier(item.targetId, 'Rejected')}
+                            disabled={busyId === item.targetId}
+                            className="inline-flex items-center gap-1.5 bg-red-500/10 border border-red-500/40 text-red-400 px-3 py-1.5 rounded-md text-xs font-bold hover:bg-red-500/20 disabled:opacity-50"
+                          >
+                            <X size={14} /> Từ chối
+                          </button>
+                        </div>
+                      ) : targetType === 'Show' ? (
                         <Link
                           to={`/admin/shows/${item.targetId}`}
                           className="inline-flex items-center gap-1.5 bg-[#C3B665] text-black px-3 py-1.5 rounded-md text-xs font-bold hover:bg-[#d4c87f] transition-colors"

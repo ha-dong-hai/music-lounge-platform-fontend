@@ -14,11 +14,14 @@ import { useState, useEffect } from 'react'
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
 } from 'recharts'
-import { Loader2, DollarSign, Ticket, Music2, Star, Wallet, HandCoins } from 'lucide-react'
+import { Loader2, DollarSign, Ticket, Music2, Star, Wallet, HandCoins, Download, Radio, Eye } from 'lucide-react'
 import dayjs from 'dayjs'
 import toast from 'react-hot-toast'
 import { getLounges } from '../../services/loungeServices'
-import { getMyLoungeAnalytics, getRevenueReport } from '../../services/analyticsServices'
+import {
+  getMyLoungeAnalytics, getRevenueReport, exportRevenueReport,
+  getArtistDonationStats, getOwnerLivestreamHistory,
+} from '../../services/analyticsServices'
 
 const fmtMoney = (v) => `${Number(v || 0).toLocaleString('vi-VN')}đ`
 const fmtAxis = (v) => {
@@ -60,6 +63,9 @@ const OwnerAnalyticsPage = () => {
   const [lounge, setLounge] = useState(null)
   const [stats, setStats] = useState(null)
   const [revenue, setRevenue] = useState(null)
+  const [artistDonations, setArtistDonations] = useState(null)
+  const [livestreamHistory, setLivestreamHistory] = useState([])
+  const [isExporting, setIsExporting] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
@@ -75,12 +81,19 @@ const OwnerAnalyticsPage = () => {
         const mine = list[0]
         setLounge(mine)
 
-        const [sRes, rRes] = await Promise.all([
+        // allSettled: bon nguon doc lap, mot cai loi khong lam trong ca trang.
+        const kq = await Promise.allSettled([
           getMyLoungeAnalytics(mine.id),
           getRevenueReport(mine.id),
+          getArtistDonationStats(mine.id),
+          getOwnerLivestreamHistory(mine.id, { pageSize: 20 }),
         ])
-        if (sRes.success) setStats(sRes.data)
-        if (rRes.success) setRevenue(rRes.data)
+        const lay = (x) => (x.status === 'fulfilled' && x.value?.success ? x.value.data : null)
+        const [sData, rData, dData, lData] = kq.map(lay)
+        if (sData) setStats(sData)
+        if (rData) setRevenue(rData)
+        if (dData) setArtistDonations(dData)
+        if (lData) setLivestreamHistory(lData.items ?? [])
       } catch {
         toast.error('Không tải được số liệu phòng trà.')
       } finally {
@@ -89,6 +102,26 @@ const OwnerAnalyticsPage = () => {
     }
     run()
   }, [])
+
+  // Xuat bao cao ra FILE: endpoint tra nhi phan nen phai xin blob, khong di qua duong JSON.
+  const xuatBaoCao = async () => {
+    if (!lounge) return
+    setIsExporting(true)
+    try {
+      const blob = await exportRevenueReport(lounge.id)
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = 'bao-cao-doanh-thu-' + lounge.id + '-' + dayjs().format('YYYYMMDD') + '.xlsx'
+      a.click()
+      URL.revokeObjectURL(url)
+      toast.success('Đã tải báo cáo doanh thu.')
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Không xuất được báo cáo.')
+    } finally {
+      setIsExporting(false)
+    }
+  }
 
   if (isLoading) {
     return (
@@ -223,6 +256,101 @@ const OwnerAnalyticsPage = () => {
                       </span>
                     </td>
                     <td className="p-4 text-right text-sm font-bold text-[#C3B665]">{fmtMoney(s.revenue)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* XUẤT BÁO CÁO — endpoint trả về FILE, không phải JSON */}
+      {lounge && (
+        <button onClick={xuatBaoCao} disabled={isExporting}
+          className="flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-700 text-gray-300 text-sm font-bold hover:bg-gray-800 disabled:opacity-50">
+          {isExporting ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />}
+          Tải báo cáo doanh thu
+        </button>
+      )}
+
+      {/* TIỀN DONATE THEO NGHỆ SĨ — tiền THU HỘ, không phải doanh thu của phòng trà */}
+      {artistDonations && (artistDonations.byArtist?.length ?? 0) > 0 && (
+        <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <h2 className="text-base font-semibold text-white">Tiền donate theo nghệ sĩ</h2>
+              <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">
+                Đây là tiền khán giả tặng nghệ sĩ, phòng trà giữ hộ và phải chuyển tiếp — KHÔNG phải doanh thu của bạn.
+              </p>
+            </div>
+            <div className="text-right flex-shrink-0">
+              <p className="text-lg font-bold text-[#C3B665] tabular-nums">{fmtMoney(artistDonations.grandTotalDonated)}</p>
+              <p className="text-xs text-gray-600">tổng thu hộ</p>
+            </div>
+          </div>
+
+          <div className="overflow-x-auto mt-4">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-xs text-gray-500 border-b border-gray-800">
+                  <th className="text-left py-2 pr-3 font-medium">Nghệ sĩ</th>
+                  <th className="text-right py-2 pr-3 font-medium">Lượt donate</th>
+                  <th className="text-right py-2 pr-3 font-medium">Số buổi diễn</th>
+                  <th className="text-right py-2 font-medium">Tổng tiền</th>
+                </tr>
+              </thead>
+              <tbody>
+                {artistDonations.byArtist.map((a) => (
+                  <tr key={a.performerId} className="border-b border-gray-800/60">
+                    <td className="py-2.5 pr-3 text-white">
+                      {a.performerName}
+                      {a.performerId === artistDonations.topPerformerId && (
+                        <span className="ml-2 px-2 py-0.5 rounded-md bg-[#C3B665]/10 text-[#C3B665] text-xs">Cao nhất</span>
+                      )}
+                    </td>
+                    <td className="py-2.5 pr-3 text-right text-gray-300 tabular-nums">{a.donationCount}</td>
+                    <td className="py-2.5 pr-3 text-right text-gray-300 tabular-nums">{a.showCount}</td>
+                    <td className="py-2.5 text-right text-white tabular-nums">{fmtMoney(a.totalGross)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* LỊCH SỬ PHÁT TRỰC TIẾP */}
+      {livestreamHistory.length > 0 && (
+        <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
+          <h2 className="text-base font-semibold text-white flex items-center gap-2">
+            <Radio size={16} /> Lịch sử phát trực tiếp
+          </h2>
+          <div className="overflow-x-auto mt-4">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-xs text-gray-500 border-b border-gray-800">
+                  <th className="text-left py-2 pr-3 font-medium">Buổi diễn</th>
+                  <th className="text-right py-2 pr-3 font-medium">Xem cao nhất</th>
+                  <th className="text-right py-2 pr-3 font-medium">Tổng lượt xem</th>
+                  <th className="text-right py-2 pr-3 font-medium">Doanh thu vé xem</th>
+                  <th className="text-right py-2 font-medium">Donate</th>
+                </tr>
+              </thead>
+              <tbody>
+                {livestreamHistory.map((l) => (
+                  <tr key={l.livestreamId} className="border-b border-gray-800/60">
+                    <td className="py-2.5 pr-3">
+                      <p className="text-white">{l.showName}</p>
+                      <p className="text-xs text-gray-500 mt-0.5">
+                        {l.startedAt ? dayjs(l.startedAt).format('HH:mm DD/MM/YYYY') : 'Chưa phát'}
+                      </p>
+                    </td>
+                    <td className="py-2.5 pr-3 text-right text-gray-300 tabular-nums">
+                      <span className="inline-flex items-center gap-1"><Eye size={12} />{l.peakViewerCount}</span>
+                    </td>
+                    <td className="py-2.5 pr-3 text-right text-gray-300 tabular-nums">{l.totalViews}</td>
+                    <td className="py-2.5 pr-3 text-right text-white tabular-nums">{fmtMoney(l.ppvRevenue)}</td>
+                    <td className="py-2.5 text-right text-gray-300 tabular-nums">{fmtMoney(l.totalDonations)}</td>
                   </tr>
                 ))}
               </tbody>
