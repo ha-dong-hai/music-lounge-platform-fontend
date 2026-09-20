@@ -8,7 +8,7 @@
 //    LegalApprovalConfirmed, không có tương đương cho VCPMC) — nên form khai VCPMC luôn hiện sẵn,
 //    không tự ẩn khi đã khai rồi. Cả 2 điều này nên bổ sung ở backend nếu muốn UI chính xác hơn.
 import { useState, useEffect, useCallback } from 'react'
-import { Radio, Loader2, Copy, Square, Play, ShieldCheck } from 'lucide-react'
+import { Radio, Loader2, Copy, Square, Play, ShieldCheck, MessageSquare, MessageSquareOff } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { getShows, getShowDetail, setVcpmcRoyalty } from '../../services/showServices'
 import {
@@ -17,6 +17,7 @@ import {
   getLivestreamCredentials,
   startLivestream,
   endLivestream,
+  setChatEnabled,
 } from '../../services/livestreamServices'
 
 const StatusBadge = ({ status }) => {
@@ -115,6 +116,22 @@ const ShowLivestreamRow = ({ show, onChanged }) => {
     }
   }
 
+  // Bật/tắt khung chat giữa buổi diễn — dùng khi chat bị spam. Tắt chat KHÔNG làm mất tin nhắn cũ.
+  // LƯU Ý: LivestreamDetailDto trên bản đang chạy CHƯA trả chatEnabled (backend đã bổ sung nhưng
+  // chưa deploy), nên tạm mặc định là đang bật. Có bản mới thì nút tự hiển thị đúng trạng thái.
+  const handleToggleChat = async (enabled) => {
+    setIsBusy(true)
+    try {
+      await setChatEnabled(livestream.id, enabled)
+      toast.success(enabled ? 'Đã bật khung chat.' : 'Đã tắt khung chat.')
+      await loadLivestream()
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Không đổi được trạng thái chat.')
+    } finally {
+      setIsBusy(false)
+    }
+  }
+
   const handleShowCredentials = async () => {
     setIsBusy(true)
     try {
@@ -189,6 +206,15 @@ const ShowLivestreamRow = ({ show, onChanged }) => {
             className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-red-500/10 border border-red-500/40 text-red-400 text-xs font-bold hover:bg-red-500/20 disabled:opacity-50"
           >
             <Square size={14} className="fill-red-400" /> Kết thúc phát
+          </button>
+          <button
+            onClick={() => handleToggleChat(!(livestream.chatEnabled ?? true))}
+            disabled={isBusy}
+            className="ml-2 inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-gray-700 text-gray-300 text-xs font-bold hover:bg-gray-800 disabled:opacity-50"
+          >
+            {(livestream.chatEnabled ?? true)
+              ? <><MessageSquareOff size={14} /> Tắt khung chat</>
+              : <><MessageSquare size={14} /> Bật khung chat</>}
           </button>
           {!credentials && (
             <button

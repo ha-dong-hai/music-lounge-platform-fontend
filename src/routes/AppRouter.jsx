@@ -41,6 +41,7 @@ import OwnerAnalyticsPage from '../pages/owner/OwnerAnalyticsPage'
 import OwnerLoungePage from '../pages/owner/OwnerLoungePage'
 import OwnerBankAccountsPage from '../pages/owner/OwnerBankAccountsPage'
 import OwnerZonesPage from '../pages/owner/OwnerZonesPage'
+import OwnerShowSettingsPage from '../pages/owner/OwnerShowSettingsPage'
 import OwnerOperatePage from '../pages/owner/OwnerOperatePage'
 import OwnerFnbOrdersPage from '../pages/owner/OwnerFnbOrdersPage'
 import OwnerFnbMenusPage from '../pages/owner/OwnerFnbMenusPage'
@@ -49,6 +50,7 @@ import OwnerPerformersPage from '../pages/owner/OwnerPerformersPage'
 import OwnerDonationsPage from '../pages/owner/OwnerDonationsPage'
 import OwnerPenaltiesPage from '../pages/owner/OwnerPenaltiesPage'
 import ComplaintPage from '../pages/user/ComplaintPage'
+import PerformerConfirmationPage from '../pages/public/PerformerConfirmationPage'
 import OwnerShowsPage from '../pages/owner/OwnerShowsPage'
 import OwnerShowDetailPage from '../pages/owner/OwnerShowDetailPage'
 import FnbOrderPage from '../pages/fnb/FnbOrderPage'
@@ -76,6 +78,8 @@ const AppRouter = createBrowserRouter([
 
   // Trang cong khai: khach chua dang nhap cung gui khieu nai duoc
   { path: '/complaints', element: <ComplaintPage /> },
+  // Nghe si mo tu lien ket email, KHONG co tai khoan — khong duoc doi dang nhap
+  { path: '/performer-confirmation', element: <PerformerConfirmationPage /> },
   { path: '/login', element: <LoginPage /> },
   { path: '/register', element: <RegisterPage /> },
   { path: '/verify-email', element: <VerifyEmailPage /> },
@@ -106,6 +110,7 @@ const AppRouter = createBrowserRouter([
       { path: 'zones', element: <ProtectedRoute requiredRoles={['Owner']}><OwnerZonesPage /></ProtectedRoute> },
       { path: 'shows', element: <ProtectedRoute requiredRoles={['Owner']}><OwnerShowsPage /></ProtectedRoute> },
       { path: 'shows/:id', element: <ProtectedRoute requiredRoles={['Owner']}><OwnerShowDetailPage /></ProtectedRoute> },
+      { path: 'shows/:id/settings', element: <ProtectedRoute requiredRoles={['Owner']}><OwnerShowSettingsPage /></ProtectedRoute> },
       { path: 'livestreams', element: <OwnerLivestreamsPage /> },
       { path: 'operate', element: <OwnerOperatePage /> },
       { path: 'fnb-orders', element: <OwnerFnbOrdersPage /> },

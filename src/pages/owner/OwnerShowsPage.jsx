@@ -16,7 +16,7 @@
 //   nguyên văn lý do 422 backend trả về, tránh hai nơi cùng định nghĩa luật rồi lệch nhau.
 import { useState, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
-import { Plus, Loader2, Pencil, Send, X, Trash2, Settings2, CalendarDays } from 'lucide-react'
+import { Plus, Loader2, Pencil, Send, X, Trash2, Settings2, CalendarDays, Image as ImageIcon } from 'lucide-react'
 import dayjs from 'dayjs'
 import toast from 'react-hot-toast'
 import {
@@ -394,6 +394,12 @@ const OwnerShowsPage = () => {
                     <Link to={`/owner/shows/${s.id}`}
                       className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-gray-700 text-gray-300 text-xs font-bold hover:bg-gray-800">
                       <Settings2 size={14} /> Chuẩn bị & gửi duyệt
+                    </Link>
+
+                    {/* Poster, dời lịch, đổi hình thức, chế độ phát — những thứ đổi được SAU khi đã đăng */}
+                    <Link to={`/owner/shows/${s.id}/settings`}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-gray-700 text-gray-300 text-xs font-bold hover:bg-gray-800">
+                      <ImageIcon size={14} /> Poster & cài đặt
                     </Link>
 
                     {isDraft && (

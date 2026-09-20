@@ -30,3 +30,16 @@ export const startLivestream = async (id) => {
 export const endLivestream = async (id) => {
   return axiosClient.post(`/livestreams/${id}/end`);
 };
+
+// Bật/tắt khung chat của một buổi phát (chủ hoặc nhân viên đúng phòng trà).
+// Dùng khi chat bị spam giữa buổi diễn. Tắt chat KHÔNG làm mất tin nhắn cũ.
+export const setChatEnabled = async (id, enabled) => {
+  return axiosClient.post(`/livestreams/${id}/chat-enabled`, { enabled });
+};
+
+// ADMIN cắt sóng một buổi phát. `reason` BẮT BUỘC — đây là can thiệp từ ngoài vào buổi diễn đang
+// chạy, phải trả lời được câu "vì sao cắt" về sau. Không dùng cho việc kết thúc bình thường —
+// đó là endLivestream của người vận hành.
+export const terminateLivestream = async (id, reason) => {
+  return axiosClient.post(`/livestreams/${id}/terminate`, { reason });
+};

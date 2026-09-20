@@ -115,3 +115,80 @@ export const endShow = async (id) => {
 export const getShowTicketStats = async (id) => {
   return axiosClient.get(`/lounge-shows/${id}/ticket-stats`);
 };
+
+// ===== POSTER =====
+// Poster AI (chỉ gói dịch vụ có tính năng này). HAI chế độ tuỳ cấu hình nền tảng, PHẢI RẼ THEO
+// `data.status`, KHÔNG rẽ theo mã HTTP:
+//   - Chế độ hàng đợi: trả 202, `status = 'Queued'`, `imageUrl = null`, kèm `attemptId`. Ảnh mất 50–90
+//     giây mới xong; hỏi lại qua getAiPosterHistory, và chủ nhận thông báo khi xong.
+//   - Chế độ gọi thẳng: trả 200 kèm `imageUrl` ngay.
+// Bấm lại khi đang có đơn chờ → 409, KHÔNG tạo đơn thứ hai.
+// 503 khi nhà cung cấp AI lỗi — lần thất bại KHÔNG bị trừ vào hạn mức tháng.
+export const generateAiPoster = async (showId, styleHint = null) => {
+  return axiosClient.post(`/lounge-shows/${showId}/ai-poster`, { styleHint });
+};
+
+export const getAiPosterHistory = async (showId) => {
+  return axiosClient.get(`/lounge-shows/${showId}/ai-poster/history`);
+};
+
+// Tự tải poster riêng. Ghi đè poster đang có và bỏ cờ "do AI tạo".
+export const setShowPoster = async (showId, imageUrl) => {
+  return axiosClient.put(`/lounge-shows/${showId}/poster`, { imageUrl });
+};
+
+// ===== THAY ĐỔI SAU KHI ĐÃ ĐĂNG =====
+// Dời lịch: đây là thay đổi ẢNH HƯỞNG NGƯỜI ĐÃ MUA VÉ. Backend tự lo thông báo và quyền của
+// người mua theo chính sách; FE chỉ cần nói rõ hệ quả trước khi bấm.
+export const rescheduleShow = async (showId, newScheduledStart) => {
+  return axiosClient.post(`/lounge-shows/${showId}/reschedule`, { newScheduledStart });
+};
+
+// Đổi hình thức (Offline/Online/Hybrid). Đổi sang hình thức người mua KHÔNG trả tiền cho là căn cứ
+// hoàn 100% theo chính sách nền tảng — nói rõ điều này trước khi đổi.
+export const changeShowFormat = async (showId, newFormat) => {
+  return axiosClient.put(`/lounge-shows/${showId}/format`, { newFormat });
+};
+
+// Chỉ có nghĩa với buổi Online/Hybrid. 'TwoD' = video phẳng thông thường (mặc định),
+// 'ThreeD' = video được dán lên màn hình sân khấu trong không gian 3D.
+export const setShowPlaybackMode = async (showId, playbackMode) => {
+  return axiosClient.put(`/lounge-shows/${showId}/playback-mode`, { playbackMode });
+};
+
+// Sửa một tiết mục trong line-up (đổi nghệ sĩ, giờ diễn, thứ tự).
+export const updatePerformance = async (showId, performanceId, payload) => {
+  return axiosClient.put(`/lounge-shows/${showId}/performances/${performanceId}`, payload);
+};
+
+// Đơn gọi món của một buổi diễn — dùng ở màn vận hành, xem đêm diễn đó khách gọi gì.
+export const getShowOrders = async (showId, params = {}) => {
+  return axiosClient.get(`/lounge-shows/${showId}/orders`, { params });
+};
+
+// ===== CÔNG KHAI =====
+// Gợi ý tìm kiếm theo từ khoá đang gõ (autocomplete).
+export const getShowSuggestions = async (q, limit = 8) => {
+  return axiosClient.get('/lounge-shows/suggestions', { params: { q, limit } });
+};
+
+export const getShowsByLounge = async (loungeId, params = {}) => {
+  return axiosClient.get(`/lounge-shows/by-lounge/${loungeId}`, { params });
+};
+
+export const getShowsByPerformer = async (performerId, params = {}) => {
+  return axiosClient.get(`/lounge-shows/by-performer/${performerId}`, { params });
+};
+
+// Sơ đồ chỗ của buổi diễn — khu vực kèm vị trí 2D đã đặt ở màn Khu vực chỗ ngồi.
+export const getShowSeatingMap = async (showId) => {
+  return axiosClient.get(`/lounge-shows/${showId}/seating-map`);
+};
+
+export const getSimilarShows = async (showId) => {
+  return axiosClient.get(`/lounge-shows/${showId}/similar`);
+};
+
+export const getShowRatings = async (showId, params = {}) => {
+  return axiosClient.get(`/lounge-shows/${showId}/ratings`, { params });
+};
