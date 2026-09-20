@@ -19,9 +19,15 @@
 //       người dùng biết sai gì mà không phải đợi một vòng mạng rồi đọc một câu 422.
 //   Luật hai bên phải khớp nhau. Nếu sau này máy chủ đổi luật thì sửa ở đây cùng lúc, nếu không thì
 //   hoặc người dùng bị chặn thứ máy chủ cho qua, hoặc bấm Lưu xong mới nhận 422.
-// - MỘT CHỖ HAI BÊN CỐ Ý KHÁC NHAU: khi `options` của tiêu chí hỏng (không parse được), máy chủ
-//   KHÔNG bịa luật và cho qua. Màn này thì với `Range` vẫn bắt buộc là SỐ — kiểu đã là Range thì
-//   phải là số, kể cả khi không biết khoảng cho phép. Nghiêm hơn máy chủ ở đúng chỗ này là có chủ ý.
+// - ĐỐI CHIẾU VỚI CustomCriteriaValue.cs (đã đọc mã nguồn, không đoán):
+//     Range  — máy chủ kiểm "phải là số" TRƯỚC rồi mới đọc khoảng; options hỏng chỉ bỏ phần min/max
+//              chứ KHÔNG cho chữ đi qua. Màn này làm y hệt.
+//     Select — máy chủ chỉ đối chiếu khi options là MẢNG TOÀN CHUỖI; mảng số hay dạng lạ thì bỏ
+//              kiểm. Màn này đối chiếu cả mảng số, nhưng không lệch trên thực tế vì ô nhập là danh
+//              sách chọn, người dùng không gõ được giá trị ngoài danh sách.
+//     Boolean— máy chủ dùng bool.TryParse nên nhận cả "True"/"TRUE". Màn này chỉ sinh ra chữ thường,
+//              nhưng dữ liệu CŨ có thể đang là "True" — xem chuanHoaGiaTri() để biết vì sao phải
+//              hạ chữ thường lúc NẠP, chứ không phải lúc gửi.
 // - Máy chủ bóc MỘT lớp nháy kép trước khi kiểm, nên gửi chuỗi trần (cách màn này làm) hay chuỗi
 //   bọc nháy đều qua được. Cứ gửi trần cho thẳng.
 // - Ô để trống được bỏ khỏi payload thay vì gửi chuỗi rỗng — gửi rỗng là bị 422 cho cả lượt.
@@ -61,6 +67,25 @@ const docOptions = (chuoi) => {
   }
 }
 
+// Chuẩn hoá giá trị vừa đọc về cho khớp với ô nhập của màn này.
+//
+// VÌ SAO CẦN: ô Boolean là một danh sách chọn chỉ có 'true' và 'false' (chữ thường). Máy chủ lại
+// nhận cả "True"/"TRUE" (bool.TryParse không phân biệt hoa thường), nên dữ liệu cũ có thể đang giữ
+// "True". Nạp thẳng vào danh sách chọn thì KHÔNG khớp lựa chọn nào → ô hiện trống như thể chưa đặt
+// → và vì ghi là THAY THẾ TOÀN BỘ, lần Lưu kế tiếp sẽ xoá mất giá trị đó mà không ai thấy.
+// Hạ chữ thường ở đây cắt đúng đường đó. Chỉ làm lúc NẠP: giá trị người dùng chọn thì vốn đã đúng.
+const chuanHoaGiaTri = (c, v) => {
+  const chuoi = docGiaTri(v)
+  if (c.dataType !== 'Boolean' || typeof chuoi !== 'string') return chuoi
+  const thap = chuoi.trim().toLowerCase()
+  return thap === 'true' || thap === 'false' ? thap : chuoi
+}
+
+// Một con số thập phân bình thường: có thể có dấu, phần thập phân, và số mũ. KHÔNG nhận dạng cơ số
+// khác (0x1A, 0b101) — JavaScript đọc được chúng nhưng decimal.TryParse của máy chủ thì không, và
+// để lọt thì người dùng qua được cửa này rồi lại nhận 422.
+const LA_SO = /^[+-]?(\d+\.?\d*|\.\d+)([eE][+-]?\d+)?$/
+
 // Kiểm giá trị có khớp `dataType` không. Trả về câu lỗi, hoặc null nếu hợp lệ.
 // Luật ở đây phải KHỚP với luật máy chủ (MLACP-470) — xem ghi chú đầu tệp, gồm cả chỗ cố ý
 // nghiêm hơn. Riêng `Select` khi `options` không đọc được thì không có danh sách để đối chiếu, nên
@@ -87,6 +112,7 @@ const kiemTraGiaTri = (c, v) => {
   if (c.dataType === 'Range') {
     // Kiểm "có phải số không" TRƯỚC và không phụ thuộc vào options: kiểu đã là Range thì giá trị
     // phải là số, kể cả khi chủ phòng trà gõ options hỏng nên không biết khoảng cho phép.
+    if (!LA_SO.test(chuoi)) return `"${c.name}": phải là một con số.`
     const so = Number(chuoi)
     if (!Number.isFinite(so)) return `"${c.name}": phải là một con số.`
     if (opts && typeof opts === 'object') {
@@ -116,7 +142,7 @@ const ShowCustomValuesSection = ({ showId }) => {
         // Nạp sẵn giá trị đang có. Phải nạp CẢ dòng của tiêu chí đã tắt, nếu không thì lần lưu sau
         // sẽ xoá mất giá trị của chúng (ghi là thay thế toàn bộ).
         const nhap = {}
-        ds.forEach((c) => { nhap[c.criteriaId] = docGiaTri(c.value) })
+        ds.forEach((c) => { nhap[c.criteriaId] = chuanHoaGiaTri(c, c.value) })
         setGiaTri(nhap)
       }
     } catch (err) {
@@ -139,7 +165,7 @@ const ShowCustomValuesSection = ({ showId }) => {
     // Ghi là thay thế toàn bộ, nên gửi danh sách rỗng là XOÁ HẾT giá trị — đó có thể là ý thật của
     // người dùng, không phải lỗi nhập liệu. Nhưng phải hỏi lại, vì bấm nhầm là mất sạch.
     if (values.length === 0) {
-      const dangCoGiaTri = criteria.some((c) => docGiaTri(c.value) !== '')
+      const dangCoGiaTri = criteria.some((c) => chuanHoaGiaTri(c, c.value) !== '')
       if (!dangCoGiaTri) {
         toast.error('Chưa điền tiêu chí nào.')
         return
