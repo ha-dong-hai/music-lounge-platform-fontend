@@ -42,6 +42,20 @@ const STATE_VIEW = {
   },
 }
 
+// Khung trang đặt ở cấp module, KHÔNG định nghĩa trong hàm render: một component được tạo lại mỗi
+// lần vẽ sẽ bị React tháo ra dựng lại, làm mất trạng thái bên trong và giao diện nhảy.
+const Khung = ({ children }) => (
+  <div className="min-h-screen bg-black text-white">
+    <div className="max-w-xl mx-auto px-4 sm:px-6 py-12">
+      <div className="flex items-center gap-2 mb-8">
+        <Music2 size={22} className="text-[#C3B665]" />
+        <span className="text-lg font-bold tracking-wide text-[#C3B665]">Music Lounge</span>
+      </div>
+      {children}
+    </div>
+  </div>
+)
+
 const PerformerConfirmationPage = () => {
   const [searchParams] = useSearchParams()
   const token = searchParams.get('token') ?? ''
@@ -99,18 +113,6 @@ const PerformerConfirmationPage = () => {
       </div>
     )
   }
-
-  const Khung = ({ children }) => (
-    <div className="min-h-screen bg-black text-white">
-      <div className="max-w-xl mx-auto px-4 sm:px-6 py-12">
-        <div className="flex items-center gap-2 mb-8">
-          <Music2 size={22} className="text-[#C3B665]" />
-          <span className="text-lg font-bold tracking-wide text-[#C3B665]">Music Lounge</span>
-        </div>
-        {children}
-      </div>
-    </div>
-  )
 
   if (loi || !info) {
     return (
