@@ -1,5 +1,6 @@
 // src/components/lounge/LoungeSidebar.jsx
-import { MapPin, Users, Heart, ExternalLink } from 'lucide-react'
+import { MapPin, Users, Heart, ExternalLink, UtensilsCrossed } from 'lucide-react'
+import { Link } from 'react-router-dom'
 
 const LoungeSidebar = ({ lounge }) => {
   if (!lounge) return null
@@ -11,6 +12,14 @@ const LoungeSidebar = ({ lounge }) => {
 
   return (
     <div className="space-y-10">
+
+      {/* ===== ĐẶT ĐỒ UỐNG / MÓN ĂN ===== */}
+      <Link
+        to={`/lounge/${lounge.id}/order`}
+        className="flex items-center justify-center gap-2 w-full bg-[#C3B665] text-black font-bold py-3 rounded-xl hover:bg-[#d4c87f] transition-colors"
+      >
+        <UtensilsCrossed size={18} /> Đặt đồ uống &amp; món ăn
+      </Link>
 
       {/* ===== ĐỊA CHỈ ===== */}
       <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 space-y-4">

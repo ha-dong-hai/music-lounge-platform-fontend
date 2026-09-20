@@ -1,9 +1,14 @@
 // src/components/home/FilterModal.jsx
+//
+// GHI CHÚ: ô lọc "Quận/Huyện" đã được BỎ HẲN, không phải tạm tắt. Ba lý do:
+// backend không có endpoint danh sách quận (/lounge-shows/filter-options chỉ trả genres,
+// moods, atmospheres, cities); cột quận của mọi phòng trà trên hệ thống đang rỗng; và từ
+// 01/07/2025 Việt Nam bỏ cấp huyện nên "quận" không còn là đơn vị hành chính. Đừng dựng lại.
 import { useState, useEffect } from 'react'
 import { X } from 'lucide-react'
 import SearchableDropdown from '../shared/SearchableDropdown'
 import HorizontalTagSlider from './HorizontalTagSlider'
-import { getDistricts, getFilterOptions } from '../../services/showServices'
+import { getFilterOptions } from '../../services/showServices'
 
 const baseButtonClasses = "px-4 py-2 rounded-lg border text-sm font-medium transition-all"
 const activeBtnClasses = "bg-gray-900 text-white border-gray-900"
@@ -14,7 +19,6 @@ const FilterModal = ({ isOpen, onClose, initialFilters, onApply }) => {
   
   // ⭐ STATE CHỨA DATA TỪ BE
   const [options, setOptions] = useState({ genres: [], moods: [], atmospheres: [], cities: [] })
-  const [districts, setDistricts] = useState([])
 
   // ⭐ GỌI API LẤY FILTER OPTIONS LẦN ĐẦU
   useEffect(() => {
@@ -30,25 +34,6 @@ const FilterModal = ({ isOpen, onClose, initialFilters, onApply }) => {
     }
     fetchOptions()
   }, [])
-
-  // ⭐ GỌI API LẤY DISTRICTS KHI CHỌN PROVINCE
-  useEffect(() => {
-    if (localFilters.selectedProvince) {
-      const fetchDistricts = async () => {
-        try {
-          const res = await getDistricts(localFilters.selectedProvince)
-          if (res.success) {
-            setDistricts(res.data)
-          }
-        } catch (err) {
-          console.error('Error loading districts:', err)
-        }
-      }
-      fetchDistricts()
-    } else {
-      setDistricts([])
-    }
-  }, [localFilters.selectedProvince])
 
   useEffect(() => {
     if (isOpen) {
@@ -81,7 +66,7 @@ const FilterModal = ({ isOpen, onClose, initialFilters, onApply }) => {
 
   const handleReset = () => {
     setLocalFilters({
-      selectedProvince: null, selectedDistricts: [],
+      selectedProvince: null,
       selectedGenres: [], selectedSpaces: [], selectedMoods: [],
       minPrice: '', maxPrice: ''
     })
@@ -112,20 +97,10 @@ const FilterModal = ({ isOpen, onClose, initialFilters, onApply }) => {
               label="City"
               options={options.cities}
               selectedItems={localFilters.selectedProvince ? [localFilters.selectedProvince] : []}
-              onAdd={(val) => setLocalFilters(prev => ({ ...prev, selectedProvince: val, selectedDistricts: [] }))}
-              onRemove={() => setLocalFilters(prev => ({ ...prev, selectedProvince: null, selectedDistricts: [] }))}
+              onAdd={(val) => setLocalFilters(prev => ({ ...prev, selectedProvince: val }))}
+              onRemove={() => setLocalFilters(prev => ({ ...prev, selectedProvince: null }))}
               placeholder="City"
               multiSelect={false}
-            />
-            <SearchableDropdown
-              label="District"
-              options={districts}
-              selectedItems={localFilters.selectedDistricts}
-              onAdd={(val) => toggleArrItem('selectedDistricts', val)}
-              onRemove={(val) => toggleArrItem('selectedDistricts', val)}
-              placeholder="Quận/Huyện"
-              isDisabled={!localFilters.selectedProvince}
-              multiSelect={true}
             />
           </section>
 
@@ -151,6 +126,8 @@ const FilterModal = ({ isOpen, onClose, initialFilters, onApply }) => {
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm font-medium">đ</span>
                 <input 
                   type="number"
+                  min="0"
+                  step="1"
                   placeholder="From"
                   value={localFilters.minPrice}
                   onChange={e => setLocalFilters(prev => ({ ...prev, minPrice: e.target.value }))}
@@ -162,6 +139,8 @@ const FilterModal = ({ isOpen, onClose, initialFilters, onApply }) => {
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm font-medium">đ</span>
                 <input 
                   type="number"
+                  min="0"
+                  step="1"
                   placeholder="To"
                   value={localFilters.maxPrice}
                   onChange={e => setLocalFilters(prev => ({ ...prev, maxPrice: e.target.value }))}

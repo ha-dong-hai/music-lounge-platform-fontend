@@ -6,7 +6,7 @@ import SectionHeader from '../../components/home/SectionHeader'
 import FilterModal from '../../components/home/FilterModal'
 import Skeleton from '../../components/shared/Skeleton'
 import HeroBanner from '../../components/home/HeroBanner'
-import { getShows, getTrendingShows } from '../../services/showServices'
+import { getShows, getTrendingShows, getRecommendedShows } from '../../services/showServices'
 
 const initialFilterState = {
   selectedProvince: null, selectedDistricts: [], selectedWards: [],
@@ -38,17 +38,23 @@ const HomePage = () => {
     fetchTrending()
   }, [])
 
-  // 2. GỌI API TRENDING CHO RECOMMEND CAROUSEL
+  // 2. GỌI API GỢI Ý CÁ NHÂN HOÁ CHO RECOMMEND CAROUSEL
+  // Trước đây mục này gọi /lounge-shows/trending — tức là hiển thị đúng thứ đang hot chung cho mọi
+  // người, không hề cá nhân hoá, dù backend đã có sẵn /recommendations thật (3 mức, xem showServices).
   useEffect(() => {
     const fetchRecommend = async () => {
       try {
-        const res = await getTrendingShows({ limit: 10 })
+        const res = await getRecommendedShows({ limit: 10 })
         if (res.success) {
           const mapped = res.data.map(show => ({
             id: show.id, title: show.name, thumbnail: show.coverImageUrl,
             start_date: show.scheduledStart, province: show.loungeCity,
             genre: show.genres?.[0]?.name || 'Khác', genreId: show.genres?.[0]?.id || null,
-            price: show.minPrice === 0 && show.maxPrice === 0 ? 'Miễn phí' : `${show.minPrice.toLocaleString('vi-VN')}đ`,
+            // Show chưa có hạng vé nào thì minPrice/maxPrice là null — gọi thẳng .toLocaleString()
+            // trên null sẽ làm vỡ cả carousel, nên phải chặn trước khi format.
+            price: show.minPrice == null ? 'Chưa mở bán'
+              : show.minPrice === 0 && show.maxPrice === 0 ? 'Miễn phí'
+                : `${show.minPrice.toLocaleString('vi-VN')}đ`,
             format: show.format, isWishlisted: show.isWishlisted
           }))
           setRecommendEvents(mapped)

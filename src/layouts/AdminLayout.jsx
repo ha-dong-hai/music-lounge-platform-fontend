@@ -1,12 +1,15 @@
 import { Outlet, NavLink, useNavigate } from 'react-router-dom'
-import { LayoutDashboard, Music, Package, LogOut, Users, Receipt, MessageSquareWarning } from 'lucide-react'
+import { LayoutDashboard, Music, Package, LogOut, Users, Receipt, MessageSquareWarning, ShieldAlert, Banknote, Landmark } from 'lucide-react'
+import { useAuthStore } from '../store/useAuthStore'
 
 const AdminLayout = () => {
   const navigate = useNavigate()
+  const logout = useAuthStore((s) => s.logout)
 
   const handleLogout = () => {
-    localStorage.removeItem('token')
-    localStorage.removeItem('user')
+    // Trước đây xoá key 'token'/'user' không khớp key thật ('musiclounge-auth') mà useAuthStore
+    // dùng — bấm Logout không thực sự xoá session, token cũ vẫn được axios gắn vào request sau đó.
+    logout()
     navigate('/login')
   }
 
@@ -38,11 +41,20 @@ const AdminLayout = () => {
           <NavLink to="/admin/packages" className={linkClasses}>
             <Package size={18} /> Package
           </NavLink>
+          <NavLink to="/admin/refunds" className={linkClasses}>
+            <Banknote size={18} /> Hoàn tiền
+          </NavLink>
+          <NavLink to="/admin/settlements" className={linkClasses}>
+            <Landmark size={18} /> Quyết toán
+          </NavLink>
           <NavLink to="/admin/ledger" className={linkClasses}>
             <Receipt size={18} /> Sổ cái (Ledger)
           </NavLink>
           <NavLink to="/admin/complaint" className={linkClasses}>
             <MessageSquareWarning size={18} /> Report
+          </NavLink>
+          <NavLink to="/admin/content-reports" className={linkClasses}>
+            <ShieldAlert size={18} /> Báo cáo vi phạm
           </NavLink>
         </nav>
 

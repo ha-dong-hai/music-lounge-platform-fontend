@@ -1,98 +1,304 @@
 // src/components/mshow-detail/EventMap.jsx
 import { useState, useEffect, useRef } from 'react'
-import React from 'react'
-import { useNavigate, Link } from 'react-router-dom'
-import { MapPin, Check, Lock, Loader2, Minus, Plus } from 'lucide-react'
-//import { Stage, Layer, Rect, Text } from 'react-konva'
+import { Link } from 'react-router-dom'
+import { MapPin, Check, Lock, Loader2, Minus, Plus, Ticket, Timer } from 'lucide-react'
 import toast from 'react-hot-toast'
-import { getLoungeZones } from '../../services/loungeServices'
+import { getTicketTiers } from '../../services/showServices'
+import { holdTicket, cancelHold, purchaseTicket } from '../../services/ticketServices'
+import { useAuthStore } from '../../store/useAuthStore'
 import Skeleton from '../shared/Skeleton'
 
-const ShowMap = ({ loungeId, showData }) => {
+const formatVnd = (amount) => `${Number(amount || 0).toLocaleString('vi-VN')}đ`
 
-    const [isLoading, setIsLoading] = useState(true)
-    const user = JSON.parse(localStorage.getItem('user') || 'null')
-    const [isLoginModalOpen, setIsLoginModalOpen] = useState(false)
+const formatCountdown = (secondsLeft) => {
+  const m = Math.max(0, Math.floor(secondsLeft / 60))
+  const s = Math.max(0, secondsLeft % 60)
+  return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
+}
 
-    useEffect(() => {
-        if (!loungeId) return
-        const fetchZones = async () => {
-            setIsLoading(true)
-            try {
-                const res = await getLoungeZones(loungeId, true)
-                if (res.success) {
-                    setZones(res.data)
-                }
-            } catch (err) {
-                console.error('Error loading zones:', err)
-            } finally {
-                setIsLoading(false)
-            }
+const ShowMap = ({ showData }) => {
+  const { user } = useAuthStore()
+
+  const [isLoading, setIsLoading] = useState(true)
+  const [tiers, setTiers] = useState([])
+  const [selectedPriceId, setSelectedPriceId] = useState(null)
+  const [quantity, setQuantity] = useState(1)
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false)
+  const [isProcessing, setIsProcessing] = useState(false)
+  const [hold, setHold] = useState(null) // { holdId, expiresAt, priceId, quantity }
+  const [secondsLeft, setSecondsLeft] = useState(0)
+  const countdownRef = useRef(null)
+
+  const showId = showData?.id
+
+  useEffect(() => {
+    if (!showId) return
+    const fetchTiers = async () => {
+      setIsLoading(true)
+      try {
+        const res = await getTicketTiers(showId)
+        if (res.success) {
+          setTiers(res.data)
         }
-        fetchZones()
-    }, [loungeId])
-
-    const handleZoneClick = (zone) => {
-        setSelectedZone(zone)
-        setQuantity(1) // Reset số lượng khi đổi zone
+      } catch (err) {
+        console.error('Error loading ticket tiers:', err)
+      } finally {
+        setIsLoading(false)
+      }
     }
+    fetchTiers()
+  }, [showId])
 
-    if (isLoading) {
-        return (
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="lg:col-span-2 bg-gray-900 border border-gray-800 rounded-2xl p-8 flex items-center justify-center h-[450px]">
-                    <Loader2 size={32} className="animate-spin text-[#C3B665]" />
-                </div>
-                <div className="lg:col-span-1"><Skeleton className="h-96 rounded-2xl" /></div>
-            </div>
-        )
+  // Đếm ngược thời hạn giữ chỗ theo mốc thật server trả về (expiresAt), không phải hardcode
+  useEffect(() => {
+    clearInterval(countdownRef.current)
+    if (!hold) return
+
+    const tick = () => {
+      const left = Math.round((new Date(hold.expiresAt).getTime() - Date.now()) / 1000)
+      setSecondsLeft(left)
+      if (left <= 0) {
+        clearInterval(countdownRef.current)
+        setHold(null)
+        toast.error('Đã hết thời gian giữ chỗ, vui lòng chọn lại.')
+      }
     }
+    tick()
+    countdownRef.current = setInterval(tick, 1000)
+    return () => clearInterval(countdownRef.current)
+  }, [hold])
 
+  const allPrices = tiers.flatMap((tier) =>
+    (tier.prices || [])
+      .filter((p) => p.purchaseChannel !== 'Offline')
+      .map((p) => ({ ...p, tierName: tier.name, tierId: tier.id }))
+  )
+  const selectedPrice = allPrices.find((p) => p.id === selectedPriceId) || null
+
+  const handleSelectPrice = (price) => {
+    if (hold) return // đang giữ chỗ dở dang thì không đổi lựa chọn
+    setSelectedPriceId(price.id)
+    setQuantity(1)
+  }
+
+  const maxQuantity = selectedPrice?.availableSlots ?? 10
+  const adjustQuantity = (delta) => {
+    setQuantity((q) => Math.min(Math.max(1, q + delta), Math.max(1, maxQuantity)))
+  }
+
+  const handleHold = async () => {
+    if (!user) {
+      setIsLoginModalOpen(true)
+      return
+    }
+    if (!selectedPrice) return
+    setIsProcessing(true)
+    try {
+      const res = await holdTicket(selectedPrice.id, quantity)
+      if (res.success) {
+        setHold({ holdId: res.data.holdId, expiresAt: res.data.expiresAt })
+        toast.success('Đã giữ chỗ! Vui lòng thanh toán trước khi hết hạn.')
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Không thể giữ chỗ, vé có thể đã hết.')
+    } finally {
+      setIsProcessing(false)
+    }
+  }
+
+  const handleCancelHold = async () => {
+    if (!hold) return
+    setIsProcessing(true)
+    try {
+      await cancelHold(hold.holdId)
+    } catch (err) {
+      console.error('Cancel hold error:', err)
+    } finally {
+      setHold(null)
+      setIsProcessing(false)
+    }
+  }
+
+  const handlePurchase = async () => {
+    if (!hold) return
+    setIsProcessing(true)
+    try {
+      const res = await purchaseTicket(hold.holdId)
+      if (res.success) {
+        window.location.href = res.data.paymentUrl
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Không thể khởi tạo thanh toán.')
+      setIsProcessing(false)
+    }
+  }
+
+  if (isLoading) {
     return (
-        <>
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
-                {/* KHU VỰC VẼ KONVA & DANH SÁCH ZONE THIẾU TOẠ ĐỘ */}
-                <div className="lg:col-span-2 bg-gray-900 border border-gray-800 rounded-2xl p-4 md:p-8 overflow-auto">
-
-                </div>
-
-                {/* KHU VỰC THÔNG TIN VÉ ĐÃ CHỌN */}
-                <div className="lg:col-span-1 bg-gray-900 border border-gray-800 rounded-2xl p-6 flex flex-col">
-                    <h3 className="text-xl font-bold text-[#C3B665] mb-6">Area Info</h3>
-
-                    <div className="flex-1 flex flex-col items-center justify-center text-center">
-                        <MapPin size={40} className="text-gray-700 mb-4" />
-                        <p className="text-gray-500 font-medium">No area selected</p>
-                        <p className="text-gray-600 text-sm mt-1">Click on area of the map to view details.</p>
-                    </div>
-
-                </div>
-            </div>
-
-            {/* MODAL YÊU CẦU ĐĂNG NHẬP */}
-            {isLoginModalOpen && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-                    <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setIsLoginModalOpen(false)}></div>
-                    <div className="relative bg-gray-950 border border-gray-800 rounded-2xl w-full max-w-md p-6 shadow-2xl text-center">
-                        <div className="w-16 h-16 mx-auto bg-[#C3B665]/10 rounded-full flex items-center justify-center mb-4 border border-[#C3B665]/30">
-                            <Lock size={28} className="text-[#C3B665]" />
-                        </div>
-                        <h2 className="text-xl font-bold text-white mb-2">Login required</h2>
-                        <p className="text-gray-400 mb-6">Please login to buy ticket.</p>
-                        <div className="flex gap-3">
-                            <button onClick={() => setIsLoginModalOpen(false)} className="flex-1 py-2.5 border border-gray-700 text-gray-300 rounded-lg font-medium hover:bg-gray-800 transition-colors">
-                                Cancel
-                            </button>
-                            <Link to="/login" className="flex-1 py-2.5 bg-[#C3B665] text-black rounded-lg font-bold hover:bg-[#d4c87f] transition-colors flex items-center justify-center">
-                                Login
-                            </Link>
-                        </div>
-                    </div>
-                </div>
-            )}
-        </>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 bg-gray-900 border border-gray-800 rounded-2xl p-8 flex items-center justify-center h-[450px]">
+          <Loader2 size={32} className="animate-spin text-[#C3B665]" />
+        </div>
+        <div className="lg:col-span-1"><Skeleton className="h-96 rounded-2xl" /></div>
+      </div>
     )
+  }
+
+  return (
+    <>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        {/* DANH SÁCH HẠNG VÉ */}
+        <div className="lg:col-span-2 bg-gray-900 border border-gray-800 rounded-2xl p-4 md:p-8">
+          <h3 className="text-xl font-bold text-[#C3B665] mb-6 flex items-center gap-2">
+            <Ticket size={20} /> Ticket tiers
+          </h3>
+
+          {allPrices.length === 0 ? (
+            <div className="flex flex-col items-center justify-center text-center py-16">
+              <MapPin size={40} className="text-gray-700 mb-4" />
+              <p className="text-gray-500 font-medium">No tickets available for this show yet.</p>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-3">
+              {allPrices.map((price) => {
+                const isSoldOut = price.availableSlots !== null && price.availableSlots <= 0
+                const isSelected = selectedPriceId === price.id
+                return (
+                  <button
+                    key={price.id}
+                    type="button"
+                    disabled={isSoldOut || !!hold}
+                    onClick={() => handleSelectPrice(price)}
+                    className={`w-full text-left flex items-center justify-between gap-4 p-4 rounded-lg border transition-colors ${
+                      isSelected
+                        ? 'border-[#C3B665] bg-[#C3B665]/10'
+                        : 'border-gray-800 hover:border-gray-600'
+                    } ${isSoldOut ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'} ${hold && !isSelected ? 'opacity-40' : ''}`}
+                  >
+                    <div className="min-w-0">
+                      <p className="text-white font-semibold truncate">{price.tierName} — {price.name}</p>
+                      <p className="text-gray-500 text-xs mt-1">
+                        {isSoldOut ? 'Sold out' : price.availableSlots != null ? `${price.availableSlots} left` : 'Available'}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-3 flex-shrink-0">
+                      <span className="text-[#C3B665] font-bold">{formatVnd(price.price)}</span>
+                      {isSelected && <Check size={18} className="text-[#C3B665]" />}
+                    </div>
+                  </button>
+                )
+              })}
+            </div>
+          )}
+        </div>
+
+        {/* THÔNG TIN VÉ ĐÃ CHỌN + THANH TOÁN */}
+        <div className="lg:col-span-1 bg-gray-900 border border-gray-800 rounded-2xl p-6 flex flex-col">
+          <h3 className="text-xl font-bold text-[#C3B665] mb-6">Order</h3>
+
+          {!selectedPrice ? (
+            <div className="flex-1 flex flex-col items-center justify-center text-center">
+              <MapPin size={40} className="text-gray-700 mb-4" />
+              <p className="text-gray-500 font-medium">No ticket selected</p>
+              <p className="text-gray-600 text-sm mt-1">Pick a ticket tier on the left.</p>
+            </div>
+          ) : (
+            <div className="flex-1 flex flex-col gap-5">
+              <div>
+                <p className="text-white font-semibold">{selectedPrice.tierName}</p>
+                <p className="text-gray-500 text-sm">{selectedPrice.name}</p>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <span className="text-gray-400 text-sm">Quantity</span>
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    disabled={!!hold || quantity <= 1}
+                    onClick={() => adjustQuantity(-1)}
+                    className="w-8 h-8 flex items-center justify-center rounded-full border border-gray-700 text-gray-300 disabled:opacity-30"
+                  >
+                    <Minus size={14} />
+                  </button>
+                  <span className="text-white font-bold w-6 text-center">{quantity}</span>
+                  <button
+                    type="button"
+                    disabled={!!hold || quantity >= maxQuantity}
+                    onClick={() => adjustQuantity(1)}
+                    className="w-8 h-8 flex items-center justify-center rounded-full border border-gray-700 text-gray-300 disabled:opacity-30"
+                  >
+                    <Plus size={14} />
+                  </button>
+                </div>
+              </div>
+
+              <div className="border-t border-gray-800 pt-4 flex items-center justify-between">
+                <span className="text-gray-400 text-sm">Total</span>
+                <span className="text-[#C3B665] font-bold text-lg">
+                  {formatVnd(selectedPrice.price * quantity)}
+                </span>
+              </div>
+
+              {hold ? (
+                <>
+                  <div className="flex items-center justify-center gap-2 bg-black/40 border border-[#C3B665]/40 rounded-lg py-2.5">
+                    <Timer size={16} className="text-[#C3B665]" />
+                    <span className="text-[#C3B665] font-mono font-bold">{formatCountdown(secondsLeft)}</span>
+                    <span className="text-gray-500 text-xs">time left to pay</span>
+                  </div>
+                  <button
+                    onClick={handlePurchase}
+                    disabled={isProcessing}
+                    className="w-full py-3 bg-[#C3B665] text-black rounded-lg font-bold hover:bg-[#d4c87f] transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                  >
+                    {isProcessing ? <Loader2 size={18} className="animate-spin" /> : 'Pay now'}
+                  </button>
+                  <button
+                    onClick={handleCancelHold}
+                    disabled={isProcessing}
+                    className="w-full py-2.5 border border-gray-700 text-gray-400 rounded-lg font-medium hover:bg-gray-800 transition-colors"
+                  >
+                    Cancel hold
+                  </button>
+                </>
+              ) : (
+                <button
+                  onClick={handleHold}
+                  disabled={isProcessing}
+                  className="w-full py-3 bg-[#C3B665] text-black rounded-lg font-bold hover:bg-[#d4c87f] transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  {isProcessing ? <Loader2 size={18} className="animate-spin" /> : 'Buy ticket'}
+                </button>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* MODAL YÊU CẦU ĐĂNG NHẬP */}
+      {isLoginModalOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setIsLoginModalOpen(false)}></div>
+          <div className="relative bg-gray-950 border border-gray-800 rounded-2xl w-full max-w-md p-6 shadow-2xl text-center">
+            <div className="w-16 h-16 mx-auto bg-[#C3B665]/10 rounded-full flex items-center justify-center mb-4 border border-[#C3B665]/30">
+              <Lock size={28} className="text-[#C3B665]" />
+            </div>
+            <h2 className="text-xl font-bold text-white mb-2">Login required</h2>
+            <p className="text-gray-400 mb-6">Please login to buy ticket.</p>
+            <div className="flex gap-3">
+              <button onClick={() => setIsLoginModalOpen(false)} className="flex-1 py-2.5 border border-gray-700 text-gray-300 rounded-lg font-medium hover:bg-gray-800 transition-colors">
+                Cancel
+              </button>
+              <Link to="/login" className="flex-1 py-2.5 bg-[#C3B665] text-black rounded-lg font-bold hover:bg-[#d4c87f] transition-colors flex items-center justify-center">
+                Login
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  )
 }
 
 export default ShowMap
