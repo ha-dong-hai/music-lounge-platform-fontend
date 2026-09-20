@@ -3,9 +3,11 @@
 // GHI CHÚ CHO ĐỘI FE:
 // - Tiêu chí riêng là thuộc tính do CHÍNH chủ phòng trà định nghĩa cho buổi diễn của mình (ví dụ
 //   "có phục vụ rượu", "độ ồn"), nằm ngoài danh mục chung do Admin quản.
-// - `key` là mã kỹ thuật dùng để tra cứu, `name` là tên hiển thị. ĐẶT KEY RỒI THÌ ĐỂ NGUYÊN: đổi key
-//   là mất liên kết với những giá trị đã gán cho các buổi diễn cũ. Backend không có endpoint sửa
-//   tiêu chí, nên màn này chỉ có Xem và Thêm — đó là giới hạn thật, không phải thiếu sót.
+// - TẠO RỒI LÀ VĨNH VIỄN. Backend không có endpoint sửa, xoá, hay tắt tiêu chí — tạo là lệnh duy
+//   nhất. Gõ sai một chữ trong tên thì tiêu chí đó ở lại mãi trên màn sửa của MỌI buổi diễn.
+//   Vì vậy màn này chỉ có Xem và Thêm, và form cảnh báo trước khi thêm. Đây là giới hạn thật của
+//   backend, không phải thiếu sót của giao diện — đừng dựng nút Sửa/Xoá rồi chờ API.
+// - `key` là mã kỹ thuật dùng để tra cứu, `name` là tên hiển thị. Cả hai đều không sửa lại được.
 // - `dataType` quyết định người dùng nhập gì:
 //     Select  — options là danh sách lựa chọn, ví dụ ["VI","EN"]
 //     Range   — options là khoảng, ví dụ {"min":0,"max":100,"step":5}
@@ -136,8 +138,8 @@ const CustomCriteriaSection = ({ loungeId }) => {
               <label className="text-xs text-gray-500">Mã tiêu chí <span className="text-red-400">*</span></label>
               <input value={form.key} onChange={(e) => set('key', e.target.value)} className={`${inputCls} font-mono`} placeholder="VD: noise_level" />
               <p className="text-xs text-yellow-400/80 mt-1 leading-relaxed">
-                Đặt rồi thì để nguyên — backend không có endpoint sửa, và đổi mã là mất liên kết với
-                giá trị đã gán cho các buổi diễn cũ.
+                Kiểm kỹ trước khi thêm: tiêu chí tạo rồi thì KHÔNG sửa, KHÔNG xoá và KHÔNG tắt được.
+                Gõ sai là nó ở lại mãi trên màn sửa của mọi buổi diễn.
               </p>
             </div>
           </div>

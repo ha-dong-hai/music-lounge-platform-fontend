@@ -8,8 +8,12 @@
 //   lời gọi — không phải lấy danh sách tiêu chí rồi tự ghép giá trị.
 // - GHI LÀ THAY THẾ TOÀN BỘ danh sách. Vì vậy form nạp sẵn mọi giá trị đang có và gửi lại tất cả:
 //   bỏ sót một dòng là xoá mất giá trị của dòng đó.
-// - TIÊU CHÍ ĐÃ TẮT (criteriaIsActive = false) VẪN ĐƯỢC TRẢ VỀ và vẫn phải hiện — hiện mờ thôi.
-//   Lọc bỏ chúng rồi bấm Lưu là xoá mất giá trị cũ của những tiêu chí đó, vì ghi là thay thế toàn bộ.
+// - `criteriaIsActive` HIỆN CHƯA BAO GIỜ FALSE: backend không có endpoint nào sửa, xoá hay tắt tiêu
+//   chí, và lệnh tạo ghi cứng IsActive = true. Phần hiện mờ bên dưới vì vậy là mã chờ sẵn — giữ lại
+//   vì nếu sau này có endpoint tắt thì nó thành thật, nhưng ĐỪNG bỏ công làm thêm gì cho trạng thái
+//   đó, và đừng đi tìm cách tái hiện nó.
+//   Điều cần nhớ là phần còn lại của câu: dù vì lý do gì mà một tiêu chí biến mất khỏi form, lần Lưu
+//   kế tiếp sẽ xoá giá trị của nó — vì ghi là thay thế toàn bộ. Nên luôn nạp và gửi lại đủ mọi dòng.
 // - `value` đi và về đều là CHUỖI TRẦN. Backend lưu y nguyên chuỗi gửi lên, không bọc JSON.
 //   (docGiaTri() bên dưới chỉ để đọc dữ liệu CŨ do nơi khác ghi dạng JSON — không phải hợp đồng.)
 // - KIỂM KIỂU DỮ LIỆU CÓ Ở CẢ HAI PHÍA, và hai phía làm hai việc khác nhau — đừng bỏ bên nào:
@@ -23,8 +27,10 @@
 //     Range  — máy chủ kiểm "phải là số" TRƯỚC rồi mới đọc khoảng; options hỏng chỉ bỏ phần min/max
 //              chứ KHÔNG cho chữ đi qua. Màn này làm y hệt.
 //     Select — máy chủ chỉ đối chiếu khi options là MẢNG TOÀN CHUỖI; mảng số hay dạng lạ thì bỏ
-//              kiểm. Màn này đối chiếu cả mảng số, nhưng không lệch trên thực tế vì ô nhập là danh
-//              sách chọn, người dùng không gõ được giá trị ngoài danh sách.
+//              kiểm HOÀN TOÀN, nghĩa là một tiêu chí ô chọn mà mọi chuỗi đều lọt. Đừng nghĩ đó chỉ
+//              là "FE nghiêm hơn, vô hại" — mình đã kết luận nhầm như vậy một lần. Bản sửa ở lệnh
+//              TẠO tiêu chí (chưa lên master lúc viết dòng này) chặn tạo mới kiểu đó, nhưng tiêu chí
+//              CŨ vẫn còn, nên phần đối chiếu ở đây phải giữ.
 //     Boolean— máy chủ dùng bool.TryParse nên nhận cả "True"/"TRUE". Màn này chỉ sinh ra chữ thường,
 //              nhưng dữ liệu CŨ có thể đang là "True" — xem chuanHoaGiaTri() để biết vì sao phải
 //              hạ chữ thường lúc NẠP, chứ không phải lúc gửi.
@@ -85,6 +91,21 @@ const chuanHoaGiaTri = (c, v) => {
 // khác (0x1A, 0b101) — JavaScript đọc được chúng nhưng decimal.TryParse của máy chủ thì không, và
 // để lọt thì người dùng qua được cửa này rồi lại nhận 422.
 const LA_SO = /^[+-]?(\d+\.?\d*|\.\d+)([eE][+-]?\d+)?$/
+
+// Giá trị đang lưu mà KHÔNG có trong danh sách chọn — trả về chính nó, hoặc null nếu bình thường.
+//
+// VÌ SAO CẦN: ô Select và ô Boolean đều là danh sách chọn. Nếu giá trị đang lưu không khớp lựa chọn
+// nào thì trình duyệt hiện ô TRỐNG — trông y hệt "chưa đặt". Và vì ghi là THAY THẾ TOÀN BỘ, lần Lưu
+// kế tiếp xoá mất giá trị đó mà không ai thấy. Đây đúng là đường mất dữ liệu đã gặp ở Boolean, chỉ
+// khác chỗ vào.
+// Giá trị lạ vào được cơ sở dữ liệu bằng nhiều đường: ghi trước khi máy chủ có ràng buộc, hoặc tiêu
+// chí Select tạo bằng options không đọc được nên phép đối chiếu bị bỏ qua.
+// Cách xử lý: vẫn hiện nó như một lựa chọn, có ghi chú là nằm ngoài danh sách. Người dùng thấy và
+// tự quyết, thay vì mất âm thầm. kiemTraGiaTri() vẫn chặn lúc Lưu, nên không thể lưu lại giá trị sai.
+const giaTriLac = (danhSachHopLe, v) => {
+  const chuoi = String(v ?? '')
+  return chuoi !== '' && !danhSachHopLe.includes(chuoi) ? chuoi : null
+}
 
 // Kiểm giá trị có khớp `dataType` không. Trả về câu lỗi, hoặc null nếu hợp lệ.
 // Luật ở đây phải KHỚP với luật máy chủ (MLACP-470) — xem ghi chú đầu tệp, gồm cả chỗ cố ý
@@ -234,6 +255,13 @@ const ShowCustomValuesSection = ({ showId }) => {
           const opts = docOptions(c.options)
           const giaTriHienTai = giaTri[c.criteriaId] ?? ''
           const daTat = c.criteriaIsActive === false
+          // Chỉ hai kiểu dùng danh sách chọn mới có khái niệm "giá trị lạc"; Range và Text là ô nhập
+          // tự do nên giá trị nào cũng hiện được.
+          const lac = c.dataType === 'Select' && Array.isArray(opts)
+            ? giaTriLac(opts.map(String), giaTriHienTai)
+            : c.dataType === 'Boolean'
+              ? giaTriLac(['true', 'false'], giaTriHienTai)
+              : null
 
           return (
             // Tiêu chí đã tắt vẫn hiện, chỉ mờ đi: bỏ nó khỏi form là lần lưu sau xoá mất giá trị.
@@ -252,12 +280,18 @@ const ShowCustomValuesSection = ({ showId }) => {
                 <select value={giaTriHienTai} onChange={(e) => dat(c.criteriaId, e.target.value)} className={inputCls}>
                   <option value="">— không đặt —</option>
                   {opts.map((o) => <option key={String(o)} value={String(o)}>{String(o)}</option>)}
+                  {lac !== null && (
+                    <option value={lac}>{lac} — không có trong danh sách</option>
+                  )}
                 </select>
               ) : c.dataType === 'Boolean' ? (
                 <select value={giaTriHienTai} onChange={(e) => dat(c.criteriaId, e.target.value)} className={inputCls}>
                   <option value="">— không đặt —</option>
                   <option value="true">Có</option>
                   <option value="false">Không</option>
+                  {lac !== null && (
+                    <option value={lac}>{lac} — không phải có/không</option>
+                  )}
                 </select>
               ) : c.dataType === 'Range' && opts && typeof opts === 'object' ? (
                 <>
@@ -273,6 +307,13 @@ const ShowCustomValuesSection = ({ showId }) => {
                 // Text, hoặc Select/Range mà options không đọc được → chữ tự do, tối đa 1000 ký tự
                 <input value={giaTriHienTai} maxLength={1000}
                   onChange={(e) => dat(c.criteriaId, e.target.value)} className={inputCls} />
+              )}
+
+              {lac !== null && (
+                <p className="text-[11px] text-yellow-400/90 mt-1 leading-relaxed">
+                  Giá trị đang lưu nằm ngoài danh sách cho phép. Chọn lại một giá trị hợp lệ — để
+                  nguyên thì không lưu được.
+                </p>
               )}
             </div>
           )
