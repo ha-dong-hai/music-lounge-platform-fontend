@@ -15,11 +15,12 @@
 //   sang id trong danh mục. Tên không khớp thì để trống và báo người dùng chọn lại, KHÔNG âm thầm
 //   gửi null (sẽ xoá mất không gian đang có).
 import { useState, useEffect, useCallback } from 'react'
-import { Loader2, Store, Save, Upload, FileText, ExternalLink, AlertTriangle, CheckCircle2, Clock } from 'lucide-react'
+import { Loader2, Store, Save, Upload, FileText, ExternalLink, AlertTriangle, CheckCircle2, Clock, Trash2, ArrowLeft, ArrowRight } from 'lucide-react'
 import toast from 'react-hot-toast'
 import {
   getLounges, getLoungeDetail, createLounge, updateLounge,
   setLoungeImage, setLoungeBusinessLicense, getLoungeBusinessLicense,
+  addGalleryImage, removeGalleryImage, reorderGalleryImages,
 } from '../../services/loungeServices'
 import { getAtmospheres } from '../../services/catalogServices'
 import { uploadImage } from '../../services/userServices'
@@ -187,6 +188,54 @@ const OwnerLoungePage = () => {
     }
   }
 
+  // Thu vien anh: them tung anh, xoa tung anh, va doi thu tu bang cach GUI LAI TOAN BO danh sach id
+  // theo thu tu mong muon (backend khong nhan "doi cho hai anh").
+  const handleThemAnhThuVien = async (file) => {
+    if (!file || !lounge) return
+    setIsUploading('gallery')
+    try {
+      const up = await uploadImage(file)
+      if (!up.success) throw new Error(up.message)
+      await addGalleryImage(lounge.id, { imageUrl: up.data?.url ?? up.data })
+      toast.success('Đã thêm ảnh vào thư viện.')
+      await load()
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Không thêm được ảnh.')
+    } finally {
+      setIsUploading(null)
+    }
+  }
+
+  const handleXoaAnhThuVien = async (imageId) => {
+    setIsUploading('gallery')
+    try {
+      await removeGalleryImage(lounge.id, imageId)
+      toast.success('Đã xoá ảnh.')
+      await load()
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Không xoá được ảnh.')
+    } finally {
+      setIsUploading(null)
+    }
+  }
+
+  const handleDoiThuTu = async (imageId, huong) => {
+    const ds = [...(lounge.galleryImages ?? [])].sort((a, b) => a.orderIndex - b.orderIndex)
+    const i = ds.findIndex((x) => x.id === imageId)
+    const j = i + huong
+    if (i < 0 || j < 0 || j >= ds.length) return
+    ;[ds[i], ds[j]] = [ds[j], ds[i]]
+    setIsUploading('gallery')
+    try {
+      await reorderGalleryImages(lounge.id, ds.map((x) => x.id))
+      await load()
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Không đổi được thứ tự.')
+    } finally {
+      setIsUploading(null)
+    }
+  }
+
   const handleXemGiayPhep = async () => {
     try {
       const blob = await getLoungeBusinessLicense(lounge.id)
@@ -312,6 +361,53 @@ const OwnerLoungePage = () => {
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* THƯ VIỆN ẢNH — thứ tự quyết định ảnh nào khán giả thấy trước. Đổi thứ tự là gửi lại
+          TOÀN BỘ danh sách id, backend không nhận lệnh "đổi chỗ hai ảnh". */}
+      {isEdit && (
+        <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <h3 className="text-base font-semibold text-white">Thư viện ảnh</h3>
+              <p className="text-xs text-gray-500 mt-0.5">Ảnh không gian phòng trà. Thứ tự bên dưới là thứ tự khán giả xem.</p>
+            </div>
+            <label className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-700 text-gray-300 text-sm font-medium hover:bg-gray-800 cursor-pointer flex-shrink-0">
+              {isUploading === 'gallery' ? <Loader2 size={16} className="animate-spin" /> : <Upload size={16} />}
+              Thêm ảnh
+              <input type="file" accept="image/*" className="hidden" disabled={isUploading !== null}
+                onChange={(e) => handleThemAnhThuVien(e.target.files?.[0])} />
+            </label>
+          </div>
+
+          {(lounge.galleryImages?.length ?? 0) === 0 ? (
+            <p className="mt-4 text-sm text-gray-500">Chưa có ảnh nào trong thư viện.</p>
+          ) : (
+            <ul className="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-3">
+              {[...lounge.galleryImages].sort((a, b) => a.orderIndex - b.orderIndex).map((img, i, arr) => (
+                <li key={img.id} className="relative group">
+                  <img src={img.imageUrl} alt={img.caption ?? ''} className="w-full h-28 object-cover rounded-lg border border-gray-800" />
+                  <div className="absolute inset-x-0 bottom-0 flex justify-between items-center gap-1 p-1.5 bg-black/70 rounded-b-lg opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="flex gap-1">
+                      <button onClick={() => handleDoiThuTu(img.id, -1)} disabled={i === 0 || isUploading !== null}
+                        className="p-1 rounded text-gray-300 hover:text-white disabled:opacity-30" title="Lùi lên trước">
+                        <ArrowLeft size={13} />
+                      </button>
+                      <button onClick={() => handleDoiThuTu(img.id, 1)} disabled={i === arr.length - 1 || isUploading !== null}
+                        className="p-1 rounded text-gray-300 hover:text-white disabled:opacity-30" title="Đẩy xuống sau">
+                        <ArrowRight size={13} />
+                      </button>
+                    </div>
+                    <button onClick={() => handleXoaAnhThuVien(img.id)} disabled={isUploading !== null}
+                      className="p-1 rounded text-red-400 hover:text-red-300 disabled:opacity-30" title="Xoá ảnh">
+                      <Trash2 size={13} />
+                    </button>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       )}
     </div>

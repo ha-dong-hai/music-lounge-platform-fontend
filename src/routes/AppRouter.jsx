@@ -40,6 +40,7 @@ import OwnerSubscriptionPage from '../pages/owner/OwnerSubscriptionPage'
 import OwnerAnalyticsPage from '../pages/owner/OwnerAnalyticsPage'
 import OwnerLoungePage from '../pages/owner/OwnerLoungePage'
 import OwnerBankAccountsPage from '../pages/owner/OwnerBankAccountsPage'
+import OwnerZonesPage from '../pages/owner/OwnerZonesPage'
 import OwnerOperatePage from '../pages/owner/OwnerOperatePage'
 import OwnerFnbOrdersPage from '../pages/owner/OwnerFnbOrdersPage'
 import OwnerFnbMenusPage from '../pages/owner/OwnerFnbMenusPage'
@@ -102,6 +103,7 @@ const AppRouter = createBrowserRouter([
       { index: true, element: <OwnerLivestreamsPage /> },
       { path: 'lounge', element: <ProtectedRoute requiredRoles={['Owner']}><OwnerLoungePage /></ProtectedRoute> },
       { path: 'bank-accounts', element: <ProtectedRoute requiredRoles={['Owner']}><OwnerBankAccountsPage /></ProtectedRoute> },
+      { path: 'zones', element: <ProtectedRoute requiredRoles={['Owner']}><OwnerZonesPage /></ProtectedRoute> },
       { path: 'shows', element: <ProtectedRoute requiredRoles={['Owner']}><OwnerShowsPage /></ProtectedRoute> },
       { path: 'shows/:id', element: <ProtectedRoute requiredRoles={['Owner']}><OwnerShowDetailPage /></ProtectedRoute> },
       { path: 'livestreams', element: <OwnerLivestreamsPage /> },

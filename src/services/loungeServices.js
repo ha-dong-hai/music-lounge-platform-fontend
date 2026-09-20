@@ -67,3 +67,55 @@ export const assignStaff = async (loungeId, userId) => {
 export const deactivateStaff = async (loungeId, staffId) => {
   return axiosClient.delete(`/lounges/${loungeId}/staff/${staffId}`);
 };
+
+// ===== KHU VỰC CHỖ NGỒI =====
+// Khu vực là không gian vật lý trong phòng trà (sân khấu, tầng trên, ban công...). Hạng vé có thể
+// trỏ tới một khu vực qua ZoneId, nên đặt khu vực trước rồi mới tạo hạng vé gắn vào.
+// Xoá khu vực là "ngừng hoạt động" (deactivate), không xoá thật — vé cũ còn tham chiếu tới nó.
+export const createZone = async (loungeId, { name, description = null, capacity }) => {
+  return axiosClient.post(`/lounges/${loungeId}/zones`, { name, description, capacity });
+};
+
+// PUT ghi đè cả ba trường — gửi lại đầy đủ.
+export const updateZone = async (zoneId, { name, description = null, capacity }) => {
+  return axiosClient.put(`/lounges/zones/${zoneId}`, { name, description, capacity });
+};
+
+export const deactivateZone = async (zoneId) => {
+  return axiosClient.delete(`/lounges/zones/${zoneId}`);
+};
+
+// Vị trí khu vực trên SƠ ĐỒ 2D. Toạ độ và kích thước là số thực, tính theo đơn vị của sơ đồ chứ
+// không phải pixel — FE tự quy đổi khi vẽ. Gửi đủ cả 6 trường, PUT ghi đè.
+export const setZoneLayout2D = async (loungeId, zoneId, { x, y, width, height, rotationDeg = 0, color = null }) => {
+  return axiosClient.put(`/lounges/${loungeId}/zones/${zoneId}/layout-2d`, { x, y, width, height, rotationDeg, color });
+};
+
+export const setZoneLayout3D = async (loungeId, zoneId, { x, y, z }) => {
+  return axiosClient.put(`/lounges/${loungeId}/zones/${zoneId}/layout-3d`, { x, y, z });
+};
+
+// Ảnh sơ đồ mặt bằng dùng làm NỀN cho sơ đồ 2D. Truyền null để bỏ ảnh nền.
+export const setAreaLayoutImage = async (loungeId, imageUrl) => {
+  return axiosClient.put(`/lounges/${loungeId}/area-layout-image`, { imageUrl });
+};
+
+// ===== THƯ VIỆN ẢNH =====
+export const addGalleryImage = async (loungeId, { imageUrl, caption = null }) => {
+  return axiosClient.post(`/lounges/${loungeId}/gallery`, { imageUrl, caption });
+};
+
+export const removeGalleryImage = async (loungeId, imageId) => {
+  return axiosClient.delete(`/lounges/${loungeId}/gallery/${imageId}`);
+};
+
+// Gửi TOÀN BỘ danh sách id theo thứ tự mong muốn, không phải chỉ cái bị đổi chỗ.
+export const reorderGalleryImages = async (loungeId, orderedImageIds) => {
+  return axiosClient.put(`/lounges/${loungeId}/gallery/order`, { orderedImageIds });
+};
+
+// ===== MÔ HÌNH 3D =====
+// Một file .glb/.gltf duy nhất cho cả không gian phòng trà. Tải file lên /uploads/models trước.
+export const setLoungeModel3D = async (loungeId, modelUrl) => {
+  return axiosClient.put(`/lounges/${loungeId}/model-3d`, { modelUrl });
+};
