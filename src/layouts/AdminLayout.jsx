@@ -1,5 +1,5 @@
 import { Outlet, NavLink, useNavigate } from 'react-router-dom'
-import { LayoutDashboard, Music, Package, LogOut, Users, Receipt, MessageSquareWarning } from 'lucide-react'
+import { LayoutDashboard, Music, Package, LogOut, Users, Receipt, MessageSquareWarning, SlidersHorizontal } from 'lucide-react'
 
 const AdminLayout = () => {
   const navigate = useNavigate()
@@ -31,6 +31,13 @@ const AdminLayout = () => {
           </NavLink>
           <NavLink to="/admin/shows" className={linkClasses}>
             <Music size={18} /> Musical Shows
+          </NavLink>
+          <NavLink to="/admin/venues" className={linkClasses}>
+            <Music size={18} /> Venues
+          </NavLink>
+          <NavLink to="/admin/filter-options" className={linkClasses}>
+            <SlidersHorizontal size={20} />
+            <span>Filter Options</span>
           </NavLink>
           <NavLink to="/admin/accounts" className={linkClasses}>
             <Users size={18} /> Account management

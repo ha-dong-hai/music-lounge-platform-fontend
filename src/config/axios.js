@@ -36,7 +36,12 @@ axiosClient.interceptors.request.use(
 
 // Interceptor Response: Trả về thẳng data để service xử lý
 axiosClient.interceptors.response.use(
-  (response) => response.data,
+  (response) => {
+    if (response.status === 204 || response.data === '' || response.data == null) {
+      return { success: true, data: null, message: null }
+    }
+    return response.data
+  },
   (error) => {
     // Xử lý lỗi tập trung (VD: 401 thì logout)
     if (error.response?.status === 401) {

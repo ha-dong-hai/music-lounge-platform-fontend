@@ -6,6 +6,7 @@ import toast from 'react-hot-toast'
 import { getLounges } from '../../services/loungeServices'
 import { getFollowedLounges, toggleFollowLounge } from '../../services/interactionServices'
 import { useAuthStore } from '../../store/useAuthStore'
+import { formatCompactNumber } from '../../utils/format'
 
 const LoungeListPage = () => {
   const { user } = useAuthStore()
@@ -199,7 +200,7 @@ const LoungeListPage = () => {
                   {/* NGƯỜI THEO DÕI NẾU CÓ */}
                   {typeof lounge.followerCount === 'number' && (
                     <span className="text-[11px] text-gray-500 flex items-center gap-1 mb-5">
-                      <Users size={12} /> {lounge.followerCount.toLocaleString('vi-VN')} following
+                      <Users size={12} /> {formatCompactNumber(lounge.followerCount)} follower(s)
                     </span>
                   )}
 

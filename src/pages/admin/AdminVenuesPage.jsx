@@ -1,0 +1,126 @@
+import { useState, useEffect, useMemo } from 'react'
+import { Building2 } from 'lucide-react'
+import toast from 'react-hot-toast'
+import { getAdminVenues } from '../../services/adminServices'
+import VenuesStatsCards from '../../components/admin/venues/VenuesStatsCards'
+import VenuesFilterBar from '../../components/admin/venues/VenuesFilterBar'
+import VenuesTable from '../../components/admin/venues/VenuesTable'
+
+// 6 status BE hỗ trợ
+const ALL_STATUSES = ['Pending', 'Approved', 'Warned', 'Suspended', 'Locked', 'Rejected']
+
+const AdminVenuesPage = () => {
+  const [venues, setVenues] = useState([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [pagination, setPagination] = useState({ page: 1, totalPages: 1, totalCount: 0 })
+
+  // Filters (status = server-side, search = client-side)
+  const [statusFilter, setStatusFilter] = useState('all')
+  const [searchQuery, setSearchQuery] = useState('')
+
+  // Stats cho 6 thẻ (fetch song song 7 request pageSize=1 — pattern getAdminStats)
+  const [counts, setCounts] = useState({ total: 0 })
+
+  // 1. FETCH STATS (chạy 1 lần) — mỗi status 1 request chỉ lấy totalCount
+  useEffect(() => {
+    const fetchCounts = async () => {
+      try {
+        const requests = ALL_STATUSES.map(status =>
+          getAdminVenues({ status, page: 1, pageSize: 1 }).catch(() => null)
+        )
+        const results = await Promise.all(requests)
+        const nextCounts = { total: 0 }
+        results.forEach((res, i) => {
+          const count = res?.success ? (res.data.totalCount || 0) : 0
+          nextCounts[ALL_STATUSES[i]] = count
+          nextCounts.total += count
+        })
+        setCounts(nextCounts)
+      } catch (err) {
+        console.error('Lỗi load venue counts:', err)
+      }
+    }
+    fetchCounts()
+  }, [])
+
+  // 2. FETCH DANH SÁCH (status filter server-side)
+  useEffect(() => {
+    const fetchVenues = async () => {
+      setIsLoading(true)
+      try {
+        const params = {
+          page: pagination.page,
+          pageSize: 10,
+          status: statusFilter !== 'all' ? statusFilter : undefined, // bỏ param khi all
+        }
+        Object.keys(params).forEach(k => params[k] === undefined && delete params[k])
+
+        const res = await getAdminVenues(params)
+        if (res.success) {
+          setVenues(res.data.items)
+          setPagination(prev => ({ ...prev, totalPages: res.data.totalPages, totalCount: res.data.totalCount }))
+        }
+      } catch (err) {
+        console.error('Error loading venues:', err)
+        toast.error('Unable to load Musical Venue')
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    fetchVenues()
+  }, [pagination.page, statusFilter])
+
+  // 3. ĐỔI FILTER → VỀ TRANG 1
+  useEffect(() => {
+    setPagination(prev => ({ ...prev, page: 1 }))
+  }, [statusFilter, searchQuery])
+
+  // 4. SEARCH CLIENT-SIDE trong trang hiện tại
+  const filteredVenues = useMemo(() => {
+    const q = searchQuery.toLowerCase().trim()
+    if (!q) return venues
+    return venues.filter(v =>
+      (v.name || '').toLowerCase().includes(q) ||
+      (v.ownerName || '').toLowerCase().includes(q) ||
+      (v.ownerEmail || '').toLowerCase().includes(q) ||
+      (v.ownerPhone || '').includes(q) ||
+      (v.fullAddress || '').toLowerCase().includes(q)
+    )
+  }, [venues, searchQuery])
+
+  return (
+    <div className="space-y-6">
+      {/* HEADER */}
+      <div className="flex items-center gap-3">
+        <Building2 size={28} className="text-[#C3B665]" />
+        <div>
+          <h1 className="text-2xl font-bold text-white">Manage Venue</h1>
+          <p className="text-gray-400 text-sm">Manage the status of tea rooms within the system.</p>
+        </div>
+      </div>
+
+      {/* STATS CARDS */}
+      <VenuesStatsCards
+        counts={counts}
+        statusFilter={statusFilter}
+        onSelectStatus={setStatusFilter}
+      />
+
+      {/* FILTERS */}
+      <VenuesFilterBar
+        searchQuery={searchQuery} setSearchQuery={setSearchQuery}
+        statusFilter={statusFilter} setStatusFilter={setStatusFilter}
+      />
+
+      {/* TABLE */}
+      <VenuesTable
+        venues={filteredVenues}
+        isLoading={isLoading}
+        pagination={pagination}
+        onPageChange={(page) => setPagination(prev => ({ ...prev, page }))}
+      />
+    </div>
+  )
+}
+
+export default AdminVenuesPage

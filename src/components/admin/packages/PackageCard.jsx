@@ -1,4 +1,5 @@
 import { Pencil, EyeOff, Ticket, Sparkles, Box, X } from 'lucide-react'
+import { formatCurrency } from '../../../utils/format'
 
 // Kiểu hiển thị 1 feature
 const Feature = ({ icon: Icon, label, enabled }) => (
@@ -68,7 +69,7 @@ export const PackageCard = ({ pkg, onEdit, onToggleStatus }) => {
         {pkg.price > 0 ? (
           <>
             <span className="text-[38px] leading-none font-bold bg-gradient-to-r from-[#C3B665] to-[#ede2a0] bg-clip-text text-transparent">
-              {pkg.price.toLocaleString('vi-VN')}
+              {formatCurrency(pkg.price)}
             </span>
             <span className="text-lg font-bold text-[#C3B665] mb-0.5">đ</span>
             <span className="text-gray-500 text-xs mb-1">/ {pkg.billingCycle === 'Yearly' ? 'Yearly' : 'Monthly'}</span>
@@ -117,7 +118,7 @@ export const HiddenPackageCard = ({ pkg, onEdit, onRestore }) => {
         <div className="min-w-0">
           <h4 className="text-base font-bold text-gray-300 truncate">{pkg.name}</h4>
           <p className="text-xs text-gray-600">
-            {pkg.price > 0 ? `${pkg.price.toLocaleString('vi-VN')}đ / ${pkg.billingCycle === 'Yearly' ? 'Yearly' : 'Monthly'}` : 'Free'} · #{pkg.id}
+            {pkg.price > 0 ? `${formatCurrency(pkg.price)}đ / ${pkg.billingCycle === 'Yearly' ? 'Yearly' : 'Monthly'}` : 'Free'} · #{pkg.id}
           </p>
         </div>
       </div>

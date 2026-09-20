@@ -1,5 +1,6 @@
-// src/components/lounge/LoungeSidebar.jsx
+// src/lounge/LoungeSidebar.jsx
 import { MapPin, Users, Heart, ExternalLink } from 'lucide-react'
+import { formatCompactNumber } from '../../utils/format'
 
 const LoungeSidebar = ({ lounge }) => {
   if (!lounge) return null
@@ -51,7 +52,7 @@ const LoungeSidebar = ({ lounge }) => {
         <div className="grid grid-cols-2 gap-6 w-full">
           <div>
             <p className="text-white font-bold text-2xl leading-tight">
-              {(lounge.followerCount || 0).toLocaleString('vi-VN')}
+              {formatCompactNumber(lounge.followerCount)}
             </p>
             <p className="text-gray-500 text-xs font-medium mt-1">Follower</p>
           </div>
