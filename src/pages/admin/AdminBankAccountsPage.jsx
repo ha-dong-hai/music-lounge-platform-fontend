@@ -14,13 +14,13 @@
 //   bằng TÊN chủ tài khoản, không phải bằng số.
 // - Danh sách này CHỈ có tài khoản của phòng trà. Tài khoản nhận tiền của nghệ sĩ không duyệt ở đây.
 // - Từ chối thì `note` là thứ duy nhất cho chủ phòng trà biết phải sửa gì — bắt buộc nhập.
-// - `createdAt` của bảng này hiện về KHÔNG kèm múi giờ ("2026-08-17T13:12:19.838"), dù giá trị là
+// - `createdAt` của bảng này TỪNG về KHÔNG kèm múi giờ ("2026-08-17T13:12:19.838") dù giá trị là
 //   giờ UTC — gốc là DTO khai `DateTime` thay vì `DateTimeOffset`. Lệch đúng 7 tiếng ở Việt Nam,
-//   đủ để nhảy sang ngày hôm sau mà vẫn trông hợp lý. Toàn hệ thống chỉ có 2/139 trường bị vậy:
-//   trường này và `createdAt` của danh sách người dùng Admin. Backend đã có bản vá chờ merge.
-//   mocUtc() chỉ thêm 'Z' KHI chuỗi chưa có múi giờ, nên khi bản vá lên (chuỗi sẽ có "+00:00")
-//   hàm này TỰ TRỞ THÀNH KHÔNG LÀM GÌ — không phải gỡ, và không lệch ngược. Nó KHÔNG cộng trừ giờ.
-//   Các mốc của án phạt vốn đã có offset nên bọc hay không đều ra cùng một mốc.
+//   đủ để nhảy sang ngày hôm sau mà vẫn trông hợp lý. Toàn hệ thống có 3 trường bị vậy (trường
+//   này, `createdAt` của danh sách người dùng Admin, và một trường trong bản xuất dữ liệu cá nhân).
+//   Backend đã sửa cả ba và deploy 21/09; chuỗi nay về kèm "+00:00".
+//   mocUtc() chỉ thêm 'Z' KHI chuỗi chưa có múi giờ, nên với dữ liệu hiện tại nó KHÔNG LÀM GÌ CẢ.
+//   Giữ lại làm lưới chắn, không phải vá tạm quên gỡ. Các mốc của án phạt vốn đã có offset.
 // - `expectedAccountHolder: null` kèm `holderNameMatches: false` là trạng thái CÓ THẬT khi chủ
 //   phòng trà chưa được chốt họ tên trên CCCD — đó đúng là lúc nút Duyệt phải chặn.
 import { useState, useEffect, useCallback } from 'react'

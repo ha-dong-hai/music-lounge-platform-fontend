@@ -1,9 +1,10 @@
-// GHI CHÚ — MỐC THỜI GIAN THIẾU MÚI GIỜ:
-// `createdAt` của UserAdminDto hiện về KHÔNG kèm múi giờ ("2026-08-17T13:12:19.838"), dù giá trị là
-// giờ UTC. Đưa thẳng vào dayjs là bị hiểu thành giờ máy → lệch đúng 7 tiếng ở Việt Nam.
-// mocUtc() chỉ thêm 'Z' KHI chuỗi chưa có múi giờ, nên khi backend sửa DTO (thành DateTimeOffset,
-// chuỗi sẽ có "+00:00") thì hàm này TỰ TRỞ THÀNH KHÔNG LÀM GÌ — không phải gỡ, và không có chuyện
-// lệch ngược 7 tiếng. Nó KHÔNG cộng trừ giờ, chỉ diễn giải một chuỗi thiếu thông tin.
+// GHI CHÚ — VÌ SAO CÒN BỌC mocUtc() DÙ LỖI ĐÃ ĐƯỢC SỬA:
+// `createdAt` của UserAdminDto từng về KHÔNG kèm múi giờ ("2026-08-17T13:12:19.838") dù giá trị là
+// giờ UTC, nên dayjs hiểu thành giờ máy và lệch đúng 7 tiếng ở Việt Nam. Backend đã sửa DTO sang
+// DateTimeOffset và deploy 21/09; chuỗi nay về kèm "+00:00".
+// mocUtc() chỉ thêm 'Z' KHI chuỗi chưa có múi giờ, nên với dữ liệu hiện tại nó KHÔNG LÀM GÌ CẢ.
+// Giữ lại vì nó không tốn gì và là lưới chắn nếu có ai đổi DTO về kiểu cũ — KHÔNG phải vá tạm quên
+// gỡ. Nó không cộng trừ giờ, chỉ diễn giải một chuỗi thiếu thông tin.
 import { Eye, Ban, Unlock, Loader2, ChevronLeft, ChevronRight, Users as UsersIcon } from 'lucide-react'
 import dayjs from 'dayjs'
 import { mocUtc } from '../../../utils/format'
