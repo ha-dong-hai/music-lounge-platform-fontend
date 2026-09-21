@@ -15,7 +15,8 @@
 //   Điều cần nhớ là phần còn lại của câu: dù vì lý do gì mà một tiêu chí biến mất khỏi form, lần Lưu
 //   kế tiếp sẽ xoá giá trị của nó — vì ghi là thay thế toàn bộ. Nên luôn nạp và gửi lại đủ mọi dòng.
 // - `value` đi và về đều là CHUỖI TRẦN. Backend lưu y nguyên chuỗi gửi lên, không bọc JSON.
-//   (docGiaTri() bên dưới chỉ để đọc dữ liệu CŨ do nơi khác ghi dạng JSON — không phải hợp đồng.)
+//   Dữ liệu CŨ thì có dòng còn ở dạng JSON đóng gói ("\"Bolero\""), và máy chủ bóc một lớp nháy
+//   trước khi đối chiếu — nên màn này phải bóc y hệt, xem boMotLopNhay() / chuanHoaSoKhop().
 // - KIỂM KIỂU DỮ LIỆU CÓ Ở CẢ HAI PHÍA, và hai phía làm hai việc khác nhau — đừng bỏ bên nào:
 //     Máy chủ (MLACP-470) TỪ CHỐI 422 khi giá trị không khớp `dataType`. Đây là chỗ bảo đảm thật,
 //       vì nó chặn cả người gọi thẳng API.
@@ -48,19 +49,23 @@ import { getShowCustomValues, setShowCustomValues } from '../../services/customC
 
 const inputCls = 'mt-1 w-full px-3 py-2 bg-black border border-gray-700 rounded-lg text-sm text-white focus:outline-none focus:border-[#C3B665]/50'
 
-// CHỈ DÙNG CHO DỮ LIỆU CŨ: một số giá trị trong cơ sở dữ liệu được ghi dạng JSON ("\"Acoustic\"")
-// từ trước. Hợp đồng hiện tại là chuỗi trần, nên hàm này cố ý HẸP — chỉ gỡ khi chuỗi mở và đóng
-// bằng nháy kép, để không đụng vào số hay true/false và để chuỗi trần đi thẳng qua.
-const docGiaTri = (v) => {
-  if (typeof v !== 'string') return v ?? ''
-  if (!(v.startsWith('"') && v.endsWith('"'))) return v
-  try {
-    const da = JSON.parse(v)
-    return typeof da === 'string' ? da : v
-  } catch {
-    return v
-  }
-}
+// BẢN SAO CHÍNH XÁC luật chuẩn hoá của máy chủ (CustomCriteriaValue.GoMotLopNhayKep + Trim).
+// Hai bên PHẢI khớp từng bước, nếu không thì màn này gắn nhãn "không có trong danh sách" lên một
+// giá trị mà máy chủ coi là hợp lệ, rồi chặn Lưu thứ đáng lẽ lưu được — người dùng kẹt.
+//
+// Thứ tự đúng, không được đổi:
+//   1. Nếu ký tự ĐẦU và CUỐI đều là nháy kép (và chuỗi dài ≥ 2) thì bóc ĐÚNG MỘT lớp. Cắt thô, KHÔNG
+//      dùng JSON.parse: máy chủ cắt thô, nên "ab"c" thành ab"c chứ không phải bị coi là không đọc được.
+//   2. Rồi mới cắt khoảng trắng hai đầu.
+//   3. So khớp CHÍNH XÁC, phân biệt hoa thường.
+//   4. Các chuỗi trong options KHÔNG bị cắt khoảng trắng — dùng nguyên văn như trong JSON.
+// (Bản cũ ở đây dùng JSON.parse và không trim, nên lệch ở hai ca: giá trị bọc nháy có khoảng trắng
+//  bên trong, và chuỗi bọc nháy không phải JSON hợp lệ.)
+const boMotLopNhay = (s) => (
+  s.length >= 2 && s[0] === '"' && s[s.length - 1] === '"' ? s.slice(1, -1) : s
+)
+
+const chuanHoaSoKhop = (v) => (typeof v === 'string' ? boMotLopNhay(v).trim() : '')
 
 // options là chuỗi do chủ phòng trà tự nhập lúc tạo tiêu chí → có thể không phải JSON hợp lệ.
 // Không đọc được thì trả null và ô nhập rơi về chữ tự do.
@@ -80,11 +85,29 @@ const docOptions = (chuoi) => {
 // "True". Nạp thẳng vào danh sách chọn thì KHÔNG khớp lựa chọn nào → ô hiện trống như thể chưa đặt
 // → và vì ghi là THAY THẾ TOÀN BỘ, lần Lưu kế tiếp sẽ xoá mất giá trị đó mà không ai thấy.
 // Hạ chữ thường ở đây cắt đúng đường đó. Chỉ làm lúc NẠP: giá trị người dùng chọn thì vốn đã đúng.
+//
+// Select cũng cần một bước tương tự nhưng vì lý do khác: giá trị bọc NHIỀU lớp nháy ("""Bolero""")
+// sau khi bóc một lớp vẫn còn nháy, nên vẫn không khớp lựa chọn nào và ô lại hiện trống — dù máy
+// chủ sẽ chấp nhận nó. Cách chắc chắn: nếu sau khi chuẩn hoá mà trùng một lựa chọn trong danh sách
+// thì lấy CHÍNH lựa chọn đó làm giá trị, để ô hiển thị đúng và thứ gửi đi cũng đúng.
 const chuanHoaGiaTri = (c, v) => {
-  const chuoi = docGiaTri(v)
-  if (c.dataType !== 'Boolean' || typeof chuoi !== 'string') return chuoi
-  const thap = chuoi.trim().toLowerCase()
-  return thap === 'true' || thap === 'false' ? thap : chuoi
+  const chuoi = chuanHoaSoKhop(v)
+  if (chuoi === '') return ''
+
+  if (c.dataType === 'Boolean') {
+    const thap = chuoi.toLowerCase()
+    return thap === 'true' || thap === 'false' ? thap : chuoi
+  }
+
+  if (c.dataType === 'Select') {
+    const opts = docOptions(c.options)
+    if (Array.isArray(opts)) {
+      const khop = opts.map(String).find((o) => o === chuanHoaSoKhop(chuoi))
+      if (khop !== undefined) return khop
+    }
+  }
+
+  return chuoi
 }
 
 // Một con số thập phân bình thường: có thể có dấu, phần thập phân, và số mũ. KHÔNG nhận dạng cơ số
@@ -102,9 +125,13 @@ const LA_SO = /^[+-]?(\d+\.?\d*|\.\d+)([eE][+-]?\d+)?$/
 // chí Select tạo bằng options không đọc được nên phép đối chiếu bị bỏ qua.
 // Cách xử lý: vẫn hiện nó như một lựa chọn, có ghi chú là nằm ngoài danh sách. Người dùng thấy và
 // tự quyết, thay vì mất âm thầm. kiemTraGiaTri() vẫn chặn lúc Lưu, nên không thể lưu lại giá trị sai.
+// So bằng ĐÚNG phép chuẩn hoá của máy chủ; danh sách hợp lệ dùng nguyên văn (máy chủ không cắt
+// khoảng trắng trong options). Trả về giá trị đang hiện trên ô, chứ không phải bản đã chuẩn hoá —
+// để hiện ra thì phải hiện đúng thứ người dùng sẽ thấy trong danh sách chọn.
 const giaTriLac = (danhSachHopLe, v) => {
   const chuoi = String(v ?? '')
-  return chuoi !== '' && !danhSachHopLe.includes(chuoi) ? chuoi : null
+  if (chuoi === '') return null
+  return danhSachHopLe.includes(chuanHoaSoKhop(chuoi)) ? null : chuoi
 }
 
 // Kiểm giá trị có khớp `dataType` không. Trả về câu lỗi, hoặc null nếu hợp lệ.
@@ -112,7 +139,9 @@ const giaTriLac = (danhSachHopLe, v) => {
 // nghiêm hơn. Riêng `Select` khi `options` không đọc được thì không có danh sách để đối chiếu, nên
 // bỏ qua giống máy chủ: ô nhập lúc đó cũng đã rơi về chữ tự do.
 const kiemTraGiaTri = (c, v) => {
-  const chuoi = String(v ?? '').trim()
+  // Chuẩn hoá lại đúng như máy chủ sẽ làm với chuỗi mình gửi lên — nếu không thì có thể chặn thứ
+  // máy chủ nhận, hoặc cho qua thứ máy chủ từ chối.
+  const chuoi = chuanHoaSoKhop(v)
   if (chuoi === '') return null // ô trống được bỏ khỏi payload, không phải lỗi
   if (chuoi.length > 1000) return `"${c.name}": tối đa 1000 ký tự.`
 
