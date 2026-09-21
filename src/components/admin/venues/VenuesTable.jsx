@@ -1,10 +1,10 @@
-import { Loader2, ChevronLeft, ChevronRight, Building2, ExternalLink } from 'lucide-react'
+import { Loader2, ChevronLeft, ChevronRight, Building2, ExternalLink, ShieldCheck } from 'lucide-react'
 import dayjs from 'dayjs'
 import { Link } from 'react-router-dom'
 import { VenueStatusBadge, LicenseBadge } from './VenueBadges'
 
 // Component thuần UI: nhận data đã lọc + callbacks từ cha
-const VenuesTable = ({ venues, isLoading, pagination, onViewPublicPage, onPageChange }) => {
+const VenuesTable = ({ venues, isLoading, pagination, onViewPublicPage, onPageChange, onReview }) => {
   return (
     <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
       <div className="overflow-x-auto">
@@ -55,14 +55,24 @@ const VenuesTable = ({ venues, isLoading, pagination, onViewPublicPage, onPageCh
                   <td className="p-4"><VenueStatusBadge status={v.status} /></td>
                   <td className="p-4 text-sm text-gray-400">{dayjs(v.createdAt).format('DD/MM/YYYY')}</td>
                   <td className="p-4 text-right">
-                    {/* Nút xem trang public của venue */}
-                    <Link
-                      to={`/lounge/${v.loungeId}`}
-                      target="_blank"
-                      className="inline-flex items-center gap-1.5 text-[#C3B665] border border-[#C3B665]/30 hover:bg-[#C3B665]/10 px-3 py-1.5 rounded-md text-xs font-bold transition-colors"
-                    >
-                      <ExternalLink size={12} /> Xem
-                    </Link>
+                    <div className="flex items-center justify-end gap-2">
+                      {/* NÚT REVIEW — hiện với venue chờ duyệt / bị từ chối (duyệt lại được) */}
+                      {(v.status === 'Pending' || v.status === 'Rejected') && (
+                        <button
+                          onClick={() => onReview(v)}
+                          className="inline-flex items-center gap-1.5 bg-[#C3B665] text-black px-3 py-1.5 rounded-md text-xs font-bold hover:bg-[#d4c87f] transition-colors"
+                        >
+                          <ShieldCheck size={12} /> Review
+                        </button>
+                      )}
+                      <Link
+                        to={`/lounge/${v.loungeId}`}
+                        target="_blank"
+                        className="inline-flex items-center gap-1.5 text-[#C3B665] border border-[#C3B665]/30 hover:bg-[#C3B665]/10 px-3 py-1.5 rounded-md text-xs font-bold transition-colors"
+                      >
+                        <ExternalLink size={12} /> View
+                      </Link>
+                    </div>
                   </td>
                 </tr>
               ))

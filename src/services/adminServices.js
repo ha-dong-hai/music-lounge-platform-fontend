@@ -79,3 +79,10 @@ export const reviewShowModeration = async (showId, decision, reviewNote = '') =>
     reviewNote,
   });
 };
+
+export const reviewVenue = async (venueId, decision, reviewNote = '') => {
+  if (decision !== 'Approved' && decision !== 'Rejected') {
+    return Promise.reject(new Error('decision chỉ nhận "Approved" hoặc "Rejected"'));
+  }
+  return axiosClient.post(`/admin/venues/${venueId}/review`, { decision, reviewNote });
+};
