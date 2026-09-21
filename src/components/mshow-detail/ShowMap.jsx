@@ -1,7 +1,8 @@
 // src/components/mshow-detail/EventMap.jsx
 import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
-import { MapPin, Check, Lock, Loader2, Minus, Plus, Ticket, Timer } from 'lucide-react'
+import { MapPin, Check, Lock, Loader2, Minus, Plus, Ticket, Timer, Info } from 'lucide-react'
+import dayjs from 'dayjs'
 import toast from 'react-hot-toast'
 import { getTicketTiers } from '../../services/showServices'
 import { holdTicket, cancelHold, purchaseTicket } from '../../services/ticketServices'
@@ -34,6 +35,9 @@ const ShowMap = ({ showData }) => {
   const countdownRef = useRef(null)
 
   const showId = showData?.id
+  // Chính sách huỷ vé lấy từ chi tiết buổi diễn. Có thể vắng (dữ liệu cũ, hoặc bản API chưa trả) —
+  // lúc đó KHÔNG hiện khối, chứ không bịa ra điều khoản.
+  const chinhSach = showData?.refundPolicy ?? null
 
   useEffect(() => {
     if (!showId) return
@@ -268,6 +272,37 @@ const ShowMap = ({ showData }) => {
                   {formatVnd(selectedPrice.price * quantity)}
                 </span>
               </div>
+
+              {/* CHÍNH SÁCH HOÀN TIỀN — PHẢI HIỆN TRƯỚC KHI TRẢ TIỀN, KHÔNG ĐƯỢC BỎ.
+                  Backend thêm khối `refundPolicy` đúng vì mục này: trước đó các cột điều kiện huỷ
+                  vé đã tồn tại và ĐÃ ĐƯỢC ÁP DỤNG khi khách bấm huỷ, nhưng không nằm trong DTO nào
+                  — nên khán giả quyết định mua mà không biết vé có hoàn được không, hoàn bao nhiêu,
+                  tới khi nào. Chú thích của backend viện dẫn NĐ 85/2021.
+                  `summary` là CÂU TIẾNG VIỆT DỰNG SẴN Ở MÁY CHỦ, cố ý vậy để mọi client nói cùng
+                  một điều khoản và để câu chữ không lệch khỏi thứ lệnh huỷ vé thực sự áp dụng.
+                  HIỆN NGUYÊN VĂN `summary`, đừng tự diễn đạt lại từ mấy con số bên dưới. */}
+              {chinhSach && (
+                <div className={`rounded-lg p-3 border ${
+                  chinhSach.cancellationAllowed
+                    ? 'bg-gray-800/40 border-gray-700'
+                    : 'bg-yellow-500/5 border-yellow-500/30'
+                }`}>
+                  <p className="text-xs font-bold text-gray-300 flex items-center gap-1.5">
+                    <Info size={12} /> Điều kiện huỷ vé
+                  </p>
+                  <p className="text-xs text-gray-400 mt-1.5 leading-relaxed">{chinhSach.summary}</p>
+                  {chinhSach.cancellationAllowed && chinhSach.cancelBefore && (
+                    <p className="text-xs text-gray-500 mt-1.5">
+                      Huỷ được tới {dayjs(chinhSach.cancelBefore).format('HH:mm DD/MM/YYYY')}.
+                    </p>
+                  )}
+                  {chinhSach.alwaysFullRefundIfVenueCancels && (
+                    <p className="text-xs text-gray-500 mt-1">
+                      Nếu phòng trà huỷ buổi diễn thì bạn được hoàn 100%, bất kể điều kiện trên.
+                    </p>
+                  )}
+                </div>
+              )}
 
               {hold ? (
                 <>

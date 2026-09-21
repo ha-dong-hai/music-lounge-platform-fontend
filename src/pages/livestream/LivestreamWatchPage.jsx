@@ -338,11 +338,60 @@ const LivestreamWatchPage = () => {
       {/* BODY: VIDEO + CHAT */}
       <div className="flex-1 flex overflow-hidden">
         <div className="flex-1 bg-black relative">
+          {/* BA TRẠNG THÁI KẾT THÚC KHÁC NHAU, TRƯỚC ĐÂY CHỈ CÓ MỘT.
+              - Bị Admin cắt sóng: `terminatedReason` nói vì sao. Không hiện thì người xem chỉ thấy
+                một khung đen và không biết chuyện gì, còn thông báo tức thời thì đã trôi mất.
+              - Đã kết thúc và CÓ bản ghi lại: `recordingUrl`. Không đọc trường này thì bản ghi tồn
+                tại mà không ai xem được — trong khi giao diện từng HỨA CỨNG trong mã là "được xem
+                lại trong vòng 48h đối với vé VIP", một quy tắc không có ở đâu trong hệ thống. Lời
+                hứa bịa đó đã bị bỏ; đây là cơ chế thật thay cho nó.
+              - Đã kết thúc và KHÔNG có bản ghi: nói thẳng là không có, đừng để người ta chờ. */}
+          {livestream?.status === 'Terminated' ? (
+            <div className="absolute inset-0 flex items-center justify-center p-8">
+              <div className="max-w-md text-center">
+                <ShieldOff size={34} className="mx-auto text-red-400 mb-4" />
+                <p className="text-lg font-bold text-white">Buổi phát đã bị dừng</p>
+                <p className="text-sm text-gray-400 mt-2 leading-relaxed">
+                  {livestream.terminatedReason
+                    ? `Lý do: ${livestream.terminatedReason}`
+                    : 'Quản trị viên đã dừng buổi phát này. Không có lý do được ghi lại.'}
+                </p>
+                <p className="text-xs text-gray-600 mt-3">
+                  Đây là trạng thái cuối — buổi phát không tiếp tục được nữa.
+                </p>
+              </div>
+            </div>
+          ) : livestream?.status === 'Ended' ? (
+            <div className="absolute inset-0 flex items-center justify-center p-8">
+              <div className="max-w-md text-center">
+                <Square size={30} className="mx-auto text-gray-600 mb-4" />
+                <p className="text-lg font-bold text-white">Buổi phát đã kết thúc</p>
+                {livestream.recordingUrl ? (
+                  <>
+                    <p className="text-sm text-gray-400 mt-2">Bạn xem lại được bản ghi.</p>
+                    <a
+                      href={livestream.recordingUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="mt-4 inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[#C3B665] text-black text-sm font-bold hover:bg-[#d4c87f]"
+                    >
+                      <Eye size={16} /> Xem lại bản ghi
+                    </a>
+                  </>
+                ) : (
+                  <p className="text-sm text-gray-500 mt-2 leading-relaxed">
+                    Buổi phát này không có bản ghi lại.
+                  </p>
+                )}
+              </div>
+            </div>
+          ) : (
           <StreamPlayer
             streamUrl={livestream?.hlsUrl}
             donationAlerts={donationAlerts}
             onAlertEnd={handleRemoveAlert}
           />
+          )}
         </div>
 
         <div className="w-[300px] sm:w-[350px] lg:w-[400px] flex-none border-l border-gray-800 flex flex-col bg-gray-950">

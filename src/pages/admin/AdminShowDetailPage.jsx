@@ -50,7 +50,6 @@ const AdminShowDetailPage = () => {
             genre: beData.genres?.[0]?.name || 'Đang cập nhật',
             performers: beData.performers || [],
             moodTags: [beData.format, beData.genres?.[0]?.name].filter(Boolean),
-            replayCondition: "Được xem lại trong vòng 48h sau sự kiện đối với vé VIP",
             description: beData.description || "Chưa có mô tả cho sự kiện này.",
             loungeLogo: `https://api.dicebear.com/7.x/initials/svg?seed=${beData.lounge?.name || 'ML'}&backgroundColor=10b981`
           })

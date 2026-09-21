@@ -60,7 +60,6 @@ const EventDetailPage = () => {
             userHasTicket: beData.userHasTicket,
             userHasRated: beData.userHasRated,
             moodTags: [beData.format, beData.genres?.[0]?.name].filter(Boolean),
-            replayCondition: "Replay available within 48 hours after the Show for VIP tickets.",
             description: beData.description || "There is no description for this Show yet..",
             loungeLogo: `https://api.dicebear.com/7.x/initials/svg?seed=${beData.lounge?.name || 'ML'}&backgroundColor=10b981`
           }
