@@ -8,26 +8,17 @@
 //   lời gọi — không phải lấy danh sách tiêu chí rồi tự ghép giá trị.
 // - GHI LÀ THAY THẾ TOÀN BỘ danh sách. Vì vậy form nạp sẵn mọi giá trị đang có và gửi lại tất cả:
 //   bỏ sót một dòng là xoá mất giá trị của dòng đó.
-// - `criteriaIsActive` HIỆN CHƯA BAO GIỜ FALSE: backend không có endpoint nào sửa, xoá hay tắt tiêu
-//   chí, và lệnh tạo ghi cứng IsActive = true. Phần hiện mờ bên dưới vì vậy là mã chờ sẵn — giữ lại
-//   vì nếu sau này có endpoint tắt thì nó thành thật, nhưng ĐỪNG bỏ công làm thêm gì cho trạng thái
-//   đó, và đừng đi tìm cách tái hiện nó.
-//   Điều cần nhớ là phần còn lại của câu: dù vì lý do gì mà một tiêu chí biến mất khỏi form, lần Lưu
-//   kế tiếp sẽ xoá giá trị của nó — vì ghi là thay thế toàn bộ. Nên luôn nạp và gửi lại đủ mọi dòng.
-//
-//   SẮP THÀNH THẬT — CẦN SỬA ĐOẠN TRÊN KHI BACKEND LÊN: MLACP-474 cho phép tắt tiêu chí, nên
-//   criteriaIsActive = false sẽ tái hiện được (tắt một tiêu chí rồi mở màn sửa một buổi diễn đã gắn
-//   nó). Giá trị đã gắn vẫn còn nguyên. Lúc đó bỏ câu "chưa bao giờ xảy ra được" ở trên đi, còn
-//   phần hiện mờ thì đã dựng sẵn, không phải làm thêm.
-//
-// - CŨNG SẮP ĐỔI: MLACP-473 thêm `validationError` cho từng dòng trong GET .../values — null là hợp
-//   lệ, khác null là mảnh lý do (tên tiêu chí lấy từ `name` cùng dòng mà ghép câu). Nó tính bằng
-//   ĐÚNG hàm mà lệnh ghi dùng để từ chối. Khi bản đó lên:
-//     * Lấy nhãn "không có trong danh sách" theo `validationError` thay vì tự suy — ca nhiều lớp
-//       nháy tự hết lệch, vì máy chủ nói thẳng dòng nào không hợp lệ.
-//     * GIỮ kiemTraGiaTri() làm lớp báo lỗi ngay lúc gõ, nhưng lúc đó nó KHÔNG còn là bản sao luật
-//       nữa, nên lệch cũng không gây kẹt.
-//   Chưa merge lúc viết dòng này — đừng dựng trước.
+// - `criteriaIsActive = false` LÀ TRẠNG THÁI THẬT: chủ phòng trà tắt được tiêu chí ở màn Hồ sơ
+//   phòng trà. Tắt KHÔNG xoá giá trị đã gắn — nên dòng đó vẫn về đây và vẫn phải hiện (mờ đi).
+//   Lọc bỏ nó rồi bấm Lưu là xoá mất giá trị cũ, vì ghi là THAY THẾ TOÀN BỘ. Quy tắc chung: dù vì
+//   lý do gì mà một dòng biến mất khỏi form, lần Lưu kế tiếp sẽ xoá giá trị của dòng đó.
+// - `validationError` (mỗi dòng) LÀ NGUỒN ĐÚNG về việc giá trị ĐANG LƯU có hợp lệ không: null là
+//   hợp lệ, khác null là MẢNH lý do, ghép với `name` cùng dòng thành câu. Nó tính bằng ĐÚNG hàm mà
+//   lệnh ghi dùng để từ chối, nên không thể có chuyện màn hình báo hợp lệ mà lưu lại bị 422.
+//   VÌ SAO PHẢI DÙNG NÓ THAY VÌ TỰ SUY: luật đó từng có hai bản (máy chủ và màn này) và hai bản ĐÃ
+//   TỪNG LỆCH ở hai ca thật, chỉ lộ ra khi so từng bước bằng tay.
+//   NHƯNG NÓ CHỈ ĐÚNG VỚI GIÁ TRỊ LÚC NẠP. Người dùng gõ xong thì nó cũ ngay — nên chỉ dùng khi ô
+//   chưa bị sửa, còn ô đã sửa thì dùng kiemTraGiaTri() tại chỗ. Xem loiCuaDong().
 // - `value` đi và về đều là CHUỖI TRẦN. Backend lưu y nguyên chuỗi gửi lên, không bọc JSON.
 //   Dữ liệu CŨ thì có dòng còn ở dạng JSON đóng gói ("\"Bolero\""), và máy chủ bóc một lớp nháy
 //   trước khi đối chiếu — nên màn này phải bóc y hệt, xem boMotLopNhay() / chuanHoaSoKhop().
@@ -43,9 +34,9 @@
 //              chứ KHÔNG cho chữ đi qua. Màn này làm y hệt.
 //     Select — máy chủ chỉ đối chiếu khi options là MẢNG TOÀN CHUỖI; mảng số hay dạng lạ thì bỏ
 //              kiểm HOÀN TOÀN, nghĩa là một tiêu chí ô chọn mà mọi chuỗi đều lọt. Đừng nghĩ đó chỉ
-//              là "FE nghiêm hơn, vô hại" — mình đã kết luận nhầm như vậy một lần. Bản sửa ở lệnh
-//              TẠO tiêu chí (chưa lên master lúc viết dòng này) chặn tạo mới kiểu đó, nhưng tiêu chí
-//              CŨ vẫn còn, nên phần đối chiếu ở đây phải giữ.
+//              là "FE nghiêm hơn, vô hại" — mình đã kết luận nhầm như vậy một lần. Bản chặn hình
+//              dạng options ở lệnh TẠO tiêu chí đã lên cùng đợt deploy 21/09, nên tiêu chí TẠO MỚI
+//              không dựng được kiểu đó nữa; tiêu chí CŨ thì vẫn còn, nên phần đối chiếu phải giữ.
 //     Boolean— máy chủ dùng bool.TryParse nên nhận cả "True"/"TRUE". Màn này chỉ sinh ra chữ thường,
 //              nhưng dữ liệu CŨ có thể đang là "True" — xem chuanHoaGiaTri() để biết vì sao phải
 //              hạ chữ thường lúc NẠP, chứ không phải lúc gửi.
@@ -204,10 +195,24 @@ const kiemTraGiaTri = (c, v) => {
   return null
 }
 
+// Lỗi của MỘT dòng, chọn đúng nguồn theo việc ô đã bị sửa hay chưa:
+//   chưa sửa → lấy `validationError` của máy chủ (nguồn đúng, tính trên chính giá trị đang lưu)
+//   đã sửa   → máy chủ chưa biết giá trị mới, nên kiểm tại chỗ bằng kiemTraGiaTri()
+// Không làm ngược: tin lỗi máy chủ cho một ô vừa gõ lại là báo lỗi của giá trị cũ.
+const loiCuaDong = (c, giaTriHienTai, giaTriGoc, loiMayChu) => {
+  const chuaSua = giaTriHienTai === giaTriGoc
+  if (chuaSua && loiMayChu) return `"${c.name}": ${loiMayChu}`
+  return kiemTraGiaTri(c, giaTriHienTai)
+}
+
 const ShowCustomValuesSection = ({ showId }) => {
   const [criteria, setCriteria] = useState([])
   const [isLoading, setIsLoading] = useState(true)
-  const [giaTri, setGiaTri] = useState({}) // { [criteriaId]: string }
+  const [giaTri, setGiaTri] = useState({}) // { [criteriaId]: string } — giá trị đang trên form
+  // Giá trị lúc NẠP và lỗi máy chủ báo cho chính giá trị đó. Dùng để biết ô nào chưa bị sửa: chỉ
+  // những ô đó mới được dùng lỗi của máy chủ, ô đã sửa thì phải kiểm tại chỗ.
+  const [giaTriGoc, setGiaTriGoc] = useState({})
+  const [loiMayChu, setLoiMayChu] = useState({})
   const [isBusy, setIsBusy] = useState(false)
 
   const load = useCallback(async () => {
@@ -221,8 +226,14 @@ const ShowCustomValuesSection = ({ showId }) => {
         // Nạp sẵn giá trị đang có. Phải nạp CẢ dòng của tiêu chí đã tắt, nếu không thì lần lưu sau
         // sẽ xoá mất giá trị của chúng (ghi là thay thế toàn bộ).
         const nhap = {}
-        ds.forEach((c) => { nhap[c.criteriaId] = chuanHoaGiaTri(c, c.value) })
+        const loi = {}
+        ds.forEach((c) => {
+          nhap[c.criteriaId] = chuanHoaGiaTri(c, c.value)
+          loi[c.criteriaId] = c.validationError ?? null
+        })
         setGiaTri(nhap)
+        setGiaTriGoc(nhap)
+        setLoiMayChu(loi)
       }
     } catch (err) {
       toast.error(err.response?.data?.message || 'Không tải được tiêu chí riêng.')
@@ -256,7 +267,7 @@ const ShowCustomValuesSection = ({ showId }) => {
     // Chặn trước khi gửi để người dùng biết ngay, và báo TẤT CẢ lỗi một lần thay vì sửa xong lại
     // báo tiếp. Máy chủ vẫn kiểm lại và trả 422 — đây không thay thế cho nó.
     const loi = criteria
-      .map((c) => kiemTraGiaTri(c, giaTri[c.criteriaId]))
+      .map((c) => loiCuaDong(c, giaTri[c.criteriaId] ?? '', giaTriGoc[c.criteriaId] ?? '', loiMayChu[c.criteriaId]))
       .filter(Boolean)
     if (loi.length > 0) {
       toast.error(loi.join('\n'), { duration: 7000 })
@@ -315,6 +326,12 @@ const ShowCustomValuesSection = ({ showId }) => {
           const daTat = c.criteriaIsActive === false
           // Chỉ hai kiểu dùng danh sách chọn mới có khái niệm "giá trị lạc"; Range và Text là ô nhập
           // tự do nên giá trị nào cũng hiện được.
+          const loiDong = loiCuaDong(
+            c,
+            giaTriHienTai,
+            giaTriGoc[c.criteriaId] ?? '',
+            loiMayChu[c.criteriaId],
+          )
           const lac = c.dataType === 'Select' && Array.isArray(opts)
             ? giaTriLac(opts.map(String), giaTriHienTai)
             : c.dataType === 'Boolean'
@@ -367,10 +384,12 @@ const ShowCustomValuesSection = ({ showId }) => {
                   onChange={(e) => dat(c.criteriaId, e.target.value)} className={inputCls} />
               )}
 
-              {lac !== null && (
+              {/* Câu lỗi lấy theo loiCuaDong(): ô chưa sửa thì dùng lý do của máy chủ (nguồn đúng),
+                  ô đã sửa thì kiểm tại chỗ. Nhờ vậy nó phủ cả Range ngoài khoảng và Boolean rác,
+                  chứ không riêng ca giá trị nằm ngoài danh sách chọn. */}
+              {loiDong && (
                 <p className="text-[11px] text-yellow-400/90 mt-1 leading-relaxed">
-                  Giá trị đang lưu nằm ngoài danh sách cho phép. Chọn lại một giá trị hợp lệ — để
-                  nguyên thì không lưu được.
+                  {loiDong} Để nguyên thì không lưu được.
                 </p>
               )}
             </div>
