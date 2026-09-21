@@ -3,7 +3,8 @@ import { Link } from 'react-router-dom'
 import { AlertTriangle, Check, Eye, Loader2, ChevronLeft, ChevronRight } from 'lucide-react'
 import dayjs from 'dayjs'
 import toast from 'react-hot-toast'
-import { getPendingModerations } from '../../../services/adminServices'
+import { getPendingModerations, getPendingShows } from '../../../services/adminServices'
+import { FormatBadge } from './ShowBadges'
 
 // Vòng tròn điểm AI (0 -> 100)
 const AIScoreCircle = ({ score }) => {
@@ -42,14 +43,13 @@ const PendingModerationTab = () => {
     const fetchPending = async () => {
       setIsLoading(true)
       try {
-        // targetType='Show' theo đúng 4 loại BE hỗ trợ
-        const res = await getPendingModerations({ page: pagination.page, pageSize: 10, targetType: 'Show' })
+        const res = await getPendingShows({ page: pagination.page, pageSize: 10 })
         if (res.success) {
           setItems(res.data.items)
           setPagination(prev => ({ ...prev, totalPages: res.data.totalPages, totalCount: res.data.totalCount }))
         }
       } catch (err) {
-        toast.error('Không thể tải danh sách chờ duyệt')
+        toast.error('Unable to load the list')
       } finally {
         setIsLoading(false)
       }
@@ -64,7 +64,8 @@ const PendingModerationTab = () => {
           <table className="w-full text-left whitespace-nowrap">
             <thead className="bg-black/50 border-b border-gray-800">
               <tr>
-                <th className="p-4 text-[#C3B665] font-semibold text-sm">Show (Show ID)</th>
+                <th className="p-4 text-[#C3B665] font-semibold text-sm">Show</th>
+                <th className="p-4 text-[#C3B665] font-semibold text-sm">Format</th>
                 <th className="p-4 text-[#C3B665] font-semibold text-sm">Rick level</th>
                 <th className="p-4 text-[#C3B665] font-semibold text-sm">Flag reason</th>
                 <th className="p-4 text-[#C3B665] font-semibold text-sm">AI score</th>
@@ -75,17 +76,29 @@ const PendingModerationTab = () => {
             <tbody>
               {isLoading ? (
                 <tr>
-                  <td colSpan="6" className="p-10 text-center text-gray-500">
+                  <td colSpan="7" className="p-10 text-center text-gray-500">
                     <Loader2 size={24} className="mx-auto animate-spin text-[#C3B665]" />
                   </td>
                 </tr>
               ) : items.length > 0 ? (
                 items.map(item => (
                   <tr key={item.id} className="border-b border-gray-900 hover:bg-gray-900/50 transition-colors">
-                    <td className="p-4 text-white font-medium">
-                      Show #{item.targetId}
-                      <p className="text-xs text-gray-500 mt-1">Created: {dayjs(item.createdAt).format('HH:mm DD/MM/YYYY')}</p>
+                    <td className="p-4">
+                      <div className="flex items-center gap-3">
+                        <img
+                          src={item.coverImageUrl || `https://api.dicebear.com/7.x/initials/svg?seed=${item.name || 'Show'}&backgroundColor=1f2937`}
+                          alt={item.name}
+                          className="w-10 h-10 rounded-lg object-cover border border-gray-700"
+                        />
+                        <div className="min-w-0">
+                          <p className="text-sm text-white font-medium truncate max-w-[220px]">{item.name}</p>
+                          <p className="text-xs text-gray-500 mt-0.5 truncate max-w-[220px]">
+                            {item.loungeName} · {dayjs(item.scheduledStart).format('HH:mm DD/MM')}
+                          </p>
+                        </div>
+                      </div>
                     </td>
+                    <td className="p-4"><FormatBadge format={item.format} /></td>
                     <td className="p-4"><RiskLevelBadge level={item.riskLevel} /></td>
                     <td className="p-4">
                       {item.flagReason ? (

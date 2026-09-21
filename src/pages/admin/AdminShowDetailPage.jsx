@@ -7,7 +7,7 @@ import ShowIntro from '../../components/mshow-detail/ShowIntro'
 import ShowMap from '../../components/mshow-detail/ShowMap'
 import Skeleton from '../../components/shared/Skeleton'
 import { getShowDetail } from '../../services/showServices'
-import { getPendingModerations, reviewShowModeration } from '../../services/adminServices'
+import { getPendingModerations, getPendingShows, reviewShowModeration } from '../../services/adminServices'
 import AdminShowHero from '../../components/admin/show-detail/AdminShowHero'
 import ModerationModal from '../../components/admin/show-detail/ModerationModal'
 import ShareModal from '../../components/admin/show-detail/ShareModal'
@@ -34,7 +34,7 @@ const AdminShowDetailPage = () => {
       try {
         const [detailRes, pendingRes] = await Promise.all([
           getShowDetail(id),
-          getPendingModerations({ page: 1, pageSize: 100, targetType: 'Show' }).catch(() => null)
+          getPendingShows({ page: 1, pageSize: 100 }).catch(() => null)
         ])
 
         if (detailRes.success) {
@@ -47,24 +47,24 @@ const AdminShowDetailPage = () => {
             loungeId: beData.lounge?.id,
             address: beData.lounge?.fullAddress,
             dateStr: beData.scheduledStart ? dayjs(beData.scheduledStart).format('HH:mm - dddd, DD/MM/YYYY') : 'Đang cập nhật',
-            genre: beData.genres?.[0]?.name || 'Đang cập nhật',
+            genre: beData.genres?.[0]?.name || 'Updating',
             performers: beData.performers || [],
             moodTags: [beData.format, beData.genres?.[0]?.name].filter(Boolean),
             replayCondition: "Được xem lại trong vòng 48h sau sự kiện đối với vé VIP",
-            description: beData.description || "Chưa có mô tả cho sự kiện này.",
+            description: beData.description || "There is no description for this show.",
             loungeLogo: `https://api.dicebear.com/7.x/initials/svg?seed=${beData.lounge?.name || 'ML'}&backgroundColor=10b981`
           })
 
           if (pendingRes?.success) {
-            const found = pendingRes.data.items.find(m => String(m.targetId) === String(id))
+            const found = pendingRes.data.items.find(m => String(m.showId) === String(id))
             setModeration(found || null)
           }
         } else {
-          setApiError(detailRes.message || 'Không tìm thấy chương trình')
+          setApiError(detailRes.message || 'Show not found')
         }
       } catch (err) {
-        console.error('Lỗi API Detail:', err)
-        setApiError('Không thể tải chi tiết sự kiện.')
+        console.error('Error API Detail:', err)
+        setApiError('Unable to load Show.')
       } finally {
         setIsLoading(false)
       }

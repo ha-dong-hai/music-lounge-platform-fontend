@@ -36,15 +36,15 @@ export const getPendingModerations = async (params = {}) => {
   return axiosClient.get('/moderations/pending', { params });
 };
 
-export const reviewShowModeration = async (showId, decision, reviewNote = '') => {
-  if (decision !== 'Approved' && decision !== 'Rejected') {
-    return Promise.reject(new Error('decision chỉ nhận "Approved" hoặc "Rejected"'));
-  }
-  return axiosClient.post(`/moderations/shows/${showId}/review`, {
-    decision,
-    reviewNote,
-  });
-};
+// export const reviewShowModeration = async (showId, decision, reviewNote = '') => {
+//   if (decision !== 'Approved' && decision !== 'Rejected') {
+//     return Promise.reject(new Error('decision chỉ nhận "Approved" hoặc "Rejected"'));
+//   }
+//   return axiosClient.post(`/moderations/shows/${showId}/review`, {
+//     decision,
+//     reviewNote,
+//   });
+// };
 
 export const getAdminComplaints = async (params = {}) => {
   return axiosClient.get('/admin/complaints', { params });
@@ -52,4 +52,30 @@ export const getAdminComplaints = async (params = {}) => {
 
 export const getAdminVenues = async (params = {}) => {
   return axiosClient.get('/admin/venues/pending', { params });
+};
+
+export const createFilterOption = async (type, payload) => {
+  return axiosClient.post(`/admin/${type}`, payload);
+};
+
+export const updateFilterOption = async (type, id, payload) => {
+  return axiosClient.put(`/admin/${type}/${id}`, payload);
+};
+
+export const deleteFilterOption = async (type, id) => {
+  return axiosClient.delete(`/admin/${type}/${id}`);
+};
+
+export const getPendingShows = async (params = {}) => {
+  return axiosClient.get('/admin/shows/pending', { params });
+};
+
+export const reviewShowModeration = async (showId, decision, reviewNote = '') => {
+  if (decision !== 'Approved' && decision !== 'Rejected') {
+    return Promise.reject(new Error('decision chỉ nhận "Approved" hoặc "Rejected"'));
+  }
+  return axiosClient.post(`/admin/shows/${showId}/review`, {
+    decision,
+    reviewNote,
+  });
 };

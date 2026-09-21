@@ -23,7 +23,7 @@ const ModerationModal = ({ moderation, onClose, onDecision, isProcessing }) => {
           </div>
           <div className="flex-1 min-w-0">
             <h2 className="text-lg font-bold text-white">Content approval</h2>
-            <p className="text-sm text-gray-500">Show #{moderation.targetId} • Need Admin approval</p>
+            <p className="text-sm text-gray-500">Show #{moderation.showId} — {moderation.loungeName}</p>
           </div>
           <button onClick={onClose} disabled={isProcessing} className="p-2 hover:bg-gray-800 rounded-full text-gray-400 disabled:opacity-30">
             <X size={20} />
