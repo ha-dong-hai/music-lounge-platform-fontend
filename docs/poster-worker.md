@@ -3,6 +3,12 @@
 Tài liệu này dành cho người viết **repo máy trạm** — chương trình chạy trên máy cá nhân, mở tab Google
 Flow để sinh ảnh rồi nộp về backend MusicLounge. Không phải tài liệu cho frontend.
 
+> **Đây hiện là đường DỰ PHÒNG.** Ngày 21/09/2026 chủ dự án đăng ký credit Gemini và chốt Gemini làm
+> đường chính: gọi thẳng từ máy chủ, ~15 giây, không cần ai trực máy, và ảnh trả về là **poster hoàn
+> chỉnh đã có chữ tiếng Việt**. Đường máy trạm vẫn còn đủ trong mã và chạy được, nhưng chỉ khi
+> `Gemini__ImageModel` bỏ trống. Ảnh nó trả về là **ảnh nền không chữ**, và lớp in chữ bằng font
+> (MLACP-425) vẫn nằm ngoài master — nên dùng đường này thì poster chưa có chữ.
+
 Mọi con số dưới đây đọc trực tiếp từ mã nguồn backend (`PosterJobsController`, `PosterQueue`,
 `PosterWorkerKeyAttribute`, `AiImageProvider`, `UploadImageValidator`) tại commit `b094131`, và đã
 được đội backend xác nhận. Nếu một con số ở đây khác với thực tế đang chạy thì mã nguồn đúng, tài
@@ -32,14 +38,30 @@ lồng của section `PosterWorker`):
 Gemini  →  hàng đợi máy trạm  →  Cloudflare  →  OpenAI
 ```
 
+Thứ tự này là **chọn một lần lúc dựng dịch vụ** (`AiImageProvider.Chon`) dựa trên biến môi trường nào
+đã khai — **không phải chuỗi dự phòng lúc chạy**. Nhà cung cấp đang dùng mà lỗi thì lời gọi thất bại
+(503), không tự rơi xuống cái sau.
+
 Hàng đợi chỉ được chọn khi **Gemini không dùng được**. Nghĩa là nếu `Gemini__ApiKey` và
 `Gemini__ImageModel` đều đã đặt trên Azure thì **máy trạm sẽ không bao giờ nhận được đơn nào**, dù
-hai khoá `PosterWorker__*` đã đặt đúng. Muốn đường máy trạm là đường chính thì phải **bỏ trống
+hai khoá `PosterWorker__*` đã đặt đúng. Muốn quay về đường máy trạm thì phải **bỏ trống
 `Gemini__ImageModel`**.
 
-Đường Gemini chạy đồng bộ (~15–16 giây, ảnh trả về ngay trong câu trả lời) và trả về poster đã có
-sẵn chữ tiếng Việt. Đường máy trạm chạy bất đồng bộ và trả về ảnh nền — backend sẽ in chữ bằng font
-ở máy chủ, nhưng lớp đó **chưa vào master** tính tới 21/09/2026. Cân nhắc điều đó khi chọn đường.
+Hai đường khác nhau ở chính thứ máy trạm sinh ra, nên đọc kỹ chỗ này trước khi chọn:
+
+| | Gemini (đường chính hiện tại) | Máy trạm Google Flow |
+|---|---|---|
+| Ảnh trả về | **poster hoàn chỉnh, có chữ tiếng Việt** | **ảnh nền không chữ**, chừa thoáng một phần ba trên |
+| Lớp in chữ | không cần | MLACP-425, **chưa vào master** |
+| Thời gian | ~15 giây, đồng bộ | hàng phút, bất đồng bộ |
+| Cần người trực | không | có — Chrome phải đang đăng nhập, token hết hạn mỗi giờ |
+| Dấu trên ảnh | không | Flow in ngôi sao 4 cánh của Google |
+
+Lời nhắc gửi cho mô hình cũng khác nhau theo đường, do backend tự quyết: đường máy trạm có câu
+"đây là ẢNH NỀN, tuyệt đối KHÔNG chứa chữ, không chữ cái, không con số, không logo, không watermark",
+còn đường Gemini có một **danh sách trắng** chỉ cho in tên chương trình, tên phòng trà, ngày và giờ —
+cấm địa chỉ, điện thoại, website, mạng xã hội, mã QR, giá vé. Máy trạm **không cần và không nên** tự
+thêm gì vào lời nhắc nhận được.
 
 ### Thiếu cấu hình thì sao
 

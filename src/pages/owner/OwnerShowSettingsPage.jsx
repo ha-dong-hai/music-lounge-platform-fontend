@@ -408,8 +408,12 @@ const OwnerShowSettingsPage = () => {
           {posterDangDungLaAi && (
             <p className="text-xs text-gray-400 flex items-start gap-2 leading-relaxed">
               <AlertTriangle size={13} className="mt-px flex-shrink-0 text-yellow-500/80" />
-              Poster này do AI tạo và chữ trên ảnh cũng do AI viết. Đọc lại tên chương trình, ngày giờ
-              và mọi thông tin liên hệ trên ảnh trước khi đăng ra ngoài.
+              <span>
+                Poster này do AI tạo, và chữ trên ảnh cũng do AI viết. Trước khi đăng, đọc lại tên
+                chương trình và ngày giờ. Trên ảnh <b>không được có</b> địa chỉ, số điện thoại,
+                website hay giá vé — thấy những thứ đó nghĩa là AI tự bịa, hãy tạo lại hoặc tự tải
+                poster khác lên.
+              </span>
             </p>
           )}
 
