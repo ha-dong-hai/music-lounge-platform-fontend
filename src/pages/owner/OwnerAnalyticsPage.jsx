@@ -11,6 +11,7 @@
 //     Thu hộ nghệ sĩ  = tiền donate giữ hộ, PHẢI chuyển đi, không phải doanh thu của phòng trà
 // - Biểu đồ xu hướng lấy thẳng revenueTrend từ backend (6 tháng gần nhất), không tự tính ở FE.
 import { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
 } from 'recharts'
@@ -202,6 +203,32 @@ const OwnerAnalyticsPage = () => {
           icon={HandCoins} color="text-pink-400" bg="bg-pink-500/10"
         />
       </div>
+
+      {/* TIỀN ĐANG NỢ NGHỆ SĨ — khác hẳn ô "Thu hộ nghệ sĩ" bên trên, đừng gộp:
+            Thu hộ nghệ sĩ  = TỔNG đã thu hộ từ đầu tới nay, là số lịch sử.
+            Đang chờ chuyển = phần CÒN NỢ ngay lúc này, có hạn chuyển và quá hạn thì bị cảnh cáo.
+          Chỉ hiện số tổng thì chủ phòng trà không biết mình đang nợ bao nhiêu và có sắp quá hạn
+          hay không. Hai trường này backend trả sẵn nhưng trước giờ không ai đọc. */}
+      {(stats?.pendingArtistPayoutCount ?? 0) > 0 && (
+        <div className="bg-gray-900 border border-yellow-500/40 rounded-xl p-5 flex flex-wrap items-center justify-between gap-4">
+          <div className="min-w-0">
+            <p className="text-sm font-semibold text-yellow-400 flex items-center gap-2">
+              <HandCoins size={16} /> Đang chờ bạn chuyển cho nghệ sĩ
+            </p>
+            <p className="text-2xl font-bold text-white mt-1.5 tabular-nums">
+              {fmtMoney(stats.pendingArtistPayoutAmount)}
+            </p>
+            <p className="text-xs text-gray-500 mt-1 leading-relaxed">
+              {stats.pendingArtistPayoutCount} khoản. Đây là tiền của nghệ sĩ bạn đang giữ, có hạn
+              chuyển — quá hạn là căn cứ để nghệ sĩ khiếu nại và để hệ thống cảnh cáo phòng trà.
+            </p>
+          </div>
+          <Link to="/owner/donations"
+            className="flex-shrink-0 px-4 py-2 rounded-lg bg-[#C3B665] text-black text-sm font-bold hover:bg-[#d4c87f]">
+            Xử lý ngay
+          </Link>
+        </div>
+      )}
 
       {/* === XU HƯỚNG DOANH THU === */}
       {trend.length > 0 && (

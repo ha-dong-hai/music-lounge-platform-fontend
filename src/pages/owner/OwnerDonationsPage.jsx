@@ -7,6 +7,9 @@
 //     Chặng 2 "Đã trả nghệ sĩ" → POST /donations/{id}/confirm-paid (kèm mã giao dịch + chứng từ)
 // - `payoutDueAt` là HẠN phải chuyển tiếp cho nghệ sĩ. Quá hạn là căn cứ để nghệ sĩ khiếu nại và để
 //   hệ thống cảnh cáo phòng trà — nên màn này tô đỏ khi sắp/đã quá hạn thay vì để nó lẫn vào danh sách.
+// - `autoConfirmDeadline` là hạn mà hệ thống TỰ XÁC NHẬN thay chủ nếu chủ không bấm. Phải hiện, vì
+//   chủ dễ tưởng "không bấm thì không có gì xảy ra" — trong khi tự xác nhận sẽ khởi động luôn đồng
+//   hồ hạn chuyển tiếp cho nghệ sĩ. Khác hẳn `payoutDueAt` (hạn chuyển tiền cho nghệ sĩ).
 // - `payoutReceivedAt` = null nghĩa là NỀN TẢNG CHƯA chuyển tiền về cho phòng trà. Đừng bắt chủ
 //   "đã trả nghệ sĩ" khi họ còn chưa nhận được tiền.
 // - KHÔNG có luồng hoàn tiền cho donate đã xác nhận — đừng thêm nút hoàn tiền ở đây.
@@ -331,6 +334,17 @@ Không hoàn tiền, và lời nhắn gốc vẫn được lưu để đối chi
                   ) : (
                     <span className="text-gray-500 inline-flex items-center gap-1.5">
                       <Clock size={13} /> Nền tảng chưa chuyển tiền về cho bạn
+                    </span>
+                  )}
+
+                  {/* Hạn TỰ XÁC NHẬN — chỉ có ý nghĩa ở tab đang chờ chủ xác nhận. Không hiện thì
+                      chủ tưởng không bấm là không có gì xảy ra. */}
+                  {tab === 'ack' && d.autoConfirmDeadline && (
+                    <span className={`inline-flex items-center gap-1.5 ${
+                      dayjs(d.autoConfirmDeadline).diff(dayjs(), 'hour') < 24 ? 'text-yellow-400' : 'text-gray-500'
+                    }`}>
+                      <Clock size={13} />
+                      Không bấm thì hệ thống tự xác nhận lúc {dayjs(d.autoConfirmDeadline).format('HH:mm DD/MM/YYYY')}
                     </span>
                   )}
 
