@@ -7,6 +7,12 @@
 // không gửi trường `role`, nên mọi người đăng ký đều thành khán giả và KHÔNG AI trở thành chủ phòng
 // trà được — cả nhánh nghiệp vụ phòng trà (tạo hồ sơ, bán vé, quyết toán) là ngõ cụt từ bước đầu.
 // Vì không đổi lại được, lựa chọn này phải nói rõ hệ quả TRƯỚC khi bấm, không phải một ô chọn lặng lẽ.
+//
+// MỞ CỬA Ở ĐÂY LÀ AN TOÀN vì hàng rào nằm PHÍA SAU chứ không nằm ở bước đăng ký (đã xác nhận với
+// backend): đăng ký Owner xong mới chỉ có tài khoản, chưa có phòng trà; tạo hồ sơ phòng trà rồi phải
+// chờ Admin duyệt (MLACP-307); và bán vé còn một cửa nữa là xác minh danh tính người bán (MLACP-397).
+// Một tài khoản Owner chưa qua hai cửa đó thì không làm được gì có hậu quả.
+// Mô tả bên dưới phải nói đủ CẢ HAI cửa — nói một cửa là để người ta tưởng sắp bán được ngay.
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
@@ -123,7 +129,7 @@ const RegisterPage = () => {
                         value: 'Owner',
                         icon: Store,
                         ten: 'Chủ phòng trà',
-                        mo: 'Mở phòng trà, tổ chức buổi diễn, bán vé. Hồ sơ phòng trà cần được duyệt trước khi bán.',
+                        mo: 'Mở phòng trà, tổ chức buổi diễn, bán vé. Sau khi đăng ký còn hai bước nữa: hồ sơ phòng trà phải được duyệt, và bạn phải xác minh danh tính.',
                       },
                     ].map(({ value, icon: Icon, ten, mo }) => (
                       <button

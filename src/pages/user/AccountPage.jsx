@@ -1,5 +1,13 @@
 // src/pages/user/AccountPage.jsx
+//
+// GHI CHÚ CHO ĐỘI FE:
+// - Tab mở sẵn đọc từ ?tab= trên URL, và đổi tab thì ghi ngược lại vào URL. Cần thế vì có chỗ phải
+//   DẪN THẲNG tới một tab: khu vực chủ phòng trà trỏ sang ?tab=identity, do xác minh danh tính là
+//   cửa bắt buộc để bán vé mà lại nằm ở trang tài khoản chung.
+// - Đọc/ghi qua useSearchParams chứ KHÔNG đồng bộ bằng useEffect: đặt state trong thân effect gây
+//   render lặp, và ở đây còn làm nút Back của trình duyệt chạy sai.
 import { useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { User, Heart, ShieldCheck, Sparkles, Lock } from 'lucide-react'
 import ProfileTab from '../../components/account/ProfileTab'
 import FollowedLoungesTab from '../../components/account/FollowedLoungesTab'
@@ -7,8 +15,22 @@ import IdentityTab from '../../components/account/IdentityTab'
 import PreferencesTab from '../../components/account/PreferencesTab'
 import PrivacyTab from '../../components/account/PrivacyTab'
 
+const TABS_HOP_LE = ['profile', 'followed', 'identity', 'preferences', 'privacy']
+
 const AccountPage = () => {
-  const [activeTab, setActiveTab] = useState('profile')
+  const [searchParams, setSearchParams] = useSearchParams()
+  // Tên tab lạ trên URL thì rơi về 'profile' thay vì hiện trang trống.
+  const tabTuUrl = searchParams.get('tab')
+  const [activeTab, setActiveTabState] = useState(
+    TABS_HOP_LE.includes(tabTuUrl) ? tabTuUrl : 'profile',
+  )
+
+  const setActiveTab = (tab) => {
+    setActiveTabState(tab)
+    // replace: đổi tab không nên tạo thêm một mục lịch sử, nếu không bấm Back phải bấm nhiều lần
+    // mới rời khỏi trang.
+    setSearchParams({ tab }, { replace: true })
+  }
 
   return (
     <div className="min-h-screen bg-black text-white pb-16">

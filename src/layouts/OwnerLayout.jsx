@@ -5,8 +5,8 @@
 // gói dịch vụ.
 // Các mục từng thiếu (thực đơn F&B, màn bếp, tài khoản nhận tiền, nhân viên, hồ sơ phòng trà,
 // khu vực/zone, tour 360°, donate phía chủ, án phạt venue, tiền & quyết toán) NAY ĐÃ CÓ ĐỦ.
-import { Outlet, NavLink } from 'react-router-dom'
-import { Radio, LogOut, Package, BarChart3, CalendarDays, Store, Landmark, ScanLine, UtensilsCrossed, BookOpen, Mic2, Users, HeartHandshake, ShieldAlert, LayoutGrid, Box, Wallet } from 'lucide-react'
+import { Outlet, NavLink, Link } from 'react-router-dom'
+import { Radio, LogOut, Package, BarChart3, CalendarDays, Store, Landmark, ScanLine, UtensilsCrossed, BookOpen, Mic2, Users, HeartHandshake, ShieldAlert, LayoutGrid, Box, Wallet, ShieldCheck } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../store/useAuthStore'
 
@@ -103,6 +103,14 @@ const OwnerLayout = () => {
               <NavLink to="/owner/subscription" className={linkClasses}>
                 <Package size={18} /> Gói dịch vụ
               </NavLink>
+              {/* XÁC MINH DANH TÍNH là cửa BẮT BUỘC để bán vé (MLACP-397), nhưng nó nằm ở trang
+                  tài khoản chung chứ không thuộc khu này. Không có lối này thì chủ phòng trà vào
+                  đây rồi bị chặn lúc bán vé mà không biết đi đâu để mở khoá.
+                  Dùng Link chứ không NavLink: đây là đường RA KHỎI khu vực phòng trà nên không
+                  bao giờ ở trạng thái "đang chọn". */}
+              <Link to="/account?tab=identity" className={linkClasses({ isActive: false })}>
+                <ShieldCheck size={18} /> Định danh &amp; tài khoản
+              </Link>
             </>
           )}
         </nav>
