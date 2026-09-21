@@ -14,6 +14,20 @@
 //   đó, và đừng đi tìm cách tái hiện nó.
 //   Điều cần nhớ là phần còn lại của câu: dù vì lý do gì mà một tiêu chí biến mất khỏi form, lần Lưu
 //   kế tiếp sẽ xoá giá trị của nó — vì ghi là thay thế toàn bộ. Nên luôn nạp và gửi lại đủ mọi dòng.
+//
+//   SẮP THÀNH THẬT — CẦN SỬA ĐOẠN TRÊN KHI BACKEND LÊN: MLACP-474 cho phép tắt tiêu chí, nên
+//   criteriaIsActive = false sẽ tái hiện được (tắt một tiêu chí rồi mở màn sửa một buổi diễn đã gắn
+//   nó). Giá trị đã gắn vẫn còn nguyên. Lúc đó bỏ câu "chưa bao giờ xảy ra được" ở trên đi, còn
+//   phần hiện mờ thì đã dựng sẵn, không phải làm thêm.
+//
+// - CŨNG SẮP ĐỔI: MLACP-473 thêm `validationError` cho từng dòng trong GET .../values — null là hợp
+//   lệ, khác null là mảnh lý do (tên tiêu chí lấy từ `name` cùng dòng mà ghép câu). Nó tính bằng
+//   ĐÚNG hàm mà lệnh ghi dùng để từ chối. Khi bản đó lên:
+//     * Lấy nhãn "không có trong danh sách" theo `validationError` thay vì tự suy — ca nhiều lớp
+//       nháy tự hết lệch, vì máy chủ nói thẳng dòng nào không hợp lệ.
+//     * GIỮ kiemTraGiaTri() làm lớp báo lỗi ngay lúc gõ, nhưng lúc đó nó KHÔNG còn là bản sao luật
+//       nữa, nên lệch cũng không gây kẹt.
+//   Chưa merge lúc viết dòng này — đừng dựng trước.
 // - `value` đi và về đều là CHUỖI TRẦN. Backend lưu y nguyên chuỗi gửi lên, không bọc JSON.
 //   Dữ liệu CŨ thì có dòng còn ở dạng JSON đóng gói ("\"Bolero\""), và máy chủ bóc một lớp nháy
 //   trước khi đối chiếu — nên màn này phải bóc y hệt, xem boMotLopNhay() / chuanHoaSoKhop().

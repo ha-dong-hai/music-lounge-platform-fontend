@@ -7,6 +7,15 @@
 //   nhất. Gõ sai một chữ trong tên thì tiêu chí đó ở lại mãi trên màn sửa của MỌI buổi diễn.
 //   Vì vậy màn này chỉ có Xem và Thêm, và form cảnh báo trước khi thêm. Đây là giới hạn thật của
 //   backend, không phải thiếu sót của giao diện — đừng dựng nút Sửa/Xoá rồi chờ API.
+//
+//   SẮP HẾT ĐÚNG — CẦN SỬA KHI BACKEND LÊN: MLACP-474 thêm PUT /custom-criteria/{id} với
+//   { name, isActive }, và GET /custom-criteria?loungeId=..&includeInactive=true. Lúc đó câu cảnh
+//   báo ở trên và dòng chữ đỏ trong form đều TRỞ THÀNH SAI (sửa tên được, tắt được — chỉ là vẫn
+//   không xoá hẳn được, vì xoá sẽ bỏ lại giá trị mồ côi ở các buổi diễn đã gắn).
+//   Đừng sửa trước khi nhánh đó lên: lúc này câu cảnh báo vẫn đúng, và nói với chủ phòng trà rằng
+//   họ sửa được trong khi chưa sửa được thì tệ hơn là cảnh báo hơi thừa.
+//   Key, DataType và Options vẫn KHÔNG sửa được kể cả sau bản đó — đổi chúng là làm sai kiểu hoặc
+//   làm lạc toàn bộ giá trị đã gắn.
 // - `key` là mã kỹ thuật dùng để tra cứu, `name` là tên hiển thị. Cả hai đều không sửa lại được.
 // - `dataType` quyết định người dùng nhập gì:
 //     Select  — options là danh sách lựa chọn, ví dụ ["VI","EN"]
