@@ -1,7 +1,7 @@
 // src/pages/events/EventDetailPage.jsx
 import { useState, useRef, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { CalendarDays, MapPin, Heart, Share2, ArrowLeft, Check, X, Copy } from 'lucide-react'
+import { CalendarDays, MapPin, Heart, Share2, ArrowLeft, Check, X, Copy, Star } from 'lucide-react'
 import dayjs from 'dayjs'
 import toast from 'react-hot-toast'
 import ShowCarousel from '../../components/home/ShowCarousel'
@@ -9,7 +9,8 @@ import ShowMap from '../../components/mshow-detail/ShowMap'
 import ShowIntro from '../../components/mshow-detail/ShowIntro'
 import ShowRatings from '../../components/mshow-detail/ShowRatings'
 import Skeleton from '../../components/shared/Skeleton'
-import { getShowDetail, getSimilarShows } from '../../services/showServices'
+import RatingModal from '../../components/livestream/RatingModal'
+import { getShowDetail, getSimilarShows, rateShow } from '../../services/showServices'
 import { getFollowedLounges, toggleWishlist } from '../../services/interactionServices'
 import { toggleFollowLounge } from '../../services/interactionServices' 
 
@@ -22,6 +23,7 @@ const EventDetailPage = () => {
   const tabsRef = useRef(null)
 
   const [isShareModalOpen, setIsShareModalOpen] = useState(false)
+  const [showRating, setShowRating] = useState(false)
   const [isCopied, setIsCopied] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [apiError, setApiError] = useState(null)
@@ -51,6 +53,12 @@ const EventDetailPage = () => {
             genre: beData.genres && beData.genres.length > 0 ? beData.genres[0].name : 'Updating...',
             //subGenre: 'Đang cập nhật',
             performers: beData.performers || [],
+            // Giữ nguyên ba trường quyết định lối đi tiếp của khán giả. Thiếu chúng thì trang chi
+            // tiết là ngõ cụt: đang diễn mà không vào xem được, diễn xong mà không đánh giá được.
+            status: beData.status,
+            isOngoing: beData.isOngoing,
+            userHasTicket: beData.userHasTicket,
+            userHasRated: beData.userHasRated,
             moodTags: [beData.format, beData.genres?.[0]?.name].filter(Boolean),
             replayCondition: "Replay available within 48 hours after the Show for VIP tickets.",
             description: beData.description || "There is no description for this Show yet..",
@@ -207,7 +215,44 @@ const EventDetailPage = () => {
             <div className="flex items-center gap-2 mb-8 text-gray-400">
               <MapPin size={18} className="flex-shrink-0 text-[#C3B665]" /><span className="text-lg">{data.address}</span>
             </div>
-            <button onClick={handleBookTicket} className="bg-[#C3B665] text-black hover:bg-[#d4c87f] px-8 py-3 md:py-3.5 rounded-lg text-base md:text-lg font-bold transition-colors shadow-xl mb-6 w-full md:w-auto">Book Ticket</button>
+            {/* LỐI ĐI TIẾP THEO TRẠNG THÁI BUỔI DIỄN.
+                Trước đây trang này chỉ có nút Đặt vé, nên:
+                  - buổi ĐANG DIỄN: người đã mua vé xem trực tuyến không có đường nào vào xem.
+                    Đường dẫn duy nhất tới /livestream/:id trong cả dự án nằm ở màn Admin báo cáo
+                    vi phạm — tức khán giả không bao giờ tới được.
+                  - buổi ĐÃ KẾT THÚC: không có đường nào đánh giá. rateShow chỉ được gọi từ trang
+                    xem trực tuyến, nên người đến xem TRỰC TIẾP tại phòng trà không đánh giá được. */}
+            {data.isOngoing ? (
+              <div className="mb-6 flex flex-wrap gap-3">
+                <Link to={`/livestream/${id}`}
+                  className="bg-red-500 text-white hover:bg-red-600 px-8 py-3 md:py-3.5 rounded-lg text-base md:text-lg font-bold transition-colors shadow-xl inline-flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-white animate-pulse" /> Xem trực tiếp
+                </Link>
+                <button onClick={handleBookTicket}
+                  className="border border-[#C3B665] text-[#C3B665] hover:bg-[#C3B665]/10 px-8 py-3 md:py-3.5 rounded-lg text-base md:text-lg font-bold transition-colors">
+                  Mua vé
+                </button>
+              </div>
+            ) : data.status === 'Ended' ? (
+              <div className="mb-6">
+                {data.userHasRated ? (
+                  <p className="text-sm text-gray-400 flex items-center gap-2">
+                    <Star size={16} className="text-[#C3B665] fill-[#C3B665]" /> Bạn đã đánh giá buổi diễn này.
+                  </p>
+                ) : data.userHasTicket ? (
+                  <button onClick={() => setShowRating(true)}
+                    className="bg-[#C3B665] text-black hover:bg-[#d4c87f] px-8 py-3 md:py-3.5 rounded-lg text-base md:text-lg font-bold transition-colors shadow-xl inline-flex items-center gap-2">
+                    <Star size={18} /> Đánh giá buổi diễn
+                  </button>
+                ) : (
+                  <p className="text-sm text-gray-500">Buổi diễn đã kết thúc.</p>
+                )}
+              </div>
+            ) : data.status === 'Cancelled' ? (
+              <p className="mb-6 text-sm text-red-400">Buổi diễn này đã bị huỷ.</p>
+            ) : (
+              <button onClick={handleBookTicket} className="bg-[#C3B665] text-black hover:bg-[#d4c87f] px-8 py-3 md:py-3.5 rounded-lg text-base md:text-lg font-bold transition-colors shadow-xl mb-6 w-full md:w-auto">Book Ticket</button>
+            )}
             <div className="flex items-center gap-6">
               {/* NÚT WISHLIST */}
               <button onClick={handleToggleWishlist} disabled={isUpdating} className={`flex items-center gap-2 transition-colors group ${isWishlisted ? "text-red-500" : "text-gray-400 hover:text-[#C3B665]"}`}>
@@ -245,6 +290,31 @@ const EventDetailPage = () => {
         <div className="mt-20 bg-black text-[#C3B665] rounded-2xl mx-6 md:mx-auto md:max-w-[1600px] p-6 md:p-10">
           <ShowCarousel title="Buổi diễn tương tự" events={relatedEvents} showViewMore={false} />
         </div>
+      )}
+
+      {/* ĐÁNH GIÁ — dùng lại đúng component mà trang xem trực tuyến dùng, nên hai đường đánh giá
+          (xem trực tiếp và đến tận nơi) cho ra cùng một trải nghiệm.
+          Backend còn chặn thêm: chỉ trong 7 ngày kể từ lúc kết thúc, và bắt buộc đã check-in thật
+          (quét QR vào cửa, hoặc vé trực tuyến đã từng nhận URL phát). FE không đoán hai điều kiện
+          đó — cứ để người dùng bấm rồi hiện nguyên văn lý do nếu bị từ chối. */}
+      {showRating && (
+        <RatingModal
+          showName={data.title}
+          onClose={() => setShowRating(false)}
+          onSubmit={async (rating, comment) => {
+            // RatingModal truyền THEO THỨ TỰ (rating, comment), không phải một object — khớp đúng
+            // cách LivestreamWatchPage dùng, đừng đổi một bên.
+            try {
+              await rateShow(id, { score: rating, comment })
+            } catch (err) {
+              // 409 = đã đánh giá rồi. Không ném tiếp: modal sẽ hiện màn cảm ơn, và trạng thái
+              // bên dưới cập nhật thành "đã đánh giá" — đúng với thực tế trên máy chủ.
+              if (err.response?.status !== 409) throw err
+              toast.error('Bạn đã đánh giá buổi diễn này rồi.')
+            }
+            setData((p) => ({ ...p, userHasRated: true }))
+          }}
+        />
       )}
 
       {/* MODAL SHARE */}

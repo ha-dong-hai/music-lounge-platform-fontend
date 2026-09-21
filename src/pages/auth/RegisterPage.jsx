@@ -1,10 +1,17 @@
 // src/pages/auth/RegisterPage.jsx
 // Port từ Stitch (cùng design system "Phòng Trà Acoustic & Lounge" với LoginPage).
+//
+// GHI CHÚ CHO ĐỘI FE — VÌ SAO TRANG NÀY PHẢI CHO CHỌN VAI TRÒ:
+// Backend cho tự đăng ký một trong HAI vai trò (RegisterCommandValidator: "Role tự đăng ký chỉ có
+// thể là 'Audience' hoặc 'Owner'"), và KHÔNG có endpoint nào đổi vai trò về sau. Trang này trước đây
+// không gửi trường `role`, nên mọi người đăng ký đều thành khán giả và KHÔNG AI trở thành chủ phòng
+// trà được — cả nhánh nghiệp vụ phòng trà (tạo hồ sơ, bán vé, quyết toán) là ngõ cụt từ bước đầu.
+// Vì không đổi lại được, lựa chọn này phải nói rõ hệ quả TRƯỚC khi bấm, không phải một ô chọn lặng lẽ.
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Music2, User, Mail, Phone, Lock, Eye, EyeOff, Shield, AlertCircle, ArrowRight, Loader2 } from 'lucide-react'
+import { Music2, User, Mail, Phone, Lock, Eye, EyeOff, Shield, AlertCircle, ArrowRight, Loader2, Store, Ticket } from 'lucide-react'
 import { useAuth } from '../../hooks/useAuth'
 import { registerSchema } from '../../schemas/authSchema'
 
@@ -12,6 +19,9 @@ const RegisterPage = () => {
   const { handleRegister, isSubmitting } = useAuth()
   const [showPassword, setShowPassword] = useState(false)
   const [apiError, setApiError] = useState(null)
+  // Vai trò KHÔNG nằm trong zod schema vì nó không phải dữ liệu người dùng gõ — nó là một lựa chọn
+  // hai nhánh, luôn có giá trị, không thể sai định dạng.
+  const [role, setRole] = useState('Audience')
 
   const { register, handleSubmit, formState: { errors } } = useForm({
     resolver: zodResolver(registerSchema),
@@ -21,7 +31,7 @@ const RegisterPage = () => {
   const onSubmit = async ({ fullName, email, phone, password, acceptTerms }) => {
     setApiError(null)
     try {
-      await handleRegister({ email, password, fullName, phone: phone || null, acceptTerms })
+      await handleRegister({ email, password, fullName, phone: phone || null, acceptTerms, role })
     } catch (err) {
       setApiError(err.response?.data?.message || 'Đăng ký thất bại, vui lòng thử lại.')
     }
@@ -95,6 +105,50 @@ const RegisterPage = () => {
               )}
 
               <form className="space-y-5" onSubmit={handleSubmit(onSubmit)} noValidate>
+                {/* CHỌN VAI TRÒ — đặt ĐẦU form vì nó quyết định mọi thứ phía sau, và KHÔNG đổi lại
+                    được sau khi đăng ký (backend không có endpoint đổi vai trò). */}
+                <div className="space-y-1.5">
+                  <label className="block text-xs text-[#d4c4b0] uppercase tracking-wider">
+                    Bạn đăng ký với tư cách <span className="text-[#ffc665]">*</span>
+                  </label>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {[
+                      {
+                        value: 'Audience',
+                        icon: Ticket,
+                        ten: 'Khán giả',
+                        mo: 'Mua vé, xem buổi diễn, tặng tiền nghệ sĩ.',
+                      },
+                      {
+                        value: 'Owner',
+                        icon: Store,
+                        ten: 'Chủ phòng trà',
+                        mo: 'Mở phòng trà, tổ chức buổi diễn, bán vé. Hồ sơ phòng trà cần được duyệt trước khi bán.',
+                      },
+                    ].map(({ value, icon: Icon, ten, mo }) => (
+                      <button
+                        key={value}
+                        type="button"
+                        onClick={() => setRole(value)}
+                        className={`text-left p-3.5 rounded-lg border transition-colors ${
+                          role === value
+                            ? 'border-[#ffc665] bg-[#ffc665]/10'
+                            : 'border-[#504535]/60 hover:border-[#504535]'
+                        }`}
+                      >
+                        <span className="flex items-center gap-2 text-sm font-bold text-[#f5ede4]">
+                          <Icon size={16} className={role === value ? 'text-[#ffc665]' : 'text-[#9d8f7c]'} />
+                          {ten}
+                        </span>
+                        <span className="block text-xs text-[#c8bdae] mt-1 leading-relaxed">{mo}</span>
+                      </button>
+                    ))}
+                  </div>
+                  <p className="text-xs text-[#ffc665]/90 leading-relaxed pt-1">
+                    Chọn xong không đổi lại được. Cần cả hai thì đăng ký hai tài khoản với hai email khác nhau.
+                  </p>
+                </div>
+
                 <div className="space-y-1.5">
                   <label className="block text-xs text-[#d4c4b0] uppercase tracking-wider" htmlFor="fullName">
                     Họ và tên tri âm <span className="text-[#ffc665]">*</span>

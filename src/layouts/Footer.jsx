@@ -1,4 +1,14 @@
 // src/layouts/Footer.jsx
+//
+// GHI CHÚ CHO ĐỘI FE:
+// - "Gửi khiếu nại" phải ở ĐÂY chứ không chỉ trong menu người dùng: trang khiếu nại là trang CÔNG
+//   KHAI, khách chưa đăng nhập cũng gửi được (khi đó để lại số điện thoại). Trước đây route
+//   /complaints không có bất kỳ đường dẫn nào trỏ tới — dựng xong rồi không ai tìm ra.
+// - Ba liên kết About / Terms / Privacy vẫn là href="#" vì CHƯA CÓ trang tương ứng. Giữ nguyên thay
+//   vì trỏ bừa: một liên kết dẫn tới trang 404 còn tệ hơn một liên kết chưa bấm được. Khi nào có
+//   trang thì đổi sang <Link>.
+import { Link } from 'react-router-dom'
+
 const Footer = () => {
   return (
     <footer className="bg-black text-gray-300 py-12 border-t border-gray-800">
@@ -13,6 +23,11 @@ const Footer = () => {
             <li><a href="#" className="hover:text-white transition-colors">About us</a></li>
             <li><a href="#" className="hover:text-white transition-colors">Terms of Use</a></li>
             <li><a href="#" className="hover:text-white transition-colors">Privacy Policy</a></li>
+            <li>
+              <Link to="/complaints" className="hover:text-white transition-colors">
+                Gửi &amp; tra cứu khiếu nại
+              </Link>
+            </li>
           </ul>
         </div>
         <div>

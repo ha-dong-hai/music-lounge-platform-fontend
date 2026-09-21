@@ -1,4 +1,4 @@
-import { Search, User, ChevronDown, LogOut, Ticket, Settings, X, Languages, Check, Loader2 } from 'lucide-react'
+import { Search, User, ChevronDown, LogOut, Ticket, Settings, X, Languages, Check, Loader2, Store, LayoutDashboard, Bell, MessageSquareWarning } from 'lucide-react'
 import { useState, useEffect, useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom' 
 import { useAuthStore } from '../store/useAuthStore'
@@ -214,6 +214,36 @@ const Header = () => {
                   <Link to="/my-shows" className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-300 hover:bg-gray-800 transition-colors text-left">
                     <Ticket size={18} className="text-[#C3B665]" /> My Shows
                   </Link>
+                  <Link to="/notifications" className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-300 hover:bg-gray-800 transition-colors text-left">
+                    <Bell size={18} className="text-[#C3B665]" /> Thông báo
+                  </Link>
+                  <Link to="/complaints" className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-300 hover:bg-gray-800 transition-colors text-left">
+                    <MessageSquareWarning size={18} className="text-[#C3B665]" /> Khiếu nại
+                  </Link>
+
+                  {/* LỐI VÀO KHU LÀM VIỆC THEO VAI TRÒ.
+                      Trước đây menu này chỉ có Tài khoản / Vé của tôi / Đăng xuất, nên chủ phòng trà
+                      và Admin đăng nhập ở trang công khai KHÔNG có đường nào vào khu vực của mình —
+                      phải tự gõ URL. Đó là chặn hẳn luồng làm việc của họ, không phải chuyện tiện tay.
+                      Chỉ hiện đúng cửa mà vai trò đó vào được (khớp guard trong AppRouter.jsx):
+                      /owner mở cho Owner và Staff, /admin chỉ cho Admin. */}
+                  {(user.role === 'Owner' || user.role === 'Staff') && (
+                    <>
+                      <div className="my-1 border-t border-gray-700"></div>
+                      <Link to="/owner" className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-[#C3B665] hover:bg-gray-800 transition-colors text-left font-medium">
+                        <Store size={18} /> Khu vực phòng trà
+                      </Link>
+                    </>
+                  )}
+                  {user.role === 'Admin' && (
+                    <>
+                      <div className="my-1 border-t border-gray-700"></div>
+                      <Link to="/admin" className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-[#C3B665] hover:bg-gray-800 transition-colors text-left font-medium">
+                        <LayoutDashboard size={18} /> Trang quản trị
+                      </Link>
+                    </>
+                  )}
+
                   <div className="my-1 border-t border-gray-700"></div>
                   <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-500 hover:bg-red-500/10 transition-colors text-left font-medium">
                     <LogOut size={18} /> Log out
