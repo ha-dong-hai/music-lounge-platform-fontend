@@ -203,10 +203,9 @@ const TicketsTab = () => {
               const eventDate = dayjs(ev.start_date)
               const online = isOnlineTicket(ev.accessType)
               return (
-                <Link
+                <div
                   key={ev.id}
-                  to={`/my-shows/ticket/${ev.id}`}
-                  className={`bg-gray-900 border border-gray-800 border-l-4 rounded-2xl overflow-hidden flex shadow-lg hover:border-[#C3B665]/40 transition-colors group cursor-pointer ${
+                  className={`relative bg-gray-900 border border-gray-800 border-l-4 rounded-2xl overflow-hidden flex shadow-lg hover:border-[#C3B665]/40 transition-colors group ${
                     online ? 'border-l-purple-500' : 'border-l-blue-500'
                   }`}
                 >
@@ -226,8 +225,13 @@ const TicketsTab = () => {
                       <PayStatusBadge status={ev.status} />
                     </div>
 
+                    {/* "Stretched link": thẻ <a> này phủ toàn bộ thẻ vé bằng after:inset-0, nên bấm
+                        chỗ nào cũng vào chi tiết vé — mà KHÔNG phải lồng <a> trong <a>, nhờ vậy nút
+                        CTA bên dưới trỏ đi chỗ khác được. */}
                     <h3 className="text-lg sm:text-2xl font-bold text-white truncate group-hover:text-[#C3B665] transition-colors">
-                      {ev.title}
+                      <Link to={`/my-shows/ticket/${ev.id}`} className="after:absolute after:inset-0 after:content-['']">
+                        {ev.title}
+                      </Link>
                     </h3>
 
                     <div className="flex flex-col gap-1.5 text-sm">
@@ -248,19 +252,38 @@ const TicketsTab = () => {
                         <p className="text-sm font-bold text-white">{ev.pricePaid?.toLocaleString('vi-VN')}đ</p>
                       </div>
 
-                      {/* KHÁC NHAU THEO LOẠI VÉ */}
+                      {/* KHÁC NHAU THEO LOẠI VÉ.
+                          Nút của vé trực tuyến TRƯỚC ĐÂY LÀ LỜI HỨA SAI: nó ghi "View Livestream"
+                          nhưng cả thẻ chỉ dẫn tới trang mã QR. Người mua vé xem trực tuyến bấm đúng
+                          nút ghi "xem" mà không bao giờ tới được chỗ xem.
+                          Nay nó dẫn thẳng tới trang phát. Chưa tới giờ phát thì trang đó nói rõ là
+                          buổi diễn chưa có phiên livestream, chứ không vỡ — nên dẫn thẳng an toàn
+                          hơn là bắt người dùng tự mò. `z-10` để nằm trên lớp phủ của stretched link. */}
                       {online ? (
-                        <span className="flex-shrink-0 flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-purple-500/10 border border-purple-500/40 text-purple-300 text-xs font-bold group-hover:bg-purple-500/20 transition-colors">
-                          <Video size={14} /> View Livestream
-                        </span>
+                        <Link
+                          to={`/livestream/${ev.showId}`}
+                          className="relative z-10 flex-shrink-0 flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-purple-500/10 border border-purple-500/40 text-purple-300 text-xs font-bold hover:bg-purple-500/25 transition-colors"
+                        >
+                          <Video size={14} /> Vào xem trực tuyến
+                        </Link>
                       ) : (
                         <span className="flex-shrink-0 flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-[#C3B665]/10 border border-[#C3B665]/40 text-[#C3B665] text-xs font-bold group-hover:bg-[#C3B665]/20 transition-colors">
-                          <QrCode size={14} /> Scan QR Ticket
+                          <QrCode size={14} /> Xem mã QR vào cửa
                         </span>
                       )}
                     </div>
+
+                    {/* Lối sang trang buổi diễn: từ đây mới xem được sơ đồ chỗ, đánh giá sau khi
+                        kết thúc, và các buổi tương tự. Chi tiết VÉ không có đường nào sang đó vì
+                        TicketDetailDto không trả showId — chỉ danh sách vé mới có. */}
+                    <Link
+                      to={`/shows/${ev.showId}`}
+                      className="relative z-10 self-start text-xs text-gray-500 hover:text-[#C3B665] transition-colors"
+                    >
+                      Xem trang buổi diễn →
+                    </Link>
                   </div>
-                </Link>
+                </div>
               )
             })}
           </div>
