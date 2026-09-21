@@ -86,10 +86,25 @@ const docOptions = (chuoi) => {
 // → và vì ghi là THAY THẾ TOÀN BỘ, lần Lưu kế tiếp sẽ xoá mất giá trị đó mà không ai thấy.
 // Hạ chữ thường ở đây cắt đúng đường đó. Chỉ làm lúc NẠP: giá trị người dùng chọn thì vốn đã đúng.
 //
-// Select cũng cần một bước tương tự nhưng vì lý do khác: giá trị bọc NHIỀU lớp nháy ("""Bolero""")
-// sau khi bóc một lớp vẫn còn nháy, nên vẫn không khớp lựa chọn nào và ô lại hiện trống — dù máy
-// chủ sẽ chấp nhận nó. Cách chắc chắn: nếu sau khi chuẩn hoá mà trùng một lựa chọn trong danh sách
-// thì lấy CHÍNH lựa chọn đó làm giá trị, để ô hiển thị đúng và thứ gửi đi cũng đúng.
+// Select cũng cần một bước tương tự nhưng vì lý do khác: giá trị bọc NHIỀU lớp nháy, sau khi bóc
+// một lớp vẫn còn nháy nên vẫn không khớp lựa chọn nào và ô lại hiện trống. Cách xử lý: nếu sau khi
+// chuẩn hoá mà trùng một lựa chọn trong danh sách thì lấy CHÍNH lựa chọn đó làm giá trị.
+//
+// NÓI CHO ĐÚNG, ĐỪNG RÚT GỌN THÀNH CÂU SAI: máy chủ bóc ĐÚNG MỘT lớp, không lặp (đã đọc mã nguồn,
+// GoMotLopNhayKep chỉ có một chỗ gọi). Chuỗi đang lưu bọc hai lớp thì máy chủ bóc một lớp xong vẫn
+// còn nháy, so với lựa chọn là KHÔNG khớp → 422. Nghĩa là máy chủ nhận CÁI MÀN NÀY GỬI (giá trị
+// trần, sau bước ghép lựa chọn ở trên), KHÔNG phải nhận cái đang lưu trong cơ sở dữ liệu.
+//
+// HỆ QUẢ, VÀ ĐÂY LÀ BẪY CHO NGƯỜI SAU: ở ca nhiều lớp nháy, màn này KHOAN DUNG HƠN máy chủ — nó âm
+// thầm dọn giá trị lúc nạp nên màn hình trông bình thường, trong khi chuỗi đang lưu là thứ máy chủ
+// coi là không hợp lệ. Vô hại chừng nào MỌI đường Lưu đều đi qua chuanHoaGiaTri(). Nếu sau này có
+// đường nào gửi lại nguyên văn giá trị vừa đọc về — kiểu "đọc sao gửi vậy" — thì sẽ ăn 422 mà nhìn
+// màn hình không đoán ra tại sao. Thêm đường ghi mới thì phải cho nó đi qua đúng bước chuẩn hoá này.
+//
+// Vì sao máy chủ không bóc nhiều lớp: bóc một lớp là để đọc dữ liệu cũ dạng JSON đóng gói một lần,
+// thứ hệ thống từng tự sinh ra. Bóc lặp sẽ cắn vào giá trị Text mà người dùng CỐ Ý đặt trong nháy
+// (một câu trích dẫn chẳng hạn) và biến việc dọn dẹp thành làm hỏng dữ liệu. Nhiều lớp nháy là dấu
+// hiệu dữ liệu bị mã hoá chồng do lỗi ở đâu đó — bóc thêm là giấu lỗi, không phải sửa lỗi.
 const chuanHoaGiaTri = (c, v) => {
   const chuoi = chuanHoaSoKhop(v)
   if (chuoi === '') return ''
