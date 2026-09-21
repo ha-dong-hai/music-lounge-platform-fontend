@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../store/useAuthStore'
 import toast from 'react-hot-toast'
 import NotificationBell from '../components/notifications/NotificationBell'
-import { getShowSuggestions } from '../services/showServices'
+import { getShowSuggestions, getTrendingShows, getRecommendedShows } from '../services/showServices'
 
 // GỢI Ý TÌM KIẾM — GHI CHÚ CHO ĐỘI FE:
 // - Gọi /lounge-shows/suggestions, trả về { id, name, coverImageUrl }. Chỉ có tên và ảnh, KHÔNG có
@@ -26,6 +26,13 @@ const Header = () => {
   const [dangTaiGoiY, setDangTaiGoiY] = useState(false)
   const [chiSoChon, setChiSoChon] = useState(-1)
   const oTimKiemRef = useRef(null)
+  // GỢI Ý MẶC ĐỊNH khi bấm vào ô tìm kiếm mà CHƯA gõ gì (người dùng thường chưa biết mình muốn gì):
+  //  - Đã đăng nhập  -> /recommendations (backend tự chọn mức cá nhân hoá: ML.NET có lời giải thích
+  //                     nếu bật AiConsent, ngược lại theo sở thích + phòng trà đang theo dõi).
+  //  - Khách / rỗng  -> /lounge-shows/trending (độ hot chung).
+  // `khoa` gắn kết quả với người đang đăng nhập, để đổi tài khoản thì lấy lại chứ không hiện gợi ý
+  // của người trước. Không gọi lại mỗi lần mở ô tìm kiếm — chỉ lấy một lần cho mỗi người.
+  const [goiYMacDinh, setGoiYMacDinh] = useState({ khoa: null, kieu: 'trending', items: [] })
   const [isLangOpen, setIsLangOpen] = useState(false)
   const [currentLang, setCurrentLang] = useState(localStorage.getItem('lang') || 'vi')
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
@@ -54,6 +61,29 @@ const Header = () => {
     }, DO_TRE_GOI_Y)
     return () => { conHieuLuc = false; clearTimeout(hen) }
   }, [localSearch])
+
+  useEffect(() => {
+    if (!moGoiY || localSearch.trim().length > 0) return
+    const khoa = user?.id ?? 'khach'
+    if (goiYMacDinh.khoa === khoa) return
+    let conHieuLuc = true
+    ;(async () => {
+      let kieu = 'trending'
+      let items = []
+      try {
+        if (user) {
+          const res = await getRecommendedShows({ limit: 5 })
+          if (res.success && res.data?.length) { kieu = 'ca-nhan'; items = res.data }
+        }
+        if (items.length === 0) {
+          const res = await getTrendingShows({ limit: 5 })
+          if (res.success) items = res.data ?? []
+        }
+      } catch { /* im lặng: không có gợi ý mặc định thì ô tìm kiếm vẫn dùng bình thường */ }
+      if (conHieuLuc) setGoiYMacDinh({ khoa, kieu, items })
+    })()
+    return () => { conHieuLuc = false }
+  }, [moGoiY, localSearch, user, goiYMacDinh.khoa])
 
   // Bấm ra ngoài thì đóng danh sách gợi ý.
   useEffect(() => {
@@ -171,6 +201,36 @@ const Header = () => {
                     ))}
                   </ul>
                 )}
+              </div>
+            )}
+            {/* GỢI Ý MẶC ĐỊNH — hiện khi bấm vào ô mà chưa gõ đủ 2 ký tự */}
+            {moGoiY && localSearch.trim().length < 2 && goiYMacDinh.items.length > 0 && (
+              <div className="absolute top-full left-0 right-0 mt-2 bg-card border border-line rounded-xl shadow-lift overflow-hidden z-50">
+                <p className="px-4 pt-3 pb-1 text-xs font-semibold uppercase tracking-[0.12em] text-ink-mute">
+                  {goiYMacDinh.kieu === 'ca-nhan' ? 'Gợi ý riêng cho bạn' : 'Đang được quan tâm'}
+                </p>
+                <ul>
+                  {goiYMacDinh.items.map((item) => (
+                    <li key={item.id}>
+                      <button type="button" onClick={() => chonGoiY(item)}
+                        className="w-full flex items-center gap-3 px-3 py-2.5 text-left hover:bg-sunken/60 transition-colors">
+                        {item.coverImageUrl ? (
+                          <img src={item.coverImageUrl} alt="" className="w-10 h-10 rounded-md object-cover flex-shrink-0" />
+                        ) : (
+                          <div className="w-10 h-10 rounded-md bg-sunken flex-shrink-0" />
+                        )}
+                        <span className="min-w-0">
+                          <span className="block text-sm text-ink truncate">{item.name}</span>
+                          {(item.recommendationReason || item.loungeName) && (
+                            <span className="block text-xs text-ink-mute truncate">
+                              {item.recommendationReason || item.loungeName}
+                            </span>
+                          )}
+                        </span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
               </div>
             )}
           </form>
