@@ -7,7 +7,12 @@ import SectionHeader from '../../components/home/SectionHeader'
 import FilterModal from '../../components/home/FilterModal'
 import Skeleton from '../../components/shared/Skeleton'
 import HeroBanner from '../../components/home/HeroBanner'
-import { getShows, getTrendingShows, getRecommendedShows } from '../../services/showServices'
+import TonightStrip from '../../components/home/TonightStrip'
+import MoodExplorer from '../../components/home/MoodExplorer'
+import EditorialSpotlight from '../../components/home/EditorialSpotlight'
+import TrustStrip from '../../components/home/TrustStrip'
+import { getShows, getTrendingShows, getRecommendedShows, getFilterOptions } from '../../services/showServices'
+import { getLounges } from '../../services/loungeServices'
 
 const initialFilterState = {
   selectedProvince: null, selectedDistricts: [], selectedWards: [],
@@ -27,6 +32,24 @@ const HomePage = () => {
   const [appliedFilters, setAppliedFilters] = useState(initialFilterState)
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
+
+  // Danh mục tâm trạng/không gian thật cho MoodExplorer — cùng nguồn dữ liệu FilterModal đang dùng,
+  // không gọi API riêng nào mới ở backend.
+  // Phòng trà có ảnh không gian thật, cho khối biên tập — lấy phòng trà đầu tiên có ảnh.
+  const [spotlightLounge, setSpotlightLounge] = useState(null)
+  useEffect(() => {
+    getLounges({ pageSize: 10 })
+      .then(res => { if (res.success) setSpotlightLounge((res.data.items || []).find(l => l.primaryImageUrl) || null) })
+      .catch(err => console.error('Lỗi tải phòng trà cho khối biên tập:', err))
+  }, [])
+
+  const [moods, setMoods] = useState([])
+  const [atmospheres, setAtmospheres] = useState([])
+  useEffect(() => {
+    getFilterOptions()
+      .then(res => { if (res.success) { setMoods(res.data.moods || []); setAtmospheres(res.data.atmospheres || []) } })
+      .catch(err => console.error('Lỗi tải danh mục không khí:', err))
+  }, [])
 
   // 1. GỌI API TRENDING CHO HERO BANNER
   useEffect(() => {
@@ -49,7 +72,7 @@ const HomePage = () => {
         if (res.success) {
           const mapped = res.data.map(show => ({
             id: show.id, title: show.name, thumbnail: show.coverImageUrl,
-            start_date: show.scheduledStart, province: show.loungeCity,
+            start_date: show.scheduledStart, province: show.loungeCity, loungeName: show.loungeName,
             genre: show.genres?.[0]?.name || 'Khác', genreId: show.genres?.[0]?.id || null,
             // Show chưa có hạng vé nào thì minPrice/maxPrice là null — gọi thẳng .toLocaleString()
             // trên null sẽ làm vỡ cả carousel, nên phải chặn trước khi format.
@@ -74,9 +97,13 @@ const HomePage = () => {
         if (res.success) {
           const mapped = res.data.items.map(show => ({
             id: show.id, title: show.name, thumbnail: show.coverImageUrl,
-            start_date: show.scheduledStart, province: show.loungeCity,
-            genre: show.genres?.[0]?.name || 'Other', genreId: show.genres?.[0]?.id || null,
-            price: show.minPrice === 0 && show.maxPrice === 0 ? 'Free' : `${show.minPrice.toLocaleString('vi-VN')}đ`,
+            start_date: show.scheduledStart, province: show.loungeCity, loungeName: show.loungeName,
+            genre: show.genres?.[0]?.name || 'Khác', genreId: show.genres?.[0]?.id || null,
+            // Cùng lý do chặn null như mục Recommend ở trên: show chưa mở bán hạng vé nào thì
+            // minPrice/maxPrice là null, gọi thẳng .toLocaleString() sẽ ném lỗi và vỡ cả carousel.
+            price: show.minPrice == null ? 'Chưa mở bán'
+              : show.minPrice === 0 && show.maxPrice === 0 ? 'Miễn phí'
+                : `${show.minPrice.toLocaleString('vi-VN')}đ`,
             format: show.format, isWishlisted: show.isWishlisted
           }))
           setAllEvents(mapped)
@@ -157,6 +184,15 @@ const HomePage = () => {
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 pb-10 sm:pb-16 space-y-8 sm:space-y-12 lg:space-y-16">
         <>
           {trendingEvents.length > 0 && <HeroBanner events={trendingEvents} />}
+
+          <TrustStrip />
+
+          <TonightStrip events={allEvents} />
+
+          {spotlightLounge && <EditorialSpotlight lounge={spotlightLounge} />}
+
+          <MoodExplorer moods={moods} atmospheres={atmospheres} />
+
           {recommendEvents.length > 0 && (
             <section>
               <EventCarousel title="Dành riêng cho bạn" events={recommendEvents} />

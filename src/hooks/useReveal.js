@@ -12,16 +12,13 @@ import { useEffect, useRef, useState } from 'react'
 
 export function useReveal(threshold = 0.15) {
   const ref = useRef(null)
-  const [isVisible, setIsVisible] = useState(false)
+  // Môi trường không có IntersectionObserver (test/SSR, trình duyệt rất cũ): hiện luôn ngay từ đầu, khỏi
+  // phải set state trong effect (gây render lặp và bị eslint chặn).
+  const [isVisible, setIsVisible] = useState(() => typeof IntersectionObserver === 'undefined')
 
   useEffect(() => {
     const node = ref.current
-    if (!node) return
-    // IntersectionObserver không có trong môi trường test/SSR nào đó lỡ thiếu — hiện luôn cho an toàn.
-    if (typeof IntersectionObserver === 'undefined') {
-      setIsVisible(true)
-      return
-    }
+    if (!node || typeof IntersectionObserver === 'undefined') return
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {

@@ -11,6 +11,7 @@ import { Heart, MapPin, ArrowRight } from 'lucide-react'
 import dayjs from 'dayjs'
 import { toggleWishlist } from '../../services/interactionServices'
 import toast from 'react-hot-toast'
+import CoverFallback from '../shared/CoverFallback'
 
 const formatPrice = (v) => v == null ? null : v === 0 ? 'Miễn phí' : `${v.toLocaleString('vi-VN')}đ`
 
