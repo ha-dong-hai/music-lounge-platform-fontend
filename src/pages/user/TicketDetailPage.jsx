@@ -1,7 +1,7 @@
 // src/pages/user/TicketDetailPage.jsx
 import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { ArrowLeft, CheckCircle2, XCircle, Send, Loader2, Undo2 } from 'lucide-react'
+import { ArrowLeft, CheckCircle2, XCircle, Send, Loader2, Undo2, CalendarDays, Video } from 'lucide-react'
 import QRCode from 'react-qr-code'
 import dayjs from 'dayjs'
 import toast from 'react-hot-toast'
@@ -137,7 +137,36 @@ const TicketDetailPage = () => {
                     </Link>
                 </div>
 
-                <h1 className="text-3xl md:text-4xl font-bold text-white mb-6">{ticket.showName}</h1>
+                <h1 className="text-3xl md:text-4xl font-bold text-white mb-3">{ticket.showName}</h1>
+
+                {/* LỐI SANG BUỔI DIỄN — CHỈ HIỆN KHI CÓ showId.
+                    TicketDetailDto trước đây KHÔNG trả showId (trong khi TicketListItemDto thì có),
+                    nên từ trang này không dẫn sang buổi diễn hay chỗ xem trực tuyến được. Backend đã
+                    thêm trường đó nhưng BẢN ĐANG CHẠY có thể chưa có — nên bọc điều kiện thay vì
+                    dựng cứng: thiếu trường thì khối này không hiện, có trường thì tự bật. Không phải
+                    sửa lại lần nữa sau khi deploy, và không bao giờ tạo link /shows/undefined.
+                    Danh sách vé vẫn giữ lối vào riêng của nó — đó là đường đã chạy được từ trước. */}
+                {ticket.showId != null && (
+                  <div className="flex flex-wrap gap-3 mb-6">
+                    <Link
+                      to={`/shows/${ticket.showId}`}
+                      className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-700 text-gray-300 text-sm font-bold hover:bg-gray-800 transition-colors"
+                    >
+                      <CalendarDays size={15} /> Xem trang buổi diễn
+                    </Link>
+                    {/* So bằng `!== 'Physical'` chứ không `=== 'Livestream'`, cho khớp quy ước đã
+                        dùng ở dòng dưới và ở TicketsTab. Hôm nay enum chỉ có hai giá trị nên hai
+                        cách như nhau; dùng khác quy ước của chính tệp mới là mầm lệch về sau. */}
+                    {ticket.accessType !== 'Physical' && (
+                      <Link
+                        to={`/livestream/${ticket.showId}`}
+                        className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-500/10 border border-purple-500/40 text-purple-300 text-sm font-bold hover:bg-purple-500/25 transition-colors"
+                      >
+                        <Video size={15} /> Vào xem trực tuyến
+                      </Link>
+                    )}
+                  </div>
+                )}
 
                 {/* NẾU BE CÓ TRẢ LINK ẢNH THÌ HIỆN, KHÔNG CÓ THÌ BỎ QUA */}
                 {/* <div className="relative w-full h-64 md:h-80 rounded-2xl overflow-hidden mb-8 bg-gray-900">
