@@ -271,6 +271,12 @@ const OwnerShowSettingsPage = () => {
 
   const coQuyenAi = goi === undefined ? true : !!goi?.hasAiPosterSnapshot
   const tranThangNay = goi?.maxAiPostersPerMonthSnapshot ?? null
+  // Số còn lại ĐỌC TRƯỚC KHI BẤM (MLACP-483). Trước đây trường này chỉ có trong câu trả lời của
+  // chính lần bấm, nên muốn biết còn mấy lượt thì phải tiêu một lượt — mà mỗi lượt là tiền thật.
+  // Backend đếm bằng cùng một luật với lệnh tạo poster (AiPosterQuota), không phải bản chép lại,
+  // nên con số ở đây và câu trả lời của máy chủ không trôi ra khỏi nhau.
+  // Ưu tiên số của lần bấm gần nhất vì nó mới hơn số đọc lúc tải trang.
+  const conLai = conLaiThangNay ?? goi?.aiPostersRemainingThisMonth ?? null
   const posterDangDungLaAi = !!show.coverImageUrl
     && history.some((h) => h.imageUrl === show.coverImageUrl)
 
@@ -319,7 +325,10 @@ const OwnerShowSettingsPage = () => {
           )}
 
           <div className="flex flex-wrap gap-2">
-            <button onClick={taoPosterAi} disabled={busy !== null || !!donChoXuLy || (goi !== undefined && !coQuyenAi)}
+            {/* Hết lượt thì máy chủ từ chối, nên chặn trước còn hơn để bấm rồi nhận lỗi. Chỉ chặn khi
+                BIẾT CHẮC là 0 — `conLai` null nghĩa là chưa đọc được, và đoán sai mà chặn là chặn oan. */}
+            <button onClick={taoPosterAi}
+              disabled={busy !== null || !!donChoXuLy || (goi !== undefined && !coQuyenAi) || conLai === 0}
               title={donChoXuLy ? 'Đang có đơn tạo poster chờ xử lý' : undefined}
               className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#C3B665] text-black text-sm font-bold hover:bg-[#d4c87f] disabled:opacity-40 disabled:cursor-not-allowed">
               {busy === 'ai' ? <Loader2 size={15} className="animate-spin" /> : <Sparkles size={15} />} Tạo poster bằng AI
@@ -346,17 +355,14 @@ const OwnerShowSettingsPage = () => {
             </p>
           )}
 
-          {/* Hạn mức tháng. Số CÒN LẠI chỉ có trong câu trả lời của chính lần bấm — backend không có
-              endpoint đọc riêng, và gói chỉ cho biết TRẦN chứ không cho biết đã dùng bao nhiêu (hạn
-              mức tính theo chủ phòng trà trên tất cả buổi diễn, nên màn này cũng không tự cộng được).
-              Vì vậy: chưa bấm thì hiện trần, bấm rồi thì hiện cả hai. Đã nhờ backend bổ sung. */}
-          {(conLaiThangNay !== null || tranThangNay !== null) && (
+          {/* Hạn mức tháng, hiện NGAY KHI MỞ TRANG chứ không chờ bấm — xem chú thích ở `conLai`. */}
+          {(conLai !== null || tranThangNay !== null) && (
             <p className="text-xs text-gray-500 leading-relaxed">
-              {conLaiThangNay !== null ? (
+              {conLai !== null ? (
                 <>
-                  Còn <span className="text-gray-300 font-semibold">{conLaiThangNay}</span>
+                  Còn <span className={`font-semibold ${conLai === 0 ? 'text-yellow-400' : 'text-gray-300'}`}>{conLai}</span>
                   {tranThangNay !== null && <> trong {tranThangNay}</>} lượt poster AI trong tháng này.
-                  {conLaiThangNay === 0 && ' Hạn mức làm mới vào đầu tháng sau.'}
+                  {conLai === 0 && ' Hạn mức làm mới vào đầu tháng sau.'}
                 </>
               ) : (
                 <>Gói của bạn có <span className="text-gray-300 font-semibold">{tranThangNay}</span> poster AI mỗi tháng.</>

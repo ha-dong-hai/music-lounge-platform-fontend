@@ -152,9 +152,27 @@ const OwnerSubscriptionPage = () => {
               <p className="text-xs text-gray-500">Poster AI</p>
               <p className="text-white font-bold mt-0.5">{current.hasAiPosterSnapshot ? 'Có' : 'Không'}</p>
             </div>
+            {/* ĐÃ DÙNG / TRẦN, không chỉ trần. Trần một mình không trả lời được câu duy nhất chủ phòng
+                trà hỏi ở đây — "tôi còn mấy lượt". Trước MLACP-483 số còn lại chỉ có trong câu trả lời
+                của chính lần bấm tạo poster, tức là muốn đọc một con số thì phải tiêu một lượt.
+                Hai trường mới có thể chưa lên máy chủ đang chạy, nên kiểm kiểu trước: thiếu thì tự
+                rơi về cách hiện cũ, không cần dọn dẹp gì sau khi backend deploy. */}
             <div>
-              <p className="text-xs text-gray-500">Poster AI/tháng</p>
-              <p className="text-white font-bold mt-0.5">{current.maxAiPostersPerMonthSnapshot}</p>
+              <p className="text-xs text-gray-500">Poster AI tháng này</p>
+              {typeof current.aiPostersUsedThisMonth === 'number' ? (
+                <>
+                  <p className="text-white font-bold mt-0.5">
+                    {current.aiPostersUsedThisMonth}/{current.maxAiPostersPerMonthSnapshot}
+                  </p>
+                  <p className={`text-xs mt-0.5 ${current.aiPostersRemainingThisMonth === 0 ? 'text-yellow-400' : 'text-gray-500'}`}>
+                    {current.aiPostersRemainingThisMonth === 0
+                      ? 'Hết lượt, làm mới đầu tháng sau'
+                      : `còn ${current.aiPostersRemainingThisMonth}`}
+                  </p>
+                </>
+              ) : (
+                <p className="text-white font-bold mt-0.5">{current.maxAiPostersPerMonthSnapshot}</p>
+              )}
             </div>
             <div>
               <p className="text-xs text-gray-500">Cảnh tour 360°</p>
