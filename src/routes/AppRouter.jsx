@@ -25,6 +25,7 @@ import LivestreamWatchPage from '../pages/livestream/LivestreamWatchPage'
 import RatingModal from '../components/livestream/RatingModal'
 import AdminVenuesPage from '../pages/admin/AdminVenuesPage'
 import AdminFilterOptionsPage from '../pages/admin/AdminFilterOptionsPage'
+import AdminBankAccountsPage from '../pages/admin/AdminBankAccountsPage'
 
 const AppRouter = createBrowserRouter([
   {
@@ -63,6 +64,7 @@ const AppRouter = createBrowserRouter([
       { path: 'complaint', element: <AdminComplaintPage /> },
       { path: 'venues', element: <AdminVenuesPage /> },
       { path: 'filter-options', element: <AdminFilterOptionsPage /> },
+      { path: 'bank-accounts', element: <AdminBankAccountsPage /> },
     ]
   }
 
