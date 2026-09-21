@@ -15,6 +15,7 @@ import { getFollowedLounges, toggleWishlist } from '../../services/interactionSe
 import { toggleFollowLounge } from '../../services/interactionServices' 
 
 import { useAuthStore } from '../../store/useAuthStore'
+import { formatMinPrice } from '../../utils/formatPrice'
 
 const EventDetailPage = () => {
   const { id } = useParams()
@@ -96,7 +97,7 @@ const EventDetailPage = () => {
                 title: ev.name,
                 thumbnail: ev.coverImageUrl,
                 start_date: ev.scheduledStart,
-                price: ev.minPrice === 0 && ev.maxPrice === 0 ? 'Free' : `${ev.minPrice.toLocaleString('vi-VN')}đ`,
+                price: formatMinPrice(ev),
                 format: ev.format
               }))
               setRelatedEvents(related)

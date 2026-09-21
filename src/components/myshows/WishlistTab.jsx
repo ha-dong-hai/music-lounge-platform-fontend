@@ -4,6 +4,7 @@ import { Heart } from 'lucide-react'
 import ShowCard from '../home/ShowCard'
 import Skeleton from '../shared/Skeleton'
 import { getWishlist } from '../../services/interactionServices'
+import { formatMinPrice } from '../../utils/formatPrice'
 
 const WishlistTab = () => {
   const [isLoading, setIsLoading] = useState(true)
@@ -23,7 +24,7 @@ const WishlistTab = () => {
             format: show.format,
             thumbnail: show.coverImageUrl,
             start_date: show.scheduledStart,
-            price: show.minPrice === 0 && show.maxPrice === 0 ? 'Miễn phí' : `${show.minPrice.toLocaleString('vi-VN')}đ`,
+            price: formatMinPrice(show),
             isWishlisted: true // MỌI item trong tab này đều đang được wishlist
           }))
           setWishlistShows(mapped)

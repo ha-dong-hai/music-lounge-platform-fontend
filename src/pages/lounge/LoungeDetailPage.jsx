@@ -1,5 +1,5 @@
 // src/pages/lounge/LoungeDetailPage.jsx
-import { useState, useEffect } from 'react'
+import { useState, useEffect, lazy, Suspense } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { ArrowLeft } from 'lucide-react'
 import dayjs from 'dayjs'
@@ -10,9 +10,14 @@ import LoungeSidebar from '../../components/lounge/LoungeSidebar'
 import Skeleton from '../../components/shared/Skeleton'
 import ShowCarousel from '../../components/home/ShowCarousel'
 import { useAuthStore } from '../../store/useAuthStore'
-import { getLoungeDetail, getLoungeZones } from '../../services/loungeServices'
+
+// Trình xem 360° kéo theo three.js (~500KB) — chỉ tải khi phòng trà THẬT SỰ có tour, không làm nặng
+// bundle chính của mọi trang.
+const PanoramaViewer = lazy(() => import('../../components/lounge/PanoramaViewer'))
+import { getLoungeDetail, getLoungeZones, getLoungeTour } from '../../services/loungeServices'
 import { getShowsByLounge } from '../../services/showServices'
 import { getFollowedLounges, toggleFollowLounge } from '../../services/interactionServices'
+import { formatMinPrice } from '../../utils/formatPrice'
 
 const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?q=80&w=2670&auto=format&fit=crop'
 
@@ -24,6 +29,7 @@ const LoungeDetailPage = () => {
   const [apiError, setApiError] = useState(null)
   const [lounge, setLounge] = useState(null)
   const [zones, setZones] = useState([])
+  const [tourScenes, setTourScenes] = useState([])
   const [loungeShows, setLoungeShows] = useState([])
 
   // STATE FOLLOW
@@ -85,10 +91,16 @@ const LoungeDetailPage = () => {
         // trả false và khu vực cũng không hiện. Cả hai khối đều là code chết.
         // Đồng thời đổi sang /lounge-shows/by-lounge/{id}: backend lọc theo phòng trà sẵn, không
         // phải tải 50 buổi của toàn hệ thống rồi lọc ở FE (cách cũ bỏ sót buổi nằm ngoài 50 đầu).
-        const [zonesRes, showsRes] = await Promise.all([
+        const [zonesRes, showsRes, tourRes] = await Promise.all([
           getLoungeZones(beData.id).catch(() => null),
           getShowsByLounge(beData.id, { page: 1, pageSize: 6 }).catch(() => null),
+          // Tour lỗi hay chưa có thì trang vẫn dùng bình thường, chỉ không hiện khối 360°.
+          getLoungeTour(beData.id).catch(() => null),
         ])
+
+        if (tourRes?.success) {
+          setTourScenes((tourRes.data?.scenes ?? []).filter((sc) => sc.imageUrl))
+        }
 
         if (zonesRes?.success && Array.isArray(zonesRes.data)) {
           setZones(zonesRes.data)
@@ -104,7 +116,7 @@ const LoungeDetailPage = () => {
               start_date: show.scheduledStart,
               genre: show.genres?.[0]?.name || 'Acoustic',
               mood: 'Chill',
-              price: show.minPrice === 0 && show.maxPrice === 0 ? 'Free' : `${show.minPrice.toLocaleString('vi-VN')}đ`
+              price: formatMinPrice(show)
             }))
           setLoungeShows(filteredShows)
         }
@@ -176,6 +188,16 @@ const LoungeDetailPage = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-12">
             <LoungeAbout lounge={lounge} zones={zones} />
+
+            {tourScenes.length > 0 && (
+              <section aria-labelledby="tour-360-title">
+                <h2 id="tour-360-title" className="font-display text-2xl font-semibold text-ink mb-1">Tham quan không gian 360°</h2>
+                <p className="text-sm text-ink-mute mb-4">Nhìn quanh phòng trà trước khi chọn chỗ ngồi — kéo để xoay, cuộn để phóng to.</p>
+                <Suspense fallback={<Skeleton className="w-full aspect-video rounded-2xl" />}>
+                  <PanoramaViewer scenes={tourScenes} className="w-full aspect-video rounded-2xl border border-line shadow-glow" />
+                </Suspense>
+              </section>
+            )}
           </div>
           <div className="lg:col-span-1 lg:sticky lg:top-20 lg:self-start">
             <LoungeSidebar lounge={lounge} />

@@ -13,6 +13,7 @@ import EditorialSpotlight from '../../components/home/EditorialSpotlight'
 import TrustStrip from '../../components/home/TrustStrip'
 import { getShows, getTrendingShows, getRecommendedShows, getFilterOptions } from '../../services/showServices'
 import { getLounges } from '../../services/loungeServices'
+import { formatMinPrice } from '../../utils/formatPrice'
 
 const initialFilterState = {
   selectedProvince: null, selectedDistricts: [], selectedWards: [],
@@ -76,9 +77,7 @@ const HomePage = () => {
             genre: show.genres?.[0]?.name || 'Khác', genreId: show.genres?.[0]?.id || null,
             // Show chưa có hạng vé nào thì minPrice/maxPrice là null — gọi thẳng .toLocaleString()
             // trên null sẽ làm vỡ cả carousel, nên phải chặn trước khi format.
-            price: show.minPrice == null ? 'Chưa mở bán'
-              : show.minPrice === 0 && show.maxPrice === 0 ? 'Miễn phí'
-                : `${show.minPrice.toLocaleString('vi-VN')}đ`,
+            price: formatMinPrice(show),
             format: show.format, isWishlisted: show.isWishlisted
           }))
           setRecommendEvents(mapped)
@@ -101,9 +100,7 @@ const HomePage = () => {
             genre: show.genres?.[0]?.name || 'Khác', genreId: show.genres?.[0]?.id || null,
             // Cùng lý do chặn null như mục Recommend ở trên: show chưa mở bán hạng vé nào thì
             // minPrice/maxPrice là null, gọi thẳng .toLocaleString() sẽ ném lỗi và vỡ cả carousel.
-            price: show.minPrice == null ? 'Chưa mở bán'
-              : show.minPrice === 0 && show.maxPrice === 0 ? 'Miễn phí'
-                : `${show.minPrice.toLocaleString('vi-VN')}đ`,
+            price: formatMinPrice(show),
             format: show.format, isWishlisted: show.isWishlisted
           }))
           setAllEvents(mapped)

@@ -8,6 +8,7 @@ import SectionHeader from '../../components/home/SectionHeader'
 import FilterModal from '../../components/home/FilterModal'
 import { getShows, searchShows, getFilterOptions } from '../../services/showServices'
 import dayjs from 'dayjs'
+import { formatMinPrice } from '../../utils/formatPrice'
 
 const initialFilterState = {
   selectedProvince: null,
@@ -122,7 +123,7 @@ const ShowSearchPage = () => {
             thumbnail: show.coverImageUrl,
             start_date: show.scheduledStart,
             genre: show.genres && show.genres.length > 0 ? show.genres[0].name : 'Other',
-            price: show.minPrice === 0 && show.maxPrice === 0 ? 'Free' : `${show.minPrice.toLocaleString('vi-VN')}đ`,
+            price: formatMinPrice(show),
             format: show.format,
             isWishlisted: show.isWishlisted
           }))
