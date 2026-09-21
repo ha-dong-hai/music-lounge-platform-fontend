@@ -1,8 +1,18 @@
 import axios from 'axios';
 import { useAuthStore } from '../store/useAuthStore';
 
+// ĐỊA CHỈ MÁY CHỦ — đọc từ biến môi trường, rơi về máy chủ hiện tại nếu không đặt.
+// Vì sao cần: trước đây địa chỉ này dán cứng, nên muốn trỏ sang môi trường khác (máy cá nhân, bản
+// thử) là phải sửa mã rồi build lại. Dự án đã có sẵn cơ chế biến môi trường (Firebase đang dùng),
+// chỉ chỗ này là chưa theo.
+// GIÁ TRỊ MẶC ĐỊNH GIỮ NGUYÊN máy chủ đang chạy, nên không đặt biến thì mọi thứ y như cũ.
+//
+// LƯU Ý KHI ĐƯA FE LÊN TÊN MIỀN THẬT: máy chủ hiện chỉ cho ĐÚNG MỘT origin là http://localhost:5173
+// (Cors__AllowedOrigins__0). Đổi địa chỉ này sang tên miền thật mà chưa thêm origin đó ở máy chủ thì
+// trình duyệt chặn mọi lời gọi — và nó hiện ra dưới dạng "lỗi mạng" khó đoán, không phải lỗi CORS
+// rõ ràng. Phải nhờ backend thêm origin TRƯỚC khi đổi.
 const axiosClient = axios.create({
-  baseURL: 'https://musiclounge-api.azurewebsites.net/api/v1',
+  baseURL: import.meta.env.VITE_API_BASE_URL || 'https://musiclounge-api.azurewebsites.net/api/v1',
   headers: {
     'Content-Type': 'application/json',
   },
