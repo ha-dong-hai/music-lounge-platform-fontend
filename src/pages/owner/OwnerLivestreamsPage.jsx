@@ -4,9 +4,13 @@
 // 1) Không có endpoint nào cho Owner tự xem trạng thái duyệt Admin của livestream (EventModeration
 //    chỉ Admin đọc được qua GET /moderations/pending). Nên trang này không hiển thị được "đang chờ
 //    duyệt" một cách chắc chắn — chỉ biết được khi bấm "Bắt đầu phát" thất bại với đúng lý do đó.
-// 2) LoungeShowDetailDto không có field cho biết đã khai VCPMC hay chưa (chỉ có
-//    LegalApprovalConfirmed, không có tương đương cho VCPMC) — nên form khai VCPMC luôn hiện sẵn,
-//    không tự ẩn khi đã khai rồi. Cả 2 điều này nên bổ sung ở backend nếu muốn UI chính xác hơn.
+// 2) (ĐÃ HẾT ĐÚNG — sửa lại cho khỏi đánh lừa người đọc sau) Ghi chú cũ ở đây nói DTO không có
+//    field cho biết đã khai VCPMC hay chưa. Thực ra CÓ: `operatorInfo.vcpmcDeclared` và
+//    `operatorInfo.vcpmcRoyaltyReference`, backend làm đúng để giao diện ẩn/hiện form. Trang này
+//    trước đây không đọc nên form luôn hiện trống, và chủ phòng trà khai xong không còn chỗ nào
+//    xem lại mã mình đã khai. Nay đọc rồi.
+//    `operatorInfo` chỉ trả cho người vận hành (chủ, nhân viên được phân công, Admin) — khán giả
+//    nhận null, nên mọi chỗ đọc nó phải chịu được null.
 import { useState, useEffect, useCallback } from 'react'
 import { Radio, Loader2, Copy, Square, Play, ShieldCheck, MessageSquare, MessageSquareOff } from 'lucide-react'
 import toast from 'react-hot-toast'
@@ -39,10 +43,15 @@ const ShowLivestreamRow = ({ show, onChanged }) => {
   const [credentials, setCredentials] = useState(null)
   const [vcpmcRef, setVcpmcRef] = useState('')
   const [isBusy, setIsBusy] = useState(false)
+  // Chi tiết buổi diễn. `show` truyền từ ngoài vào là MỘT DÒNG DANH SÁCH nên KHÔNG có operatorInfo —
+  // mã tác quyền đã khai chỉ có ở chi tiết. Trước đây hàm dưới gọi chi tiết rồi bỏ đi, chỉ lấy
+  // livestreamId; nay giữ lại.
+  const [chiTiet, setChiTiet] = useState(null)
 
   const loadLivestream = useCallback(async () => {
     try {
       const detailRes = await getShowDetail(show.id)
+      setChiTiet(detailRes.success ? detailRes.data : null)
       if (!detailRes.success || !detailRes.data.livestreamId) {
         setLivestream(null)
         return
@@ -50,6 +59,7 @@ const ShowLivestreamRow = ({ show, onChanged }) => {
       const lsRes = await getLivestreamDetail(detailRes.data.livestreamId)
       if (lsRes.success) setLivestream(lsRes.data)
     } catch {
+      setChiTiet(null)
       setLivestream(null)
     }
   }, [show.id])
@@ -77,6 +87,9 @@ const ShowLivestreamRow = ({ show, onChanged }) => {
     try {
       await setVcpmcRoyalty(show.id, vcpmcRef.trim())
       toast.success('Đã lưu mã tác quyền VCPMC.')
+      setVcpmcRef('')
+      // Tải lại chi tiết buổi diễn để khối "đã khai" hiện đúng mã vừa lưu, thay vì phải đoán.
+      await loadLivestream()
     } catch (err) {
       toast.error(err.response?.data?.message || 'Không lưu được mã tác quyền.')
     } finally {
@@ -173,11 +186,25 @@ const ShowLivestreamRow = ({ show, onChanged }) => {
 
       {livestream && livestream.status === 'Scheduled' && (
         <div className="mt-4 pt-4 border-t border-gray-800 space-y-3">
+          {/* HIỆN MÃ ĐÃ KHAI. Không có khối này thì khai xong không còn chỗ nào xem lại để đối
+              chiếu, và không biết mình đã khai hay chưa — trong khi đây là điều kiện bắt buộc để
+              bắt đầu phát. */}
+          {chiTiet?.operatorInfo?.vcpmcDeclared && (
+            <div className="p-3 rounded-lg bg-black/40 border border-gray-800">
+              <p className="text-xs text-gray-500">Đã khai mã tác quyền VCPMC</p>
+              <p className="text-sm text-white mt-0.5 break-all">
+                {chiTiet.operatorInfo.vcpmcRoyaltyReference || '(đã khai, không đọc lại được mã)'}
+              </p>
+              <p className="text-[11px] text-gray-600 mt-1">Khai lại sẽ ghi đè mã trên.</p>
+            </div>
+          )}
           <div className="flex gap-2">
             <input
               value={vcpmcRef}
               onChange={(e) => setVcpmcRef(e.target.value)}
-              placeholder="Mã tham chiếu đã thanh toán tác quyền VCPMC"
+              placeholder={chiTiet?.operatorInfo?.vcpmcDeclared
+                ? 'Nhập mã mới để thay mã đang khai'
+                : 'Mã tham chiếu đã thanh toán tác quyền VCPMC'}
               className="flex-1 px-3 py-2 bg-black border border-gray-700 rounded-lg text-sm text-white placeholder:text-gray-600"
             />
             <button
@@ -185,7 +212,7 @@ const ShowLivestreamRow = ({ show, onChanged }) => {
               disabled={isBusy || !vcpmcRef.trim()}
               className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-gray-700 text-gray-300 text-xs font-bold hover:bg-gray-800 disabled:opacity-50"
             >
-              <ShieldCheck size={14} /> Lưu VCPMC
+              <ShieldCheck size={14} /> {chiTiet?.operatorInfo?.vcpmcDeclared ? 'Thay mã' : 'Lưu VCPMC'}
             </button>
           </div>
           <button

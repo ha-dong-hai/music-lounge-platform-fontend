@@ -32,7 +32,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import {
   ArrowLeft, Loader2, Plus, Trash2, Check, X, Send, Ticket, Users, FileCheck,
-  Pencil, ArrowUp, ArrowDown, Save,
+  Pencil, ArrowUp, ArrowDown, Save, XCircle, Clock,
 } from 'lucide-react'
 import dayjs from 'dayjs'
 import toast from 'react-hot-toast'
@@ -312,11 +312,26 @@ const OwnerShowDetailPage = () => {
     return <div className="text-gray-500">Không tìm thấy buổi diễn.</div>
   }
 
+  // operatorInfo CHỈ trả cho người vận hành phòng trà (chủ, nhân viên được phân công, Admin).
+  // Endpoint chi tiết buổi diễn là công khai, nên khán giả nhận null — lý do bị từ chối và mã tác
+  // quyền không được lộ ra ngoài. Vì vậy mọi chỗ đọc nó đều phải chịu được null.
+  const vanHanh = show.operatorInfo ?? null
+  const duyet = vanHanh?.moderation ?? null
+  const daKhaiVanBan = !!vanHanh?.legalApprovalReference
+
   const isDraft = show.status === 'Draft'
   const hasTiers = tiers.length > 0
   const hasPerformers = (show.performers?.length || 0) > 0
   // Chỉ chặn theo 2 điều kiện ĐỌC ĐƯỢC. Hai điều kiện còn lại để backend trả lời (xem ghi chú đầu file).
-  const readyToSubmit = hasTiers && hasPerformers
+  // Điều kiện FE kiểm được trước khi gửi. Số ngày nộp trước thì chỉ máy chủ biết, nên vẫn để máy
+  // chủ trả lời — nhưng cái nào chặn sớm được thì đừng bắt người dùng đi một vòng mạng.
+  //
+  // CẨN THẬN VỚI `daKhaiVanBan`: nó suy ra từ operatorInfo. Nếu bản API đang chạy CHƯA trả khối đó
+  // (hoặc người xem không phải người vận hành) thì nó luôn false, và nếu đưa thẳng vào điều kiện
+  // này thì nút Gửi duyệt bị KHOÁ VĨNH VIỄN — làm tắc luồng, tệ hơn hẳn việc không kiểm được.
+  // Nên chỉ tính nó khi thực sự đọc được khối operatorInfo; không đọc được thì để máy chủ từ chối
+  // kèm lý do, y như trước đây.
+  const readyToSubmit = hasTiers && hasPerformers && (!vanHanh || daKhaiVanBan)
 
   return (
     <div className="space-y-6">
@@ -331,6 +346,58 @@ const OwnerShowDetailPage = () => {
         </p>
       </div>
 
+      {/* KẾT QUẢ KIỂM DUYỆT — KHỐI QUAN TRỌNG NHẤT TRANG NÀY KHI BỊ TỪ CHỐI.
+          Buổi diễn bị từ chối sẽ QUAY VỀ trạng thái Draft, trông y hệt một bản nháp chưa từng gửi.
+          Không hiện khối này thì chủ phòng trà không biết mình đã bị từ chối, không biết vì sao, và
+          gửi lại đúng thứ vừa bị loại — vòng lặp đó chỉ dừng khi có người gọi điện hỏi.
+          Backend làm riêng khối `moderation` đúng để chữa chuyện đó; trước đây FE không đọc nó. */}
+      {duyet && (
+        duyet.decision === 'Rejected' ? (
+          <div className="bg-red-500/5 border border-red-500/40 rounded-xl p-5">
+            <h2 className="text-base font-semibold text-red-400 flex items-center gap-2">
+              <XCircle size={17} /> Admin đã từ chối buổi diễn này
+            </h2>
+            <p className="text-sm text-gray-300 mt-2 leading-relaxed">
+              <span className="text-gray-500">Lý do: </span>
+              {duyet.reviewNote || 'Admin không ghi lý do. Hãy liên hệ Admin trước khi gửi lại.'}
+            </p>
+            <p className="text-xs text-gray-600 mt-2">
+              Gửi duyệt {dayjs(duyet.submittedAt).format('HH:mm DD/MM/YYYY')}
+              {duyet.reviewedAt && ` · từ chối ${dayjs(duyet.reviewedAt).format('HH:mm DD/MM/YYYY')}`}
+            </p>
+            <p className="text-xs text-red-400/90 mt-3 leading-relaxed">
+              Buổi diễn đã quay về trạng thái Nháp nên bạn sửa được. Sửa đúng chỗ bị nêu rồi bấm
+              Gửi duyệt lại — gửi lại nguyên như cũ thì sẽ bị từ chối tiếp.
+            </p>
+          </div>
+        ) : duyet.decision === 'Approved' ? (
+          <div className="bg-green-500/5 border border-green-500/30 rounded-xl p-5">
+            <h2 className="text-base font-semibold text-green-400 flex items-center gap-2">
+              <Check size={17} /> Admin đã duyệt
+            </h2>
+            <p className="text-xs text-gray-500 mt-1.5">
+              Duyệt lúc {duyet.reviewedAt ? dayjs(duyet.reviewedAt).format('HH:mm DD/MM/YYYY') : '—'}
+              {duyet.reviewNote && ` · ghi chú: ${duyet.reviewNote}`}
+            </p>
+          </div>
+        ) : (
+          <div className="bg-yellow-500/5 border border-yellow-500/30 rounded-xl p-5">
+            <h2 className="text-base font-semibold text-yellow-400 flex items-center gap-2">
+              <Clock size={17} /> Đang chờ Admin duyệt
+            </h2>
+            <p className="text-xs text-gray-500 mt-1.5">
+              Gửi lúc {dayjs(duyet.submittedAt).format('HH:mm DD/MM/YYYY')}
+              {duyet.slaDeadline && ` · hạn Admin phải xử lý: ${dayjs(duyet.slaDeadline).format('HH:mm DD/MM/YYYY')}`}
+            </p>
+            {duyet.slaDeadline && dayjs(duyet.slaDeadline).isBefore(dayjs()) && (
+              <p className="text-xs text-yellow-400 mt-2">
+                Đã quá hạn xử lý. Bạn có thể liên hệ Admin để hỏi.
+              </p>
+            )}
+          </div>
+        )
+      )}
+
       {!isDraft && (
         <div className="bg-yellow-500/5 border border-yellow-500/20 rounded-xl p-4 text-sm text-yellow-400">
           Buổi diễn không còn ở trạng thái Nháp nên không sửa được nữa. Trang này chỉ còn để xem.
@@ -343,16 +410,27 @@ const OwnerShowDetailPage = () => {
         <div className="space-y-3">
           <ChecklistRow ok={hasTiers} label="Có ít nhất 1 hạng vé" hint="Thêm ở mục Hạng vé bên dưới" />
           <ChecklistRow ok={hasPerformers} label="Có ít nhất 1 nghệ sĩ trong line-up" hint="Thêm ở mục Line-up bên dưới" />
-          <div className="flex items-start gap-2.5">
-            <span className="mt-0.5 w-5 h-5 rounded-full bg-gray-800 text-gray-600 flex items-center justify-center flex-shrink-0 text-[10px]">?</span>
-            <div>
-              <p className="text-sm text-gray-300">Đã khai văn bản chấp thuận tổ chức biểu diễn</p>
-              <p className="text-xs text-gray-500 mt-0.5">
-                Theo NĐ 144/2020 Điều 10. Hệ thống chưa cho đọc lại nội dung đã khai, nên mục này sẽ
-                được kiểm khi bấm gửi.
-              </p>
+          {/* Kiểm được THẬT khi đọc được operatorInfo (backend trả số văn bản đã khai). Trước đây
+              mục này luôn là dấu hỏi vì FE không đọc giá trị đó, nên người dùng không biết mình đã
+              khai hay chưa cho tới lúc bấm gửi và bị từ chối.
+              Không đọc được khối đó thì GIỮ dấu hỏi thay vì báo đỏ — báo đỏ khi mình không biết là
+              nói sai với người dùng. */}
+          {vanHanh ? (
+            <ChecklistRow ok={daKhaiVanBan}
+              label="Đã khai văn bản chấp thuận tổ chức biểu diễn"
+              hint="Theo NĐ 144/2020 Điều 10. Khai ở mục Văn bản chấp thuận bên dưới" />
+          ) : (
+            <div className="flex items-start gap-2.5">
+              <span className="mt-0.5 w-5 h-5 rounded-full bg-gray-800 text-gray-600 flex items-center justify-center flex-shrink-0 text-[10px]">?</span>
+              <div>
+                <p className="text-sm text-gray-300">Đã khai văn bản chấp thuận tổ chức biểu diễn</p>
+                <p className="text-xs text-gray-500 mt-0.5">
+                  Theo NĐ 144/2020 Điều 10. Chưa đọc được trạng thái đã khai, nên mục này sẽ được
+                  kiểm khi bấm gửi.
+                </p>
+              </div>
             </div>
-          </div>
+          )}
           <div className="flex items-start gap-2.5">
             <span className="mt-0.5 w-5 h-5 rounded-full bg-gray-800 text-gray-600 flex items-center justify-center flex-shrink-0 text-[10px]">?</span>
             <p className="text-sm text-gray-500">
@@ -375,20 +453,40 @@ const OwnerShowDetailPage = () => {
           <FileCheck size={18} className="text-[#C3B665]" /> Văn bản chấp thuận biểu diễn
         </h2>
         <p className="text-gray-500 text-xs mb-4">
-          Số văn bản hoặc liên kết tới văn bản chấp thuận của cơ quan quản lý.
-          Lưu xong hệ thống chưa hiển thị lại được nội dung đã khai — khai lại sẽ ghi đè giá trị cũ.
+          Số văn bản hoặc liên kết tới văn bản chấp thuận của cơ quan quản lý. Khai lại sẽ ghi đè
+          giá trị cũ.
         </p>
+
+        {/* HIỆN LẠI GIÁ TRỊ ĐÃ KHAI. Trước đây màn này ghi "hệ thống chưa hiển thị lại được nội
+            dung đã khai" — câu đó đúng vào lúc viết, nhưng backend đã trả về qua operatorInfo.
+            Không đọc thì chủ phòng trà khai xong không còn chỗ nào xem lại để đối chiếu hay sửa. */}
+        {daKhaiVanBan && (
+          <div className="mb-4 p-3 rounded-lg bg-black/40 border border-gray-800">
+            <p className="text-xs text-gray-500">Đã khai</p>
+            <p className="text-sm text-white mt-0.5 break-all">{vanHanh.legalApprovalReference}</p>
+            <p className="text-xs mt-1.5">
+              {vanHanh.legalApprovalConfirmedAt ? (
+                <span className="text-green-400">
+                  Admin đã xác nhận {dayjs(vanHanh.legalApprovalConfirmedAt).format('DD/MM/YYYY')}
+                </span>
+              ) : (
+                <span className="text-gray-500">Admin chưa xác nhận văn bản này.</span>
+              )}
+            </p>
+          </div>
+        )}
+
         {isDraft ? (
           <div className="flex gap-2">
             <input value={legalRef} onChange={(e) => setLegalRef(e.target.value)}
-              placeholder="VD: 1234/SVHTT-QLVH hoặc đường dẫn tới văn bản"
+              placeholder={daKhaiVanBan ? 'Nhập số mới để thay giá trị đang khai' : 'VD: 1234/SVHTT-QLVH hoặc đường dẫn tới văn bản'}
               className="flex-1 px-3 py-2 bg-black border border-gray-700 rounded-lg text-sm text-white placeholder:text-gray-600" />
             <button onClick={handleSaveLegal} disabled={!legalRef.trim() || !!busy}
               className="px-4 py-2 rounded-lg border border-gray-700 text-gray-300 text-sm font-bold hover:bg-gray-800 disabled:opacity-50">
-              Lưu
+              {daKhaiVanBan ? 'Thay' : 'Lưu'}
             </button>
           </div>
-        ) : <p className="text-gray-500 text-sm">Chưa khai báo.</p>}
+        ) : !daKhaiVanBan && <p className="text-gray-500 text-sm">Chưa khai báo.</p>}
       </div>
 
       {/* === LINE-UP === */}
