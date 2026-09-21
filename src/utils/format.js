@@ -50,8 +50,14 @@ export const formatCompactNumber = (value) => {
  * Chúng KHÔNG có múi giờ và KHÔNG ĐƯỢC có: ngày sinh không thuộc múi giờ nào, giờ diễn là giờ
  * treo trên tường của phòng trà. Gắn 'Z' vào là hỏng theo hai kiểu khác nhau:
  *   "19:30:00Z"   → Invalid Date. Hỏng ồn ào, thấy ngay.
- *   "2026-08-17Z" → KHÔNG Invalid, mà thành nửa đêm UTC. Ở Việt Nam hiện thành 07:00 cùng ngày
- *                   (ngày vẫn đúng), nhưng ở múi giờ âm thì lùi hẳn MỘT NGÀY. Hỏng im lặng, tệ hơn.
+ *   "2026-08-17Z" → trên V8 (node, Chrome, Edge) thì KHÔNG Invalid mà thành nửa đêm UTC: ở Việt
+ *                   Nam hiện 07:00 cùng ngày (ngày vẫn đúng), ở múi giờ âm thì lùi hẳn MỘT NGÀY.
+ *                   Hỏng im lặng, tệ hơn hỏng ồn ào.
+ *                   ĐỪNG ĐỌC DÒNG TRÊN THÀNH LỜI HỨA: chuẩn ECMA-262 chỉ cho phép phần múi giờ khi
+ *                   chuỗi CÓ phần giờ, nên dạng chỉ-ngày kèm 'Z' nằm ngoài định dạng chuẩn và do
+ *                   từng engine tự xử. Safari có thể trả Invalid Date thay vì nửa đêm UTC.
+ *                   Một hành vi vừa im lặng sai ở engine này vừa có thể vỡ ở engine khác thì càng
+ *                   phải chặn, chứ không phải càng đáng tin.
  * Vì vậy hàm chỉ động vào chuỗi có đủ ngày VÀ giờ (có chữ 'T' và ít nhất HH:MM); mọi dạng khác
  * trả nguyên văn. Chặn ở đây thay vì trông vào người gọi nhớ — người gọi sau sẽ không nhớ.
  */
