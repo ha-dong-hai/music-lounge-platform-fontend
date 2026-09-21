@@ -4,15 +4,25 @@
 // - DỜI LỊCH và ĐỔI HÌNH THỨC không phải sửa thông tin thường. Đổi sang hình thức người mua KHÔNG
 //   trả tiền cho (ví dụ họ mua vé xem tại chỗ mà chuyển thành online) là căn cứ hoàn 100% theo chính
 //   sách nền tảng. Vì vậy hai việc này có bước xác nhận riêng và nói rõ hệ quả.
-// - POSTER AI có HAI chế độ tuỳ cấu hình nền tảng, và phải rẽ theo `data.status` chứ KHÔNG theo mã
-//   HTTP: chế độ hàng đợi trả 202 với status 'Queued' và imageUrl = null (ảnh mất 50–90 giây mới
-//   xong, chủ nhận thông báo), chế độ gọi thẳng trả 200 kèm ảnh ngay.
+// - POSTER AI có HAI kết cục, và phải rẽ theo `data.status` chứ KHÔNG theo mã HTTP. Máy chủ chọn nhà
+//   cung cấp theo thứ tự Gemini → hàng đợi máy trạm → Cloudflare → OpenAI, và MÀN NÀY KHÔNG BIẾT
+//   đang chạy cái nào — đừng cố đoán, `status` tồn tại chính vì lý do đó:
+//     * 'Succeeded' → ảnh có ngay trong câu trả lời (đường đồng bộ, đo thật ~15–16 giây). Cần một
+//       trạng thái CHỜ có điểm kết thúc, không phải vòng hỏi lại.
+//     * 'Queued'    → mới nhận đơn, imageUrl rỗng, kèm attemptId (đường máy trạm Google Flow). Ảnh
+//       xong sau hàng phút; hỏi lại qua lịch sử và chủ phòng trà nhận thông báo.
 //   Bấm lại khi đang có đơn chờ → 409, backend KHÔNG tạo đơn thứ hai.
-// - Hạn mức poster AI có hai loại độc lập: hạn mức tính phí theo tháng (chỉ trừ khi thành công) và
-//   giới hạn số lần thử mỗi buổi diễn (tính cả lần thất bại). Lần thất bại vì lỗi nhà cung cấp AI
-//   (503) KHÔNG bị trừ hạn mức tháng.
-// - Poster từ chế độ hàng đợi là ẢNH NỀN KHÔNG CHỮ và có dấu của nhà cung cấp ở góc dưới phải —
-//   đừng đặt chữ quan trọng vào góc đó.
+// - Hạn mức poster AI có hai loại độc lập: hạn mức tính phí theo tháng và giới hạn số lần mỗi buổi
+//   diễn. Lần THẤT BẠI không bị trừ ở cả hai (tháng đếm Succeeded/Queued/Rendering, mỗi buổi diễn
+//   chỉ đếm Succeeded) — nói rõ câu đó cho người dùng, vì không biết mình có mất lượt hay không là
+//   điều khiến người ta không dám bấm lại.
+// - ẢNH TRẢ VỀ CÓ THỂ ĐÃ CÓ SẴN CHỮ. Nhà cung cấp chính viết được tiếng Việt có dấu đúng, nên poster
+//   là ảnh HOÀN CHỈNH, FE không phủ chữ lên. Nhưng chữ đó do model tự viết: lần đo đầu tiên bên
+//   backend, model đã tự bịa ra địa chỉ, hotline, website và Facebook không có thật. Họ chặn bằng
+//   danh sách trắng trong prompt rồi, nhưng màn này vẫn phải nhắc chủ phòng trà đọc lại chữ trên ảnh
+//   trước khi đăng ra ngoài.
+// - Ô "gợi ý phong cách" KHÔNG phải ô viết prompt: máy chủ tự ghép prompt từ dữ liệu buổi diễn, câu
+//   của chủ phòng trà chỉ được nối vào cuối. Đừng dựng UI kiểu prompt engineering ở đây.
 // - CHẾ ĐỘ PHÁT chỉ có nghĩa với buổi Online/Hybrid.
 import { useState, useEffect, useCallback } from 'react'
 import { useParams, Link } from 'react-router-dom'
@@ -27,6 +37,7 @@ import {
   rescheduleShow, changeShowFormat, setShowPlaybackMode,
 } from '../../services/showServices'
 import { uploadImage } from '../../services/userServices'
+import { getMySubscription } from '../../services/packageServices'
 import ShowCustomValuesSection from '../../components/owner/ShowCustomValuesSection'
 
 const inputCls = 'mt-1 w-full px-3 py-2 bg-black border border-gray-700 rounded-lg text-sm text-white focus:outline-none focus:border-[#C3B665]/50'
@@ -81,6 +92,10 @@ const OwnerShowSettingsPage = () => {
   // con số. Đã ghi vào phần cần backend bổ sung.
   const [conLaiThangNay, setConLaiThangNay] = useState(null)
 
+  // Gói đang dùng, để biết TRẦN hạn mức và biết gói có tính năng poster AI hay không.
+  // undefined = chưa đọc được, null = chưa đăng ký gói nào (backend trả null, không phải lỗi).
+  const [goi, setGoi] = useState(undefined)
+
   // Chỉ tải lại LỊCH SỬ, không bật cờ đang tải — dùng cho vòng tự hỏi lại. Bật cờ sẽ làm cả màn
   // nhảy về khung chờ mỗi 10 giây trong lúc người dùng đang đọc.
   const taiLaiLichSu = useCallback(async () => {
@@ -96,7 +111,9 @@ const OwnerShowSettingsPage = () => {
   const load = useCallback(async () => {
     setIsLoading(true)
     try {
-      const [sRes, hRes] = await Promise.allSettled([getShowDetail(id), getAiPosterHistory(id)])
+      const [sRes, hRes, gRes] = await Promise.allSettled([
+        getShowDetail(id), getAiPosterHistory(id), getMySubscription(),
+      ])
       if (sRes.status === 'fulfilled' && sRes.value?.success) {
         const d = sRes.value.data
         setShow(d)
@@ -105,6 +122,9 @@ const OwnerShowSettingsPage = () => {
       }
       // Chưa từng tạo poster AI thì backend có thể trả rỗng — đó là trạng thái bình thường.
       if (hRes.status === 'fulfilled' && hRes.value?.success) setHistory(hRes.value.data ?? [])
+      // Đọc gói thất bại thì để nguyên undefined: màn hình sẽ KHÔNG chặn nút nào cả, thà để máy chủ
+      // từ chối còn hơn tự chặn oan vì một lần gọi lỗi.
+      if (gRes.status === 'fulfilled' && gRes.value?.success) setGoi(gRes.value.data ?? null)
     } catch (err) {
       toast.error(err.response?.data?.message || 'Không tải được buổi diễn.')
     } finally {
@@ -249,6 +269,11 @@ const OwnerShowSettingsPage = () => {
   const daNgungTuHoi = !!donChoXuLy
     && dayjs().diff(dayjs(donChoXuLy.createdAt), 'minute') >= NGUNG_TU_HOI_SAU_PHUT
 
+  const coQuyenAi = goi === undefined ? true : !!goi?.hasAiPosterSnapshot
+  const tranThangNay = goi?.maxAiPostersPerMonthSnapshot ?? null
+  const posterDangDungLaAi = !!show.coverImageUrl
+    && history.some((h) => h.imageUrl === show.coverImageUrl)
+
   return (
     <div className="space-y-6 max-w-3xl">
       <div>
@@ -270,17 +295,31 @@ const OwnerShowSettingsPage = () => {
 
         <div className="space-y-4">
           <div>
-            <label className="text-xs text-gray-500">Gợi ý phong cách cho AI</label>
+            <label className="text-xs text-gray-500">Gợi ý phong cách cho AI <span className="text-gray-600">(không bắt buộc)</span></label>
             <input value={styleHint} onChange={(e) => setStyleHint(e.target.value)} className={inputCls}
-              placeholder="VD: tối giản, tông vàng đồng, nhạc jazz" />
+              placeholder="VD: tông trầm, nhiều cây xanh" maxLength={300} />
+            {/* KHÔNG phải ô viết prompt. Máy chủ tự ghép prompt từ dữ liệu buổi diễn (tên chương
+                trình, tên phòng trà, ngày giờ, thể loại) rồi nối câu này vào cuối dưới dạng "Yêu
+                cầu thêm từ chủ buổi diễn: …". Nói rõ điều đó ở đây để chủ phòng trà không ngồi mô
+                tả lại những thứ hệ thống đã biết. */}
             <p className="text-xs text-gray-600 mt-1 leading-relaxed">
-              Poster do AI tạo là ảnh nền không chữ, và có dấu của nhà cung cấp ở góc dưới phải —
-              đừng đặt chữ quan trọng vào góc đó khi thiết kế thêm.
+              Chỉ cần một câu về phong cách. Tên chương trình, tên phòng trà và ngày giờ đã được lấy
+              sẵn từ thông tin buổi diễn — không cần nhập lại.
             </p>
           </div>
 
+          {/* Gói không có tính năng này thì máy chủ từ chối ngay ở bước kiểm quyền. Nói trước còn hơn
+              để chủ phòng trà bấm rồi nhận một câu lỗi. Chưa đọc được gói (goi === undefined) thì
+              KHÔNG chặn — máy chủ mới là nơi quyết định, đoán sai mà chặn là chặn oan. */}
+          {goi !== undefined && !coQuyenAi && (
+            <p className="text-xs text-gray-400 leading-relaxed bg-black/40 border border-gray-800 rounded-lg p-3">
+              Gói hiện tại của bạn không có tính năng tạo poster bằng AI. Bạn vẫn tự tải poster lên
+              được. <Link to="/owner/subscription" className="text-[#C3B665] hover:underline">Xem các gói</Link>
+            </p>
+          )}
+
           <div className="flex flex-wrap gap-2">
-            <button onClick={taoPosterAi} disabled={busy !== null || !!donChoXuLy}
+            <button onClick={taoPosterAi} disabled={busy !== null || !!donChoXuLy || (goi !== undefined && !coQuyenAi)}
               title={donChoXuLy ? 'Đang có đơn tạo poster chờ xử lý' : undefined}
               className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#C3B665] text-black text-sm font-bold hover:bg-[#d4c87f] disabled:opacity-40 disabled:cursor-not-allowed">
               {busy === 'ai' ? <Loader2 size={15} className="animate-spin" /> : <Sparkles size={15} />} Tạo poster bằng AI
@@ -297,11 +336,47 @@ const OwnerShowSettingsPage = () => {
             </button>
           </div>
 
-          {/* Hạn mức tháng: chỉ biết được sau khi bấm, vì backend chỉ trả kèm câu trả lời của lần bấm. */}
-          {conLaiThangNay !== null && (
+          {/* ĐANG CHỜ Ở ĐƯỜNG ĐỒNG BỘ. Đường chính mất ~15–16 giây (số đo thật của backend), và trong
+              suốt quãng đó cửa sổ không có gì đổi ngoài một vòng xoay nhỏ trên nút — đủ lâu để người
+              ta tưởng máy treo và bấm đi chỗ khác. Nói luôn con số để cái chờ có điểm kết thúc. */}
+          {busy === 'ai' && (
+            <p className="text-xs text-gray-300 flex items-start gap-2 leading-relaxed bg-black/40 border border-gray-800 rounded-lg p-3">
+              <Loader2 size={13} className="mt-px flex-shrink-0 animate-spin" />
+              Đang tạo poster, thường khoảng 20 giây. Xin đừng rời trang.
+            </p>
+          )}
+
+          {/* Hạn mức tháng. Số CÒN LẠI chỉ có trong câu trả lời của chính lần bấm — backend không có
+              endpoint đọc riêng, và gói chỉ cho biết TRẦN chứ không cho biết đã dùng bao nhiêu (hạn
+              mức tính theo chủ phòng trà trên tất cả buổi diễn, nên màn này cũng không tự cộng được).
+              Vì vậy: chưa bấm thì hiện trần, bấm rồi thì hiện cả hai. Đã nhờ backend bổ sung. */}
+          {(conLaiThangNay !== null || tranThangNay !== null) && (
             <p className="text-xs text-gray-500 leading-relaxed">
-              Còn <span className="text-gray-300 font-semibold">{conLaiThangNay}</span> lượt poster AI trong tháng này.
-              {conLaiThangNay === 0 && ' Hạn mức làm mới vào đầu tháng sau.'}
+              {conLaiThangNay !== null ? (
+                <>
+                  Còn <span className="text-gray-300 font-semibold">{conLaiThangNay}</span>
+                  {tranThangNay !== null && <> trong {tranThangNay}</>} lượt poster AI trong tháng này.
+                  {conLaiThangNay === 0 && ' Hạn mức làm mới vào đầu tháng sau.'}
+                </>
+              ) : (
+                <>Gói của bạn có <span className="text-gray-300 font-semibold">{tranThangNay}</span> poster AI mỗi tháng.</>
+              )}
+            </p>
+          )}
+
+          {/* NHẮC ĐỌC LẠI CHỮ TRÊN ẢNH. Poster từ nhà cung cấp chính là ảnh HOÀN CHỈNH, có chữ tiếng
+              Việt do model tự viết — không phải ảnh nền để mình in chữ lên. Điều đó tiện, nhưng lần
+              đo đầu tiên của backend model đã tự bịa ra một địa chỉ, một hotline, một website và một
+              Facebook không có thật. Họ đã chặn bằng danh sách trắng trong prompt và chạy lại thì
+              sạch, nhưng đây vẫn là mô hình sinh ảnh, không phải máy in.
+              Điều kiện: poster đang dùng TRÙNG với một ảnh trong lịch sử AI của buổi diễn này. Backend
+              có cờ `PosterByAi` trên bản ghi nhưng KHÔNG trả ra DTO nào, nên suy từ lịch sử — cách này
+              chính xác hơn một cờ, vì nó bám đúng tấm ảnh đang treo. */}
+          {posterDangDungLaAi && (
+            <p className="text-xs text-gray-400 flex items-start gap-2 leading-relaxed">
+              <AlertTriangle size={13} className="mt-px flex-shrink-0 text-yellow-500/80" />
+              Poster này do AI tạo và chữ trên ảnh cũng do AI viết. Đọc lại tên chương trình, ngày giờ
+              và mọi thông tin liên hệ trên ảnh trước khi đăng ra ngoài.
             </p>
           )}
 

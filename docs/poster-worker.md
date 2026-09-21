@@ -24,11 +24,30 @@ lồng của section `PosterWorker`):
 | `PosterWorker__Enabled` | `true` |
 | `PosterWorker__ApiKey` | khoá tự sinh, đủ dài, giữ kín |
 
+### Và phải để trống Gemini
+
+Đây là điều kiện **thứ hai**, dễ bỏ sót hơn cái trên. Máy chủ chọn nhà cung cấp theo thứ tự:
+
+```
+Gemini  →  hàng đợi máy trạm  →  Cloudflare  →  OpenAI
+```
+
+Hàng đợi chỉ được chọn khi **Gemini không dùng được**. Nghĩa là nếu `Gemini__ApiKey` và
+`Gemini__ImageModel` đều đã đặt trên Azure thì **máy trạm sẽ không bao giờ nhận được đơn nào**, dù
+hai khoá `PosterWorker__*` đã đặt đúng. Muốn đường máy trạm là đường chính thì phải **bỏ trống
+`Gemini__ImageModel`**.
+
+Đường Gemini chạy đồng bộ (~15–16 giây, ảnh trả về ngay trong câu trả lời) và trả về poster đã có
+sẵn chữ tiếng Việt. Đường máy trạm chạy bất đồng bộ và trả về ảnh nền — backend sẽ in chữ bằng font
+ở máy chủ, nhưng lớp đó **chưa vào master** tính tới 21/09/2026. Cân nhắc điều đó khi chọn đường.
+
+### Thiếu cấu hình thì sao
+
 `AiImageProvider.UseDeferredQueue` đòi `Enabled = true` **và** `ApiKey` không trống. Thiếu một trong
 hai thì:
 
-- lệnh "tạo poster" của chủ phòng trà **rẽ sang nhà cung cấp gọi thẳng** (Cloudflare / OpenAI) chứ
-  không vào hàng đợi, nên máy trạm sẽ không bao giờ thấy đơn nào;
+- lệnh "tạo poster" của chủ phòng trà **rẽ sang nhà cung cấp gọi thẳng** (Gemini / Cloudflare /
+  OpenAI) chứ không vào hàng đợi, nên máy trạm sẽ không bao giờ thấy đơn nào;
 - và máy trạm gọi `claim` nhận **401**.
 
 Backend cố ý tách hai cờ này: bật cờ mà quên khoá thì tính năng phải hỏng to, không được mở toang

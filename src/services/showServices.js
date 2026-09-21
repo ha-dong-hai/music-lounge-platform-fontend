@@ -117,12 +117,19 @@ export const getShowTicketStats = async (id) => {
 };
 
 // ===== POSTER =====
-// Poster AI (chỉ gói dịch vụ có tính năng này). HAI chế độ tuỳ cấu hình nền tảng, PHẢI RẼ THEO
-// `data.status`, KHÔNG rẽ theo mã HTTP:
-//   - Chế độ hàng đợi: trả 202, `status = 'Queued'`, `imageUrl = null`, kèm `attemptId`. Ảnh mất 50–90
-//     giây mới xong; hỏi lại qua getAiPosterHistory, và chủ nhận thông báo khi xong.
-//   - Chế độ gọi thẳng: trả 200 kèm `imageUrl` ngay.
-// Bấm lại khi đang có đơn chờ → 409, KHÔNG tạo đơn thứ hai.
+// Poster AI (chỉ gói dịch vụ có tính năng này). `styleHint` KHÔNG bắt buộc và KHÔNG phải prompt:
+// máy chủ tự ghép prompt từ dữ liệu buổi diễn rồi nối câu này vào cuối.
+//
+// HAI KẾT CỤC, PHẢI RẼ THEO `data.status`, KHÔNG rẽ theo mã HTTP. Máy chủ chọn nhà cung cấp theo thứ
+// tự Gemini → hàng đợi máy trạm → Cloudflare → OpenAI; FE không biết và không nên đoán đang chạy cái
+// nào — đó chính là lý do trường `status` tồn tại:
+//   - `status = 'Succeeded'`: `imageUrl` có ngay, `attemptId = null`. Đường đồng bộ, đo thật ~15–16
+//     giây một lượt → cần một trạng thái CHỜ, không cần vòng hỏi lại.
+//   - `status = 'Queued'`: `imageUrl` rỗng, `attemptId` là mã đơn. Đường máy trạm Google Flow; ảnh
+//     xong sau hàng phút, hỏi lại qua getAiPosterHistory và chủ phòng trà nhận thông báo.
+// `remainingThisMonth` là NƠI DUY NHẤT đọc được số lượt còn lại trong tháng — không có endpoint đọc
+// riêng, và gói chỉ cho biết trần. Đừng bỏ trường này.
+// Bấm lại khi đang có đơn chờ → 409, KHÔNG tạo đơn thứ hai (chỉ xảy ra ở đường hàng đợi).
 // 503 khi nhà cung cấp AI lỗi — lần thất bại KHÔNG bị trừ vào hạn mức tháng.
 export const generateAiPoster = async (showId, styleHint = null) => {
   return axiosClient.post(`/lounge-shows/${showId}/ai-poster`, { styleHint });
