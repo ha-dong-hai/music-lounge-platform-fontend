@@ -28,28 +28,28 @@ const STATE_VIEW = {
   Used: {
     tieuDe: 'Bạn đã trả lời liên kết này',
     mo: 'Mỗi liên kết chỉ dùng được một lần. Nếu cần sửa câu trả lời, hãy liên hệ phòng trà để họ gửi lại.',
-    cls: 'border-gray-700', icon: CheckCircle2, mauIcon: 'text-gray-400',
+    cls: 'border-line', icon: CheckCircle2, mauIcon: 'text-ink-soft',
   },
   Expired: {
     tieuDe: 'Liên kết đã hết hạn',
     mo: 'Hãy liên hệ phòng trà để họ gửi lại một liên kết mới.',
-    cls: 'border-yellow-500/30', icon: Clock, mauIcon: 'text-yellow-400',
+    cls: 'border-yellow-500/30', icon: Clock, mauIcon: 'text-warning',
   },
   Outdated: {
     tieuDe: 'Thông tin đã thay đổi sau khi liên kết được gửi',
     mo: 'Tài khoản nhận tiền đã bị sửa sau khi email được gửi, nên nội dung trong liên kết này không còn đúng. Hãy liên hệ phòng trà để họ gửi lại liên kết mới.',
-    cls: 'border-red-500/30', icon: AlertTriangle, mauIcon: 'text-red-400',
+    cls: 'border-red-500/30', icon: AlertTriangle, mauIcon: 'text-danger',
   },
 }
 
 // Khung trang đặt ở cấp module, KHÔNG định nghĩa trong hàm render: một component được tạo lại mỗi
 // lần vẽ sẽ bị React tháo ra dựng lại, làm mất trạng thái bên trong và giao diện nhảy.
 const Khung = ({ children }) => (
-  <div className="min-h-screen bg-black text-white">
+  <div className="min-h-screen bg-page text-ink">
     <div className="max-w-xl mx-auto px-4 sm:px-6 py-12">
       <div className="flex items-center gap-2 mb-8">
-        <Music2 size={22} className="text-[#C3B665]" />
-        <span className="text-lg font-bold tracking-wide text-[#C3B665]">Music Lounge</span>
+        <Music2 size={22} className="text-brand-text" />
+        <span className="text-lg font-bold tracking-wide text-brand-text">Music Lounge</span>
       </div>
       {children}
     </div>
@@ -108,8 +108,8 @@ const PerformerConfirmationPage = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <Loader2 size={32} className="animate-spin text-[#C3B665]" />
+      <div className="min-h-screen bg-page flex items-center justify-center">
+        <Loader2 size={32} className="animate-spin text-brand-text" />
       </div>
     )
   }
@@ -117,10 +117,10 @@ const PerformerConfirmationPage = () => {
   if (loi || !info) {
     return (
       <Khung>
-        <div className="bg-gray-900 border border-red-500/30 rounded-2xl p-6">
-          <AlertTriangle size={22} className="text-red-400 mb-3" />
+        <div className="bg-card border border-red-500/30 rounded-2xl p-6">
+          <AlertTriangle size={22} className="text-danger mb-3" />
           <h1 className="text-xl font-bold mb-2">Không mở được liên kết</h1>
-          <p className="text-sm text-gray-400 leading-relaxed">{loi}</p>
+          <p className="text-sm text-ink-soft leading-relaxed">{loi}</p>
         </div>
       </Khung>
     )
@@ -129,10 +129,10 @@ const PerformerConfirmationPage = () => {
   if (daTraLoi) {
     return (
       <Khung>
-        <div className="bg-gray-900 border border-green-500/30 rounded-2xl p-6">
-          <CheckCircle2 size={22} className="text-green-400 mb-3" />
+        <div className="bg-card border border-green-500/30 rounded-2xl p-6">
+          <CheckCircle2 size={22} className="text-success mb-3" />
           <h1 className="text-xl font-bold mb-2">Đã ghi nhận</h1>
-          <p className="text-sm text-gray-400 leading-relaxed">
+          <p className="text-sm text-ink-soft leading-relaxed">
             Cảm ơn {info.performerName}. Câu trả lời của bạn đã được gửi tới phòng trà và nền tảng.
             Bạn có thể đóng trang này.
           </p>
@@ -146,12 +146,12 @@ const PerformerConfirmationPage = () => {
   if (v) {
     return (
       <Khung>
-        <div className={`bg-gray-900 border rounded-2xl p-6 ${v.cls}`}>
+        <div className={`bg-card border rounded-2xl p-6 ${v.cls}`}>
           <v.icon size={22} className={`${v.mauIcon} mb-3`} />
           <h1 className="text-xl font-bold mb-2">{v.tieuDe}</h1>
-          <p className="text-sm text-gray-400 leading-relaxed">{v.mo}</p>
+          <p className="text-sm text-ink-soft leading-relaxed">{v.mo}</p>
           {info.outcome && (
-            <p className="text-sm text-gray-300 mt-3">
+            <p className="text-sm text-ink-soft mt-3">
               Câu trả lời đã ghi nhận: <span className="font-medium">{info.outcome}</span>
             </p>
           )}
@@ -163,16 +163,16 @@ const PerformerConfirmationPage = () => {
   return (
     <Khung>
       <h1 className="text-2xl font-bold mb-1">Xin chào {info.performerName}</h1>
-      <p className="text-sm text-gray-400 mb-6 leading-relaxed">
+      <p className="text-sm text-ink-soft mb-6 leading-relaxed">
         Phòng trà cần bạn xác nhận thông tin bên dưới. Liên kết này dùng một lần và
         hết hạn lúc {dayjs(info.expiresAt).format('HH:mm DD/MM/YYYY')}.
       </p>
 
-      <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6 space-y-4">
+      <div className="bg-card border border-line rounded-2xl p-6 space-y-4">
         {(info.showName || info.venueName) && (
           <div>
-            <p className="text-xs text-gray-500">Buổi diễn</p>
-            <p className="text-sm text-white mt-0.5">
+            <p className="text-xs text-ink-mute">Buổi diễn</p>
+            <p className="text-sm text-ink mt-0.5">
               {[info.showName, info.venueName].filter(Boolean).join(' · ')}
             </p>
           </div>
@@ -180,23 +180,23 @@ const PerformerConfirmationPage = () => {
 
         {info.amount != null && (
           <div>
-            <p className="text-xs text-gray-500">Số tiền phòng trà báo đã chuyển cho bạn</p>
-            <p className="text-2xl font-bold text-[#C3B665] mt-0.5 tabular-nums">{fmtMoney(info.amount)}</p>
+            <p className="text-xs text-ink-mute">Số tiền phòng trà báo đã chuyển cho bạn</p>
+            <p className="text-2xl font-bold text-brand-text mt-0.5 tabular-nums">{fmtMoney(info.amount)}</p>
             {info.paymentRef && (
-              <p className="text-xs text-gray-500 mt-1">Mã giao dịch: <span className="text-gray-300">{info.paymentRef}</span></p>
+              <p className="text-xs text-ink-mute mt-1">Mã giao dịch: <span className="text-ink-soft">{info.paymentRef}</span></p>
             )}
           </div>
         )}
 
         {(info.bankName || info.accountNumberMasked) && (
           <div>
-            <p className="text-xs text-gray-500">Tài khoản nhận tiền đã khai cho bạn</p>
+            <p className="text-xs text-ink-mute">Tài khoản nhận tiền đã khai cho bạn</p>
             <div className="mt-1 flex items-start gap-2">
-              <Landmark size={15} className="text-gray-500 mt-0.5 flex-shrink-0" />
+              <Landmark size={15} className="text-ink-mute mt-0.5 flex-shrink-0" />
               <div>
-                <p className="text-sm text-white">{info.bankName}</p>
-                <p className="text-sm text-gray-400 tabular-nums">{info.accountNumberMasked}</p>
-                {info.accountHolder && <p className="text-xs text-gray-500">{info.accountHolder}</p>}
+                <p className="text-sm text-ink">{info.bankName}</p>
+                <p className="text-sm text-ink-soft tabular-nums">{info.accountNumberMasked}</p>
+                {info.accountHolder && <p className="text-xs text-ink-mute">{info.accountHolder}</p>}
               </div>
             </div>
           </div>
@@ -204,46 +204,46 @@ const PerformerConfirmationPage = () => {
       </div>
 
       <div className="mt-6 space-y-3">
-        <p className="text-sm font-medium text-white">Thông tin trên có đúng không?</p>
+        <p className="text-sm font-medium text-ink">Thông tin trên có đúng không?</p>
 
         <button onClick={() => setDecision('Confirm')}
           className={`w-full text-left p-4 rounded-xl border transition-colors ${decision === 'Confirm'
-            ? 'bg-green-500/10 border-green-500/40' : 'bg-gray-900 border-gray-800 hover:border-gray-700'}`}>
-          <span className="flex items-center gap-2 text-sm font-medium text-white">
-            <CheckCircle2 size={16} className="text-green-400" /> Đúng, tôi đã nhận
+            ? 'bg-green-500/10 border-green-500/40' : 'bg-card border-line hover:border-line'}`}>
+          <span className="flex items-center gap-2 text-sm font-medium text-ink">
+            <CheckCircle2 size={16} className="text-success" /> Đúng, tôi đã nhận
           </span>
-          <span className="block text-xs text-gray-500 mt-1">
+          <span className="block text-xs text-ink-mute mt-1">
             Thông tin tài khoản đúng là của tôi và tôi đã nhận được tiền.
           </span>
         </button>
 
         <button onClick={() => setDecision('Dispute')}
           className={`w-full text-left p-4 rounded-xl border transition-colors ${decision === 'Dispute'
-            ? 'bg-red-500/10 border-red-500/40' : 'bg-gray-900 border-gray-800 hover:border-gray-700'}`}>
-          <span className="flex items-center gap-2 text-sm font-medium text-white">
-            <XCircle size={16} className="text-red-400" /> Không đúng, hoặc tôi chưa nhận
+            ? 'bg-red-500/10 border-red-500/40' : 'bg-card border-line hover:border-line'}`}>
+          <span className="flex items-center gap-2 text-sm font-medium text-ink">
+            <XCircle size={16} className="text-danger" /> Không đúng, hoặc tôi chưa nhận
           </span>
-          <span className="block text-xs text-gray-500 mt-1">
+          <span className="block text-xs text-ink-mute mt-1">
             Tài khoản không phải của tôi, hoặc tôi chưa nhận được khoản tiền này.
           </span>
         </button>
 
         <div>
-          <label className="text-xs text-gray-500">Ghi chú thêm (không bắt buộc)</label>
+          <label className="text-xs text-ink-mute">Ghi chú thêm (không bắt buộc)</label>
           <textarea value={note} onChange={(e) => setNote(e.target.value)} rows={3} maxLength={500}
-            className="mt-1 w-full px-3 py-2 bg-black border border-gray-700 rounded-lg text-sm text-white focus:outline-none focus:border-[#C3B665]/50 resize-none"
+            className="mt-1 w-full px-3 py-2 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-brand/50 resize-none"
             placeholder="Nếu có gì cần nói rõ thêm, hãy ghi ở đây." />
         </div>
 
-        <label className="flex items-start gap-2 text-xs text-gray-400 cursor-pointer leading-relaxed">
+        <label className="flex items-start gap-2 text-xs text-ink-soft cursor-pointer leading-relaxed">
           <input type="checkbox" checked={dongY} onChange={(e) => setDongY(e.target.checked)}
-            className="accent-[#C3B665] mt-0.5 flex-shrink-0" />
+            className="accent-brand mt-0.5 flex-shrink-0" />
           Tôi đồng ý cho Music Lounge xử lý email và thông tin tài khoản nhận tiền của tôi cho mục đích
           xác nhận khoản chi này.
         </label>
 
         <button onClick={guiTraLoi} disabled={isSending || !decision || !dongY}
-          className="w-full py-3 bg-[#C3B665] text-black rounded-lg font-bold flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed">
+          className="w-full py-3 bg-brand text-on-brand rounded-lg font-bold flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed">
           {isSending && <Loader2 size={16} className="animate-spin" />} Gửi câu trả lời
         </button>
       </div>

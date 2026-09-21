@@ -45,44 +45,44 @@ const IncomingTransfersTab = () => {
   }
 
   if (isLoading) {
-    return <div className="py-16 flex justify-center"><Loader2 size={28} className="animate-spin text-[#C3B665]" /></div>
+    return <div className="py-16 flex justify-center"><Loader2 size={28} className="animate-spin text-brand-text" /></div>
   }
 
   if (items.length === 0) {
     return (
-      <div className="bg-gray-900 border border-gray-800 rounded-xl p-10 text-center">
-        <Inbox size={26} className="mx-auto mb-3 text-gray-700" />
-        <p className="text-sm text-gray-500">Không có vé nào đang được chuyển cho bạn.</p>
+      <div className="bg-card border border-line rounded-xl p-10 text-center">
+        <Inbox size={26} className="mx-auto mb-3 text-ink-mute" />
+        <p className="text-sm text-ink-mute">Không có vé nào đang được chuyển cho bạn.</p>
       </div>
     )
   }
 
   return (
     <div className="space-y-3">
-      <p className="text-xs text-gray-500">
+      <p className="text-xs text-ink-mute">
         Những vé này chỉ thuộc về bạn sau khi bạn bấm nhận. Người gửi vẫn có thể huỷ trước lúc đó.
       </p>
       {items.map((t) => (
-        <div key={t.ticketId} className="bg-gray-900 border border-gray-800 rounded-xl p-5">
+        <div key={t.ticketId} className="bg-card border border-line rounded-xl p-5">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div className="min-w-0">
-              <p className="text-white font-bold">{t.showName}</p>
-              <p className="text-xs text-gray-500 mt-1 flex items-center gap-1.5">
+              <p className="text-ink font-bold">{t.showName}</p>
+              <p className="text-xs text-ink-mute mt-1 flex items-center gap-1.5">
                 <MapPin size={12} /> {t.loungeName}
               </p>
-              <p className="text-xs text-gray-500 mt-0.5 flex items-center gap-1.5">
+              <p className="text-xs text-ink-mute mt-0.5 flex items-center gap-1.5">
                 <Calendar size={12} /> {dayjs(t.showScheduledStart).format('HH:mm DD/MM/YYYY')}
               </p>
-              <p className="text-xs text-gray-600 mt-1">
+              <p className="text-xs text-ink-mute mt-1">
                 {t.tierName} · {t.priceName} · {fmtMoney(t.pricePaid)}
               </p>
             </div>
             <div className="flex-shrink-0 text-right">
-              <p className="text-xs text-gray-600 mb-2">
+              <p className="text-xs text-ink-mute mb-2">
                 Chuyển lúc {dayjs(t.initiatedAt).format('HH:mm DD/MM')}
               </p>
               <button onClick={() => nhanVe(t.ticketId)} disabled={busyId !== null}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#C3B665] text-black text-sm font-bold hover:bg-[#d4c87f] disabled:opacity-50">
+                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-brand text-on-brand text-sm font-bold hover:bg-brand-hover disabled:opacity-50">
                 {busyId === t.ticketId ? <Loader2 size={15} className="animate-spin" /> : <CheckCircle2 size={15} />}
                 Nhận vé
               </button>

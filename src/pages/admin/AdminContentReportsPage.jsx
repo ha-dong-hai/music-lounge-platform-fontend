@@ -85,35 +85,35 @@ const AdminContentReportsPage = () => {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-white mb-1">Báo cáo vi phạm</h1>
-        <p className="text-gray-400 text-sm">
+        <h1 className="text-2xl font-bold text-ink mb-1">Báo cáo vi phạm</h1>
+        <p className="text-ink-soft text-sm">
           Nội dung đã đăng bị người dùng báo cáo. Nội dung bị nhiều người báo nhất xếp lên đầu.
         </p>
       </div>
 
-      <div className="bg-gray-950 border border-gray-800 rounded-xl overflow-hidden">
+      <div className="bg-card border border-line rounded-xl overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left whitespace-nowrap">
-            <thead className="bg-black/50 border-b border-gray-800">
+            <thead className="bg-espresso/50 border-b border-line">
               <tr>
-                <th className="p-4 text-[#C3B665] font-semibold text-sm">Nội dung bị báo cáo</th>
-                <th className="p-4 text-[#C3B665] font-semibold text-sm">Số lượt báo</th>
-                <th className="p-4 text-[#C3B665] font-semibold text-sm">Lý do gần nhất</th>
-                <th className="p-4 text-[#C3B665] font-semibold text-sm">Hạn xử lý</th>
-                <th className="p-4 text-[#C3B665] font-semibold text-sm text-right">Xử lý</th>
+                <th className="p-4 text-brand-text font-semibold text-sm">Nội dung bị báo cáo</th>
+                <th className="p-4 text-brand-text font-semibold text-sm">Số lượt báo</th>
+                <th className="p-4 text-brand-text font-semibold text-sm">Lý do gần nhất</th>
+                <th className="p-4 text-brand-text font-semibold text-sm">Hạn xử lý</th>
+                <th className="p-4 text-brand-text font-semibold text-sm text-right">Xử lý</th>
               </tr>
             </thead>
             <tbody>
               {isLoading ? (
                 <tr>
                   <td colSpan="5" className="p-10 text-center">
-                    <Loader2 size={24} className="mx-auto animate-spin text-[#C3B665]" />
+                    <Loader2 size={24} className="mx-auto animate-spin text-brand-text" />
                   </td>
                 </tr>
               ) : items.length === 0 ? (
                 <tr>
-                  <td colSpan="5" className="p-12 text-center text-gray-500">
-                    <CheckCircle2 size={32} className="mx-auto mb-3 text-green-500/50" />
+                  <td colSpan="5" className="p-12 text-center text-ink-mute">
+                    <CheckCircle2 size={32} className="mx-auto mb-3 text-success/50" />
                     Không có nội dung nào đang bị báo cáo.
                   </td>
                 </tr>
@@ -123,34 +123,34 @@ const AdminContentReportsPage = () => {
                   const isOverdue = item.slaDeadline && dayjs(item.slaDeadline).isBefore(dayjs())
                   const isBusy = busyKey === key
                   return (
-                    <tr key={key} className="border-b border-gray-900 hover:bg-gray-900/50 transition-colors">
+                    <tr key={key} className="border-b border-line hover:bg-card/50 transition-colors">
                       <td className="p-4">
                         <div className="flex items-center gap-2">
-                          <span className="px-2 py-0.5 rounded-md bg-gray-800 text-gray-400 text-xs font-medium">
+                          <span className="px-2 py-0.5 rounded-md bg-sunken text-ink-soft text-xs font-medium">
                             {TARGET_LABELS[item.targetType] || item.targetType}
                           </span>
                           {contentLink(item) ? (
-                            <Link to={contentLink(item)} className="text-white font-medium hover:text-[#C3B665] transition-colors">
+                            <Link to={contentLink(item)} className="text-ink font-medium hover:text-brand-text transition-colors">
                               {item.targetSummary}
                             </Link>
                           ) : (
-                            <span className="text-white font-medium">{item.targetSummary}</span>
+                            <span className="text-ink font-medium">{item.targetSummary}</span>
                           )}
                         </div>
-                        <p className="text-xs text-gray-600 mt-1">
+                        <p className="text-xs text-ink-mute mt-1">
                           Báo cáo đầu tiên: {dayjs(item.earliestReportedAt).format('HH:mm DD/MM/YYYY')}
                         </p>
                       </td>
                       <td className="p-4">
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-red-500/10 text-red-400 border border-red-500/20 text-xs font-bold">
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-red-500/10 text-danger border border-red-500/20 text-xs font-bold">
                           <ShieldAlert size={12} /> {item.reportCount}
                         </span>
                       </td>
                       <td className="p-4 max-w-md">
-                        <p className="text-xs text-gray-400 whitespace-normal line-clamp-2">{item.latestReason}</p>
+                        <p className="text-xs text-ink-soft whitespace-normal line-clamp-2">{item.latestReason}</p>
                       </td>
                       <td className="p-4">
-                        <span className={`inline-flex items-center gap-1.5 text-xs font-medium ${isOverdue ? 'text-red-400' : 'text-gray-400'}`}>
+                        <span className={`inline-flex items-center gap-1.5 text-xs font-medium ${isOverdue ? 'text-danger' : 'text-ink-soft'}`}>
                           <Clock size={12} />
                           {item.slaDeadline ? dayjs(item.slaDeadline).format('HH:mm DD/MM') : '-'}
                           {isOverdue && ' (quá hạn)'}
@@ -161,14 +161,14 @@ const AdminContentReportsPage = () => {
                           <button
                             onClick={() => handleResolve(item, 'Removed')}
                             disabled={isBusy}
-                            className="inline-flex items-center gap-1.5 bg-red-500/10 border border-red-500/40 text-red-400 px-3 py-1.5 rounded-md text-xs font-bold hover:bg-red-500/20 disabled:opacity-50"
+                            className="inline-flex items-center gap-1.5 bg-red-500/10 border border-red-500/40 text-danger px-3 py-1.5 rounded-md text-xs font-bold hover:bg-red-500/20 disabled:opacity-50"
                           >
                             <Trash2 size={14} /> Gỡ nội dung
                           </button>
                           <button
                             onClick={() => handleResolve(item, 'Dismissed')}
                             disabled={isBusy}
-                            className="inline-flex items-center gap-1.5 bg-gray-800 border border-gray-700 text-gray-300 px-3 py-1.5 rounded-md text-xs font-bold hover:bg-gray-700 disabled:opacity-50"
+                            className="inline-flex items-center gap-1.5 bg-sunken border border-line text-ink-soft px-3 py-1.5 rounded-md text-xs font-bold hover:bg-line disabled:opacity-50"
                           >
                             <CheckCircle2 size={14} /> Bỏ qua
                           </button>
@@ -183,20 +183,20 @@ const AdminContentReportsPage = () => {
         </div>
 
         {!isLoading && items.length > 0 && pagination.totalPages > 1 && (
-          <div className="flex items-center justify-between p-4 border-t border-gray-800">
-            <p className="text-sm text-gray-500">Trang {pagination.page} / {pagination.totalPages}</p>
+          <div className="flex items-center justify-between p-4 border-t border-line">
+            <p className="text-sm text-ink-mute">Trang {pagination.page} / {pagination.totalPages}</p>
             <div className="flex gap-2">
               <button
                 onClick={() => setPagination((prev) => ({ ...prev, page: prev.page - 1 }))}
                 disabled={pagination.page === 1}
-                className="p-2 rounded-md border border-gray-700 text-gray-400 hover:border-[#C3B665] hover:text-[#C3B665] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                className="p-2 rounded-md border border-line text-ink-soft hover:border-brand hover:text-brand-text disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
               >
                 <ChevronLeft size={18} />
               </button>
               <button
                 onClick={() => setPagination((prev) => ({ ...prev, page: prev.page + 1 }))}
                 disabled={pagination.page === pagination.totalPages}
-                className="p-2 rounded-md border border-gray-700 text-gray-400 hover:border-[#C3B665] hover:text-[#C3B665] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                className="p-2 rounded-md border border-line text-ink-soft hover:border-brand hover:text-brand-text disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
               >
                 <ChevronRight size={18} />
               </button>

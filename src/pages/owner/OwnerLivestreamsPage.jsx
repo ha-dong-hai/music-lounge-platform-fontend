@@ -26,10 +26,10 @@ import {
 
 const StatusBadge = ({ status }) => {
   const styles = {
-    Scheduled: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/30',
-    Live: 'bg-red-500/10 text-red-400 border-red-500/30 animate-pulse',
-    Ended: 'bg-gray-500/10 text-gray-400 border-gray-500/30',
-    Terminated: 'bg-red-900/20 text-red-500 border-red-900/40',
+    Scheduled: 'bg-yellow-500/10 text-warning border-yellow-500/30',
+    Live: 'bg-red-500/10 text-danger border-red-500/30 animate-pulse',
+    Ended: 'bg-line-strong/10 text-ink-soft border-line-strong/30',
+    Terminated: 'bg-red-900/20 text-danger border-red-900/40',
   }
   return (
     <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold border ${styles[status] || styles.Ended}`}>
@@ -163,19 +163,19 @@ const ShowLivestreamRow = ({ show, onChanged }) => {
   }
 
   return (
-    <div className="bg-gray-900 border border-gray-800 rounded-xl p-5">
+    <div className="bg-card border border-line rounded-xl p-5">
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <div>
-          <p className="text-white font-bold">{show.name}</p>
-          <p className="text-gray-500 text-xs">{new Date(show.scheduledStart).toLocaleString('vi-VN')}</p>
+          <p className="text-ink font-bold">{show.name}</p>
+          <p className="text-ink-mute text-xs">{new Date(show.scheduledStart).toLocaleString('vi-VN')}</p>
         </div>
         {livestream === undefined ? (
-          <Loader2 size={18} className="animate-spin text-gray-500" />
+          <Loader2 size={18} className="animate-spin text-ink-mute" />
         ) : livestream === null ? (
           <button
             onClick={handleCreate}
             disabled={isBusy}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-[#C3B665] text-black text-xs font-bold hover:bg-[#d4c87f] disabled:opacity-50"
+            className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-brand text-on-brand text-xs font-bold hover:bg-brand-hover disabled:opacity-50"
           >
             <Radio size={14} /> Tạo livestream
           </button>
@@ -185,17 +185,17 @@ const ShowLivestreamRow = ({ show, onChanged }) => {
       </div>
 
       {livestream && livestream.status === 'Scheduled' && (
-        <div className="mt-4 pt-4 border-t border-gray-800 space-y-3">
+        <div className="mt-4 pt-4 border-t border-line space-y-3">
           {/* HIỆN MÃ ĐÃ KHAI. Không có khối này thì khai xong không còn chỗ nào xem lại để đối
               chiếu, và không biết mình đã khai hay chưa — trong khi đây là điều kiện bắt buộc để
               bắt đầu phát. */}
           {chiTiet?.operatorInfo?.vcpmcDeclared && (
-            <div className="p-3 rounded-lg bg-black/40 border border-gray-800">
-              <p className="text-xs text-gray-500">Đã khai mã tác quyền VCPMC</p>
-              <p className="text-sm text-white mt-0.5 break-all">
+            <div className="p-3 rounded-lg bg-espresso/40 border border-line">
+              <p className="text-xs text-ink-mute">Đã khai mã tác quyền VCPMC</p>
+              <p className="text-sm text-ink mt-0.5 break-all">
                 {chiTiet.operatorInfo.vcpmcRoyaltyReference || '(đã khai, không đọc lại được mã)'}
               </p>
-              <p className="text-[11px] text-gray-600 mt-1">Khai lại sẽ ghi đè mã trên.</p>
+              <p className="text-[11px] text-ink-mute mt-1">Khai lại sẽ ghi đè mã trên.</p>
             </div>
           )}
           <div className="flex gap-2">
@@ -205,12 +205,12 @@ const ShowLivestreamRow = ({ show, onChanged }) => {
               placeholder={chiTiet?.operatorInfo?.vcpmcDeclared
                 ? 'Nhập mã mới để thay mã đang khai'
                 : 'Mã tham chiếu đã thanh toán tác quyền VCPMC'}
-              className="flex-1 px-3 py-2 bg-black border border-gray-700 rounded-lg text-sm text-white placeholder:text-gray-600"
+              className="flex-1 px-3 py-2 bg-page border border-line rounded-lg text-sm text-ink placeholder:text-ink-mute"
             />
             <button
               onClick={handleSaveVcpmc}
               disabled={isBusy || !vcpmcRef.trim()}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-gray-700 text-gray-300 text-xs font-bold hover:bg-gray-800 disabled:opacity-50"
+              className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-line text-ink-soft text-xs font-bold hover:bg-sunken disabled:opacity-50"
             >
               <ShieldCheck size={14} /> {chiTiet?.operatorInfo?.vcpmcDeclared ? 'Thay mã' : 'Lưu VCPMC'}
             </button>
@@ -218,7 +218,7 @@ const ShowLivestreamRow = ({ show, onChanged }) => {
           <button
             onClick={handleStart}
             disabled={isBusy}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-red-500/10 border border-red-500/40 text-red-400 text-xs font-bold hover:bg-red-500/20 disabled:opacity-50"
+            className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-red-500/10 border border-red-500/40 text-danger text-xs font-bold hover:bg-red-500/20 disabled:opacity-50"
           >
             <Play size={14} /> Bắt đầu phát
           </button>
@@ -226,18 +226,18 @@ const ShowLivestreamRow = ({ show, onChanged }) => {
       )}
 
       {livestream && livestream.status === 'Live' && (
-        <div className="mt-4 pt-4 border-t border-gray-800 space-y-3">
+        <div className="mt-4 pt-4 border-t border-line space-y-3">
           <button
             onClick={handleEnd}
             disabled={isBusy}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-red-500/10 border border-red-500/40 text-red-400 text-xs font-bold hover:bg-red-500/20 disabled:opacity-50"
+            className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-red-500/10 border border-red-500/40 text-danger text-xs font-bold hover:bg-red-500/20 disabled:opacity-50"
           >
             <Square size={14} className="fill-red-400" /> Kết thúc phát
           </button>
           <button
             onClick={() => handleToggleChat(!(livestream.chatEnabled ?? true))}
             disabled={isBusy}
-            className="ml-2 inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-gray-700 text-gray-300 text-xs font-bold hover:bg-gray-800 disabled:opacity-50"
+            className="ml-2 inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-line text-ink-soft text-xs font-bold hover:bg-sunken disabled:opacity-50"
           >
             {(livestream.chatEnabled ?? true)
               ? <><MessageSquareOff size={14} /> Tắt khung chat</>
@@ -247,7 +247,7 @@ const ShowLivestreamRow = ({ show, onChanged }) => {
             <button
               onClick={handleShowCredentials}
               disabled={isBusy}
-              className="ml-2 text-xs text-gray-400 underline hover:text-white"
+              className="ml-2 text-xs text-ink-soft underline hover:text-ink"
             >
               Xem lại RTMP/Stream Key
             </button>
@@ -256,16 +256,16 @@ const ShowLivestreamRow = ({ show, onChanged }) => {
       )}
 
       {credentials && (
-        <div className="mt-4 p-3 bg-black border border-yellow-700/40 rounded-lg">
-          <p className="text-yellow-500 text-xs font-bold mb-2">⚠ Không chia sẻ Stream Key cho ai khác</p>
+        <div className="mt-4 p-3 bg-page border border-yellow-700/40 rounded-lg">
+          <p className="text-warning text-xs font-bold mb-2">⚠ Không chia sẻ Stream Key cho ai khác</p>
           <div className="space-y-1.5 text-xs font-mono">
             <div className="flex items-center justify-between gap-2">
-              <span className="text-gray-400 truncate">RTMP: {credentials.rtmpUrl}</span>
-              <button onClick={() => copyToClipboard(credentials.rtmpUrl)}><Copy size={12} className="text-gray-500 hover:text-white" /></button>
+              <span className="text-ink-soft truncate">RTMP: {credentials.rtmpUrl}</span>
+              <button onClick={() => copyToClipboard(credentials.rtmpUrl)}><Copy size={12} className="text-ink-mute hover:text-ink" /></button>
             </div>
             <div className="flex items-center justify-between gap-2">
-              <span className="text-gray-400 truncate">Key: {credentials.streamKey}</span>
-              <button onClick={() => copyToClipboard(credentials.streamKey)}><Copy size={12} className="text-gray-500 hover:text-white" /></button>
+              <span className="text-ink-soft truncate">Key: {credentials.streamKey}</span>
+              <button onClick={() => copyToClipboard(credentials.streamKey)}><Copy size={12} className="text-ink-mute hover:text-ink" /></button>
             </div>
           </div>
         </div>
@@ -298,12 +298,12 @@ const OwnerLivestreamsPage = () => {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-white mb-6">Vận hành Livestream</h1>
+      <h1 className="text-2xl font-bold text-ink mb-6">Vận hành Livestream</h1>
 
       {isLoading ? (
-        <Loader2 size={24} className="animate-spin text-gray-500" />
+        <Loader2 size={24} className="animate-spin text-ink-mute" />
       ) : shows.length === 0 ? (
-        <div className="bg-gray-900 border border-gray-800 rounded-xl p-8 text-center text-gray-500">
+        <div className="bg-card border border-line rounded-xl p-8 text-center text-ink-mute">
           Bạn chưa có buổi diễn nào ở định dạng Online (chỉ show Online mới có livestream).
         </div>
       ) : (

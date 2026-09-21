@@ -11,8 +11,8 @@ import HorizontalTagSlider from './HorizontalTagSlider'
 import { getFilterOptions } from '../../services/showServices'
 
 const baseButtonClasses = "px-4 py-2 rounded-lg border text-sm font-medium transition-all"
-const activeBtnClasses = "bg-gray-900 text-white border-gray-900"
-const inactiveBtnClasses = "bg-white text-gray-700 border-gray-300 hover:border-gray-400 active:bg-gray-50"
+const activeBtnClasses = "bg-card text-ink border-line"
+const inactiveBtnClasses = "bg-card text-ink-mute border-gray-300 hover:border-line-strong active:bg-gray-50"
 
 const FilterModal = ({ isOpen, onClose, initialFilters, onApply }) => {
   const [localFilters, setLocalFilters] = useState(initialFilters)
@@ -79,13 +79,13 @@ const FilterModal = ({ isOpen, onClose, initialFilters, onApply }) => {
 
   return (
     <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center">
-      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity" onClick={onClose} />
+      <div className="absolute inset-0 bg-espresso/40 backdrop-blur-sm transition-opacity" onClick={onClose} />
       
-      <div className="relative bg-white w-full max-w-3xl h-[90vh] max-h-[90vh] sm:h-auto sm:max-h-[85vh] flex flex-col rounded-t-2xl sm:rounded-2xl shadow-2xl animate-in slide-in-from-bottom duration-300 overflow-hidden">
+      <div className="relative bg-card w-full max-w-3xl h-[90vh] max-h-[90vh] sm:h-auto sm:max-h-[85vh] flex flex-col rounded-t-2xl sm:rounded-2xl shadow-2xl animate-in slide-in-from-bottom duration-300 overflow-hidden">
         
-        <div className="flex-none w-full flex items-center justify-between p-6 border-b border-gray-100 bg-white z-10">
+        <div className="flex-none w-full flex items-center justify-between p-6 border-b border-gray-100 bg-card z-10">
           <h2 className="text-xl font-bold text-gray-900">Filter</h2>
-          <button onClick={onClose} className="p-2 hover:bg-gray-100 text-gray-500 rounded-full transition-colors">
+          <button onClick={onClose} className="p-2 hover:bg-gray-100 text-ink-mute rounded-full transition-colors">
             <X size={24} strokeWidth={2} />
           </button>
         </div>
@@ -123,7 +123,7 @@ const FilterModal = ({ isOpen, onClose, initialFilters, onApply }) => {
             <h3 className="font-bold text-lg text-gray-900">Pricing</h3>
             <div className="flex items-center gap-3">
               <div className="relative flex-1">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm font-medium">đ</span>
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-soft text-sm font-medium">đ</span>
                 <input 
                   type="number"
                   min="0"
@@ -131,12 +131,12 @@ const FilterModal = ({ isOpen, onClose, initialFilters, onApply }) => {
                   placeholder="From"
                   value={localFilters.minPrice}
                   onChange={e => setLocalFilters(prev => ({ ...prev, minPrice: e.target.value }))}
-                  className="w-full pl-7 pr-3 py-2.5 border border-gray-300 rounded-lg text-sm text-black focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  className="w-full pl-7 pr-3 py-2.5 border border-gray-300 rounded-lg text-sm text-on-brand focus:outline-none focus:ring-2 focus:ring-line focus:border-transparent [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 />
               </div>
-              <span className="text-gray-400 font-light">—</span>
+              <span className="text-ink-soft font-light">—</span>
               <div className="relative flex-1">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm font-medium">đ</span>
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-soft text-sm font-medium">đ</span>
                 <input 
                   type="number"
                   min="0"
@@ -144,7 +144,7 @@ const FilterModal = ({ isOpen, onClose, initialFilters, onApply }) => {
                   placeholder="To"
                   value={localFilters.maxPrice}
                   onChange={e => setLocalFilters(prev => ({ ...prev, maxPrice: e.target.value }))}
-                  className="w-full pl-7 pr-3 py-2.5 border border-gray-300 rounded-lg text-sm text-black focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  className="w-full pl-7 pr-3 py-2.5 border border-gray-300 rounded-lg text-sm text-on-brand focus:outline-none focus:ring-2 focus:ring-line focus:border-transparent [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 />
               </div>
             </div>
@@ -193,16 +193,16 @@ const FilterModal = ({ isOpen, onClose, initialFilters, onApply }) => {
           <div className="h-4"></div>
         </div>
 
-        <div className="flex-none w-full bg-white border-t border-gray-100 p-6 grid grid-cols-2 gap-4 z-10">
+        <div className="flex-none w-full bg-card border-t border-gray-100 p-6 grid grid-cols-2 gap-4 z-10">
           <button
             onClick={handleReset}
-            className="py-3 rounded-xl border border-gray-300 text-gray-700 font-semibold hover:bg-gray-50 transition-colors cursor-pointer"
+            className="py-3 rounded-xl border border-gray-300 text-ink-mute font-semibold hover:bg-gray-50 transition-colors cursor-pointer"
           >
             Reset
           </button>
           <button
             onClick={handleApplyClick}
-            className="py-3 rounded-xl bg-gray-900 text-white font-semibold hover:bg-gray-800 transition-colors shadow-lg cursor-pointer"
+            className="py-3 rounded-xl bg-card text-ink font-semibold hover:bg-sunken transition-colors shadow-lg cursor-pointer"
           >
             Apply
           </button>

@@ -16,12 +16,12 @@ import {
   getMyTaxProfile, submitTaxProfile, requestPhoneVerificationCode, verifyPhone,
 } from '../../services/userServices'
 
-const inputCls = 'mt-1 w-full px-3 py-2 bg-black border border-gray-700 rounded-lg text-sm text-white focus:outline-none focus:border-[#C3B665]/50'
+const inputCls = 'mt-1 w-full px-3 py-2 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-brand/50'
 
 const Card = ({ title, subtitle, children }) => (
-  <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
-    <h3 className="text-base font-semibold text-white">{title}</h3>
-    {subtitle && <p className="text-xs text-gray-500 mt-1 leading-relaxed">{subtitle}</p>}
+  <div className="bg-card border border-line rounded-xl p-6">
+    <h3 className="text-base font-semibold text-ink">{title}</h3>
+    {subtitle && <p className="text-xs text-ink-mute mt-1 leading-relaxed">{subtitle}</p>}
     <div className="mt-4">{children}</div>
   </div>
 )
@@ -160,7 +160,7 @@ const IdentityTab = () => {
   }
 
   if (isLoading) {
-    return <div className="py-16 flex justify-center"><Loader2 size={28} className="animate-spin text-[#C3B665]" /></div>
+    return <div className="py-16 flex justify-center"><Loader2 size={28} className="animate-spin text-brand-text" /></div>
   }
 
   const daXacThucSdt = profile?.phoneVerified ?? profile?.isPhoneVerified ?? false
@@ -174,28 +174,28 @@ const IdentityTab = () => {
         subtitle="Xác thực số điện thoại để chúng tôi liên hệ được khi có vấn đề về vé hoặc hoàn tiền."
       >
         {daXacThucSdt ? (
-          <p className="text-sm text-green-400 flex items-center gap-2">
+          <p className="text-sm text-success flex items-center gap-2">
             <CheckCircle2 size={16} /> Đã xác thực {profile?.phone && `(${profile.phone})`}
           </p>
         ) : (
           <div className="space-y-3">
-            <p className="text-sm text-gray-400">
-              Số hiện tại trong hồ sơ: <span className="text-white">{profile?.phone || 'chưa khai'}</span>
+            <p className="text-sm text-ink-soft">
+              Số hiện tại trong hồ sơ: <span className="text-ink">{profile?.phone || 'chưa khai'}</span>
             </p>
-            <p className="text-xs text-gray-600">
+            <p className="text-xs text-ink-mute">
               Mã được gửi tới đúng số này. Muốn đổi số thì sửa ở tab Hồ sơ trước rồi quay lại đây.
             </p>
             <div className="flex flex-wrap gap-2">
               <button onClick={guiMa} disabled={busyPhone !== null || !profile?.phone}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-700 text-gray-300 text-sm font-bold hover:bg-gray-800 disabled:opacity-50">
+                className="flex items-center gap-2 px-4 py-2 rounded-lg border border-line text-ink-soft text-sm font-bold hover:bg-sunken disabled:opacity-50">
                 {busyPhone === 'send' ? <Loader2 size={15} className="animate-spin" /> : <Phone size={15} />} Gửi mã xác thực
               </button>
             </div>
             <form onSubmit={xacThuc} className="flex gap-2">
               <input value={code} onChange={(e) => setCode(e.target.value)} placeholder="Nhập mã nhận được"
-                className="flex-1 px-3 py-2 bg-black border border-gray-700 rounded-lg text-sm text-white focus:outline-none focus:border-[#C3B665]/50" />
+                className="flex-1 px-3 py-2 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-brand/50" />
               <button type="submit" disabled={busyPhone !== null || !code.trim()}
-                className="px-4 py-2 rounded-lg bg-[#C3B665] text-black text-sm font-bold disabled:opacity-50">
+                className="px-4 py-2 rounded-lg bg-brand text-on-brand text-sm font-bold disabled:opacity-50">
                 {busyPhone === 'verify' ? <Loader2 size={15} className="animate-spin" /> : 'Xác thực'}
               </button>
             </form>
@@ -210,16 +210,16 @@ const IdentityTab = () => {
       >
         {daCoCccd ? (
           <div className="space-y-3">
-            <p className="text-sm text-green-400 flex items-center gap-2">
+            <p className="text-sm text-success flex items-center gap-2">
               <ShieldCheck size={16} /> Đã gửi hồ sơ định danh
             </p>
             <div className="flex flex-wrap gap-2">
               <button onClick={() => xemAnhCccd('front')}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-gray-700 text-gray-300 text-xs font-bold hover:bg-gray-800">
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-line text-ink-soft text-xs font-bold hover:bg-sunken">
                 <ExternalLink size={13} /> Xem mặt trước
               </button>
               <button onClick={() => xemAnhCccd('back')}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-gray-700 text-gray-300 text-xs font-bold hover:bg-gray-800">
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-line text-ink-soft text-xs font-bold hover:bg-sunken">
                 <ExternalLink size={13} /> Xem mặt sau
               </button>
             </div>
@@ -228,12 +228,12 @@ const IdentityTab = () => {
           <form onSubmit={guiCccd} className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="text-xs text-gray-500">Số CCCD <span className="text-red-400">*</span></label>
+                <label className="text-xs text-ink-mute">Số CCCD <span className="text-danger">*</span></label>
                 <input value={cccd.citizenCardNumber} onChange={(e) => setCccd((p) => ({ ...p, citizenCardNumber: e.target.value }))}
                   className={inputCls} inputMode="numeric" />
               </div>
               <div>
-                <label className="text-xs text-gray-500">Ngày sinh</label>
+                <label className="text-xs text-ink-mute">Ngày sinh</label>
                 <input type="date" value={cccd.dateOfBirth} onChange={(e) => setCccd((p) => ({ ...p, dateOfBirth: e.target.value }))}
                   className={inputCls} />
               </div>
@@ -242,10 +242,10 @@ const IdentityTab = () => {
             <div className="grid grid-cols-2 gap-3">
               {[['front', 'Mặt trước', cccd.frontImageUrl], ['back', 'Mặt sau', cccd.backImageUrl]].map(([side, label, url]) => (
                 <label key={side}
-                  className="flex flex-col items-center justify-center gap-2 py-6 rounded-lg border border-dashed border-gray-700 text-gray-400 text-xs hover:bg-gray-800/50 cursor-pointer">
+                  className="flex flex-col items-center justify-center gap-2 py-6 rounded-lg border border-dashed border-line text-ink-soft text-xs hover:bg-sunken/50 cursor-pointer">
                   {uploadingSide === side
                     ? <Loader2 size={18} className="animate-spin" />
-                    : url ? <CheckCircle2 size={18} className="text-green-400" /> : <Upload size={18} />}
+                    : url ? <CheckCircle2 size={18} className="text-success" /> : <Upload size={18} />}
                   {url ? `${label} — đã tải` : label}
                   <input type="file" accept="image/*" className="hidden" disabled={uploadingSide !== null}
                     onChange={(e) => taiAnh(e.target.files?.[0], side)} />
@@ -254,7 +254,7 @@ const IdentityTab = () => {
             </div>
 
             <button type="submit" disabled={busyCccd || uploadingSide !== null}
-              className="w-full py-2.5 bg-[#C3B665] text-black rounded-lg font-bold flex items-center justify-center gap-2 disabled:opacity-50">
+              className="w-full py-2.5 bg-brand text-on-brand rounded-lg font-bold flex items-center justify-center gap-2 disabled:opacity-50">
               {busyCccd && <Loader2 size={16} className="animate-spin" />} Gửi hồ sơ định danh
             </button>
           </form>
@@ -268,29 +268,29 @@ const IdentityTab = () => {
       >
         {taxProfile && !moFormThue ? (
           <div className="space-y-2">
-            <p className="text-sm text-gray-300">
-              Loại hình: <span className="text-white">{taxProfile.businessType}</span>
+            <p className="text-sm text-ink-soft">
+              Loại hình: <span className="text-ink">{taxProfile.businessType}</span>
             </p>
-            <p className="text-sm text-gray-300">
-              Mã số thuế: <span className="text-white tabular-nums">{taxProfile.taxCode}</span>
+            <p className="text-sm text-ink-soft">
+              Mã số thuế: <span className="text-ink tabular-nums">{taxProfile.taxCode}</span>
             </p>
             {taxProfile.legalName && (
-              <p className="text-sm text-gray-300">Tên pháp lý: <span className="text-white">{taxProfile.legalName}</span></p>
+              <p className="text-sm text-ink-soft">Tên pháp lý: <span className="text-ink">{taxProfile.legalName}</span></p>
             )}
             <button onClick={() => setMoFormThue(true)}
-              className="mt-2 text-sm text-[#C3B665] hover:underline">Sửa hồ sơ thuế</button>
+              className="mt-2 text-sm text-brand-text hover:underline">Sửa hồ sơ thuế</button>
           </div>
         ) : (
           <>
             {!taxProfile && (
-              <p className="text-xs text-gray-500 mb-4 flex items-start gap-1.5 leading-relaxed">
-                <AlertTriangle size={13} className="mt-0.5 flex-shrink-0 text-yellow-400" />
+              <p className="text-xs text-ink-mute mb-4 flex items-start gap-1.5 leading-relaxed">
+                <AlertTriangle size={13} className="mt-0.5 flex-shrink-0 text-warning" />
                 Khai phần này nếu bạn kinh doanh và cần xuất hoá đơn. Mức thuế áp dụng: GTGT 5% và TNCN 2%.
               </p>
             )}
             <form onSubmit={luuThue} className="space-y-4">
               <div>
-                <label className="text-xs text-gray-500">Loại hình <span className="text-red-400">*</span></label>
+                <label className="text-xs text-ink-mute">Loại hình <span className="text-danger">*</span></label>
                 <select value={tax.businessType} onChange={(e) => setTax((p) => ({ ...p, businessType: e.target.value }))} className={inputCls}>
                   <option value="">— chọn —</option>
                   <option value="HouseholdBusiness">Hộ kinh doanh</option>
@@ -298,25 +298,25 @@ const IdentityTab = () => {
                 </select>
               </div>
               <div>
-                <label className="text-xs text-gray-500">Mã số thuế <span className="text-red-400">*</span></label>
+                <label className="text-xs text-ink-mute">Mã số thuế <span className="text-danger">*</span></label>
                 <input value={tax.taxCode} onChange={(e) => setTax((p) => ({ ...p, taxCode: e.target.value }))} className={inputCls} inputMode="numeric" />
               </div>
               <div>
-                <label className="text-xs text-gray-500">Tên pháp lý</label>
+                <label className="text-xs text-ink-mute">Tên pháp lý</label>
                 <input value={tax.legalName} onChange={(e) => setTax((p) => ({ ...p, legalName: e.target.value }))} className={inputCls} />
-                <p className="text-xs text-gray-600 mt-1">
+                <p className="text-xs text-ink-mute mt-1">
                   Tên này cần khớp với tên chủ tài khoản ngân hàng nhận tiền.
                 </p>
               </div>
               <div className="flex gap-3">
                 {taxProfile && (
                   <button type="button" onClick={() => setMoFormThue(false)}
-                    className="flex-1 py-2.5 border border-gray-600 text-gray-300 rounded-lg font-medium hover:bg-gray-800">
+                    className="flex-1 py-2.5 border border-line-strong text-ink-soft rounded-lg font-medium hover:bg-sunken">
                     Huỷ
                   </button>
                 )}
                 <button type="submit" disabled={busyTax}
-                  className="flex-1 py-2.5 bg-[#C3B665] text-black rounded-lg font-bold flex items-center justify-center gap-2 disabled:opacity-50">
+                  className="flex-1 py-2.5 bg-brand text-on-brand rounded-lg font-bold flex items-center justify-center gap-2 disabled:opacity-50">
                   {busyTax ? <Loader2 size={16} className="animate-spin" /> : <FileText size={16} />} Lưu hồ sơ thuế
                 </button>
               </div>

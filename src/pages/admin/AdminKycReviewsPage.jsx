@@ -26,9 +26,9 @@ const TABS = [
 ]
 
 const STATUS_CHIP = {
-  Pending: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/30',
-  Approved: 'bg-green-500/10 text-green-400 border-green-500/30',
-  Rejected: 'bg-red-500/10 text-red-400 border-red-500/30',
+  Pending: 'bg-yellow-500/10 text-warning border-yellow-500/30',
+  Approved: 'bg-green-500/10 text-success border-green-500/30',
+  Rejected: 'bg-red-500/10 text-danger border-red-500/30',
 }
 
 const ReviewModal = ({ target, onClose, onSaved }) => {
@@ -62,36 +62,36 @@ const ReviewModal = ({ target, onClose, onSaved }) => {
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-gray-900 border border-gray-700 rounded-2xl w-full max-w-md shadow-2xl">
-        <div className="flex justify-between items-center p-5 border-b border-gray-800">
-          <h2 className="text-lg font-bold text-white">
+      <div className="absolute inset-0 bg-espresso/80 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative bg-card border border-line rounded-2xl w-full max-w-md shadow-2xl">
+        <div className="flex justify-between items-center p-5 border-b border-line">
+          <h2 className="text-lg font-bold text-ink">
             {target.approve ? 'Duyệt' : 'Từ chối'} {tenGiayTo}
           </h2>
-          <button onClick={onClose} disabled={isBusy} className="p-2 hover:bg-gray-800 rounded-full text-gray-400 disabled:opacity-30">
+          <button onClick={onClose} disabled={isBusy} className="p-2 hover:bg-sunken rounded-full text-ink-soft disabled:opacity-30">
             <X size={20} />
           </button>
         </div>
 
         <form onSubmit={submit} className="p-5 space-y-4">
-          <div className="bg-black/40 border border-gray-800 rounded-lg p-3">
-            <p className="text-sm text-white font-medium">{target.item.fullName}</p>
-            <p className="text-xs text-gray-500 mt-0.5">{target.item.email}</p>
+          <div className="bg-espresso/40 border border-line rounded-lg p-3">
+            <p className="text-sm text-ink font-medium">{target.item.fullName}</p>
+            <p className="text-xs text-ink-mute mt-0.5">{target.item.email}</p>
           </div>
 
           {canhBaoThue && (
-            <p className="text-xs text-yellow-400 flex items-start gap-1.5 leading-relaxed bg-yellow-500/5 border border-yellow-500/30 rounded-lg p-3">
+            <p className="text-xs text-warning flex items-start gap-1.5 leading-relaxed bg-yellow-500/5 border border-yellow-500/30 rounded-lg p-3">
               <AlertTriangle size={13} className="mt-px flex-shrink-0" />
               Duyệt hồ sơ thuế này sẽ NGỪNG việc tạm giữ thuế với người đó. Đây là thay đổi về tiền, hãy chắc chắn mã số thuế đúng.
             </p>
           )}
 
           <div>
-            <label className="text-xs text-gray-500">
-              Ghi chú {laTuChoi && <span className="text-red-400">* (bắt buộc khi từ chối)</span>}
+            <label className="text-xs text-ink-mute">
+              Ghi chú {laTuChoi && <span className="text-danger">* (bắt buộc khi từ chối)</span>}
             </label>
             <textarea value={note} onChange={(e) => setNote(e.target.value)} rows={4}
-              className="mt-1 w-full px-3 py-2 bg-black border border-gray-700 rounded-lg text-sm text-white focus:outline-none focus:border-[#C3B665]/50 resize-none"
+              className="mt-1 w-full px-3 py-2 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-brand/50 resize-none"
               placeholder={laTuChoi
                 ? 'Ví dụ: ảnh mặt sau bị mờ, không đọc được số; hãy chụp lại rõ hơn.'
                 : 'Không bắt buộc.'} />
@@ -99,7 +99,7 @@ const ReviewModal = ({ target, onClose, onSaved }) => {
 
           <div className="flex gap-3">
             <button type="button" onClick={onClose} disabled={isBusy}
-              className="flex-1 py-2.5 border border-gray-600 text-gray-300 rounded-lg font-medium hover:bg-gray-800 disabled:opacity-50">
+              className="flex-1 py-2.5 border border-line-strong text-ink-soft rounded-lg font-medium hover:bg-sunken disabled:opacity-50">
               Huỷ
             </button>
             <button type="submit" disabled={isBusy}
@@ -116,14 +116,14 @@ const ReviewModal = ({ target, onClose, onSaved }) => {
 }
 
 const DocBlock = ({ icon: Icon, title, status, children, onApprove, onReject, coDuLieu }) => (
-  <div className="bg-black/40 border border-gray-800 rounded-lg p-4">
+  <div className="bg-espresso/40 border border-line rounded-lg p-4">
     <div className="flex items-start justify-between gap-3">
       <div className="flex items-center gap-2 min-w-0">
-        <Icon size={15} className="text-gray-500 flex-shrink-0" />
-        <span className="text-sm text-white font-medium">{title}</span>
+        <Icon size={15} className="text-ink-mute flex-shrink-0" />
+        <span className="text-sm text-ink font-medium">{title}</span>
       </div>
       {status && (
-        <span className={`px-2 py-0.5 rounded-md border text-xs font-medium whitespace-nowrap ${STATUS_CHIP[status] ?? 'bg-gray-500/10 text-gray-400 border-gray-500/30'}`}>
+        <span className={`px-2 py-0.5 rounded-md border text-xs font-medium whitespace-nowrap ${STATUS_CHIP[status] ?? 'bg-line-strong/10 text-ink-soft border-line-strong/30'}`}>
           {status}
         </span>
       )}
@@ -134,11 +134,11 @@ const DocBlock = ({ icon: Icon, title, status, children, onApprove, onReject, co
     {coDuLieu && status === 'Pending' && (
       <div className="mt-3 flex gap-2">
         <button onClick={onApprove}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-green-500/10 border border-green-500/40 text-green-400 text-xs font-bold hover:bg-green-500/20">
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-green-500/10 border border-green-500/40 text-success text-xs font-bold hover:bg-green-500/20">
           <CheckCircle2 size={13} /> Duyệt
         </button>
         <button onClick={onReject}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-500/10 border border-red-500/40 text-red-400 text-xs font-bold hover:bg-red-500/20">
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-500/10 border border-red-500/40 text-danger text-xs font-bold hover:bg-red-500/20">
           <XCircle size={13} /> Từ chối
         </button>
       </div>
@@ -181,8 +181,8 @@ const AdminKycReviewsPage = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-white mb-1">Duyệt định danh</h1>
-        <p className="text-gray-400 text-sm leading-relaxed">
+        <h1 className="text-2xl font-bold text-ink mb-1">Duyệt định danh</h1>
+        <p className="text-ink-soft text-sm leading-relaxed">
           Mỗi người có tới hai giấy tờ được duyệt riêng: CCCD và hồ sơ thuế. Từ chối thì bắt buộc ghi lý do.
         </p>
       </div>
@@ -191,34 +191,34 @@ const AdminKycReviewsPage = () => {
         {TABS.map((t) => (
           <button key={t.key} onClick={() => setTab(t.key)}
             className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${tab === t.key
-              ? 'bg-gray-800 border-[#C3B665]/40 text-[#C3B665]'
-              : 'bg-black border-gray-800 text-gray-400 hover:text-white'}`}>
+              ? 'bg-sunken border-brand/40 text-brand-text'
+              : 'bg-page border-line text-ink-soft hover:text-ink'}`}>
             {t.label}
           </button>
         ))}
       </div>
 
       {isLoading ? (
-        <div className="py-20 flex justify-center"><Loader2 size={32} className="animate-spin text-[#C3B665]" /></div>
+        <div className="py-20 flex justify-center"><Loader2 size={32} className="animate-spin text-brand-text" /></div>
       ) : items.length === 0 ? (
-        <div className="bg-gray-900 border border-gray-800 rounded-xl p-10 text-center">
-          <ShieldCheck size={28} className="mx-auto mb-3 text-gray-700" />
-          <p className="text-sm text-gray-500">Không có hồ sơ nào trong mục này.</p>
+        <div className="bg-card border border-line rounded-xl p-10 text-center">
+          <ShieldCheck size={28} className="mx-auto mb-3 text-ink-mute" />
+          <p className="text-sm text-ink-mute">Không có hồ sơ nào trong mục này.</p>
         </div>
       ) : (
         <ul className="space-y-4">
           {items.map((it) => (
-            <li key={it.userId} className="bg-gray-900 border border-gray-800 rounded-xl p-5">
+            <li key={it.userId} className="bg-card border border-line rounded-xl p-5">
               <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
                 <div className="min-w-0">
-                  <p className="text-white font-bold">{it.fullName}</p>
-                  <p className="text-xs text-gray-500 mt-0.5">{it.email}</p>
+                  <p className="text-ink font-bold">{it.fullName}</p>
+                  <p className="text-xs text-ink-mute mt-0.5">{it.email}</p>
                   {it.dateOfBirth && (
-                    <p className="text-xs text-gray-600 mt-0.5">Ngày sinh: {dayjs(it.dateOfBirth).format('DD/MM/YYYY')}</p>
+                    <p className="text-xs text-ink-mute mt-0.5">Ngày sinh: {dayjs(it.dateOfBirth).format('DD/MM/YYYY')}</p>
                   )}
                 </div>
                 {it.hasBusinessLicense && (
-                  <span className="px-2 py-0.5 rounded-md bg-gray-800 text-gray-400 text-xs">Có giấy phép kinh doanh</span>
+                  <span className="px-2 py-0.5 rounded-md bg-sunken text-ink-soft text-xs">Có giấy phép kinh doanh</span>
                 )}
               </div>
 
@@ -232,27 +232,27 @@ const AdminKycReviewsPage = () => {
                   onReject={() => setTarget({ item: it, document: 'CitizenCard', approve: false })}
                 >
                   {!it.citizenCardSubmittedAt ? (
-                    <p className="text-xs text-gray-600">Chưa gửi.</p>
+                    <p className="text-xs text-ink-mute">Chưa gửi.</p>
                   ) : (
                     <>
                       {it.citizenCardNumberUnreadable ? (
-                        <p className="text-xs text-red-400 flex items-start gap-1.5">
+                        <p className="text-xs text-danger flex items-start gap-1.5">
                           <AlertTriangle size={12} className="mt-px flex-shrink-0" />
                           Hệ thống không đọc lại được số CCCD — cần người dùng gửi lại.
                         </p>
                       ) : (
-                        <p className="text-xs text-gray-400 tabular-nums">{it.citizenCardNumberMasked}</p>
+                        <p className="text-xs text-ink-soft tabular-nums">{it.citizenCardNumberMasked}</p>
                       )}
-                      <p className="text-xs text-gray-600">
+                      <p className="text-xs text-ink-mute">
                         Gửi lúc {dayjs(it.citizenCardSubmittedAt).format('HH:mm DD/MM/YYYY')}
                       </p>
                       <div className="flex gap-2 pt-1">
                         <button onClick={() => xemAnh(it.userId, 'front')}
-                          className="inline-flex items-center gap-1 text-xs text-[#C3B665] hover:underline">
+                          className="inline-flex items-center gap-1 text-xs text-brand-text hover:underline">
                           <ExternalLink size={11} /> Mặt trước
                         </button>
                         <button onClick={() => xemAnh(it.userId, 'back')}
-                          className="inline-flex items-center gap-1 text-xs text-[#C3B665] hover:underline">
+                          className="inline-flex items-center gap-1 text-xs text-brand-text hover:underline">
                           <ExternalLink size={11} /> Mặt sau
                         </button>
                       </div>
@@ -269,24 +269,24 @@ const AdminKycReviewsPage = () => {
                   onReject={() => setTarget({ item: it, document: 'TaxProfile', approve: false })}
                 >
                   {!it.taxProfileSubmittedAt ? (
-                    <p className="text-xs text-gray-600">Chưa gửi.</p>
+                    <p className="text-xs text-ink-mute">Chưa gửi.</p>
                   ) : (
                     <>
-                      <p className="text-xs text-gray-400">{it.businessType}</p>
+                      <p className="text-xs text-ink-soft">{it.businessType}</p>
                       {it.taxCodeUnreadable ? (
-                        <p className="text-xs text-red-400 flex items-start gap-1.5">
+                        <p className="text-xs text-danger flex items-start gap-1.5">
                           <AlertTriangle size={12} className="mt-px flex-shrink-0" />
                           Không đọc lại được mã số thuế — cần người dùng gửi lại.
                         </p>
                       ) : (
-                        <p className="text-xs text-gray-400 tabular-nums">MST {it.taxCode}</p>
+                        <p className="text-xs text-ink-soft tabular-nums">MST {it.taxCode}</p>
                       )}
-                      {it.legalName && <p className="text-xs text-gray-500">{it.legalName}</p>}
-                      <p className="text-xs text-gray-600">
+                      {it.legalName && <p className="text-xs text-ink-mute">{it.legalName}</p>}
+                      <p className="text-xs text-ink-mute">
                         Gửi lúc {dayjs(it.taxProfileSubmittedAt).format('HH:mm DD/MM/YYYY')}
                       </p>
                       {it.withholdingWouldStopIfApproved && (
-                        <p className="text-xs text-yellow-400/90 flex items-start gap-1.5 pt-1">
+                        <p className="text-xs text-warning/90 flex items-start gap-1.5 pt-1">
                           <ShieldAlert size={12} className="mt-px flex-shrink-0" />
                           Duyệt sẽ ngừng tạm giữ thuế của người này.
                         </p>

@@ -25,13 +25,13 @@ const fmtTien = (v) => `${Number(v || 0).toLocaleString('vi-VN')}đ`
 const fmtPhanTram = (v) => `${Number(v || 0).toLocaleString('vi-VN', { maximumFractionDigits: 1 })}%`
 
 const O = ({ title, value, note, icon: Icon }) => (
-  <div className="bg-black/40 border border-gray-800 rounded-lg p-4">
+  <div className="bg-espresso/40 border border-line rounded-lg p-4">
     <div className="flex items-start justify-between gap-2">
-      <p className="text-xs text-gray-500">{title}</p>
-      <Icon size={15} className="text-gray-600 flex-shrink-0" />
+      <p className="text-xs text-ink-mute">{title}</p>
+      <Icon size={15} className="text-ink-mute flex-shrink-0" />
     </div>
-    <p className="text-lg font-bold text-white mt-1 tabular-nums">{value}</p>
-    {note && <p className="text-[11px] text-gray-600 mt-1 leading-relaxed">{note}</p>}
+    <p className="text-lg font-bold text-ink mt-1 tabular-nums">{value}</p>
+    {note && <p className="text-[11px] text-ink-mute mt-1 leading-relaxed">{note}</p>}
   </div>
 )
 
@@ -59,19 +59,19 @@ const ShowAnalyticsSection = ({ showId }) => {
 
   if (isLoading) {
     return (
-      <div className="bg-gray-900 border border-gray-800 rounded-xl py-14 flex justify-center">
-        <Loader2 size={24} className="animate-spin text-[#C3B665]" />
+      <div className="bg-card border border-line rounded-xl py-14 flex justify-center">
+        <Loader2 size={24} className="animate-spin text-brand-text" />
       </div>
     )
   }
 
   if (!perf && !trend && !forecast) {
     return (
-      <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
-        <h2 className="text-lg font-semibold text-white flex items-center gap-2">
-          <TrendingUp size={18} className="text-[#C3B665]" /> Thống kê
+      <div className="bg-card border border-line rounded-xl p-6">
+        <h2 className="text-lg font-semibold text-ink flex items-center gap-2">
+          <TrendingUp size={18} className="text-brand-text" /> Thống kê
         </h2>
-        <p className="text-sm text-gray-500 mt-2">Chưa có số liệu cho buổi diễn này.</p>
+        <p className="text-sm text-ink-mute mt-2">Chưa có số liệu cho buổi diễn này.</p>
       </div>
     )
   }
@@ -83,9 +83,9 @@ const ShowAnalyticsSection = ({ showId }) => {
     <div className="space-y-4">
       {/* LƯỢT XEM & CHUYỂN ĐỔI */}
       {perf && (
-        <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
-          <h2 className="text-lg font-semibold text-white flex items-center gap-2 mb-4">
-            <TrendingUp size={18} className="text-[#C3B665]" /> Lượt xem &amp; chuyển đổi
+        <div className="bg-card border border-line rounded-xl p-6">
+          <h2 className="text-lg font-semibold text-ink flex items-center gap-2 mb-4">
+            <TrendingUp size={18} className="text-brand-text" /> Lượt xem &amp; chuyển đổi
           </h2>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
             <O title="Lượt xem trang" value={fmtSo(perf.totalPageViews)} icon={Eye}
@@ -98,8 +98,8 @@ const ShowAnalyticsSection = ({ showId }) => {
               note="người xem trang → người mua vé" />
           </div>
           {perf.liveViewers > 0 && (
-            <p className="text-xs text-gray-500 mt-3">
-              Đang xem trực tiếp: <span className="text-white">{fmtSo(perf.liveViewers)}</span>
+            <p className="text-xs text-ink-mute mt-3">
+              Đang xem trực tiếp: <span className="text-ink">{fmtSo(perf.liveViewers)}</span>
             </p>
           )}
         </div>
@@ -107,29 +107,29 @@ const ShowAnalyticsSection = ({ showId }) => {
 
       {/* BÁN VÉ THEO NGÀY + THEO HẠNG VÉ */}
       {trend && (
-        <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
+        <div className="bg-card border border-line rounded-xl p-6">
           <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
-            <h2 className="text-lg font-semibold text-white flex items-center gap-2">
-              <LineChart size={18} className="text-[#C3B665]" /> Tiến độ bán vé
+            <h2 className="text-lg font-semibold text-ink flex items-center gap-2">
+              <LineChart size={18} className="text-brand-text" /> Tiến độ bán vé
             </h2>
             <div className="text-right">
-              <p className="text-lg font-bold text-[#C3B665] tabular-nums">{fmtTien(trend.totalRevenue)}</p>
-              <p className="text-xs text-gray-600">{fmtSo(trend.totalTicketsSold)} vé</p>
+              <p className="text-lg font-bold text-brand-text tabular-nums">{fmtTien(trend.totalRevenue)}</p>
+              <p className="text-xs text-ink-mute">{fmtSo(trend.totalTicketsSold)} vé</p>
             </div>
           </div>
 
           {(trend.dailySales?.length ?? 0) === 0 ? (
-            <p className="text-sm text-gray-500">Chưa có ngày nào bán được vé.</p>
+            <p className="text-sm text-ink-mute">Chưa có ngày nào bán được vé.</p>
           ) : (
             <div className="flex items-end gap-1 h-32">
               {trend.dailySales.map((d) => (
                 <div key={d.date} className="flex-1 flex flex-col items-center justify-end h-full group relative">
-                  <div className="w-full bg-[#C3B665]/70 hover:bg-[#C3B665] rounded-t transition-colors"
+                  <div className="w-full bg-brand/70 hover:bg-brand-hover rounded-t transition-colors"
                     style={{ height: `${((d.ticketsSold || 0) / dinh) * 100}%`, minHeight: d.ticketsSold > 0 ? 3 : 0 }} />
                   {/* Nhãn đặt trong tooltip vì có thể có mấy chục ngày, in hết ra sẽ chồng nhau */}
-                  <div className="absolute bottom-full mb-1 hidden group-hover:block bg-black border border-gray-700 rounded-md px-2 py-1 whitespace-nowrap z-10">
-                    <p className="text-xs text-white">{dayjs(d.date).format('DD/MM')}</p>
-                    <p className="text-xs text-gray-400">{fmtSo(d.ticketsSold)} vé · {fmtTien(d.revenue)}</p>
+                  <div className="absolute bottom-full mb-1 hidden group-hover:block bg-page border border-line rounded-md px-2 py-1 whitespace-nowrap z-10">
+                    <p className="text-xs text-ink">{dayjs(d.date).format('DD/MM')}</p>
+                    <p className="text-xs text-ink-soft">{fmtSo(d.ticketsSold)} vé · {fmtTien(d.revenue)}</p>
                   </div>
                 </div>
               ))}
@@ -137,11 +137,11 @@ const ShowAnalyticsSection = ({ showId }) => {
           )}
 
           {(trend.byTier?.length ?? 0) > 0 && (
-            <div className="mt-5 pt-4 border-t border-gray-800 space-y-2">
+            <div className="mt-5 pt-4 border-t border-line space-y-2">
               {trend.byTier.map((t) => (
                 <div key={t.tierId} className="flex flex-wrap items-center justify-between gap-2 text-sm">
-                  <span className="text-gray-300">{t.tierName}</span>
-                  <span className="text-gray-500 text-xs tabular-nums">
+                  <span className="text-ink-soft">{t.tierName}</span>
+                  <span className="text-ink-mute text-xs tabular-nums">
                     {fmtSo(t.ticketsSold)}
                     {t.capacity != null && ` / ${fmtSo(t.capacity)}`}
                     {/* sellThroughRate null khi hạng vé không giới hạn sức chứa */}
@@ -156,57 +156,57 @@ const ShowAnalyticsSection = ({ showId }) => {
 
       {/* DỰ BÁO — KHỐI RIÊNG, ghi nhãn rõ để không lẫn với số đã bán */}
       {forecast && (
-        <div className="bg-gray-900 border border-dashed border-gray-700 rounded-xl p-6">
-          <h2 className="text-lg font-semibold text-white flex items-center gap-2">
-            <Sparkles size={18} className="text-gray-400" /> Dự báo nhu cầu
+        <div className="bg-card border border-dashed border-line rounded-xl p-6">
+          <h2 className="text-lg font-semibold text-ink flex items-center gap-2">
+            <Sparkles size={18} className="text-ink-soft" /> Dự báo nhu cầu
           </h2>
-          <p className="text-xs text-yellow-400/90 mt-1 flex items-start gap-1.5 leading-relaxed">
+          <p className="text-xs text-warning/90 mt-1 flex items-start gap-1.5 leading-relaxed">
             <Info size={12} className="mt-px flex-shrink-0" />
             Đây là SỐ DỰ ĐOÁN dựa trên lịch sử, không phải số vé đã bán. Đã bán thật:{' '}
-            <span className="text-white font-medium">{fmtSo(forecast.ticketsSoldSoFar)} vé</span>.
+            <span className="text-ink font-medium">{fmtSo(forecast.ticketsSoldSoFar)} vé</span>.
           </p>
 
           {forecast.status === 'Forecast' && forecast.projectedFinalSales != null ? (
             <>
               <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div className="bg-black/40 border border-gray-800 rounded-lg p-4">
-                  <p className="text-xs text-gray-500">Dự kiến bán được (cả buổi)</p>
-                  <p className="text-xl font-bold text-white mt-1 tabular-nums">
+                <div className="bg-espresso/40 border border-line rounded-lg p-4">
+                  <p className="text-xs text-ink-mute">Dự kiến bán được (cả buổi)</p>
+                  <p className="text-xl font-bold text-ink mt-1 tabular-nums">
                     {fmtSo(forecast.projectedFinalSales)} vé
                   </p>
                   {(forecast.projectedLow != null || forecast.projectedHigh != null) && (
-                    <p className="text-[11px] text-gray-600 mt-1">
+                    <p className="text-[11px] text-ink-mute mt-1">
                       khoảng {fmtSo(forecast.projectedLow)}–{fmtSo(forecast.projectedHigh)} vé
                     </p>
                   )}
                 </div>
-                <div className="bg-black/40 border border-gray-800 rounded-lg p-4">
-                  <p className="text-xs text-gray-500">Còn lại</p>
-                  <p className="text-xl font-bold text-white mt-1 tabular-nums">{forecast.daysUntilShow} ngày</p>
+                <div className="bg-espresso/40 border border-line rounded-lg p-4">
+                  <p className="text-xs text-ink-mute">Còn lại</p>
+                  <p className="text-xl font-bold text-ink mt-1 tabular-nums">{forecast.daysUntilShow} ngày</p>
                   {forecast.expectedPaceFraction != null && (
-                    <p className="text-[11px] text-gray-600 mt-1">
+                    <p className="text-[11px] text-ink-mute mt-1">
                       tới mốc này thường đã bán {fmtPhanTram(Number(forecast.expectedPaceFraction) * 100)} tổng vé
                     </p>
                   )}
                 </div>
-                <div className="bg-black/40 border border-gray-800 rounded-lg p-4">
-                  <p className="text-xs text-gray-500">Dự kiến bán hết</p>
-                  <p className="text-xl font-bold text-white mt-1 tabular-nums">
+                <div className="bg-espresso/40 border border-line rounded-lg p-4">
+                  <p className="text-xs text-ink-mute">Dự kiến bán hết</p>
+                  <p className="text-xl font-bold text-ink mt-1 tabular-nums">
                     {forecast.projectedSellThroughRate != null
                       ? fmtPhanTram(Number(forecast.projectedSellThroughRate) * 100)
                       : '—'}
                   </p>
-                  <p className="text-[11px] text-gray-600 mt-1">
+                  <p className="text-[11px] text-ink-mute mt-1">
                     {forecast.capacity != null ? `trên ${fmtSo(forecast.capacity)} chỗ` : 'chưa đặt sức chứa'}
                   </p>
                 </div>
               </div>
 
               {/* Dự báo dựa trên cái gì — không có phần này thì con số không dùng để quyết định gì */}
-              <p className="text-xs text-gray-500 mt-4 leading-relaxed">
+              <p className="text-xs text-ink-mute mt-4 leading-relaxed">
                 {forecast.explanation}
               </p>
-              <p className="text-[11px] text-gray-600 mt-2 leading-relaxed">
+              <p className="text-[11px] text-ink-mute mt-2 leading-relaxed">
                 Nghiêng về lịch sử của phòng trà bạn{' '}
                 {fmtPhanTram(Number(forecast.venueHistoryWeight) * 100)} · dựa trên{' '}
                 {fmtSo(forecast.venueReferenceShows)} buổi diễn của bạn và{' '}
@@ -215,7 +215,7 @@ const ShowAnalyticsSection = ({ showId }) => {
             </>
           ) : (
             // NotEnoughHistory / TooEarly — không phải lỗi, chỉ là chưa dự báo được.
-            <p className="text-sm text-gray-400 mt-4 leading-relaxed">{forecast.explanation}</p>
+            <p className="text-sm text-ink-soft mt-4 leading-relaxed">{forecast.explanation}</p>
           )}
         </div>
       )}

@@ -15,17 +15,17 @@ const AdminLayout = () => {
 
   const linkClasses = ({ isActive }) =>
     `flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${isActive
-      ? 'bg-gray-800 text-[#C3B665]'
-      : 'text-gray-400 hover:text-white hover:bg-gray-800/50'
+      ? 'bg-sunken text-brand-text'
+      : 'text-ink-soft hover:text-ink hover:bg-sunken/50'
     }`
 
   return (
-    <div className="flex h-screen bg-black overflow-hidden">
+    <div className="flex h-screen bg-page overflow-hidden">
 
       {/* SIDEBAR */}
-      <aside className="w-64 bg-gray-950 text-white flex flex-col h-full flex-shrink-0 border-r border-gray-900">
-        <div className="h-16 flex items-center px-6 border-b border-gray-900">
-          <h1 className="text-xl font-bold tracking-wider text-[#C3B665]">ADMIN PORTAL</h1>
+      <aside className="w-64 bg-card text-ink flex flex-col h-full flex-shrink-0 border-r border-line">
+        <div className="h-16 flex items-center px-6 border-b border-line">
+          <h1 className="text-xl font-bold tracking-wider text-brand-text">ADMIN PORTAL</h1>
         </div>
 
         <nav className="flex-1 overflow-y-auto py-6 space-y-2 px-4">
@@ -81,7 +81,7 @@ const AdminLayout = () => {
           {/* LỐI RA — trước đây vào trang quản trị rồi thì chỉ còn Đăng xuất, bấm Back, hoặc tự
               gõ URL mới ra được. Admin cần xem sản phẩm như khách thấy (kiểm một buổi diễn vừa
               duyệt chẳng hạn) thì không có đường nào. */}
-          <div className="pt-2 mt-2 border-t border-gray-900 space-y-2">
+          <div className="pt-2 mt-2 border-t border-line space-y-2">
             <Link to="/account" className={linkClasses({ isActive: false })}>
               <UserCog size={18} /> Tài khoản của tôi
             </Link>
@@ -91,10 +91,10 @@ const AdminLayout = () => {
           </div>
         </nav>
 
-        <div className="p-4 border-t border-gray-900">
+        <div className="p-4 border-t border-line">
           <button
             onClick={handleLogout}
-            className="flex items-center gap-3 px-4 py-3 w-full rounded-lg text-sm font-medium text-red-500 hover:text-white hover:bg-red-500/10 transition-colors"
+            className="flex items-center gap-3 px-4 py-3 w-full rounded-lg text-sm font-medium text-danger hover:text-ink hover:bg-red-500/10 transition-colors"
           >
             <LogOut size={18} /> Logout
           </button>
@@ -103,14 +103,14 @@ const AdminLayout = () => {
 
       {/* MAIN CONTENT */}
       <div className="flex-1 flex flex-col h-full overflow-hidden">
-        <header className="h-16 bg-gray-950 border-b border-gray-900 flex items-center justify-between px-8 flex-shrink-0">
-          <h2 className="text-lg font-semibold text-white">Hệ thống quản trị Music Lounge</h2>
-          <div className="w-8 h-8 bg-[#C3B665] rounded-full flex items-center justify-center text-black text-xs font-bold">
+        <header className="h-16 bg-card border-b border-line flex items-center justify-between px-8 flex-shrink-0">
+          <h2 className="text-lg font-semibold text-ink">Hệ thống quản trị Music Lounge</h2>
+          <div className="w-8 h-8 bg-brand rounded-full flex items-center justify-center text-on-brand text-xs font-bold">
             AD
           </div>
         </header>
 
-        <main className="flex-1 overflow-y-auto p-8 bg-black">
+        <main className="flex-1 overflow-y-auto p-8 bg-page">
           <Outlet />
         </main>
       </div>

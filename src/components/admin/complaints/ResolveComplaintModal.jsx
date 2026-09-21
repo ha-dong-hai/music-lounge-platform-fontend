@@ -14,7 +14,7 @@ import { Loader2, X, AlertTriangle } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { resolveComplaint } from '../../../services/complaintServices'
 
-const inputCls = 'mt-1 w-full px-3 py-2 bg-black border border-gray-700 rounded-lg text-sm text-white focus:outline-none focus:border-[#C3B665]/50'
+const inputCls = 'mt-1 w-full px-3 py-2 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-brand/50'
 
 const STATUSES = [
   { value: 'Investigating', label: 'Đang xem xét', hint: 'Ghi nhận là đang điều tra, chưa kết luận. Không tạo hậu quả nào.' },
@@ -72,42 +72,42 @@ const ResolveComplaintModal = ({ complaint, onClose, onSaved }) => {
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-gray-900 border border-gray-700 rounded-2xl w-full max-w-lg shadow-2xl max-h-[90vh] flex flex-col">
-        <div className="flex justify-between items-center p-5 border-b border-gray-800">
+      <div className="absolute inset-0 bg-espresso/80 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative bg-card border border-line rounded-2xl w-full max-w-lg shadow-2xl max-h-[90vh] flex flex-col">
+        <div className="flex justify-between items-center p-5 border-b border-line">
           <div>
-            <h2 className="text-lg font-bold text-white">Xử lý khiếu nại #{complaint.id}</h2>
-            <p className="text-xs text-gray-500 mt-0.5">{complaint.targetType} #{complaint.targetId}</p>
+            <h2 className="text-lg font-bold text-ink">Xử lý khiếu nại #{complaint.id}</h2>
+            <p className="text-xs text-ink-mute mt-0.5">{complaint.targetType} #{complaint.targetId}</p>
           </div>
-          <button onClick={onClose} disabled={isBusy} className="p-2 hover:bg-gray-800 rounded-full text-gray-400 disabled:opacity-30">
+          <button onClick={onClose} disabled={isBusy} className="p-2 hover:bg-sunken rounded-full text-ink-soft disabled:opacity-30">
             <X size={20} />
           </button>
         </div>
 
         <form onSubmit={submit} className="p-5 space-y-4 overflow-y-auto">
-          <div className="bg-black/40 border border-gray-800 rounded-lg p-3">
-            <p className="text-xs text-gray-500 mb-1">Nội dung khiếu nại</p>
-            <p className="text-sm text-gray-300 leading-relaxed">{complaint.description}</p>
+          <div className="bg-espresso/40 border border-line rounded-lg p-3">
+            <p className="text-xs text-ink-mute mb-1">Nội dung khiếu nại</p>
+            <p className="text-sm text-ink-soft leading-relaxed">{complaint.description}</p>
             {complaint.contactPhone && (
-              <p className="text-xs text-gray-500 mt-2">Liên hệ: {complaint.contactPhone}</p>
+              <p className="text-xs text-ink-mute mt-2">Liên hệ: {complaint.contactPhone}</p>
             )}
           </div>
 
           <div>
-            <label className="text-xs text-gray-500">Kết luận</label>
+            <label className="text-xs text-ink-mute">Kết luận</label>
             <select value={status} onChange={(e) => setStatus(e.target.value)} className={inputCls}>
               {STATUSES.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
             </select>
-            <p className="text-xs text-gray-600 mt-1">{STATUSES.find((s) => s.value === status)?.hint}</p>
+            <p className="text-xs text-ink-mute mt-1">{STATUSES.find((s) => s.value === status)?.hint}</p>
           </div>
 
           {canResolved && (
             <div>
-              <label className="text-xs text-gray-500">Hành động</label>
+              <label className="text-xs text-ink-mute">Hành động</label>
               <select value={action} onChange={(e) => { setAction(e.target.value); setGoXacNhan('') }} className={inputCls}>
                 {ACTIONS.map((a) => <option key={a.value} value={a.value}>{a.label}</option>)}
               </select>
-              <p className={`text-xs mt-1.5 leading-relaxed ${hanhDong?.danger ? 'text-red-400' : 'text-gray-600'}`}>
+              <p className={`text-xs mt-1.5 leading-relaxed ${hanhDong?.danger ? 'text-danger' : 'text-ink-mute'}`}>
                 {hanhDong?.danger && <AlertTriangle size={12} className="inline mr-1 -mt-0.5" />}
                 {hanhDong?.desc}
               </p>
@@ -115,7 +115,7 @@ const ResolveComplaintModal = ({ complaint, onClose, onSaved }) => {
           )}
 
           <div>
-            <label className="text-xs text-gray-500">Phản hồi cho người khiếu nại</label>
+            <label className="text-xs text-ink-mute">Phản hồi cho người khiếu nại</label>
             <textarea value={resolution} onChange={(e) => setResolution(e.target.value)} rows={4}
               className={`${inputCls} resize-none`}
               placeholder="Người khiếu nại đọc được nội dung này khi tra cứu kết quả." />
@@ -123,22 +123,22 @@ const ResolveComplaintModal = ({ complaint, onClose, onSaved }) => {
 
           {canGoXacNhan && (
             <div className="bg-red-500/5 border border-red-500/30 rounded-lg p-4">
-              <p className="text-xs text-red-400 leading-relaxed">
+              <p className="text-xs text-danger leading-relaxed">
                 Hành động này huỷ buổi diễn và hoàn tiền cho tất cả người đang giữ vé. Gõ <strong>{XAC_NHAN}</strong> để xác nhận.
               </p>
               <input value={goXacNhan} onChange={(e) => setGoXacNhan(e.target.value)}
-                className="mt-2 w-full px-3 py-2 bg-black border border-red-500/40 rounded-lg text-sm text-white focus:outline-none focus:border-red-500" />
+                className="mt-2 w-full px-3 py-2 bg-page border border-red-500/40 rounded-lg text-sm text-ink focus:outline-none focus:border-red-500" />
             </div>
           )}
 
           <div className="flex gap-3 pt-1">
             <button type="button" onClick={onClose} disabled={isBusy}
-              className="flex-1 py-2.5 border border-gray-600 text-gray-300 rounded-lg font-medium hover:bg-gray-800 disabled:opacity-50">
+              className="flex-1 py-2.5 border border-line-strong text-ink-soft rounded-lg font-medium hover:bg-sunken disabled:opacity-50">
               Huỷ
             </button>
             <button type="submit" disabled={isBusy || chuaGoDung}
               className={`flex-1 py-2.5 rounded-lg font-bold flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed ${
-                canGoXacNhan ? 'bg-red-500 text-white hover:bg-red-600' : 'bg-[#C3B665] text-black hover:bg-[#d4c87f]'}`}>
+                canGoXacNhan ? 'bg-red-500 text-white hover:bg-red-600' : 'bg-brand text-on-brand hover:bg-brand-hover'}`}>
               {isBusy && <Loader2 size={16} className="animate-spin" />}
               {isBusy ? 'Đang xử lý...' : 'Xác nhận'}
             </button>

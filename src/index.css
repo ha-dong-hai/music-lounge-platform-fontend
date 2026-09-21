@@ -1,27 +1,91 @@
 /* src/index.css */
 @import "tailwindcss";
+
+/* ===== DESIGN TOKENS — nguồn màu/chữ duy nhất của giao diện =====
+   Hướng "Sáng ấm": nền ngà, chữ nâu espresso, điểm nhấn vàng đồng.
+   Mọi cặp chữ/nền dưới đây đã kiểm đạt WCAG 2.2 AA (chữ thường >= 4.5:1).
+   KHÔNG viết mã màu hex hay lớp bg-gray, bg-black trong component — dùng token này để giao diện
+   luôn đồng bộ và đổi tông một chỗ là đổi cả hệ thống. */
+@theme {
+  --color-page: #FBF7F0;          /* nền trang */
+  --color-card: #FFFDF9;          /* thẻ, khung nổi trên nền */
+  --color-sunken: #F3ECE0;        /* ô nhập, vùng lõm, hover nhẹ */
+  --color-line: #E4D9C8;          /* viền thường */
+  --color-line-strong: #CDBFA8;   /* viền nhấn, ô nhập */
+
+  --color-ink: #2B2118;           /* chữ chính, 14.7:1 trên nền */
+  --color-ink-soft: #5A4838;      /* chữ phụ, 8.1:1 */
+  --color-ink-mute: #75624F;      /* chú thích, 5.4:1 */
+
+  --color-brand: #D4A03A;         /* nền nút chính (chữ on-brand trên đó 6.7:1) */
+  --color-brand-hover: #C18F2B;
+  --color-brand-text: #8A5A12;    /* vàng đồng dùng làm CHỮ/icon trên nền sáng, 5.5:1 */
+  --color-on-brand: #2B2118;
+
+  --color-espresso: #2A1F17;      /* khối đậm có chủ đích: hero, chân trang, thanh bên */
+  --color-espresso-soft: #3A2C21;
+  --color-cream: #F5EDE0;         /* chữ trên khối espresso, 13.8:1 */
+  --color-cream-mute: #BFAE99;    /* chữ phụ trên espresso, 7.4:1 */
+  --color-brand-on-dark: #D9A441; /* vàng dùng làm chữ trên espresso, 7.1:1 */
+
+  --color-danger: #B3382C;
+  --color-success: #2F7A4F;
+  --color-warning: #9A6A10;
+
+  --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Playfair Display', Georgia, serif;
+  --shadow-soft: 0 1px 2px rgb(43 33 24 / 0.05), 0 4px 16px rgb(43 33 24 / 0.06);
+  --shadow-lift: 0 2px 4px rgb(43 33 24 / 0.06), 0 12px 32px rgb(43 33 24 / 0.10);
+  /* Glow ấm thay cho đổ bóng cứng — theo lối "Soft Ambient Occlusion" (xem docs/design/TRANG-CHU-BRIEF.md §3):
+     mờ rộng, độ đục thấp, tông vàng đồng thay vì đen thuần. */
+  --shadow-glow: 0 12px 48px -12px rgb(138 90 18 / 0.28);
+
+  /* Hai đường cong chuyển động dùng xuyên suốt thay cho ease/linear mặc định — mô phỏng "expo-out"
+     và "spring" của animejs bằng CSS thuần, không thêm thư viện (lý do: docs/design/TRANG-CHU-BRIEF.md §5). */
+  --ease-out-soft: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@layer base {
+  html { color-scheme: light; -webkit-text-size-adjust: 100%; }
+  body {
+    background: var(--color-page);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3 { font-family: var(--font-display); letter-spacing: -0.005em; }
+  ::selection { background: rgb(212 160 58 / 0.35); }
+  /* Vòng focus rõ ràng cho người dùng bàn phím — không bao giờ tắt outline mà không thay thế. */
+  :focus-visible { outline: 2px solid var(--color-brand-text); outline-offset: 2px; border-radius: 4px; }
+  button, a, [role="button"], select { -webkit-tap-highlight-color: transparent; }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+  }
+}
 .hide-scrollbar::-webkit-scrollbar { display: none; }
 .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
 .chat-scrollbar {
   /* Firefox */
   scrollbar-width: thin;
-  scrollbar-color: rgba(195, 182, 101, 0.4) rgba(10, 10, 10, 0.3);
+  scrollbar-color: rgba(138, 90, 18, 0.45) rgba(43, 33, 24, 0.06);
 }
 /* Chrome / Edge / Safari */
 .chat-scrollbar::-webkit-scrollbar {
   width: 8px;
 }
 .chat-scrollbar::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(43, 33, 24, 0.05);
   border-radius: 999px;
 }
 .chat-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(195, 182, 101, 0.35);
+  background: rgba(138, 90, 18, 0.35);
   border-radius: 999px;
 }
 .chat-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: rgba(195, 182, 101, 0.7);
+  background: rgba(138, 90, 18, 0.65);
 }
 
 /* ===== ẨN MŨI TÊN LÊN/XUỐNG CỦA INPUT NUMBER ===== */
@@ -33,4 +97,31 @@
 .no-spin {
   -moz-appearance: textfield; /* Firefox cũ */
   appearance: textfield;      /* Firefox mới + chuẩn */
+}
+
+/* ===== CHUYỂN ĐỘNG DÙNG CHUNG (docs/design/TRANG-CHU-BRIEF.md §5) =====
+   Nguyên tắc: có mục đích, tối đa 1-2 điểm chuyển động mỗi màn hình, luôn tắt khi
+   prefers-reduced-motion. Dùng hook useReveal (src/hooks/useReveal.js) để gắn .reveal + .is-visible. */
+.reveal {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.7s var(--ease-out-soft), transform 0.7s var(--ease-out-soft);
+}
+.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+@media (prefers-reduced-motion: reduce) {
+  .reveal { opacity: 1; transform: none; transition: none; }
+}
+
+/* Ken Burns chậm cho ảnh hero — lấy đúng nhịp group-hover:scale-105 duration-1000 đã thấy trong
+   code.html thật của Aura & Echo, nhưng chạy nền tự động và chậm hơn nhiều (18s) để không giật mắt. */
+@keyframes ken-burns {
+  from { transform: scale(1); }
+  to { transform: scale(1.06); }
+}
+.animate-ken-burns { animation: ken-burns 18s var(--ease-out-soft) forwards; }
+@media (prefers-reduced-motion: reduce) {
+  .animate-ken-burns { animation: none; }
 }

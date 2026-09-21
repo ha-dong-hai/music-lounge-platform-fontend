@@ -25,15 +25,15 @@ const NotFoundPage = () => {
   if (role === 'Admin') loiVao.push({ to: '/admin', nhan: 'Trang quản trị', icon: LayoutDashboard })
 
   return (
-    <div className="min-h-screen bg-black text-white flex items-center justify-center px-6 py-16">
+    <div className="min-h-screen bg-page text-ink flex items-center justify-center px-6 py-16">
       <div className="max-w-lg w-full text-center">
-        <div className="w-16 h-16 mx-auto rounded-full bg-gray-900 border border-gray-800 flex items-center justify-center">
-          <Compass size={30} className="text-[#C3B665]" />
+        <div className="w-16 h-16 mx-auto rounded-full bg-card border border-line flex items-center justify-center">
+          <Compass size={30} className="text-brand-text" />
         </div>
 
-        <p className="text-sm text-gray-600 mt-6 tracking-widest">404</p>
+        <p className="text-sm text-ink-mute mt-6 tracking-widest">404</p>
         <h1 className="text-2xl sm:text-3xl font-bold mt-1">Không có trang này</h1>
-        <p className="text-sm text-gray-500 mt-3 leading-relaxed">
+        <p className="text-sm text-ink-mute mt-3 leading-relaxed">
           Địa chỉ bạn vừa mở không tồn tại, hoặc trang đã được chuyển đi nơi khác. Nếu bạn bấm vào
           một đường dẫn trong hệ thống mà gặp trang này, hãy báo lại — đó là một liên kết hỏng.
         </p>
@@ -41,7 +41,7 @@ const NotFoundPage = () => {
         <div className="mt-8 flex flex-wrap justify-center gap-3">
           {loiVao.map(({ to, nhan, icon: Icon }) => (
             <Link key={to} to={to}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border border-gray-700 text-gray-300 text-sm font-bold hover:bg-gray-800 hover:text-white transition-colors">
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border border-line text-ink-soft text-sm font-bold hover:bg-sunken hover:text-ink transition-colors">
               <Icon size={16} /> {nhan}
             </Link>
           ))}

@@ -15,17 +15,17 @@ const VenuesStatsCards = ({ counts, statusFilter, onSelectStatus }) => {
       key: 'all',
       label: 'Total venues',
       value: counts.total,
-      icon: <Building2 size={24} className="text-[#C3B665]" />,
-      iconBg: 'bg-[#C3B665]/10',
+      icon: <Building2 size={24} className="text-brand-text" />,
+      iconBg: 'bg-brand/10',
       active: statusFilter === 'all',
-      activeStyle: 'border-[#C3B665] ring-1 ring-[#C3B665]',
+      activeStyle: 'border-brand ring-1 ring-brand',
       onClick: () => onSelectStatus('all'),
     },
     {
       key: 'Pending',
       label: 'Pending',
       value: counts.Pending || 0,
-      icon: <Clock size={24} className="text-yellow-400" />,
+      icon: <Clock size={24} className="text-warning" />,
       iconBg: 'bg-yellow-500/10',
       active: statusFilter === 'Pending',
       activeStyle: 'border-yellow-500 ring-1 ring-yellow-500',
@@ -35,7 +35,7 @@ const VenuesStatsCards = ({ counts, statusFilter, onSelectStatus }) => {
       key: 'Approved',
       label: 'Approved',
       value: counts.Approved || 0,
-      icon: <CheckCircle2 size={24} className="text-green-400" />,
+      icon: <CheckCircle2 size={24} className="text-success" />,
       iconBg: 'bg-green-500/10',
       active: statusFilter === 'Approved',
       activeStyle: 'border-green-500 ring-1 ring-green-500',
@@ -45,7 +45,7 @@ const VenuesStatsCards = ({ counts, statusFilter, onSelectStatus }) => {
       key: 'problem',
       label: 'Problem',
       value: problemCount,
-      icon: <ShieldAlert size={24} className="text-red-400" />,
+      icon: <ShieldAlert size={24} className="text-danger" />,
       iconBg: 'bg-red-500/10',
       active: isProblemActive,
       activeStyle: 'border-red-500 ring-1 ring-red-500',
@@ -63,14 +63,14 @@ const VenuesStatsCards = ({ counts, statusFilter, onSelectStatus }) => {
         <button
           key={card.key}
           onClick={card.onClick}
-          className={`bg-gray-900 border rounded-xl p-5 flex items-center gap-4 text-left transition-all ${
-            card.active ? card.activeStyle : 'border-gray-800 hover:border-gray-700'
+          className={`bg-card border rounded-xl p-5 flex items-center gap-4 text-left transition-all ${
+            card.active ? card.activeStyle : 'border-line hover:border-line'
           }`}
         >
           <div className={`p-3 ${card.iconBg} rounded-lg flex-shrink-0`}>{card.icon}</div>
           <div className="min-w-0">
-            <p className="text-sm text-gray-500 mb-1 truncate">{card.label}</p>
-            <p className="text-2xl font-bold text-white">{card.value}</p>
+            <p className="text-sm text-ink-mute mb-1 truncate">{card.label}</p>
+            <p className="text-2xl font-bold text-ink">{card.value}</p>
           </div>
         </button>
       ))}

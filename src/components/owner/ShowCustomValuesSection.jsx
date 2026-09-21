@@ -60,7 +60,7 @@ import { Loader2, ListFilter, Save, EyeOff } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { getShowCustomValues, setShowCustomValues } from '../../services/customCriteriaServices'
 
-const inputCls = 'mt-1 w-full px-3 py-2 bg-black border border-gray-700 rounded-lg text-sm text-white focus:outline-none focus:border-[#C3B665]/50'
+const inputCls = 'mt-1 w-full px-3 py-2 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-brand/50'
 
 // BẢN SAO CHÍNH XÁC luật chuẩn hoá của máy chủ (CustomCriteriaValue.GoMotLopNhayKep + Trim).
 // Hai bên PHẢI khớp từng bước, nếu không thì màn này gắn nhãn "không có trong danh sách" lên một
@@ -294,8 +294,8 @@ const ShowCustomValuesSection = ({ showId }) => {
 
   if (isLoading) {
     return (
-      <div className="bg-gray-900 border border-gray-800 rounded-xl py-12 flex justify-center">
-        <Loader2 size={22} className="animate-spin text-[#C3B665]" />
+      <div className="bg-card border border-line rounded-xl py-12 flex justify-center">
+        <Loader2 size={22} className="animate-spin text-brand-text" />
       </div>
     )
   }
@@ -303,11 +303,11 @@ const ShowCustomValuesSection = ({ showId }) => {
   // Chưa định nghĩa tiêu chí nào thì không bày một khối trống ra — nói chỗ để tạo.
   if (criteria.length === 0) {
     return (
-      <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
-        <h3 className="text-base font-semibold text-white flex items-center gap-2">
+      <div className="bg-card border border-line rounded-xl p-6">
+        <h3 className="text-base font-semibold text-ink flex items-center gap-2">
           <ListFilter size={16} /> Tiêu chí riêng
         </h3>
-        <p className="text-xs text-gray-500 mt-1 leading-relaxed">
+        <p className="text-xs text-ink-mute mt-1 leading-relaxed">
           Phòng trà bạn chưa định nghĩa tiêu chí riêng nào. Tạo ở màn Hồ sơ phòng trà trước, rồi quay
           lại đây gán giá trị cho từng buổi diễn.
         </p>
@@ -316,13 +316,13 @@ const ShowCustomValuesSection = ({ showId }) => {
   }
 
   return (
-    <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
-      <h3 className="text-base font-semibold text-white flex items-center gap-2">
+    <div className="bg-card border border-line rounded-xl p-6">
+      <h3 className="text-base font-semibold text-ink flex items-center gap-2">
         <ListFilter size={16} /> Tiêu chí riêng của buổi diễn
       </h3>
 
       {/* Ghi là thay thế toàn bộ — người dùng cần biết trước khi xoá trắng một ô */}
-      <p className="text-xs text-gray-500 mt-1 leading-relaxed">
+      <p className="text-xs text-ink-mute mt-1 leading-relaxed">
         Giá trị đang có đã được nạp sẵn. Bấm Lưu là ghi lại TOÀN BỘ danh sách dưới đây — xoá trắng
         một ô nghĩa là bỏ giá trị của tiêu chí đó.
       </p>
@@ -349,11 +349,11 @@ const ShowCustomValuesSection = ({ showId }) => {
           return (
             // Tiêu chí đã tắt vẫn hiện, chỉ mờ đi: bỏ nó khỏi form là lần lưu sau xoá mất giá trị.
             <div key={c.criteriaId} className={daTat ? 'opacity-60' : ''}>
-              <label className="text-xs text-gray-500 flex flex-wrap items-center gap-1.5">
+              <label className="text-xs text-ink-mute flex flex-wrap items-center gap-1.5">
                 {c.name}
-                <span className="text-gray-700 font-mono">{c.key}</span>
+                <span className="text-ink-mute font-mono">{c.key}</span>
                 {daTat && (
-                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-gray-800 text-gray-500 text-[10px]">
+                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-sunken text-ink-mute text-[10px]">
                     <EyeOff size={9} /> đã tắt
                   </span>
                 )}
@@ -381,7 +381,7 @@ const ShowCustomValuesSection = ({ showId }) => {
                   <input type="number" value={giaTriHienTai}
                     min={opts.min} max={opts.max} step={opts.step ?? 1}
                     onChange={(e) => dat(c.criteriaId, e.target.value)} className={inputCls} />
-                  <p className="text-[11px] text-gray-600 mt-1">
+                  <p className="text-[11px] text-ink-mute mt-1">
                     Từ {opts.min} đến {opts.max}
                     {opts.step ? `, bước ${opts.step}` : ''}
                   </p>
@@ -396,7 +396,7 @@ const ShowCustomValuesSection = ({ showId }) => {
                   ô đã sửa thì kiểm tại chỗ. Nhờ vậy nó phủ cả Range ngoài khoảng và Boolean rác,
                   chứ không riêng ca giá trị nằm ngoài danh sách chọn. */}
               {loiDong && (
-                <p className="text-[11px] text-yellow-400/90 mt-1 leading-relaxed">
+                <p className="text-[11px] text-warning/90 mt-1 leading-relaxed">
                   {loiDong} Để nguyên thì không lưu được.
                 </p>
               )}
@@ -406,7 +406,7 @@ const ShowCustomValuesSection = ({ showId }) => {
       </div>
 
       <button onClick={luu} disabled={isBusy}
-        className="mt-5 flex items-center gap-2 px-4 py-2 rounded-lg bg-[#C3B665] text-black text-sm font-bold hover:bg-[#d4c87f] disabled:opacity-50">
+        className="mt-5 flex items-center gap-2 px-4 py-2 rounded-lg bg-brand text-on-brand text-sm font-bold hover:bg-brand-hover disabled:opacity-50">
         {isBusy ? <Loader2 size={15} className="animate-spin" /> : <Save size={15} />} Lưu tiêu chí
       </button>
     </div>

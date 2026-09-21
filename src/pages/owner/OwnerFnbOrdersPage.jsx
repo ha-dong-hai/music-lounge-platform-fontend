@@ -21,11 +21,11 @@ import { getLoungeFnbOrders, updateFnbOrderStatus, payFnbOrder } from '../../ser
 const fmtMoney = (v) => `${Number(v || 0).toLocaleString('vi-VN')}đ`
 
 const STATUS_VIEW = {
-  Pending: { label: 'Chờ làm', cls: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/30' },
-  Preparing: { label: 'Đang làm', cls: 'bg-blue-500/10 text-blue-400 border-blue-500/30' },
-  Served: { label: 'Đã phục vụ', cls: 'bg-green-500/10 text-green-400 border-green-500/30' },
-  Paid: { label: 'Đã thanh toán', cls: 'bg-gray-500/10 text-gray-400 border-gray-500/30' },
-  Cancelled: { label: 'Đã huỷ', cls: 'bg-red-500/10 text-red-400 border-red-500/30' },
+  Pending: { label: 'Chờ làm', cls: 'bg-yellow-500/10 text-warning border-yellow-500/30' },
+  Preparing: { label: 'Đang làm', cls: 'bg-blue-500/10 text-sky-700 border-blue-500/30' },
+  Served: { label: 'Đã phục vụ', cls: 'bg-green-500/10 text-success border-green-500/30' },
+  Paid: { label: 'Đã thanh toán', cls: 'bg-line-strong/10 text-ink-soft border-line-strong/30' },
+  Cancelled: { label: 'Đã huỷ', cls: 'bg-red-500/10 text-danger border-red-500/30' },
 }
 
 // Bước tiếp theo hợp lệ của bếp. Không có đường lùi — backend cũng không cho.
@@ -102,15 +102,15 @@ const OwnerFnbOrdersPage = () => {
   }
 
   if (isLoading && !orders.length) {
-    return <div className="py-20 flex justify-center"><Loader2 size={32} className="animate-spin text-[#C3B665]" /></div>
+    return <div className="py-20 flex justify-center"><Loader2 size={32} className="animate-spin text-brand-text" /></div>
   }
 
   if (!lounge) {
     return (
       <div className="max-w-2xl">
-        <h1 className="text-2xl font-bold text-white mb-1">Đơn gọi món</h1>
-        <div className="mt-4 bg-gray-900 border border-gray-800 rounded-xl p-6">
-          <p className="text-sm text-gray-400">Chưa có phòng trà nào để nhận đơn.</p>
+        <h1 className="text-2xl font-bold text-ink mb-1">Đơn gọi món</h1>
+        <div className="mt-4 bg-card border border-line rounded-xl p-6">
+          <p className="text-sm text-ink-soft">Chưa có phòng trà nào để nhận đơn.</p>
         </div>
       </div>
     )
@@ -123,11 +123,11 @@ const OwnerFnbOrdersPage = () => {
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-white mb-1">Đơn gọi món</h1>
-          <p className="text-gray-400 text-sm">Đơn khách đặt tại bàn. Trạng thái bếp và việc thu tiền là hai việc tách nhau.</p>
+          <h1 className="text-2xl font-bold text-ink mb-1">Đơn gọi món</h1>
+          <p className="text-ink-soft text-sm">Đơn khách đặt tại bàn. Trạng thái bếp và việc thu tiền là hai việc tách nhau.</p>
         </div>
         <button onClick={loadOrders} disabled={isLoading}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-gray-700 text-gray-300 text-xs font-bold hover:bg-gray-800 disabled:opacity-50">
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-line text-ink-soft text-xs font-bold hover:bg-sunken disabled:opacity-50">
           <RefreshCw size={14} className={isLoading ? 'animate-spin' : ''} /> Tải lại
         </button>
       </div>
@@ -136,33 +136,33 @@ const OwnerFnbOrdersPage = () => {
         {LOC.map((l) => (
           <button key={l.key} onClick={() => setLoc(l.key)}
             className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${loc === l.key
-              ? 'bg-gray-800 border-[#C3B665]/40 text-[#C3B665]'
-              : 'bg-black border-gray-800 text-gray-400 hover:text-white'}`}>
+              ? 'bg-sunken border-brand/40 text-brand-text'
+              : 'bg-page border-line text-ink-soft hover:text-ink'}`}>
             {l.label}
           </button>
         ))}
       </div>
 
       {hienThi.length === 0 ? (
-        <div className="bg-gray-900 border border-gray-800 rounded-xl p-10 text-center">
-          <UtensilsCrossed size={28} className="mx-auto mb-3 text-gray-700" />
-          <p className="text-sm text-gray-500">Không có đơn nào trong mục này.</p>
+        <div className="bg-card border border-line rounded-xl p-10 text-center">
+          <UtensilsCrossed size={28} className="mx-auto mb-3 text-ink-mute" />
+          <p className="text-sm text-ink-mute">Không có đơn nào trong mục này.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {hienThi.map((o) => {
-            const tt = STATUS_VIEW[o.status] ?? { label: o.status, cls: 'bg-gray-500/10 text-gray-400 border-gray-500/30' }
+            const tt = STATUS_VIEW[o.status] ?? { label: o.status, cls: 'bg-line-strong/10 text-ink-soft border-line-strong/30' }
             const buocTiep = BUOC_TIEP[o.status]
             // Liên kết VNPay còn sống: backend chặn thu tiền mặt và chặn huỷ cho tới lúc đó.
             const conLinkOnline = o.onlinePaymentLiveUntil && dayjs(o.onlinePaymentLiveUntil).isAfter(dayjs())
             const dangBan = busyId === o.id
 
             return (
-              <div key={o.id} className="bg-gray-900 border border-gray-800 rounded-xl p-5 flex flex-col">
+              <div key={o.id} className="bg-card border border-line rounded-xl p-5 flex flex-col">
                 <div className="flex items-start justify-between gap-2">
                   <div>
-                    <p className="text-white font-bold">#{o.id}</p>
-                    <p className="text-xs text-gray-500 mt-0.5">
+                    <p className="text-ink font-bold">#{o.id}</p>
+                    <p className="text-xs text-ink-mute mt-0.5">
                       {o.tableNote ? `Bàn: ${o.tableNote}` : 'Không ghi bàn'} · {dayjs(o.createdAt).format('HH:mm DD/MM')}
                     </p>
                   </div>
@@ -174,35 +174,35 @@ const OwnerFnbOrdersPage = () => {
                 <ul className="mt-3 space-y-1 flex-1">
                   {o.items.map((it) => (
                     <li key={it.id} className={`flex justify-between text-sm gap-3 ${it.cancelled ? 'opacity-40 line-through' : ''}`}>
-                      <span className="text-gray-300 min-w-0">
-                        <span className="text-gray-500 tabular-nums">{it.quantity}×</span> {it.menuItemName}
-                        {it.note && <span className="block text-xs text-gray-600">{it.note}</span>}
+                      <span className="text-ink-soft min-w-0">
+                        <span className="text-ink-mute tabular-nums">{it.quantity}×</span> {it.menuItemName}
+                        {it.note && <span className="block text-xs text-ink-mute">{it.note}</span>}
                       </span>
-                      <span className="text-gray-400 tabular-nums flex-shrink-0">{fmtMoney(it.unitPrice * it.quantity)}</span>
+                      <span className="text-ink-soft tabular-nums flex-shrink-0">{fmtMoney(it.unitPrice * it.quantity)}</span>
                     </li>
                   ))}
                 </ul>
 
-                {o.note && <p className="mt-2 text-xs text-gray-500 italic">Ghi chú: {o.note}</p>}
+                {o.note && <p className="mt-2 text-xs text-ink-mute italic">Ghi chú: {o.note}</p>}
 
-                <div className="mt-3 pt-3 border-t border-gray-800 flex items-center justify-between">
-                  <span className="text-sm text-gray-400">Tổng</span>
-                  <span className="text-white font-bold tabular-nums">{fmtMoney(o.totalAmount)}</span>
+                <div className="mt-3 pt-3 border-t border-line flex items-center justify-between">
+                  <span className="text-sm text-ink-soft">Tổng</span>
+                  <span className="text-ink font-bold tabular-nums">{fmtMoney(o.totalAmount)}</span>
                 </div>
 
                 {/* Trả tiền hay chưa là thông tin RIÊNG, không suy ra từ trạng thái bếp */}
                 <div className="mt-2 flex items-center gap-2 text-xs">
                   {o.isPaid ? (
-                    <span className="inline-flex items-center gap-1.5 text-green-400"><CheckCircle2 size={13} /> Khách đã trả tiền</span>
+                    <span className="inline-flex items-center gap-1.5 text-success"><CheckCircle2 size={13} /> Khách đã trả tiền</span>
                   ) : (
-                    <span className="inline-flex items-center gap-1.5 text-yellow-400"><Clock size={13} /> Chưa thu tiền</span>
+                    <span className="inline-flex items-center gap-1.5 text-warning"><Clock size={13} /> Chưa thu tiền</span>
                   )}
-                  <span className="text-gray-600">·</span>
-                  <span className="text-gray-500">{o.paymentMethod}</span>
+                  <span className="text-ink-mute">·</span>
+                  <span className="text-ink-mute">{o.paymentMethod}</span>
                 </div>
 
                 {conLinkOnline && (
-                  <p className="mt-2 text-xs text-blue-400/90 flex items-start gap-1.5 leading-relaxed">
+                  <p className="mt-2 text-xs text-sky-700/90 flex items-start gap-1.5 leading-relaxed">
                     <CreditCard size={13} className="mt-px flex-shrink-0" />
                     Khách đang giữ liên kết thanh toán online (còn hạn tới {dayjs(o.onlinePaymentLiveUntil).format('HH:mm')}).
                     Trong lúc này hệ thống không cho thu tiền mặt và không cho huỷ đơn.
@@ -212,7 +212,7 @@ const OwnerFnbOrdersPage = () => {
                 <div className="mt-3 flex flex-wrap gap-2">
                   {buocTiep && (
                     <button onClick={() => doiTrangThai(o, buocTiep)} disabled={dangBan}
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#C3B665] text-black text-xs font-bold hover:bg-[#d4c87f] disabled:opacity-50">
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand text-on-brand text-xs font-bold hover:bg-brand-hover disabled:opacity-50">
                       {dangBan ? <Loader2 size={13} className="animate-spin" /> : <UtensilsCrossed size={13} />}
                       {NHAN_BUOC_TIEP[buocTiep]}
                     </button>
@@ -220,14 +220,14 @@ const OwnerFnbOrdersPage = () => {
                   {!o.isPaid && o.status !== 'Cancelled' && (
                     <button onClick={() => thuTien(o)} disabled={dangBan || conLinkOnline}
                       title={conLinkOnline ? 'Khách đang có liên kết thanh toán online còn hạn' : undefined}
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-green-500/40 text-green-400 text-xs font-bold hover:bg-green-500/10 disabled:opacity-40 disabled:cursor-not-allowed">
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-green-500/40 text-success text-xs font-bold hover:bg-green-500/10 disabled:opacity-40 disabled:cursor-not-allowed">
                       <Banknote size={13} /> Thu tiền
                     </button>
                   )}
                   {o.status !== 'Cancelled' && o.status !== 'Paid' && (
                     <button onClick={() => doiTrangThai(o, 'Cancelled')} disabled={dangBan || conLinkOnline}
                       title={conLinkOnline ? 'Không huỷ được khi khách còn liên kết thanh toán online' : undefined}
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-gray-700 text-gray-400 text-xs font-bold hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed">
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-line text-ink-soft text-xs font-bold hover:bg-sunken disabled:opacity-40 disabled:cursor-not-allowed">
                       <XCircle size={13} /> Huỷ đơn
                     </button>
                   )}

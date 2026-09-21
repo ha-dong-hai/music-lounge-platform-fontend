@@ -19,15 +19,15 @@ import {
 import ConfirmModal from '../../components/shared/ConfirmModal'
 
 const fmtMoney = (v) => `${Number(v || 0).toLocaleString('vi-VN')}đ`
-const inputCls = 'mt-1 w-full px-3 py-2 bg-black border border-gray-700 rounded-lg text-sm text-white focus:outline-none focus:border-[#C3B665]/50'
+const inputCls = 'mt-1 w-full px-3 py-2 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-brand/50'
 
 const Modal = ({ title, onClose, children }) => (
   <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-    <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={onClose} />
-    <div className="relative bg-gray-900 border border-gray-700 rounded-2xl w-full max-w-md shadow-2xl max-h-[90vh] flex flex-col">
-      <div className="flex justify-between items-center p-5 border-b border-gray-800">
-        <h2 className="text-lg font-bold text-white">{title}</h2>
-        <button onClick={onClose} className="p-2 hover:bg-gray-800 rounded-full text-gray-400"><X size={20} /></button>
+    <div className="absolute inset-0 bg-espresso/80 backdrop-blur-sm" onClick={onClose} />
+    <div className="relative bg-card border border-line rounded-2xl w-full max-w-md shadow-2xl max-h-[90vh] flex flex-col">
+      <div className="flex justify-between items-center p-5 border-b border-line">
+        <h2 className="text-lg font-bold text-ink">{title}</h2>
+        <button onClick={onClose} className="p-2 hover:bg-sunken rounded-full text-ink-soft"><X size={20} /></button>
       </div>
       <div className="p-5 overflow-y-auto">{children}</div>
     </div>
@@ -73,26 +73,26 @@ const MenuFormModal = ({ initial, loungeId, onClose, onSaved }) => {
     <Modal title={isEdit ? 'Sửa thực đơn' : 'Thêm thực đơn'} onClose={onClose}>
       <form onSubmit={submit} className="space-y-4">
         <div>
-          <label className="text-xs text-gray-500">Tên thực đơn <span className="text-red-400">*</span></label>
+          <label className="text-xs text-ink-mute">Tên thực đơn <span className="text-danger">*</span></label>
           <input value={form.name} onChange={(e) => set('name', e.target.value)} className={inputCls} placeholder="VD: Đồ uống" />
         </div>
         <div>
-          <label className="text-xs text-gray-500">Mô tả</label>
+          <label className="text-xs text-ink-mute">Mô tả</label>
           <textarea value={form.description} onChange={(e) => set('description', e.target.value)} rows={2} className={`${inputCls} resize-none`} />
         </div>
         <div>
-          <label className="text-xs text-gray-500">Thứ tự hiển thị</label>
+          <label className="text-xs text-ink-mute">Thứ tự hiển thị</label>
           <input type="number" value={form.displayOrder} onChange={(e) => set('displayOrder', e.target.value)} className={inputCls} />
-          <p className="text-xs text-gray-600 mt-1">Số nhỏ hiện lên trước.</p>
+          <p className="text-xs text-ink-mute mt-1">Số nhỏ hiện lên trước.</p>
         </div>
         {isEdit && (
-          <label className="flex items-center gap-2 text-sm text-gray-300 cursor-pointer">
-            <input type="checkbox" checked={form.isActive} onChange={(e) => set('isActive', e.target.checked)} className="accent-[#C3B665]" />
+          <label className="flex items-center gap-2 text-sm text-ink-soft cursor-pointer">
+            <input type="checkbox" checked={form.isActive} onChange={(e) => set('isActive', e.target.checked)} className="accent-brand" />
             Đang mở cho khách đặt
           </label>
         )}
         <button type="submit" disabled={isBusy}
-          className="w-full py-2.5 bg-[#C3B665] text-black rounded-lg font-bold flex items-center justify-center gap-2 disabled:opacity-50">
+          className="w-full py-2.5 bg-brand text-on-brand rounded-lg font-bold flex items-center justify-center gap-2 disabled:opacity-50">
           {isBusy && <Loader2 size={16} className="animate-spin" />} Lưu
         </button>
       </form>
@@ -148,38 +148,38 @@ const ItemFormModal = ({ initial, menuId, onClose, onSaved }) => {
       <form onSubmit={submit} className="space-y-4">
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="text-xs text-gray-500">Nhóm món <span className="text-red-400">*</span></label>
+            <label className="text-xs text-ink-mute">Nhóm món <span className="text-danger">*</span></label>
             <input value={form.category} onChange={(e) => set('category', e.target.value)} className={inputCls} placeholder="VD: Cà phê" />
           </div>
           <div>
-            <label className="text-xs text-gray-500">Giá (đ) <span className="text-red-400">*</span></label>
+            <label className="text-xs text-ink-mute">Giá (đ) <span className="text-danger">*</span></label>
             <input type="number" min="0" step="1000" value={form.price} onChange={(e) => set('price', e.target.value)} className={inputCls} />
           </div>
         </div>
         <div>
-          <label className="text-xs text-gray-500">Tên món <span className="text-red-400">*</span></label>
+          <label className="text-xs text-ink-mute">Tên món <span className="text-danger">*</span></label>
           <input value={form.name} onChange={(e) => set('name', e.target.value)} className={inputCls} />
         </div>
         <div>
-          <label className="text-xs text-gray-500">Mô tả</label>
+          <label className="text-xs text-ink-mute">Mô tả</label>
           <textarea value={form.description} onChange={(e) => set('description', e.target.value)} rows={2} className={`${inputCls} resize-none`} />
         </div>
         <div>
-          <label className="text-xs text-gray-500">Đường dẫn ảnh</label>
+          <label className="text-xs text-ink-mute">Đường dẫn ảnh</label>
           <input value={form.imageUrl} onChange={(e) => set('imageUrl', e.target.value)} className={inputCls} placeholder="https://..." />
         </div>
         <div>
-          <label className="text-xs text-gray-500">Thứ tự hiển thị</label>
+          <label className="text-xs text-ink-mute">Thứ tự hiển thị</label>
           <input type="number" value={form.displayOrder} onChange={(e) => set('displayOrder', e.target.value)} className={inputCls} />
         </div>
         {isEdit && (
-          <label className="flex items-center gap-2 text-sm text-gray-300 cursor-pointer">
-            <input type="checkbox" checked={form.isAvailable} onChange={(e) => set('isAvailable', e.target.checked)} className="accent-[#C3B665]" />
+          <label className="flex items-center gap-2 text-sm text-ink-soft cursor-pointer">
+            <input type="checkbox" checked={form.isAvailable} onChange={(e) => set('isAvailable', e.target.checked)} className="accent-brand" />
             Còn bán
           </label>
         )}
         <button type="submit" disabled={isBusy}
-          className="w-full py-2.5 bg-[#C3B665] text-black rounded-lg font-bold flex items-center justify-center gap-2 disabled:opacity-50">
+          className="w-full py-2.5 bg-brand text-on-brand rounded-lg font-bold flex items-center justify-center gap-2 disabled:opacity-50">
           {isBusy && <Loader2 size={16} className="animate-spin" />} Lưu
         </button>
       </form>
@@ -262,15 +262,15 @@ const OwnerFnbMenusPage = () => {
   }
 
   if (isLoading && !menus.length) {
-    return <div className="py-20 flex justify-center"><Loader2 size={32} className="animate-spin text-[#C3B665]" /></div>
+    return <div className="py-20 flex justify-center"><Loader2 size={32} className="animate-spin text-brand-text" /></div>
   }
 
   if (!lounge) {
     return (
       <div className="max-w-2xl">
-        <h1 className="text-2xl font-bold text-white mb-1">Thực đơn</h1>
-        <div className="mt-4 bg-gray-900 border border-gray-800 rounded-xl p-6">
-          <p className="text-sm text-gray-400">Hãy tạo hồ sơ phòng trà trước — thực đơn gắn với phòng trà.</p>
+        <h1 className="text-2xl font-bold text-ink mb-1">Thực đơn</h1>
+        <div className="mt-4 bg-card border border-line rounded-xl p-6">
+          <p className="text-sm text-ink-soft">Hãy tạo hồ sơ phòng trà trước — thực đơn gắn với phòng trà.</p>
         </div>
       </div>
     )
@@ -280,19 +280,19 @@ const OwnerFnbMenusPage = () => {
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-white mb-1">Thực đơn</h1>
-          <p className="text-gray-400 text-sm">Đây là thứ khách nhìn thấy khi đặt món tại bàn.</p>
+          <h1 className="text-2xl font-bold text-ink mb-1">Thực đơn</h1>
+          <p className="text-ink-soft text-sm">Đây là thứ khách nhìn thấy khi đặt món tại bàn.</p>
         </div>
         <button onClick={() => setEditingMenu(null)}
-          className="flex items-center gap-1.5 px-3 py-1.5 bg-[#C3B665] text-black rounded-lg text-xs font-bold hover:bg-[#d4c87f]">
+          className="flex items-center gap-1.5 px-3 py-1.5 bg-brand text-on-brand rounded-lg text-xs font-bold hover:bg-brand-hover">
           <Plus size={14} /> Thêm thực đơn
         </button>
       </div>
 
       {menus.length === 0 ? (
-        <div className="bg-gray-900 border border-gray-800 rounded-xl p-10 text-center">
-          <UtensilsCrossed size={28} className="mx-auto mb-3 text-gray-700" />
-          <p className="text-sm text-gray-500">Chưa có thực đơn nào. Tạo một thực đơn để bắt đầu thêm món.</p>
+        <div className="bg-card border border-line rounded-xl p-10 text-center">
+          <UtensilsCrossed size={28} className="mx-auto mb-3 text-ink-mute" />
+          <p className="text-sm text-ink-mute">Chưa có thực đơn nào. Tạo một thực đơn để bắt đầu thêm món.</p>
         </div>
       ) : (
         <>
@@ -300,66 +300,66 @@ const OwnerFnbMenusPage = () => {
             {menus.map((m) => (
               <button key={m.id} onClick={() => setMenuId(m.id)}
                 className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${menuId === m.id
-                  ? 'bg-gray-800 border-[#C3B665]/40 text-[#C3B665]'
-                  : 'bg-black border-gray-800 text-gray-400 hover:text-white'}`}>
+                  ? 'bg-sunken border-brand/40 text-brand-text'
+                  : 'bg-page border-line text-ink-soft hover:text-ink'}`}>
                 {m.name}
-                {!m.isActive && <span className="ml-1.5 text-gray-600">(đang tắt)</span>}
+                {!m.isActive && <span className="ml-1.5 text-ink-mute">(đang tắt)</span>}
               </button>
             ))}
           </div>
 
           {menuId && (
-            <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
+            <div className="bg-card border border-line rounded-xl p-6">
               <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
-                <h2 className="text-base font-semibold text-white">
+                <h2 className="text-base font-semibold text-ink">
                   {menus.find((m) => m.id === menuId)?.name}
                 </h2>
                 <div className="flex gap-2">
                   <button onClick={() => setEditingItem(null)}
-                    className="flex items-center gap-1.5 px-3 py-1.5 bg-[#C3B665] text-black rounded-lg text-xs font-bold hover:bg-[#d4c87f]">
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-brand text-on-brand rounded-lg text-xs font-bold hover:bg-brand-hover">
                     <Plus size={14} /> Thêm món
                   </button>
                   <button onClick={() => setEditingMenu(menus.find((m) => m.id === menuId))}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-gray-700 text-gray-300 text-xs font-bold hover:bg-gray-800">
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-line text-ink-soft text-xs font-bold hover:bg-sunken">
                     <Pencil size={14} /> Sửa thực đơn
                   </button>
                   <button onClick={() => setXoaTarget({ loai: 'menu', doiTuong: menus.find((m) => m.id === menuId) })}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-gray-700 text-red-400 text-xs font-bold hover:bg-red-500/10">
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-line text-danger text-xs font-bold hover:bg-red-500/10">
                     <Trash2 size={14} /> Xoá
                   </button>
                 </div>
               </div>
 
               {isLoadingItems ? (
-                <div className="py-10 flex justify-center"><Loader2 size={24} className="animate-spin text-[#C3B665]" /></div>
+                <div className="py-10 flex justify-center"><Loader2 size={24} className="animate-spin text-brand-text" /></div>
               ) : items.length === 0 ? (
-                <p className="py-10 text-center text-sm text-gray-500">Thực đơn này chưa có món nào.</p>
+                <p className="py-10 text-center text-sm text-ink-mute">Thực đơn này chưa có món nào.</p>
               ) : (
                 <ul className="space-y-2">
                   {[...items].sort((a, b) => a.displayOrder - b.displayOrder).map((it) => (
-                    <li key={it.id} className="flex items-start justify-between gap-3 bg-black/40 border border-gray-800 rounded-lg p-3">
+                    <li key={it.id} className="flex items-start justify-between gap-3 bg-espresso/40 border border-line rounded-lg p-3">
                       <div className="flex items-start gap-3 min-w-0">
-                        <GripVertical size={14} className="text-gray-700 mt-1 flex-shrink-0" />
+                        <GripVertical size={14} className="text-ink-mute mt-1 flex-shrink-0" />
                         {it.imageUrl && <img src={it.imageUrl} alt="" className="w-12 h-12 rounded-lg object-cover flex-shrink-0" />}
                         <div className="min-w-0">
                           <div className="flex items-center gap-2 flex-wrap">
-                            <span className="text-white font-medium">{it.name}</span>
-                            <span className="px-2 py-0.5 rounded-md bg-gray-800 text-gray-400 text-xs">{it.category}</span>
+                            <span className="text-ink font-medium">{it.name}</span>
+                            <span className="px-2 py-0.5 rounded-md bg-sunken text-ink-soft text-xs">{it.category}</span>
                             {!it.isAvailable && (
-                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-gray-700/40 text-gray-400 text-xs">
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-line/40 text-ink-soft text-xs">
                                 <EyeOff size={11} /> Tạm hết
                               </span>
                             )}
                           </div>
-                          {it.description && <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">{it.description}</p>}
-                          <p className="text-sm text-[#C3B665] font-medium mt-1 tabular-nums">{fmtMoney(it.price)}</p>
+                          {it.description && <p className="text-xs text-ink-mute mt-0.5 line-clamp-2">{it.description}</p>}
+                          <p className="text-sm text-brand-text font-medium mt-1 tabular-nums">{fmtMoney(it.price)}</p>
                         </div>
                       </div>
                       <div className="flex gap-1 flex-shrink-0">
-                        <button onClick={() => setEditingItem(it)} className="p-2 rounded-lg text-gray-400 hover:bg-gray-800" title="Sửa">
+                        <button onClick={() => setEditingItem(it)} className="p-2 rounded-lg text-ink-soft hover:bg-sunken" title="Sửa">
                           <Pencil size={14} />
                         </button>
-                        <button onClick={() => setXoaTarget({ loai: 'item', doiTuong: it })} className="p-2 rounded-lg text-red-400 hover:bg-red-500/10" title="Xoá">
+                        <button onClick={() => setXoaTarget({ loai: 'item', doiTuong: it })} className="p-2 rounded-lg text-danger hover:bg-red-500/10" title="Xoá">
                           <Trash2 size={14} />
                         </button>
                       </div>

@@ -41,11 +41,11 @@ const RatingModal = ({ showName, onClose, onSubmit }) => {
   if (submitted) {
     return (
       <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
-        <div className="absolute inset-0 bg-black/80 backdrop-blur-sm"></div>
-        <div className="relative bg-gray-900 border border-[#C3B665]/40 rounded-2xl w-full max-w-sm p-8 text-center shadow-2xl animate-in fade-in zoom-in-95 duration-300">
-          <PartyPopper size={44} className="mx-auto text-[#C3B665] mb-4" />
-          <h2 className="text-xl font-bold text-white mb-2">Thank You!</h2>
-          <p className="text-sm text-gray-400">Your review has been recorded.</p>
+        <div className="absolute inset-0 bg-espresso/80 backdrop-blur-sm"></div>
+        <div className="relative bg-card border border-brand/40 rounded-2xl w-full max-w-sm p-8 text-center shadow-2xl animate-in fade-in zoom-in-95 duration-300">
+          <PartyPopper size={44} className="mx-auto text-brand-text mb-4" />
+          <h2 className="text-xl font-bold text-ink mb-2">Thank You!</h2>
+          <p className="text-sm text-ink-soft">Your review has been recorded.</p>
         </div>
       </div>
     )
@@ -53,29 +53,29 @@ const RatingModal = ({ showName, onClose, onSubmit }) => {
 
   return (
     <div className="fixed inset-0 z-[110] flex items-center justify-center p-4" onClick={() => !isSubmitting && onClose()}>
-      <div className="absolute inset-0 bg-black/80 backdrop-blur-sm"></div>
+      <div className="absolute inset-0 bg-espresso/80 backdrop-blur-sm"></div>
 
-      <div className="relative bg-gray-900 border border-gray-700 rounded-2xl w-full max-w-md max-h-[90vh] flex flex-col shadow-2xl animate-in fade-in zoom-in-95 duration-300" onClick={(e) => e.stopPropagation()}>
+      <div className="relative bg-card border border-line rounded-2xl w-full max-w-md max-h-[90vh] flex flex-col shadow-2xl animate-in fade-in zoom-in-95 duration-300" onClick={(e) => e.stopPropagation()}>
 
         {/* HEADER */}
-        <div className="flex-none flex items-start justify-between p-5 border-b border-gray-800">
+        <div className="flex-none flex items-start justify-between p-5 border-b border-line">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#C3B665]/10 border border-[#C3B665]/30 flex items-center justify-center flex-shrink-0">
-              <Star size={18} className="text-[#C3B665]" />
+            <div className="w-10 h-10 rounded-xl bg-brand/10 border border-brand/30 flex items-center justify-center flex-shrink-0">
+              <Star size={18} className="text-brand-text" />
             </div>
             <div className="min-w-0">
-              <h2 className="text-lg font-bold text-white">Rate livestream</h2>
-              <p className="text-xs text-gray-500 truncate">{showName}</p>
+              <h2 className="text-lg font-bold text-ink">Đánh giá buổi phát trực tiếp</h2>
+              <p className="text-xs text-ink-mute truncate">{showName}</p>
             </div>
           </div>
-          <button onClick={onClose} disabled={isSubmitting} className="p-2 hover:bg-gray-800 rounded-full text-gray-400 disabled:opacity-30">
+          <button onClick={onClose} disabled={isSubmitting} className="p-2 hover:bg-sunken rounded-full text-ink-soft disabled:opacity-30">
             <X size={20} />
           </button>
         </div>
 
         {/* BODY */}
         <div className="flex-1 overflow-y-auto p-5">
-          <p className="text-sm text-gray-400 mb-6 text-center">
+          <p className="text-sm text-ink-soft mb-6 text-center">
             The Livestream has ended. How was your experience?
           </p>
 
@@ -93,19 +93,19 @@ const RatingModal = ({ showName, onClose, onSubmit }) => {
               >
                 <Star
                   size={38}
-                  className={`transition-colors ${i <= (hover || rating) ? 'fill-[#C3B665] text-[#C3B665]' : 'text-gray-600'}`}
+                  className={`transition-colors ${i <= (hover || rating) ? 'fill-brand-text text-brand-text' : 'text-ink-mute'}`}
                 />
               </button>
             ))}
           </div>
-          <p className="text-center text-sm font-semibold text-[#C3B665] min-h-[20px] mb-6">
+          <p className="text-center text-sm font-semibold text-brand-text min-h-[20px] mb-6">
             {RATING_LABELS[hover || rating] || 'Chọn số sao'}
           </p>
 
           {/* COMMENT (tùy chọn) */}
           <div>
-            <label className="block text-sm font-medium text-gray-400 mb-2">
-              Description <span className="text-gray-600">(Optional)</span>
+            <label className="block text-sm font-medium text-ink-soft mb-2">
+              Description <span className="text-ink-mute">(Optional)</span>
             </label>
             <textarea
               rows={3}
@@ -113,24 +113,24 @@ const RatingModal = ({ showName, onClose, onSubmit }) => {
               onChange={(e) => setComment(e.target.value)}
               disabled={isSubmitting}
               placeholder="What you liked or would like to improve about this livestream..."
-              className="w-full px-4 py-3 bg-black border border-gray-800 rounded-xl text-white text-sm focus:outline-none focus:border-[#C3B665]/50 resize-none disabled:opacity-50 placeholder:text-gray-600"
+              className="w-full px-4 py-3 bg-page border border-line rounded-xl text-ink text-sm focus:outline-none focus:border-brand/50 resize-none disabled:opacity-50 placeholder:text-ink-mute"
             />
           </div>
         </div>
 
         {/* FOOTER */}
-        <div className="flex-none p-5 border-t border-gray-800 flex gap-3">
+        <div className="flex-none p-5 border-t border-line flex gap-3">
           <button
             onClick={onClose}
             disabled={isSubmitting}
-            className="flex-1 py-2.5 border border-gray-600 text-gray-300 rounded-lg font-medium hover:bg-gray-800 transition-colors disabled:opacity-50"
+            className="flex-1 py-2.5 border border-line-strong text-ink-soft rounded-lg font-medium hover:bg-sunken transition-colors disabled:opacity-50"
           >
             Later
           </button>
           <button
             onClick={handleSubmit}
             disabled={isSubmitting || rating === 0}
-            className="flex-1 py-2.5 rounded-lg font-bold transition-colors flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed bg-[#C3B665] text-black hover:bg-[#d4c87f]"
+            className="flex-1 py-2.5 rounded-lg font-bold transition-colors flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed bg-brand text-on-brand hover:bg-brand-hover"
           >
             {isSubmitting ? <><Loader2 size={16} className="animate-spin" /> Sending...</> : <> Review submitted</>}
           </button>

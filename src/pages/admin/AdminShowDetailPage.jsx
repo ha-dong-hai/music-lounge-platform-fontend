@@ -114,21 +114,21 @@ const AdminShowDetailPage = () => {
   // ===== LOADING =====
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-black pb-20">
-        <div className="w-full h-[500px] md:h-[600px] bg-gray-900 flex items-end md:items-center">
+      <div className="min-h-screen bg-page pb-20">
+        <div className="w-full h-[500px] md:h-[600px] bg-card flex items-end md:items-center">
           <div className="w-full max-w-[1600px] mx-auto px-6 pb-20 md:pb-0">
             <div className="flex flex-col items-start max-w-2xl gap-4">
               <Skeleton className="h-5 w-48" /><Skeleton className="w-20 h-20 rounded-full" /><Skeleton className="h-12 w-3/4" /><Skeleton className="h-6 w-1/2" /><Skeleton className="h-12 w-40" />
             </div>
           </div>
         </div>
-        <div className="max-w-[1600px] mx-auto px-6 mt-8 mb-6 border-b border-gray-800 pb-4">
+        <div className="max-w-[1600px] mx-auto px-6 mt-8 mb-6 border-b border-line pb-4">
           <div className="flex gap-8"><Skeleton className="h-6 w-24" /><Skeleton className="h-6 w-24" /></div>
         </div>
         <div className="max-w-[1600px] mx-auto px-6">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
-            <div className="lg:col-span-7 bg-gray-900 border border-gray-800 rounded-2xl p-8 space-y-4"><Skeleton className="h-8 w-40 mb-6" /><Skeleton className="h-4 w-full" /><Skeleton className="h-4 w-full" /><Skeleton className="h-4 w-2/3" /></div>
-            <div className="lg:col-span-3 space-y-6">{[...Array(4)].map((_, i) => (<div key={i} className="bg-gray-900 border border-gray-800 rounded-xl p-5"><Skeleton className="h-3 w-16 mb-2" /><Skeleton className="h-4 w-24" /></div>))}</div>
+            <div className="lg:col-span-7 bg-card border border-line rounded-2xl p-8 space-y-4"><Skeleton className="h-8 w-40 mb-6" /><Skeleton className="h-4 w-full" /><Skeleton className="h-4 w-full" /><Skeleton className="h-4 w-2/3" /></div>
+            <div className="lg:col-span-3 space-y-6">{[...Array(4)].map((_, i) => (<div key={i} className="bg-card border border-line rounded-xl p-5"><Skeleton className="h-3 w-16 mb-2" /><Skeleton className="h-4 w-24" /></div>))}</div>
             <div className="lg:col-span-2 flex flex-col items-center pt-2"><Skeleton className="w-24 h-24 rounded-full mb-4" /><Skeleton className="h-8 w-24 rounded-lg" /></div>
           </div>
         </div>
@@ -139,15 +139,15 @@ const AdminShowDetailPage = () => {
   // ===== ERROR =====
   if (apiError || !data) {
     return (
-      <div className="min-h-screen bg-black flex flex-col items-center justify-center text-white">
-        <h1 className="text-2xl font-bold text-white mb-4">{apiError || 'Show not found'}</h1>
-        <Link to="/admin/shows" className="text-[#C3B665] hover:text-[#d4c87f] flex items-center gap-2 font-medium"><ArrowLeft size={18} /> Quay lại danh sách</Link>
+      <div className="min-h-screen bg-page flex flex-col items-center justify-center text-ink">
+        <h1 className="text-2xl font-bold text-ink mb-4">{apiError || 'Show not found'}</h1>
+        <Link to="/admin/shows" className="text-brand-text hover:text-brand-text flex items-center gap-2 font-medium"><ArrowLeft size={18} /> Quay lại danh sách</Link>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-black pb-20">
+    <div className="min-h-screen bg-page pb-20">
 
       {/* HERO */}
       <AdminShowHero
@@ -158,10 +158,10 @@ const AdminShowDetailPage = () => {
       />
 
       {/* TABS */}
-      <div className="max-w-[1600px] mx-auto px-6 mt-8 mb-6 border-b border-gray-800">
+      <div className="max-w-[1600px] mx-auto px-6 mt-8 mb-6 border-b border-line">
         <div className="flex gap-8">
-          <button onClick={() => setActiveTab('intro')} className={`pb-4 text-lg font-bold border-b-2 transition-colors ${activeTab === 'intro' ? 'border-[#C3B665] text-[#C3B665]' : 'border-transparent text-gray-500 hover:text-white'}`}>Detail</button>
-          <button onClick={() => setActiveTab('map')} className={`pb-4 text-lg font-bold border-b-2 transition-colors ${activeTab === 'map' ? 'border-[#C3B665] text-[#C3B665]' : 'border-transparent text-gray-500 hover:text-white'}`}>Seating area</button>
+          <button onClick={() => setActiveTab('intro')} className={`pb-4 text-lg font-bold border-b-2 transition-colors ${activeTab === 'intro' ? 'border-brand text-brand-text' : 'border-transparent text-ink-mute hover:text-ink'}`}>Detail</button>
+          <button onClick={() => setActiveTab('map')} className={`pb-4 text-lg font-bold border-b-2 transition-colors ${activeTab === 'map' ? 'border-brand text-brand-text' : 'border-transparent text-ink-mute hover:text-ink'}`}>Seating area</button>
         </div>
       </div>
 

@@ -35,12 +35,12 @@ import ConfirmModal from '../../components/shared/ConfirmModal'
 
 // Trạng thái hồ sơ phòng trà — đúng 6 giá trị LoungeStatus của backend.
 const STATUS_VIEW = {
-  Pending: { label: 'Đang chờ Admin duyệt', cls: 'bg-yellow-500/10 border-yellow-500/30 text-yellow-400', icon: Clock },
-  Approved: { label: 'Đã duyệt, đang hoạt động', cls: 'bg-green-500/10 border-green-500/30 text-green-400', icon: CheckCircle2 },
-  Warned: { label: 'Đang bị cảnh cáo — vẫn hoạt động bình thường', cls: 'bg-orange-500/10 border-orange-500/30 text-orange-400', icon: AlertTriangle },
-  Suspended: { label: 'Bị tạm đình chỉ — không mở bán vé được', cls: 'bg-red-500/10 border-red-500/30 text-red-400', icon: AlertTriangle },
-  Locked: { label: 'Bị khoá', cls: 'bg-red-500/10 border-red-500/30 text-red-400', icon: AlertTriangle },
-  Rejected: { label: 'Hồ sơ bị từ chối', cls: 'bg-red-500/10 border-red-500/30 text-red-400', icon: AlertTriangle },
+  Pending: { label: 'Đang chờ Admin duyệt', cls: 'bg-yellow-500/10 border-yellow-500/30 text-warning', icon: Clock },
+  Approved: { label: 'Đã duyệt, đang hoạt động', cls: 'bg-green-500/10 border-green-500/30 text-success', icon: CheckCircle2 },
+  Warned: { label: 'Đang bị cảnh cáo — vẫn hoạt động bình thường', cls: 'bg-orange-500/10 border-orange-500/30 text-orange-700', icon: AlertTriangle },
+  Suspended: { label: 'Bị tạm đình chỉ — không mở bán vé được', cls: 'bg-red-500/10 border-red-500/30 text-danger', icon: AlertTriangle },
+  Locked: { label: 'Bị khoá', cls: 'bg-red-500/10 border-red-500/30 text-danger', icon: AlertTriangle },
+  Rejected: { label: 'Hồ sơ bị từ chối', cls: 'bg-red-500/10 border-red-500/30 text-danger', icon: AlertTriangle },
 }
 
 const emptyForm = {
@@ -50,15 +50,15 @@ const emptyForm = {
 
 const Field = ({ label, required, hint, children }) => (
   <div>
-    <label className="text-xs text-gray-500">
-      {label} {required && <span className="text-red-400">*</span>}
+    <label className="text-xs text-ink-mute">
+      {label} {required && <span className="text-danger">*</span>}
     </label>
     {children}
-    {hint && <p className="text-xs text-gray-600 mt-1">{hint}</p>}
+    {hint && <p className="text-xs text-ink-mute mt-1">{hint}</p>}
   </div>
 )
 
-const inputCls = 'mt-1 w-full px-3 py-2 bg-black border border-gray-700 rounded-lg text-sm text-white focus:outline-none focus:border-[#C3B665]/50'
+const inputCls = 'mt-1 w-full px-3 py-2 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-brand/50'
 
 const OwnerLoungePage = () => {
   const login = useAuthStore((st) => st.login)
@@ -285,7 +285,7 @@ const OwnerLoungePage = () => {
   }
 
   if (isLoading) {
-    return <div className="py-20 flex justify-center"><Loader2 size={32} className="animate-spin text-[#C3B665]" /></div>
+    return <div className="py-20 flex justify-center"><Loader2 size={32} className="animate-spin text-brand-text" /></div>
   }
 
   const trangThai = lounge ? STATUS_VIEW[lounge.status] : null
@@ -293,8 +293,8 @@ const OwnerLoungePage = () => {
   return (
     <div className="space-y-6 max-w-3xl">
       <div>
-        <h1 className="text-2xl font-bold text-white mb-1">Hồ sơ phòng trà</h1>
-        <p className="text-gray-400 text-sm">
+        <h1 className="text-2xl font-bold text-ink mb-1">Hồ sơ phòng trà</h1>
+        <p className="text-ink-soft text-sm">
           {isEdit
             ? 'Thông tin hiển thị cho khán giả và dùng cho mọi buổi diễn của bạn.'
             : 'Tạo phòng trà trước đã — các mục Buổi diễn, Báo cáo doanh thu và Gói dịch vụ chỉ hoạt động khi bạn có phòng trà.'}
@@ -315,7 +315,7 @@ const OwnerLoungePage = () => {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="bg-gray-900 border border-gray-800 rounded-xl p-6 space-y-4">
+      <form onSubmit={handleSubmit} className="bg-card border border-line rounded-xl p-6 space-y-4">
         <Field label="Tên phòng trà" required>
           <input value={form.name} onChange={(e) => set('name', e.target.value)} className={inputCls} maxLength={255} />
         </Field>
@@ -356,7 +356,7 @@ const OwnerLoungePage = () => {
         </div>
 
         <button type="submit" disabled={isSaving}
-          className="flex items-center gap-2 px-5 py-2.5 bg-[#C3B665] text-black rounded-lg font-bold hover:bg-[#d4c87f] transition-colors disabled:opacity-50">
+          className="flex items-center gap-2 px-5 py-2.5 bg-brand text-on-brand rounded-lg font-bold hover:bg-brand-hover transition-colors disabled:opacity-50">
           {isSaving ? <Loader2 size={16} className="animate-spin" /> : isEdit ? <Save size={16} /> : <Store size={16} />}
           {isSaving ? 'Đang lưu...' : isEdit ? 'Lưu thay đổi' : 'Tạo phòng trà'}
         </button>
@@ -365,13 +365,13 @@ const OwnerLoungePage = () => {
       {/* Tệp đính kèm chỉ gắn được khi phòng trà đã tồn tại — chúng cần id. */}
       {isEdit && (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
-            <h3 className="text-base font-semibold text-white">Ảnh đại diện</h3>
-            <p className="text-xs text-gray-500 mt-0.5">Ảnh khán giả nhìn thấy đầu tiên.</p>
+          <div className="bg-card border border-line rounded-xl p-6">
+            <h3 className="text-base font-semibold text-ink">Ảnh đại diện</h3>
+            <p className="text-xs text-ink-mute mt-0.5">Ảnh khán giả nhìn thấy đầu tiên.</p>
             {lounge.primaryImageUrl && (
-              <img src={lounge.primaryImageUrl} alt="" className="mt-3 w-full h-36 object-cover rounded-lg border border-gray-800" />
+              <img src={lounge.primaryImageUrl} alt="" className="mt-3 w-full h-36 object-cover rounded-lg border border-line" />
             )}
-            <label className="mt-3 inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-700 text-gray-300 text-sm font-medium hover:bg-gray-800 cursor-pointer">
+            <label className="mt-3 inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-line text-ink-soft text-sm font-medium hover:bg-sunken cursor-pointer">
               {isUploading === 'image' ? <Loader2 size={16} className="animate-spin" /> : <Upload size={16} />}
               {lounge.primaryImageUrl ? 'Đổi ảnh' : 'Tải ảnh lên'}
               <input type="file" accept="image/*" className="hidden" disabled={isUploading !== null}
@@ -379,20 +379,20 @@ const OwnerLoungePage = () => {
             </label>
           </div>
 
-          <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
-            <h3 className="text-base font-semibold text-white">Giấy phép kinh doanh</h3>
-            <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">
+          <div className="bg-card border border-line rounded-xl p-6">
+            <h3 className="text-base font-semibold text-ink">Giấy phép kinh doanh</h3>
+            <p className="text-xs text-ink-mute mt-0.5 leading-relaxed">
               Chỉ bạn và Admin xem được. Tệp nằm ở vùng lưu riêng tư, không ai đoán đường dẫn mà tải về được.
             </p>
             <div className="mt-3 flex flex-wrap gap-2">
-              <label className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-700 text-gray-300 text-sm font-medium hover:bg-gray-800 cursor-pointer">
+              <label className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-line text-ink-soft text-sm font-medium hover:bg-sunken cursor-pointer">
                 {isUploading === 'license' ? <Loader2 size={16} className="animate-spin" /> : <FileText size={16} />}
                 Tải giấy phép lên
                 <input type="file" accept="image/*,.pdf" className="hidden" disabled={isUploading !== null}
                   onChange={(e) => handleUpload(e.target.files?.[0], 'license')} />
               </label>
               <button type="button" onClick={handleXemGiayPhep}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-700 text-gray-300 text-sm font-medium hover:bg-gray-800">
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-line text-ink-soft text-sm font-medium hover:bg-sunken">
                 <ExternalLink size={16} /> Xem giấy phép
               </button>
             </div>
@@ -403,13 +403,13 @@ const OwnerLoungePage = () => {
       {/* THƯ VIỆN ẢNH — thứ tự quyết định ảnh nào khán giả thấy trước. Đổi thứ tự là gửi lại
           TOÀN BỘ danh sách id, backend không nhận lệnh "đổi chỗ hai ảnh". */}
       {isEdit && (
-        <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
+        <div className="bg-card border border-line rounded-xl p-6">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
-              <h3 className="text-base font-semibold text-white">Thư viện ảnh</h3>
-              <p className="text-xs text-gray-500 mt-0.5">Ảnh không gian phòng trà. Thứ tự bên dưới là thứ tự khán giả xem.</p>
+              <h3 className="text-base font-semibold text-ink">Thư viện ảnh</h3>
+              <p className="text-xs text-ink-mute mt-0.5">Ảnh không gian phòng trà. Thứ tự bên dưới là thứ tự khán giả xem.</p>
             </div>
-            <label className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-700 text-gray-300 text-sm font-medium hover:bg-gray-800 cursor-pointer flex-shrink-0">
+            <label className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-line text-ink-soft text-sm font-medium hover:bg-sunken cursor-pointer flex-shrink-0">
               {isUploading === 'gallery' ? <Loader2 size={16} className="animate-spin" /> : <Upload size={16} />}
               Thêm ảnh
               <input type="file" accept="image/*" className="hidden" disabled={isUploading !== null}
@@ -418,25 +418,25 @@ const OwnerLoungePage = () => {
           </div>
 
           {(lounge.galleryImages?.length ?? 0) === 0 ? (
-            <p className="mt-4 text-sm text-gray-500">Chưa có ảnh nào trong thư viện.</p>
+            <p className="mt-4 text-sm text-ink-mute">Chưa có ảnh nào trong thư viện.</p>
           ) : (
             <ul className="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-3">
               {[...lounge.galleryImages].sort((a, b) => a.orderIndex - b.orderIndex).map((img, i, arr) => (
                 <li key={img.id} className="relative group">
-                  <img src={img.imageUrl} alt={img.caption ?? ''} className="w-full h-28 object-cover rounded-lg border border-gray-800" />
-                  <div className="absolute inset-x-0 bottom-0 flex justify-between items-center gap-1 p-1.5 bg-black/70 rounded-b-lg opacity-0 group-hover:opacity-100 transition-opacity">
+                  <img src={img.imageUrl} alt={img.caption ?? ''} className="w-full h-28 object-cover rounded-lg border border-line" />
+                  <div className="absolute inset-x-0 bottom-0 flex justify-between items-center gap-1 p-1.5 bg-espresso/70 rounded-b-lg opacity-0 group-hover:opacity-100 transition-opacity">
                     <div className="flex gap-1">
                       <button onClick={() => handleDoiThuTu(img.id, -1)} disabled={i === 0 || isUploading !== null}
-                        className="p-1 rounded text-gray-300 hover:text-white disabled:opacity-30" title="Lùi lên trước">
+                        className="p-1 rounded text-ink-soft hover:text-ink disabled:opacity-30" title="Lùi lên trước">
                         <ArrowLeft size={13} />
                       </button>
                       <button onClick={() => handleDoiThuTu(img.id, 1)} disabled={i === arr.length - 1 || isUploading !== null}
-                        className="p-1 rounded text-gray-300 hover:text-white disabled:opacity-30" title="Đẩy xuống sau">
+                        className="p-1 rounded text-ink-soft hover:text-ink disabled:opacity-30" title="Đẩy xuống sau">
                         <ArrowRight size={13} />
                       </button>
                     </div>
                     <button onClick={() => handleXoaAnhThuVien(img.id)} disabled={isUploading !== null}
-                      className="p-1 rounded text-red-400 hover:text-red-300 disabled:opacity-30" title="Xoá ảnh">
+                      className="p-1 rounded text-danger hover:text-danger disabled:opacity-30" title="Xoá ảnh">
                       <Trash2 size={13} />
                     </button>
                   </div>
@@ -451,17 +451,17 @@ const OwnerLoungePage = () => {
 
       {/* VÙNG NGUY HIỂM — đặt cuối trang, tách khỏi mọi nút lưu, để không ai bấm nhầm khi đang sửa */}
       {isEdit && (
-        <div className="bg-gray-900 border border-red-500/30 rounded-xl p-6">
-          <h3 className="text-base font-semibold text-red-400 flex items-center gap-2">
+        <div className="bg-card border border-red-500/30 rounded-xl p-6">
+          <h3 className="text-base font-semibold text-danger flex items-center gap-2">
             <AlertTriangle size={17} /> Xoá phòng trà
           </h3>
-          <p className="text-xs text-gray-400 mt-1 leading-relaxed">
-            Chỉ xoá được khi phòng trà <strong className="text-gray-300">chưa từng có buổi diễn nào</strong> —
+          <p className="text-xs text-ink-soft mt-1 leading-relaxed">
+            Chỉ xoá được khi phòng trà <strong className="text-ink-soft">chưa từng có buổi diễn nào</strong> —
             kể cả buổi đã kết thúc hoặc đã huỷ cũng chặn, vì xoá đi là mất lịch sử. Nếu phòng trà đã
             hoạt động, đây không phải cách để dừng: hãy liên hệ Admin.
           </p>
           <button onClick={() => setMoXoa(true)} disabled={isSaving || isDeleting}
-            className="mt-4 flex items-center gap-2 px-4 py-2 rounded-lg border border-red-500/40 text-red-400 text-sm font-bold hover:bg-red-500/10 disabled:opacity-50">
+            className="mt-4 flex items-center gap-2 px-4 py-2 rounded-lg border border-red-500/40 text-danger text-sm font-bold hover:bg-red-500/10 disabled:opacity-50">
             <Trash2 size={15} /> Xoá phòng trà
           </button>
         </div>

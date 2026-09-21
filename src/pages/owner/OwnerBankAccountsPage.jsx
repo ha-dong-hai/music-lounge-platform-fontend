@@ -20,7 +20,7 @@ import { getBankAccounts, createBankAccount, updateBankAccount } from '../../ser
 import { getLounges } from '../../services/loungeServices'
 import { getMyPerformers } from '../../services/performerServices'
 
-const inputCls = 'mt-1 w-full px-3 py-2 bg-black border border-gray-700 rounded-lg text-sm text-white focus:outline-none focus:border-[#C3B665]/50'
+const inputCls = 'mt-1 w-full px-3 py-2 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-brand/50'
 
 const AccountFormModal = ({ initial, chuSoHuu, onClose, onSaved }) => {
   const isEdit = !!initial
@@ -67,43 +67,43 @@ const AccountFormModal = ({ initial, chuSoHuu, onClose, onSaved }) => {
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-gray-900 border border-gray-700 rounded-2xl w-full max-w-md shadow-2xl">
-        <div className="flex justify-between items-center p-5 border-b border-gray-800">
-          <h2 className="text-lg font-bold text-white">{isEdit ? 'Sửa tài khoản' : 'Thêm tài khoản nhận tiền'}</h2>
-          <button onClick={onClose} disabled={isBusy} className="p-2 hover:bg-gray-800 rounded-full text-gray-400 disabled:opacity-30">
+      <div className="absolute inset-0 bg-espresso/80 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative bg-card border border-line rounded-2xl w-full max-w-md shadow-2xl">
+        <div className="flex justify-between items-center p-5 border-b border-line">
+          <h2 className="text-lg font-bold text-ink">{isEdit ? 'Sửa tài khoản' : 'Thêm tài khoản nhận tiền'}</h2>
+          <button onClick={onClose} disabled={isBusy} className="p-2 hover:bg-sunken rounded-full text-ink-soft disabled:opacity-30">
             <X size={20} />
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="p-5 space-y-4">
           <div>
-            <label className="text-xs text-gray-500">Ngân hàng <span className="text-red-400">*</span></label>
+            <label className="text-xs text-ink-mute">Ngân hàng <span className="text-danger">*</span></label>
             <input value={form.bankName} onChange={(e) => set('bankName', e.target.value)} className={inputCls} placeholder="VD: Vietcombank" />
           </div>
           <div>
-            <label className="text-xs text-gray-500">Số tài khoản <span className="text-red-400">*</span></label>
+            <label className="text-xs text-ink-mute">Số tài khoản <span className="text-danger">*</span></label>
             <input value={form.accountNumber} onChange={(e) => set('accountNumber', e.target.value)} className={inputCls} inputMode="numeric" />
           </div>
           <div>
-            <label className="text-xs text-gray-500">Tên chủ tài khoản <span className="text-red-400">*</span></label>
+            <label className="text-xs text-ink-mute">Tên chủ tài khoản <span className="text-danger">*</span></label>
             <input value={form.accountHolder} onChange={(e) => set('accountHolder', e.target.value)} className={inputCls} />
-            <p className="text-xs text-yellow-400/80 mt-1 leading-relaxed">
+            <p className="text-xs text-warning/80 mt-1 leading-relaxed">
               Phải trùng tên trên giấy tờ định danh của chủ phòng trà. Lệch tên thì Admin sẽ từ chối khi duyệt.
             </p>
           </div>
-          <label className="flex items-center gap-2 text-sm text-gray-300 cursor-pointer">
-            <input type="checkbox" checked={form.isDefault} onChange={(e) => set('isDefault', e.target.checked)} className="accent-[#C3B665]" />
+          <label className="flex items-center gap-2 text-sm text-ink-soft cursor-pointer">
+            <input type="checkbox" checked={form.isDefault} onChange={(e) => set('isDefault', e.target.checked)} className="accent-brand" />
             Dùng làm tài khoản mặc định
           </label>
 
           <div className="flex gap-3 pt-2">
             <button type="button" onClick={onClose} disabled={isBusy}
-              className="flex-1 py-2.5 border border-gray-600 text-gray-300 rounded-lg font-medium hover:bg-gray-800 disabled:opacity-50">
+              className="flex-1 py-2.5 border border-line-strong text-ink-soft rounded-lg font-medium hover:bg-sunken disabled:opacity-50">
               Huỷ
             </button>
             <button type="submit" disabled={isBusy}
-              className="flex-1 py-2.5 bg-[#C3B665] text-black rounded-lg font-bold hover:bg-[#d4c87f] flex items-center justify-center gap-2 disabled:opacity-50">
+              className="flex-1 py-2.5 bg-brand text-on-brand rounded-lg font-bold hover:bg-brand-hover flex items-center justify-center gap-2 disabled:opacity-50">
               {isBusy && <Loader2 size={16} className="animate-spin" />}
               {isBusy ? 'Đang lưu...' : 'Lưu'}
             </button>
@@ -167,15 +167,15 @@ const OwnerBankAccountsPage = () => {
   useEffect(() => { const chay = async () => { await loadAccounts() }; chay() }, [loadAccounts])
 
   if (isLoading) {
-    return <div className="py-20 flex justify-center"><Loader2 size={32} className="animate-spin text-[#C3B665]" /></div>
+    return <div className="py-20 flex justify-center"><Loader2 size={32} className="animate-spin text-brand-text" /></div>
   }
 
   if (!lounge) {
     return (
       <div className="max-w-2xl">
-        <h1 className="text-2xl font-bold text-white mb-1">Tài khoản nhận tiền</h1>
-        <div className="mt-4 bg-gray-900 border border-gray-800 rounded-xl p-6">
-          <p className="text-sm text-gray-400">
+        <h1 className="text-2xl font-bold text-ink mb-1">Tài khoản nhận tiền</h1>
+        <div className="mt-4 bg-card border border-line rounded-xl p-6">
+          <p className="text-sm text-ink-soft">
             Bạn chưa có phòng trà. Hãy tạo hồ sơ phòng trà trước — tài khoản nhận tiền gắn với phòng trà,
             không gắn với tài khoản đăng nhập.
           </p>
@@ -192,8 +192,8 @@ const OwnerBankAccountsPage = () => {
   return (
     <div className="space-y-6 max-w-3xl">
       <div>
-        <h1 className="text-2xl font-bold text-white mb-1">Tài khoản nhận tiền</h1>
-        <p className="text-gray-400 text-sm leading-relaxed">
+        <h1 className="text-2xl font-bold text-ink mb-1">Tài khoản nhận tiền</h1>
+        <p className="text-ink-soft text-sm leading-relaxed">
           Nơi hệ thống chuyển tiền quyết toán sau mỗi buổi diễn, và tiền donate trả cho nghệ sĩ.
           Chưa khai tài khoản thì tiền vẫn được ghi sổ nhưng chưa chuyển đi được.
         </p>
@@ -206,64 +206,64 @@ const OwnerBankAccountsPage = () => {
           return (
             <button key={`${o.type}-${o.id}`} onClick={() => setChuSoHuu(o)}
               className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${dangChon
-                ? 'bg-gray-800 border-[#C3B665]/40 text-[#C3B665]'
-                : 'bg-black border-gray-800 text-gray-400 hover:text-white'}`}>
+                ? 'bg-sunken border-brand/40 text-brand-text'
+                : 'bg-page border-line text-ink-soft hover:text-ink'}`}>
               {o.label}
             </button>
           )
         })}
       </div>
 
-      <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
+      <div className="bg-card border border-line rounded-xl p-6">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-base font-semibold text-white">{chuSoHuu?.label}</h2>
+          <h2 className="text-base font-semibold text-ink">{chuSoHuu?.label}</h2>
           <button onClick={() => setEditing(null)}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-[#C3B665] text-black rounded-lg text-xs font-bold hover:bg-[#d4c87f]">
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-brand text-on-brand rounded-lg text-xs font-bold hover:bg-brand-hover">
             <Plus size={14} /> Thêm tài khoản
           </button>
         </div>
 
         {isLoadingList ? (
-          <div className="py-10 flex justify-center"><Loader2 size={24} className="animate-spin text-[#C3B665]" /></div>
+          <div className="py-10 flex justify-center"><Loader2 size={24} className="animate-spin text-brand-text" /></div>
         ) : accounts.length === 0 ? (
-          <p className="py-10 text-center text-sm text-gray-500">Chưa có tài khoản nào cho mục này.</p>
+          <p className="py-10 text-center text-sm text-ink-mute">Chưa có tài khoản nào cho mục này.</p>
         ) : (
           <ul className="space-y-3">
             {accounts.map((a) => (
-              <li key={a.id} className="flex items-start justify-between gap-4 bg-black/40 border border-gray-800 rounded-lg p-4">
+              <li key={a.id} className="flex items-start justify-between gap-4 bg-espresso/40 border border-line rounded-lg p-4">
                 <div className="min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <Landmark size={16} className="text-gray-500 flex-shrink-0" />
-                    <span className="text-white font-medium">{a.bankName}</span>
+                    <Landmark size={16} className="text-ink-mute flex-shrink-0" />
+                    <span className="text-ink font-medium">{a.bankName}</span>
                     {a.isDefault && (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-[#C3B665]/10 text-[#C3B665] text-xs font-medium">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-brand/10 text-brand-text text-xs font-medium">
                         <Star size={11} /> Mặc định
                       </span>
                     )}
                     {a.isVerified ? (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-green-500/10 text-green-400 text-xs font-medium">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-green-500/10 text-success text-xs font-medium">
                         <ShieldCheck size={11} /> Đã duyệt
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-yellow-500/10 text-yellow-400 text-xs font-medium">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-yellow-500/10 text-warning text-xs font-medium">
                         <ShieldAlert size={11} /> Chờ Admin duyệt
                       </span>
                     )}
                   </div>
 
                   {a.accountNumberUnreadable ? (
-                    <p className="text-xs text-red-400 mt-1.5 flex items-start gap-1.5">
+                    <p className="text-xs text-danger mt-1.5 flex items-start gap-1.5">
                       <AlertTriangle size={13} className="mt-px flex-shrink-0" />
                       Hệ thống không đọc lại được số tài khoản này. Hãy bấm Sửa và nhập lại số tài khoản.
                     </p>
                   ) : (
-                    <p className="text-sm text-gray-400 mt-1 tabular-nums">{a.accountNumber}</p>
+                    <p className="text-sm text-ink-soft mt-1 tabular-nums">{a.accountNumber}</p>
                   )}
-                  <p className="text-xs text-gray-500 mt-0.5">{a.accountHolder}</p>
+                  <p className="text-xs text-ink-mute mt-0.5">{a.accountHolder}</p>
                 </div>
 
                 <button onClick={() => setEditing(a)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-gray-700 text-gray-300 text-xs font-bold hover:bg-gray-800 flex-shrink-0">
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-line text-ink-soft text-xs font-bold hover:bg-sunken flex-shrink-0">
                   <Pencil size={14} /> Sửa
                 </button>
               </li>

@@ -84,7 +84,7 @@ const NotificationBell = () => {
     <div className="relative">
       <button
         onClick={openAndLoad}
-        className="relative flex items-center justify-center w-9 h-9 rounded-full border border-gray-700 hover:border-[#C3B665] text-gray-300 hover:text-[#C3B665] transition-colors"
+        className="relative flex items-center justify-center w-9 h-9 rounded-full border border-line hover:border-brand text-ink-soft hover:text-brand-text transition-colors"
         aria-label={unread > 0 ? `Thông báo, ${unread} chưa đọc` : 'Thông báo'}
       >
         <Bell size={18} />
@@ -96,13 +96,13 @@ const NotificationBell = () => {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 top-full mt-3 w-80 sm:w-96 bg-[#1a1a1a] rounded-xl shadow-lg border border-[#C3B665]/20 py-2 z-50 animate-in fade-in slide-in-from-top-2">
-          <div className="flex items-center justify-between px-4 py-2 border-b border-gray-700 mb-1">
-            <p className="text-sm font-semibold text-white">Thông báo</p>
+        <div className="absolute right-0 top-full mt-3 w-80 sm:w-96 bg-[#1a1a1a] rounded-xl shadow-lg border border-brand/20 py-2 z-50 animate-in fade-in slide-in-from-top-2">
+          <div className="flex items-center justify-between px-4 py-2 border-b border-line mb-1">
+            <p className="text-sm font-semibold text-ink">Thông báo</p>
             {unread > 0 && (
               <button
                 onClick={handleMarkAll}
-                className="flex items-center gap-1.5 text-xs text-[#C3B665] hover:text-white transition-colors"
+                className="flex items-center gap-1.5 text-xs text-brand-text hover:text-ink transition-colors"
               >
                 <CheckCheck size={14} /> Đánh dấu đã đọc hết
               </button>
@@ -112,24 +112,24 @@ const NotificationBell = () => {
           <div className="max-h-96 overflow-y-auto">
             {isLoading ? (
               <div className="py-8 flex justify-center">
-                <Loader2 size={20} className="animate-spin text-[#C3B665]" />
+                <Loader2 size={20} className="animate-spin text-brand-text" />
               </div>
             ) : items.length === 0 ? (
-              <p className="px-4 py-8 text-center text-sm text-gray-500">Chưa có thông báo nào.</p>
+              <p className="px-4 py-8 text-center text-sm text-ink-mute">Chưa có thông báo nào.</p>
             ) : (
               items.map((n) => {
                 const link = buildLink(n, role)
                 const inner = (
                   <div
-                    className={`px-4 py-3 border-b border-gray-800/60 transition-colors hover:bg-gray-800/60 ${n.isRead ? '' : 'bg-[#C3B665]/5'
+                    className={`px-4 py-3 border-b border-line/60 transition-colors hover:bg-sunken/60 ${n.isRead ? '' : 'bg-brand/5'
                       }`}
                   >
                     <div className="flex items-start gap-2">
-                      {!n.isRead && <span className="mt-1.5 w-2 h-2 rounded-full bg-[#C3B665] flex-shrink-0" />}
+                      {!n.isRead && <span className="mt-1.5 w-2 h-2 rounded-full bg-brand flex-shrink-0" />}
                       <div className={n.isRead ? 'pl-4' : ''}>
-                        <p className={`text-sm ${n.isRead ? 'text-gray-400' : 'text-white font-medium'}`}>{n.title}</p>
-                        <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">{n.body}</p>
-                        <p className="text-[11px] text-gray-600 mt-1">{dayjs(n.createdAt).format('HH:mm DD/MM/YYYY')}</p>
+                        <p className={`text-sm ${n.isRead ? 'text-ink-soft' : 'text-ink font-medium'}`}>{n.title}</p>
+                        <p className="text-xs text-ink-mute mt-0.5 line-clamp-2">{n.body}</p>
+                        <p className="text-[11px] text-ink-mute mt-1">{dayjs(n.createdAt).format('HH:mm DD/MM/YYYY')}</p>
                       </div>
                     </div>
                   </div>
@@ -150,7 +150,7 @@ const NotificationBell = () => {
           {/* Chuông chỉ lấy 15 cái mới nhất. Không có lối này thì thông báo thứ 16 trở đi không có
               đường nào xem được — mà đó đúng là chỗ nằm của thứ người dùng cần tra lại về sau. */}
           <Link to="/notifications" onClick={() => setIsOpen(false)}
-            className="block px-4 py-2.5 text-center text-xs font-bold text-[#C3B665] hover:bg-gray-800/60 border-t border-gray-800">
+            className="block px-4 py-2.5 text-center text-xs font-bold text-brand-text hover:bg-sunken/60 border-t border-line">
             Xem tất cả thông báo
           </Link>
         </div>

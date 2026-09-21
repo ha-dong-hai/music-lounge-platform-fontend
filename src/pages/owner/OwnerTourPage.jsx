@@ -27,7 +27,7 @@ import {
 import { uploadImage, uploadModel } from '../../services/userServices'
 import ConfirmModal from '../../components/shared/ConfirmModal'
 
-const inputCls = 'mt-1 w-full px-3 py-2 bg-black border border-gray-700 rounded-lg text-sm text-white focus:outline-none focus:border-[#C3B665]/50'
+const inputCls = 'mt-1 w-full px-3 py-2 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-brand/50'
 
 // HOTSPOT CÓ HAI LOẠI, và `type` là TRƯỜNG BẮT BUỘC:
 //   Navigate — dẫn sang scene khác, phải có targetSceneId, và KHÔNG được trỏ về chính scene đó.
@@ -77,11 +77,11 @@ const HotspotModal = ({ loungeId, scene, scenes, onClose, onSaved }) => {
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-gray-900 border border-gray-700 rounded-2xl w-full max-w-md shadow-2xl">
-        <div className="flex justify-between items-center p-5 border-b border-gray-800">
-          <h2 className="text-lg font-bold text-white truncate">Hotspot của {scene.name || `scene #${scene.id}`}</h2>
-          <button onClick={onClose} className="p-2 hover:bg-gray-800 rounded-full text-gray-400 flex-shrink-0"><X size={20} /></button>
+      <div className="absolute inset-0 bg-espresso/80 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative bg-card border border-line rounded-2xl w-full max-w-md shadow-2xl">
+        <div className="flex justify-between items-center p-5 border-b border-line">
+          <h2 className="text-lg font-bold text-ink truncate">Hotspot của {scene.name || `scene #${scene.id}`}</h2>
+          <button onClick={onClose} className="p-2 hover:bg-sunken rounded-full text-ink-soft flex-shrink-0"><X size={20} /></button>
         </div>
 
         <div className="p-5 space-y-4">
@@ -90,17 +90,17 @@ const HotspotModal = ({ loungeId, scene, scenes, onClose, onSaved }) => {
               {scene.hotspots.map((h) => {
                 const dich = scenes.find((x) => x.id === h.targetSceneId)
                 return (
-                  <li key={h.id} className="flex items-center justify-between gap-3 bg-black/40 border border-gray-800 rounded-lg p-3">
+                  <li key={h.id} className="flex items-center justify-between gap-3 bg-espresso/40 border border-line rounded-lg p-3">
                     <div className="min-w-0">
-                      <p className="text-sm text-white truncate">{h.label || 'Không nhãn'}</p>
+                      <p className="text-sm text-ink truncate">{h.label || 'Không nhãn'}</p>
                       {/* Hai loại hotspot hiện khác nhau: loại chú thích không dẫn đi đâu nên hiện
                           nội dung chữ, đừng in ra "→ scene #null". */}
                       {h.type === 'Info' ? (
-                        <p className="text-xs text-gray-500 whitespace-normal leading-relaxed">
+                        <p className="text-xs text-ink-mute whitespace-normal leading-relaxed">
                           {h.infoText || '(chú thích trống)'}
                         </p>
                       ) : (
-                        <p className="text-xs text-gray-500">→ {dich?.name || `scene #${h.targetSceneId}`}</p>
+                        <p className="text-xs text-ink-mute">→ {dich?.name || `scene #${h.targetSceneId}`}</p>
                       )}
                     </div>
                     <button onClick={async () => {
@@ -112,7 +112,7 @@ const HotspotModal = ({ loungeId, scene, scenes, onClose, onSaved }) => {
                         toast.error(err.response?.data?.message || 'Không xoá được hotspot.')
                       }
                     }}
-                      className="p-2 rounded-lg text-red-400 hover:bg-red-500/10 flex-shrink-0" title="Xoá">
+                      className="p-2 rounded-lg text-danger hover:bg-red-500/10 flex-shrink-0" title="Xoá">
                       <Trash2 size={14} />
                     </button>
                   </li>
@@ -124,31 +124,31 @@ const HotspotModal = ({ loungeId, scene, scenes, onClose, onSaved }) => {
           {/* CHỈ loại Navigate mới cần scene thứ hai. Trước đây cả form bị chặn khi chỉ có một
               scene, nên hotspot chú thích không tạo được dù nó không dẫn đi đâu. */}
           {form.type === 'Navigate' && khac.length === 0 ? (
-            <div className="pt-4 border-t border-gray-800 space-y-3">
-              <p className="text-sm text-gray-500">
+            <div className="pt-4 border-t border-line space-y-3">
+              <p className="text-sm text-ink-mute">
                 Cần ít nhất hai scene mới tạo được hotspot dẫn đường.
               </p>
               <button type="button" onClick={() => set('type', 'Info')}
-                className="text-xs font-bold text-[#C3B665] hover:underline">
+                className="text-xs font-bold text-brand-text hover:underline">
                 Tạo hotspot chú thích thay vì dẫn đường →
               </button>
             </div>
           ) : (
-            <form onSubmit={them} className="pt-4 border-t border-gray-800 space-y-3">
-              <p className="text-xs text-gray-500">
+            <form onSubmit={them} className="pt-4 border-t border-line space-y-3">
+              <p className="text-xs text-ink-mute">
                 Thêm hotspot mới. Muốn sửa một hotspot thì xoá rồi thêm lại — backend không có endpoint sửa.
               </p>
 
               <div>
-                <label className="text-xs text-gray-500">Loại hotspot</label>
+                <label className="text-xs text-ink-mute">Loại hotspot</label>
                 <div className="mt-1 grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {LOAI_HOTSPOT.map((l) => (
                     <button key={l.value} type="button" onClick={() => set('type', l.value)}
                       className={`text-left p-2.5 rounded-lg border transition-colors ${
-                        form.type === l.value ? 'border-[#C3B665] bg-[#C3B665]/10' : 'border-gray-700 hover:border-gray-600'
+                        form.type === l.value ? 'border-brand bg-brand/10' : 'border-line hover:border-line-strong'
                       }`}>
-                      <span className="block text-sm text-white font-medium">{l.ten}</span>
-                      <span className="block text-xs text-gray-500 mt-0.5 leading-relaxed">{l.mo}</span>
+                      <span className="block text-sm text-ink font-medium">{l.ten}</span>
+                      <span className="block text-xs text-ink-mute mt-0.5 leading-relaxed">{l.mo}</span>
                     </button>
                   ))}
                 </div>
@@ -156,45 +156,45 @@ const HotspotModal = ({ loungeId, scene, scenes, onClose, onSaved }) => {
 
               {laDanDuong ? (
                 <div>
-                  <label className="text-xs text-gray-500">Dẫn tới scene <span className="text-red-400">*</span></label>
+                  <label className="text-xs text-ink-mute">Dẫn tới scene <span className="text-danger">*</span></label>
                   <select value={form.targetSceneId} onChange={(e) => set('targetSceneId', e.target.value)} className={inputCls}>
                     <option value="">— chọn scene —</option>
                     {khac.map((x) => <option key={x.id} value={x.id}>{x.name || `scene #${x.id}`}</option>)}
                   </select>
-                  <p className="text-[11px] text-gray-600 mt-1">
+                  <p className="text-[11px] text-ink-mute mt-1">
                     Danh sách đã bỏ chính scene này — hotspot không trỏ về nơi chứa nó được.
                   </p>
                 </div>
               ) : (
                 <div>
-                  <label className="text-xs text-gray-500">Nội dung chú thích <span className="text-red-400">*</span></label>
+                  <label className="text-xs text-ink-mute">Nội dung chú thích <span className="text-danger">*</span></label>
                   <textarea rows={3} maxLength={2000} value={form.infoText}
                     onChange={(e) => set('infoText', e.target.value)}
                     className={`${inputCls} resize-none`}
                     placeholder="VD: Đây là cây piano Yamaha U3 phòng trà dùng từ 2018" />
-                  <p className="text-[11px] text-gray-600 mt-1">{form.infoText.length}/2000 ký tự</p>
+                  <p className="text-[11px] text-ink-mute mt-1">{form.infoText.length}/2000 ký tự</p>
                 </div>
               )}
 
               <div>
-                <label className="text-xs text-gray-500">Nhãn hiển thị</label>
+                <label className="text-xs text-ink-mute">Nhãn hiển thị</label>
                 <input value={form.label} maxLength={100} onChange={(e) => set('label', e.target.value)} className={inputCls}
                   placeholder={laDanDuong ? 'VD: Sang khu sân khấu' : 'VD: Cây piano'} />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs text-gray-500">Hướng ngang (yaw)</label>
+                  <label className="text-xs text-ink-mute">Hướng ngang (yaw)</label>
                   <input type="number" min="-180" max="180" value={form.yaw} onChange={(e) => set('yaw', e.target.value)} className={inputCls} />
-                  <p className="text-[11px] text-gray-600 mt-1">-180 đến 180</p>
+                  <p className="text-[11px] text-ink-mute mt-1">-180 đến 180</p>
                 </div>
                 <div>
-                  <label className="text-xs text-gray-500">Hướng dọc (pitch)</label>
+                  <label className="text-xs text-ink-mute">Hướng dọc (pitch)</label>
                   <input type="number" min="-90" max="90" value={form.pitch} onChange={(e) => set('pitch', e.target.value)} className={inputCls} />
-                  <p className="text-[11px] text-gray-600 mt-1">-90 đến 90</p>
+                  <p className="text-[11px] text-ink-mute mt-1">-90 đến 90</p>
                 </div>
               </div>
               <button type="submit" disabled={isBusy}
-                className="w-full py-2 rounded-lg border border-gray-700 text-gray-300 text-sm font-bold hover:bg-gray-800 flex items-center justify-center gap-2 disabled:opacity-50">
+                className="w-full py-2 rounded-lg border border-line text-ink-soft text-sm font-bold hover:bg-sunken flex items-center justify-center gap-2 disabled:opacity-50">
                 {isBusy ? <Loader2 size={15} className="animate-spin" /> : <Plus size={15} />} Thêm hotspot
               </button>
             </form>
@@ -363,15 +363,15 @@ const OwnerTourPage = () => {
   }
 
   if (isLoading) {
-    return <div className="py-20 flex justify-center"><Loader2 size={32} className="animate-spin text-[#C3B665]" /></div>
+    return <div className="py-20 flex justify-center"><Loader2 size={32} className="animate-spin text-brand-text" /></div>
   }
 
   if (!lounge) {
     return (
       <div className="max-w-2xl">
-        <h1 className="text-2xl font-bold text-white mb-1">Tour 360°</h1>
-        <div className="mt-4 bg-gray-900 border border-gray-800 rounded-xl p-6">
-          <p className="text-sm text-gray-400">Hãy tạo hồ sơ phòng trà trước.</p>
+        <h1 className="text-2xl font-bold text-ink mb-1">Tour 360°</h1>
+        <div className="mt-4 bg-card border border-line rounded-xl p-6">
+          <p className="text-sm text-ink-soft">Hãy tạo hồ sơ phòng trà trước.</p>
         </div>
       </div>
     )
@@ -382,20 +382,20 @@ const OwnerTourPage = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-white mb-1">Tour 360° &amp; mô hình 3D</h1>
-        <p className="text-gray-400 text-sm leading-relaxed">
+        <h1 className="text-2xl font-bold text-ink mb-1">Tour 360° &amp; mô hình 3D</h1>
+        <p className="text-ink-soft text-sm leading-relaxed">
           Khán giả dùng tour này để xem trước không gian phòng trà trước khi mua vé.
         </p>
       </div>
 
       {/* === SCENE === */}
-      <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
+      <div className="bg-card border border-line rounded-xl p-6">
         <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
           <div>
-            <h2 className="text-base font-semibold text-white">Các điểm đứng (scene)</h2>
-            <p className="text-xs text-gray-500 mt-0.5">Mỗi scene là một ảnh 360° tại một vị trí trong phòng trà.</p>
+            <h2 className="text-base font-semibold text-ink">Các điểm đứng (scene)</h2>
+            <p className="text-xs text-ink-mute mt-0.5">Mỗi scene là một ảnh 360° tại một vị trí trong phòng trà.</p>
           </div>
-          <label className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#C3B665] text-black text-xs font-bold hover:bg-[#d4c87f] cursor-pointer flex-shrink-0">
+          <label className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-brand text-on-brand text-xs font-bold hover:bg-brand-hover cursor-pointer flex-shrink-0">
             {busy === 'scene' ? <Loader2 size={13} className="animate-spin" /> : <Plus size={13} />}
             Thêm ảnh 360° có sẵn
             <input type="file" accept="image/*" className="hidden" disabled={busy !== null}
@@ -409,14 +409,14 @@ const OwnerTourPage = () => {
         {tour?.floorPlanImageUrl ? (
           <div className="mb-5">
             <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-ink-mute">
                 {sceneDangDat
                   ? 'Bấm vào ảnh để đặt chấm cho scene đang nhắm.'
                   : 'Chọn một scene bên dưới rồi bấm vào ảnh để đặt chấm định vị.'}
               </p>
               {sceneDangDat && (
                 <button onClick={() => setSceneDangDat(null)}
-                  className="px-2.5 py-1 rounded-lg border border-gray-700 text-gray-400 text-xs font-bold hover:bg-gray-800">
+                  className="px-2.5 py-1 rounded-lg border border-line text-ink-soft text-xs font-bold hover:bg-sunken">
                   Thôi đặt
                 </button>
               )}
@@ -433,11 +433,11 @@ const OwnerTourPage = () => {
                 doiViTri(sceneDangDat, 'x', String(x))
                 doiViTri(sceneDangDat, 'y', String(y))
               }}
-              className={`relative w-full rounded-xl overflow-hidden border ${sceneDangDat ? 'border-[#C3B665] cursor-crosshair' : 'border-gray-800'}`}
+              className={`relative w-full rounded-xl overflow-hidden border ${sceneDangDat ? 'border-brand cursor-crosshair' : 'border-line'}`}
               style={{ aspectRatio: '16 / 9' }}
             >
               <img src={tour.floorPlanImageUrl} alt="Mặt bằng phòng trà"
-                className="absolute inset-0 w-full h-full object-contain bg-black" />
+                className="absolute inset-0 w-full h-full object-contain bg-page" />
 
               {scenes.map((sc) => {
                 const o = viTri[sc.id] ?? {}
@@ -447,7 +447,7 @@ const OwnerTourPage = () => {
                   <span key={sc.id}
                     title={sc.name || `Scene #${sc.id}`}
                     className={`absolute -translate-x-1/2 -translate-y-1/2 px-1.5 py-0.5 rounded-md text-[10px] font-bold whitespace-nowrap ${
-                      dangNham ? 'bg-[#C3B665] text-black ring-2 ring-white/50' : 'bg-black/80 text-[#C3B665] border border-[#C3B665]/50'
+                      dangNham ? 'bg-brand text-on-brand ring-2 ring-line-strong/50' : 'bg-espresso/80 text-brand-text border border-brand/50'
                     }`}
                     style={{ left: `${o.x}%`, top: `${o.y}%` }}>
                     {sc.name || `#${sc.id}`}
@@ -457,67 +457,67 @@ const OwnerTourPage = () => {
             </div>
           </div>
         ) : scenes.length > 0 && (
-          <p className="mb-4 text-xs text-gray-500 flex items-start gap-1.5 leading-relaxed">
-            <AlertTriangle size={12} className="mt-0.5 flex-shrink-0 text-yellow-400" />
+          <p className="mb-4 text-xs text-ink-mute flex items-start gap-1.5 leading-relaxed">
+            <AlertTriangle size={12} className="mt-0.5 flex-shrink-0 text-warning" />
             Chưa có ảnh mặt bằng nên không xem được chấm định vị trên bản đồ. Tải ảnh ở màn Khu vực
             chỗ ngồi — backend dùng chung một ảnh cho cả hai màn.
           </p>
         )}
 
         {scenes.length === 0 ? (
-          <p className="py-8 text-center text-sm text-gray-500">Chưa có scene nào.</p>
+          <p className="py-8 text-center text-sm text-ink-mute">Chưa có scene nào.</p>
         ) : (
           <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {scenes.map((sc) => (
-              <li key={sc.id} className="bg-black/40 border border-gray-800 rounded-lg overflow-hidden">
+              <li key={sc.id} className="bg-espresso/40 border border-line rounded-lg overflow-hidden">
                 {sc.imageUrl && <img src={sc.imageUrl} alt="" className="w-full h-32 object-cover" />}
                 <div className="p-3">
-                  <p className="text-sm text-white font-medium truncate">{sc.name || `Scene #${sc.id}`}</p>
-                  <p className="text-xs text-gray-500 mt-0.5">
+                  <p className="text-sm text-ink font-medium truncate">{sc.name || `Scene #${sc.id}`}</p>
+                  <p className="text-xs text-ink-mute mt-0.5">
                     {(sc.hotspots?.length ?? 0)} hotspot
                   </p>
                   <div className="mt-2 flex gap-2">
                     <button onClick={() => setHotspotOf(sc)}
-                      className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-gray-700 text-gray-300 text-xs font-bold hover:bg-gray-800">
+                      className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-line text-ink-soft text-xs font-bold hover:bg-sunken">
                       <Link2 size={12} /> Hotspot
                     </button>
                     <button onClick={() => setXoaScene(sc)}
-                      className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-gray-700 text-red-400 text-xs font-bold hover:bg-red-500/10">
+                      className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-line text-danger text-xs font-bold hover:bg-red-500/10">
                       <Trash2 size={12} /> Xoá
                     </button>
                   </div>
 
                   {/* CHẤM ĐỊNH VỊ TRÊN ẢNH MẶT BẰNG — không liên quan tới hotspot hay thứ tự */}
-                  <div className="mt-3 pt-3 border-t border-gray-800">
-                    <p className="text-xs text-gray-500 flex items-center gap-1.5">
+                  <div className="mt-3 pt-3 border-t border-line">
+                    <p className="text-xs text-ink-mute flex items-center gap-1.5">
                       <MapPin size={12} /> Vị trí trên ảnh mặt bằng (%)
                     </p>
                     <div className="mt-2 flex flex-wrap items-end gap-2">
                       {['x', 'y'].map((truc) => (
                         <div key={truc} className="w-16">
-                          <label className="text-xs text-gray-600 uppercase">{truc}</label>
+                          <label className="text-xs text-ink-mute uppercase">{truc}</label>
                           <input type="number" step="any" min="0" max="100"
                             value={(viTri[sc.id] ?? {})[truc] ?? ''}
                             onChange={(e) => doiViTri(sc.id, truc, e.target.value)}
-                            className="mt-1 w-full px-2 py-1.5 bg-black border border-gray-700 rounded-md text-xs text-white focus:outline-none focus:border-[#C3B665]/50 tabular-nums" />
+                            className="mt-1 w-full px-2 py-1.5 bg-page border border-line rounded-md text-xs text-ink focus:outline-none focus:border-brand/50 tabular-nums" />
                         </div>
                       ))}
                       <button onClick={() => luuViTri(sc.id)} disabled={busyViTri === sc.id}
-                        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-gray-700 text-gray-300 text-xs font-bold hover:bg-gray-800 disabled:opacity-50">
+                        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-line text-ink-soft text-xs font-bold hover:bg-sunken disabled:opacity-50">
                         {busyViTri === sc.id ? <Loader2 size={12} className="animate-spin" /> : <Save size={12} />} Lưu
                       </button>
                       <button onClick={() => { doiViTri(sc.id, 'x', ''); doiViTri(sc.id, 'y', '') }}
                         disabled={busyViTri === sc.id}
                         title="Xoá trống cả hai ô rồi bấm Lưu để xoá chấm định vị"
-                        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-gray-700 text-gray-500 text-xs font-bold hover:bg-gray-800 disabled:opacity-50">
+                        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-line text-ink-mute text-xs font-bold hover:bg-sunken disabled:opacity-50">
                         <Eraser size={12} />
                       </button>
                       {tour?.floorPlanImageUrl && (
                         <button onClick={() => setSceneDangDat(sceneDangDat === sc.id ? null : sc.id)}
                           className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-xs font-bold ${
                             sceneDangDat === sc.id
-                              ? 'border-[#C3B665] bg-[#C3B665]/10 text-[#C3B665]'
-                              : 'border-gray-700 text-gray-300 hover:bg-gray-800'
+                              ? 'border-brand bg-brand/10 text-brand-text'
+                              : 'border-line text-ink-soft hover:bg-sunken'
                           }`}>
                           <MapPin size={12} /> {sceneDangDat === sc.id ? 'Đang nhắm' : 'Đặt trên bản đồ'}
                         </button>
@@ -532,23 +532,23 @@ const OwnerTourPage = () => {
       </div>
 
       {/* === GHÉP ẢNH THÀNH 360° === */}
-      <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
-        <h2 className="text-base font-semibold text-white flex items-center gap-2">
+      <div className="bg-card border border-line rounded-xl p-6">
+        <h2 className="text-base font-semibold text-ink flex items-center gap-2">
           <Layers size={16} /> Ghép ảnh thường thành ảnh 360°
         </h2>
-        <p className="text-xs text-gray-500 mt-1 leading-relaxed">
+        <p className="text-xs text-ink-mute mt-1 leading-relaxed">
           Chụp nhiều ảnh xoay quanh một điểm đứng rồi tải lên đây. Việc ghép chạy nền và mất một lúc —
           không có ảnh ngay sau khi bấm.
         </p>
 
         {donGhep ? (
-          <div className="mt-4 bg-black/40 border border-gray-800 rounded-lg p-4">
-            <p className="text-sm text-white flex items-center gap-2">
-              <Clock size={14} className="text-yellow-400" /> Đơn ghép #{donGhep.id} — {donGhep.status}
+          <div className="mt-4 bg-espresso/40 border border-line rounded-lg p-4">
+            <p className="text-sm text-ink flex items-center gap-2">
+              <Clock size={14} className="text-warning" /> Đơn ghép #{donGhep.id} — {donGhep.status}
             </p>
-            {donGhep.errorMessage && <p className="text-xs text-red-400 mt-1">{donGhep.errorMessage}</p>}
+            {donGhep.errorMessage && <p className="text-xs text-danger mt-1">{donGhep.errorMessage}</p>}
             <button onClick={kiemTraDonGhep} disabled={busy !== null}
-              className="mt-3 flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-gray-700 text-gray-300 text-xs font-bold hover:bg-gray-800 disabled:opacity-50">
+              className="mt-3 flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-line text-ink-soft text-xs font-bold hover:bg-sunken disabled:opacity-50">
               {busy === 'check' ? <Loader2 size={13} className="animate-spin" /> : <RefreshCw size={13} />} Kiểm tra
             </button>
           </div>
@@ -557,29 +557,29 @@ const OwnerTourPage = () => {
             {anhGhep.length > 0 && (
               <div className="flex flex-wrap gap-2">
                 {anhGhep.map((url, i) => (
-                  <span key={url} className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-black border border-gray-700 text-xs text-gray-300">
+                  <span key={url} className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-page border border-line text-xs text-ink-soft">
                     Ảnh {i + 1}
                     <button onClick={() => setAnhGhep((p) => p.filter((u) => u !== url))}
-                      className="text-gray-500 hover:text-red-400"><X size={12} /></button>
+                      className="text-ink-mute hover:text-danger"><X size={12} /></button>
                   </span>
                 ))}
               </div>
             )}
             <div className="flex flex-wrap gap-2">
-              <label className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-gray-700 text-gray-300 text-xs font-bold hover:bg-gray-800 cursor-pointer">
+              <label className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-line text-ink-soft text-xs font-bold hover:bg-sunken cursor-pointer">
                 {busy === 'upload-ghep' ? <Loader2 size={13} className="animate-spin" /> : <Upload size={13} />}
                 Thêm ảnh nguồn
                 <input type="file" accept="image/*" className="hidden" disabled={busy !== null}
                   onChange={(e) => themAnhGhep(e.target.files?.[0])} />
               </label>
               <button onClick={ghepScene} disabled={busy !== null || anhGhep.length < 2}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#C3B665] text-black text-xs font-bold hover:bg-[#d4c87f] disabled:opacity-40 disabled:cursor-not-allowed">
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand text-on-brand text-xs font-bold hover:bg-brand-hover disabled:opacity-40 disabled:cursor-not-allowed">
                 {busy === 'ghep' ? <Loader2 size={13} className="animate-spin" /> : <Layers size={13} />}
                 Ghép thành scene ({anhGhep.length} ảnh)
               </button>
             </div>
             {anhGhep.length === 1 && (
-              <p className="text-xs text-yellow-400 flex items-start gap-1.5">
+              <p className="text-xs text-warning flex items-start gap-1.5">
                 <AlertTriangle size={12} className="mt-px flex-shrink-0" /> Cần ít nhất hai ảnh để ghép.
               </p>
             )}
@@ -588,17 +588,17 @@ const OwnerTourPage = () => {
       </div>
 
       {/* === MÔ HÌNH 3D === */}
-      <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
-        <h2 className="text-base font-semibold text-white flex items-center gap-2">
+      <div className="bg-card border border-line rounded-xl p-6">
+        <h2 className="text-base font-semibold text-ink flex items-center gap-2">
           <Box size={16} /> Mô hình 3D không gian
         </h2>
-        <p className="text-xs text-gray-500 mt-1 leading-relaxed">
+        <p className="text-xs text-ink-mute mt-1 leading-relaxed">
           Một tệp .glb hoặc .gltf cho cả phòng trà. Dùng cho buổi diễn phát ở chế độ không gian 3D.
         </p>
         {lounge.model3DUrl && (
-          <p className="text-xs text-green-400 mt-2">Đã có mô hình 3D.</p>
+          <p className="text-xs text-success mt-2">Đã có mô hình 3D.</p>
         )}
-        <label className="mt-3 inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-700 text-gray-300 text-sm font-medium hover:bg-gray-800 cursor-pointer">
+        <label className="mt-3 inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-line text-ink-soft text-sm font-medium hover:bg-sunken cursor-pointer">
           {busy === 'model' ? <Loader2 size={16} className="animate-spin" /> : <Upload size={16} />}
           {lounge.model3DUrl ? 'Đổi mô hình' : 'Tải mô hình lên'}
           <input type="file" accept=".glb,.gltf" className="hidden" disabled={busy !== null}

@@ -82,7 +82,7 @@ const OwnerSubscriptionPage = () => {
   if (isLoading) {
     return (
       <div className="py-20 flex justify-center">
-        <Loader2 size={32} className="animate-spin text-[#C3B665]" />
+        <Loader2 size={32} className="animate-spin text-brand-text" />
       </div>
     )
   }
@@ -92,31 +92,31 @@ const OwnerSubscriptionPage = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-white mb-1">Gói dịch vụ</h1>
-        <p className="text-gray-400 text-sm">Gói quyết định số vé tối đa mỗi buổi diễn, quyền dùng poster AI và số cảnh tour 360°.</p>
+        <h1 className="text-2xl font-bold text-ink mb-1">Gói dịch vụ</h1>
+        <p className="text-ink-soft text-sm">Gói quyết định số vé tối đa mỗi buổi diễn, quyền dùng poster AI và số cảnh tour 360°.</p>
       </div>
 
       {/* === GÓI ĐANG DÙNG === */}
       {current ? (
-        <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
+        <div className="bg-card border border-line rounded-xl p-6">
           <div className="flex items-start justify-between gap-4 flex-wrap">
             <div>
               <div className="flex items-center gap-2 mb-1">
-                <Package size={18} className="text-[#C3B665]" />
-                <h2 className="text-lg font-bold text-white">{current.packageName}</h2>
+                <Package size={18} className="text-brand-text" />
+                <h2 className="text-lg font-bold text-ink">{current.packageName}</h2>
                 <span className={`px-2 py-0.5 rounded-full text-xs font-bold border ${current.status === 'Active'
-                  ? 'bg-green-500/10 text-green-400 border-green-500/30'
-                  : 'bg-gray-500/10 text-gray-400 border-gray-500/30'
+                  ? 'bg-green-500/10 text-success border-green-500/30'
+                  : 'bg-line-strong/10 text-ink-soft border-line-strong/30'
                   }`}>
                   {current.status}
                 </span>
               </div>
-              <p className="text-sm text-gray-400 flex items-center gap-1.5">
+              <p className="text-sm text-ink-soft flex items-center gap-1.5">
                 <CalendarClock size={14} />
                 Hiệu lực tới {dayjs(current.expiresAt).format('HH:mm DD/MM/YYYY')}
               </p>
               {current.cancelledAt && (
-                <p className="text-xs text-yellow-400 mt-2">
+                <p className="text-xs text-warning mt-2">
                   Đã huỷ gia hạn lúc {dayjs(current.cancelledAt).format('DD/MM/YYYY')} — vẫn dùng được tới hết kỳ trên.
                 </p>
               )}
@@ -126,7 +126,7 @@ const OwnerSubscriptionPage = () => {
               <button
                 onClick={() => goToPayment('renew', renewSubscription)}
                 disabled={!!busy}
-                className="px-4 py-2 rounded-lg bg-[#C3B665] text-black text-sm font-bold hover:bg-[#d4c87f] disabled:opacity-50"
+                className="px-4 py-2 rounded-lg bg-brand text-on-brand text-sm font-bold hover:bg-brand-hover disabled:opacity-50"
               >
                 {busy === 'renew' ? 'Đang chuyển...' : 'Gia hạn'}
               </button>
@@ -134,7 +134,7 @@ const OwnerSubscriptionPage = () => {
                 <button
                   onClick={handleCancel}
                   disabled={!!busy}
-                  className="px-4 py-2 rounded-lg border border-gray-700 text-gray-300 text-sm font-bold hover:bg-gray-800 disabled:opacity-50"
+                  className="px-4 py-2 rounded-lg border border-line text-ink-soft text-sm font-bold hover:bg-sunken disabled:opacity-50"
                 >
                   Huỷ gia hạn
                 </button>
@@ -143,14 +143,14 @@ const OwnerSubscriptionPage = () => {
           </div>
 
           {/* Hạn mức là bản chụp lúc đăng ký (snapshot) — Admin sửa gói sau đó không làm đổi gói đang chạy. */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-5 pt-5 border-t border-gray-800">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-5 pt-5 border-t border-line">
             <div>
-              <p className="text-xs text-gray-500">Vé tối đa/buổi diễn</p>
-              <p className="text-white font-bold mt-0.5">{current.maxTicketsPerEventSnapshot}</p>
+              <p className="text-xs text-ink-mute">Vé tối đa/buổi diễn</p>
+              <p className="text-ink font-bold mt-0.5">{current.maxTicketsPerEventSnapshot}</p>
             </div>
             <div>
-              <p className="text-xs text-gray-500">Poster AI</p>
-              <p className="text-white font-bold mt-0.5">{current.hasAiPosterSnapshot ? 'Có' : 'Không'}</p>
+              <p className="text-xs text-ink-mute">Poster AI</p>
+              <p className="text-ink font-bold mt-0.5">{current.hasAiPosterSnapshot ? 'Có' : 'Không'}</p>
             </div>
             {/* ĐÃ DÙNG / TRẦN, không chỉ trần. Trần một mình không trả lời được câu duy nhất chủ phòng
                 trà hỏi ở đây — "tôi còn mấy lượt". Trước MLACP-483 số còn lại chỉ có trong câu trả lời
@@ -158,90 +158,90 @@ const OwnerSubscriptionPage = () => {
                 Hai trường mới có thể chưa lên máy chủ đang chạy, nên kiểm kiểu trước: thiếu thì tự
                 rơi về cách hiện cũ, không cần dọn dẹp gì sau khi backend deploy. */}
             <div>
-              <p className="text-xs text-gray-500">Poster AI tháng này</p>
+              <p className="text-xs text-ink-mute">Poster AI tháng này</p>
               {typeof current.aiPostersUsedThisMonth === 'number' ? (
                 <>
-                  <p className="text-white font-bold mt-0.5">
+                  <p className="text-ink font-bold mt-0.5">
                     {current.aiPostersUsedThisMonth}/{current.maxAiPostersPerMonthSnapshot}
                   </p>
-                  <p className={`text-xs mt-0.5 ${current.aiPostersRemainingThisMonth === 0 ? 'text-yellow-400' : 'text-gray-500'}`}>
+                  <p className={`text-xs mt-0.5 ${current.aiPostersRemainingThisMonth === 0 ? 'text-warning' : 'text-ink-mute'}`}>
                     {current.aiPostersRemainingThisMonth === 0
                       ? 'Hết lượt, làm mới đầu tháng sau'
                       : `còn ${current.aiPostersRemainingThisMonth}`}
                   </p>
                 </>
               ) : (
-                <p className="text-white font-bold mt-0.5">{current.maxAiPostersPerMonthSnapshot}</p>
+                <p className="text-ink font-bold mt-0.5">{current.maxAiPostersPerMonthSnapshot}</p>
               )}
             </div>
             <div>
-              <p className="text-xs text-gray-500">Cảnh tour 360°</p>
-              <p className="text-white font-bold mt-0.5">{current.maxTourScenesSnapshot}</p>
+              <p className="text-xs text-ink-mute">Cảnh tour 360°</p>
+              <p className="text-ink font-bold mt-0.5">{current.maxTourScenesSnapshot}</p>
             </div>
           </div>
 
           {isExpiringSoon && (
             <div className="mt-4 flex items-start gap-2 bg-yellow-500/5 border border-yellow-500/20 rounded-lg p-3">
-              <AlertTriangle size={16} className="text-yellow-400 flex-shrink-0 mt-0.5" />
-              <p className="text-xs text-yellow-400">
+              <AlertTriangle size={16} className="text-warning flex-shrink-0 mt-0.5" />
+              <p className="text-xs text-warning">
                 Gói sắp hết hạn. Hết hạn mà chưa gia hạn thì các hạn mức trên sẽ không còn áp dụng.
               </p>
             </div>
           )}
         </div>
       ) : (
-        <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 text-center">
-          <Package size={28} className="mx-auto text-gray-600 mb-2" />
-          <p className="text-gray-400 text-sm">Bạn chưa đăng ký gói nào. Chọn một gói bên dưới để bắt đầu.</p>
+        <div className="bg-card border border-line rounded-xl p-6 text-center">
+          <Package size={28} className="mx-auto text-ink-mute mb-2" />
+          <p className="text-ink-soft text-sm">Bạn chưa đăng ký gói nào. Chọn một gói bên dưới để bắt đầu.</p>
         </div>
       )}
 
       {/* === DANH SÁCH GÓI === */}
       <div>
-        <h2 className="text-sm font-semibold text-gray-400 mb-3">Các gói đang mở bán</h2>
+        <h2 className="text-sm font-semibold text-ink-soft mb-3">Các gói đang mở bán</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {packages.map((p) => {
             const isCurrent = current?.packageId === p.id
             return (
               <div
                 key={p.id}
-                className={`bg-gray-900 border rounded-xl p-5 flex flex-col ${isCurrent ? 'border-[#C3B665]' : 'border-gray-800'}`}
+                className={`bg-card border rounded-xl p-5 flex flex-col ${isCurrent ? 'border-brand' : 'border-line'}`}
               >
                 <div className="flex items-center justify-between mb-1">
-                  <h3 className="text-white font-bold">{p.name}</h3>
+                  <h3 className="text-ink font-bold">{p.name}</h3>
                   {isCurrent && (
-                    <span className="px-2 py-0.5 rounded-full bg-[#C3B665]/15 text-[#C3B665] text-xs font-bold">Đang dùng</span>
+                    <span className="px-2 py-0.5 rounded-full bg-brand/15 text-brand-text text-xs font-bold">Đang dùng</span>
                   )}
                 </div>
-                <p className="text-2xl font-bold text-[#C3B665]">{fmtMoney(p.price)}</p>
-                <p className="text-xs text-gray-500 mb-4">
+                <p className="text-2xl font-bold text-brand-text">{fmtMoney(p.price)}</p>
+                <p className="text-xs text-ink-mute mb-4">
                   {p.billingCycle === 'Monthly' ? 'mỗi tháng' : p.billingCycle === 'Yearly' ? 'mỗi năm' : p.billingCycle}
                 </p>
-                {p.description && <p className="text-xs text-gray-400 mb-4">{p.description}</p>}
+                {p.description && <p className="text-xs text-ink-soft mb-4">{p.description}</p>}
 
-                <ul className="space-y-2 text-sm text-gray-300 mb-5">
+                <ul className="space-y-2 text-sm text-ink-soft mb-5">
                   <li className="flex items-center gap-2">
-                    <Check size={14} className="text-green-400" /> Tối đa {p.maxTicketsPerEvent} vé/buổi diễn
+                    <Check size={14} className="text-success" /> Tối đa {p.maxTicketsPerEvent} vé/buổi diễn
                   </li>
                   <li className="flex items-center gap-2">
-                    <Check size={14} className={p.hasAiPoster ? 'text-green-400' : 'text-gray-700'} />
+                    <Check size={14} className={p.hasAiPoster ? 'text-success' : 'text-ink-mute'} />
                     {p.hasAiPoster ? `Poster AI — ${p.maxAiPostersPerMonth}/tháng` : 'Không có poster AI'}
                   </li>
                   <li className="flex items-center gap-2">
-                    <Check size={14} className="text-green-400" /> {p.maxTourScenes} cảnh tour 360°
+                    <Check size={14} className="text-success" /> {p.maxTourScenes} cảnh tour 360°
                   </li>
                 </ul>
 
                 <div className="mt-auto">
                   {isCurrent ? (
-                    <button disabled className="w-full py-2 rounded-lg bg-gray-800 text-gray-500 text-sm font-bold cursor-default">
+                    <button disabled className="w-full py-2 rounded-lg bg-sunken text-ink-mute text-sm font-bold cursor-default">
                       Gói hiện tại
                     </button>
                   ) : current ? (
                     <button
                       onClick={() => goToPayment(`change-${p.id}`, () => changePackage(p.id))}
                       disabled={!!busy}
-                      className="w-full py-2 rounded-lg border border-[#C3B665] text-[#C3B665] text-sm font-bold hover:bg-[#C3B665] hover:text-black transition-colors disabled:opacity-50"
+                      className="w-full py-2 rounded-lg border border-brand text-brand-text text-sm font-bold hover:bg-brand-hover hover:text-on-brand transition-colors disabled:opacity-50"
                     >
                       {busy === `change-${p.id}` ? 'Đang chuyển...' : 'Đổi sang gói này'}
                     </button>
@@ -249,7 +249,7 @@ const OwnerSubscriptionPage = () => {
                     <button
                       onClick={() => goToPayment(`sub-${p.id}`, () => subscribeToPackage(p.id))}
                       disabled={!!busy}
-                      className="w-full py-2 rounded-lg bg-[#C3B665] text-black text-sm font-bold hover:bg-[#d4c87f] disabled:opacity-50"
+                      className="w-full py-2 rounded-lg bg-brand text-on-brand text-sm font-bold hover:bg-brand-hover disabled:opacity-50"
                     >
                       {busy === `sub-${p.id}` ? 'Đang chuyển...' : 'Đăng ký'}
                     </button>
@@ -259,7 +259,7 @@ const OwnerSubscriptionPage = () => {
             )
           })}
         </div>
-        <p className="text-xs text-gray-600 mt-4">
+        <p className="text-xs text-ink-mute mt-4">
           Đổi gói có hiệu lực ngay; phần thời gian còn lại của gói cũ được quy đổi thành thời gian ở gói mới,
           không hoàn tiền mặt.
         </p>

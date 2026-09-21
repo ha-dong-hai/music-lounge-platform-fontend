@@ -20,7 +20,7 @@ import { createComplaint, lookupComplaint, getMyComplaints } from '../../service
 import { uploadImage } from '../../services/userServices'
 import { useAuthStore } from '../../store/useAuthStore'
 
-const inputCls = 'mt-1 w-full px-3 py-2.5 bg-black border border-gray-700 rounded-lg text-sm text-white focus:outline-none focus:border-[#C3B665]/50'
+const inputCls = 'mt-1 w-full px-3 py-2.5 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-brand/50'
 
 // Đúng 6 giá trị targetType backend nhận.
 const TARGET_TYPES = [
@@ -174,14 +174,14 @@ const ComplaintPage = () => {
   const loaiHienTai = TARGET_TYPES.find((t) => t.value === form.targetType)
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-page text-ink">
       <div className="max-w-2xl mx-auto px-4 sm:px-6 py-8">
-        <Link to="/" className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-white mb-6">
+        <Link to="/" className="inline-flex items-center gap-1.5 text-sm text-ink-mute hover:text-ink mb-6">
           <ArrowLeft size={16} /> Về trang chủ
         </Link>
 
         <h1 className="text-2xl font-bold mb-1">Khiếu nại &amp; báo cáo</h1>
-        <p className="text-gray-400 text-sm mb-6">
+        <p className="text-ink-soft text-sm mb-6">
           Gửi khiếu nại về buổi diễn, phòng trà, vé hoặc tiền donate. Bạn không cần đăng nhập để gửi.
         </p>
 
@@ -189,8 +189,8 @@ const ComplaintPage = () => {
           {TABS.map((t) => (
             <button key={t.key} onClick={() => setTab(t.key)}
               className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${tab === t.key
-                ? 'bg-gray-800 border-[#C3B665]/40 text-[#C3B665]'
-                : 'bg-black border-gray-800 text-gray-400 hover:text-white'}`}>
+                ? 'bg-sunken border-brand/40 text-brand-text'
+                : 'bg-page border-line text-ink-soft hover:text-ink'}`}>
               {t.label}
             </button>
           ))}
@@ -198,28 +198,28 @@ const ComplaintPage = () => {
 
         {/* ===== GỬI MỚI ===== */}
         {tab === 'new' && (ketQua ? (
-          <div className="bg-gray-900 border border-green-500/30 rounded-xl p-6">
+          <div className="bg-card border border-green-500/30 rounded-xl p-6">
             <div className="flex items-start gap-3">
-              <CheckCircle2 size={20} className="text-green-400 mt-0.5 flex-shrink-0" />
+              <CheckCircle2 size={20} className="text-success mt-0.5 flex-shrink-0" />
               <div>
-                <p className="font-semibold text-white">Đã gửi khiếu nại</p>
-                <p className="text-sm text-gray-400 mt-1">
+                <p className="font-semibold text-ink">Đã gửi khiếu nại</p>
+                <p className="text-sm text-ink-soft mt-1">
                   Khiếu nại số #{ketQua.id}. Chúng tôi sẽ xem xét và phản hồi.
                 </p>
               </div>
             </div>
 
             {ketQua.lookupReference && (
-              <div className="mt-5 bg-black/60 border border-gray-800 rounded-lg p-4">
-                <p className="text-xs text-gray-500">Mã tra cứu của bạn</p>
+              <div className="mt-5 bg-espresso/60 border border-line rounded-lg p-4">
+                <p className="text-xs text-ink-mute">Mã tra cứu của bạn</p>
                 <div className="flex items-center gap-3 mt-1.5 flex-wrap">
-                  <code className="text-lg font-bold text-[#C3B665] tracking-wide break-all">{ketQua.lookupReference}</code>
+                  <code className="text-lg font-bold text-brand-text tracking-wide break-all">{ketQua.lookupReference}</code>
                   <button onClick={saoChepMa}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-gray-700 text-gray-300 text-xs font-bold hover:bg-gray-800">
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-line text-ink-soft text-xs font-bold hover:bg-sunken">
                     <Copy size={13} /> Sao chép
                   </button>
                 </div>
-                <p className="text-xs text-yellow-400/90 mt-3 leading-relaxed">
+                <p className="text-xs text-warning/90 mt-3 leading-relaxed">
                   Hãy lưu lại mã này. Nếu bạn không có tài khoản, đây là cách duy nhất để tra lại kết quả —
                   hệ thống không gửi tin nhắn thông báo.
                 </p>
@@ -227,51 +227,51 @@ const ComplaintPage = () => {
             )}
 
             <button onClick={() => setKetQua(null)}
-              className="mt-5 text-sm text-gray-400 hover:text-white underline">
+              className="mt-5 text-sm text-ink-soft hover:text-ink underline">
               Gửi một khiếu nại khác
             </button>
           </div>
         ) : (
-          <form onSubmit={guiKhieuNai} className="bg-gray-900 border border-gray-800 rounded-xl p-6 space-y-4">
+          <form onSubmit={guiKhieuNai} className="bg-card border border-line rounded-xl p-6 space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="text-xs text-gray-500">Khiếu nại về</label>
+                <label className="text-xs text-ink-mute">Khiếu nại về</label>
                 <select value={form.targetType} onChange={(e) => set('targetType', e.target.value)} className={inputCls}>
                   {TARGET_TYPES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
                 </select>
               </div>
               <div>
-                <label className="text-xs text-gray-500">Mã {loaiHienTai?.label.toLowerCase()} <span className="text-red-400">*</span></label>
+                <label className="text-xs text-ink-mute">Mã {loaiHienTai?.label.toLowerCase()} <span className="text-danger">*</span></label>
                 <input type="number" value={form.targetId} onChange={(e) => set('targetId', e.target.value)} className={inputCls} />
-                {loaiHienTai?.hint && <p className="text-xs text-gray-600 mt-1">{loaiHienTai.hint}</p>}
+                {loaiHienTai?.hint && <p className="text-xs text-ink-mute mt-1">{loaiHienTai.hint}</p>}
               </div>
             </div>
 
             <div>
-              <label className="text-xs text-gray-500">Loại vấn đề</label>
+              <label className="text-xs text-ink-mute">Loại vấn đề</label>
               <select value={form.category} onChange={(e) => set('category', e.target.value)} className={inputCls}>
                 {CATEGORIES.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
               </select>
             </div>
 
             <div>
-              <label className="text-xs text-gray-500">Mô tả sự việc <span className="text-red-400">*</span></label>
+              <label className="text-xs text-ink-mute">Mô tả sự việc <span className="text-danger">*</span></label>
               <textarea value={form.description} onChange={(e) => set('description', e.target.value)} rows={5}
                 className={`${inputCls} resize-none`}
                 placeholder="Kể rõ chuyện gì đã xảy ra, thời điểm, và bạn mong muốn được giải quyết thế nào." />
             </div>
 
             <div>
-              <label className="text-xs text-gray-500">Ảnh bằng chứng</label>
+              <label className="text-xs text-ink-mute">Ảnh bằng chứng</label>
               <div className="mt-1.5 flex flex-wrap items-center gap-2">
                 {evidences.map((url, i) => (
-                  <span key={url} className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-black border border-gray-700 text-xs text-gray-300">
+                  <span key={url} className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-page border border-line text-xs text-ink-soft">
                     Ảnh {i + 1}
                     <button type="button" onClick={() => setEvidences((p) => p.filter((u) => u !== url))}
-                      className="text-gray-500 hover:text-red-400"><X size={12} /></button>
+                      className="text-ink-mute hover:text-danger"><X size={12} /></button>
                   </span>
                 ))}
-                <label className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-gray-700 text-gray-300 text-xs font-medium hover:bg-gray-800 cursor-pointer">
+                <label className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-line text-ink-soft text-xs font-medium hover:bg-sunken cursor-pointer">
                   {isUploading ? <Loader2 size={13} className="animate-spin" /> : <Upload size={13} />}
                   Thêm ảnh
                   <input type="file" accept="image/*" className="hidden" disabled={isUploading}
@@ -281,12 +281,12 @@ const ComplaintPage = () => {
             </div>
 
             <div>
-              <label className="text-xs text-gray-500">
-                Số điện thoại liên hệ {!user && <span className="text-red-400">*</span>}
+              <label className="text-xs text-ink-mute">
+                Số điện thoại liên hệ {!user && <span className="text-danger">*</span>}
               </label>
               <input value={form.contactPhone} onChange={(e) => set('contactPhone', e.target.value)}
                 className={inputCls} inputMode="tel" />
-              <p className="text-xs text-gray-600 mt-1">
+              <p className="text-xs text-ink-mute mt-1">
                 {user
                   ? 'Không bắt buộc — chúng tôi có thể liên hệ qua tài khoản của bạn.'
                   : 'Bắt buộc vì bạn chưa đăng nhập. Không có số này thì chúng tôi không liên hệ lại được.'}
@@ -294,7 +294,7 @@ const ComplaintPage = () => {
             </div>
 
             <button type="submit" disabled={isSending || isUploading}
-              className="w-full py-3 bg-[#C3B665] text-black rounded-lg font-bold flex items-center justify-center gap-2 disabled:opacity-50">
+              className="w-full py-3 bg-brand text-on-brand rounded-lg font-bold flex items-center justify-center gap-2 disabled:opacity-50">
               {isSending ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />} Gửi khiếu nại
             </button>
           </form>
@@ -303,28 +303,28 @@ const ComplaintPage = () => {
         {/* ===== TRA CỨU ===== */}
         {tab === 'lookup' && (
           <div className="space-y-4">
-            <form onSubmit={traCuu} className="bg-gray-900 border border-gray-800 rounded-xl p-6">
-              <label className="text-xs text-gray-500">Mã tra cứu nhận được lúc gửi</label>
+            <form onSubmit={traCuu} className="bg-card border border-line rounded-xl p-6">
+              <label className="text-xs text-ink-mute">Mã tra cứu nhận được lúc gửi</label>
               <div className="mt-1.5 flex gap-2">
                 <input value={maTraCuu} onChange={(e) => setMaTraCuu(e.target.value)}
-                  className="flex-1 px-3 py-2.5 bg-black border border-gray-700 rounded-lg text-sm text-white focus:outline-none focus:border-[#C3B665]/50" />
+                  className="flex-1 px-3 py-2.5 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-brand/50" />
                 <button type="submit" disabled={isLookingUp || !maTraCuu.trim()}
-                  className="flex items-center gap-1.5 px-4 rounded-lg bg-[#C3B665] text-black text-sm font-bold disabled:opacity-50">
+                  className="flex items-center gap-1.5 px-4 rounded-lg bg-brand text-on-brand text-sm font-bold disabled:opacity-50">
                   {isLookingUp ? <Loader2 size={16} className="animate-spin" /> : <Search size={16} />} Tra cứu
                 </button>
               </div>
-              <p className="text-xs text-gray-600 mt-2">
+              <p className="text-xs text-ink-mute mt-2">
                 Dành cho người gửi khiếu nại mà không có tài khoản.
               </p>
             </form>
 
             {ketQuaTraCuu && (
-              <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
-                <p className="text-white font-semibold">Khiếu nại #{ketQuaTraCuu.id}</p>
-                <p className="text-sm text-gray-400 mt-1">
+              <div className="bg-card border border-line rounded-xl p-6">
+                <p className="text-ink font-semibold">Khiếu nại #{ketQuaTraCuu.id}</p>
+                <p className="text-sm text-ink-soft mt-1">
                   {STATUS_LABELS[ketQuaTraCuu.status] ?? ketQuaTraCuu.status}
                 </p>
-                <div className="mt-3 pt-3 border-t border-gray-800 space-y-1.5 text-xs text-gray-500">
+                <div className="mt-3 pt-3 border-t border-line space-y-1.5 text-xs text-ink-mute">
                   <p>Gửi lúc {dayjs(ketQuaTraCuu.createdAt).format('HH:mm DD/MM/YYYY')}</p>
                   {ketQuaTraCuu.slaDeadline && (
                     <p className="inline-flex items-center gap-1.5">
@@ -334,9 +334,9 @@ const ComplaintPage = () => {
                   {ketQuaTraCuu.resolvedAt && <p>Đã xử lý {dayjs(ketQuaTraCuu.resolvedAt).format('DD/MM/YYYY')}</p>}
                 </div>
                 {ketQuaTraCuu.resolution && (
-                  <div className="mt-3 bg-black/40 border border-gray-800 rounded-lg p-3">
-                    <p className="text-xs text-gray-500 mb-1">Phản hồi của chúng tôi</p>
-                    <p className="text-sm text-gray-300 leading-relaxed">{ketQuaTraCuu.resolution}</p>
+                  <div className="mt-3 bg-espresso/40 border border-line rounded-lg p-3">
+                    <p className="text-xs text-ink-mute mb-1">Phản hồi của chúng tôi</p>
+                    <p className="text-sm text-ink-soft leading-relaxed">{ketQuaTraCuu.resolution}</p>
                   </div>
                 )}
               </div>
@@ -347,38 +347,38 @@ const ComplaintPage = () => {
         {/* ===== CỦA TÔI ===== */}
         {tab === 'mine' && (
           !user ? (
-            <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
-              <p className="text-sm text-gray-400">
-                Bạn cần <Link to="/login" className="text-[#C3B665] underline">đăng nhập</Link> để xem khiếu nại của mình.
+            <div className="bg-card border border-line rounded-xl p-6">
+              <p className="text-sm text-ink-soft">
+                Bạn cần <Link to="/login" className="text-brand-text underline">đăng nhập</Link> để xem khiếu nại của mình.
                 Nếu đã gửi khi chưa đăng nhập, hãy dùng tab “Tra cứu bằng mã”.
               </p>
             </div>
           ) : isLoadingMine ? (
-            <div className="py-16 flex justify-center"><Loader2 size={28} className="animate-spin text-[#C3B665]" /></div>
+            <div className="py-16 flex justify-center"><Loader2 size={28} className="animate-spin text-brand-text" /></div>
           ) : mine.length === 0 ? (
-            <div className="bg-gray-900 border border-gray-800 rounded-xl p-10 text-center">
-              <MessageSquareWarning size={26} className="mx-auto mb-3 text-gray-700" />
-              <p className="text-sm text-gray-500">Bạn chưa gửi khiếu nại nào.</p>
+            <div className="bg-card border border-line rounded-xl p-10 text-center">
+              <MessageSquareWarning size={26} className="mx-auto mb-3 text-ink-mute" />
+              <p className="text-sm text-ink-mute">Bạn chưa gửi khiếu nại nào.</p>
             </div>
           ) : (
             <ul className="space-y-3">
               {mine.map((c) => (
-                <li key={c.id} className="bg-gray-900 border border-gray-800 rounded-xl p-5">
+                <li key={c.id} className="bg-card border border-line rounded-xl p-5">
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="min-w-0">
-                      <p className="text-white font-semibold">#{c.id} · {CATEGORIES.find((x) => x.value === c.category)?.label ?? c.category}</p>
-                      <p className="text-xs text-gray-500 mt-0.5">
+                      <p className="text-ink font-semibold">#{c.id} · {CATEGORIES.find((x) => x.value === c.category)?.label ?? c.category}</p>
+                      <p className="text-xs text-ink-mute mt-0.5">
                         {TARGET_TYPES.find((t) => t.value === c.targetType)?.label ?? c.targetType} #{c.targetId}
                         {' · '}{dayjs(c.createdAt).format('DD/MM/YYYY')}
                       </p>
                     </div>
-                    <span className="text-xs text-gray-400 flex-shrink-0">{STATUS_LABELS[c.status] ?? c.status}</span>
+                    <span className="text-xs text-ink-soft flex-shrink-0">{STATUS_LABELS[c.status] ?? c.status}</span>
                   </div>
-                  <p className="text-sm text-gray-400 mt-2 line-clamp-3">{c.description}</p>
+                  <p className="text-sm text-ink-soft mt-2 line-clamp-3">{c.description}</p>
                   {c.resolution && (
-                    <div className="mt-3 bg-black/40 border border-gray-800 rounded-lg p-3">
-                      <p className="text-xs text-gray-500 mb-1">Phản hồi</p>
-                      <p className="text-sm text-gray-300 leading-relaxed">{c.resolution}</p>
+                    <div className="mt-3 bg-espresso/40 border border-line rounded-lg p-3">
+                      <p className="text-xs text-ink-mute mb-1">Phản hồi</p>
+                      <p className="text-sm text-ink-soft leading-relaxed">{c.resolution}</p>
                     </div>
                   )}
                 </li>

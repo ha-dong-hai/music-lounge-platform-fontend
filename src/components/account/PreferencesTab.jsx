@@ -16,8 +16,8 @@ import { getGenres, getMoods, getAtmospheres } from '../../services/catalogServi
 
 const ChipGroup = ({ label, hint, options, selected, onToggle, accent = false }) => (
   <div>
-    <label className="text-sm font-medium text-white">{label}</label>
-    {hint && <p className="text-xs text-gray-500 mt-0.5">{hint}</p>}
+    <label className="text-sm font-medium text-ink">{label}</label>
+    {hint && <p className="text-xs text-ink-mute mt-0.5">{hint}</p>}
     <div className="mt-2 flex flex-wrap gap-2">
       {options.map((o) => {
         const chon = selected.includes(o.id)
@@ -25,9 +25,9 @@ const ChipGroup = ({ label, hint, options, selected, onToggle, accent = false })
           <button key={o.id} type="button" onClick={() => onToggle(o.id)}
             className={`px-3 py-1.5 rounded-lg border text-xs font-medium transition-colors ${chon
               ? accent
-                ? 'bg-red-500/10 border-red-500/40 text-red-400'
-                : 'bg-gray-800 border-[#C3B665]/40 text-[#C3B665]'
-              : 'bg-black border-gray-800 text-gray-400 hover:text-white'}`}>
+                ? 'bg-red-500/10 border-red-500/40 text-danger'
+                : 'bg-sunken border-brand/40 text-brand-text'
+              : 'bg-page border-line text-ink-soft hover:text-ink'}`}>
             {o.name}
           </button>
         )
@@ -91,17 +91,17 @@ const PreferencesTab = () => {
   }
 
   if (isLoading) {
-    return <div className="py-16 flex justify-center"><Loader2 size={28} className="animate-spin text-[#C3B665]" /></div>
+    return <div className="py-16 flex justify-center"><Loader2 size={28} className="animate-spin text-brand-text" /></div>
   }
 
   return (
     <form onSubmit={luu} className="space-y-5">
-      <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
+      <div className="bg-card border border-line rounded-xl p-6">
         <div className="flex items-start gap-3">
-          <Sparkles size={18} className="text-[#C3B665] mt-0.5 flex-shrink-0" />
+          <Sparkles size={18} className="text-brand-text mt-0.5 flex-shrink-0" />
           <div className="flex-1">
-            <p className="text-sm font-medium text-white">Cho phép gợi ý dựa trên lịch sử của tôi</p>
-            <p className="text-xs text-gray-500 mt-1 leading-relaxed">
+            <p className="text-sm font-medium text-ink">Cho phép gợi ý dựa trên lịch sử của tôi</p>
+            <p className="text-xs text-ink-mute mt-1 leading-relaxed">
               Bật thì hệ thống dùng những buổi diễn bạn đã xem và đã mua vé để gợi ý chính xác hơn.
               Tắt thì chỉ gợi ý theo sở thích bạn tự chọn bên dưới.
             </p>
@@ -109,12 +109,12 @@ const PreferencesTab = () => {
           <label className="flex-shrink-0">
             <input type="checkbox" checked={form.enableAiConsent}
               onChange={(e) => setForm((p) => ({ ...p, enableAiConsent: e.target.checked }))}
-              className="accent-[#C3B665] w-4 h-4" />
+              className="accent-brand w-4 h-4" />
           </label>
         </div>
       </div>
 
-      <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 space-y-6">
+      <div className="bg-card border border-line rounded-xl p-6 space-y-6">
         <ChipGroup label="Thể loại yêu thích" options={catalog.genres}
           selected={form.genreIds} onToggle={(id) => toggle('genreIds', id)} />
         <ChipGroup label="Tâm trạng" options={catalog.moods}
@@ -128,7 +128,7 @@ const PreferencesTab = () => {
       </div>
 
       <button type="submit" disabled={isSaving}
-        className="flex items-center gap-2 px-5 py-2.5 bg-[#C3B665] text-black rounded-lg font-bold hover:bg-[#d4c87f] disabled:opacity-50">
+        className="flex items-center gap-2 px-5 py-2.5 bg-brand text-on-brand rounded-lg font-bold hover:bg-brand-hover disabled:opacity-50">
         {isSaving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />} Lưu sở thích
       </button>
     </form>

@@ -19,7 +19,7 @@ import toast from 'react-hot-toast'
 import { getLounges, getLoungeStaff, lookupUserByEmail, assignStaff, deactivateStaff } from '../../services/loungeServices'
 import ConfirmModal from '../../components/shared/ConfirmModal'
 
-const inputCls = 'px-3 py-2 bg-black border border-gray-700 rounded-lg text-sm text-white focus:outline-none focus:border-[#C3B665]/50'
+const inputCls = 'px-3 py-2 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-brand/50'
 
 const AddStaffModal = ({ loungeId, onClose, onSaved }) => {
   const [email, setEmail] = useState('')
@@ -53,15 +53,15 @@ const AddStaffModal = ({ loungeId, onClose, onSaved }) => {
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-gray-900 border border-gray-700 rounded-2xl w-full max-w-md shadow-2xl">
-        <div className="flex justify-between items-center p-5 border-b border-gray-800">
-          <h2 className="text-lg font-bold text-white">Thêm nhân viên</h2>
-          <button onClick={onClose} className="p-2 hover:bg-gray-800 rounded-full text-gray-400"><X size={20} /></button>
+      <div className="absolute inset-0 bg-espresso/80 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative bg-card border border-line rounded-2xl w-full max-w-md shadow-2xl">
+        <div className="flex justify-between items-center p-5 border-b border-line">
+          <h2 className="text-lg font-bold text-ink">Thêm nhân viên</h2>
+          <button onClick={onClose} className="p-2 hover:bg-sunken rounded-full text-ink-soft"><X size={20} /></button>
         </div>
 
         <div className="p-5 space-y-4">
-          <p className="text-xs text-gray-500 leading-relaxed">
+          <p className="text-xs text-ink-mute leading-relaxed">
             Người này cần đã có tài khoản trên hệ thống. Nhập email họ dùng để đăng ký.
           </p>
 
@@ -69,17 +69,17 @@ const AddStaffModal = ({ loungeId, onClose, onSaved }) => {
             <input value={email} onChange={(e) => { setEmail(e.target.value); setNguoiTim(null) }}
               type="email" placeholder="email@example.com" autoFocus className={`flex-1 ${inputCls}`} />
             <button type="submit" disabled={busy !== null || !email.trim()}
-              className="flex items-center gap-1.5 px-4 py-2 rounded-lg border border-gray-700 text-gray-300 text-sm font-bold hover:bg-gray-800 disabled:opacity-50">
+              className="flex items-center gap-1.5 px-4 py-2 rounded-lg border border-line text-ink-soft text-sm font-bold hover:bg-sunken disabled:opacity-50">
               {busy === 'lookup' ? <Loader2 size={16} className="animate-spin" /> : <Search size={16} />} Tìm
             </button>
           </form>
 
           {nguoiTim && (
-            <div className="bg-black/40 border border-gray-800 rounded-lg p-4">
-              <p className="text-white font-medium">{nguoiTim.fullName}</p>
-              <p className="text-xs text-gray-500 mt-0.5">{nguoiTim.email}</p>
+            <div className="bg-espresso/40 border border-line rounded-lg p-4">
+              <p className="text-ink font-medium">{nguoiTim.fullName}</p>
+              <p className="text-xs text-ink-mute mt-0.5">{nguoiTim.email}</p>
               <button onClick={gan} disabled={busy !== null}
-                className="mt-3 w-full flex items-center justify-center gap-2 py-2.5 rounded-lg bg-[#C3B665] text-black font-bold text-sm hover:bg-[#d4c87f] disabled:opacity-50">
+                className="mt-3 w-full flex items-center justify-center gap-2 py-2.5 rounded-lg bg-brand text-on-brand font-bold text-sm hover:bg-brand-hover disabled:opacity-50">
                 {busy === 'assign' ? <Loader2 size={16} className="animate-spin" /> : <CheckCircle2 size={16} />}
                 Gán làm nhân viên phòng trà
               </button>
@@ -134,15 +134,15 @@ const OwnerStaffPage = () => {
   }
 
   if (isLoading) {
-    return <div className="py-20 flex justify-center"><Loader2 size={32} className="animate-spin text-[#C3B665]" /></div>
+    return <div className="py-20 flex justify-center"><Loader2 size={32} className="animate-spin text-brand-text" /></div>
   }
 
   if (!lounge) {
     return (
       <div className="max-w-2xl">
-        <h1 className="text-2xl font-bold text-white mb-1">Nhân viên</h1>
-        <div className="mt-4 bg-gray-900 border border-gray-800 rounded-xl p-6">
-          <p className="text-sm text-gray-400">Hãy tạo hồ sơ phòng trà trước — nhân viên được gán vào phòng trà.</p>
+        <h1 className="text-2xl font-bold text-ink mb-1">Nhân viên</h1>
+        <div className="mt-4 bg-card border border-line rounded-xl p-6">
+          <p className="text-sm text-ink-soft">Hãy tạo hồ sơ phòng trà trước — nhân viên được gán vào phòng trà.</p>
         </div>
       </div>
     )
@@ -155,38 +155,38 @@ const OwnerStaffPage = () => {
     <div className="space-y-6 max-w-3xl">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-white mb-1">Nhân viên</h1>
-          <p className="text-gray-400 text-sm leading-relaxed">
+          <h1 className="text-2xl font-bold text-ink mb-1">Nhân viên</h1>
+          <p className="text-ink-soft text-sm leading-relaxed">
             Nhân viên soát vé, bán vé tại quầy, xử lý đơn gọi món và vận hành livestream.
             Họ không xem được báo cáo doanh thu, gói dịch vụ hay hồ sơ phòng trà.
           </p>
         </div>
         <button onClick={() => setDangThem(true)}
-          className="flex items-center gap-1.5 px-3 py-1.5 bg-[#C3B665] text-black rounded-lg text-xs font-bold hover:bg-[#d4c87f]">
+          className="flex items-center gap-1.5 px-3 py-1.5 bg-brand text-on-brand rounded-lg text-xs font-bold hover:bg-brand-hover">
           <UserPlus size={14} /> Thêm nhân viên
         </button>
       </div>
 
-      <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
-        <h2 className="text-base font-semibold text-white mb-4">Đang làm việc ({dangLam.length})</h2>
+      <div className="bg-card border border-line rounded-xl p-6">
+        <h2 className="text-base font-semibold text-ink mb-4">Đang làm việc ({dangLam.length})</h2>
         {dangLam.length === 0 ? (
           <div className="py-8 text-center">
-            <Users size={26} className="mx-auto mb-3 text-gray-700" />
-            <p className="text-sm text-gray-500">Chưa có nhân viên nào.</p>
+            <Users size={26} className="mx-auto mb-3 text-ink-mute" />
+            <p className="text-sm text-ink-mute">Chưa có nhân viên nào.</p>
           </div>
         ) : (
           <ul className="space-y-2">
             {dangLam.map((s) => (
-              <li key={s.id} className="flex items-center justify-between gap-3 bg-black/40 border border-gray-800 rounded-lg p-4">
+              <li key={s.id} className="flex items-center justify-between gap-3 bg-espresso/40 border border-line rounded-lg p-4">
                 <div className="min-w-0">
-                  <p className="text-white font-medium truncate">{s.fullName}</p>
-                  <p className="text-xs text-gray-500 mt-0.5 truncate">{s.email}</p>
-                  <p className="text-xs text-gray-600 mt-0.5">
+                  <p className="text-ink font-medium truncate">{s.fullName}</p>
+                  <p className="text-xs text-ink-mute mt-0.5 truncate">{s.email}</p>
+                  <p className="text-xs text-ink-mute mt-0.5">
                     Vào làm từ {dayjs(s.assignedAt).format('DD/MM/YYYY')}
                   </p>
                 </div>
                 <button onClick={() => setGoTarget(s)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-gray-700 text-red-400 text-xs font-bold hover:bg-red-500/10 flex-shrink-0">
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-line text-danger text-xs font-bold hover:bg-red-500/10 flex-shrink-0">
                   <UserX size={14} /> Ngừng phân công
                 </button>
               </li>
@@ -196,17 +196,17 @@ const OwnerStaffPage = () => {
       </div>
 
       {daNgung.length > 0 && (
-        <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
-          <h2 className="text-base font-semibold text-white mb-1">Đã ngừng ({daNgung.length})</h2>
-          <p className="text-xs text-gray-500 mb-4">Giữ lại để tra được ai từng làm việc trong đêm diễn nào.</p>
+        <div className="bg-card border border-line rounded-xl p-6">
+          <h2 className="text-base font-semibold text-ink mb-1">Đã ngừng ({daNgung.length})</h2>
+          <p className="text-xs text-ink-mute mb-4">Giữ lại để tra được ai từng làm việc trong đêm diễn nào.</p>
           <ul className="space-y-2">
             {daNgung.map((s) => (
-              <li key={s.id} className="flex items-center justify-between gap-3 bg-black/20 border border-gray-800/60 rounded-lg p-3 opacity-70">
+              <li key={s.id} className="flex items-center justify-between gap-3 bg-espresso/20 border border-line/60 rounded-lg p-3 opacity-70">
                 <div className="min-w-0">
-                  <p className="text-gray-300 text-sm truncate">{s.fullName}</p>
-                  <p className="text-xs text-gray-600 truncate">{s.email}</p>
+                  <p className="text-ink-soft text-sm truncate">{s.fullName}</p>
+                  <p className="text-xs text-ink-mute truncate">{s.email}</p>
                 </div>
-                <span className="text-xs text-gray-600 flex-shrink-0">
+                <span className="text-xs text-ink-mute flex-shrink-0">
                   {dayjs(s.assignedAt).format('DD/MM/YYYY')}
                   {s.deactivatedAt && ` – ${dayjs(s.deactivatedAt).format('DD/MM/YYYY')}`}
                 </span>

@@ -82,10 +82,10 @@ const NotificationsPage = () => {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center px-6">
-        <Bell size={34} className="text-gray-700 mb-4" />
+      <div className="min-h-[60vh] bg-page text-ink flex flex-col items-center justify-center px-6">
+        <Bell size={34} className="text-ink-mute mb-4" />
         <p className="text-lg font-semibold mb-2">Cần đăng nhập để xem thông báo</p>
-        <Link to="/login" className="mt-2 px-6 py-2.5 bg-[#C3B665] text-black rounded-lg font-bold hover:bg-[#d4c87f]">
+        <Link to="/login" className="mt-2 px-6 py-2.5 bg-brand text-on-brand rounded-lg font-bold hover:bg-brand-hover">
           Đăng nhập
         </Link>
       </div>
@@ -93,26 +93,26 @@ const NotificationsPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white pb-20">
+    <div className="min-h-[60vh] bg-page text-ink pb-20">
       <div className="max-w-3xl mx-auto px-6 py-8">
-        <Link to="/" className="inline-flex items-center gap-2 text-sm font-medium text-gray-400 hover:text-[#C3B665] mb-6">
+        <Link to="/" className="inline-flex items-center gap-2 text-sm font-medium text-ink-soft hover:text-brand-text mb-6">
           <ArrowLeft size={18} /> Về trang chủ
         </Link>
 
         <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
           <div className="flex items-center gap-3">
-            <Bell size={26} className="text-[#C3B665]" />
+            <Bell size={26} className="text-brand-text" />
             <div>
               <h1 className="text-2xl font-bold">Thông báo</h1>
               {totalCount > 0 && (
-                <p className="text-sm text-gray-500 mt-0.5">{totalCount.toLocaleString('vi-VN')} thông báo</p>
+                <p className="text-sm text-ink-mute mt-0.5">{totalCount.toLocaleString('vi-VN')} thông báo</p>
               )}
             </div>
           </div>
 
           {soChuaDoc > 0 && (
             <button onClick={danhDauTatCa} disabled={isBusy}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-700 text-gray-300 text-sm font-bold hover:bg-gray-800 disabled:opacity-50">
+              className="flex items-center gap-2 px-4 py-2 rounded-lg border border-line text-ink-soft text-sm font-bold hover:bg-sunken disabled:opacity-50">
               {isBusy ? <Loader2 size={15} className="animate-spin" /> : <CheckCheck size={15} />}
               Đánh dấu tất cả đã đọc
             </button>
@@ -120,29 +120,29 @@ const NotificationsPage = () => {
         </div>
 
         {isLoading ? (
-          <div className="py-24 flex justify-center"><Loader2 size={30} className="animate-spin text-[#C3B665]" /></div>
+          <div className="py-24 flex justify-center"><Loader2 size={30} className="animate-spin text-brand-text" /></div>
         ) : items.length === 0 ? (
-          <div className="bg-gray-900 border border-gray-800 rounded-2xl p-16 text-center">
-            <Inbox size={34} className="mx-auto mb-4 text-gray-700" />
+          <div className="bg-card border border-line rounded-2xl p-16 text-center">
+            <Inbox size={34} className="mx-auto mb-4 text-ink-mute" />
             <p className="text-lg font-semibold mb-1">Chưa có thông báo nào</p>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-ink-mute">
               Khi có vé mới, kết quả duyệt hay thay đổi buổi diễn, thông báo sẽ hiện ở đây.
             </p>
           </div>
         ) : (
-          <div className="bg-gray-900 border border-gray-800 rounded-2xl divide-y divide-gray-800 overflow-hidden">
+          <div className="bg-card border border-line rounded-2xl divide-y divide-line overflow-hidden">
             {items.map((n) => {
               const link = buildLink(n, role)
               const ruot = (
-                <div className={`px-5 py-4 transition-colors hover:bg-gray-800/50 ${n.isRead ? '' : 'bg-[#C3B665]/5'}`}>
+                <div className={`px-5 py-4 transition-colors hover:bg-sunken/50 ${n.isRead ? '' : 'bg-brand/5'}`}>
                   <div className="flex items-start gap-3">
                     {n.isRead
                       ? <span className="mt-1.5 w-2 h-2 flex-shrink-0" />
-                      : <span className="mt-1.5 w-2 h-2 rounded-full bg-[#C3B665] flex-shrink-0" />}
+                      : <span className="mt-1.5 w-2 h-2 rounded-full bg-brand flex-shrink-0" />}
                     <div className="min-w-0">
-                      <p className={`text-sm ${n.isRead ? 'text-gray-400' : 'text-white font-semibold'}`}>{n.title}</p>
-                      {n.body && <p className="text-sm text-gray-500 mt-1 leading-relaxed">{n.body}</p>}
-                      <p className="text-xs text-gray-600 mt-1.5">
+                      <p className={`text-sm ${n.isRead ? 'text-ink-soft' : 'text-ink font-semibold'}`}>{n.title}</p>
+                      {n.body && <p className="text-sm text-ink-mute mt-1 leading-relaxed">{n.body}</p>}
+                      <p className="text-xs text-ink-mute mt-1.5">
                         {dayjs(n.createdAt).format('HH:mm DD/MM/YYYY')}
                       </p>
                     </div>
@@ -168,12 +168,12 @@ const NotificationsPage = () => {
         {totalPages > 1 && (
           <div className="flex items-center justify-center gap-3 mt-6">
             <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page <= 1}
-              className="px-4 py-2 rounded-lg border border-gray-700 text-sm text-gray-300 hover:bg-gray-800 disabled:opacity-40">
+              className="px-4 py-2 rounded-lg border border-line text-sm text-ink-soft hover:bg-sunken disabled:opacity-40">
               Trước
             </button>
-            <span className="text-sm text-gray-500">Trang {page}/{totalPages}</span>
+            <span className="text-sm text-ink-mute">Trang {page}/{totalPages}</span>
             <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page >= totalPages}
-              className="px-4 py-2 rounded-lg border border-gray-700 text-sm text-gray-300 hover:bg-gray-800 disabled:opacity-40">
+              className="px-4 py-2 rounded-lg border border-line text-sm text-ink-soft hover:bg-sunken disabled:opacity-40">
               Sau
             </button>
           </div>

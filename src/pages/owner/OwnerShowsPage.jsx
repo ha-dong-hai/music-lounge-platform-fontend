@@ -26,12 +26,12 @@ import { getLounges } from '../../services/loungeServices'
 import { getGenres, getMoods, getAtmospheres, getEventCategories } from '../../services/catalogServices'
 
 const STATUS_STYLES = {
-  Draft: 'bg-gray-500/10 text-gray-400 border-gray-500/30',
-  Pending: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/30',
-  Published: 'bg-green-500/10 text-green-400 border-green-500/30',
-  Ongoing: 'bg-red-500/10 text-red-400 border-red-500/30',
-  Ended: 'bg-gray-700/20 text-gray-500 border-gray-700/40',
-  Cancelled: 'bg-red-900/20 text-red-500 border-red-900/40',
+  Draft: 'bg-line-strong/10 text-ink-soft border-line-strong/30',
+  Pending: 'bg-yellow-500/10 text-warning border-yellow-500/30',
+  Published: 'bg-green-500/10 text-success border-green-500/30',
+  Ongoing: 'bg-red-500/10 text-danger border-red-500/30',
+  Ended: 'bg-line/20 text-ink-mute border-line/40',
+  Cancelled: 'bg-red-900/20 text-danger border-red-900/40',
 }
 const STATUS_LABELS = {
   Draft: 'Nháp', Pending: 'Chờ duyệt', Published: 'Đã đăng',
@@ -54,7 +54,7 @@ const emptyForm = {
 // Ô chọn nhiều — dùng chung cho thể loại / tâm trạng / không gian
 const MultiPick = ({ label, options, selected, onToggle }) => (
   <div>
-    <p className="text-xs text-gray-500 mb-2">{label}</p>
+    <p className="text-xs text-ink-mute mb-2">{label}</p>
     <div className="flex flex-wrap gap-2">
       {options.map((o) => {
         const on = selected.includes(o.id)
@@ -64,8 +64,8 @@ const MultiPick = ({ label, options, selected, onToggle }) => (
             type="button"
             onClick={() => onToggle(o.id)}
             className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${on
-              ? 'bg-[#C3B665] text-black border-[#C3B665]'
-              : 'border-gray-700 text-gray-400 hover:border-gray-500'}`}
+              ? 'bg-brand text-on-brand border-brand'
+              : 'border-line text-ink-soft hover:border-line-strong'}`}
           >
             {o.name}
           </button>
@@ -173,69 +173,69 @@ const ShowFormModal = ({ initial, loungeId, catalog, onClose, onSaved }) => {
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-gray-900 border border-gray-700 rounded-2xl w-full max-w-2xl max-h-[88vh] flex flex-col">
-        <div className="flex items-center justify-between p-5 border-b border-gray-800">
-          <h2 className="text-lg font-bold text-white">{isEdit ? 'Sửa buổi diễn' : 'Tạo buổi diễn'}</h2>
-          <button onClick={onClose} className="p-2 hover:bg-gray-800 rounded-full text-gray-400"><X size={20} /></button>
+      <div className="absolute inset-0 bg-espresso/80 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative bg-card border border-line rounded-2xl w-full max-w-2xl max-h-[88vh] flex flex-col">
+        <div className="flex items-center justify-between p-5 border-b border-line">
+          <h2 className="text-lg font-bold text-ink">{isEdit ? 'Sửa buổi diễn' : 'Tạo buổi diễn'}</h2>
+          <button onClick={onClose} className="p-2 hover:bg-sunken rounded-full text-ink-soft"><X size={20} /></button>
         </div>
 
         <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-5 space-y-4">
           <div>
-            <label className="text-xs text-gray-500">Tên buổi diễn *</label>
+            <label className="text-xs text-ink-mute">Tên buổi diễn *</label>
             <input value={form.name} onChange={(e) => set('name', e.target.value)}
-              className="mt-1 w-full px-3 py-2 bg-black border border-gray-700 rounded-lg text-sm text-white" />
+              className="mt-1 w-full px-3 py-2 bg-page border border-line rounded-lg text-sm text-ink" />
           </div>
 
           <div>
-            <label className="text-xs text-gray-500">Mô tả *</label>
+            <label className="text-xs text-ink-mute">Mô tả *</label>
             <textarea value={form.description} onChange={(e) => set('description', e.target.value)} rows={3}
-              className="mt-1 w-full px-3 py-2 bg-black border border-gray-700 rounded-lg text-sm text-white" />
+              className="mt-1 w-full px-3 py-2 bg-page border border-line rounded-lg text-sm text-ink" />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-xs text-gray-500">Bắt đầu *</label>
+              <label className="text-xs text-ink-mute">Bắt đầu *</label>
               <input type="datetime-local" value={form.scheduledStart} onChange={(e) => set('scheduledStart', e.target.value)}
-                className="mt-1 w-full px-3 py-2 bg-black border border-gray-700 rounded-lg text-sm text-white" />
+                className="mt-1 w-full px-3 py-2 bg-page border border-line rounded-lg text-sm text-ink" />
             </div>
             <div>
-              <label className="text-xs text-gray-500">Kết thúc</label>
+              <label className="text-xs text-ink-mute">Kết thúc</label>
               <input type="datetime-local" value={form.scheduledEnd} onChange={(e) => set('scheduledEnd', e.target.value)}
-                className="mt-1 w-full px-3 py-2 bg-black border border-gray-700 rounded-lg text-sm text-white" />
+                className="mt-1 w-full px-3 py-2 bg-page border border-line rounded-lg text-sm text-ink" />
             </div>
           </div>
 
           <div className="grid grid-cols-3 gap-3">
             <div>
               {/* Hình thức chốt lúc tạo — đổi sau phải qua endpoint riêng PUT /format */}
-              <label className="text-xs text-gray-500">Hình thức {isEdit && '(không đổi ở đây)'}</label>
+              <label className="text-xs text-ink-mute">Hình thức {isEdit && '(không đổi ở đây)'}</label>
               <select value={form.format} onChange={(e) => set('format', e.target.value)} disabled={isEdit}
-                className="mt-1 w-full px-3 py-2 bg-black border border-gray-700 rounded-lg text-sm text-white disabled:opacity-50">
+                className="mt-1 w-full px-3 py-2 bg-page border border-line rounded-lg text-sm text-ink disabled:opacity-50">
                 {FORMATS.map((f) => <option key={f.value} value={f.value}>{f.label}</option>)}
               </select>
             </div>
             <div>
-              <label className="text-xs text-gray-500">Sức chứa tại chỗ</label>
+              <label className="text-xs text-ink-mute">Sức chứa tại chỗ</label>
               <input type="number" min="1" value={form.offlineQuota} onChange={(e) => set('offlineQuota', e.target.value)}
-                className="mt-1 w-full px-3 py-2 bg-black border border-gray-700 rounded-lg text-sm text-white" />
+                className="mt-1 w-full px-3 py-2 bg-page border border-line rounded-lg text-sm text-ink" />
             </div>
             <div>
-              <label className="text-xs text-gray-500">Sức chứa trực tuyến</label>
+              <label className="text-xs text-ink-mute">Sức chứa trực tuyến</label>
               <input type="number" min="1" value={form.onlineQuota} onChange={(e) => set('onlineQuota', e.target.value)}
-                className="mt-1 w-full px-3 py-2 bg-black border border-gray-700 rounded-lg text-sm text-white" />
+                className="mt-1 w-full px-3 py-2 bg-page border border-line rounded-lg text-sm text-ink" />
             </div>
           </div>
 
           <div>
-            <label className="text-xs text-gray-500">Danh mục</label>
+            <label className="text-xs text-ink-mute">Danh mục</label>
             <select value={form.categoryId} onChange={(e) => set('categoryId', e.target.value)}
-              className="mt-1 w-full px-3 py-2 bg-black border border-gray-700 rounded-lg text-sm text-white">
+              className="mt-1 w-full px-3 py-2 bg-page border border-line rounded-lg text-sm text-ink">
               <option value="">— không chọn —</option>
               {catalog.categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
             </select>
             {isCategoryUnknown && (
-              <p className="mt-1 text-xs text-yellow-400">
+              <p className="mt-1 text-xs text-warning">
                 Hệ thống chưa đọc lại được danh mục hiện tại của buổi diễn. Hãy chọn lại — để trống thì
                 danh mục sẽ bị xoá khi lưu.
               </p>
@@ -244,7 +244,7 @@ const ShowFormModal = ({ initial, loungeId, catalog, onClose, onSaved }) => {
 
           {/* Thẻ phân loại chỉ đặt được lúc tạo — backend không nhận chúng trong PUT sửa */}
           {!isEdit && (
-            <div className="space-y-4 pt-2 border-t border-gray-800">
+            <div className="space-y-4 pt-2 border-t border-line">
               <MultiPick label="Thể loại nhạc" options={catalog.genres} selected={form.genreIds} onToggle={(id) => toggle('genreIds', id)} />
               <MultiPick label="Tâm trạng" options={catalog.moods} selected={form.moodIds} onToggle={(id) => toggle('moodIds', id)} />
               <MultiPick label="Không gian" options={catalog.atmospheres} selected={form.atmosphereIds} onToggle={(id) => toggle('atmosphereIds', id)} />
@@ -252,10 +252,10 @@ const ShowFormModal = ({ initial, loungeId, catalog, onClose, onSaved }) => {
           )}
         </form>
 
-        <div className="p-5 border-t border-gray-800 flex justify-end gap-2">
-          <button onClick={onClose} className="px-4 py-2 rounded-lg border border-gray-700 text-gray-300 text-sm font-bold hover:bg-gray-800">Huỷ</button>
+        <div className="p-5 border-t border-line flex justify-end gap-2">
+          <button onClick={onClose} className="px-4 py-2 rounded-lg border border-line text-ink-soft text-sm font-bold hover:bg-sunken">Huỷ</button>
           <button onClick={handleSubmit} disabled={isBusy}
-            className="px-4 py-2 rounded-lg bg-[#C3B665] text-black text-sm font-bold hover:bg-[#d4c87f] disabled:opacity-50">
+            className="px-4 py-2 rounded-lg bg-brand text-on-brand text-sm font-bold hover:bg-brand-hover disabled:opacity-50">
             {isBusy ? 'Đang lưu...' : isEdit ? 'Lưu' : 'Tạo'}
           </button>
         </div>
@@ -337,12 +337,12 @@ const OwnerShowsPage = () => {
   }
 
   if (isLoading) {
-    return <div className="py-20 flex justify-center"><Loader2 size={32} className="animate-spin text-[#C3B665]" /></div>
+    return <div className="py-20 flex justify-center"><Loader2 size={32} className="animate-spin text-brand-text" /></div>
   }
 
   if (!lounge) {
     return (
-      <div className="bg-gray-900 border border-gray-800 rounded-xl p-8 text-center text-gray-500">
+      <div className="bg-card border border-line rounded-xl p-8 text-center text-ink-mute">
         Tài khoản này chưa sở hữu phòng trà nào nên chưa tạo được buổi diễn.
       </div>
     )
@@ -352,19 +352,19 @@ const OwnerShowsPage = () => {
     <div>
       <div className="flex items-start justify-between gap-4 mb-6 flex-wrap">
         <div>
-          <h1 className="text-2xl font-bold text-white mb-1">Buổi diễn</h1>
-          <p className="text-gray-400 text-sm">{lounge.name}</p>
+          <h1 className="text-2xl font-bold text-ink mb-1">Buổi diễn</h1>
+          <p className="text-ink-soft text-sm">{lounge.name}</p>
         </div>
         <button onClick={() => setEditing(null)}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#C3B665] text-black text-sm font-bold hover:bg-[#d4c87f]">
+          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-brand text-on-brand text-sm font-bold hover:bg-brand-hover">
           <Plus size={16} /> Tạo buổi diễn
         </button>
       </div>
 
       {shows.length === 0 ? (
-        <div className="bg-gray-900 border border-gray-800 rounded-xl p-10 text-center">
-          <CalendarDays size={32} className="mx-auto text-gray-600 mb-3" />
-          <p className="text-gray-400 text-sm">Chưa có buổi diễn nào. Bấm "Tạo buổi diễn" để bắt đầu.</p>
+        <div className="bg-card border border-line rounded-xl p-10 text-center">
+          <CalendarDays size={32} className="mx-auto text-ink-mute mb-3" />
+          <p className="text-ink-soft text-sm">Chưa có buổi diễn nào. Bấm "Tạo buổi diễn" để bắt đầu.</p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -372,19 +372,19 @@ const OwnerShowsPage = () => {
             const isDraft = s.status === 'Draft'
             const isBusy = busyId === s.id
             return (
-              <div key={s.id} className="bg-gray-900 border border-gray-800 rounded-xl p-5">
+              <div key={s.id} className="bg-card border border-line rounded-xl p-5">
                 <div className="flex items-start justify-between gap-4 flex-wrap">
                   <div className="min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <p className="text-white font-bold">{s.name}</p>
+                      <p className="text-ink font-bold">{s.name}</p>
                       <span className={`px-2 py-0.5 rounded-full text-xs font-bold border ${STATUS_STYLES[s.status] || STATUS_STYLES.Draft}`}>
                         {STATUS_LABELS[s.status] || s.status}
                       </span>
-                      <span className="px-2 py-0.5 rounded-md bg-gray-800 text-gray-400 text-xs">
+                      <span className="px-2 py-0.5 rounded-md bg-sunken text-ink-soft text-xs">
                         {FORMATS.find((f) => f.value === s.format)?.label || s.format}
                       </span>
                     </div>
-                    <p className="text-gray-500 text-xs mt-1">
+                    <p className="text-ink-mute text-xs mt-1">
                       {dayjs(s.scheduledStart).format('HH:mm DD/MM/YYYY')}
                       {s.minPrice != null && ` · từ ${Number(s.minPrice).toLocaleString('vi-VN')}đ`}
                     </p>
@@ -392,40 +392,40 @@ const OwnerShowsPage = () => {
 
                   <div className="flex items-center gap-2 flex-wrap">
                     <Link to={`/owner/shows/${s.id}`}
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-gray-700 text-gray-300 text-xs font-bold hover:bg-gray-800">
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-line text-ink-soft text-xs font-bold hover:bg-sunken">
                       <Settings2 size={14} /> Chuẩn bị & gửi duyệt
                     </Link>
 
                     {/* Poster, dời lịch, đổi hình thức, chế độ phát — những thứ đổi được SAU khi đã đăng */}
                     <Link to={`/owner/shows/${s.id}/settings`}
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-gray-700 text-gray-300 text-xs font-bold hover:bg-gray-800">
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-line text-ink-soft text-xs font-bold hover:bg-sunken">
                       <ImageIcon size={14} /> Poster & cài đặt
                     </Link>
 
                     {isDraft && (
                       <button onClick={() => openEdit(s)} disabled={isBusy}
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-gray-700 text-gray-300 text-xs font-bold hover:bg-gray-800 disabled:opacity-50">
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-line text-ink-soft text-xs font-bold hover:bg-sunken disabled:opacity-50">
                         <Pencil size={14} /> Sửa
                       </button>
                     )}
 
                     {isDraft && (
                       <button onClick={() => act(s.id, submitShow, 'Đã gửi duyệt.')} disabled={isBusy}
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#C3B665] text-black text-xs font-bold hover:bg-[#d4c87f] disabled:opacity-50">
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand text-on-brand text-xs font-bold hover:bg-brand-hover disabled:opacity-50">
                         <Send size={14} /> Gửi duyệt
                       </button>
                     )}
 
                     {s.status === 'Published' && (
                       <button onClick={() => act(s.id, cancelShow, 'Đã huỷ buổi diễn, vé đã bán sẽ được hoàn 100%.')} disabled={isBusy}
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-red-500/40 text-red-400 text-xs font-bold hover:bg-red-500/10 disabled:opacity-50">
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-red-500/40 text-danger text-xs font-bold hover:bg-red-500/10 disabled:opacity-50">
                         <X size={14} /> Huỷ buổi diễn
                       </button>
                     )}
 
                     {isDraft && (
                       <button onClick={() => act(s.id, deleteShow, 'Đã xoá bản nháp.')} disabled={isBusy}
-                        className="p-1.5 rounded-lg border border-gray-700 text-gray-500 hover:text-red-400 hover:border-red-500/40 disabled:opacity-50">
+                        className="p-1.5 rounded-lg border border-line text-ink-mute hover:text-danger hover:border-red-500/40 disabled:opacity-50">
                         <Trash2 size={14} />
                       </button>
                     )}

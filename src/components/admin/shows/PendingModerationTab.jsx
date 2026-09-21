@@ -7,9 +7,9 @@ import { getPendingModerations, reviewLivestreamModeration, reviewTicketTier } f
 
 // Vòng tròn điểm AI (0 -> 100)
 const AIScoreCircle = ({ score }) => {
-  if (score === null || score === undefined) return <div className="text-gray-600 text-sm">N/A</div>
+  if (score === null || score === undefined) return <div className="text-ink-mute text-sm">N/A</div>
   const numScore = Math.round(score * 100)
-  const colorClass = numScore >= 70 ? 'border-green-500 text-green-400' : numScore >= 40 ? 'border-yellow-500 text-yellow-400' : 'border-red-500 text-red-400'
+  const colorClass = numScore >= 70 ? 'border-green-500 text-success' : numScore >= 40 ? 'border-yellow-500 text-warning' : 'border-red-500 text-danger'
   return (
     <div className={`w-10 h-10 flex items-center justify-center rounded-full border-2 font-bold text-sm ${colorClass}`}>
       {numScore}
@@ -19,13 +19,13 @@ const AIScoreCircle = ({ score }) => {
 
 const RiskLevelBadge = ({ level }) => {
   const styles = {
-    Low: 'bg-green-500/10 text-green-400 border-green-500/20',
-    Medium: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20',
-    High: 'bg-orange-500/10 text-orange-400 border-orange-500/20',
-    Critical: 'bg-red-500/10 text-red-400 border-red-500/20',
+    Low: 'bg-green-500/10 text-success border-green-500/20',
+    Medium: 'bg-yellow-500/10 text-warning border-yellow-500/20',
+    High: 'bg-orange-500/10 text-orange-700 border-orange-500/20',
+    Critical: 'bg-red-500/10 text-danger border-red-500/20',
   }
   const labels = { Low: 'Low', Medium: 'Medium', High: 'High', Critical: 'Critical' }
-  if (!level) return <span className="text-xs text-gray-500">Not rated</span>
+  if (!level) return <span className="text-xs text-ink-mute">Not rated</span>
   return (
     <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border ${styles[level]}`}>
       {labels[level] || level}
@@ -98,63 +98,63 @@ const PendingModerationTab = () => {
       <div className="flex gap-2 mb-4">
         <button
           onClick={() => handleTabChange('Show')}
-          className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors ${targetType === 'Show' ? 'bg-[#C3B665] text-black' : 'bg-gray-900 text-gray-400 hover:text-white'}`}
+          className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors ${targetType === 'Show' ? 'bg-brand text-on-brand' : 'bg-card text-ink-soft hover:text-white'}`}
         >
           Show
         </button>
         <button
           onClick={() => handleTabChange('Livestream')}
-          className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors ${targetType === 'Livestream' ? 'bg-[#C3B665] text-black' : 'bg-gray-900 text-gray-400 hover:text-white'}`}
+          className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors ${targetType === 'Livestream' ? 'bg-brand text-on-brand' : 'bg-card text-ink-soft hover:text-white'}`}
         >
           Livestream
         </button>
         <button
           onClick={() => handleTabChange('TicketTier')}
-          className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors ${targetType === 'TicketTier' ? 'bg-[#C3B665] text-black' : 'bg-gray-900 text-gray-400 hover:text-white'}`}
+          className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors ${targetType === 'TicketTier' ? 'bg-brand text-on-brand' : 'bg-card text-ink-soft hover:text-white'}`}
         >
           Hạng vé
         </button>
       </div>
 
-      <div className="bg-gray-950 border border-gray-800 rounded-xl overflow-hidden">
+      <div className="bg-card border border-line rounded-xl overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left whitespace-nowrap">
-            <thead className="bg-black/50 border-b border-gray-800">
+            <thead className="bg-espresso/50 border-b border-line">
               <tr>
-                <th className="p-4 text-[#C3B665] font-semibold text-sm">{targetType} ({targetType} ID)</th>
-                <th className="p-4 text-[#C3B665] font-semibold text-sm">Rick level</th>
-                <th className="p-4 text-[#C3B665] font-semibold text-sm">Flag reason</th>
-                <th className="p-4 text-[#C3B665] font-semibold text-sm">AI score</th>
-                <th className="p-4 text-[#C3B665] font-semibold text-sm">Deadlin SLA</th>
-                <th className="p-4 text-[#C3B665] font-semibold text-sm text-right">Action</th>
+                <th className="p-4 text-brand-text font-semibold text-sm">{targetType} ({targetType} ID)</th>
+                <th className="p-4 text-brand-text font-semibold text-sm">Rick level</th>
+                <th className="p-4 text-brand-text font-semibold text-sm">Flag reason</th>
+                <th className="p-4 text-brand-text font-semibold text-sm">AI score</th>
+                <th className="p-4 text-brand-text font-semibold text-sm">Deadlin SLA</th>
+                <th className="p-4 text-brand-text font-semibold text-sm text-right">Action</th>
               </tr>
             </thead>
             <tbody>
               {isLoading ? (
                 <tr>
-                  <td colSpan="6" className="p-10 text-center text-gray-500">
-                    <Loader2 size={24} className="mx-auto animate-spin text-[#C3B665]" />
+                  <td colSpan="6" className="p-10 text-center text-ink-mute">
+                    <Loader2 size={24} className="mx-auto animate-spin text-brand-text" />
                   </td>
                 </tr>
               ) : items.length > 0 ? (
                 items.map(item => (
-                  <tr key={item.id} className="border-b border-gray-900 hover:bg-gray-900/50 transition-colors">
-                    <td className="p-4 text-white font-medium">
+                  <tr key={item.id} className="border-b border-line hover:bg-card/50 transition-colors">
+                    <td className="p-4 text-ink font-medium">
                       {targetType} #{item.targetId}
-                      <p className="text-xs text-gray-500 mt-1">Created: {dayjs(item.createdAt).format('HH:mm DD/MM/YYYY')}</p>
+                      <p className="text-xs text-ink-mute mt-1">Created: {dayjs(item.createdAt).format('HH:mm DD/MM/YYYY')}</p>
                     </td>
                     <td className="p-4"><RiskLevelBadge level={item.riskLevel} /></td>
                     <td className="p-4">
                       {item.flagReason ? (
-                        <p className="text-xs text-yellow-400 flex items-center gap-1.5">
+                        <p className="text-xs text-warning flex items-center gap-1.5">
                           <AlertTriangle size={12} /> {item.flagReason}
                         </p>
                       ) : (
-                        <p className="text-xs text-gray-600">None</p>
+                        <p className="text-xs text-ink-mute">None</p>
                       )}
                     </td>
                     <td className="p-4"><AIScoreCircle score={item.aiScore} /></td>
-                    <td className="p-4 text-gray-400 whitespace-nowrap text-sm">
+                    <td className="p-4 text-ink-soft whitespace-nowrap text-sm">
                       {item.slaDeadline ? dayjs(item.slaDeadline).format('HH:mm DD/MM') : '-'}
                     </td>
                     <td className="p-4 text-right">
@@ -163,14 +163,14 @@ const PendingModerationTab = () => {
                           <button
                             onClick={() => handleReviewTier(item.targetId, 'Approved')}
                             disabled={busyId === item.targetId}
-                            className="inline-flex items-center gap-1.5 bg-green-500/10 border border-green-500/40 text-green-400 px-3 py-1.5 rounded-md text-xs font-bold hover:bg-green-500/20 disabled:opacity-50"
+                            className="inline-flex items-center gap-1.5 bg-green-500/10 border border-green-500/40 text-success px-3 py-1.5 rounded-md text-xs font-bold hover:bg-green-500/20 disabled:opacity-50"
                           >
                             <Check size={14} /> Duyệt
                           </button>
                           <button
                             onClick={() => handleReviewTier(item.targetId, 'Rejected')}
                             disabled={busyId === item.targetId}
-                            className="inline-flex items-center gap-1.5 bg-red-500/10 border border-red-500/40 text-red-400 px-3 py-1.5 rounded-md text-xs font-bold hover:bg-red-500/20 disabled:opacity-50"
+                            className="inline-flex items-center gap-1.5 bg-red-500/10 border border-red-500/40 text-danger px-3 py-1.5 rounded-md text-xs font-bold hover:bg-red-500/20 disabled:opacity-50"
                           >
                             <X size={14} /> Từ chối
                           </button>
@@ -178,7 +178,7 @@ const PendingModerationTab = () => {
                       ) : targetType === 'Show' ? (
                         <Link
                           to={`/admin/shows/${item.targetId}`}
-                          className="inline-flex items-center gap-1.5 bg-[#C3B665] text-black px-3 py-1.5 rounded-md text-xs font-bold hover:bg-[#d4c87f] transition-colors"
+                          className="inline-flex items-center gap-1.5 bg-brand text-on-brand px-3 py-1.5 rounded-md text-xs font-bold hover:bg-brand-hover transition-colors"
                         >
                           <Eye size={14} /> Review
                         </Link>
@@ -187,14 +187,14 @@ const PendingModerationTab = () => {
                           <button
                             onClick={() => handleReviewLivestream(item.targetId, 'Approved')}
                             disabled={busyId === item.targetId}
-                            className="inline-flex items-center gap-1.5 bg-green-500/10 border border-green-500/40 text-green-400 px-3 py-1.5 rounded-md text-xs font-bold hover:bg-green-500/20 disabled:opacity-50"
+                            className="inline-flex items-center gap-1.5 bg-green-500/10 border border-green-500/40 text-success px-3 py-1.5 rounded-md text-xs font-bold hover:bg-green-500/20 disabled:opacity-50"
                           >
                             <Check size={14} /> Approve
                           </button>
                           <button
                             onClick={() => handleReviewLivestream(item.targetId, 'Rejected')}
                             disabled={busyId === item.targetId}
-                            className="inline-flex items-center gap-1.5 bg-red-500/10 border border-red-500/40 text-red-400 px-3 py-1.5 rounded-md text-xs font-bold hover:bg-red-500/20 disabled:opacity-50"
+                            className="inline-flex items-center gap-1.5 bg-red-500/10 border border-red-500/40 text-danger px-3 py-1.5 rounded-md text-xs font-bold hover:bg-red-500/20 disabled:opacity-50"
                           >
                             <X size={14} /> Reject
                           </button>
@@ -205,8 +205,8 @@ const PendingModerationTab = () => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="6" className="p-12 text-center text-gray-500">
-                    <Check size={32} className="mx-auto mb-3 text-green-500/50" />
+                  <td colSpan="6" className="p-12 text-center text-ink-mute">
+                    <Check size={32} className="mx-auto mb-3 text-success/50" />
                     No programs were flagged. The system has reviewed everything!
                   </td>
                 </tr>
@@ -217,20 +217,20 @@ const PendingModerationTab = () => {
 
         {/* PAGINATION */}
         {!isLoading && items.length > 0 && pagination.totalPages > 1 && (
-          <div className="flex items-center justify-between p-4 border-t border-gray-800">
-            <p className="text-sm text-gray-500">Page {pagination.page} / {pagination.totalPages}</p>
+          <div className="flex items-center justify-between p-4 border-t border-line">
+            <p className="text-sm text-ink-mute">Page {pagination.page} / {pagination.totalPages}</p>
             <div className="flex gap-2">
               <button
                 onClick={() => setPagination(prev => ({ ...prev, page: prev.page - 1 }))}
                 disabled={pagination.page === 1}
-                className="p-2 rounded-md border border-gray-700 text-gray-400 hover:border-[#C3B665] hover:text-[#C3B665] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                className="p-2 rounded-md border border-line text-ink-soft hover:border-brand hover:text-brand-text disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
               >
                 <ChevronLeft size={18} />
               </button>
               <button
                 onClick={() => setPagination(prev => ({ ...prev, page: prev.page + 1 }))}
                 disabled={pagination.page === pagination.totalPages}
-                className="p-2 rounded-md border border-gray-700 text-gray-400 hover:border-[#C3B665] hover:text-[#C3B665] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                className="p-2 rounded-md border border-line text-ink-soft hover:border-brand hover:text-brand-text disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
               >
                 <ChevronRight size={18} />
               </button>

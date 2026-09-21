@@ -44,20 +44,20 @@ const OptionFormModal = ({ isOpen, typeLabel, hasNameEn, hasDescription, editing
         })
     }
 
-    const inputCls = "w-full px-4 py-2.5 bg-black border border-gray-800 rounded-lg text-white text-sm focus:outline-none focus:border-[#C3B665]/50"
+    const inputCls = "w-full px-4 py-2.5 bg-page border border-line rounded-lg text-ink text-sm focus:outline-none focus:border-brand/50"
 
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-            <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => !isSaving && onClose()}></div>
+            <div className="absolute inset-0 bg-espresso/80 backdrop-blur-sm" onClick={() => !isSaving && onClose()}></div>
 
-            <div className="relative bg-gray-900 border border-gray-700 rounded-2xl w-full max-w-md shadow-2xl flex flex-col max-h-[90vh]" onClick={(e) => e.stopPropagation()}>
+            <div className="relative bg-card border border-line rounded-2xl w-full max-w-md shadow-2xl flex flex-col max-h-[90vh]" onClick={(e) => e.stopPropagation()}>
 
                 {/* HEADER */}
-                <div className="flex-none flex justify-between items-center p-5 border-b border-gray-800">
-                    <h2 className="text-lg font-bold text-white">
+                <div className="flex-none flex justify-between items-center p-5 border-b border-line">
+                    <h2 className="text-lg font-bold text-ink">
                         {isEditing ? `Edit ${typeLabel}` : `Add New ${typeLabel}`}
                     </h2>
-                    <button onClick={onClose} disabled={isSaving} className="p-2 hover:bg-gray-800 rounded-full text-gray-400 disabled:opacity-30">
+                    <button onClick={onClose} disabled={isSaving} className="p-2 hover:bg-sunken rounded-full text-ink-soft disabled:opacity-30">
                         <X size={20} />
                     </button>
                 </div>
@@ -65,8 +65,8 @@ const OptionFormModal = ({ isOpen, typeLabel, hasNameEn, hasDescription, editing
                 {/* BODY */}
                 <form id="option-form" onSubmit={handleSubmit} className="p-5 space-y-5">
                     <div>
-                        <label className="block text-sm font-medium text-gray-400 mb-2">
-                            Name (Vietnamese) <span className="text-red-400">*</span>
+                        <label className="block text-sm font-medium text-ink-soft mb-2">
+                            Name (Vietnamese) <span className="text-danger">*</span>
                         </label>
                         <input
                             type="text"
@@ -81,8 +81,8 @@ const OptionFormModal = ({ isOpen, typeLabel, hasNameEn, hasDescription, editing
                     {/* CHỈ LOẠI BUỔI DIỄN CÓ description */}
                     {hasDescription && (
                         <div>
-                            <label className="block text-sm font-medium text-gray-400 mb-2">
-                                Mô tả <span className="text-gray-600 text-xs">(không bắt buộc)</span>
+                            <label className="block text-sm font-medium text-ink-soft mb-2">
+                                Mô tả <span className="text-ink-mute text-xs">(không bắt buộc)</span>
                             </label>
                             <textarea
                                 rows={3}
@@ -97,8 +97,8 @@ const OptionFormModal = ({ isOpen, typeLabel, hasNameEn, hasDescription, editing
                     {/* CHỈ GENRE CÓ nameEn */}
                     {hasNameEn && (
                         <div>
-                            <label className="block text-sm font-medium text-gray-400 mb-2">
-                                Name (English) <span className="text-gray-600 text-xs">(optional)</span>
+                            <label className="block text-sm font-medium text-ink-soft mb-2">
+                                Name (English) <span className="text-ink-mute text-xs">(optional)</span>
                             </label>
                             <input
                                 type="text"
@@ -112,20 +112,20 @@ const OptionFormModal = ({ isOpen, typeLabel, hasNameEn, hasDescription, editing
                     {/* Mục đang tắt vẫn sửa được, nhưng phải nói rõ trạng thái để người dùng không
                         tưởng mình đang sửa một mục đang dùng. Bật lại là nút riêng ngoài danh sách. */}
                     {isEditing && hasDescription && editingOption?.isActive === false && (
-                        <p className="text-xs text-gray-400 flex items-start gap-1.5 leading-relaxed bg-gray-800/40 border border-gray-700 rounded-lg p-3">
-                            <AlertTriangle size={13} className="mt-px flex-shrink-0 text-yellow-400" />
+                        <p className="text-xs text-ink-soft flex items-start gap-1.5 leading-relaxed bg-sunken/40 border border-line rounded-lg p-3">
+                            <AlertTriangle size={13} className="mt-px flex-shrink-0 text-warning" />
                             Mục này đang TẮT — sửa ở đây không bật nó lên. Bật lại bằng nút trong danh sách.
                         </p>
                     )}
                 </form>
 
                 {/* FOOTER — form attribute để Enter submit được */}
-                <div className="flex-none p-5 border-t border-gray-800 flex gap-3">
+                <div className="flex-none p-5 border-t border-line flex gap-3">
                     <button
                         type="button"
                         onClick={onClose}
                         disabled={isSaving}
-                        className="flex-1 py-2.5 border border-gray-600 text-gray-300 rounded-lg font-medium hover:bg-gray-800 transition-colors disabled:opacity-50"
+                        className="flex-1 py-2.5 border border-line-strong text-ink-soft rounded-lg font-medium hover:bg-sunken transition-colors disabled:opacity-50"
                     >
                         Cancel
                     </button>
@@ -133,7 +133,7 @@ const OptionFormModal = ({ isOpen, typeLabel, hasNameEn, hasDescription, editing
                         type="submit"
                         form="option-form"
                         disabled={isSaving}
-                        className="flex-1 py-2.5 bg-[#C3B665] text-black rounded-lg font-bold hover:bg-[#d4c87f] transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                        className="flex-1 py-2.5 bg-brand text-on-brand rounded-lg font-bold hover:bg-brand-hover transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
                     >
                         {isSaving
                             ? <><Loader2 size={16} className="animate-spin" /> Saving...</>

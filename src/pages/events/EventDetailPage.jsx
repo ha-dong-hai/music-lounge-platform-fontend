@@ -49,8 +49,8 @@ const EventDetailPage = () => {
             loungeName: beData.lounge?.name,
             loungeId: beData.lounge?.id,
             address: beData.lounge?.fullAddress,
-            dateStr: beData.scheduledStart ? dayjs(beData.scheduledStart).format('HH:mm - dddd, DD/MM/YYYY') : 'Updating...',
-            genre: beData.genres && beData.genres.length > 0 ? beData.genres[0].name : 'Updating...',
+            dateStr: beData.scheduledStart ? dayjs(beData.scheduledStart).format('HH:mm - dddd, DD/MM/YYYY') : 'Đang cập nhật…',
+            genre: beData.genres && beData.genres.length > 0 ? beData.genres[0].name : 'Đang cập nhật…',
             //subGenre: 'Đang cập nhật',
             performers: beData.performers || [],
             // Giữ nguyên ba trường quyết định lối đi tiếp của khán giả. Thiếu chúng thì trang chi
@@ -59,7 +59,7 @@ const EventDetailPage = () => {
             isOngoing: beData.isOngoing,
             userHasTicket: beData.userHasTicket,
             userHasRated: beData.userHasRated,
-            moodTags: [beData.format, beData.genres?.[0]?.name].filter(Boolean),
+            moodTags: [({ Offline: 'Tại chỗ', Online: 'Trực tuyến', Hybrid: 'Kết hợp' })[beData.format] || beData.format, beData.genres?.[0]?.name].filter(Boolean),
             description: beData.description || "There is no description for this Show yet..",
             loungeLogo: `https://api.dicebear.com/7.x/initials/svg?seed=${beData.lounge?.name || 'ML'}&backgroundColor=10b981`
           }
@@ -103,7 +103,7 @@ const EventDetailPage = () => {
             }
           } catch { console.log("Unable to load similar shows.") }
         } else {
-          setApiError(detailRes.message || 'Show not found')
+          setApiError(detailRes.message || 'Không tìm thấy buổi diễn')
         }
       } catch (err) {
         console.error('API Detail Error:', err)
@@ -165,21 +165,21 @@ const EventDetailPage = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-black pb-20">
-        <div className="w-full h-[500px] md:h-[600px] bg-gray-900 flex items-end md:items-center">
+      <div className="min-h-[60vh] bg-page pb-20">
+        <div className="w-full h-[500px] md:h-[600px] bg-card flex items-end md:items-center">
           <div className="w-full max-w-[1600px] mx-auto px-6 pb-20 md:pb-0">
             <div className="flex flex-col items-start max-w-2xl gap-4">
               <Skeleton className="h-5 w-48" /><Skeleton className="w-20 h-20 rounded-full" /><Skeleton className="h-12 w-3/4" /><Skeleton className="h-6 w-1/2" /><Skeleton className="h-12 w-40" />
             </div>
           </div>
         </div>
-        <div className="max-w-[1600px] mx-auto px-6 mt-8 mb-6 border-b border-gray-800 pb-4">
+        <div className="max-w-[1600px] mx-auto px-6 mt-8 mb-6 border-b border-line pb-4">
           <div className="flex gap-8"><Skeleton className="h-6 w-24" /><Skeleton className="h-6 w-24" /></div>
         </div>
         <div className="max-w-[1600px] mx-auto px-6">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
-            <div className="lg:col-span-7 bg-gray-900 border border-gray-800 rounded-2xl p-8 space-y-4"><Skeleton className="h-8 w-40 mb-6" /><Skeleton className="h-4 w-full" /><Skeleton className="h-4 w-full" /><Skeleton className="h-4 w-2/3" /></div>
-            <div className="lg:col-span-3 space-y-6">{[...Array(4)].map((_, i) => (<div key={i} className="bg-gray-900 border border-gray-800 rounded-xl p-5"><Skeleton className="h-3 w-16 mb-2" /><Skeleton className="h-4 w-24" /></div>))}</div>
+            <div className="lg:col-span-7 bg-card border border-line rounded-2xl p-8 space-y-4"><Skeleton className="h-8 w-40 mb-6" /><Skeleton className="h-4 w-full" /><Skeleton className="h-4 w-full" /><Skeleton className="h-4 w-2/3" /></div>
+            <div className="lg:col-span-3 space-y-6">{[...Array(4)].map((_, i) => (<div key={i} className="bg-card border border-line rounded-xl p-5"><Skeleton className="h-3 w-16 mb-2" /><Skeleton className="h-4 w-24" /></div>))}</div>
             <div className="lg:col-span-2 flex flex-col items-center pt-2"><Skeleton className="w-24 h-24 rounded-full mb-4" /><Skeleton className="h-8 w-24 rounded-lg" /></div>
           </div>
         </div>
@@ -189,30 +189,30 @@ const EventDetailPage = () => {
 
   if (apiError || !data) {
     return (
-      <div className="min-h-screen bg-black flex flex-col items-center justify-center text-white">
-        <h1 className="text-2xl font-bold text-white mb-4">{apiError || 'Show not found'}</h1>
-        <Link to="/" className="text-[#C3B665] hover:text-[#d4c87f] flex items-center gap-2 font-medium"><ArrowLeft size={18} /> Return to homepage</Link>
+      <div className="min-h-[60vh] bg-page flex flex-col items-center justify-center text-ink">
+        <h1 className="text-2xl font-bold text-ink mb-4">{apiError || 'Không tìm thấy buổi diễn'}</h1>
+        <Link to="/" className="text-brand-text hover:text-brand-text flex items-center gap-2 font-medium"><ArrowLeft size={18} /> Về trang chủ</Link>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-black pb-20">
+    <div className="min-h-[60vh] bg-page pb-20">
       {/* HERO POSTER */}
-      <div className="relative w-full min-h-screen md:h-[600px] bg-gray-900 flex items-end md:items-center">
+      <div className="relative w-full min-h-[60vh] md:h-[600px] bg-card flex items-end md:items-center">
         {data.posterImage && <img src={data.posterImage} alt={data.title} className="absolute inset-0 w-full h-full object-cover" />}
-        <div className="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-r from-black/95 via-black/60 to-transparent"></div>
+        <div className="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-r from-espresso/95 via-espresso/80 to-espresso/30"></div>
         <div className="relative z-10 w-full max-w-[1600px] mx-auto px-6 pb-20 md:pb-0">
-          <div className="flex flex-col items-start max-w-2xl text-white">
-            <div className="flex items-center gap-2 mb-6 text-[#C3B665] font-medium">
+          <div className="flex flex-col items-start max-w-2xl text-cream">
+            <div className="flex items-center gap-2 mb-6 text-brand-on-dark font-medium">
               <CalendarDays size={20} /><span className="text-sm md:text-base">{data.dateStr}</span>
             </div>
-            <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-gray-900 mb-4 overflow-hidden border-2 border-[#C3B665] shadow-lg">
+            <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-card mb-4 overflow-hidden border-2 border-brand shadow-lg">
               <img src={data.loungeLogo} alt="Logo" className="w-full h-full object-cover" />
             </div>
-            <h1 className="text-4xl md:text-5xl font-bold leading-tight mb-4 text-white drop-shadow-md">{data.title}</h1>
-            <div className="flex items-center gap-2 mb-8 text-gray-400">
-              <MapPin size={18} className="flex-shrink-0 text-[#C3B665]" /><span className="text-lg">{data.address}</span>
+            <h1 className="text-4xl md:text-5xl font-bold leading-tight mb-4 text-cream drop-shadow-md">{data.title}</h1>
+            <div className="flex items-center gap-2 mb-8 text-cream-mute">
+              <MapPin size={18} className="flex-shrink-0 text-brand-on-dark" /><span className="text-lg">{data.address}</span>
             </div>
             {/* LỐI ĐI TIẾP THEO TRẠNG THÁI BUỔI DIỄN.
                 Trước đây trang này chỉ có nút Đặt vé, nên:
@@ -225,41 +225,41 @@ const EventDetailPage = () => {
               <div className="mb-6 flex flex-wrap gap-3">
                 <Link to={`/livestream/${id}`}
                   className="bg-red-500 text-white hover:bg-red-600 px-8 py-3 md:py-3.5 rounded-lg text-base md:text-lg font-bold transition-colors shadow-xl inline-flex items-center gap-2">
-                  <span className="w-2.5 h-2.5 rounded-full bg-white animate-pulse" /> Xem trực tiếp
+                  <span className="w-2.5 h-2.5 rounded-full bg-card animate-pulse" /> Xem trực tiếp
                 </Link>
                 <button onClick={handleBookTicket}
-                  className="border border-[#C3B665] text-[#C3B665] hover:bg-[#C3B665]/10 px-8 py-3 md:py-3.5 rounded-lg text-base md:text-lg font-bold transition-colors">
+                  className="border border-brand text-brand-on-dark hover:bg-brand-hover/10 px-8 py-3 md:py-3.5 rounded-lg text-base md:text-lg font-bold transition-colors">
                   Mua vé
                 </button>
               </div>
             ) : data.status === 'Ended' ? (
               <div className="mb-6">
                 {data.userHasRated ? (
-                  <p className="text-sm text-gray-400 flex items-center gap-2">
-                    <Star size={16} className="text-[#C3B665] fill-[#C3B665]" /> Bạn đã đánh giá buổi diễn này.
+                  <p className="text-sm text-cream-mute flex items-center gap-2">
+                    <Star size={16} className="text-brand-on-dark fill-brand-on-dark" /> Bạn đã đánh giá buổi diễn này.
                   </p>
                 ) : data.userHasTicket ? (
                   <button onClick={() => setShowRating(true)}
-                    className="bg-[#C3B665] text-black hover:bg-[#d4c87f] px-8 py-3 md:py-3.5 rounded-lg text-base md:text-lg font-bold transition-colors shadow-xl inline-flex items-center gap-2">
+                    className="bg-brand text-on-brand hover:bg-brand-hover px-8 py-3 md:py-3.5 rounded-lg text-base md:text-lg font-bold transition-colors shadow-xl inline-flex items-center gap-2">
                     <Star size={18} /> Đánh giá buổi diễn
                   </button>
                 ) : (
-                  <p className="text-sm text-gray-500">Buổi diễn đã kết thúc.</p>
+                  <p className="text-sm text-cream-mute">Buổi diễn đã kết thúc.</p>
                 )}
               </div>
             ) : data.status === 'Cancelled' ? (
-              <p className="mb-6 text-sm text-red-400">Buổi diễn này đã bị huỷ.</p>
+              <p className="mb-6 text-sm text-danger">Buổi diễn này đã bị huỷ.</p>
             ) : (
-              <button onClick={handleBookTicket} className="bg-[#C3B665] text-black hover:bg-[#d4c87f] px-8 py-3 md:py-3.5 rounded-lg text-base md:text-lg font-bold transition-colors shadow-xl mb-6 w-full md:w-auto">Book Ticket</button>
+              <button onClick={handleBookTicket} className="bg-brand text-on-brand hover:bg-brand-hover px-8 py-3 md:py-3.5 rounded-lg text-base md:text-lg font-bold transition-colors shadow-xl mb-6 w-full md:w-auto">Đặt vé</button>
             )}
             <div className="flex items-center gap-6">
               {/* NÚT WISHLIST */}
-              <button onClick={handleToggleWishlist} disabled={isUpdating} className={`flex items-center gap-2 transition-colors group ${isWishlisted ? "text-red-500" : "text-gray-400 hover:text-[#C3B665]"}`}>
-                <Heart size={20} className={`transition-all ${isWishlisted ? 'fill-red-500' : 'group-hover:fill-[#C3B665]'}`} />
-                <span className="font-medium text-sm md:text-base">{isWishlisted ? 'Wishlisted' : 'Wishlist'}</span>
+              <button onClick={handleToggleWishlist} disabled={isUpdating} className={`flex items-center gap-2 transition-colors group ${isWishlisted ? "text-danger" : "text-cream-mute hover:text-brand-on-dark"}`}>
+                <Heart size={20} className={`transition-all ${isWishlisted ? 'fill-red-500' : 'group-hover:fill-brand-on-dark'}`} />
+                <span className="font-medium text-sm md:text-base">{isWishlisted ? 'Đã yêu thích' : 'Yêu thích'}</span>
               </button>
-              <button onClick={() => setIsShareModalOpen(true)} className="flex items-center gap-2 text-gray-400 hover:text-[#C3B665] transition-colors">
-                <Share2 size={20} /><span className="font-medium text-sm md:text-base">Share</span>
+              <button onClick={() => setIsShareModalOpen(true)} className="flex items-center gap-2 text-cream-mute hover:text-brand-on-dark transition-colors">
+                <Share2 size={20} /><span className="font-medium text-sm md:text-base">Chia sẻ</span>
               </button>
             </div>
           </div>
@@ -267,11 +267,11 @@ const EventDetailPage = () => {
       </div>
 
       {/* TABS */}
-      <div ref={tabsRef} className="max-w-[1600px] mx-auto px-6 mt-8 mb-6 border-b border-gray-800">
+      <div ref={tabsRef} className="max-w-[1600px] mx-auto px-6 mt-8 mb-6 border-b border-line">
         <div className="flex gap-8">
-          <button onClick={() => setActiveTab('intro')} className={`pb-4 text-lg font-bold border-b-2 transition-colors ${activeTab === 'intro' ? 'border-[#C3B665] text-[#C3B665]' : 'border-transparent text-gray-500 hover:text-white'}`}>Detail</button>
-          <button onClick={() => setActiveTab('map')} className={`pb-4 text-lg font-bold border-b-2 transition-colors ${activeTab === 'map' ? 'border-[#C3B665] text-[#C3B665]' : 'border-transparent text-gray-500 hover:text-white'}`}>Seating area</button>
-          <button onClick={() => setActiveTab('ratings')} className={`pb-4 text-lg font-bold border-b-2 transition-colors ${activeTab === 'ratings' ? 'border-[#C3B665] text-[#C3B665]' : 'border-transparent text-gray-500 hover:text-white'}`}>Đánh giá</button>
+          <button onClick={() => setActiveTab('intro')} className={`pb-4 text-lg font-bold border-b-2 transition-colors ${activeTab === 'intro' ? 'border-brand text-brand-text' : 'border-transparent text-ink-mute hover:text-ink'}`}>Chi tiết</button>
+          <button onClick={() => setActiveTab('map')} className={`pb-4 text-lg font-bold border-b-2 transition-colors ${activeTab === 'map' ? 'border-brand text-brand-text' : 'border-transparent text-ink-mute hover:text-ink'}`}>Sơ đồ chỗ ngồi</button>
+          <button onClick={() => setActiveTab('ratings')} className={`pb-4 text-lg font-bold border-b-2 transition-colors ${activeTab === 'ratings' ? 'border-brand text-brand-text' : 'border-transparent text-ink-mute hover:text-ink'}`}>Đánh giá</button>
         </div>
       </div>
 
@@ -286,7 +286,7 @@ const EventDetailPage = () => {
 
       {/* RELATED EVENTS */}
       {relatedEvents.length > 0 && (
-        <div className="mt-20 bg-black text-[#C3B665] rounded-2xl mx-6 md:mx-auto md:max-w-[1600px] p-6 md:p-10">
+        <div className="mt-20 bg-page text-brand-text rounded-2xl mx-6 md:mx-auto md:max-w-[1600px] p-6 md:p-10">
           <ShowCarousel title="Buổi diễn tương tự" events={relatedEvents} showViewMore={false} />
         </div>
       )}
@@ -319,17 +319,17 @@ const EventDetailPage = () => {
       {/* MODAL SHARE */}
       {isShareModalOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setIsShareModalOpen(false)}></div>
-          <div className="relative bg-gray-950 border border-gray-800 rounded-2xl w-full max-w-md p-6 shadow-2xl">
+          <div className="absolute inset-0 bg-espresso/80 backdrop-blur-sm" onClick={() => setIsShareModalOpen(false)}></div>
+          <div className="relative bg-card border border-line rounded-2xl w-full max-w-md p-6 shadow-2xl">
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-bold text-white">Chia sẻ sự kiện</h2>
-              <button onClick={() => setIsShareModalOpen(false)} className="p-2 hover:bg-gray-800 rounded-full text-gray-400 transition-colors"><X size={20} /></button>
+              <h2 className="text-xl font-bold text-ink">Chia sẻ sự kiện</h2>
+              <button onClick={() => setIsShareModalOpen(false)} className="p-2 hover:bg-sunken rounded-full text-ink-soft transition-colors"><X size={20} /></button>
             </div>
-            <p className="text-gray-400 text-sm mb-3">Copy the link below to send to friends:</p>
-            <div className="flex items-center gap-2 bg-black border border-gray-800 rounded-lg p-2 pl-4">
-              <span className="text-gray-300 text-sm flex-1 truncate">{window.location.href}</span>
-              <button onClick={handleCopyLink} className={`px-4 py-2 rounded-md text-sm font-bold transition-colors flex items-center gap-1.5 ${isCopied ? 'bg-green-500 text-white' : 'bg-[#C3B665] text-black hover:bg-[#d4c87f]'}`}>
-                {isCopied ? <><Check size={14} /> Copied</> : <><Copy size={14} /> Copy</>}
+            <p className="text-ink-soft text-sm mb-3">Copy the link below to send to friends:</p>
+            <div className="flex items-center gap-2 bg-page border border-line rounded-lg p-2 pl-4">
+              <span className="text-ink-soft text-sm flex-1 truncate">{window.location.href}</span>
+              <button onClick={handleCopyLink} className={`px-4 py-2 rounded-md text-sm font-bold transition-colors flex items-center gap-1.5 ${isCopied ? 'bg-green-500 text-white' : 'bg-brand text-on-brand hover:bg-brand-hover'}`}>
+                {isCopied ? <><Check size={14} /> Copied</> : <><Copy size={14} /> Sao chép</>}
               </button>
             </div>
           </div>

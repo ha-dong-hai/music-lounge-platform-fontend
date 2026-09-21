@@ -14,34 +14,34 @@ const MyShowsPage = () => {
   const [activeMainTab, setActiveMainTab] = useState('shows')
 
   return (
-    <div className="min-h-screen bg-black text-white pb-20">
+    <div className="min-h-[60vh] bg-page text-ink pb-20">
       <div className="max-w-[1600px] mx-auto px-6 py-8">
         <div className="mb-6">
-          <Link to="/" className="inline-flex items-center gap-2 text-sm font-medium text-gray-400 hover:text-[#C3B665] transition-colors">
-            <ArrowLeft size={18} /> Return to homepage
+          <Link to="/" className="inline-flex items-center gap-2 text-sm font-medium text-ink-soft hover:text-brand-text transition-colors">
+            <ArrowLeft size={18} /> Về trang chủ
           </Link>
         </div>
 
         <div className="flex items-center gap-3 mb-8">
-          <Ticket size={28} className="text-[#C3B665]" />
-          <h1 className="text-3xl font-bold text-white">My list</h1>
+          <Ticket size={28} className="text-brand-text" />
+          <h1 className="text-3xl font-bold text-ink">Danh sách của tôi</h1>
         </div>
 
         {!user ? (
-          <div className="bg-gray-900 border border-gray-800 rounded-2xl p-12 text-center">
-            <p className="text-lg font-semibold text-white mb-2">You must logged in.</p>
-            <p className="text-gray-400 mb-6">Please log in to view your ticket list and wishlist.</p>
-            <Link to="/login" className="inline-block bg-[#C3B665] text-black px-6 py-2.5 rounded-lg font-semibold hover:bg-[#d4c87f] transition-colors">Login now</Link>
+          <div className="bg-card border border-line rounded-2xl p-12 text-center">
+            <p className="text-lg font-semibold text-ink mb-2">You must logged in.</p>
+            <p className="text-ink-soft mb-6">Please log in to view your ticket list and wishlist.</p>
+            <Link to="/login" className="inline-block bg-brand text-on-brand px-6 py-2.5 rounded-lg font-semibold hover:bg-brand-hover transition-colors">Đăng nhập ngay</Link>
           </div>
         ) : (
           <>
-            <div className="mb-6 border-b border-gray-800">
+            <div className="mb-6 border-b border-line">
               <div className="flex justify-end gap-8">
-                <button onClick={() => setActiveMainTab('shows')} className={`pb-4 text-lg font-bold border-b-2 transition-colors ${activeMainTab === 'shows' ? 'border-[#C3B665] text-[#C3B665]' : 'border-transparent text-gray-500 hover:text-white'}`}>Shows</button>
-                <button onClick={() => setActiveMainTab('wishlist')} className={`pb-4 text-lg font-bold border-b-2 transition-colors ${activeMainTab === 'wishlist' ? 'border-[#C3B665] text-[#C3B665]' : 'border-transparent text-gray-500 hover:text-white'}`}>Wishlist</button>
-                <button onClick={() => setActiveMainTab('transfers')} className={`pb-4 text-lg font-bold border-b-2 transition-colors ${activeMainTab === 'transfers' ? 'border-[#C3B665] text-[#C3B665]' : 'border-transparent text-gray-500 hover:text-white'}`}>Vé chuyển đến</button>
-                <button onClick={() => setActiveMainTab('refunds')} className={`pb-4 text-lg font-bold border-b-2 transition-colors ${activeMainTab === 'refunds' ? 'border-[#C3B665] text-[#C3B665]' : 'border-transparent text-gray-500 hover:text-white'}`}>Hoàn tiền</button>
-                <button onClick={() => setActiveMainTab('donations')} className={`pb-4 text-lg font-bold border-b-2 transition-colors ${activeMainTab === 'donations' ? 'border-[#C3B665] text-[#C3B665]' : 'border-transparent text-gray-500 hover:text-white'}`}>Donate</button>
+                <button onClick={() => setActiveMainTab('shows')} className={`pb-4 text-lg font-bold border-b-2 transition-colors ${activeMainTab === 'shows' ? 'border-brand text-brand-text' : 'border-transparent text-ink-mute hover:text-ink'}`}>Shows</button>
+                <button onClick={() => setActiveMainTab('wishlist')} className={`pb-4 text-lg font-bold border-b-2 transition-colors ${activeMainTab === 'wishlist' ? 'border-brand text-brand-text' : 'border-transparent text-ink-mute hover:text-ink'}`}>Yêu thích</button>
+                <button onClick={() => setActiveMainTab('transfers')} className={`pb-4 text-lg font-bold border-b-2 transition-colors ${activeMainTab === 'transfers' ? 'border-brand text-brand-text' : 'border-transparent text-ink-mute hover:text-ink'}`}>Vé chuyển đến</button>
+                <button onClick={() => setActiveMainTab('refunds')} className={`pb-4 text-lg font-bold border-b-2 transition-colors ${activeMainTab === 'refunds' ? 'border-brand text-brand-text' : 'border-transparent text-ink-mute hover:text-ink'}`}>Hoàn tiền</button>
+                <button onClick={() => setActiveMainTab('donations')} className={`pb-4 text-lg font-bold border-b-2 transition-colors ${activeMainTab === 'donations' ? 'border-brand text-brand-text' : 'border-transparent text-ink-mute hover:text-ink'}`}>Donate</button>
               </div>
             </div>
 

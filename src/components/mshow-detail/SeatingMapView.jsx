@@ -53,8 +53,8 @@ const SeatingMapView = ({ showId, selectedZoneId, onSelectZone }) => {
 
   if (isLoading) {
     return (
-      <div className="bg-gray-900 border border-gray-800 rounded-2xl py-16 flex justify-center">
-        <Loader2 size={26} className="animate-spin text-[#C3B665]" />
+      <div className="bg-card border border-line rounded-2xl py-16 flex justify-center">
+        <Loader2 size={26} className="animate-spin text-brand-text" />
       </div>
     )
   }
@@ -66,14 +66,14 @@ const SeatingMapView = ({ showId, selectedZoneId, onSelectZone }) => {
   const chuaCoViTri = zones.filter((z) => z.layout2DX == null || z.layout2DY == null)
 
   return (
-    <div className="bg-gray-900 border border-gray-800 rounded-2xl p-4 md:p-6">
+    <div className="bg-card border border-line rounded-2xl p-4 md:p-6">
       <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
-        <h3 className="text-lg font-bold text-[#C3B665] flex items-center gap-2">
+        <h3 className="text-lg font-bold text-brand-text flex items-center gap-2">
           <Map size={18} /> Sơ đồ khu vực
         </h3>
         {selectedZoneId != null && (
           <button onClick={() => onSelectZone?.(null)}
-            className="px-3 py-1.5 rounded-lg border border-gray-700 text-gray-300 text-xs font-bold hover:bg-gray-800">
+            className="px-3 py-1.5 rounded-lg border border-line text-ink-soft text-xs font-bold hover:bg-sunken">
             Xem tất cả khu vực
           </button>
         )}
@@ -81,7 +81,7 @@ const SeatingMapView = ({ showId, selectedZoneId, onSelectZone }) => {
 
       {coViTri.length > 0 && (
         <>
-          <div className="relative w-full rounded-xl overflow-hidden border border-gray-800 bg-black"
+          <div className="relative w-full rounded-xl overflow-hidden border border-line bg-page"
             style={{ aspectRatio: '16 / 9' }}>
             {/* Ảnh mặt bằng do chủ phòng trà tải lên, nếu có. Không có thì để nền trơn — vẫn đọc
                 được vì mỗi khu vực đã có nhãn riêng. */}
@@ -100,7 +100,7 @@ const SeatingMapView = ({ showId, selectedZoneId, onSelectZone }) => {
                   onClick={() => onSelectZone?.(laChon ? null : z.zoneId)}
                   title={`${z.name} — ${nhanConLai(z)}`}
                   className={`absolute flex flex-col items-center justify-center rounded-lg border-2 px-1 overflow-hidden transition-all ${
-                    laChon ? 'border-[#C3B665] ring-2 ring-[#C3B665]/40 z-10' : 'border-white/25 hover:border-white/60'
+                    laChon ? 'border-brand ring-2 ring-brand/40 z-10' : 'border-white/25 hover:border-white/60'
                   } ${hetVe ? 'opacity-45' : ''}`}
                   style={{
                     left: `${z.layout2DX}%`,
@@ -112,10 +112,10 @@ const SeatingMapView = ({ showId, selectedZoneId, onSelectZone }) => {
                     backgroundColor: z.color ? `${z.color}55` : 'rgba(195,182,101,0.20)',
                   }}
                 >
-                  <span className="text-[10px] sm:text-xs font-bold text-white leading-tight text-center truncate max-w-full">
+                  <span className="text-[10px] sm:text-xs font-bold text-ink leading-tight text-center truncate max-w-full">
                     {z.name}
                   </span>
-                  <span className="text-[9px] sm:text-[10px] text-gray-200/90 leading-tight">
+                  <span className="text-[9px] sm:text-[10px] text-ink-soft/90 leading-tight">
                     {nhanConLai(z)}
                   </span>
                 </button>
@@ -123,7 +123,7 @@ const SeatingMapView = ({ showId, selectedZoneId, onSelectZone }) => {
             })}
           </div>
 
-          <p className="text-xs text-gray-500 mt-3 flex items-start gap-1.5 leading-relaxed">
+          <p className="text-xs text-ink-mute mt-3 flex items-start gap-1.5 leading-relaxed">
             <Info size={12} className="mt-0.5 flex-shrink-0" />
             Bấm vào một khu vực để chỉ xem hạng vé của khu đó. Sơ đồ chỉ hiện khu vực có bán vé trong
             buổi diễn này.
@@ -133,9 +133,9 @@ const SeatingMapView = ({ showId, selectedZoneId, onSelectZone }) => {
 
       {/* KHU VỰC CHƯA ĐẶT VỊ TRÍ — vẫn bán vé, nên phải hiện ở đâu đó */}
       {chuaCoViTri.length > 0 && (
-        <div className={coViTri.length > 0 ? 'mt-5 pt-5 border-t border-gray-800' : ''}>
+        <div className={coViTri.length > 0 ? 'mt-5 pt-5 border-t border-line' : ''}>
           {coViTri.length > 0 && (
-            <p className="text-xs text-gray-500 mb-3 leading-relaxed">
+            <p className="text-xs text-ink-mute mb-3 leading-relaxed">
               Những khu vực sau đang bán vé nhưng chưa được đặt vị trí trên sơ đồ:
             </p>
           )}
@@ -146,10 +146,10 @@ const SeatingMapView = ({ showId, selectedZoneId, onSelectZone }) => {
                 <button key={z.zoneId} type="button"
                   onClick={() => onSelectZone?.(laChon ? null : z.zoneId)}
                   className={`px-3 py-2 rounded-lg border text-left transition-colors ${
-                    laChon ? 'border-[#C3B665] bg-[#C3B665]/10' : 'border-gray-800 hover:border-gray-600'
+                    laChon ? 'border-brand bg-brand/10' : 'border-line hover:border-line-strong'
                   }`}>
-                  <span className="block text-sm text-white font-medium">{z.name}</span>
-                  <span className="block text-xs text-gray-500 mt-0.5">
+                  <span className="block text-sm text-ink font-medium">{z.name}</span>
+                  <span className="block text-xs text-ink-mute mt-0.5">
                     {nhanConLai(z)}
                     {khoangGia(z) && ` · ${khoangGia(z)}`}
                   </span>

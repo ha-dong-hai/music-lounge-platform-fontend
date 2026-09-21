@@ -43,10 +43,10 @@ const ForgotPasswordPage = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col justify-between bg-[#17130f] text-[#ebe1d9]" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-      <header className="bg-[#110d0a] sticky top-0 z-50 w-full shadow-md">
+    <div className="min-h-screen flex flex-col justify-between bg-page text-ink" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+      <header className="bg-card sticky top-0 z-50 w-full shadow-md">
         <div className="max-w-7xl mx-auto px-6 py-4">
-          <Link to="/" className="flex items-center gap-3 text-[#ffc665]">
+          <Link to="/" className="flex items-center gap-3 text-brand-text">
             <AudioLines size={24} />
             <span className="text-xl tracking-wide" style={{ fontFamily: "'Playfair Display', serif" }}>
               Phòng Trà Sài Gòn • MusicLounge
@@ -57,13 +57,13 @@ const ForgotPasswordPage = () => {
 
       <main className="flex-grow flex items-center justify-center p-4 sm:p-6">
         <div className="w-full max-w-md">
-          <div className="bg-[#1f1b17] rounded-xl p-8 sm:p-10 border border-[#504535]/40 shadow-2xl">
+          <div className="bg-card rounded-xl p-8 sm:p-10 border border-line-strong/40 shadow-2xl">
             <div className="mb-6">
-              <span className="text-xs text-[#ffc665] tracking-widest uppercase block mb-1">Lấy Lại Lối Vào</span>
-              <h1 className="text-2xl sm:text-3xl text-[#FDFBF7] mb-2" style={{ fontFamily: "'Playfair Display', serif" }}>
+              <span className="text-xs text-brand-text tracking-widest uppercase block mb-1">Lấy Lại Lối Vào</span>
+              <h1 className="text-2xl sm:text-3xl text-ink mb-2" style={{ fontFamily: "'Playfair Display', serif" }}>
                 Quên Mật Khẩu
               </h1>
-              <p className="text-sm text-[#c8bdae] leading-relaxed">
+              <p className="text-sm text-ink-soft leading-relaxed">
                 Nhập email đã đăng ký. Chúng tôi gửi cho bạn một đường dẫn để đặt lại mật khẩu.
               </p>
             </div>
@@ -74,7 +74,7 @@ const ForgotPasswordPage = () => {
                 <div role="status" className="p-4 rounded-lg bg-[#16301c] border border-[#2f6b3a] flex items-start gap-3">
                   <CheckCircle2 size={20} className="text-[#8fe3a4] flex-shrink-0 mt-0.5" />
                   <div className="text-sm leading-relaxed">
-                    <p className="font-semibold text-white">Đã gửi yêu cầu</p>
+                    <p className="font-semibold text-ink">Đã gửi yêu cầu</p>
                     <p className="text-[#c5e6cd] mt-1">
                       Nếu <span className="font-medium">{getValues('email')}</span> là email đã đăng ký, bạn sẽ nhận
                       được đường dẫn đặt lại mật khẩu trong vài phút. Nhớ xem cả hộp thư rác.
@@ -82,18 +82,18 @@ const ForgotPasswordPage = () => {
                   </div>
                 </div>
 
-                <div className="mt-5 p-4 rounded-lg bg-[#110d0a] border border-[#504535]/50">
-                  <p className="text-xs text-[#d4c4b0] flex items-start gap-2 leading-relaxed">
-                    <Clock size={14} className="text-[#ffc665] flex-shrink-0 mt-px" />
-                    Đường dẫn chỉ dùng được <strong className="text-[#f5ede4]">một lần</strong> và hết hạn sau{' '}
-                    <strong className="text-[#f5ede4]">30 phút</strong>. Quá hạn thì quay lại đây xin đường dẫn mới.
+                <div className="mt-5 p-4 rounded-lg bg-card border border-line-strong/50">
+                  <p className="text-xs text-ink-soft flex items-start gap-2 leading-relaxed">
+                    <Clock size={14} className="text-brand-text flex-shrink-0 mt-px" />
+                    Đường dẫn chỉ dùng được <strong className="text-ink">một lần</strong> và hết hạn sau{' '}
+                    <strong className="text-ink">30 phút</strong>. Quá hạn thì quay lại đây xin đường dẫn mới.
                   </p>
                 </div>
 
                 <button
                   type="button"
                   onClick={() => setDaGui(false)}
-                  className="mt-6 w-full py-3 px-4 rounded-lg bg-[#110d0a] hover:bg-[#231f1a] border border-[#504535]/60 text-[#f5ede4] font-medium text-sm transition-colors"
+                  className="mt-6 w-full py-3 px-4 rounded-lg bg-card hover:bg-sunken border border-line-strong/60 text-ink font-medium text-sm transition-colors"
                 >
                   Gửi lại cho email khác
                 </button>
@@ -101,22 +101,22 @@ const ForgotPasswordPage = () => {
             ) : (
               <>
                 {apiError && (
-                  <div role="alert" className="mb-6 p-3.5 rounded-lg bg-[#3d1414] border border-[#832420] text-white flex items-start gap-3">
-                    <AlertCircle size={20} className="text-[#ffb4ac] flex-shrink-0 mt-0.5" />
+                  <div role="alert" className="mb-6 p-3.5 rounded-lg bg-danger/10 border border-danger/40 text-white flex items-start gap-3">
+                    <AlertCircle size={20} className="text-danger flex-shrink-0 mt-0.5" />
                     <div className="text-sm leading-snug">
                       <p className="font-semibold">Không gửi được</p>
-                      <p className="text-[#ffcdd2]">{apiError}</p>
+                      <p className="text-danger">{apiError}</p>
                     </div>
                   </div>
                 )}
 
                 <form className="space-y-5" onSubmit={handleSubmit(onSubmit)} noValidate>
                   <div>
-                    <label className="block text-xs text-[#f5ede4] mb-2 uppercase tracking-wider" htmlFor="email">
-                      Địa Chỉ Email <span className="text-[#ffc665]">*</span>
+                    <label className="block text-xs text-ink mb-2 uppercase tracking-wider" htmlFor="email">
+                      Địa Chỉ Email <span className="text-brand-text">*</span>
                     </label>
                     <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#9d8f7c]">
+                      <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-ink-mute">
                         <Mail size={18} />
                       </div>
                       <input
@@ -125,16 +125,16 @@ const ForgotPasswordPage = () => {
                         type="email"
                         autoFocus
                         placeholder="nhap.email@example.com"
-                        className="w-full pl-10 pr-4 py-3 bg-[#110d0a] border border-[#504535] rounded-lg text-[#f5ede4] placeholder-[#BCAFA0] text-sm focus:border-[#ffc665] focus:ring-2 focus:ring-[#ffc665]/40 focus:outline-none transition-all"
+                        className="w-full pl-10 pr-4 py-3 bg-card border border-line-strong rounded-lg text-ink placeholder-[#BCAFA0] text-sm focus:border-brand focus:ring-2 focus:ring-brand/40 focus:outline-none transition-all"
                       />
                     </div>
-                    {errors.email && <p className="mt-1 text-xs text-[#ffb4ac]">{errors.email.message}</p>}
+                    {errors.email && <p className="mt-1 text-xs text-danger">{errors.email.message}</p>}
                   </div>
 
                   <button
                     type="submit"
                     disabled={isBusy}
-                    className="w-full py-3.5 px-4 rounded-lg bg-[#ffc665] hover:bg-[#ffd68a] text-[#17130f] font-bold text-sm flex items-center justify-center gap-2 transition-colors disabled:opacity-60"
+                    className="w-full py-3.5 px-4 rounded-lg bg-brand hover:bg-brand-hover text-ink font-bold text-sm flex items-center justify-center gap-2 transition-colors disabled:opacity-60"
                   >
                     {isBusy ? <><Loader2 size={20} className="animate-spin" /> Đang gửi...</> : <>Gửi đường dẫn đặt lại <ArrowRight size={20} /></>}
                   </button>
@@ -142,8 +142,8 @@ const ForgotPasswordPage = () => {
               </>
             )}
 
-            <div className="mt-7 text-center pt-5 border-t border-[#504535]/30">
-              <Link to="/login" className="text-sm text-[#ffc665] hover:underline inline-flex items-center gap-1.5">
+            <div className="mt-7 text-center pt-5 border-t border-line-strong/30">
+              <Link to="/login" className="text-sm text-brand-text hover:underline inline-flex items-center gap-1.5">
                 <ArrowLeft size={15} /> Về trang đăng nhập
               </Link>
             </div>
@@ -151,8 +151,8 @@ const ForgotPasswordPage = () => {
         </div>
       </main>
 
-      <footer className="w-full py-8 px-6 max-w-7xl mx-auto bg-[#110d0a] border-t border-[#504535]/20">
-        <p className="text-xs text-[#d4c4b0] text-center">
+      <footer className="w-full py-8 px-6 max-w-7xl mx-auto bg-card border-t border-line-strong/20">
+        <p className="text-xs text-ink-soft text-center">
           © 2026 MusicLounge Sài Gòn. Bản quyền thuộc về Phòng Trà Trữ Tình &amp; Acoustic Ca Nhạc.
         </p>
       </footer>

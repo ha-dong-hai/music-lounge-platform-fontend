@@ -36,7 +36,7 @@ import { mocUtc } from '../../utils/format'
 // Một điều kiện duyệt. `dat` = đã thoả. Hiện cả khi đạt lẫn khi chưa, vì "không thấy cảnh báo"
 // và "chưa kiểm" trông giống nhau nếu chỉ hiện lúc hỏng.
 const CoDieuKien = ({ dat, chuDat, chuChuaDat }) => (
-  <span className={`inline-flex items-center gap-1 text-xs ${dat ? 'text-green-400' : 'text-red-400'}`}>
+  <span className={`inline-flex items-center gap-1 text-xs ${dat ? 'text-success' : 'text-danger'}`}>
     {dat ? <CheckCircle2 size={12} /> : <XCircle size={12} />}
     {dat ? chuDat : chuChuaDat}
   </span>
@@ -85,32 +85,32 @@ const ReviewModal = ({ item, approve, onClose, onSaved }) => {
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => !isBusy && onClose()} />
-      <div className="relative bg-gray-900 border border-gray-700 rounded-2xl w-full max-w-md shadow-2xl">
-        <div className="flex justify-between items-center p-5 border-b border-gray-800">
-          <h2 className="text-lg font-bold text-white">
+      <div className="absolute inset-0 bg-espresso/80 backdrop-blur-sm" onClick={() => !isBusy && onClose()} />
+      <div className="relative bg-card border border-line rounded-2xl w-full max-w-md shadow-2xl">
+        <div className="flex justify-between items-center p-5 border-b border-line">
+          <h2 className="text-lg font-bold text-ink">
             {approve ? 'Duyệt tài khoản nhận tiền?' : 'Từ chối tài khoản?'}
           </h2>
           <button onClick={onClose} disabled={isBusy}
-            className="p-2 hover:bg-gray-800 rounded-full text-gray-400 disabled:opacity-30">
+            className="p-2 hover:bg-sunken rounded-full text-ink-soft disabled:opacity-30">
             <X size={20} />
           </button>
         </div>
 
         <form onSubmit={submit} className="p-5 space-y-4">
-          <div className="p-3 rounded-lg bg-black/50 border border-gray-800 space-y-1">
-            <p className="text-sm text-white">{item.loungeName}</p>
-            <p className="text-xs text-gray-400">{item.bankName} · {item.accountNumberMasked}</p>
-            <p className="text-xs text-gray-400">
-              Chủ tài khoản: <span className="text-white">{item.accountHolder}</span>
+          <div className="p-3 rounded-lg bg-espresso/50 border border-line space-y-1">
+            <p className="text-sm text-ink">{item.loungeName}</p>
+            <p className="text-xs text-ink-soft">{item.bankName} · {item.accountNumberMasked}</p>
+            <p className="text-xs text-ink-soft">
+              Chủ tài khoản: <span className="text-ink">{item.accountHolder}</span>
             </p>
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-ink-mute">
               Tên định danh của chủ phòng trà: {item.expectedAccountHolder || '—'}
             </p>
           </div>
 
           {approve && (
-            <p className="text-xs text-yellow-400 flex items-start gap-1.5 leading-relaxed bg-yellow-500/5 border border-yellow-500/30 rounded-lg p-3">
+            <p className="text-xs text-warning flex items-start gap-1.5 leading-relaxed bg-yellow-500/5 border border-yellow-500/30 rounded-lg p-3">
               <AlertTriangle size={13} className="mt-px flex-shrink-0" />
               Duyệt xong, doanh thu của phòng trà này sẽ được chuyển vào số tài khoản trên. Hãy đối
               chiếu TÊN chủ tài khoản với tên định danh — số tài khoản cố ý chỉ hiện dạng che.
@@ -118,22 +118,22 @@ const ReviewModal = ({ item, approve, onClose, onSaved }) => {
           )}
 
           <div>
-            <label className="text-xs text-gray-500">
-              Ghi chú {approve ? <span className="text-gray-600">(không bắt buộc)</span> : <span className="text-red-400">*</span>}
+            <label className="text-xs text-ink-mute">
+              Ghi chú {approve ? <span className="text-ink-mute">(không bắt buộc)</span> : <span className="text-danger">*</span>}
             </label>
             <textarea rows={3} value={note} onChange={(e) => setNote(e.target.value)}
               placeholder={approve ? 'Ghi chú nội bộ nếu cần' : 'VD: tên chủ tài khoản không khớp tên trên CCCD đã duyệt'}
-              className="mt-1 w-full px-3 py-2 bg-black border border-gray-700 rounded-lg text-sm text-white resize-none focus:outline-none focus:border-[#C3B665]/50" />
+              className="mt-1 w-full px-3 py-2 bg-page border border-line rounded-lg text-sm text-ink resize-none focus:outline-none focus:border-brand/50" />
           </div>
 
           <div className="flex gap-3">
             <button type="button" onClick={onClose} disabled={isBusy}
-              className="flex-1 py-2.5 border border-gray-600 text-gray-300 rounded-lg font-medium hover:bg-gray-800 disabled:opacity-50">
+              className="flex-1 py-2.5 border border-line-strong text-ink-soft rounded-lg font-medium hover:bg-sunken disabled:opacity-50">
               Huỷ
             </button>
             <button type="submit" disabled={isBusy}
               className={`flex-1 py-2.5 rounded-lg font-bold flex items-center justify-center gap-2 disabled:opacity-50 ${
-                approve ? 'bg-[#C3B665] text-black hover:bg-[#d4c87f]' : 'bg-red-500 text-white hover:bg-red-600'
+                approve ? 'bg-brand text-on-brand hover:bg-brand-hover' : 'bg-red-500 text-white hover:bg-red-600'
               }`}>
               {isBusy && <Loader2 size={16} className="animate-spin" />}
               {approve ? 'Duyệt' : 'Từ chối'}
@@ -179,17 +179,17 @@ const AdminBankAccountsPage = () => {
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex items-center gap-3">
-          <Landmark size={28} className="text-[#C3B665]" />
+          <Landmark size={28} className="text-brand-text" />
           <div>
-            <h1 className="text-2xl font-bold text-white">Tài khoản nhận tiền</h1>
-            <p className="text-gray-400 text-sm leading-relaxed">
+            <h1 className="text-2xl font-bold text-ink">Tài khoản nhận tiền</h1>
+            <p className="text-ink-soft text-sm leading-relaxed">
               Duyệt số tài khoản mà doanh thu của phòng trà sẽ được chuyển vào. Chỉ tài khoản của
               phòng trà — tài khoản của nghệ sĩ không duyệt ở đây.
             </p>
           </div>
         </div>
         <button onClick={load} disabled={isLoading}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-700 text-gray-300 text-sm font-bold hover:bg-gray-800 disabled:opacity-50">
+          className="flex items-center gap-2 px-4 py-2 rounded-lg border border-line text-ink-soft text-sm font-bold hover:bg-sunken disabled:opacity-50">
           <RefreshCw size={16} className={isLoading ? 'animate-spin' : ''} /> Tải lại
         </button>
       </div>
@@ -197,24 +197,24 @@ const AdminBankAccountsPage = () => {
       <div className="flex flex-wrap gap-2">
         <button onClick={() => doiTab(false)}
           className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${
-            !daDuyet ? 'bg-gray-800 border-[#C3B665]/40 text-[#C3B665]' : 'bg-black border-gray-800 text-gray-400 hover:text-white'
+            !daDuyet ? 'bg-sunken border-brand/40 text-brand-text' : 'bg-page border-line text-ink-soft hover:text-ink'
           }`}>
           Chờ duyệt{!daDuyet && totalCount > 0 ? ` (${totalCount})` : ''}
         </button>
         <button onClick={() => doiTab(true)}
           className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${
-            daDuyet ? 'bg-gray-800 border-[#C3B665]/40 text-[#C3B665]' : 'bg-black border-gray-800 text-gray-400 hover:text-white'
+            daDuyet ? 'bg-sunken border-brand/40 text-brand-text' : 'bg-page border-line text-ink-soft hover:text-ink'
           }`}>
           Đã duyệt
         </button>
       </div>
 
       {isLoading ? (
-        <div className="py-20 flex justify-center"><Loader2 size={30} className="animate-spin text-[#C3B665]" /></div>
+        <div className="py-20 flex justify-center"><Loader2 size={30} className="animate-spin text-brand-text" /></div>
       ) : items.length === 0 ? (
-        <div className="bg-gray-900 border border-gray-800 rounded-xl p-12 text-center">
-          <Landmark size={30} className="mx-auto mb-3 text-gray-700" />
-          <p className="text-sm text-gray-500">
+        <div className="bg-card border border-line rounded-xl p-12 text-center">
+          <Landmark size={30} className="mx-auto mb-3 text-ink-mute" />
+          <p className="text-sm text-ink-mute">
             {daDuyet ? 'Chưa có tài khoản nào được duyệt.' : 'Không có tài khoản nào đang chờ duyệt.'}
           </p>
         </div>
@@ -225,39 +225,39 @@ const AdminBankAccountsPage = () => {
             // Ba điều kiện này backend cũng kiểm lại, đây chỉ là chặn sớm cho người dùng.
             const duDieuKien = it.holderNameMatches && it.ownerIdentityApproved && !it.accountNumberUnreadable
             return (
-              <li key={it.id} className={`bg-gray-900 border rounded-xl p-5 ${duDieuKien ? 'border-gray-800' : 'border-yellow-500/30'}`}>
+              <li key={it.id} className={`bg-card border rounded-xl p-5 ${duDieuKien ? 'border-line' : 'border-yellow-500/30'}`}>
                 <div className="flex flex-wrap items-start justify-between gap-4">
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
                       <Link to={`/lounge/${it.loungeId}`} target="_blank"
-                        className="text-white font-bold hover:text-[#C3B665]">
+                        className="text-ink font-bold hover:text-brand-text">
                         {it.loungeName}
                       </Link>
                       {it.isDefault && (
-                        <span className="px-2 py-0.5 rounded-md bg-[#C3B665]/10 text-[#C3B665] text-xs">Mặc định</span>
+                        <span className="px-2 py-0.5 rounded-md bg-brand/10 text-brand-text text-xs">Mặc định</span>
                       )}
                       {it.isVerified && (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-green-500/10 text-green-400 text-xs">
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-green-500/10 text-success text-xs">
                           <ShieldCheck size={11} /> Đã duyệt
                         </span>
                       )}
                     </div>
 
-                    <p className="text-sm text-gray-300 mt-1.5">
+                    <p className="text-sm text-ink-soft mt-1.5">
                       {it.bankName} ·{' '}
                       {/* Khi số tài khoản hỏng, backend trả một CÂU CHỮ chứ không phải số đã che —
                           để nguyên font mã thì trông như một mã hợp lệ. Hiện khác đi cho đúng. */}
                       {it.accountNumberUnreadable
-                        ? <span className="text-red-400 italic">{it.accountNumberMasked}</span>
+                        ? <span className="text-danger italic">{it.accountNumberMasked}</span>
                         : <span className="font-mono">{it.accountNumberMasked}</span>}
                     </p>
-                    <p className="text-sm text-gray-400 mt-0.5">
-                      Chủ tài khoản: <span className="text-white">{it.accountHolder}</span>
+                    <p className="text-sm text-ink-soft mt-0.5">
+                      Chủ tài khoản: <span className="text-ink">{it.accountHolder}</span>
                     </p>
-                    <p className="text-xs text-gray-600 mt-0.5">
+                    <p className="text-xs text-ink-mute mt-0.5">
                       Chủ phòng trà: {it.ownerName} · tên định danh: {it.expectedAccountHolder || 'chưa có'}
                     </p>
-                    <p className="text-xs text-gray-600 mt-0.5">
+                    <p className="text-xs text-ink-mute mt-0.5">
                       Khai báo {dayjs(mocUtc(it.createdAt)).format('DD/MM/YYYY')}
                     </p>
 
@@ -276,11 +276,11 @@ const AdminBankAccountsPage = () => {
                       <button onClick={() => setTarget({ item: it, approve: true })}
                         disabled={!duDieuKien}
                         title={duDieuKien ? undefined : 'Chưa đủ điều kiện — xem các dòng cảnh báo bên trái'}
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-green-500/40 text-green-400 text-xs font-bold hover:bg-green-500/10 disabled:opacity-30 disabled:cursor-not-allowed">
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-green-500/40 text-success text-xs font-bold hover:bg-green-500/10 disabled:opacity-30 disabled:cursor-not-allowed">
                         <CheckCircle2 size={13} /> Duyệt
                       </button>
                       <button onClick={() => setTarget({ item: it, approve: false })}
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-red-500/40 text-red-400 text-xs font-bold hover:bg-red-500/10">
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-red-500/40 text-danger text-xs font-bold hover:bg-red-500/10">
                         <Ban size={13} /> Từ chối
                       </button>
                     </div>
@@ -291,9 +291,9 @@ const AdminBankAccountsPage = () => {
                     điều kiện cùng lúc; nêu từng lý do một thì người duyệt đi sửa xong cái thứ nhất
                     lại quay lại gặp cái thứ hai. Mỗi lý do kèm luôn việc phải làm ở đâu. */}
                 {!duDieuKien && !it.isVerified && (
-                  <ul className="mt-3 pt-3 border-t border-gray-800 space-y-1.5">
+                  <ul className="mt-3 pt-3 border-t border-line space-y-1.5">
                     {lyDoChuaDuyet(it).map((ly) => (
-                      <li key={ly} className="text-xs text-yellow-400/90 leading-relaxed flex items-start gap-1.5">
+                      <li key={ly} className="text-xs text-warning/90 leading-relaxed flex items-start gap-1.5">
                         <AlertTriangle size={12} className="mt-0.5 flex-shrink-0" />
                         {ly}
                       </li>
@@ -309,12 +309,12 @@ const AdminBankAccountsPage = () => {
       {totalPages > 1 && (
         <div className="flex items-center justify-center gap-3">
           <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page <= 1}
-            className="px-4 py-2 rounded-lg border border-gray-700 text-sm text-gray-300 hover:bg-gray-800 disabled:opacity-40">
+            className="px-4 py-2 rounded-lg border border-line text-sm text-ink-soft hover:bg-sunken disabled:opacity-40">
             Trước
           </button>
-          <span className="text-sm text-gray-500">Trang {page}/{totalPages}</span>
+          <span className="text-sm text-ink-mute">Trang {page}/{totalPages}</span>
           <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page >= totalPages}
-            className="px-4 py-2 rounded-lg border border-gray-700 text-sm text-gray-300 hover:bg-gray-800 disabled:opacity-40">
+            className="px-4 py-2 rounded-lg border border-line text-sm text-ink-soft hover:bg-sunken disabled:opacity-40">
             Sau
           </button>
         </div>

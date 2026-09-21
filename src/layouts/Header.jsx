@@ -91,7 +91,7 @@ const Header = () => {
   const handleLogout = () => {
     logout()
     setIsUserMenuOpen(false)
-    toast.success('Logout account')
+    toast.success('Đã đăng xuất')
   }
 
   // ÀM SUBMIT TÌM KIẾM SẼ CHUYỂN TRANG
@@ -110,15 +110,15 @@ const Header = () => {
   }
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-black border-b border-[#C3B665]/30 px-6 py-4 shadow">
-      <div className="flex items-center justify-between gap-8">
-        <div className="flex items-center gap-8 flex-1 min-w-0">
-          <Link to="/" className="text-3xl font-bold tracking-tight text-[#C3B665] whitespace-nowrap cursor-pointer flex-shrink-0">
-            LOGO
+    <header className="sticky top-0 z-50 w-full bg-page/95 backdrop-blur border-b border-line px-4 sm:px-6 py-3 shadow-soft">
+      <div className="flex items-center justify-between gap-4 sm:gap-8">
+        <div className="flex items-center gap-4 sm:gap-8 flex-1 min-w-0">
+          <Link to="/" aria-label="Phòng Trà Sài Gòn — về trang chủ" className="font-display text-xl sm:text-2xl leading-none tracking-tight text-ink whitespace-nowrap flex-shrink-0">
+            Phòng Trà<span className="hidden min-[400px]:inline text-brand-text"> Sài Gòn</span>
           </Link>
 
           <form onSubmit={handleSearchSubmit} ref={oTimKiemRef} className="relative w-full max-w-md hidden md:block">
-            <button type="submit" className="absolute left-3 top-1/2 -translate-y-1/2 text-[#C3B665] cursor-pointer" aria-label="Search">
+            <button type="submit" className="absolute left-3 top-1/2 -translate-y-1/2 text-brand-text cursor-pointer" aria-label="Tìm kiếm">
               <Search size={18} strokeWidth={2.5}/>
             </button>
             <input
@@ -133,24 +133,24 @@ const Header = () => {
               onFocus={() => setMoGoiY(true)}
               onKeyDown={handleKeyDown}
               autoComplete="off"
-              placeholder="What would you like to search today"
-              className="w-full pl-10 pr-10 py-2.5 bg-gray-800 text-white placeholder:text-gray-400 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-[#C3B665] transition-all"
+              placeholder="Tìm đêm nhạc, phòng trà, nghệ sĩ…"
+              className="w-full pl-10 pr-10 py-2.5 bg-sunken text-ink placeholder:text-ink-mute rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-brand transition-all"
             />
             {localSearch && (
-              <button type="button" onClick={() => { setLocalSearch(''); setMoGoiY(false) }} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white">
+              <button type="button" onClick={() => { setLocalSearch(''); setMoGoiY(false) }} className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-soft hover:text-ink">
                 <X size={18} />
               </button>
             )}
 
             {/* DANH SÁCH GỢI Ý */}
             {moGoiY && localSearch.trim().length >= 2 && (
-              <div className="absolute top-full left-0 right-0 mt-2 bg-gray-900 border border-gray-800 rounded-xl shadow-2xl overflow-hidden z-50">
+              <div className="absolute top-full left-0 right-0 mt-2 bg-card border border-line rounded-xl shadow-2xl overflow-hidden z-50">
                 {dangTaiGoiY ? (
                   <div className="py-6 flex justify-center">
-                    <Loader2 size={20} className="animate-spin text-[#C3B665]" />
+                    <Loader2 size={20} className="animate-spin text-brand-text" />
                   </div>
                 ) : goiY.length === 0 ? (
-                  <p className="px-4 py-4 text-sm text-gray-500">
+                  <p className="px-4 py-4 text-sm text-ink-mute">
                     Không có buổi diễn nào khớp. Nhấn Enter để tìm rộng hơn.
                   </p>
                 ) : (
@@ -159,13 +159,13 @@ const Header = () => {
                       <li key={item.id}>
                         <button type="button" onClick={() => chonGoiY(item)}
                           onMouseEnter={() => setChiSoChon(i)}
-                          className={`w-full flex items-center gap-3 px-3 py-2.5 text-left transition-colors ${i === chiSoChon ? 'bg-gray-800' : 'hover:bg-gray-800/60'}`}>
+                          className={`w-full flex items-center gap-3 px-3 py-2.5 text-left transition-colors ${i === chiSoChon ? 'bg-sunken' : 'hover:bg-sunken/60'}`}>
                           {item.coverImageUrl ? (
                             <img src={item.coverImageUrl} alt="" className="w-10 h-10 rounded-md object-cover flex-shrink-0" />
                           ) : (
-                            <div className="w-10 h-10 rounded-md bg-gray-800 flex-shrink-0" />
+                            <div className="w-10 h-10 rounded-md bg-sunken flex-shrink-0" />
                           )}
-                          <span className="text-sm text-white truncate">{item.name}</span>
+                          <span className="text-sm text-ink truncate">{item.name}</span>
                         </button>
                       </li>
                     ))}
@@ -176,49 +176,52 @@ const Header = () => {
           </form>
         </div>
 
-        <div className="flex items-center gap-4 flex-shrink-0">
-          <Link to="/my-shows" className="bg-transparent hover:bg-[#C3B665] hover:text-black text-[#C3B665] border border-[#C3B665] px-5 py-2 rounded-full text-sm font-medium transition-colors hidden sm:block">
-            My Shows
+        <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
+          <Link to="/shows/search" aria-label="Tìm kiếm" className="md:hidden w-11 h-11 inline-flex items-center justify-center rounded-full text-ink-soft hover:bg-sunken hover:text-ink transition-colors">
+            <Search size={20} />
+          </Link>
+          <Link to="/my-shows" className="bg-transparent hover:bg-brand-hover hover:text-on-brand text-brand-text border border-brand px-5 py-2 rounded-full text-sm font-medium transition-colors hidden sm:block">
+            Vé của tôi
           </Link>
 
           {!user ? (
             <div className="flex items-center gap-2">
-              <Link to="/login" className="text-sm font-medium text-gray-200 hover:text-white px-3 py-2 rounded-xl border border-transparent hover:bg-gray-800 transition-all">Login</Link>
-              <Link to="/register" className="bg-black text-white px-3 py-2 rounded-xl text-sm font-medium hover:bg-gray-800 transition-colors">Register</Link>
+              <Link to="/login" className="text-sm font-medium text-ink-soft hover:text-ink px-3 py-2 rounded-xl border border-transparent hover:bg-sunken transition-all">Đăng nhập</Link>
+              <Link to="/register" className="bg-brand text-on-brand px-4 py-2 rounded-full text-sm font-semibold hover:bg-brand-hover transition-colors shadow-soft">Đăng ký</Link>
             </div>
           ) : (
             <>
             {/* Thông báo chỉ có nghĩa với người đã đăng nhập — API /notifications yêu cầu xác thực. */}
             <NotificationBell />
             <div className="relative">
-              <button onClick={() => setIsUserMenuOpen(!isUserMenuOpen)} className="flex items-center gap-2 hover:text-white transition-colors focus:outline-none">
+              <button onClick={() => setIsUserMenuOpen(!isUserMenuOpen)} aria-haspopup="menu" aria-expanded={isUserMenuOpen} aria-label="Menu tài khoản" className="flex items-center gap-2 hover:text-ink transition-colors focus:outline-none">
                 {user.avatarUrl ? (
-                  <img src={user.avatarUrl} alt="avatar" className="w-9 h-9 rounded-full object-cover border border-[#C3B665]" />
+                  <img src={user.avatarUrl} alt="avatar" className="w-9 h-9 rounded-full object-cover border border-brand" />
                 ) : (
-                  <div className="w-9 h-9 rounded-full bg-black text-white flex items-center justify-center border border-[#C3B665]/30">
+                  <div className="w-9 h-9 rounded-full bg-page text-ink flex items-center justify-center border border-brand/30">
                     <User size={20} />
                   </div>
                 )}
-                <span className="font-medium text-white text-sm hidden lg:inline">{user.name}</span>
+                <span className="font-medium text-ink text-sm hidden lg:inline">{user.name}</span>
                 <ChevronDown size={14} className={`hidden lg:block transition-transform duration-200 ${isUserMenuOpen ? 'rotate-180' : ''}`} />
               </button>
               {isUserMenuOpen && (
-                <div className="absolute right-0 top-full mt-3 w-56 bg-[#1a1a1a] rounded-xl shadow-lg border border-[#C3B665]/20 py-2 z-50 animate-in fade-in slide-in-from-top-2">
-                  <div className="px-4 py-2 border-b border-gray-700 mb-1">
-                    <p className="text-xs text-gray-400">Hello,</p>
-                    <p className="text-sm font-semibold text-white truncate">{user.email}</p>
+                <div className="absolute right-0 top-full mt-3 w-56 bg-card rounded-xl shadow-lift border border-line py-2 z-50 animate-in fade-in slide-in-from-top-2">
+                  <div className="px-4 py-2 border-b border-line mb-1">
+                    <p className="text-xs text-ink-mute">Xin chào,</p>
+                    <p className="text-sm font-semibold text-ink truncate">{user.email}</p>
                   </div>
-                  <Link to="/account" className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-300 hover:bg-gray-800 hover:text-white transition-colors text-left">
-                    <Settings size={18} className="text-[#C3B665]" /> Account info
+                  <Link to="/account" className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-ink-soft hover:bg-sunken hover:text-ink transition-colors text-left">
+                    <Settings size={18} className="text-brand-text" /> Thông tin tài khoản
                   </Link>
-                  <Link to="/my-shows" className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-300 hover:bg-gray-800 transition-colors text-left">
-                    <Ticket size={18} className="text-[#C3B665]" /> My Shows
+                  <Link to="/my-shows" className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-ink-soft hover:bg-sunken transition-colors text-left">
+                    <Ticket size={18} className="text-brand-text" /> Vé của tôi
                   </Link>
-                  <Link to="/notifications" className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-300 hover:bg-gray-800 transition-colors text-left">
-                    <Bell size={18} className="text-[#C3B665]" /> Thông báo
+                  <Link to="/notifications" className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-ink-soft hover:bg-sunken transition-colors text-left">
+                    <Bell size={18} className="text-brand-text" /> Thông báo
                   </Link>
-                  <Link to="/complaints" className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-300 hover:bg-gray-800 transition-colors text-left">
-                    <MessageSquareWarning size={18} className="text-[#C3B665]" /> Khiếu nại
+                  <Link to="/complaints" className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-ink-soft hover:bg-sunken transition-colors text-left">
+                    <MessageSquareWarning size={18} className="text-brand-text" /> Khiếu nại
                   </Link>
 
                   {/* LỐI VÀO KHU LÀM VIỆC THEO VAI TRÒ.
@@ -229,24 +232,24 @@ const Header = () => {
                       /owner mở cho Owner và Staff, /admin chỉ cho Admin. */}
                   {(user.role === 'Owner' || user.role === 'Staff') && (
                     <>
-                      <div className="my-1 border-t border-gray-700"></div>
-                      <Link to="/owner" className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-[#C3B665] hover:bg-gray-800 transition-colors text-left font-medium">
+                      <div className="my-1 border-t border-line"></div>
+                      <Link to="/owner" className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-brand-text hover:bg-sunken transition-colors text-left font-medium">
                         <Store size={18} /> Khu vực phòng trà
                       </Link>
                     </>
                   )}
                   {user.role === 'Admin' && (
                     <>
-                      <div className="my-1 border-t border-gray-700"></div>
-                      <Link to="/admin" className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-[#C3B665] hover:bg-gray-800 transition-colors text-left font-medium">
+                      <div className="my-1 border-t border-line"></div>
+                      <Link to="/admin" className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-brand-text hover:bg-sunken transition-colors text-left font-medium">
                         <LayoutDashboard size={18} /> Trang quản trị
                       </Link>
                     </>
                   )}
 
-                  <div className="my-1 border-t border-gray-700"></div>
-                  <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-500 hover:bg-red-500/10 transition-colors text-left font-medium">
-                    <LogOut size={18} /> Log out
+                  <div className="my-1 border-t border-line"></div>
+                  <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-danger hover:bg-danger/10 transition-colors text-left font-medium">
+                    <LogOut size={18} /> Đăng xuất
                   </button>
                 </div>
               )}
@@ -254,18 +257,18 @@ const Header = () => {
             </>
           )}
 
-          <div className="relative">
-            <button onClick={() => setIsLangOpen(!isLangOpen)} className="flex items-center gap-1.5 px-3 py-2 rounded-full border border-gray-700 hover:border-[#C3B665] text-sm font-medium text-gray-300 hover:text-[#C3B665] transition-colors">
+          <div className="relative hidden sm:block">
+            <button onClick={() => setIsLangOpen(!isLangOpen)} className="flex items-center gap-1.5 px-3 py-2 rounded-full border border-line hover:border-brand text-sm font-medium text-ink-soft hover:text-brand-text transition-colors">
               <Languages size={16} />
               <span>{currentLang === 'vi' ? 'VN' : 'EN'}</span>
               <ChevronDown size={14} className={`transition-transform duration-200 ${isLangOpen ? 'rotate-180' : ''}`} />
             </button>
             {isLangOpen && (
-              <div className="absolute right-0 top-full mt-3 w-44 bg-[#1a1a1a] rounded-xl shadow-lg border border-[#C3B665]/20 py-2 z-50 animate-in fade-in slide-in-from-top-2">
-                <button onClick={() => handleChangeLang('vi')} className={`w-full flex items-center justify-between px-4 py-2.5 text-sm transition-colors ${currentLang === 'vi' ? 'text-[#C3B665] bg-gray-800/50' : 'text-gray-300 hover:bg-gray-800 hover:text-white'}`}>
+              <div className="absolute right-0 top-full mt-3 w-44 bg-card rounded-xl shadow-lift border border-line py-2 z-50 animate-in fade-in slide-in-from-top-2">
+                <button onClick={() => handleChangeLang('vi')} className={`w-full flex items-center justify-between px-4 py-2.5 text-sm transition-colors ${currentLang === 'vi' ? 'text-brand-text bg-sunken/50' : 'text-ink-soft hover:bg-sunken hover:text-ink'}`}>
                   Tiếng Việt {currentLang === 'vi' && <Check size={14} />}
                 </button>
-                <button onClick={() => handleChangeLang('en')} className={`w-full flex items-center justify-between px-4 py-2.5 text-sm transition-colors ${currentLang === 'en' ? 'text-[#C3B665] bg-gray-800/50' : 'text-gray-300 hover:bg-gray-800 hover:text-white'}`}>
+                <button onClick={() => handleChangeLang('en')} className={`w-full flex items-center justify-between px-4 py-2.5 text-sm transition-colors ${currentLang === 'en' ? 'text-brand-text bg-sunken/50' : 'text-ink-soft hover:bg-sunken hover:text-ink'}`}>
                   English {currentLang === 'en' && <Check size={14} />}
                 </button>
               </div>

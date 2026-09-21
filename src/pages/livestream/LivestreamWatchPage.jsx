@@ -263,50 +263,50 @@ const LivestreamWatchPage = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <Loader2 size={40} className="animate-spin text-[#C3B665]" />
+      <div className="min-h-screen bg-page flex items-center justify-center">
+        <Loader2 size={40} className="animate-spin text-brand-text" />
       </div>
     )
   }
 
   if (error) {
     return (
-      <div className="min-h-screen bg-black flex flex-col items-center justify-center text-white">
-        <AlertCircle size={40} className="text-red-400 mb-4" />
+      <div className="min-h-screen bg-page flex flex-col items-center justify-center text-ink">
+        <AlertCircle size={40} className="text-danger mb-4" />
         <p className="text-xl mb-4">{error}</p>
-        <Link to="/" className="text-[#C3B665] underline flex items-center gap-2"><ArrowLeft size={16} /> Return</Link>
+        <Link to="/" className="text-brand-text underline flex items-center gap-2"><ArrowLeft size={16} /> Return</Link>
       </div>
     )
   }
 
   if (livestream && !livestream.userHasAccess) {
     return (
-      <div className="min-h-screen bg-black flex flex-col items-center justify-center text-white px-4 text-center">
-        <Lock size={40} className="text-[#C3B665] mb-4" />
+      <div className="min-h-screen bg-page flex flex-col items-center justify-center text-ink px-4 text-center">
+        <Lock size={40} className="text-brand-text mb-4" />
         <p className="text-xl mb-2 font-bold">You need a ticket to watch this livestream</p>
-        <p className="text-gray-400 mb-6">Buy a livestream ticket for this show to unlock viewing.</p>
-        <Link to={`/shows/${showId}`} className="text-[#C3B665] underline flex items-center gap-2"><ArrowLeft size={16} /> Back to show</Link>
+        <p className="text-ink-soft mb-6">Buy a livestream ticket for this show to unlock viewing.</p>
+        <Link to={`/shows/${showId}`} className="text-brand-text underline flex items-center gap-2"><ArrowLeft size={16} /> Back to show</Link>
       </div>
     )
   }
 
   return (
-    <div className="h-screen bg-black text-white flex flex-col overflow-hidden">
+    <div className="h-screen bg-page text-ink flex flex-col overflow-hidden">
 
       {/* HEADER */}
-      <div className="flex-none flex items-center gap-4 px-4 py-2.5 bg-gray-950 border-b border-gray-800 z-50">
-        <Link to={`/shows/${showId}`} className="p-1.5 hover:bg-gray-800 rounded-full transition-colors flex-shrink-0">
+      <div className="flex-none flex items-center gap-4 px-4 py-2.5 bg-card border-b border-line z-50">
+        <Link to={`/shows/${showId}`} className="p-1.5 hover:bg-sunken rounded-full transition-colors flex-shrink-0">
           <ArrowLeft size={20} />
         </Link>
         <div className="flex-1 min-w-0">
           <h1 className="text-base font-bold truncate">{showData?.name}</h1>
-          <p className="text-xs text-gray-400 flex items-center gap-2 flex-wrap">
+          <p className="text-xs text-ink-soft flex items-center gap-2 flex-wrap">
             <span className="flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse inline-block"></span> LIVE
             </span>
             <span className="flex items-center gap-1"><Eye size={12} /> {formatCompactNumber(viewerCount)}</span>
             {connectionState !== 'connected' && (
-              <span className="flex items-center gap-1 text-yellow-500">
+              <span className="flex items-center gap-1 text-warning">
                 <WifiOff size={11} /> {connectionState === 'reconnecting' ? 'Reconnecting...' : 'Connecting...'}
               </span>
             )}
@@ -315,7 +315,7 @@ const LivestreamWatchPage = () => {
 
         <button
           onClick={handleEndStreamClick}
-          className="flex-shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-lg bg-red-500/10 border border-red-500/40 text-red-400 text-xs font-bold hover:bg-red-500/20 transition-colors"
+          className="flex-shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-lg bg-red-500/10 border border-red-500/40 text-danger text-xs font-bold hover:bg-red-500/20 transition-colors"
           title="Kết thúc stream (test modal đánh giá)"
         >
           <Square size={12} className="fill-red-400" /> Kết thúc
@@ -326,7 +326,7 @@ const LivestreamWatchPage = () => {
         {user?.role === 'Admin' && livestream?.id && (
           <button
             onClick={() => setMoCatSong(true)}
-            className="flex-shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-lg bg-red-600/20 border border-red-600 text-red-300 text-xs font-bold hover:bg-red-600/30 transition-colors"
+            className="flex-shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-lg bg-red-600/20 border border-red-600 text-danger text-xs font-bold hover:bg-red-600/30 transition-colors"
             title="Admin dừng buổi phát vì vi phạm nội dung"
           >
             <ShieldOff size={12} /> Cắt sóng
@@ -337,7 +337,7 @@ const LivestreamWatchPage = () => {
 
       {/* BODY: VIDEO + CHAT */}
       <div className="flex-1 flex overflow-hidden">
-        <div className="flex-1 bg-black relative">
+        <div className="flex-1 bg-page relative">
           {/* BA TRẠNG THÁI KẾT THÚC KHÁC NHAU, TRƯỚC ĐÂY CHỈ CÓ MỘT.
               - Bị Admin cắt sóng: `terminatedReason` nói vì sao. Không hiện thì người xem chỉ thấy
                 một khung đen và không biết chuyện gì, còn thông báo tức thời thì đã trôi mất.
@@ -349,14 +349,14 @@ const LivestreamWatchPage = () => {
           {livestream?.status === 'Terminated' ? (
             <div className="absolute inset-0 flex items-center justify-center p-8">
               <div className="max-w-md text-center">
-                <ShieldOff size={34} className="mx-auto text-red-400 mb-4" />
-                <p className="text-lg font-bold text-white">Buổi phát đã bị dừng</p>
-                <p className="text-sm text-gray-400 mt-2 leading-relaxed">
+                <ShieldOff size={34} className="mx-auto text-danger mb-4" />
+                <p className="text-lg font-bold text-ink">Buổi phát đã bị dừng</p>
+                <p className="text-sm text-ink-soft mt-2 leading-relaxed">
                   {livestream.terminatedReason
                     ? `Lý do: ${livestream.terminatedReason}`
                     : 'Quản trị viên đã dừng buổi phát này. Không có lý do được ghi lại.'}
                 </p>
-                <p className="text-xs text-gray-600 mt-3">
+                <p className="text-xs text-ink-mute mt-3">
                   Đây là trạng thái cuối — buổi phát không tiếp tục được nữa.
                 </p>
               </div>
@@ -364,22 +364,22 @@ const LivestreamWatchPage = () => {
           ) : livestream?.status === 'Ended' ? (
             <div className="absolute inset-0 flex items-center justify-center p-8">
               <div className="max-w-md text-center">
-                <Square size={30} className="mx-auto text-gray-600 mb-4" />
-                <p className="text-lg font-bold text-white">Buổi phát đã kết thúc</p>
+                <Square size={30} className="mx-auto text-ink-mute mb-4" />
+                <p className="text-lg font-bold text-ink">Buổi phát đã kết thúc</p>
                 {livestream.recordingUrl ? (
                   <>
-                    <p className="text-sm text-gray-400 mt-2">Bạn xem lại được bản ghi.</p>
+                    <p className="text-sm text-ink-soft mt-2">Bạn xem lại được bản ghi.</p>
                     <a
                       href={livestream.recordingUrl}
                       target="_blank"
                       rel="noreferrer"
-                      className="mt-4 inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[#C3B665] text-black text-sm font-bold hover:bg-[#d4c87f]"
+                      className="mt-4 inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-brand text-on-brand text-sm font-bold hover:bg-brand-hover"
                     >
                       <Eye size={16} /> Xem lại bản ghi
                     </a>
                   </>
                 ) : (
-                  <p className="text-sm text-gray-500 mt-2 leading-relaxed">
+                  <p className="text-sm text-ink-mute mt-2 leading-relaxed">
                     Buổi phát này không có bản ghi lại.
                   </p>
                 )}
@@ -394,7 +394,7 @@ const LivestreamWatchPage = () => {
           )}
         </div>
 
-        <div className="w-[300px] sm:w-[350px] lg:w-[400px] flex-none border-l border-gray-800 flex flex-col bg-gray-950">
+        <div className="w-[300px] sm:w-[350px] lg:w-[400px] flex-none border-l border-line flex flex-col bg-card">
           <ChatPanel
             messages={messages}
             performers={showData?.performers || []}
@@ -407,34 +407,34 @@ const LivestreamWatchPage = () => {
 
       {moCatSong && (
         <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/85 backdrop-blur-sm" onClick={() => !dangCatSong && setMoCatSong(false)} />
-          <div className="relative bg-gray-900 border border-red-500/40 rounded-2xl w-full max-w-md shadow-2xl">
-            <div className="flex justify-between items-center p-5 border-b border-gray-800">
-              <h2 className="text-lg font-bold text-red-400 flex items-center gap-2">
+          <div className="absolute inset-0 bg-espresso/85 backdrop-blur-sm" onClick={() => !dangCatSong && setMoCatSong(false)} />
+          <div className="relative bg-card border border-red-500/40 rounded-2xl w-full max-w-md shadow-2xl">
+            <div className="flex justify-between items-center p-5 border-b border-line">
+              <h2 className="text-lg font-bold text-danger flex items-center gap-2">
                 <ShieldOff size={19} /> Cắt sóng buổi phát này?
               </h2>
               <button onClick={() => setMoCatSong(false)} disabled={dangCatSong}
-                className="p-2 hover:bg-gray-800 rounded-full text-gray-400 disabled:opacity-30">
+                className="p-2 hover:bg-sunken rounded-full text-ink-soft disabled:opacity-30">
                 <X size={20} />
               </button>
             </div>
             <div className="p-5 space-y-4">
-              <p className="text-sm text-gray-300 leading-relaxed">
-                Buổi phát sẽ dừng NGAY và <strong className="text-red-400">không phát lại được</strong> —
+              <p className="text-sm text-ink-soft leading-relaxed">
+                Buổi phát sẽ dừng NGAY và <strong className="text-danger">không phát lại được</strong> —
                 đây là trạng thái cuối. Buổi diễn cũng bị chuyển sang đã kết thúc, và mọi người đang
                 xem bị ngắt.
               </p>
               <div>
-                <label className="text-xs text-gray-500">Lý do <span className="text-red-400">*</span></label>
+                <label className="text-xs text-ink-mute">Lý do <span className="text-danger">*</span></label>
                 <textarea rows={3} value={lyDoCatSong} maxLength={500}
                   onChange={(e) => setLyDoCatSong(e.target.value)}
                   placeholder="Nội dung vi phạm cụ thể là gì"
-                  className="mt-1 w-full px-3 py-2 bg-black border border-gray-700 rounded-lg text-sm text-white resize-none focus:outline-none focus:border-red-500/50" />
-                <p className="text-xs text-gray-600 mt-1">Lý do được lưu lại cùng tên người cắt.</p>
+                  className="mt-1 w-full px-3 py-2 bg-page border border-line rounded-lg text-sm text-ink resize-none focus:outline-none focus:border-red-500/50" />
+                <p className="text-xs text-ink-mute mt-1">Lý do được lưu lại cùng tên người cắt.</p>
               </div>
               <div className="flex gap-3">
                 <button onClick={() => setMoCatSong(false)} disabled={dangCatSong}
-                  className="flex-1 py-2.5 border border-gray-600 text-gray-300 rounded-lg font-medium hover:bg-gray-800 disabled:opacity-50">
+                  className="flex-1 py-2.5 border border-line-strong text-ink-soft rounded-lg font-medium hover:bg-sunken disabled:opacity-50">
                   Huỷ
                 </button>
                 <button onClick={handleCatSong} disabled={dangCatSong || !lyDoCatSong.trim()}

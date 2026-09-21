@@ -76,17 +76,17 @@ const AdminFilterOptionsPage = () => {
     <div>
       {/* HEADER */}
       <div className="flex items-center gap-3 mb-6">
-        <SlidersHorizontal size={28} className="text-[#C3B665]" />
+        <SlidersHorizontal size={28} className="text-brand-text" />
         <div>
-          <h1 className="text-2xl font-bold text-white">Filter Options</h1>
-          <p className="text-gray-400 text-sm">
+          <h1 className="text-2xl font-bold text-ink">Filter Options</h1>
+          <p className="text-ink-soft text-sm">
             Manage genres, moods, atmospheres and event categories used in show filters across the platform.
           </p>
         </div>
       </div>
 
       {/* TABS */}
-      <div className="mb-6 border-b border-gray-800">
+      <div className="mb-6 border-b border-line">
         <div className="flex flex-wrap gap-8">
           {TABS.map(tab => (
             <button
@@ -94,12 +94,12 @@ const AdminFilterOptionsPage = () => {
               onClick={() => setActiveTab(tab.key)}
               className={`pb-4 text-base font-bold border-b-2 transition-colors ${
                 activeTab === tab.key
-                  ? 'border-[#C3B665] text-[#C3B665]'
-                  : 'border-transparent text-gray-500 hover:text-white'
+                  ? 'border-brand text-brand-text'
+                  : 'border-transparent text-ink-mute hover:text-ink'
               }`}
             >
               {tab.label}
-              <span className={`ml-2 text-xs font-medium ${activeTab === tab.key ? 'text-[#C3B665]' : 'text-gray-600'}`}>
+              <span className={`ml-2 text-xs font-medium ${activeTab === tab.key ? 'text-brand-text' : 'text-ink-mute'}`}>
                 {options[tab.key]?.length || 0}
               </span>
             </button>
@@ -110,7 +110,7 @@ const AdminFilterOptionsPage = () => {
       {/* NỘI DUNG TAB */}
       {isLoading ? (
         <div className="flex items-center justify-center py-20">
-          <Loader2 size={28} className="animate-spin text-[#C3B665]" />
+          <Loader2 size={28} className="animate-spin text-brand-text" />
         </div>
       ) : (
         TABS.filter(tab => tab.key === activeTab).map(tab => (

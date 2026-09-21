@@ -19,7 +19,7 @@ import {
 } from '../../services/ticketServices'
 
 const fmtMoney = (v) => `${Number(v || 0).toLocaleString('vi-VN')}đ`
-const inputCls = 'mt-1 w-full px-3 py-2 bg-black border border-gray-700 rounded-lg text-sm text-white focus:outline-none focus:border-[#C3B665]/50'
+const inputCls = 'mt-1 w-full px-3 py-2 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-brand/50'
 
 const PayoutAccountModal = ({ request, onClose, onSaved }) => {
   const [form, setForm] = useState({ bankName: '', accountNumber: '', accountHolder: '', consent: false })
@@ -53,40 +53,40 @@ const PayoutAccountModal = ({ request, onClose, onSaved }) => {
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-gray-900 border border-gray-700 rounded-2xl w-full max-w-md shadow-2xl">
-        <div className="flex justify-between items-center p-5 border-b border-gray-800">
-          <h2 className="text-lg font-bold text-white">Tài khoản nhận tiền hoàn</h2>
-          <button onClick={onClose} className="p-2 hover:bg-gray-800 rounded-full text-gray-400"><X size={20} /></button>
+      <div className="absolute inset-0 bg-espresso/80 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative bg-card border border-line rounded-2xl w-full max-w-md shadow-2xl">
+        <div className="flex justify-between items-center p-5 border-b border-line">
+          <h2 className="text-lg font-bold text-ink">Tài khoản nhận tiền hoàn</h2>
+          <button onClick={onClose} className="p-2 hover:bg-sunken rounded-full text-ink-soft"><X size={20} /></button>
         </div>
 
         <form onSubmit={submit} className="p-5 space-y-4">
-          <p className="text-xs text-gray-500 leading-relaxed">
+          <p className="text-xs text-ink-mute leading-relaxed">
             Giao dịch gốc không hoàn lại được qua cổng thanh toán, nên chúng tôi cần chuyển khoản tay.
-            Số tiền hoàn: <span className="text-white font-medium">{fmtMoney(request.refundAmount ?? request.amount)}</span>
+            Số tiền hoàn: <span className="text-ink font-medium">{fmtMoney(request.refundAmount ?? request.amount)}</span>
           </p>
 
           <div>
-            <label className="text-xs text-gray-500">Ngân hàng <span className="text-red-400">*</span></label>
+            <label className="text-xs text-ink-mute">Ngân hàng <span className="text-danger">*</span></label>
             <input value={form.bankName} onChange={(e) => set('bankName', e.target.value)} className={inputCls} placeholder="VD: Vietcombank" />
           </div>
           <div>
-            <label className="text-xs text-gray-500">Số tài khoản <span className="text-red-400">*</span></label>
+            <label className="text-xs text-ink-mute">Số tài khoản <span className="text-danger">*</span></label>
             <input value={form.accountNumber} onChange={(e) => set('accountNumber', e.target.value)} className={inputCls} inputMode="numeric" />
           </div>
           <div>
-            <label className="text-xs text-gray-500">Tên chủ tài khoản <span className="text-red-400">*</span></label>
+            <label className="text-xs text-ink-mute">Tên chủ tài khoản <span className="text-danger">*</span></label>
             <input value={form.accountHolder} onChange={(e) => set('accountHolder', e.target.value)} className={inputCls} />
           </div>
 
-          <label className="flex items-start gap-2 text-xs text-gray-400 cursor-pointer leading-relaxed">
+          <label className="flex items-start gap-2 text-xs text-ink-soft cursor-pointer leading-relaxed">
             <input type="checkbox" checked={form.consent} onChange={(e) => set('consent', e.target.checked)}
-              className="accent-[#C3B665] mt-0.5 flex-shrink-0" />
+              className="accent-brand mt-0.5 flex-shrink-0" />
             Tôi đồng ý cho nền tảng dùng thông tin ngân hàng này để hoàn tiền cho tôi.
           </label>
 
           <button type="submit" disabled={isBusy}
-            className="w-full py-2.5 bg-[#C3B665] text-black rounded-lg font-bold flex items-center justify-center gap-2 disabled:opacity-50">
+            className="w-full py-2.5 bg-brand text-on-brand rounded-lg font-bold flex items-center justify-center gap-2 disabled:opacity-50">
             {isBusy && <Loader2 size={16} className="animate-spin" />} Gửi thông tin
           </button>
         </form>
@@ -130,14 +130,14 @@ const RefundRequestsTab = () => {
   }
 
   if (isLoading) {
-    return <div className="py-16 flex justify-center"><Loader2 size={28} className="animate-spin text-[#C3B665]" /></div>
+    return <div className="py-16 flex justify-center"><Loader2 size={28} className="animate-spin text-brand-text" /></div>
   }
 
   if (items.length === 0) {
     return (
-      <div className="bg-gray-900 border border-gray-800 rounded-xl p-10 text-center">
-        <Receipt size={26} className="mx-auto mb-3 text-gray-700" />
-        <p className="text-sm text-gray-500">Bạn chưa có yêu cầu hoàn tiền nào.</p>
+      <div className="bg-card border border-line rounded-xl p-10 text-center">
+        <Receipt size={26} className="mx-auto mb-3 text-ink-mute" />
+        <p className="text-sm text-ink-mute">Bạn chưa có yêu cầu hoàn tiền nào.</p>
       </div>
     )
   }
@@ -150,38 +150,38 @@ const RefundRequestsTab = () => {
         const dangBan = busyId === r.id
 
         return (
-          <div key={r.id} className="bg-gray-900 border border-gray-800 rounded-xl p-5">
+          <div key={r.id} className="bg-card border border-line rounded-xl p-5">
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div className="min-w-0">
-                <p className="text-white font-bold">{r.showName ?? `Yêu cầu #${r.id}`}</p>
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-ink font-bold">{r.showName ?? `Yêu cầu #${r.id}`}</p>
+                <p className="text-xs text-ink-mute mt-1">
                   Gửi lúc {dayjs(r.createdAt ?? r.requestedAt).format('HH:mm DD/MM/YYYY')}
                 </p>
-                {r.reason && <p className="text-xs text-gray-500 mt-0.5">Lý do: {r.reason}</p>}
+                {r.reason && <p className="text-xs text-ink-mute mt-0.5">Lý do: {r.reason}</p>}
               </div>
               <div className="text-right flex-shrink-0">
-                <p className="text-lg font-bold text-[#C3B665] tabular-nums">
+                <p className="text-lg font-bold text-brand-text tabular-nums">
                   {fmtMoney(r.refundAmount ?? r.amount)}
                 </p>
-                <p className="text-xs text-gray-500">{r.status}</p>
+                <p className="text-xs text-ink-mute">{r.status}</p>
               </div>
             </div>
 
             {r.expectedResolutionBy && (
-              <p className="mt-3 text-xs text-gray-500 flex items-center gap-1.5">
+              <p className="mt-3 text-xs text-ink-mute flex items-center gap-1.5">
                 <Clock size={12} /> Hạn phản hồi {dayjs(r.expectedResolutionBy).format('HH:mm DD/MM/YYYY')}
               </p>
             )}
 
             {canKhaiTaiKhoan && (
               <div className="mt-3 bg-yellow-500/5 border border-yellow-500/30 rounded-lg p-3">
-                <p className="text-xs text-yellow-400 flex items-start gap-1.5 leading-relaxed">
+                <p className="text-xs text-warning flex items-start gap-1.5 leading-relaxed">
                   <AlertTriangle size={13} className="mt-px flex-shrink-0" />
                   Giao dịch gốc không hoàn lại được qua cổng thanh toán. Bạn cần khai tài khoản ngân hàng,
                   nếu không thì không ai chuyển được tiền cho bạn.
                 </p>
                 <button onClick={() => setKhaiTaiKhoan(r)}
-                  className="mt-2 flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#C3B665] text-black text-xs font-bold hover:bg-[#d4c87f]">
+                  className="mt-2 flex items-center gap-2 px-3 py-1.5 rounded-lg bg-brand text-on-brand text-xs font-bold hover:bg-brand-hover">
                   <Landmark size={13} /> Khai tài khoản nhận tiền
                 </button>
               </div>
@@ -189,11 +189,11 @@ const RefundRequestsTab = () => {
 
             {canXacNhanTienMat && (
               <div className="mt-3 bg-blue-500/5 border border-blue-500/30 rounded-lg p-3">
-                <p className="text-xs text-blue-300 leading-relaxed">
+                <p className="text-xs text-sky-700 leading-relaxed">
                   Vé này được hoàn bằng tiền mặt tại quầy. Sau khi đã nhận tiền, hãy bấm xác nhận để đóng yêu cầu.
                 </p>
                 <button onClick={() => xacNhanNhanTienMat(r)} disabled={dangBan}
-                  className="mt-2 flex items-center gap-2 px-3 py-1.5 rounded-lg border border-blue-500/40 text-blue-300 text-xs font-bold hover:bg-blue-500/10 disabled:opacity-50">
+                  className="mt-2 flex items-center gap-2 px-3 py-1.5 rounded-lg border border-blue-500/40 text-sky-700 text-xs font-bold hover:bg-blue-500/10 disabled:opacity-50">
                   {dangBan ? <Loader2 size={13} className="animate-spin" /> : <HandCoins size={13} />}
                   Tôi đã nhận tiền mặt
                 </button>
@@ -201,7 +201,7 @@ const RefundRequestsTab = () => {
             )}
 
             {r.status === 'Completed' && (
-              <p className="mt-3 text-xs text-green-400 flex items-center gap-1.5">
+              <p className="mt-3 text-xs text-success flex items-center gap-1.5">
                 <CheckCircle2 size={13} /> Đã hoàn tiền xong
               </p>
             )}

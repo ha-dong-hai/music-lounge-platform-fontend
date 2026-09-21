@@ -117,8 +117,8 @@ const AdminComplaintPage = () => {
 
             {/* HEADER */}
             <div>
-                <h1 className="text-2xl font-bold text-white mb-1">Report Management</h1>
-                <p className="text-gray-400 text-sm">User complaints.</p>
+                <h1 className="text-2xl font-bold text-ink mb-1">Report Management</h1>
+                <p className="text-ink-soft text-sm">User complaints.</p>
             </div>
 
             {/* FILTERS */}

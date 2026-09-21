@@ -41,10 +41,10 @@ const iconTheoLoai = (type) => {
 }
 
 const TRANG_THAI_QUYET_TOAN = {
-  Released: { chu: 'Đã chuyển', mau: 'text-green-400 bg-green-500/10' },
-  Scheduled: { chu: 'Đã lên lịch', mau: 'text-yellow-400 bg-yellow-500/10' },
-  PendingReview: { chu: 'Chờ xét', mau: 'text-yellow-400 bg-yellow-500/10' },
-  Cancelled: { chu: 'Đã huỷ', mau: 'text-gray-400 bg-gray-500/10' },
+  Released: { chu: 'Đã chuyển', mau: 'text-success bg-green-500/10' },
+  Scheduled: { chu: 'Đã lên lịch', mau: 'text-warning bg-yellow-500/10' },
+  PendingReview: { chu: 'Chờ xét', mau: 'text-warning bg-yellow-500/10' },
+  Cancelled: { chu: 'Đã huỷ', mau: 'text-ink-soft bg-line-strong/10' },
 }
 
 const OwnerFinancePage = () => {
@@ -92,16 +92,16 @@ const OwnerFinancePage = () => {
   const doiLoc = (fn) => { fn(); setPage(1) }
 
   if (isLoading && !earnings && rows.length === 0) {
-    return <div className="py-20 flex justify-center"><Loader2 size={32} className="animate-spin text-[#C3B665]" /></div>
+    return <div className="py-20 flex justify-center"><Loader2 size={32} className="animate-spin text-brand-text" /></div>
   }
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-white mb-1 flex items-center gap-2">
-          <Wallet size={24} className="text-[#C3B665]" /> Tiền &amp; quyết toán
+        <h1 className="text-2xl font-bold text-ink mb-1 flex items-center gap-2">
+          <Wallet size={24} className="text-brand-text" /> Tiền &amp; quyết toán
         </h1>
-        <p className="text-gray-400 text-sm leading-relaxed">
+        <p className="text-ink-soft text-sm leading-relaxed">
           Tổng quan tiền bạn được nhận, và lịch sử từng giao dịch đã đi qua phòng trà.
         </p>
       </div>
@@ -109,59 +109,59 @@ const OwnerFinancePage = () => {
       {/* TỔNG QUAN */}
       {earnings ? (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="bg-gray-900 border border-gray-800 rounded-xl p-5">
+          <div className="bg-card border border-line rounded-xl p-5">
             <div className="flex items-start justify-between gap-2">
-              <p className="text-sm text-gray-500">Tổng đã ghi nhận</p>
-              <Wallet size={17} className="text-[#C3B665] flex-shrink-0" />
+              <p className="text-sm text-ink-mute">Tổng đã ghi nhận</p>
+              <Wallet size={17} className="text-brand-text flex-shrink-0" />
             </div>
-            <p className="text-2xl font-bold text-white mt-1.5 tabular-nums">{fmtTien(earnings.totalEarned)}</p>
+            <p className="text-2xl font-bold text-ink mt-1.5 tabular-nums">{fmtTien(earnings.totalEarned)}</p>
           </div>
-          <div className="bg-gray-900 border border-gray-800 rounded-xl p-5">
+          <div className="bg-card border border-line rounded-xl p-5">
             <div className="flex items-start justify-between gap-2">
-              <p className="text-sm text-gray-500">Đã chuyển cho bạn</p>
-              <CheckCircle2 size={17} className="text-green-400 flex-shrink-0" />
+              <p className="text-sm text-ink-mute">Đã chuyển cho bạn</p>
+              <CheckCircle2 size={17} className="text-success flex-shrink-0" />
             </div>
-            <p className="text-2xl font-bold text-white mt-1.5 tabular-nums">{fmtTien(earnings.completedSettlement)}</p>
+            <p className="text-2xl font-bold text-ink mt-1.5 tabular-nums">{fmtTien(earnings.completedSettlement)}</p>
           </div>
-          <div className="bg-gray-900 border border-gray-800 rounded-xl p-5">
+          <div className="bg-card border border-line rounded-xl p-5">
             <div className="flex items-start justify-between gap-2">
-              <p className="text-sm text-gray-500">Chờ chuyển</p>
-              <Clock size={17} className="text-yellow-400 flex-shrink-0" />
+              <p className="text-sm text-ink-mute">Chờ chuyển</p>
+              <Clock size={17} className="text-warning flex-shrink-0" />
             </div>
-            <p className="text-2xl font-bold text-white mt-1.5 tabular-nums">{fmtTien(earnings.pendingSettlement)}</p>
-            <p className="text-xs text-gray-500 mt-1.5 leading-relaxed">
+            <p className="text-2xl font-bold text-ink mt-1.5 tabular-nums">{fmtTien(earnings.pendingSettlement)}</p>
+            <p className="text-xs text-ink-mute mt-1.5 leading-relaxed">
               {earnings.pendingSettlementCount} đợt đã chốt nhưng chưa tới ngày chuyển.
             </p>
           </div>
         </div>
       ) : (
-        <div className="bg-gray-900 border border-yellow-500/30 rounded-xl p-5">
-          <p className="text-sm text-gray-400">Không tải được phần tổng quan. Danh sách giao dịch bên dưới vẫn đúng.</p>
+        <div className="bg-card border border-yellow-500/30 rounded-xl p-5">
+          <p className="text-sm text-ink-soft">Không tải được phần tổng quan. Danh sách giao dịch bên dưới vẫn đúng.</p>
         </div>
       )}
 
       {/* QUYẾT TOÁN GẦN ĐÂY */}
       {(earnings?.recentSettlements?.length ?? 0) > 0 && (
-        <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
-          <h2 className="text-base font-semibold text-white flex items-center gap-2">
+        <div className="bg-card border border-line rounded-xl p-6">
+          <h2 className="text-base font-semibold text-ink flex items-center gap-2">
             <Landmark size={16} /> Các đợt quyết toán gần đây
           </h2>
-          <p className="text-xs text-gray-500 mt-0.5 mb-4 leading-relaxed">
+          <p className="text-xs text-ink-mute mt-0.5 mb-4 leading-relaxed">
             Backend trả 10 đợt gần nhất. Muốn xem đầy đủ thì lọc &quot;Quyết toán&quot; ở danh sách bên dưới.
           </p>
           <div className="space-y-2">
             {earnings.recentSettlements.map((s) => {
               const tt = TRANG_THAI_QUYET_TOAN[s.status]
               return (
-                <div key={s.id} className="flex flex-wrap items-center justify-between gap-3 bg-black/40 border border-gray-800 rounded-lg px-4 py-3">
+                <div key={s.id} className="flex flex-wrap items-center justify-between gap-3 bg-espresso/40 border border-line rounded-lg px-4 py-3">
                   <div>
-                    <p className="text-sm text-white tabular-nums">{fmtTien(s.amount)}</p>
-                    <p className="text-xs text-gray-600 mt-0.5">
+                    <p className="text-sm text-ink tabular-nums">{fmtTien(s.amount)}</p>
+                    <p className="text-xs text-ink-mute mt-0.5">
                       Lên lịch {dayjs(s.scheduledAt).format('DD/MM/YYYY')}
                       {s.paidAt && ` · đã chuyển ${dayjs(s.paidAt).format('DD/MM/YYYY')}`}
                     </p>
                   </div>
-                  <span className={`px-2 py-0.5 rounded-md text-xs font-medium flex-shrink-0 ${tt?.mau ?? 'text-gray-400 bg-gray-500/10'}`}>
+                  <span className={`px-2 py-0.5 rounded-md text-xs font-medium flex-shrink-0 ${tt?.mau ?? 'text-ink-soft bg-line-strong/10'}`}>
                     {tt?.chu ?? s.status}
                   </span>
                 </div>
@@ -172,14 +172,14 @@ const OwnerFinancePage = () => {
       )}
 
       {/* LỊCH SỬ GIAO DỊCH */}
-      <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
+      <div className="bg-card border border-line rounded-xl p-6">
         <div className="flex flex-wrap items-start justify-between gap-3">
-          <h2 className="text-base font-semibold text-white flex items-center gap-2">
+          <h2 className="text-base font-semibold text-ink flex items-center gap-2">
             <ArrowRightLeft size={16} /> Lịch sử giao dịch
           </h2>
         </div>
 
-        <p className="text-xs text-gray-500 mt-2 flex items-start gap-1.5 leading-relaxed">
+        <p className="text-xs text-ink-mute mt-2 flex items-start gap-1.5 leading-relaxed">
           <Info size={12} className="mt-0.5 flex-shrink-0" />
           Đây là các bút toán từ cùng một nguồn sổ cái, KHÔNG phải tiền vào ví. Cộng hết các loại lại
           để tính doanh thu là đếm hai lần — tiền vé và quyết toán là hai mặt của cùng một dòng tiền.
@@ -191,51 +191,51 @@ const OwnerFinancePage = () => {
             {LOAI.map((l) => (
               <button key={l.value} onClick={() => doiLoc(() => setLoai(l.value))}
                 className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${
-                  loai === l.value ? 'border-[#C3B665] bg-[#C3B665]/10 text-[#C3B665]' : 'border-gray-700 text-gray-400 hover:bg-gray-800'
+                  loai === l.value ? 'border-brand bg-brand/10 text-brand-text' : 'border-line text-ink-soft hover:bg-sunken'
                 }`}>
                 {l.label}
               </button>
             ))}
           </div>
           <div>
-            <label className="text-xs text-gray-500 block">Từ ngày</label>
+            <label className="text-xs text-ink-mute block">Từ ngày</label>
             <input type="date" value={tuNgay} onChange={(e) => doiLoc(() => setTuNgay(e.target.value))}
-              className="mt-1 px-3 py-1.5 bg-black border border-gray-700 rounded-lg text-sm text-white" />
+              className="mt-1 px-3 py-1.5 bg-page border border-line rounded-lg text-sm text-ink" />
           </div>
           <div>
-            <label className="text-xs text-gray-500 block">Đến ngày</label>
+            <label className="text-xs text-ink-mute block">Đến ngày</label>
             <input type="date" value={denNgay} onChange={(e) => doiLoc(() => setDenNgay(e.target.value))}
-              className="mt-1 px-3 py-1.5 bg-black border border-gray-700 rounded-lg text-sm text-white" />
+              className="mt-1 px-3 py-1.5 bg-page border border-line rounded-lg text-sm text-ink" />
           </div>
           {(tuNgay || denNgay || loai) && (
             <button onClick={() => doiLoc(() => { setLoai(''); setTuNgay(''); setDenNgay('') })}
-              className="px-3 py-1.5 rounded-lg border border-gray-700 text-gray-400 text-xs font-medium hover:bg-gray-800">
+              className="px-3 py-1.5 rounded-lg border border-line text-ink-soft text-xs font-medium hover:bg-sunken">
               Xoá lọc
             </button>
           )}
         </div>
 
         {isLoading ? (
-          <div className="py-12 flex justify-center"><Loader2 size={22} className="animate-spin text-[#C3B665]" /></div>
+          <div className="py-12 flex justify-center"><Loader2 size={22} className="animate-spin text-brand-text" /></div>
         ) : rows.length === 0 ? (
-          <p className="mt-5 text-sm text-gray-500">Không có giao dịch nào khớp bộ lọc.</p>
+          <p className="mt-5 text-sm text-ink-mute">Không có giao dịch nào khớp bộ lọc.</p>
         ) : (
-          <div className="mt-5 divide-y divide-gray-800">
+          <div className="mt-5 divide-y divide-line">
             {rows.map((r) => {
               const Icon = iconTheoLoai(r.type)
               return (
                 <div key={`${r.type}-${r.id}`} className="py-3 flex flex-wrap items-start justify-between gap-3">
                   <div className="flex items-start gap-3 min-w-0">
-                    <Icon size={15} className="text-gray-600 mt-0.5 flex-shrink-0" />
+                    <Icon size={15} className="text-ink-mute mt-0.5 flex-shrink-0" />
                     <div className="min-w-0">
-                      <p className="text-sm text-white">{r.description || r.type}</p>
-                      <p className="text-xs text-gray-600 mt-0.5 break-all">
+                      <p className="text-sm text-ink">{r.description || r.type}</p>
+                      <p className="text-xs text-ink-mute mt-0.5 break-all">
                         {dayjs(r.createdAt).format('HH:mm DD/MM/YYYY')}
                         {r.referenceId && ` · ${r.referenceId}`}
                       </p>
                     </div>
                   </div>
-                  <p className="text-sm text-white tabular-nums flex-shrink-0">{fmtTien(r.amount)}</p>
+                  <p className="text-sm text-ink tabular-nums flex-shrink-0">{fmtTien(r.amount)}</p>
                 </div>
               )
             })}
@@ -245,22 +245,22 @@ const OwnerFinancePage = () => {
         {totalPages > 1 && (
           <div className="flex items-center justify-center gap-3 mt-5">
             <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page <= 1}
-              className="px-4 py-2 rounded-lg border border-gray-700 text-sm text-gray-300 hover:bg-gray-800 disabled:opacity-40">
+              className="px-4 py-2 rounded-lg border border-line text-sm text-ink-soft hover:bg-sunken disabled:opacity-40">
               Trước
             </button>
-            <span className="text-sm text-gray-500">Trang {page}/{totalPages}</span>
+            <span className="text-sm text-ink-mute">Trang {page}/{totalPages}</span>
             <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page >= totalPages}
-              className="px-4 py-2 rounded-lg border border-gray-700 text-sm text-gray-300 hover:bg-gray-800 disabled:opacity-40">
+              className="px-4 py-2 rounded-lg border border-line text-sm text-ink-soft hover:bg-sunken disabled:opacity-40">
               Sau
             </button>
           </div>
         )}
       </div>
 
-      <p className="text-xs text-gray-600 leading-relaxed">
-        Tiền donate hiện ở đây là tiền <strong className="text-gray-400">thu hộ nghệ sĩ</strong>, không phải
+      <p className="text-xs text-ink-mute leading-relaxed">
+        Tiền donate hiện ở đây là tiền <strong className="text-ink-soft">thu hộ nghệ sĩ</strong>, không phải
         doanh thu của bạn. Việc chuyển tiếp cho nghệ sĩ làm ở{' '}
-        <Link to="/owner/donations" className="text-[#C3B665] hover:underline">màn Donate</Link>.
+        <Link to="/owner/donations" className="text-brand-text hover:underline">màn Donate</Link>.
       </p>
     </div>
   )

@@ -23,9 +23,9 @@ const SectionHeader = ({ onOpenFilter, appliedFilters = {}, startDate, setStartD
 
   const getLabel = () => {
     if (startDate && endDate) return `${dayjs(startDate).format('DD/MM')} → ${dayjs(endDate).format('DD/MM')}`
-    if (startDate) return `From ${dayjs(startDate).format('DD/MM')}`
-    if (endDate) return `To ${dayjs(endDate).format('DD/MM')}`
-    return 'Choose date'
+    if (startDate) return `Từ ${dayjs(startDate).format('DD/MM')}`
+    if (endDate) return `Đến ${dayjs(endDate).format('DD/MM')}`
+    return 'Chọn ngày'
   }
 
   const handleClearDates = (e) => {
@@ -44,16 +44,16 @@ const SectionHeader = ({ onOpenFilter, appliedFilters = {}, startDate, setStartD
 
   return (
     <div className="flex items-center justify-end mb-6 px-1 gap-3">
-      <button onClick={onOpenFilter} className={`flex items-center gap-2 px-5 py-2.5 font-medium border rounded-full text-sm transition-all shadow-sm ${isFilterActive ? 'bg-[#C3B665]/10 border-[#C3B665] text-[#C3B665]' : 'border-[#C3B665] text-[#C3B665] hover:bg-[#C3B665]/50 hover:font-bold hover:text-black'}`}>
-        <Filter size={16} /> Filter <ChevronDown size={14} className="ml-1" />
+      <button onClick={onOpenFilter} className={`flex items-center gap-2 px-5 min-h-[44px] font-medium border rounded-full text-sm transition-all shadow-sm ${isFilterActive ? 'bg-brand/10 border-brand text-brand-text' : 'border-line-strong text-ink-soft bg-card hover:border-brand hover:text-ink'}`}>
+        <Filter size={16} /> Bộ lọc <ChevronDown size={14} className="ml-1" />
       </button>
 
       <div className="relative" ref={calendarRef}>
-        <button onClick={() => setIsCalendarOpen(!isCalendarOpen)} className={`flex items-center gap-2 px-4 py-2.5 rounded-full border shadow-sm transition-all ${isDateActive ? 'bg-[#C3B665]/10 border-[#C3B665] text-[#C3B665]' : 'bg-[#1a1a1a] border-[#C3B665]/30 text-gray-400 hover:border-[#C3B665]'}`}>
+        <button onClick={() => setIsCalendarOpen(!isCalendarOpen)} className={`flex items-center gap-2 px-4 min-h-[44px] rounded-full border shadow-sm transition-all ${isDateActive ? 'bg-brand/10 border-brand text-brand-text' : 'bg-card border-line-strong text-ink-soft hover:border-brand hover:text-ink'}`}>
           <CalendarDays size={16} className="flex-shrink-0" />
           <span className="text-sm font-medium whitespace-nowrap">{getLabel()}</span>
           {isDateActive && (
-            <span onClick={handleClearDates} className="ml-1 hover:text-red-500 transition-colors p-0.5 rounded-full hover:bg-white/5" title="Xóa ngày">
+            <span onClick={handleClearDates} className="ml-1 hover:text-danger transition-colors p-0.5 rounded-full hover:bg-sunken" title="Xóa ngày">
               <X size={14} />
             </span>
           )}

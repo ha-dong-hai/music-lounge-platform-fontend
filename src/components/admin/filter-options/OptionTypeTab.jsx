@@ -112,57 +112,57 @@ const OptionTypeTab = ({ typeKey, typeLabel, hasNameEn, hasDescription, hasIsAct
 
       {/* HEADER + NÚT ADD */}
       <div className="flex items-center justify-between">
-        <p className="text-sm text-gray-500">
+        <p className="text-sm text-ink-mute">
           {options.length} {typeLabel.toLowerCase()}{options.length !== 1 ? 's' : ''} in use
         </p>
         <button
           onClick={openCreate}
-          className="flex items-center gap-2 bg-[#C3B665] text-black px-4 py-2.5 rounded-lg font-bold text-sm hover:bg-[#d4c87f] transition-colors"
+          className="flex items-center gap-2 bg-brand text-on-brand px-4 py-2.5 rounded-lg font-bold text-sm hover:bg-brand-hover transition-colors"
         >
           <Plus size={16} /> Add {typeLabel}
         </button>
       </div>
 
       {/* TABLE */}
-      <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
+      <div className="bg-card border border-line rounded-xl overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left whitespace-nowrap">
-            <thead className="bg-black/40 border-b border-gray-800">
+            <thead className="bg-espresso/40 border-b border-line">
               <tr>
-                <th className="p-4 text-xs font-semibold text-gray-400 uppercase tracking-wider w-24">ID</th>
-                <th className="p-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Name</th>
+                <th className="p-4 text-xs font-semibold text-ink-soft uppercase tracking-wider w-24">ID</th>
+                <th className="p-4 text-xs font-semibold text-ink-soft uppercase tracking-wider">Name</th>
                 {hasNameEn && (
-                  <th className="p-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Name (EN)</th>
+                  <th className="p-4 text-xs font-semibold text-ink-soft uppercase tracking-wider">Name (EN)</th>
                 )}
                 {hasDescription && (
-                  <th className="p-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Mô tả</th>
+                  <th className="p-4 text-xs font-semibold text-ink-soft uppercase tracking-wider">Mô tả</th>
                 )}
                 {coTat && (
-                  <th className="p-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Trạng thái</th>
+                  <th className="p-4 text-xs font-semibold text-ink-soft uppercase tracking-wider">Trạng thái</th>
                 )}
-                <th className="p-4 text-xs font-semibold text-gray-400 uppercase tracking-wider text-right">Actions</th>
+                <th className="p-4 text-xs font-semibold text-ink-soft uppercase tracking-wider text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-800">
+            <tbody className="divide-y divide-line">
               {options.length > 0 ? (
                 options.map(opt => (
-                  <tr key={opt.id} className="hover:bg-gray-800/30 transition-colors group">
-                    <td className="p-4 text-xs text-gray-600 font-mono">#{opt.id}</td>
-                    <td className="p-4 text-sm text-white font-medium">{opt.name}</td>
+                  <tr key={opt.id} className="hover:bg-sunken/30 transition-colors group">
+                    <td className="p-4 text-xs text-ink-mute font-mono">#{opt.id}</td>
+                    <td className="p-4 text-sm text-ink font-medium">{opt.name}</td>
                     {hasNameEn && (
-                      <td className="p-4 text-sm text-gray-400">{opt.nameEn || <span className="text-gray-600 italic">—</span>}</td>
+                      <td className="p-4 text-sm text-ink-soft">{opt.nameEn || <span className="text-ink-mute italic">—</span>}</td>
                     )}
                     {hasDescription && (
-                      <td className="p-4 text-sm text-gray-400 whitespace-normal max-w-xs leading-relaxed">
-                        {opt.description || <span className="text-gray-600 italic">—</span>}
+                      <td className="p-4 text-sm text-ink-soft whitespace-normal max-w-xs leading-relaxed">
+                        {opt.description || <span className="text-ink-mute italic">—</span>}
                       </td>
                     )}
                     {coTat && (
                       <td className="p-4">
                         {opt.isActive === false ? (
-                          <span className="px-2 py-0.5 rounded-md bg-gray-800 text-gray-500 text-xs">Đã tắt</span>
+                          <span className="px-2 py-0.5 rounded-md bg-sunken text-ink-mute text-xs">Đã tắt</span>
                         ) : (
-                          <span className="px-2 py-0.5 rounded-md bg-green-500/10 text-green-400 text-xs">Đang bật</span>
+                          <span className="px-2 py-0.5 rounded-md bg-green-500/10 text-success text-xs">Đang bật</span>
                         )}
                       </td>
                     )}
@@ -170,7 +170,7 @@ const OptionTypeTab = ({ typeKey, typeLabel, hasNameEn, hasDescription, hasIsAct
                       <div className="flex items-center justify-end gap-2">
                         <button
                           onClick={() => openEdit(opt)}
-                          className="p-2 rounded-lg bg-gray-700/30 text-gray-400 hover:bg-gray-700/50 hover:text-[#C3B665] transition-colors"
+                          className="p-2 rounded-lg bg-line/30 text-ink-soft hover:bg-line/50 hover:text-brand-text transition-colors"
                           title="Edit"
                         >
                           <Pencil size={14} />
@@ -180,7 +180,7 @@ const OptionTypeTab = ({ typeKey, typeLabel, hasNameEn, hasDescription, hasIsAct
                             <button
                               onClick={() => doiTrangThai(opt, true)}
                               disabled={isHiding}
-                              className="p-2 rounded-lg bg-gray-700/30 text-gray-400 hover:bg-gray-700/50 hover:text-green-400 transition-colors disabled:opacity-40"
+                              className="p-2 rounded-lg bg-line/30 text-ink-soft hover:bg-line/50 hover:text-success transition-colors disabled:opacity-40"
                               title="Bật lại (hiện trong danh sách chọn)"
                             >
                               <Eye size={14} />
@@ -188,7 +188,7 @@ const OptionTypeTab = ({ typeKey, typeLabel, hasNameEn, hasDescription, hasIsAct
                           ) : (
                             <button
                               onClick={() => setHideTarget(opt)}
-                              className="p-2 rounded-lg bg-gray-700/30 text-gray-400 hover:bg-gray-700/50 hover:text-yellow-400 transition-colors"
+                              className="p-2 rounded-lg bg-line/30 text-ink-soft hover:bg-line/50 hover:text-warning transition-colors"
                               title="Tắt (ẩn khỏi danh sách chọn)"
                             >
                               <EyeOff size={14} />
@@ -197,7 +197,7 @@ const OptionTypeTab = ({ typeKey, typeLabel, hasNameEn, hasDescription, hasIsAct
                         )}
                         <button
                           onClick={() => setDeleteTarget(opt)}
-                          className="p-2 rounded-lg bg-gray-700/30 text-gray-400 hover:bg-red-500/15 hover:text-red-400 transition-colors"
+                          className="p-2 rounded-lg bg-line/30 text-ink-soft hover:bg-red-500/15 hover:text-danger transition-colors"
                           title="Delete"
                         >
                           <Trash2 size={14} />
@@ -208,7 +208,7 @@ const OptionTypeTab = ({ typeKey, typeLabel, hasNameEn, hasDescription, hasIsAct
                 ))
               ) : (
                 <tr>
-                  <td colSpan={3 + (hasNameEn ? 1 : 0) + (hasDescription ? 1 : 0) + (coTat ? 1 : 0)} className="p-10 text-center text-gray-500">
+                  <td colSpan={3 + (hasNameEn ? 1 : 0) + (hasDescription ? 1 : 0) + (coTat ? 1 : 0)} className="p-10 text-center text-ink-mute">
                     <Music2 size="32" className="mx-auto mb-3 opacity-50" />
                     No {typeLabel.toLowerCase()}s yet.
                   </td>

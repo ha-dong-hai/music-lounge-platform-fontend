@@ -37,23 +37,23 @@ const ReviewVenueModal = ({ venue, decision, onClose, onSaved }) => {
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-gray-900 border border-gray-700 rounded-2xl w-full max-w-md shadow-2xl">
-        <div className="flex justify-between items-center p-5 border-b border-gray-800">
-          <h2 className="text-lg font-bold text-white">
+      <div className="absolute inset-0 bg-espresso/80 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative bg-card border border-line rounded-2xl w-full max-w-md shadow-2xl">
+        <div className="flex justify-between items-center p-5 border-b border-line">
+          <h2 className="text-lg font-bold text-ink">
             {laTuChoi ? 'Từ chối hồ sơ phòng trà' : 'Duyệt phòng trà'}
           </h2>
-          <button onClick={onClose} disabled={isBusy} className="p-2 hover:bg-gray-800 rounded-full text-gray-400 disabled:opacity-30">
+          <button onClick={onClose} disabled={isBusy} className="p-2 hover:bg-sunken rounded-full text-ink-soft disabled:opacity-30">
             <X size={20} />
           </button>
         </div>
 
         <form onSubmit={submit} className="p-5 space-y-4">
-          <div className="bg-black/40 border border-gray-800 rounded-lg p-3">
-            <p className="text-sm text-white font-medium">{venue.name ?? venue.loungeName}</p>
-            {venue.ownerName && <p className="text-xs text-gray-500 mt-0.5">Chủ: {venue.ownerName}</p>}
+          <div className="bg-espresso/40 border border-line rounded-lg p-3">
+            <p className="text-sm text-ink font-medium">{venue.name ?? venue.loungeName}</p>
+            {venue.ownerName && <p className="text-xs text-ink-mute mt-0.5">Chủ: {venue.ownerName}</p>}
             {venue.hasBusinessLicense === false && (
-              <p className="text-xs text-yellow-400 mt-2 flex items-start gap-1.5">
+              <p className="text-xs text-warning mt-2 flex items-start gap-1.5">
                 <AlertTriangle size={12} className="mt-px flex-shrink-0" />
                 Hồ sơ này CHƯA có giấy phép kinh doanh.
               </p>
@@ -61,18 +61,18 @@ const ReviewVenueModal = ({ venue, decision, onClose, onSaved }) => {
           </div>
 
           {!laTuChoi && (
-            <p className="text-xs text-gray-500 leading-relaxed">
+            <p className="text-xs text-ink-mute leading-relaxed">
               Sau khi duyệt, phòng trà hiện trong danh sách công khai và mở bán vé được.
               Hãy xem trang công khai và giấy phép kinh doanh trước khi duyệt.
             </p>
           )}
 
           <div>
-            <label className="text-xs text-gray-500">
-              Ghi chú {laTuChoi && <span className="text-red-400">* (bắt buộc khi từ chối)</span>}
+            <label className="text-xs text-ink-mute">
+              Ghi chú {laTuChoi && <span className="text-danger">* (bắt buộc khi từ chối)</span>}
             </label>
             <textarea value={reviewNote} onChange={(e) => setReviewNote(e.target.value)} rows={4}
-              className="mt-1 w-full px-3 py-2 bg-black border border-gray-700 rounded-lg text-sm text-white focus:outline-none focus:border-[#C3B665]/50 resize-none"
+              className="mt-1 w-full px-3 py-2 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-brand/50 resize-none"
               placeholder={laTuChoi
                 ? 'Ví dụ: ảnh giấy phép kinh doanh không đọc được; địa chỉ không khớp giấy phép.'
                 : 'Không bắt buộc.'} />
@@ -80,7 +80,7 @@ const ReviewVenueModal = ({ venue, decision, onClose, onSaved }) => {
 
           <div className="flex gap-3">
             <button type="button" onClick={onClose} disabled={isBusy}
-              className="flex-1 py-2.5 border border-gray-600 text-gray-300 rounded-lg font-medium hover:bg-gray-800 disabled:opacity-50">
+              className="flex-1 py-2.5 border border-line-strong text-ink-soft rounded-lg font-medium hover:bg-sunken disabled:opacity-50">
               Huỷ
             </button>
             <button type="submit" disabled={isBusy}

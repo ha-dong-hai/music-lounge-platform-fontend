@@ -31,7 +31,7 @@ import {
 import { uploadImage } from '../../services/userServices'
 
 const fmtMoney = (v) => `${Number(v || 0).toLocaleString('vi-VN')}đ`
-const inputCls = 'mt-1 w-full px-3 py-2 bg-black border border-gray-700 rounded-lg text-sm text-white focus:outline-none focus:border-[#C3B665]/50'
+const inputCls = 'mt-1 w-full px-3 py-2 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-brand/50'
 
 const TABS = [
   { key: 'ack', label: 'Chờ tôi xác nhận đã nhận tiền' },
@@ -41,9 +41,9 @@ const TABS = [
 
 // Trạng thái chuyển tiếp trong lịch sử — chuỗi của backend, chỉ ánh xạ giá trị đã biết.
 const TRANG_THAI_CHUYEN = {
-  Paid: { chu: 'Đã chuyển nghệ sĩ', mau: 'text-green-400 bg-green-500/10' },
-  Pending: { chu: 'Chưa chuyển', mau: 'text-yellow-400 bg-yellow-500/10' },
-  Overdue: { chu: 'Quá hạn', mau: 'text-red-400 bg-red-500/10' },
+  Paid: { chu: 'Đã chuyển nghệ sĩ', mau: 'text-success bg-green-500/10' },
+  Pending: { chu: 'Chưa chuyển', mau: 'text-warning bg-yellow-500/10' },
+  Overdue: { chu: 'Quá hạn', mau: 'text-danger bg-red-500/10' },
 }
 
 const ConfirmPaidModal = ({ donation, onClose, onSaved }) => {
@@ -85,45 +85,45 @@ const ConfirmPaidModal = ({ donation, onClose, onSaved }) => {
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-gray-900 border border-gray-700 rounded-2xl w-full max-w-md shadow-2xl">
-        <div className="flex justify-between items-center p-5 border-b border-gray-800">
-          <h2 className="text-lg font-bold text-white">Xác nhận đã trả nghệ sĩ</h2>
-          <button onClick={onClose} className="p-2 hover:bg-gray-800 rounded-full text-gray-400"><X size={20} /></button>
+      <div className="absolute inset-0 bg-espresso/80 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative bg-card border border-line rounded-2xl w-full max-w-md shadow-2xl">
+        <div className="flex justify-between items-center p-5 border-b border-line">
+          <h2 className="text-lg font-bold text-ink">Xác nhận đã trả nghệ sĩ</h2>
+          <button onClick={onClose} className="p-2 hover:bg-sunken rounded-full text-ink-soft"><X size={20} /></button>
         </div>
 
         <form onSubmit={submit} className="p-5 space-y-4">
-          <div className="bg-black/40 border border-gray-800 rounded-lg p-4">
-            <p className="text-sm text-white font-medium">{donation.performerName}</p>
-            <p className="text-xs text-gray-500 mt-0.5">{donation.showName}</p>
-            <p className="text-lg text-[#C3B665] font-bold mt-2 tabular-nums">{fmtMoney(donation.amountToPayPerformer)}</p>
-            <p className="text-xs text-gray-600">Số phải chuyển cho nghệ sĩ</p>
+          <div className="bg-espresso/40 border border-line rounded-lg p-4">
+            <p className="text-sm text-ink font-medium">{donation.performerName}</p>
+            <p className="text-xs text-ink-mute mt-0.5">{donation.showName}</p>
+            <p className="text-lg text-brand-text font-bold mt-2 tabular-nums">{fmtMoney(donation.amountToPayPerformer)}</p>
+            <p className="text-xs text-ink-mute">Số phải chuyển cho nghệ sĩ</p>
           </div>
 
           <div>
-            <label className="text-xs text-gray-500">Mã giao dịch chuyển khoản <span className="text-red-400">*</span></label>
+            <label className="text-xs text-ink-mute">Mã giao dịch chuyển khoản <span className="text-danger">*</span></label>
             <input value={paymentRef} onChange={(e) => setPaymentRef(e.target.value)} className={inputCls}
               placeholder="Mã do ngân hàng của bạn cấp" />
-            <p className="text-xs text-gray-600 mt-1">
+            <p className="text-xs text-ink-mute mt-1">
               Đây là bằng chứng để đối chiếu nếu nghệ sĩ nói chưa nhận được tiền.
             </p>
           </div>
 
           <div>
-            <label className="text-xs text-gray-500">Ảnh chứng từ</label>
+            <label className="text-xs text-ink-mute">Ảnh chứng từ</label>
             <div className="mt-1 flex items-center gap-2">
-              <label className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-700 text-gray-300 text-sm hover:bg-gray-800 cursor-pointer">
+              <label className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-line text-ink-soft text-sm hover:bg-sunken cursor-pointer">
                 {isUploading ? <Loader2 size={15} className="animate-spin" /> : <Send size={15} />}
                 {evidenceUrl ? 'Đổi ảnh' : 'Tải ảnh lên'}
                 <input type="file" accept="image/*" className="hidden" disabled={isUploading}
                   onChange={(e) => taiChungTu(e.target.files?.[0])} />
               </label>
-              {evidenceUrl && <CheckCircle2 size={16} className="text-green-400" />}
+              {evidenceUrl && <CheckCircle2 size={16} className="text-success" />}
             </div>
           </div>
 
           <button type="submit" disabled={isBusy || isUploading}
-            className="w-full py-2.5 bg-[#C3B665] text-black rounded-lg font-bold flex items-center justify-center gap-2 disabled:opacity-50">
+            className="w-full py-2.5 bg-brand text-on-brand rounded-lg font-bold flex items-center justify-center gap-2 disabled:opacity-50">
             {isBusy && <Loader2 size={16} className="animate-spin" />} Xác nhận đã chuyển
           </button>
         </form>
@@ -198,13 +198,13 @@ Không hoàn tiền, và lời nhắn gốc vẫn được lưu để đối chi
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-white mb-1">Tiền donate</h1>
-          <p className="text-gray-400 text-sm leading-relaxed">
+          <h1 className="text-2xl font-bold text-ink mb-1">Tiền donate</h1>
+          <p className="text-ink-soft text-sm leading-relaxed">
             Đây là tiền khán giả tặng NGHỆ SĨ, phòng trà chỉ giữ hộ và chuyển tiếp — không phải doanh thu của bạn.
           </p>
         </div>
         <button onClick={load} disabled={isLoading}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-gray-700 text-gray-300 text-xs font-bold hover:bg-gray-800 disabled:opacity-50">
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-line text-ink-soft text-xs font-bold hover:bg-sunken disabled:opacity-50">
           <RefreshCw size={14} className={isLoading ? 'animate-spin' : ''} /> Tải lại
         </button>
       </div>
@@ -213,19 +213,19 @@ Không hoàn tiền, và lời nhắn gốc vẫn được lưu để đối chi
         {TABS.map((t) => (
           <button key={t.key} onClick={() => setTab(t.key)}
             className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${tab === t.key
-              ? 'bg-gray-800 border-[#C3B665]/40 text-[#C3B665]'
-              : 'bg-black border-gray-800 text-gray-400 hover:text-white'}`}>
+              ? 'bg-sunken border-brand/40 text-brand-text'
+              : 'bg-page border-line text-ink-soft hover:text-ink'}`}>
             {t.label}
           </button>
         ))}
       </div>
 
       {isLoading ? (
-        <div className="py-20 flex justify-center"><Loader2 size={32} className="animate-spin text-[#C3B665]" /></div>
+        <div className="py-20 flex justify-center"><Loader2 size={32} className="animate-spin text-brand-text" /></div>
       ) : items.length === 0 ? (
-        <div className="bg-gray-900 border border-gray-800 rounded-xl p-10 text-center">
-          <HeartHandshake size={28} className="mx-auto mb-3 text-gray-700" />
-          <p className="text-sm text-gray-500">
+        <div className="bg-card border border-line rounded-xl p-10 text-center">
+          <HeartHandshake size={28} className="mx-auto mb-3 text-ink-mute" />
+          <p className="text-sm text-ink-mute">
             {tab === 'ack' ? 'Không có donate nào đang chờ bạn xác nhận.'
               : tab === 'payout' ? 'Không có donate nào đang chờ chuyển cho nghệ sĩ.'
               : 'Chưa có khoản donate nào trong kỳ này.'}
@@ -236,22 +236,22 @@ Không hoàn tiền, và lời nhắn gốc vẫn được lưu để đối chi
           {/* CÁC CON SỐ ĐẾM nằm ngoài mảng items — đây là bản tổng hợp, không phải mảng trần */}
           {tongHop && (
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-              <div className="bg-gray-900 border border-gray-800 rounded-xl p-4">
-                <p className="text-xs text-gray-500">Tổng khán giả tặng</p>
-                <p className="text-lg font-bold text-[#C3B665] mt-1 tabular-nums">{fmtMoney(tongHop.totalGross)}</p>
-                <p className="text-[11px] text-gray-600 mt-1">{tongHop.totalCount} khoản</p>
+              <div className="bg-card border border-line rounded-xl p-4">
+                <p className="text-xs text-ink-mute">Tổng khán giả tặng</p>
+                <p className="text-lg font-bold text-brand-text mt-1 tabular-nums">{fmtMoney(tongHop.totalGross)}</p>
+                <p className="text-[11px] text-ink-mute mt-1">{tongHop.totalCount} khoản</p>
               </div>
-              <div className="bg-gray-900 border border-gray-800 rounded-xl p-4">
-                <p className="text-xs text-gray-500">Đã chuyển nghệ sĩ</p>
-                <p className="text-lg font-bold text-white mt-1 tabular-nums">{tongHop.paidCount}</p>
+              <div className="bg-card border border-line rounded-xl p-4">
+                <p className="text-xs text-ink-mute">Đã chuyển nghệ sĩ</p>
+                <p className="text-lg font-bold text-ink mt-1 tabular-nums">{tongHop.paidCount}</p>
               </div>
-              <div className="bg-gray-900 border border-gray-800 rounded-xl p-4">
-                <p className="text-xs text-gray-500">Còn trong hạn</p>
-                <p className="text-lg font-bold text-white mt-1 tabular-nums">{tongHop.withinHoldCount}</p>
+              <div className="bg-card border border-line rounded-xl p-4">
+                <p className="text-xs text-ink-mute">Còn trong hạn</p>
+                <p className="text-lg font-bold text-ink mt-1 tabular-nums">{tongHop.withinHoldCount}</p>
               </div>
-              <div className={`bg-gray-900 border rounded-xl p-4 ${tongHop.overdueCount > 0 ? 'border-red-500/40' : 'border-gray-800'}`}>
-                <p className="text-xs text-gray-500">Quá hạn</p>
-                <p className={`text-lg font-bold mt-1 tabular-nums ${tongHop.overdueCount > 0 ? 'text-red-400' : 'text-white'}`}>
+              <div className={`bg-card border rounded-xl p-4 ${tongHop.overdueCount > 0 ? 'border-red-500/40' : 'border-line'}`}>
+                <p className="text-xs text-ink-mute">Quá hạn</p>
+                <p className={`text-lg font-bold mt-1 tabular-nums ${tongHop.overdueCount > 0 ? 'text-danger' : 'text-ink'}`}>
                   {tongHop.overdueCount}
                 </p>
               </div>
@@ -259,7 +259,7 @@ Không hoàn tiền, và lời nhắn gốc vẫn được lưu để đối chi
           )}
 
           {tongHop && (
-            <p className="text-xs text-gray-600 flex items-center gap-1.5">
+            <p className="text-xs text-ink-mute flex items-center gap-1.5">
               <History size={12} />
               Kỳ {dayjs(tongHop.periodFrom).format('DD/MM/YYYY')} – {dayjs(tongHop.periodTo).format('DD/MM/YYYY')}
             </p>
@@ -269,16 +269,16 @@ Không hoàn tiền, và lời nhắn gốc vẫn được lưu để đối chi
             {items.map((d) => {
               const tt = TRANG_THAI_CHUYEN[d.payoutStatus]
               return (
-                <li key={d.id} className="bg-gray-900 border border-gray-800 rounded-xl p-4 flex flex-wrap items-start justify-between gap-4">
+                <li key={d.id} className="bg-card border border-line rounded-xl p-4 flex flex-wrap items-start justify-between gap-4">
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="text-white text-sm font-semibold">{d.performerName}</span>
-                      <span className={`px-2 py-0.5 rounded-md text-xs font-medium ${tt?.mau ?? 'text-gray-400 bg-gray-500/10'}`}>
+                      <span className="text-ink text-sm font-semibold">{d.performerName}</span>
+                      <span className={`px-2 py-0.5 rounded-md text-xs font-medium ${tt?.mau ?? 'text-ink-soft bg-line-strong/10'}`}>
                         {tt?.chu ?? d.payoutStatus}
                       </span>
                     </div>
-                    <p className="text-xs text-gray-500 mt-0.5">{d.showName}</p>
-                    <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-gray-600">
+                    <p className="text-xs text-ink-mute mt-0.5">{d.showName}</p>
+                    <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-ink-mute">
                       <span>Tạo {dayjs(d.createdAt).format('DD/MM/YYYY')}</span>
                       {d.paymentConfirmedAt && <span>Thanh toán {dayjs(d.paymentConfirmedAt).format('DD/MM/YYYY')}</span>}
                       {d.payoutDueAt && <span>Hạn chuyển {dayjs(d.payoutDueAt).format('DD/MM/YYYY')}</span>}
@@ -286,9 +286,9 @@ Không hoàn tiền, và lời nhắn gốc vẫn được lưu để đối chi
                     </div>
                   </div>
                   <div className="text-right flex-shrink-0">
-                    <p className="text-base font-bold text-[#C3B665] tabular-nums">{fmtMoney(d.gross)}</p>
-                    <p className="text-[11px] text-gray-600">khán giả trả</p>
-                    <p className="text-[11px] text-gray-600 mt-1 tabular-nums">sau phí {fmtMoney(d.net)}</p>
+                    <p className="text-base font-bold text-brand-text tabular-nums">{fmtMoney(d.gross)}</p>
+                    <p className="text-[11px] text-ink-mute">khán giả trả</p>
+                    <p className="text-[11px] text-ink-mute mt-1 tabular-nums">sau phí {fmtMoney(d.net)}</p>
                   </div>
                 </li>
               )
@@ -304,35 +304,35 @@ Không hoàn tiền, và lời nhắn gốc vẫn được lưu để đối chi
             const dangBan = busyId === d.id
 
             return (
-              <li key={d.id} className={`bg-gray-900 border rounded-xl p-5 ${quaHan ? 'border-red-500/40' : 'border-gray-800'}`}>
+              <li key={d.id} className={`bg-card border rounded-xl p-5 ${quaHan ? 'border-red-500/40' : 'border-line'}`}>
                 <div className="flex flex-wrap items-start justify-between gap-4">
                   <div className="min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-white font-bold">{d.performerName}</span>
+                      <span className="text-ink font-bold">{d.performerName}</span>
                       {d.isAnonymous
-                        ? <span className="px-2 py-0.5 rounded-md bg-gray-800 text-gray-400 text-xs">Khán giả ẩn danh</span>
-                        : d.displayName && <span className="text-xs text-gray-500">từ {d.displayName}</span>}
+                        ? <span className="px-2 py-0.5 rounded-md bg-sunken text-ink-soft text-xs">Khán giả ẩn danh</span>
+                        : d.displayName && <span className="text-xs text-ink-mute">từ {d.displayName}</span>}
                     </div>
-                    <p className="text-xs text-gray-500 mt-0.5">{d.showName}</p>
-                    {d.message && <p className="text-sm text-gray-400 mt-2 italic">“{d.message}”</p>}
+                    <p className="text-xs text-ink-mute mt-0.5">{d.showName}</p>
+                    {d.message && <p className="text-sm text-ink-soft mt-2 italic">“{d.message}”</p>}
                   </div>
 
                   <div className="text-right flex-shrink-0">
-                    <p className="text-lg font-bold text-[#C3B665] tabular-nums">{fmtMoney(d.amountToPayPerformer)}</p>
-                    <p className="text-xs text-gray-600">phải trả nghệ sĩ</p>
-                    <p className="text-xs text-gray-600 mt-1 tabular-nums">
+                    <p className="text-lg font-bold text-brand-text tabular-nums">{fmtMoney(d.amountToPayPerformer)}</p>
+                    <p className="text-xs text-ink-mute">phải trả nghệ sĩ</p>
+                    <p className="text-xs text-ink-mute mt-1 tabular-nums">
                       Khán giả trả {fmtMoney(d.gross)}
                     </p>
                   </div>
                 </div>
 
-                <div className="mt-3 pt-3 border-t border-gray-800 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs">
+                <div className="mt-3 pt-3 border-t border-line flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs">
                   {d.payoutReceivedAt ? (
-                    <span className="text-green-400 inline-flex items-center gap-1.5">
+                    <span className="text-success inline-flex items-center gap-1.5">
                       <CheckCircle2 size={13} /> Nền tảng đã chuyển tiền cho bạn {dayjs(d.payoutReceivedAt).format('DD/MM/YYYY')}
                     </span>
                   ) : (
-                    <span className="text-gray-500 inline-flex items-center gap-1.5">
+                    <span className="text-ink-mute inline-flex items-center gap-1.5">
                       <Clock size={13} /> Nền tảng chưa chuyển tiền về cho bạn
                     </span>
                   )}
@@ -341,7 +341,7 @@ Không hoàn tiền, và lời nhắn gốc vẫn được lưu để đối chi
                       chủ tưởng không bấm là không có gì xảy ra. */}
                   {tab === 'ack' && d.autoConfirmDeadline && (
                     <span className={`inline-flex items-center gap-1.5 ${
-                      dayjs(d.autoConfirmDeadline).diff(dayjs(), 'hour') < 24 ? 'text-yellow-400' : 'text-gray-500'
+                      dayjs(d.autoConfirmDeadline).diff(dayjs(), 'hour') < 24 ? 'text-warning' : 'text-ink-mute'
                     }`}>
                       <Clock size={13} />
                       Không bấm thì hệ thống tự xác nhận lúc {dayjs(d.autoConfirmDeadline).format('HH:mm DD/MM/YYYY')}
@@ -349,7 +349,7 @@ Không hoàn tiền, và lời nhắn gốc vẫn được lưu để đối chi
                   )}
 
                   {d.payoutDueAt && (
-                    <span className={`inline-flex items-center gap-1.5 ${quaHan ? 'text-red-400' : sapHan ? 'text-yellow-400' : 'text-gray-500'}`}>
+                    <span className={`inline-flex items-center gap-1.5 ${quaHan ? 'text-danger' : sapHan ? 'text-warning' : 'text-ink-mute'}`}>
                       {(quaHan || sapHan) && <AlertTriangle size={13} />}
                       {quaHan ? 'Đã quá hạn chuyển cho nghệ sĩ ' : 'Hạn chuyển cho nghệ sĩ '}
                       {dayjs(d.payoutDueAt).format('HH:mm DD/MM/YYYY')}
@@ -358,7 +358,7 @@ Không hoàn tiền, và lời nhắn gốc vẫn được lưu để đối chi
                 </div>
 
                 {quaHan && (
-                  <p className="mt-2 text-xs text-red-400/90 leading-relaxed">
+                  <p className="mt-2 text-xs text-danger/90 leading-relaxed">
                     Quá hạn này là căn cứ để nghệ sĩ khiếu nại và để hệ thống cảnh cáo phòng trà. Hãy chuyển tiền và xác nhận sớm.
                   </p>
                 )}
@@ -367,21 +367,21 @@ Không hoàn tiền, và lời nhắn gốc vẫn được lưu để đối chi
                   {/* Gỡ lời nhắn: chỉ hiện khi khoản này CÓ lời nhắn — nút không làm gì thì không bày ra */}
                   {d.message && (
                     <button onClick={() => goLoiNhan(d)} disabled={dangBan}
-                      className="flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-700 text-gray-300 text-sm font-bold hover:bg-gray-800 disabled:opacity-50 order-last"
+                      className="flex items-center gap-2 px-4 py-2 rounded-lg border border-line text-ink-soft text-sm font-bold hover:bg-sunken disabled:opacity-50 order-last"
                       title="Ẩn lời nhắn khỏi livestream; không hoàn tiền">
                       <EyeOff size={15} /> Gỡ lời nhắn
                     </button>
                   )}
                   {tab === 'ack' ? (
                     <button onClick={() => xacNhanNhan(d)} disabled={dangBan}
-                      className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#C3B665] text-black text-sm font-bold hover:bg-[#d4c87f] disabled:opacity-50">
+                      className="flex items-center gap-2 px-4 py-2 rounded-lg bg-brand text-on-brand text-sm font-bold hover:bg-brand-hover disabled:opacity-50">
                       {dangBan ? <Loader2 size={15} className="animate-spin" /> : <CheckCircle2 size={15} />}
                       Tôi đã nhận được tiền
                     </button>
                   ) : (
                     <button onClick={() => setTraNgheSi(d)} disabled={dangBan || chuaNhanTien}
                       title={chuaNhanTien ? 'Nền tảng chưa chuyển tiền về cho bạn' : undefined}
-                      className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#C3B665] text-black text-sm font-bold hover:bg-[#d4c87f] disabled:opacity-40 disabled:cursor-not-allowed">
+                      className="flex items-center gap-2 px-4 py-2 rounded-lg bg-brand text-on-brand text-sm font-bold hover:bg-brand-hover disabled:opacity-40 disabled:cursor-not-allowed">
                       <Send size={15} /> Xác nhận đã trả nghệ sĩ
                     </button>
                   )}

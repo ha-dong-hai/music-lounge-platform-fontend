@@ -62,16 +62,16 @@ const TopDonorsBar = ({ messages }) => {
 
   return (
     <>
-      <div className="flex-none border-b border-gray-800 bg-black/30">
+      <div className="flex-none border-b border-line bg-espresso/30">
 
         {/* ===== LABEL + XEM TẤT CẢ ===== */}
         <div className="flex items-center justify-between px-4 pt-2.5 pb-1.5">
-          <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wide flex items-center gap-1.5">
-            <Trophy size={12} className="text-[#C3B665]" /> Top donate
+          <span className="text-[11px] font-bold text-ink-soft uppercase tracking-wide flex items-center gap-1.5">
+            <Trophy size={12} className="text-brand-text" /> Top donate
           </span>
           <button
             onClick={() => setShowLeaderboard(true)}
-            className="text-[11px] font-semibold text-[#C3B665] hover:text-[#d4c87f] transition-colors"
+            className="text-[11px] font-semibold text-brand-text hover:text-brand-text transition-colors"
           >
             View all
           </button>
@@ -85,7 +85,7 @@ const TopDonorsBar = ({ messages }) => {
           {canScrollLeft && (
             <button
               onClick={() => scroll('left')}
-              className="absolute left-1 top-1/2 -translate-y-1/2 z-20 w-6 h-6 rounded-full bg-black/80 border border-white/10 text-white flex items-center justify-center opacity-0 group-hover/strip:opacity-100 hover:bg-[#C3B665] hover:text-black transition-all"
+              className="absolute left-1 top-1/2 -translate-y-1/2 z-20 w-6 h-6 rounded-full bg-espresso/80 border border-white/10 text-white flex items-center justify-center opacity-0 group-hover/strip:opacity-100 hover:bg-brand-hover hover:text-on-brand transition-all"
             >
               <ChevronLeft size={14} />
             </button>
@@ -99,22 +99,22 @@ const TopDonorsBar = ({ messages }) => {
             {topDonors.map((d, i) => (
               <div
                 key={d.key}
-                className="snap-start flex-shrink-0 flex items-center gap-2 py-1 pl-1 pr-3 rounded-full bg-gray-800/70 border border-gray-700 hover:border-[#C3B665]/40 transition-colors cursor-default"
+                className="snap-start flex-shrink-0 flex items-center gap-2 py-1 pl-1 pr-3 rounded-full bg-sunken/70 border border-line hover:border-brand/40 transition-colors cursor-default"
               >
                 {/* Avatar (+ vương miện cho top 1) */}
                 <div className="relative flex-shrink-0">
                   <img
                     src={d.avatarUrl || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(d.name)}&backgroundColor=C3B665`}
                     alt={d.name}
-                    className="w-7 h-7 rounded-full object-cover border border-gray-600"
+                    className="w-7 h-7 rounded-full object-cover border border-line-strong"
                   />
                   {i === 0 && (
-                    <Crown size={11} className="absolute -top-1.5 -right-1.5 text-[#C3B665] fill-[#C3B665]" />
+                    <Crown size={11} className="absolute -top-1.5 -right-1.5 text-brand-text fill-brand-text" />
                   )}
                 </div>
                 <div className="leading-tight">
-                  <p className="text-[11px] font-medium text-white max-w-[72px] truncate">{d.name}</p>
-                  <p className="text-[10px] font-bold text-[#C3B665]">{fmt(d.total)}</p>
+                  <p className="text-[11px] font-medium text-ink max-w-[72px] truncate">{d.name}</p>
+                  <p className="text-[10px] font-bold text-brand-text">{fmt(d.total)}</p>
                 </div>
               </div>
             ))}
@@ -125,7 +125,7 @@ const TopDonorsBar = ({ messages }) => {
           {canScrollRight && (
             <button
               onClick={() => scroll('right')}
-              className="absolute right-1 top-1/2 -translate-y-1/2 z-20 w-6 h-6 rounded-full bg-black/80 border border-white/10 text-white flex items-center justify-center opacity-0 group-hover/strip:opacity-100 hover:bg-[#C3B665] hover:text-black transition-all"
+              className="absolute right-1 top-1/2 -translate-y-1/2 z-20 w-6 h-6 rounded-full bg-espresso/80 border border-white/10 text-white flex items-center justify-center opacity-0 group-hover/strip:opacity-100 hover:bg-brand-hover hover:text-on-brand transition-all"
             >
               <ChevronRight size={14} />
             </button>

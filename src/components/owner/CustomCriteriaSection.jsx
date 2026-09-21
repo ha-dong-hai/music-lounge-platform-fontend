@@ -25,7 +25,7 @@ import { Loader2, Plus, X, ListFilter, Pencil, Eye, EyeOff, Save } from 'lucide-
 import toast from 'react-hot-toast'
 import { getLoungeCustomCriteria, createCustomCriteria, updateCustomCriteria } from '../../services/customCriteriaServices'
 
-const inputCls = 'mt-1 w-full px-3 py-2 bg-black border border-gray-700 rounded-lg text-sm text-white focus:outline-none focus:border-[#C3B665]/50'
+const inputCls = 'mt-1 w-full px-3 py-2 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-brand/50'
 
 const DATA_TYPES = [
   { value: 'Select', label: 'Chọn một trong danh sách', optionsHint: 'Danh sách lựa chọn, ví dụ: ["Nhẹ","Vừa","Ồn"]' },
@@ -119,13 +119,13 @@ const CustomCriteriaSection = ({ loungeId }) => {
   const loaiHienTai = DATA_TYPES.find((d) => d.value === form.dataType)
 
   return (
-    <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
+    <div className="bg-card border border-line rounded-xl p-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h3 className="text-base font-semibold text-white flex items-center gap-2">
+          <h3 className="text-base font-semibold text-ink flex items-center gap-2">
             <ListFilter size={16} /> Tiêu chí riêng
           </h3>
-          <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">
+          <p className="text-xs text-ink-mute mt-0.5 leading-relaxed">
             Thuộc tính riêng của phòng trà bạn, dùng để mô tả buổi diễn ngoài danh mục chung.
             Gán giá trị cho từng buổi diễn ở màn Poster &amp; cài đặt.
             Đổi được tên và bật/tắt; mã, kiểu dữ liệu và tuỳ chọn thì không. Tắt một tiêu chí KHÔNG
@@ -135,14 +135,14 @@ const CustomCriteriaSection = ({ loungeId }) => {
         <div className="flex flex-wrap gap-2 flex-shrink-0">
           <button onClick={() => setXemCaDaTat((v) => !v)}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-bold ${
-              xemCaDaTat ? 'border-[#C3B665]/40 bg-[#C3B665]/10 text-[#C3B665]' : 'border-gray-700 text-gray-300 hover:bg-gray-800'
+              xemCaDaTat ? 'border-brand/40 bg-brand/10 text-brand-text' : 'border-line text-ink-soft hover:bg-sunken'
             }`}>
             {xemCaDaTat ? <Eye size={14} /> : <EyeOff size={14} />}
             {xemCaDaTat ? 'Đang xem cả đã tắt' : 'Xem cả đã tắt'}
           </button>
           {!moForm && (
             <button onClick={() => setMoForm(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-gray-700 text-gray-300 text-xs font-bold hover:bg-gray-800">
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-line text-ink-soft text-xs font-bold hover:bg-sunken">
               <Plus size={14} /> Thêm tiêu chí
             </button>
           )}
@@ -150,9 +150,9 @@ const CustomCriteriaSection = ({ loungeId }) => {
       </div>
 
       {isLoading ? (
-        <div className="py-8 flex justify-center"><Loader2 size={22} className="animate-spin text-[#C3B665]" /></div>
+        <div className="py-8 flex justify-center"><Loader2 size={22} className="animate-spin text-brand-text" /></div>
       ) : items.length === 0 && !moForm ? (
-        <p className="mt-4 text-sm text-gray-500">Chưa có tiêu chí riêng nào.</p>
+        <p className="mt-4 text-sm text-ink-mute">Chưa có tiêu chí riêng nào.</p>
       ) : (
         items.length > 0 && (
           <ul className="mt-4 space-y-2">
@@ -161,7 +161,7 @@ const CustomCriteriaSection = ({ loungeId }) => {
               const dangSua = suaTen?.id === c.id
               return (
                 <li key={c.id}
-                  className={`bg-black/40 border border-gray-800 rounded-lg p-3 ${daTat ? 'opacity-60' : ''}`}>
+                  className={`bg-espresso/40 border border-line rounded-lg p-3 ${daTat ? 'opacity-60' : ''}`}>
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0 flex-1">
                       {dangSua ? (
@@ -169,42 +169,42 @@ const CustomCriteriaSection = ({ loungeId }) => {
                         <div className="flex flex-wrap items-center gap-2">
                           <input value={suaTen.name}
                             onChange={(e) => setSuaTen((v) => ({ ...v, name: e.target.value }))}
-                            className="flex-1 min-w-[10rem] px-2 py-1.5 bg-black border border-gray-700 rounded-md text-sm text-white focus:outline-none focus:border-[#C3B665]/50" />
+                            className="flex-1 min-w-[10rem] px-2 py-1.5 bg-page border border-line rounded-md text-sm text-ink focus:outline-none focus:border-brand/50" />
                           <button onClick={() => luuTen(c)} disabled={busyId === c.id}
-                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#C3B665] text-black text-xs font-bold disabled:opacity-50">
+                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand text-on-brand text-xs font-bold disabled:opacity-50">
                             {busyId === c.id ? <Loader2 size={13} className="animate-spin" /> : <Save size={13} />} Lưu
                           </button>
                           <button onClick={() => setSuaTen(null)} disabled={busyId === c.id}
-                            className="px-3 py-1.5 rounded-lg border border-gray-700 text-gray-300 text-xs font-bold hover:bg-gray-800">
+                            className="px-3 py-1.5 rounded-lg border border-line text-ink-soft text-xs font-bold hover:bg-sunken">
                             Huỷ
                           </button>
                         </div>
                       ) : (
                         <div className="flex flex-wrap items-center gap-2">
-                          <p className="text-sm text-white">{c.name}</p>
+                          <p className="text-sm text-ink">{c.name}</p>
                           {daTat && (
-                            <span className="px-2 py-0.5 rounded-md bg-gray-800 text-gray-500 text-xs">Đã tắt</span>
+                            <span className="px-2 py-0.5 rounded-md bg-sunken text-ink-mute text-xs">Đã tắt</span>
                           )}
                         </div>
                       )}
-                      <p className="text-xs text-gray-600 mt-0.5 font-mono break-all">{c.key}</p>
-                      {c.options && <p className="text-xs text-gray-600 mt-0.5 break-all">{c.options}</p>}
+                      <p className="text-xs text-ink-mute mt-0.5 font-mono break-all">{c.key}</p>
+                      {c.options && <p className="text-xs text-ink-mute mt-0.5 break-all">{c.options}</p>}
                     </div>
 
                     <div className="flex items-center gap-1 flex-shrink-0">
-                      <span className="px-2 py-0.5 rounded-md bg-gray-800 text-gray-400 text-xs whitespace-nowrap">
+                      <span className="px-2 py-0.5 rounded-md bg-sunken text-ink-soft text-xs whitespace-nowrap">
                         {DATA_TYPES.find((d) => d.value === c.dataType)?.label ?? c.dataType}
                       </span>
                       {!dangSua && (
                         <>
                           <button onClick={() => setSuaTen({ id: c.id, name: c.name })}
                             disabled={busyId === c.id} title="Đổi tên hiển thị"
-                            className="p-1.5 rounded-lg text-gray-500 hover:text-[#C3B665] disabled:opacity-40">
+                            className="p-1.5 rounded-lg text-ink-mute hover:text-brand-text disabled:opacity-40">
                             <Pencil size={14} />
                           </button>
                           <button onClick={() => doiBatTat(c, daTat)} disabled={busyId === c.id}
                             title={daTat ? 'Bật lại' : 'Tắt (ẩn khỏi danh sách chọn khi tạo buổi diễn)'}
-                            className={`p-1.5 rounded-lg text-gray-500 disabled:opacity-40 ${daTat ? 'hover:text-green-400' : 'hover:text-yellow-400'}`}>
+                            className={`p-1.5 rounded-lg text-ink-mute disabled:opacity-40 ${daTat ? 'hover:text-success' : 'hover:text-warning'}`}>
                             {daTat ? <Eye size={14} /> : <EyeOff size={14} />}
                           </button>
                         </>
@@ -219,23 +219,23 @@ const CustomCriteriaSection = ({ loungeId }) => {
       )}
 
       {moForm && (
-        <form onSubmit={them} className="mt-4 pt-4 border-t border-gray-800 space-y-3">
+        <form onSubmit={them} className="mt-4 pt-4 border-t border-line space-y-3">
           <div className="flex items-center justify-between">
-            <p className="text-sm font-medium text-white">Tiêu chí mới</p>
-            <button type="button" onClick={() => setMoForm(false)} className="p-1 text-gray-500 hover:text-white">
+            <p className="text-sm font-medium text-ink">Tiêu chí mới</p>
+            <button type="button" onClick={() => setMoForm(false)} className="p-1 text-ink-mute hover:text-ink">
               <X size={16} />
             </button>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="text-xs text-gray-500">Tên hiển thị <span className="text-red-400">*</span></label>
+              <label className="text-xs text-ink-mute">Tên hiển thị <span className="text-danger">*</span></label>
               <input value={form.name} onChange={(e) => set('name', e.target.value)} className={inputCls} placeholder="VD: Độ ồn" />
             </div>
             <div>
-              <label className="text-xs text-gray-500">Mã tiêu chí <span className="text-red-400">*</span></label>
+              <label className="text-xs text-ink-mute">Mã tiêu chí <span className="text-danger">*</span></label>
               <input value={form.key} onChange={(e) => set('key', e.target.value)} className={`${inputCls} font-mono`} placeholder="VD: noise_level" />
-              <p className="text-xs text-yellow-400/80 mt-1 leading-relaxed">
+              <p className="text-xs text-warning/80 mt-1 leading-relaxed">
                 Mã tiêu chí KHÔNG sửa lại được sau khi tạo (tên thì sửa được). Đổi mã là mất liên
                 kết với giá trị đã gán cho các buổi diễn cũ, nên hãy gõ kỹ.
               </p>
@@ -243,7 +243,7 @@ const CustomCriteriaSection = ({ loungeId }) => {
           </div>
 
           <div>
-            <label className="text-xs text-gray-500">Kiểu dữ liệu</label>
+            <label className="text-xs text-ink-mute">Kiểu dữ liệu</label>
             <select value={form.dataType} onChange={(e) => set('dataType', e.target.value)} className={inputCls}>
               {DATA_TYPES.map((d) => <option key={d.value} value={d.value}>{d.label}</option>)}
             </select>
@@ -251,14 +251,14 @@ const CustomCriteriaSection = ({ loungeId }) => {
 
           {loaiHienTai?.optionsHint && (
             <div>
-              <label className="text-xs text-gray-500">Tuỳ chọn</label>
+              <label className="text-xs text-ink-mute">Tuỳ chọn</label>
               <input value={form.options} onChange={(e) => set('options', e.target.value)} className={`${inputCls} font-mono`} />
-              <p className="text-xs text-gray-600 mt-1">{loaiHienTai.optionsHint}</p>
+              <p className="text-xs text-ink-mute mt-1">{loaiHienTai.optionsHint}</p>
             </div>
           )}
 
           <button type="submit" disabled={isBusy}
-            className="w-full py-2.5 bg-[#C3B665] text-black rounded-lg font-bold flex items-center justify-center gap-2 disabled:opacity-50">
+            className="w-full py-2.5 bg-brand text-on-brand rounded-lg font-bold flex items-center justify-center gap-2 disabled:opacity-50">
             {isBusy && <Loader2 size={16} className="animate-spin" />} Thêm tiêu chí
           </button>
         </form>

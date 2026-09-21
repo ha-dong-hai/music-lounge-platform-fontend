@@ -81,29 +81,29 @@ const ChatPanel = ({ messages, performers, onSendMessage, onSendDonation, onRepo
     <div className="flex flex-col h-full min-h-0">
 
       {/* ===== HEADER — nút Donate thay bằng menu 3 chấm ===== */}
-      <div className="flex-none px-4 py-3 border-b border-gray-800 flex items-center justify-between">
-        <h3 className="font-bold text-sm">Live Chat</h3>
+      <div className="flex-none px-4 py-3 border-b border-line flex items-center justify-between">
+        <h3 className="font-bold text-sm">Trò chuyện trực tiếp</h3>
 
         {/* MENU 3 CHẤM DỌC */}
         <div className="relative" ref={actionMenuRef}>
           <button
             onClick={() => setShowActionMenu(!showActionMenu)}
-            className={`p-2 rounded-lg transition-colors ${showActionMenu ? 'text-[#C3B665] bg-gray-800' : 'text-gray-400 hover:text-white hover:bg-gray-800'}`}
+            className={`p-2 rounded-lg transition-colors ${showActionMenu ? 'text-brand-text bg-sunken' : 'text-ink-soft hover:text-ink hover:bg-sunken'}`}
             aria-label="Chat actions"
           >
             <MoreVertical size={18} />
           </button>
 
           {showActionMenu && (
-            <div className="absolute right-0 top-full mt-2 w-44 bg-[#1a1a1a] rounded-xl shadow-lg border border-gray-700 py-1.5 z-50 animate-in fade-in slide-in-from-top-2 duration-100">
+            <div className="absolute right-0 top-full mt-2 w-44 bg-[#1a1a1a] rounded-xl shadow-lg border border-line py-1.5 z-50 animate-in fade-in slide-in-from-top-2 duration-100">
               <button
                 onClick={() => {
                   setShowActionMenu(false)
                   setShowReport(true)
                 }}
-                className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-300 hover:bg-gray-800 hover:text-white transition-colors text-left"
+                className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-ink-soft hover:bg-sunken hover:text-ink transition-colors text-left"
               >
-                <Flag size={15} className="text-gray-400" />
+                <Flag size={15} className="text-ink-soft" />
                 Report
               </button>
 
@@ -124,23 +124,23 @@ const ChatPanel = ({ messages, performers, onSendMessage, onSendDonation, onRepo
         >
           {messages.map((msg, idx) => (
             msg.type === 'donate' ? (
-              <div key={idx} className="flex items-start gap-2 bg-[#C3B665]/10 border border-[#C3B665]/20 p-2 rounded-lg">
+              <div key={idx} className="flex items-start gap-2 bg-brand/10 border border-brand/20 p-2 rounded-lg">
                 <img src={msg.user?.avatarUrl || `https://api.dicebear.com/7.x/initials/svg?seed=${msg.user?.name}`} className="w-6 h-6 rounded-full flex-shrink-0" alt="" />
                 <div className="min-w-0">
-                  <p className="text-xs font-bold text-[#C3B665] truncate">
-                    {msg.user?.name} <span className="text-white font-normal">donated {msg.amount?.toLocaleString('vi-VN')}đ</span>
+                  <p className="text-xs font-bold text-brand-text truncate">
+                    {msg.user?.name} <span className="text-ink font-normal">donated {msg.amount?.toLocaleString('vi-VN')}đ</span>
                   </p>
-                  <p className="text-xs text-gray-300 truncate">to {msg.performerName}: "{msg.message}"</p>
+                  <p className="text-xs text-ink-soft truncate">to {msg.performerName}: "{msg.message}"</p>
                 </div>
               </div>
             ) : (
               <div key={idx} className="flex items-start gap-2">
-                <img src={msg.user?.avatarUrl || `https://api.dicebear.com/7.x/initials/svg?seed=${msg.user?.name}`} className="w-6 h-6 rounded-full flex-shrink-0 border border-gray-700" alt="" />
+                <img src={msg.user?.avatarUrl || `https://api.dicebear.com/7.x/initials/svg?seed=${msg.user?.name}`} className="w-6 h-6 rounded-full flex-shrink-0 border border-line" alt="" />
                 <div className="min-w-0">
-                  <p className={`text-xs font-semibold truncate ${msg.isMine ? 'text-[#C3B665]' : 'text-gray-400'}`}>
+                  <p className={`text-xs font-semibold truncate ${msg.isMine ? 'text-brand-text' : 'text-ink-soft'}`}>
                     {msg.user?.name}{msg.isMine && ' (You)'}
                   </p>
-                  <p className="text-sm text-white break-words">{msg.content}</p>
+                  <p className="text-sm text-ink break-words">{msg.content}</p>
                 </div>
               </div>
             )
@@ -151,7 +151,7 @@ const ChatPanel = ({ messages, performers, onSendMessage, onSendDonation, onRepo
         {unreadCount > 0 && (
           <button
             onClick={scrollToBottom}
-            className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#C3B665] text-black text-xs font-bold shadow-lg shadow-black/50 hover:bg-[#d4c87f] transition-colors z-10"
+            className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-brand text-on-brand text-xs font-bold shadow-lg shadow-black/50 hover:bg-brand-hover transition-colors z-10"
           >
             <ChevronDown size={14} />
             {unreadCount} new message
@@ -160,7 +160,7 @@ const ChatPanel = ({ messages, performers, onSendMessage, onSendDonation, onRepo
       </div>
 
       {/* ===== INPUT AREA — Donate nằm bên phải Send ===== */}
-      <div className="flex-none border-t border-gray-800 p-3 relative">
+      <div className="flex-none border-t border-line p-3 relative">
 
         {showEmoji && (
           <div className="absolute bottom-full left-0 right-0 mb-2 z-50" style={{ maxWidth: '350px', margin: '0 auto' }}>
@@ -176,7 +176,7 @@ const ChatPanel = ({ messages, performers, onSendMessage, onSendDonation, onRepo
         )}
 
         <form onSubmit={handleSubmit} className="flex items-center gap-2">
-          <button type="button" onClick={() => setShowEmoji(!showEmoji)} className={`p-2 rounded-lg transition-colors flex-shrink-0 ${showEmoji ? 'text-[#C3B665] bg-gray-800' : 'text-gray-400 hover:text-white'}`}>
+          <button type="button" onClick={() => setShowEmoji(!showEmoji)} className={`p-2 rounded-lg transition-colors flex-shrink-0 ${showEmoji ? 'text-brand-text bg-sunken' : 'text-ink-soft hover:text-ink'}`}>
             <Smile size={20} />
           </button>
           <input
@@ -185,17 +185,17 @@ const ChatPanel = ({ messages, performers, onSendMessage, onSendDonation, onRepo
             value={text}
             onChange={e => setText(e.target.value)}
             placeholder="Say something..."
-            className="flex-1 min-w-0 bg-gray-800 text-white text-sm rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-[#C3B665] placeholder:text-gray-500"
+            className="flex-1 min-w-0 bg-sunken text-ink text-sm rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-brand placeholder:text-ink-mute"
           />
           {/* NÚT SEND — donate chuyển sang phải của nó */}
-          <button type="submit" className="p-2 text-[#C3B665] hover:text-[#d4c87f] transition-colors disabled:opacity-30 flex-shrink-0" disabled={!text.trim()}>
+          <button type="submit" className="p-2 text-brand-text hover:text-brand-text transition-colors disabled:opacity-30 flex-shrink-0" disabled={!text.trim()}>
             <Send size={20} />
           </button>
           {/* NÚT DONATE — vị trí mới */}
           <button
             type="button"
             onClick={() => setShowDonate(true)}
-            className="flex-shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-lg bg-[#C3B665] text-black text-xs font-bold hover:bg-[#d4c87f] transition-colors"
+            className="flex-shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-lg bg-brand text-on-brand text-xs font-bold hover:bg-brand-hover transition-colors"
             aria-label="Donate"
           >
             <DollarSign size={16} />

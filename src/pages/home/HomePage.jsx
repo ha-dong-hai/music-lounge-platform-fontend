@@ -121,7 +121,7 @@ const HomePage = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-black px-4 sm:px-6 pt-6 max-w-[1600px] mx-auto">
+      <div className="min-h-[60vh] bg-page px-4 sm:px-6 pt-6 max-w-[1600px] mx-auto">
         <div className="flex justify-between items-center mb-8">
           <Skeleton className="h-8 w-40" />
           <Skeleton className="h-10 w-48 rounded-full" />
@@ -143,7 +143,7 @@ const HomePage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-[60vh] bg-page text-ink">
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 pt-4 sm:pt-6">
         <SectionHeader 
           onOpenFilter={() => setIsFilterOpen(true)} 
@@ -159,12 +159,12 @@ const HomePage = () => {
           {trendingEvents.length > 0 && <HeroBanner events={trendingEvents} />}
           {recommendEvents.length > 0 && (
             <section>
-              <EventCarousel title="Recommend" events={recommendEvents} />
+              <EventCarousel title="Dành riêng cho bạn" events={recommendEvents} />
             </section>
           )}
           {genreSections.map((section) => (
             <section key={section.genreId}>
-              <EventCarousel title={`Genre ${section.genreName}`} events={section.events} showViewMore={true} viewMoreLink={section.slug} />
+              <EventCarousel title={`Thể loại ${section.genreName}`} events={section.events} showViewMore={true} viewMoreLink={section.slug} />
             </section>
           ))}
 
@@ -172,7 +172,7 @@ const HomePage = () => {
               không ai thấy — có link thì lỗi ở đó sẽ lộ ra ngay lần sau. */}
           <div className="flex justify-center pt-2">
             <Link to="/shows"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg border border-[#C3B665]/40 text-[#C3B665] text-sm font-bold hover:bg-[#C3B665]/10 transition-colors">
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg border border-brand/40 text-brand-text text-sm font-bold hover:bg-brand-hover/10 transition-colors">
               Xem tất cả buổi diễn <ArrowRight size={16} />
             </Link>
           </div>

@@ -94,7 +94,7 @@ const TicketDetailPage = () => {
 
     if (isLoading) {
         return (
-            <div className="min-h-screen bg-black text-white pb-16">
+            <div className="min-h-[60vh] bg-page text-ink pb-16">
                 <div className="max-w-3xl mx-auto px-6 py-8">
                     <Skeleton className="h-8 w-48 mb-8" />
                     <Skeleton className="h-8 w-3/4 mb-6" />
@@ -112,9 +112,9 @@ const TicketDetailPage = () => {
 
     if (apiError || !ticket) {
         return (
-            <div className="min-h-screen bg-black flex flex-col items-center justify-center text-white">
+            <div className="min-h-[60vh] bg-page flex flex-col items-center justify-center text-ink">
                 <h1 className="text-2xl font-bold mb-4">{apiError || 'Không tìm thấy vé'}</h1>
-                <Link to="/my-shows" className="text-[#C3B665] flex items-center gap-2">
+                <Link to="/my-shows" className="text-brand-text flex items-center gap-2">
                     <ArrowLeft size={18} /> Return to list
                 </Link>
             </div>
@@ -127,17 +127,17 @@ const TicketDetailPage = () => {
     const formattedPrice = ticket.pricePaid.toLocaleString('vi-VN') + 'đ'
 
     return (
-        <div className="min-h-screen bg-black text-white pb-16">
+        <div className="min-h-[60vh] bg-page text-ink pb-16">
             <div className="max-w-3xl mx-auto px-6 py-8">
 
                 <div className="mb-8">
-                    <Link to="/my-shows" className="inline-flex items-center gap-2 text-sm font-medium text-gray-400 hover:text-[#C3B665] transition-colors">
+                    <Link to="/my-shows" className="inline-flex items-center gap-2 text-sm font-medium text-ink-soft hover:text-brand-text transition-colors">
                         <ArrowLeft size={18} />
                         Return to ticket list
                     </Link>
                 </div>
 
-                <h1 className="text-3xl md:text-4xl font-bold text-white mb-3">{ticket.showName}</h1>
+                <h1 className="text-3xl md:text-4xl font-bold text-ink mb-3">{ticket.showName}</h1>
 
                 {/* LỐI SANG BUỔI DIỄN — CHỈ HIỆN KHI CÓ showId.
                     TicketDetailDto trước đây KHÔNG trả showId (trong khi TicketListItemDto thì có),
@@ -150,7 +150,7 @@ const TicketDetailPage = () => {
                   <div className="flex flex-wrap gap-3 mb-6">
                     <Link
                       to={`/shows/${ticket.showId}`}
-                      className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-700 text-gray-300 text-sm font-bold hover:bg-gray-800 transition-colors"
+                      className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-line text-ink-soft text-sm font-bold hover:bg-sunken transition-colors"
                     >
                       <CalendarDays size={15} /> Xem trang buổi diễn
                     </Link>
@@ -160,7 +160,7 @@ const TicketDetailPage = () => {
                     {ticket.accessType !== 'Physical' && (
                       <Link
                         to={`/livestream/${ticket.showId}`}
-                        className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-500/10 border border-purple-500/40 text-purple-300 text-sm font-bold hover:bg-purple-500/25 transition-colors"
+                        className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-500/10 border border-purple-500/40 text-purple-700 text-sm font-bold hover:bg-purple-500/25 transition-colors"
                       >
                         <Video size={15} /> Vào xem trực tuyến
                       </Link>
@@ -169,27 +169,27 @@ const TicketDetailPage = () => {
                 )}
 
                 {/* NẾU BE CÓ TRẢ LINK ẢNH THÌ HIỆN, KHÔNG CÓ THÌ BỎ QUA */}
-                {/* <div className="relative w-full h-64 md:h-80 rounded-2xl overflow-hidden mb-8 bg-gray-900">
+                {/* <div className="relative w-full h-64 md:h-80 rounded-2xl overflow-hidden mb-8 bg-card">
           <img src={ticket.thumbnail || "..."} alt={ticket.showName} className="w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+          <div className="absolute inset-0 bg-gradient-to-t from-espresso/60 to-transparent"></div>
         </div> */}
 
                 {/* ================================ */}
                 {/* PHẦN 2: THÔNG TIN VÉ            */}
                 {/* ================================ */}
-                <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6 mb-6">
+                <div className="bg-card border border-line rounded-2xl p-6 mb-6">
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 text-center sm:text-left">
                         <div>
-                            <p className="text-gray-500 text-sm mb-1">Ticket tier</p>
-                            <p className="text-white font-bold text-lg">{ticket.tierName}</p>
+                            <p className="text-ink-mute text-sm mb-1">Hạng vé</p>
+                            <p className="text-ink font-bold text-lg">{ticket.tierName}</p>
                         </div>
-                        <div className="sm:border-l sm:border-gray-800 sm:pl-6">
-                            <p className="text-gray-500 text-sm mb-1">Lounge</p>
-                            <p className="text-white font-bold text-lg">{ticket.loungeName}</p>
+                        <div className="sm:border-l sm:border-line sm:pl-6">
+                            <p className="text-ink-mute text-sm mb-1">Phòng trà</p>
+                            <p className="text-ink font-bold text-lg">{ticket.loungeName}</p>
                         </div>
-                        <div className="sm:border-l sm:border-gray-800 sm:pl-6">
-                            <p className="text-gray-500 text-sm mb-1">Time</p>
-                            <p className="text-white font-bold text-lg">{eventDate.format('HH:mm DD/MM')}</p>
+                        <div className="sm:border-l sm:border-line sm:pl-6">
+                            <p className="text-ink-mute text-sm mb-1">Time</p>
+                            <p className="text-ink font-bold text-lg">{eventDate.format('HH:mm DD/MM')}</p>
                         </div>
                     </div>
 
@@ -198,22 +198,22 @@ const TicketDetailPage = () => {
                         mình được xếp chỗ nào, và cũng không biết vé đã bị quét chưa.
                         Cả hai chỉ có ở vé tại chỗ; vé xem trực tuyến thì `physicalDetail` là null. */}
                     {ticket.physicalDetail && (
-                      <div className="mt-5 pt-5 border-t border-gray-800 grid grid-cols-1 sm:grid-cols-2 gap-5 text-center sm:text-left">
+                      <div className="mt-5 pt-5 border-t border-line grid grid-cols-1 sm:grid-cols-2 gap-5 text-center sm:text-left">
                         <div>
-                          <p className="text-gray-500 text-sm mb-1">Chỗ ngồi</p>
-                          <p className="text-white font-bold text-lg">
+                          <p className="text-ink-mute text-sm mb-1">Chỗ ngồi</p>
+                          <p className="text-ink font-bold text-lg">
                             {ticket.physicalDetail.seatInfo || 'Không xếp chỗ cố định'}
                           </p>
                         </div>
-                        <div className="sm:border-l sm:border-gray-800 sm:pl-6">
-                          <p className="text-gray-500 text-sm mb-1">Vào cửa</p>
+                        <div className="sm:border-l sm:border-line sm:pl-6">
+                          <p className="text-ink-mute text-sm mb-1">Vào cửa</p>
                           {ticket.physicalDetail.checkedInAt ? (
-                            <p className="text-green-400 font-bold text-lg inline-flex items-center gap-1.5">
+                            <p className="text-success font-bold text-lg inline-flex items-center gap-1.5">
                               <CheckCircle2 size={17} />
                               {dayjs(ticket.physicalDetail.checkedInAt).format('HH:mm DD/MM/YYYY')}
                             </p>
                           ) : (
-                            <p className="text-gray-400 font-bold text-lg">Chưa quét mã</p>
+                            <p className="text-ink-soft font-bold text-lg">Chưa quét mã</p>
                           )}
                         </div>
                       </div>
@@ -221,9 +221,9 @@ const TicketDetailPage = () => {
                 </div>
 
                 {/* PHẦN MÃ QR ĐỂ QUÉT CỬA (DÙNG MÃ QR THẬT TỪ BE) */}
-                <div className="bg-gray-900 rounded-2xl p-8 mb-6 flex flex-col items-center justify-center">
-                    <p className="text-white font-bold text-lg mb-4">QR code Check-in</p>
-                    <div className="p-4 bg-black border-2 border-[#C3B665] rounded-xl">
+                <div className="bg-card rounded-2xl p-8 mb-6 flex flex-col items-center justify-center">
+                    <p className="text-ink font-bold text-lg mb-4">QR code Check-in</p>
+                    <div className="p-4 bg-page border-2 border-brand rounded-xl">
                         <QRCode
                             value={ticket.qrCode || ticket.id}
                             size={180}
@@ -232,36 +232,36 @@ const TicketDetailPage = () => {
                             bgColor="#000000"
                         />
                     </div>
-                    <p className="text-gray-500 font-mono text-sm mt-4 break-all px-4 text-center">{ticket.id}</p>
-                    <p className="text-gray-400 text-xs mt-1">Show this screen to the ticket staff at the entrance</p>
+                    <p className="text-ink-mute font-mono text-sm mt-4 break-all px-4 text-center">{ticket.id}</p>
+                    <p className="text-ink-soft text-xs mt-1">Show this screen to the ticket staff at the entrance</p>
                 </div>
 
                 {/* ================================ */}
                 {/* PHẦN 3: CHI TIẾT ĐƠN HÀNG        */}
                 {/* ================================ */}
-                <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6 mb-6">
+                <div className="bg-card border border-line rounded-2xl p-6 mb-6">
                     <div className="flex justify-between items-center mb-4">
-                        <h2 className="text-xl font-bold text-[#C3B665]">Order detail</h2>
-                        <span className="text-gray-400 font-mono text-xs break-all">Order code: {ticket.id}</span>
+                        <h2 className="text-xl font-bold text-brand-text">Order detail</h2>
+                        <span className="text-ink-soft font-mono text-xs break-all">Order code: {ticket.id}</span>
                     </div>
 
-                    <div className="border border-gray-800 rounded-lg overflow-hidden">
+                    <div className="border border-line rounded-lg overflow-hidden">
                         <table className="w-full text-left">
                             <tbody>
-                                <tr className="border-b border-gray-800">
-                                    <td className="p-4 text-gray-500 text-sm align-top w-1/3">Order date</td>
-                                    <td className="p-4 text-white text-sm">{orderDate}</td>
+                                <tr className="border-b border-line">
+                                    <td className="p-4 text-ink-mute text-sm align-top w-1/3">Order date</td>
+                                    <td className="p-4 text-ink text-sm">{orderDate}</td>
                                 </tr>
-                                <tr className="border-b border-gray-800">
-                                    <td className="p-4 text-gray-500 text-sm align-top">Ticket type</td>
-                                    <td className="p-4 text-white text-sm">
+                                <tr className="border-b border-line">
+                                    <td className="p-4 text-ink-mute text-sm align-top">Ticket type</td>
+                                    <td className="p-4 text-ink text-sm">
                                         {ticket.accessType === 'Physical' ? 'Vé trực tiếp (Offline)' : 'Vé Livestream (Online)'}
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td className="p-4 text-gray-500 text-sm align-top">Order status</td>
+                                    <td className="p-4 text-ink-mute text-sm align-top">Order status</td>
                                     <td className="p-4 text-right">
-                                        <span className="inline-flex items-center gap-1.5 bg-green-500/15 text-green-400 px-3 py-1 rounded-full text-xs font-bold border border-green-500/30">
+                                        <span className="inline-flex items-center gap-1.5 bg-green-500/15 text-success px-3 py-1 rounded-full text-xs font-bold border border-green-500/30">
                                             <CheckCircle2 size={14} /> {ticket.status === 'Confirmed' ? 'Paid' : ticket.status}
                                         </span>
                                     </td>
@@ -271,28 +271,28 @@ const TicketDetailPage = () => {
                     </div>
                 </div>
 
-                <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6">
-                    <h2 className="text-xl font-bold text-[#C3B665] mb-4">Ticket detail</h2>
+                <div className="bg-card border border-line rounded-2xl p-6">
+                    <h2 className="text-xl font-bold text-brand-text mb-4">Chi tiết vé</h2>
 
-                    <div className="border border-gray-800 rounded-lg overflow-hidden">
+                    <div className="border border-line rounded-lg overflow-hidden">
                         <table className="w-full text-left">
-                            <thead className="bg-black/40">
+                            <thead className="bg-espresso/40">
                                 <tr>
-                                    <th className="p-4 text-gray-400 font-medium text-sm">Ticket tier</th>
-                                    <th className="p-4 text-gray-400 font-medium text-sm text-right">Price</th>
+                                    <th className="p-4 text-ink-soft font-medium text-sm">Hạng vé</th>
+                                    <th className="p-4 text-ink-soft font-medium text-sm text-right">Price</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr className="border-t border-gray-800">
-                                    <td className="p-4 text-white">
+                                <tr className="border-t border-line">
+                                    <td className="p-4 text-ink">
                                         <p className="font-medium">{ticket.tierName} - {ticket.showName}</p>
-                                        <p className="text-gray-500 text-xs mt-1">{ticket.priceName}</p>
+                                        <p className="text-ink-mute text-xs mt-1">{ticket.priceName}</p>
                                     </td>
-                                    <td className="p-4 text-white font-bold text-right">{formattedPrice}</td>
+                                    <td className="p-4 text-ink font-bold text-right">{formattedPrice}</td>
                                 </tr>
-                                <tr className="border-t-2 border-gray-700 bg-black/20">
-                                    <td className="p-4 text-white font-bold">Total</td>
-                                    <td className="p-4 text-[#C3B665] font-bold text-right text-lg">{formattedPrice}</td>
+                                <tr className="border-t-2 border-line bg-espresso/20">
+                                    <td className="p-4 text-ink font-bold">Tổng cộng</td>
+                                    <td className="p-4 text-brand-text font-bold text-right text-lg">{formattedPrice}</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -305,32 +305,32 @@ const TicketDetailPage = () => {
                 {/* CHUYỂN NHƯỢNG VÉ — vé KHÔNG sang tay ngay khi bấm gửi: người nhận phải tự đồng ý,
                     và trước lúc đó người gửi vẫn huỷ được lượt chuyển. */}
                 {ticket.status === 'Confirmed' && (
-                    <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6 mt-6">
-                        <h2 className="text-xl font-bold text-[#C3B665] mb-2">Chuyển vé cho người khác</h2>
+                    <div className="bg-card border border-line rounded-2xl p-6 mt-6">
+                        <h2 className="text-xl font-bold text-brand-text mb-2">Chuyển vé cho người khác</h2>
                         {ticket.transferPending ? (
                             <>
-                                <p className="text-gray-400 text-sm mb-4">
+                                <p className="text-ink-soft text-sm mb-4">
                                     Đang chờ người nhận đồng ý
-                                    {ticket.transferRecipientEmail && <> (<span className="text-gray-300">{ticket.transferRecipientEmail}</span>)</>}.
+                                    {ticket.transferRecipientEmail && <> (<span className="text-ink-soft">{ticket.transferRecipientEmail}</span>)</>}.
                                     Vé vẫn thuộc về bạn cho tới khi họ nhận.
                                 </p>
                                 <button onClick={handleCancelTransfer} disabled={busyTransfer !== null}
-                                    className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-700 text-gray-300 text-sm font-bold hover:bg-gray-800 disabled:opacity-50">
+                                    className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-line text-ink-soft text-sm font-bold hover:bg-sunken disabled:opacity-50">
                                     {busyTransfer === 'cancel' ? <Loader2 size={16} className="animate-spin" /> : <Undo2 size={16} />}
                                     Huỷ lượt chuyển
                                 </button>
                             </>
                         ) : (
                             <>
-                                <p className="text-gray-400 text-sm mb-4">
+                                <p className="text-ink-soft text-sm mb-4">
                                     Nhập email người nhận. Họ phải đã có tài khoản trên hệ thống và phải tự bấm nhận vé.
                                 </p>
                                 <form onSubmit={handleTransfer} className="flex flex-wrap gap-2">
                                     <input type="email" value={recipientEmail} onChange={(e) => setRecipientEmail(e.target.value)}
                                         placeholder="email@example.com"
-                                        className="flex-1 min-w-[200px] px-3 py-2 bg-black border border-gray-700 rounded-lg text-sm text-white focus:outline-none focus:border-[#C3B665]/50" />
+                                        className="flex-1 min-w-[200px] px-3 py-2 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-brand/50" />
                                     <button type="submit" disabled={busyTransfer !== null || !recipientEmail.trim()}
-                                        className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#C3B665] text-black text-sm font-bold hover:bg-[#d4c87f] disabled:opacity-50">
+                                        className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-brand text-on-brand text-sm font-bold hover:bg-brand-hover disabled:opacity-50">
                                         {busyTransfer === 'send' ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
                                         Gửi vé
                                     </button>
@@ -341,20 +341,20 @@ const TicketDetailPage = () => {
                 )}
 
                 {['Confirmed', 'Pending'].includes(ticket.status) && (
-                    <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6 mt-6">
-                        <h2 className="text-xl font-bold text-[#C3B665] mb-2">Huỷ vé</h2>
-                        <p className="text-gray-400 text-sm mb-4">
+                    <div className="bg-card border border-line rounded-2xl p-6 mt-6">
+                        <h2 className="text-xl font-bold text-brand-text mb-2">Huỷ vé</h2>
+                        <p className="text-ink-soft text-sm mb-4">
                             {ticket.status === 'Confirmed'
                                 ? 'Huỷ vé sẽ tạo yêu cầu hoàn tiền gửi tới quản trị viên. Số tiền hoàn theo đúng chính sách của buổi diễn.'
                                 : 'Vé này chưa thanh toán nên huỷ sẽ có hiệu lực ngay.'}
                         </p>
                         {cancelDone ? (
-                            <p className="text-green-400 text-sm">Đã gửi yêu cầu huỷ vé.</p>
+                            <p className="text-success text-sm">Đã gửi yêu cầu huỷ vé.</p>
                         ) : (
                             <button
                                 onClick={handleCancel}
                                 disabled={isCancelling}
-                                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-red-500/40 text-red-400 text-sm font-bold hover:bg-red-500/10 disabled:opacity-50"
+                                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-red-500/40 text-danger text-sm font-bold hover:bg-red-500/10 disabled:opacity-50"
                             >
                                 <XCircle size={16} /> {isCancelling ? 'Đang gửi...' : 'Huỷ vé này'}
                             </button>

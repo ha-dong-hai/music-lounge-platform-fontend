@@ -68,10 +68,10 @@ const WishlistTab = () => {
           ))}
         </div>
       ) : (
-        <div className="bg-gray-900 border border-gray-800 rounded-2xl p-12 text-center min-h-[300px] flex flex-col items-center justify-center">
-          <Heart size={40} className="text-gray-700 mb-4" />
-          <p className="text-gray-400 text-lg">Your wishlist is empty.</p>
-          <Link to="/" className="mt-4 text-[#C3B665] font-semibold underline hover:text-[#d4c87f]">Find your favorite shows</Link>
+        <div className="bg-card border border-line rounded-2xl p-12 text-center min-h-[300px] flex flex-col items-center justify-center">
+          <Heart size={40} className="text-ink-mute mb-4" />
+          <p className="text-ink-soft text-lg">Your wishlist is empty.</p>
+          <Link to="/" className="mt-4 text-brand-text font-semibold underline hover:text-brand-text">Find your favorite shows</Link>
         </div>
       )}
     </div>

@@ -143,8 +143,8 @@ const LoungeDetailPage = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-black">
-        <div className="w-full h-[500px] md:h-[600px] bg-gray-900 flex items-end">
+      <div className="min-h-[60vh] bg-page">
+        <div className="w-full h-[500px] md:h-[600px] bg-card flex items-end">
           <div className="w-full max-w-[1600px] mx-auto px-6 md:px-12 pb-6 md:pb-12">
             <Skeleton className="h-12 md:h-16 w-1/2 mb-4" />
             <div className="flex gap-2"><Skeleton className="h-8 w-24 rounded-full" /><Skeleton className="h-8 w-24 rounded-full" /></div>
@@ -162,15 +162,15 @@ const LoungeDetailPage = () => {
 
   if (apiError || !lounge) {
     return (
-      <div className="min-h-screen bg-black flex flex-col items-center justify-center text-white">
+      <div className="min-h-[60vh] bg-page flex flex-col items-center justify-center text-ink">
         <h1 className="text-2xl font-bold mb-4">{apiError || 'Lounge not found'}</h1>
-        <Link to="/" className="text-[#C3B665] flex items-center gap-2"><ArrowLeft size={18} /> Return to homepage</Link>
+        <Link to="/" className="text-brand-text flex items-center gap-2"><ArrowLeft size={18} /> Về trang chủ</Link>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-black text-white pb-20">
+    <div className="min-h-[60vh] bg-page text-ink pb-20">
       <LoungeHero lounge={lounge} isFollowing={isFollowing} onToggleFollow={handleToggleFollow} />
       <div className="max-w-[1600px] mx-auto px-6 mt-12">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -186,7 +186,7 @@ const LoungeDetailPage = () => {
       {/* BUỔI DIỄN CỦA PHÒNG TRÀ NÀY — trước đây state loungeShows được set nhưng không render ở
           đâu, nên dù fetch có chạy cũng không ai thấy. Danh sách rỗng thì không hiện cả khối. */}
       {loungeShows.length > 0 && (
-        <div className="mt-16 bg-black text-[#C3B665] rounded-2xl mx-6 md:mx-auto md:max-w-[1600px] p-6 md:p-10">
+        <div className="mt-16 bg-page text-brand-text rounded-2xl mx-6 md:mx-auto md:max-w-[1600px] p-6 md:p-10">
           <ShowCarousel title={`Buổi diễn tại ${lounge.name}`} events={loungeShows} showViewMore={false} />
         </div>
       )}

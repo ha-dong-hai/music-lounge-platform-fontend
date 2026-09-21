@@ -129,9 +129,9 @@ const ProfileTab = () => {
   // Skeleton riêng của tab Profile
   if (isFetchingProfile) {
     return (
-      <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6 md:p-8">
+      <div className="bg-card border border-line rounded-2xl p-6 md:p-8">
         <Skeleton className="h-6 w-48 mb-6" />
-        <div className="flex items-center gap-6 pb-6 border-b border-gray-800">
+        <div className="flex items-center gap-6 pb-6 border-b border-line">
           <Skeleton className="w-24 h-24 rounded-full" />
           <div className="space-y-2">
             <Skeleton className="h-5 w-40" />
@@ -146,49 +146,49 @@ const ProfileTab = () => {
   }
 
   return (
-    <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6 md:p-8">
-      <h2 className="text-xl font-bold text-[#C3B665] mb-6">Personal information</h2>
+    <div className="bg-card border border-line rounded-2xl p-6 md:p-8">
+      <h2 className="text-xl font-bold text-brand-text mb-6">Thông tin cá nhân</h2>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         
-        <div className="flex items-center gap-6 pb-6 border-b border-gray-800">
+        <div className="flex items-center gap-6 pb-6 border-b border-line">
           <div className="relative cursor-pointer group" onClick={handleAvatarClick}>
-            <img src={avatarPreview} alt="Avatar" className="w-24 h-24 rounded-full object-cover border-2 border-[#C3B665]" />
-            <div className="absolute inset-0 bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-              {isUploading ? <Loader2 size={24} className="text-white animate-spin" /> : <Camera size={24} className="text-white" />}
+            <img src={avatarPreview} alt="Avatar" className="w-24 h-24 rounded-full object-cover border-2 border-brand" />
+            <div className="absolute inset-0 bg-espresso/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+              {isUploading ? <Loader2 size={24} className="text-ink animate-spin" /> : <Camera size={24} className="text-ink" />}
             </div>
-            <div className="absolute bottom-0 right-0 p-1.5 bg-[#C3B665] text-black rounded-full border-2 border-gray-900"><Camera size={14} /></div>
+            <div className="absolute bottom-0 right-0 p-1.5 bg-brand text-on-brand rounded-full border-2 border-line"><Camera size={14} /></div>
             <input type="file" ref={fileInputRef} onChange={handleAvatarChange} className="hidden" accept="image/*" disabled={isUploading} />
           </div>
           <div>
-            <h3 className="text-white font-bold text-lg">{user?.name || 'User Name'}</h3>
-            <p className="text-gray-400 text-sm">Click the image to change your profile picture.</p>
+            <h3 className="text-ink font-bold text-lg">{user?.name || 'User Name'}</h3>
+            <p className="text-ink-soft text-sm">Click the image to change your profile picture.</p>
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label className="block text-sm font-medium text-gray-400 mb-2">Fullname</label>
-            <input type="text" {...register('name')} className={`w-full px-4 py-2.5 bg-black border rounded-lg text-white text-sm focus:outline-none focus:border-[#C3B665]/50 ${errors.name ? 'border-red-500' : 'border-gray-800'}`} />
-            {errors.name && <p className="mt-1 text-xs text-red-500">{errors.name.message}</p>}
+            <label className="block text-sm font-medium text-ink-soft mb-2">Fullname</label>
+            <input type="text" {...register('name')} className={`w-full px-4 py-2.5 bg-page border rounded-lg text-ink text-sm focus:outline-none focus:border-brand/50 ${errors.name ? 'border-red-500' : 'border-line'}`} />
+            {errors.name && <p className="mt-1 text-xs text-danger">{errors.name.message}</p>}
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-gray-400 mb-2">Phone number</label>
-            <input type="tel" {...register('phone')} className={`w-full px-4 py-2.5 bg-black border rounded-lg text-white text-sm focus:outline-none focus:border-[#C3B665]/50 ${errors.phone ? 'border-red-500' : 'border-gray-800'}`} />
-            {errors.phone && <p className="mt-1 text-xs text-red-500">{errors.phone.message}</p>}
+            <label className="block text-sm font-medium text-ink-soft mb-2">Số điện thoại</label>
+            <input type="tel" {...register('phone')} className={`w-full px-4 py-2.5 bg-page border rounded-lg text-ink text-sm focus:outline-none focus:border-brand/50 ${errors.phone ? 'border-red-500' : 'border-line'}`} />
+            {errors.phone && <p className="mt-1 text-xs text-danger">{errors.phone.message}</p>}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-400 mb-2">Email (Cannot be changed)</label>
-            <input type="email" value={user?.email || ''} disabled className="w-full px-4 py-2.5 bg-gray-800/50 border border-gray-700 rounded-lg text-gray-500 text-sm cursor-not-allowed" />
+            <label className="block text-sm font-medium text-ink-soft mb-2">Email (Cannot be changed)</label>
+            <input type="email" value={user?.email || ''} disabled className="w-full px-4 py-2.5 bg-sunken/50 border border-line rounded-lg text-ink-mute text-sm cursor-not-allowed" />
           </div>
         </div>
 
-        <div className="flex justify-end pt-4 border-t border-gray-800">
+        <div className="flex justify-end pt-4 border-t border-line">
           <button 
             type="submit" 
             disabled={isSaving || isUploading} 
-            className="flex items-center gap-2 bg-[#C3B665] text-black px-6 py-2.5 rounded-lg text-sm font-bold hover:bg-[#d4c87f] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center gap-2 bg-brand text-on-brand px-6 py-2.5 rounded-lg text-sm font-bold hover:bg-brand-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isSaving ? <><Loader2 size={16} className="animate-spin" /> Saving ...</> : <><Save size={16} /> Saved</>}
           </button>

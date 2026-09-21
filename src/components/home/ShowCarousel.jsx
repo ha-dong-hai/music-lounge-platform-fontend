@@ -41,13 +41,13 @@ const ShowCarousel = ({ title, events = [], showViewMore = false, viewMoreLink =
 
       {/* HEADER */}
       <div className="flex items-center justify-between mb-4 sm:mb-6 px-1">
-        <h2 className="text-lg sm:text-xl font-bold text-white">{title}</h2>
+        <h2 className="font-display text-xl sm:text-2xl font-semibold text-ink">{title}</h2>
         {showViewMore && (
           <Link
             to={viewMoreLink}
-            className="text-sm font-medium text-[#C3B665]/85 hover:text-[#C3B665] hover:font-bold flex items-center justify-end gap-1 transition-all hover:gap-2"
+            className="text-sm font-medium text-brand-text hover:text-ink flex items-center justify-end gap-1 transition-all hover:gap-2"
           >
-            See more
+            Xem thêm
             <ChevronRight size={20} />
           </Link>
         )}
@@ -59,7 +59,7 @@ const ShowCarousel = ({ title, events = [], showViewMore = false, viewMoreLink =
         {/* GRADIENT TRÁI */}
         <div className={`
           absolute inset-y-0 left-0 w-12 md:w-20 pointer-events-none z-10 
-          bg-gradient-to-r from-black via-black/30 to-transparent 
+          bg-gradient-to-r from-espresso via-espresso/30 to-transparent 
           transition-opacity duration-300
           ${canScrollLeft ? 'opacity-0 group-hover/carousel:opacity-100' : 'opacity-0'}
         `} />
@@ -70,9 +70,9 @@ const ShowCarousel = ({ title, events = [], showViewMore = false, viewMoreLink =
           className={`
             absolute left-1 md:left-4 top-1/2 -translate-y-1/2 z-20 
             w-9 h-9 md:w-11 md:h-11 rounded-lg 
-            bg-black/70 backdrop-blur-sm shadow-[0_2px_8px_rgba(0,0,0,0.3)] border border-white/10 
-            flex items-center justify-center text-white 
-            hover:bg-[#C3B665] hover:text-black hover:border-[#C3B665] active:scale-95 
+            bg-card/95 backdrop-blur-sm shadow-lift border border-line 
+            flex items-center justify-center text-ink 
+            hover:bg-brand hover:text-on-brand hover:border-brand active:scale-95 
             transition-all duration-300 cursor-pointer
             
             /* Nếu cuộn được: ẩn mặc định, hiện khi hover khối cha. Nếu không cuộn được: ẩn vĩnh viễn */
@@ -105,7 +105,7 @@ const ShowCarousel = ({ title, events = [], showViewMore = false, viewMoreLink =
         {/* GRADIENT PHẢI */}
         <div className={`
           absolute inset-y-0 right-0 w-12 md:w-20 pointer-events-none z-10 
-          bg-gradient-to-l from-black via-black/30 to-transparent 
+          bg-gradient-to-l from-espresso via-espresso/30 to-transparent 
           transition-opacity duration-300
           ${canScrollRight ? 'opacity-0 group-hover/carousel:opacity-100' : 'opacity-0'}
         `} />
@@ -116,9 +116,9 @@ const ShowCarousel = ({ title, events = [], showViewMore = false, viewMoreLink =
           className={`
             absolute right-1 md:right-4 top-1/2 -translate-y-1/2 z-20 
             w-9 h-9 md:w-11 md:h-11 rounded-lg 
-            bg-black/70 backdrop-blur-sm shadow-[0_2px_8px_rgba(0,0,0,0.3)] border border-white/10 
-            flex items-center justify-center text-white 
-            hover:bg-[#C3B665] hover:text-black hover:border-[#C3B665] active:scale-95 
+            bg-card/95 backdrop-blur-sm shadow-lift border border-line 
+            flex items-center justify-center text-ink 
+            hover:bg-brand hover:text-on-brand hover:border-brand active:scale-95 
             transition-all duration-300 cursor-pointer
             
             ${canScrollRight

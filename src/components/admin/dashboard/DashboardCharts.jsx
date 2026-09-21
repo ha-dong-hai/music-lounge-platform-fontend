@@ -25,7 +25,7 @@ const Swatch = ({ color, size = 'w-2.5 h-2.5' }) => (
 
 // Chú giải luôn có khi từ 2 chuỗi trở lên. Chữ dùng màu chữ; ô màu bên cạnh mới mang danh tính nguồn.
 const SourceLegend = () => (
-  <div className="flex flex-wrap gap-4 text-xs text-gray-400">
+  <div className="flex flex-wrap gap-4 text-xs text-ink-soft">
     {SOURCES.map((s) => (
       <span key={s.key} className="inline-flex items-center gap-1.5">
         <Swatch color={s.color} /> {s.label}
@@ -45,19 +45,19 @@ const RevenueTooltip = ({ active, payload }) => {
   if (!active || !payload?.length) return null
   const row = payload[0].payload
   return (
-    <div className="bg-gray-950 border border-gray-700 rounded-lg px-3 py-2 text-xs shadow-lg">
-      <p className="text-gray-300 font-medium mb-1.5">
+    <div className="bg-card border border-line rounded-lg px-3 py-2 text-xs shadow-lg">
+      <p className="text-ink-soft font-medium mb-1.5">
         Tháng {row.label}{row.partial && ' (chưa trọn tháng)'}
       </p>
       {SOURCES.map((s) => (
         <div key={s.key} className="flex items-center justify-between gap-6 py-0.5">
-          <span className="inline-flex items-center gap-1.5 text-gray-400"><Swatch color={s.color} size="w-2 h-2" />{s.label}</span>
-          <span className="text-white tabular-nums">{fmtMoney(row[s.key])}</span>
+          <span className="inline-flex items-center gap-1.5 text-ink-soft"><Swatch color={s.color} size="w-2 h-2" />{s.label}</span>
+          <span className="text-ink tabular-nums">{fmtMoney(row[s.key])}</span>
         </div>
       ))}
-      <div className="flex justify-between gap-6 pt-1.5 mt-1.5 border-t border-gray-800">
-        <span className="text-gray-400">Tổng</span>
-        <span className="text-white font-medium tabular-nums">{fmtMoney(row.total)}</span>
+      <div className="flex justify-between gap-6 pt-1.5 mt-1.5 border-t border-line">
+        <span className="text-ink-soft">Tổng</span>
+        <span className="text-ink font-medium tabular-nums">{fmtMoney(row.total)}</span>
       </div>
     </div>
   )
@@ -90,14 +90,14 @@ export const RevenueByMonthChart = ({ months, measure }) => {
           </BarChart>
         </ResponsiveContainer>
       </div>
-      <p className="text-xs text-gray-600">* Tháng hiện tại, chưa trọn tháng.</p>
+      <p className="text-xs text-ink-mute">* Tháng hiện tại, chưa trọn tháng.</p>
       {/* Bảng là bản song song của biểu đồ: đọc được mọi giá trị không cần rê chuột, không cần phân biệt màu */}
       <details className="text-xs">
-        <summary className="cursor-pointer text-gray-500 hover:text-gray-300 select-none">Xem dạng bảng</summary>
+        <summary className="cursor-pointer text-ink-mute hover:text-ink-soft select-none">Xem dạng bảng</summary>
         <div className="overflow-x-auto mt-2">
           <table className="w-full tabular-nums">
             <thead>
-              <tr className="text-gray-500">
+              <tr className="text-ink-mute">
                 <th className="text-left py-1.5 pr-3 font-medium">Tháng</th>
                 {SOURCES.map((s) => <th key={s.key} className="text-right py-1.5 pr-3 font-medium">{s.label}</th>)}
                 <th className="text-right py-1.5 font-medium">Tổng</th>
@@ -105,10 +105,10 @@ export const RevenueByMonthChart = ({ months, measure }) => {
             </thead>
             <tbody>
               {rows.map((r) => (
-                <tr key={r.month} className="border-t border-gray-800 text-gray-300">
+                <tr key={r.month} className="border-t border-line text-ink-soft">
                   <td className="py-1.5 pr-3">{r.label}{r.partial && '*'}</td>
                   {SOURCES.map((s) => <td key={s.key} className="text-right py-1.5 pr-3">{fmtMoney(r[s.key])}</td>)}
-                  <td className="text-right py-1.5 text-white">{fmtMoney(r.total)}</td>
+                  <td className="text-right py-1.5 text-ink">{fmtMoney(r.total)}</td>
                 </tr>
               ))}
             </tbody>
@@ -125,7 +125,7 @@ export const RevenueShareBar = ({ month, measure }) => {
   const parts = SOURCES.map((s) => ({ ...s, value: Number(month?.[s.key]?.[measure] ?? 0) }))
   const total = parts.reduce((sum, p) => sum + p.value, 0)
   if (total <= 0) {
-    return <p className="text-sm text-gray-500 py-8 text-center">Tháng này chưa phát sinh doanh thu.</p>
+    return <p className="text-sm text-ink-mute py-8 text-center">Tháng này chưa phát sinh doanh thu.</p>
   }
   const pct = (v) => `${((v / total) * 100).toLocaleString('vi-VN', { maximumFractionDigits: 1 })}%`
   return (
@@ -139,16 +139,16 @@ export const RevenueShareBar = ({ month, measure }) => {
       <ul className="space-y-2">
         {parts.map((p) => (
           <li key={p.key} className="flex items-center justify-between gap-3 text-sm">
-            <span className="inline-flex items-center gap-2 text-gray-400"><Swatch color={p.color} />{p.label}</span>
-            <span className="text-white tabular-nums">
-              {fmtMoney(p.value)} <span className="text-gray-500 ml-1">{pct(p.value)}</span>
+            <span className="inline-flex items-center gap-2 text-ink-soft"><Swatch color={p.color} />{p.label}</span>
+            <span className="text-ink tabular-nums">
+              {fmtMoney(p.value)} <span className="text-ink-mute ml-1">{pct(p.value)}</span>
             </span>
           </li>
         ))}
       </ul>
-      <div className="flex justify-between pt-2 border-t border-gray-800 text-sm">
-        <span className="text-gray-400">Tổng</span>
-        <span className="text-white font-medium tabular-nums">{fmtMoney(total)}</span>
+      <div className="flex justify-between pt-2 border-t border-line text-sm">
+        <span className="text-ink-soft">Tổng</span>
+        <span className="text-ink font-medium tabular-nums">{fmtMoney(total)}</span>
       </div>
     </div>
   )
@@ -157,13 +157,13 @@ export const RevenueShareBar = ({ month, measure }) => {
 // Xếp hạng có số cụ thể → bảng, không phải biểu đồ.
 export const TopShowsTable = ({ shows }) => {
   if (!shows.length) {
-    return <p className="text-sm text-gray-500 py-8 text-center">Chưa có buổi diễn nào bán được vé trong kỳ.</p>
+    return <p className="text-sm text-ink-mute py-8 text-center">Chưa có buổi diễn nào bán được vé trong kỳ.</p>
   }
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-sm">
         <thead>
-          <tr className="text-xs text-gray-500 border-b border-gray-800">
+          <tr className="text-xs text-ink-mute border-b border-line">
             <th className="text-left py-2 pr-3 font-medium w-8">#</th>
             <th className="text-left py-2 pr-3 font-medium">Buổi diễn</th>
             <th className="text-right py-2 pr-3 font-medium">Vé bán</th>
@@ -172,14 +172,14 @@ export const TopShowsTable = ({ shows }) => {
         </thead>
         <tbody>
           {shows.map((s, i) => (
-            <tr key={s.showId} className="border-b border-gray-800/60">
-              <td className="py-2.5 pr-3 text-gray-500 tabular-nums align-top">{i + 1}</td>
+            <tr key={s.showId} className="border-b border-line/60">
+              <td className="py-2.5 pr-3 text-ink-mute tabular-nums align-top">{i + 1}</td>
               <td className="py-2.5 pr-3">
-                <Link to={`/shows/${s.showId}`} className="text-white hover:text-[#C3B665] transition-colors">{s.title}</Link>
-                <p className="text-xs text-gray-500 mt-0.5">{s.loungeName} · {dayjs(s.startTime).format('DD/MM/YYYY')}</p>
+                <Link to={`/shows/${s.showId}`} className="text-ink hover:text-brand-text transition-colors">{s.title}</Link>
+                <p className="text-xs text-ink-mute mt-0.5">{s.loungeName} · {dayjs(s.startTime).format('DD/MM/YYYY')}</p>
               </td>
-              <td className="py-2.5 pr-3 text-right text-gray-300 tabular-nums align-top">{s.ticketsSold.toLocaleString('vi-VN')}</td>
-              <td className="py-2.5 text-right text-white tabular-nums align-top">{fmtMoney(s.ticketRevenue)}</td>
+              <td className="py-2.5 pr-3 text-right text-ink-soft tabular-nums align-top">{s.ticketsSold.toLocaleString('vi-VN')}</td>
+              <td className="py-2.5 text-right text-ink tabular-nums align-top">{fmtMoney(s.ticketRevenue)}</td>
             </tr>
           ))}
         </tbody>
@@ -192,10 +192,10 @@ const GenreTooltip = ({ active, payload }) => {
   if (!active || !payload?.length) return null
   const g = payload[0].payload
   return (
-    <div className="bg-gray-950 border border-gray-700 rounded-lg px-3 py-2 text-xs shadow-lg">
-      <p className="text-gray-300 font-medium mb-1">{g.genreName}</p>
-      <p className="text-gray-400">Vé bán: <span className="text-white tabular-nums">{g.ticketsSold.toLocaleString('vi-VN')}</span></p>
-      <p className="text-gray-400">Số buổi diễn: <span className="text-white tabular-nums">{g.showCount.toLocaleString('vi-VN')}</span></p>
+    <div className="bg-card border border-line rounded-lg px-3 py-2 text-xs shadow-lg">
+      <p className="text-ink-soft font-medium mb-1">{g.genreName}</p>
+      <p className="text-ink-soft">Vé bán: <span className="text-ink tabular-nums">{g.ticketsSold.toLocaleString('vi-VN')}</span></p>
+      <p className="text-ink-soft">Số buổi diễn: <span className="text-ink tabular-nums">{g.showCount.toLocaleString('vi-VN')}</span></p>
     </div>
   )
 }
@@ -204,7 +204,7 @@ const GenreTooltip = ({ active, payload }) => {
 // đầu thanh nên ẩn trục giá trị.
 export const GenreDemandChart = ({ genres }) => {
   if (!genres.length) {
-    return <p className="text-sm text-gray-500 py-8 text-center">Chưa có vé nào bán ra trong kỳ.</p>
+    return <p className="text-sm text-ink-mute py-8 text-center">Chưa có vé nào bán ra trong kỳ.</p>
   }
   const rows = [...genres].sort((a, b) => b.ticketsSold - a.ticketsSold)
   // Cao theo số thể loại thay vì cố định, để không thanh nào bị ép mỏng hay tràn khung

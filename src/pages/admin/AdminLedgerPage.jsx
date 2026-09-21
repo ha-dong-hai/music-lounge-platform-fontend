@@ -96,16 +96,16 @@ const AdminLedgerPage = () => {
       {/* HEADER */}
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex items-center gap-3">
-          <Receipt size={28} className="text-[#C3B665]" />
+          <Receipt size={28} className="text-brand-text" />
           <div>
-            <h1 className="text-2xl font-bold text-white">Sổ cái</h1>
-            <p className="text-gray-400 text-sm">
+            <h1 className="text-2xl font-bold text-ink">Sổ cái</h1>
+            <p className="text-ink-soft text-sm">
               Kiểm tra bút toán có cân không, và chạy lại tác vụ định kỳ khi cần.
             </p>
           </div>
         </div>
         <button onClick={kiemTra} disabled={isChecking}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-700 text-gray-300 text-sm font-bold hover:bg-gray-800 disabled:opacity-50">
+          className="flex items-center gap-2 px-4 py-2 rounded-lg border border-line text-ink-soft text-sm font-bold hover:bg-sunken disabled:opacity-50">
           {isChecking ? <Loader2 size={16} className="animate-spin" /> : <RefreshCw size={16} />}
           Kiểm tra lại
         </button>
@@ -113,70 +113,70 @@ const AdminLedgerPage = () => {
 
       {/* KẾT QUẢ KIỂM TRA TOÀN VẸN */}
       <div>
-        <h2 className="text-sm font-semibold text-gray-400">Toàn vẹn bút toán</h2>
-        <p className="text-xs text-gray-600 mt-0.5 mb-3 leading-relaxed">
+        <h2 className="text-sm font-semibold text-ink-soft">Toàn vẹn bút toán</h2>
+        <p className="text-xs text-ink-mute mt-0.5 mb-3 leading-relaxed">
           Mỗi bút toán phải có tổng Nợ bằng tổng Có. Dòng nào lệch sẽ hiện ở đây kèm số liệu thật —
           đây là việc của kế toán xử lý, không phải lỗi hiển thị.
         </p>
 
         {isChecking ? (
-          <div className="bg-gray-900 border border-gray-800 rounded-xl py-16 flex justify-center">
-            <Loader2 size={26} className="animate-spin text-[#C3B665]" />
+          <div className="bg-card border border-line rounded-xl py-16 flex justify-center">
+            <Loader2 size={26} className="animate-spin text-brand-text" />
           </div>
         ) : issues === null ? (
           // Phân biệt rõ với trường hợp cân: không gọi được thì KHÔNG được hiện "sổ cái cân".
-          <div className="bg-gray-900 border border-yellow-500/30 rounded-xl p-6 flex items-start gap-3">
-            <AlertTriangle size={20} className="text-yellow-400 flex-shrink-0 mt-0.5" />
+          <div className="bg-card border border-yellow-500/30 rounded-xl p-6 flex items-start gap-3">
+            <AlertTriangle size={20} className="text-warning flex-shrink-0 mt-0.5" />
             <div>
-              <p className="text-sm text-white font-medium">Chưa kiểm tra được</p>
-              <p className="text-xs text-gray-400 mt-1 leading-relaxed">
+              <p className="text-sm text-ink font-medium">Chưa kiểm tra được</p>
+              <p className="text-xs text-ink-soft mt-1 leading-relaxed">
                 Không gọi được endpoint kiểm tra. Đây KHÔNG có nghĩa là sổ cái cân — hãy bấm
                 &quot;Kiểm tra lại&quot;.
               </p>
             </div>
           </div>
         ) : issues.length === 0 ? (
-          <div className="bg-gray-900 border border-green-500/25 rounded-xl p-6 flex items-start gap-3">
-            <CheckCircle2 size={20} className="text-green-400 flex-shrink-0 mt-0.5" />
+          <div className="bg-card border border-green-500/25 rounded-xl p-6 flex items-start gap-3">
+            <CheckCircle2 size={20} className="text-success flex-shrink-0 mt-0.5" />
             <div>
-              <p className="text-sm text-white font-medium">Sổ cái cân</p>
-              <p className="text-xs text-gray-400 mt-1 leading-relaxed">
+              <p className="text-sm text-ink font-medium">Sổ cái cân</p>
+              <p className="text-xs text-ink-soft mt-1 leading-relaxed">
                 Không có bút toán nào lệch.
                 {kiemLuc && ` Kiểm lúc ${kiemLuc.toLocaleTimeString('vi-VN')}.`}
               </p>
             </div>
           </div>
         ) : (
-          <div className="bg-gray-900 border border-red-500/30 rounded-xl overflow-hidden">
-            <div className="p-4 border-b border-gray-800 flex items-center gap-2">
-              <AlertTriangle size={18} className="text-red-400 flex-shrink-0" />
-              <p className="text-sm text-white font-medium">
+          <div className="bg-card border border-red-500/30 rounded-xl overflow-hidden">
+            <div className="p-4 border-b border-line flex items-center gap-2">
+              <AlertTriangle size={18} className="text-danger flex-shrink-0" />
+              <p className="text-sm text-ink font-medium">
                 {issues.length} bút toán lệch — cần kế toán đối chiếu
               </p>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-left whitespace-nowrap">
-                <thead className="bg-black/40 border-b border-gray-800">
+                <thead className="bg-espresso/40 border-b border-line">
                   <tr>
-                    <th className="p-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Loại lệch</th>
-                    <th className="p-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Mã bút toán</th>
-                    <th className="p-4 text-xs font-semibold text-gray-400 uppercase tracking-wider text-right">Tổng Nợ</th>
-                    <th className="p-4 text-xs font-semibold text-gray-400 uppercase tracking-wider text-right">Tổng Có</th>
-                    <th className="p-4 text-xs font-semibold text-gray-400 uppercase tracking-wider text-right">Chênh lệch</th>
-                    <th className="p-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Chi tiết</th>
+                    <th className="p-4 text-xs font-semibold text-ink-soft uppercase tracking-wider">Loại lệch</th>
+                    <th className="p-4 text-xs font-semibold text-ink-soft uppercase tracking-wider">Mã bút toán</th>
+                    <th className="p-4 text-xs font-semibold text-ink-soft uppercase tracking-wider text-right">Tổng Nợ</th>
+                    <th className="p-4 text-xs font-semibold text-ink-soft uppercase tracking-wider text-right">Tổng Có</th>
+                    <th className="p-4 text-xs font-semibold text-ink-soft uppercase tracking-wider text-right">Chênh lệch</th>
+                    <th className="p-4 text-xs font-semibold text-ink-soft uppercase tracking-wider">Chi tiết</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-800">
+                <tbody className="divide-y divide-line">
                   {issues.map((it, i) => (
-                    <tr key={`${it.journalId}-${i}`} className="hover:bg-gray-800/30">
-                      <td className="p-4 text-sm text-white">{it.issueType}</td>
-                      <td className="p-4 text-xs text-gray-400 font-mono">{it.journalId}</td>
-                      <td className="p-4 text-sm text-gray-300 text-right tabular-nums">{fmtTien(it.debitTotal)}</td>
-                      <td className="p-4 text-sm text-gray-300 text-right tabular-nums">{fmtTien(it.creditTotal)}</td>
-                      <td className="p-4 text-sm text-red-400 text-right tabular-nums font-medium">
+                    <tr key={`${it.journalId}-${i}`} className="hover:bg-sunken/30">
+                      <td className="p-4 text-sm text-ink">{it.issueType}</td>
+                      <td className="p-4 text-xs text-ink-soft font-mono">{it.journalId}</td>
+                      <td className="p-4 text-sm text-ink-soft text-right tabular-nums">{fmtTien(it.debitTotal)}</td>
+                      <td className="p-4 text-sm text-ink-soft text-right tabular-nums">{fmtTien(it.creditTotal)}</td>
+                      <td className="p-4 text-sm text-danger text-right tabular-nums font-medium">
                         {fmtTien(Number(it.debitTotal || 0) - Number(it.creditTotal || 0))}
                       </td>
-                      <td className="p-4 text-xs text-gray-500 max-w-xs whitespace-normal leading-relaxed">
+                      <td className="p-4 text-xs text-ink-mute max-w-xs whitespace-normal leading-relaxed">
                         {it.detail || '—'}
                       </td>
                     </tr>
@@ -190,33 +190,33 @@ const AdminLedgerPage = () => {
 
       {/* TÁC VỤ ĐỊNH KỲ */}
       <div>
-        <h2 className="text-sm font-semibold text-gray-400 flex items-center gap-2">
+        <h2 className="text-sm font-semibold text-ink-soft flex items-center gap-2">
           <Clock size={15} /> Tác vụ định kỳ
         </h2>
-        <p className="text-xs text-gray-600 mt-0.5 mb-3 leading-relaxed">
+        <p className="text-xs text-ink-mute mt-0.5 mb-3 leading-relaxed">
           Các job chạy theo lịch. Bấm chạy khi job lỡ nhịp, hoặc khi vừa sửa dữ liệu và muốn thấy kết
           quả ngay. Backend chỉ trả về mã job — không có lần chạy gần nhất hay trạng thái, muốn xem
           thì vào dashboard Hangfire.
         </p>
 
         {isLoadingJobs ? (
-          <div className="bg-gray-900 border border-gray-800 rounded-xl py-12 flex justify-center">
-            <Loader2 size={22} className="animate-spin text-[#C3B665]" />
+          <div className="bg-card border border-line rounded-xl py-12 flex justify-center">
+            <Loader2 size={22} className="animate-spin text-brand-text" />
           </div>
         ) : jobs.length === 0 ? (
-          <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
-            <p className="text-sm text-gray-500">Không có tác vụ định kỳ nào đang đăng ký.</p>
+          <div className="bg-card border border-line rounded-xl p-6">
+            <p className="text-sm text-ink-mute">Không có tác vụ định kỳ nào đang đăng ký.</p>
           </div>
         ) : (
-          <div className="bg-gray-900 border border-gray-800 rounded-xl divide-y divide-gray-800">
+          <div className="bg-card border border-line rounded-xl divide-y divide-line">
             {jobs.map((jobId) => (
               <div key={jobId} className="p-4 flex flex-wrap items-center justify-between gap-3">
                 <div className="min-w-0">
-                  <p className="text-sm text-white capitalize">{tenDocDuoc(jobId)}</p>
-                  <p className="text-xs text-gray-600 mt-0.5 font-mono break-all">{jobId}</p>
+                  <p className="text-sm text-ink capitalize">{tenDocDuoc(jobId)}</p>
+                  <p className="text-xs text-ink-mute mt-0.5 font-mono break-all">{jobId}</p>
                 </div>
                 <button onClick={() => setJobXacNhan(jobId)} disabled={isTriggering}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-gray-700 text-gray-300 text-xs font-bold hover:bg-gray-800 disabled:opacity-50 flex-shrink-0">
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-line text-ink-soft text-xs font-bold hover:bg-sunken disabled:opacity-50 flex-shrink-0">
                   <Play size={13} /> Chạy ngay
                 </button>
               </div>
@@ -224,7 +224,7 @@ const AdminLedgerPage = () => {
           </div>
         )}
 
-        <p className="text-xs text-gray-600 mt-3 flex items-start gap-1.5 leading-relaxed">
+        <p className="text-xs text-ink-mute mt-3 flex items-start gap-1.5 leading-relaxed">
           <ExternalLink size={12} className="mt-0.5 flex-shrink-0" />
           Lịch chạy, lần chạy gần nhất và log chi tiết nằm ở dashboard Hangfire của backend, không
           phải ở đây.

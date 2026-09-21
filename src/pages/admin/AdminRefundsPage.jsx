@@ -67,17 +67,17 @@ const AdminRefundsPage = () => {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-white mb-1">Yêu cầu hoàn tiền</h1>
-        <p className="text-gray-400 text-sm">
+        <h1 className="text-2xl font-bold text-ink mb-1">Yêu cầu hoàn tiền</h1>
+        <p className="text-ink-soft text-sm">
           Duyệt sẽ gọi VNPay hoàn tiền thật cho người mua. Hệ thống chỉ ghi sổ khi VNPay xác nhận thành công.
         </p>
       </div>
 
       {isLoading ? (
-        <div className="py-16 flex justify-center"><Loader2 size={28} className="animate-spin text-[#C3B665]" /></div>
+        <div className="py-16 flex justify-center"><Loader2 size={28} className="animate-spin text-brand-text" /></div>
       ) : items.length === 0 ? (
-        <div className="bg-gray-950 border border-gray-800 rounded-xl p-12 text-center text-gray-500">
-          <Check size={32} className="mx-auto mb-3 text-green-500/50" />
+        <div className="bg-card border border-line rounded-xl p-12 text-center text-ink-mute">
+          <Check size={32} className="mx-auto mb-3 text-success/50" />
           Không có yêu cầu hoàn tiền nào đang chờ.
         </div>
       ) : (
@@ -86,37 +86,37 @@ const AdminRefundsPage = () => {
             const overdue = r.expectedResolutionBy && dayjs(r.expectedResolutionBy).isBefore(dayjs())
             const isBusy = busyId === r.id
             return (
-              <div key={r.id} className="bg-gray-950 border border-gray-800 rounded-xl p-5">
+              <div key={r.id} className="bg-card border border-line rounded-xl p-5">
                 <div className="flex items-start justify-between gap-4 flex-wrap">
                   <div className="min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-white font-bold">#{r.id}</span>
-                      <span className="text-[#C3B665] font-bold">{fmtMoney(r.amountRequested)}</span>
+                      <span className="text-ink font-bold">#{r.id}</span>
+                      <span className="text-brand-text font-bold">{fmtMoney(r.amountRequested)}</span>
                       {r.refundPercentage != null && (
-                        <span className="px-2 py-0.5 rounded-md bg-gray-800 text-gray-400 text-xs">
+                        <span className="px-2 py-0.5 rounded-md bg-sunken text-ink-soft text-xs">
                           hoàn {Number(r.refundPercentage)}%
                         </span>
                       )}
-                      <span className={`inline-flex items-center gap-1 text-xs ${overdue ? 'text-red-400 font-bold' : 'text-gray-500'}`}>
+                      <span className={`inline-flex items-center gap-1 text-xs ${overdue ? 'text-danger font-bold' : 'text-ink-mute'}`}>
                         <Clock size={12} />
                         {r.expectedResolutionBy ? dayjs(r.expectedResolutionBy).format('HH:mm DD/MM') : '-'}
                         {overdue && ' (quá hạn)'}
                       </span>
                     </div>
-                    <p className="text-sm text-gray-400 mt-1.5 whitespace-normal">{r.reason}</p>
-                    <p className="text-xs text-gray-600 mt-1">
+                    <p className="text-sm text-ink-soft mt-1.5 whitespace-normal">{r.reason}</p>
+                    <p className="text-xs text-ink-mute mt-1">
                       Tạo {dayjs(r.createdAt).format('HH:mm DD/MM/YYYY')} · Payment #{r.paymentId}
                     </p>
 
                     {r.payoutAccountRequired && (
                       <div className="mt-3 flex items-start gap-2 bg-yellow-500/5 border border-yellow-500/20 rounded-lg p-3">
-                        <Banknote size={16} className="text-yellow-400 flex-shrink-0 mt-0.5" />
+                        <Banknote size={16} className="text-warning flex-shrink-0 mt-0.5" />
                         <div className="text-xs">
-                          <p className="text-yellow-400 font-medium">Phải chuyển khoản tay — VNPay không hoàn được giao dịch gốc</p>
-                          <p className="text-gray-400 mt-1">
+                          <p className="text-warning font-medium">Phải chuyển khoản tay — VNPay không hoàn được giao dịch gốc</p>
+                          <p className="text-ink-soft mt-1">
                             {r.payoutBankName} · {r.payoutAccountNumber} · {r.payoutAccountHolder}
                           </p>
-                          <p className="text-gray-500 mt-1">Chuyển xong, nhập mã giao dịch vào ô ghi chú rồi bấm Duyệt hoàn.</p>
+                          <p className="text-ink-mute mt-1">Chuyển xong, nhập mã giao dịch vào ô ghi chú rồi bấm Duyệt hoàn.</p>
                         </div>
                       </div>
                     )}
@@ -127,15 +127,15 @@ const AdminRefundsPage = () => {
                       value={notes[r.id] || ''}
                       onChange={(e) => setNotes((p) => ({ ...p, [r.id]: e.target.value }))}
                       placeholder={r.payoutAccountRequired ? 'Mã giao dịch chuyển khoản' : 'Ghi chú xử lý (không bắt buộc)'}
-                      className="px-3 py-2 bg-black border border-gray-700 rounded-lg text-sm text-white placeholder:text-gray-600"
+                      className="px-3 py-2 bg-page border border-line rounded-lg text-sm text-ink placeholder:text-ink-mute"
                     />
                     <div className="flex gap-2">
                       <button onClick={() => handle(r, 'Approved')} disabled={isBusy}
-                        className="flex-1 inline-flex items-center justify-center gap-1.5 bg-green-500/10 border border-green-500/40 text-green-400 px-3 py-2 rounded-lg text-xs font-bold hover:bg-green-500/20 disabled:opacity-50">
+                        className="flex-1 inline-flex items-center justify-center gap-1.5 bg-green-500/10 border border-green-500/40 text-success px-3 py-2 rounded-lg text-xs font-bold hover:bg-green-500/20 disabled:opacity-50">
                         <Check size={14} /> {isBusy ? 'Đang xử lý...' : 'Duyệt hoàn'}
                       </button>
                       <button onClick={() => handle(r, 'Rejected')} disabled={isBusy}
-                        className="flex-1 inline-flex items-center justify-center gap-1.5 bg-red-500/10 border border-red-500/40 text-red-400 px-3 py-2 rounded-lg text-xs font-bold hover:bg-red-500/20 disabled:opacity-50">
+                        className="flex-1 inline-flex items-center justify-center gap-1.5 bg-red-500/10 border border-red-500/40 text-danger px-3 py-2 rounded-lg text-xs font-bold hover:bg-red-500/20 disabled:opacity-50">
                         <X size={14} /> Từ chối
                       </button>
                     </div>
@@ -149,17 +149,17 @@ const AdminRefundsPage = () => {
 
       {!isLoading && pagination.totalPages > 1 && (
         <div className="flex items-center justify-between mt-4">
-          <p className="text-sm text-gray-500">Trang {pagination.page} / {pagination.totalPages} · {pagination.totalCount} yêu cầu</p>
+          <p className="text-sm text-ink-mute">Trang {pagination.page} / {pagination.totalPages} · {pagination.totalCount} yêu cầu</p>
           <div className="flex gap-2">
             <button onClick={() => setPagination((p) => ({ ...p, page: p.page - 1 }))} disabled={pagination.page === 1}
-              className="p-2 rounded-md border border-gray-700 text-gray-400 hover:border-[#C3B665] disabled:opacity-30"><ChevronLeft size={18} /></button>
+              className="p-2 rounded-md border border-line text-ink-soft hover:border-brand disabled:opacity-30"><ChevronLeft size={18} /></button>
             <button onClick={() => setPagination((p) => ({ ...p, page: p.page + 1 }))} disabled={pagination.page === pagination.totalPages}
-              className="p-2 rounded-md border border-gray-700 text-gray-400 hover:border-[#C3B665] disabled:opacity-30"><ChevronRight size={18} /></button>
+              className="p-2 rounded-md border border-line text-ink-soft hover:border-brand disabled:opacity-30"><ChevronRight size={18} /></button>
           </div>
         </div>
       )}
 
-      <div className="mt-6 flex items-start gap-2 text-xs text-gray-600">
+      <div className="mt-6 flex items-start gap-2 text-xs text-ink-mute">
         <AlertTriangle size={14} className="flex-shrink-0 mt-0.5" />
         <p>
           Có job nền tự duyệt các yêu cầu quá hạn, nên hàng đợi này có thể tự vơi mà không ai bấm.

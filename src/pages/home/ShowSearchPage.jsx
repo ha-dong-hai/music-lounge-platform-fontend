@@ -31,10 +31,10 @@ const namesToIds = (names, options) => {
 }
 
 const RemovableTag = ({ label, onRemove, icon: Icon }) => (
-  <span className="inline-flex items-center gap-1 px-2.5 py-1 sm:px-3 sm:py-1.5 bg-gray-800 rounded-full text-xs font-medium text-gray-200 border border-gray-700 whitespace-nowrap">
-    {Icon && <Icon size={12} className="text-[#C3B665] flex-shrink-0" />}
+  <span className="inline-flex items-center gap-1 px-2.5 py-1 sm:px-3 sm:py-1.5 bg-sunken rounded-full text-xs font-medium text-ink-soft border border-line whitespace-nowrap">
+    {Icon && <Icon size={12} className="text-brand-text flex-shrink-0" />}
     <span className="truncate max-w-[120px] sm:max-w-none">{label}</span>
-    <button onClick={onRemove} className="hover:text-red-400 ml-0.5 flex-shrink-0"><X size={12} /></button>
+    <button onClick={onRemove} className="hover:text-danger ml-0.5 flex-shrink-0"><X size={12} /></button>
   </span>
 )
 
@@ -163,7 +163,7 @@ const ShowSearchPage = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-black text-white">
+      <div className="min-h-[60vh] bg-page text-ink">
         <div className="max-w-[1600px] mx-auto px-6 py-8">
           <div className="flex items-center gap-4 mb-8">
             <Skeleton className="h-10 w-10 rounded-full" />
@@ -185,25 +185,25 @@ const ShowSearchPage = () => {
 
   if (apiError) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center text-white px-4">
+      <div className="min-h-[60vh] bg-page flex items-center justify-center text-ink px-4">
         <div className="text-center max-w-md">
-          <p className="text-2xl font-bold text-red-400 mb-3">Oops! Lỗi kết nối</p>
-          <p className="text-gray-400 mb-6">{apiError}</p>
-          <Link to="/" className="inline-block text-[#C3B665] font-semibold underline">Về trang chủ</Link>
+          <p className="text-2xl font-bold text-danger mb-3">Oops! Lỗi kết nối</p>
+          <p className="text-ink-soft mb-6">{apiError}</p>
+          <Link to="/" className="inline-block text-brand-text font-semibold underline">Về trang chủ</Link>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-[60vh] bg-page text-ink">
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 pt-4 sm:pt-6">
         
         <div className="flex items-center gap-4 mb-8 pt-4">
-          <Link to="/" className="p-2 hover:bg-[#C3B665]/40 rounded-full transition-colors">
+          <Link to="/" className="p-2 hover:bg-brand-hover/40 rounded-full transition-colors">
             <ArrowLeft size={24} />
           </Link>
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-500">{pageTitle}</h1>
+          <h1 className="text-2xl md:text-3xl font-bold text-ink-mute">{pageTitle}</h1>
         </div>
 
         <SectionHeader 
@@ -233,18 +233,18 @@ const ShowSearchPage = () => {
         ) : (
           <div className="text-center py-20">
             <p className="text-xl font-semibold text-gray-800 mb-2">Không tìm thấy sự kiện nào</p>
-            <p className="text-gray-500">Hiện chưa có sự kiện nào thuộc danh mục này.</p>
+            <p className="text-ink-mute">Hiện chưa có sự kiện nào thuộc danh mục này.</p>
           </div>
         )}
 
         {events.length > 0 && pagination.totalPages > 1 && (
           <div className="flex items-center justify-between p-4 mt-8">
-            <p className="text-sm text-gray-500">Trang {pagination.page} / {pagination.totalPages}</p>
+            <p className="text-sm text-ink-mute">Trang {pagination.page} / {pagination.totalPages}</p>
             <div className="flex gap-2">
-              <button onClick={() => setPagination(prev => ({ ...prev, page: prev.page - 1 }))} disabled={pagination.page === 1} className="p-2 rounded-md border border-gray-700 text-gray-400 hover:border-[#C3B665] hover:text-[#C3B665] disabled:opacity-30 disabled:cursor-not-allowed transition-colors">
+              <button onClick={() => setPagination(prev => ({ ...prev, page: prev.page - 1 }))} disabled={pagination.page === 1} className="p-2 rounded-md border border-line text-ink-soft hover:border-brand hover:text-brand-text disabled:opacity-30 disabled:cursor-not-allowed transition-colors">
                 <ChevronLeft size={18} />
               </button>
-              <button onClick={() => setPagination(prev => ({ ...prev, page: prev.page + 1 }))} disabled={pagination.page === pagination.totalPages} className="p-2 rounded-md border border-gray-700 text-gray-400 hover:border-[#C3B665] hover:text-[#C3B665] disabled:opacity-30 disabled:cursor-not-allowed transition-colors">
+              <button onClick={() => setPagination(prev => ({ ...prev, page: prev.page + 1 }))} disabled={pagination.page === pagination.totalPages} className="p-2 rounded-md border border-line text-ink-soft hover:border-brand hover:text-brand-text disabled:opacity-30 disabled:cursor-not-allowed transition-colors">
                 <ChevronRight size={18} />
               </button>
             </div>

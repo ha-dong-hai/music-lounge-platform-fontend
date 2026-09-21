@@ -9,10 +9,10 @@ const MainLayout = () => {
   const [searchQuery, setSearchQuery] = useState('')
 
   return (
-    <div className="min-h-screen bg-white font-sans text-gray-900">
+    <div className="min-h-screen flex flex-col bg-page font-sans text-ink">
       <Header searchQuery={searchQuery} setSearchQuery={setSearchQuery}/>
       {/* Outlet là nơi HomePage sẽ hiện ra */}
-      <main className="max-w-[1600px] mx-auto">
+      <main className="max-w-[1600px] w-full mx-auto flex-1">
         <Outlet context={{ searchQuery }} />
       </main>
       <Footer />

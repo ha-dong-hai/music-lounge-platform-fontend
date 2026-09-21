@@ -141,7 +141,7 @@ const AdminPackagesPage = () => {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <Loader2 size={32} className="animate-spin text-[#C3B665]" />
+        <Loader2 size={32} className="animate-spin text-brand-text" />
       </div>
     )
   }
@@ -152,20 +152,20 @@ const AdminPackagesPage = () => {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-white mb-1">Package Managment</h1>
-            <p className="text-gray-400 text-sm">Set up subscription plans for lounge owner.</p>
+            <h1 className="text-2xl font-bold text-ink mb-1">Package Managment</h1>
+            <p className="text-ink-soft text-sm">Set up subscription plans for lounge owner.</p>
           </div>
-          <button onClick={openCreateModal} className="flex items-center gap-2 bg-[#C3B665] text-black px-4 py-2.5 rounded-lg font-bold text-sm hover:bg-[#d4c87f] transition-colors">
+          <button onClick={openCreateModal} className="flex items-center gap-2 bg-brand text-on-brand px-4 py-2.5 rounded-lg font-bold text-sm hover:bg-brand-hover transition-colors">
             <Plus size={18} /> Create Package
           </button>
         </div>
-        <div className="bg-gray-900/50 border border-dashed border-gray-800 rounded-2xl py-20 flex flex-col items-center justify-center text-center">
-          <div className="w-16 h-16 rounded-2xl bg-[#C3B665]/10 border border-[#C3B665]/25 flex items-center justify-center mb-4">
-            <Box size={28} className="text-[#C3B665]" />
+        <div className="bg-card/50 border border-dashed border-line rounded-2xl py-20 flex flex-col items-center justify-center text-center">
+          <div className="w-16 h-16 rounded-2xl bg-brand/10 border border-brand/25 flex items-center justify-center mb-4">
+            <Box size={28} className="text-brand-text" />
           </div>
-          <p className="text-gray-300 font-semibold mb-1">No packages available yet.</p>
-          <p className="text-gray-500 text-sm mb-5">Create the first package for lounge owners to subscribe.</p>
-          <button onClick={openCreateModal} className="flex items-center gap-2 bg-[#C3B665] text-black px-4 py-2.5 rounded-lg font-bold text-sm hover:bg-[#d4c87f] transition-colors">
+          <p className="text-ink-soft font-semibold mb-1">No packages available yet.</p>
+          <p className="text-ink-mute text-sm mb-5">Create the first package for lounge owners to subscribe.</p>
+          <button onClick={openCreateModal} className="flex items-center gap-2 bg-brand text-on-brand px-4 py-2.5 rounded-lg font-bold text-sm hover:bg-brand-hover transition-colors">
             <Plus size={16} /> Create first package
           </button>
         </div>
@@ -186,12 +186,12 @@ const AdminPackagesPage = () => {
       {/* ===== HEADER ===== */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white mb-1">Package Management</h1>
-          <p className="text-gray-400 text-sm">Set up subscription plans.</p>
+          <h1 className="text-2xl font-bold text-ink mb-1">Package Management</h1>
+          <p className="text-ink-soft text-sm">Set up subscription plans.</p>
         </div>
         <button
           onClick={openCreateModal}
-          className="flex items-center gap-2 bg-[#C3B665] text-black px-4 py-2.5 rounded-lg font-bold text-sm hover:bg-[#d4c87f] transition-all shadow-lg shadow-[#C3B665]/20 hover:shadow-[#C3B665]/30 hover:-translate-y-0.5 flex-shrink-0"
+          className="flex items-center gap-2 bg-brand text-on-brand px-4 py-2.5 rounded-lg font-bold text-sm hover:bg-brand-hover transition-all shadow-lg shadow-brand/20 hover:shadow-brand/30 hover:-translate-y-0.5 flex-shrink-0"
         >
           <Plus size={18} /> Create Package
         </button>
@@ -201,8 +201,8 @@ const AdminPackagesPage = () => {
       <section className="space-y-4">
         <div className="flex items-center gap-2.5">
           <span className="w-2 h-2 rounded-full bg-green-400" />
-          <h2 className="text-sm font-bold text-gray-300 uppercase tracking-wide">Showing</h2>
-          <span className="px-2 py-0.5 rounded-full bg-green-500/10 border border-green-500/25 text-green-400 text-xs font-bold">
+          <h2 className="text-sm font-bold text-ink-soft uppercase tracking-wide">Showing</h2>
+          <span className="px-2 py-0.5 rounded-full bg-green-500/10 border border-green-500/25 text-success text-xs font-bold">
             {activePkgs.length}
           </span>
         </div>
@@ -214,7 +214,7 @@ const AdminPackagesPage = () => {
             ))}
           </div>
         ) : (
-          <div className="bg-gray-900/40 border border-dashed border-gray-800 rounded-xl p-8 text-center text-gray-500 text-sm">
+          <div className="bg-card/40 border border-dashed border-line rounded-xl p-8 text-center text-ink-mute text-sm">
             No packages are currently displayed. 
           </div>
         )}
@@ -225,11 +225,11 @@ const AdminPackagesPage = () => {
         <section className="space-y-4">
           <div className="flex items-center gap-2.5">
             <span className="w-2 h-2 rounded-full bg-red-400" />
-            <h2 className="text-sm font-bold text-gray-400 uppercase tracking-wide">Hide</h2>
-            <span className="px-2 py-0.5 rounded-full bg-red-500/10 border border-red-500/25 text-red-400 text-xs font-bold">
+            <h2 className="text-sm font-bold text-ink-soft uppercase tracking-wide">Hide</h2>
+            <span className="px-2 py-0.5 rounded-full bg-red-500/10 border border-red-500/25 text-danger text-xs font-bold">
               {hiddenPkgs.length}
             </span>
-            <span className="text-xs text-gray-600 ml-1">— Does not appear on the registration page</span>
+            <span className="text-xs text-ink-mute ml-1">— Does not appear on the registration page</span>
           </div>
           <div className="space-y-3">
             {hiddenPkgs.map(pkg => (
@@ -256,18 +256,18 @@ const AdminPackagesPage = () => {
           confirmPkg?.isActive ? (
             <>
               <div>
-                Package "<span className="font-bold text-white">{confirmPkg?.name}</span>" will be hidden from the Package list.
+                Package "<span className="font-bold text-ink">{confirmPkg?.name}</span>" will be hidden from the Package list.
               </div>
-              <div className="text-xs text-white mt-1.5">
+              <div className="text-xs text-ink mt-1.5">
                 Owners using this plan keep their current benefits, but can't renew it.
               </div>
             </>
           ) : (
             <>
               <div>
-                Package "<span className="font-bold text-white">{confirmPkg?.name}</span>" will return to the Package list.
+                Package "<span className="font-bold text-ink">{confirmPkg?.name}</span>" will return to the Package list.
               </div>
-              <div className="text-xs text-gray-500 mt-1.5">
+              <div className="text-xs text-ink-mute mt-1.5">
                 Owners can select this plan when subscribing.
               </div>
             </>

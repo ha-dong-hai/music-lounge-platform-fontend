@@ -42,7 +42,7 @@ import { uploadImage } from '../../services/userServices'
 import { getMySubscription } from '../../services/packageServices'
 import ShowCustomValuesSection from '../../components/owner/ShowCustomValuesSection'
 
-const inputCls = 'mt-1 w-full px-3 py-2 bg-black border border-gray-700 rounded-lg text-sm text-white focus:outline-none focus:border-[#C3B665]/50'
+const inputCls = 'mt-1 w-full px-3 py-2 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-brand/50'
 
 const FORMATS = [
   { value: 'Offline', label: 'Tại chỗ' },
@@ -59,17 +59,17 @@ const PLAYBACK_MODES = [
 const NGUNG_TU_HOI_SAU_PHUT = 15
 
 const ATTEMPT_VIEW = {
-  Queued: { label: 'Đang chờ máy trạm', cls: 'text-yellow-400', icon: Clock },
-  Rendering: { label: 'Đang tạo ảnh', cls: 'text-blue-400', icon: Loader2 },
-  Succeeded: { label: 'Xong', cls: 'text-green-400', icon: CheckCircle2 },
-  Failed: { label: 'Thất bại', cls: 'text-red-400', icon: XCircle },
-  Expired: { label: 'Hết hạn chờ', cls: 'text-gray-500', icon: XCircle },
+  Queued: { label: 'Đang chờ máy trạm', cls: 'text-warning', icon: Clock },
+  Rendering: { label: 'Đang tạo ảnh', cls: 'text-sky-700', icon: Loader2 },
+  Succeeded: { label: 'Xong', cls: 'text-success', icon: CheckCircle2 },
+  Failed: { label: 'Thất bại', cls: 'text-danger', icon: XCircle },
+  Expired: { label: 'Hết hạn chờ', cls: 'text-ink-mute', icon: XCircle },
 }
 
 const Card = ({ title, subtitle, children, danger = false }) => (
-  <div className={`bg-gray-900 border rounded-xl p-6 ${danger ? 'border-red-500/30' : 'border-gray-800'}`}>
-    <h3 className={`text-base font-semibold ${danger ? 'text-red-400' : 'text-white'}`}>{title}</h3>
-    {subtitle && <p className="text-xs text-gray-500 mt-1 leading-relaxed">{subtitle}</p>}
+  <div className={`bg-card border rounded-xl p-6 ${danger ? 'border-red-500/30' : 'border-line'}`}>
+    <h3 className={`text-base font-semibold ${danger ? 'text-danger' : 'text-ink'}`}>{title}</h3>
+    {subtitle && <p className="text-xs text-ink-mute mt-1 leading-relaxed">{subtitle}</p>}
     <div className="mt-4">{children}</div>
   </div>
 )
@@ -250,17 +250,17 @@ const OwnerShowSettingsPage = () => {
   }
 
   if (isLoading) {
-    return <div className="py-20 flex justify-center"><Loader2 size={32} className="animate-spin text-[#C3B665]" /></div>
+    return <div className="py-20 flex justify-center"><Loader2 size={32} className="animate-spin text-brand-text" /></div>
   }
 
   if (!show) {
     return (
       <div className="max-w-2xl">
-        <Link to="/owner/shows" className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-white mb-4">
+        <Link to="/owner/shows" className="inline-flex items-center gap-1.5 text-sm text-ink-mute hover:text-ink mb-4">
           <ArrowLeft size={16} /> Về danh sách buổi diễn
         </Link>
-        <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
-          <p className="text-sm text-gray-400">Không tìm thấy buổi diễn này.</p>
+        <div className="bg-card border border-line rounded-xl p-6">
+          <p className="text-sm text-ink-soft">Không tìm thấy buổi diễn này.</p>
         </div>
       </div>
     )
@@ -290,11 +290,11 @@ const OwnerShowSettingsPage = () => {
   return (
     <div className="space-y-6 max-w-3xl">
       <div>
-        <Link to={`/owner/shows/${id}`} className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-white mb-3">
+        <Link to={`/owner/shows/${id}`} className="inline-flex items-center gap-1.5 text-sm text-ink-mute hover:text-ink mb-3">
           <ArrowLeft size={16} /> Về buổi diễn
         </Link>
-        <h1 className="text-2xl font-bold text-white mb-1">Cài đặt buổi diễn</h1>
-        <p className="text-gray-400 text-sm">{show.name}</p>
+        <h1 className="text-2xl font-bold text-ink mb-1">Cài đặt buổi diễn</h1>
+        <p className="text-ink-soft text-sm">{show.name}</p>
       </div>
 
       {/* === POSTER === */}
@@ -303,19 +303,19 @@ const OwnerShowSettingsPage = () => {
         subtitle="Ảnh khán giả thấy đầu tiên khi tìm buổi diễn."
       >
         {show.coverImageUrl && (
-          <img src={show.coverImageUrl} alt="" className="w-full h-48 object-cover rounded-lg border border-gray-800 mb-4" />
+          <img src={show.coverImageUrl} alt="" className="w-full h-48 object-cover rounded-lg border border-line mb-4" />
         )}
 
         <div className="space-y-4">
           <div>
-            <label className="text-xs text-gray-500">Gợi ý phong cách cho AI <span className="text-gray-600">(không bắt buộc)</span></label>
+            <label className="text-xs text-ink-mute">Gợi ý phong cách cho AI <span className="text-ink-mute">(không bắt buộc)</span></label>
             <input value={styleHint} onChange={(e) => setStyleHint(e.target.value)} className={inputCls}
               placeholder="VD: tông trầm, nhiều cây xanh" maxLength={300} />
             {/* KHÔNG phải ô viết prompt. Máy chủ tự ghép prompt từ dữ liệu buổi diễn (tên chương
                 trình, tên phòng trà, ngày giờ, thể loại) rồi nối câu này vào cuối dưới dạng "Yêu
                 cầu thêm từ chủ buổi diễn: …". Nói rõ điều đó ở đây để chủ phòng trà không ngồi mô
                 tả lại những thứ hệ thống đã biết. */}
-            <p className="text-xs text-gray-600 mt-1 leading-relaxed">
+            <p className="text-xs text-ink-mute mt-1 leading-relaxed">
               Chỉ cần một câu về phong cách. Tên chương trình, tên phòng trà và ngày giờ đã được lấy
               sẵn từ thông tin buổi diễn — không cần nhập lại.
             </p>
@@ -329,14 +329,14 @@ const OwnerShowSettingsPage = () => {
               quyết. Chỉ chặn khi KHÔNG CÓ bản ghi gói nào (goi === null) — lúc đó máy chủ chắc chắn
               từ chối. Chưa đọc được gói (undefined) thì không nói gì và không chặn gì. */}
           {goi === null && (
-            <p className="text-xs text-gray-400 leading-relaxed bg-black/40 border border-gray-800 rounded-lg p-3">
+            <p className="text-xs text-ink-soft leading-relaxed bg-espresso/40 border border-line rounded-lg p-3">
               Bạn chưa đăng ký gói dịch vụ nào nên chưa dùng được poster AI. Bạn vẫn tự tải poster lên
-              được. <Link to="/owner/subscription" className="text-[#C3B665] hover:underline">Xem các gói</Link>
+              được. <Link to="/owner/subscription" className="text-brand-text hover:underline">Xem các gói</Link>
             </p>
           )}
 
           {goi && !goiConHieuLuc && (
-            <p className="text-xs text-yellow-400 leading-relaxed bg-yellow-500/5 border border-yellow-500/30 rounded-lg p-3">
+            <p className="text-xs text-warning leading-relaxed bg-yellow-500/5 border border-yellow-500/30 rounded-lg p-3">
               Gói <b>{goi.packageName}</b> đã hết hạn ngày {dayjs(goi.expiresAt).format('DD/MM/YYYY')} nên
               poster AI tạm thời không dùng được — gói của bạn CÓ tính năng này, chỉ cần gia hạn.{' '}
               <Link to="/owner/subscription" className="underline">Gia hạn gói</Link>
@@ -344,9 +344,9 @@ const OwnerShowSettingsPage = () => {
           )}
 
           {goi && goiConHieuLuc && !goi.hasAiPosterSnapshot && (
-            <p className="text-xs text-gray-400 leading-relaxed bg-black/40 border border-gray-800 rounded-lg p-3">
+            <p className="text-xs text-ink-soft leading-relaxed bg-espresso/40 border border-line rounded-lg p-3">
               Gói <b>{goi.packageName}</b> không có tính năng tạo poster bằng AI. Bạn vẫn tự tải poster
-              lên được. <Link to="/owner/subscription" className="text-[#C3B665] hover:underline">Xem các gói</Link>
+              lên được. <Link to="/owner/subscription" className="text-brand-text hover:underline">Xem các gói</Link>
             </p>
           )}
 
@@ -357,17 +357,17 @@ const OwnerShowSettingsPage = () => {
             <button onClick={taoPosterAi}
               disabled={busy !== null || !!donChoXuLy || goi === null}
               title={donChoXuLy ? 'Đang có đơn tạo poster chờ xử lý' : undefined}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#C3B665] text-black text-sm font-bold hover:bg-[#d4c87f] disabled:opacity-40 disabled:cursor-not-allowed">
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-brand text-on-brand text-sm font-bold hover:bg-brand-hover disabled:opacity-40 disabled:cursor-not-allowed">
               {busy === 'ai' ? <Loader2 size={15} className="animate-spin" /> : <Sparkles size={15} />} Tạo poster bằng AI
             </button>
-            <label className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-700 text-gray-300 text-sm font-bold hover:bg-gray-800 cursor-pointer">
+            <label className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-line text-ink-soft text-sm font-bold hover:bg-sunken cursor-pointer">
               {busy === 'upload' ? <Loader2 size={15} className="animate-spin" /> : <Upload size={15} />}
               Tự tải poster
               <input type="file" accept="image/*" className="hidden" disabled={busy !== null}
                 onChange={(e) => taiPosterRieng(e.target.files?.[0])} />
             </label>
             <button onClick={load} disabled={busy !== null}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-gray-700 text-gray-400 text-sm hover:bg-gray-800 disabled:opacity-50">
+              className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-line text-ink-soft text-sm hover:bg-sunken disabled:opacity-50">
               <RefreshCw size={14} /> Cập nhật
             </button>
           </div>
@@ -376,7 +376,7 @@ const OwnerShowSettingsPage = () => {
               suốt quãng đó cửa sổ không có gì đổi ngoài một vòng xoay nhỏ trên nút — đủ lâu để người
               ta tưởng máy treo và bấm đi chỗ khác. Nói luôn con số để cái chờ có điểm kết thúc. */}
           {busy === 'ai' && (
-            <p className="text-xs text-gray-300 flex items-start gap-2 leading-relaxed bg-black/40 border border-gray-800 rounded-lg p-3">
+            <p className="text-xs text-ink-soft flex items-start gap-2 leading-relaxed bg-espresso/40 border border-line rounded-lg p-3">
               <Loader2 size={13} className="mt-px flex-shrink-0 animate-spin" />
               Đang tạo poster, thường khoảng 20 giây. Xin đừng rời trang.
             </p>
@@ -384,15 +384,15 @@ const OwnerShowSettingsPage = () => {
 
           {/* Hạn mức tháng, hiện NGAY KHI MỞ TRANG chứ không chờ bấm — xem chú thích ở `conLai`. */}
           {(conLai !== null || tranThangNay !== null) && (
-            <p className="text-xs text-gray-500 leading-relaxed">
+            <p className="text-xs text-ink-mute leading-relaxed">
               {conLai !== null ? (
                 <>
-                  Còn <span className={`font-semibold ${conLai === 0 ? 'text-yellow-400' : 'text-gray-300'}`}>{conLai}</span>
+                  Còn <span className={`font-semibold ${conLai === 0 ? 'text-warning' : 'text-ink-soft'}`}>{conLai}</span>
                   {tranThangNay !== null && <> trong {tranThangNay}</>} lượt poster AI trong tháng này.
                   {conLai === 0 && ' Hạn mức làm mới vào đầu tháng sau.'}
                 </>
               ) : (
-                <>Gói của bạn có <span className="text-gray-300 font-semibold">{tranThangNay}</span> poster AI mỗi tháng.</>
+                <>Gói của bạn có <span className="text-ink-soft font-semibold">{tranThangNay}</span> poster AI mỗi tháng.</>
               )}
             </p>
           )}
@@ -406,8 +406,8 @@ const OwnerShowSettingsPage = () => {
               có cờ `PosterByAi` trên bản ghi nhưng KHÔNG trả ra DTO nào, nên suy từ lịch sử — cách này
               chính xác hơn một cờ, vì nó bám đúng tấm ảnh đang treo. */}
           {posterDangDungLaAi && (
-            <p className="text-xs text-gray-400 flex items-start gap-2 leading-relaxed">
-              <AlertTriangle size={13} className="mt-px flex-shrink-0 text-yellow-500/80" />
+            <p className="text-xs text-ink-soft flex items-start gap-2 leading-relaxed">
+              <AlertTriangle size={13} className="mt-px flex-shrink-0 text-warning/80" />
               <span>
                 Poster này do AI tạo, và chữ trên ảnh cũng do AI viết. Trước khi đăng, đọc lại tên
                 chương trình và ngày giờ. Trên ảnh <b>không được có</b> địa chỉ, số điện thoại,
@@ -418,7 +418,7 @@ const OwnerShowSettingsPage = () => {
           )}
 
           {donChoXuLy && (
-            <p className="text-xs text-yellow-400 flex items-start gap-1.5 leading-relaxed bg-yellow-500/5 border border-yellow-500/30 rounded-lg p-3">
+            <p className="text-xs text-warning flex items-start gap-1.5 leading-relaxed bg-yellow-500/5 border border-yellow-500/30 rounded-lg p-3">
               <Clock size={13} className="mt-px flex-shrink-0" />
               {daNgungTuHoi ? (
                 <span>
@@ -436,18 +436,18 @@ const OwnerShowSettingsPage = () => {
 
           {history.length > 0 && (
             <div>
-              <p className="text-xs text-gray-500 mb-2">Lần tạo gần đây</p>
+              <p className="text-xs text-ink-mute mb-2">Lần tạo gần đây</p>
               <ul className="space-y-1.5">
                 {history.slice(0, 5).map((h) => {
-                  const v = ATTEMPT_VIEW[h.status] ?? { label: h.status, cls: 'text-gray-400', icon: ImageIcon }
+                  const v = ATTEMPT_VIEW[h.status] ?? { label: h.status, cls: 'text-ink-soft', icon: ImageIcon }
                   const laPosterDangDung = !!h.imageUrl && h.imageUrl === show.coverImageUrl
                   return (
-                    <li key={h.id} className="bg-black/40 border border-gray-800 rounded-lg px-3 py-2">
+                    <li key={h.id} className="bg-espresso/40 border border-line rounded-lg px-3 py-2">
                       <div className="flex items-center justify-between gap-3 text-xs">
                         <span className={`inline-flex items-center gap-1.5 ${v.cls}`}>
                           <v.icon size={12} className={h.status === 'Rendering' ? 'animate-spin' : ''} /> {v.label}
                         </span>
-                        <span className="text-gray-600">{dayjs(h.createdAt).format('HH:mm DD/MM')}</span>
+                        <span className="text-ink-mute">{dayjs(h.createdAt).format('HH:mm DD/MM')}</span>
                       </div>
 
                       {/* ẢNH CỦA LẦN TẠO THÀNH CÔNG. Trước đây màn này không đọc `imageUrl` nên lịch
@@ -459,18 +459,18 @@ const OwnerShowSettingsPage = () => {
                       {h.imageUrl && (
                         <div className="mt-2 flex items-start gap-2">
                           <img src={h.imageUrl} alt="Poster đã tạo"
-                            className="w-20 h-20 object-cover rounded-md border border-gray-800 flex-shrink-0" />
+                            className="w-20 h-20 object-cover rounded-md border border-line flex-shrink-0" />
                           <div className="min-w-0">
                             {laPosterDangDung ? (
-                              <p className="text-xs text-green-400">Đang dùng làm poster</p>
+                              <p className="text-xs text-success">Đang dùng làm poster</p>
                             ) : (
                               <button onClick={() => dungAnhNay(h.imageUrl)} disabled={busy !== null}
-                                className="px-2.5 py-1.5 rounded-lg border border-gray-700 text-gray-300 text-xs font-bold hover:bg-gray-800 disabled:opacity-50">
+                                className="px-2.5 py-1.5 rounded-lg border border-line text-ink-soft text-xs font-bold hover:bg-sunken disabled:opacity-50">
                                 Dùng ảnh này
                               </button>
                             )}
                             <a href={h.imageUrl} target="_blank" rel="noreferrer"
-                              className="block text-xs text-gray-600 hover:text-[#C3B665] mt-1.5">
+                              className="block text-xs text-ink-mute hover:text-brand-text mt-1.5">
                               Xem ảnh gốc
                             </a>
                           </div>
@@ -490,11 +490,11 @@ const OwnerShowSettingsPage = () => {
                       {h.errorMessage && (
                         <div className="mt-1.5">
                           {['Failed', 'Expired'].includes(h.status) && (
-                            <p className="text-xs text-gray-400 leading-relaxed">
+                            <p className="text-xs text-ink-soft leading-relaxed">
                               Lần này không bị trừ lượt nào — chỉ lần tạo được ảnh mới tính vào hạn mức.
                             </p>
                           )}
-                          <p className="text-xs text-red-400/90 mt-1 leading-relaxed break-words">{h.errorMessage}</p>
+                          <p className="text-xs text-danger/90 mt-1 leading-relaxed break-words">{h.errorMessage}</p>
                         </div>
                       )}
                     </li>
@@ -515,15 +515,15 @@ const OwnerShowSettingsPage = () => {
               return (
                 <button key={m.value} onClick={() => doiCheDoPhat(m.value)} disabled={busy !== null || dangChon}
                   className={`w-full text-left p-4 rounded-lg border transition-colors disabled:cursor-default ${dangChon
-                    ? 'bg-gray-800 border-[#C3B665]/40'
-                    : 'bg-black/40 border-gray-800 hover:border-gray-700'}`}>
+                    ? 'bg-sunken border-brand/40'
+                    : 'bg-espresso/40 border-line hover:border-line'}`}>
                   <div className="flex items-center justify-between gap-3">
-                    <span className={`text-sm font-medium inline-flex items-center gap-2 ${dangChon ? 'text-[#C3B665]' : 'text-white'}`}>
+                    <span className={`text-sm font-medium inline-flex items-center gap-2 ${dangChon ? 'text-brand-text' : 'text-ink'}`}>
                       <MonitorPlay size={15} /> {m.label}
                     </span>
-                    {dangChon && <CheckCircle2 size={15} className="text-[#C3B665] flex-shrink-0" />}
+                    {dangChon && <CheckCircle2 size={15} className="text-brand-text flex-shrink-0" />}
                   </div>
-                  <p className="text-xs text-gray-500 mt-1 leading-relaxed">{m.hint}</p>
+                  <p className="text-xs text-ink-mute mt-1 leading-relaxed">{m.hint}</p>
                 </button>
               )
             })}
@@ -539,28 +539,28 @@ const OwnerShowSettingsPage = () => {
       >
         <div className="space-y-3">
           <div>
-            <label className="text-xs text-gray-500">Giờ bắt đầu mới</label>
+            <label className="text-xs text-ink-mute">Giờ bắt đầu mới</label>
             <input type="datetime-local" value={newStart} onChange={(e) => { setNewStart(e.target.value); setXacNhanDoiLich(false) }}
               className={inputCls} />
-            <p className="text-xs text-gray-600 mt-1">
+            <p className="text-xs text-ink-mute mt-1">
               Hiện tại: {dayjs(show.scheduledStart).format('HH:mm DD/MM/YYYY')}
             </p>
           </div>
 
           {!xacNhanDoiLich ? (
             <button onClick={() => setXacNhanDoiLich(true)} disabled={busy !== null || !newStart}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg border border-red-500/40 text-red-400 text-sm font-bold hover:bg-red-500/10 disabled:opacity-50">
+              className="flex items-center gap-2 px-4 py-2 rounded-lg border border-red-500/40 text-danger text-sm font-bold hover:bg-red-500/10 disabled:opacity-50">
               <CalendarClock size={15} /> Dời lịch
             </button>
           ) : (
             <div className="bg-red-500/5 border border-red-500/30 rounded-lg p-4">
-              <p className="text-xs text-red-400 leading-relaxed flex items-start gap-1.5">
+              <p className="text-xs text-danger leading-relaxed flex items-start gap-1.5">
                 <AlertTriangle size={13} className="mt-px flex-shrink-0" />
                 Dời sang {dayjs(newStart).format('HH:mm DD/MM/YYYY')}? Người đã mua vé sẽ được thông báo.
               </p>
               <div className="flex gap-2 mt-3">
                 <button onClick={() => setXacNhanDoiLich(false)} disabled={busy !== null}
-                  className="flex-1 py-2 border border-gray-600 text-gray-300 rounded-lg text-sm font-medium hover:bg-gray-800 disabled:opacity-50">
+                  className="flex-1 py-2 border border-line-strong text-ink-soft rounded-lg text-sm font-medium hover:bg-sunken disabled:opacity-50">
                   Huỷ
                 </button>
                 <button onClick={doiLich} disabled={busy !== null}
@@ -581,11 +581,11 @@ const OwnerShowSettingsPage = () => {
       >
         <div className="space-y-3">
           <div>
-            <label className="text-xs text-gray-500">Hình thức mới</label>
+            <label className="text-xs text-ink-mute">Hình thức mới</label>
             <select value={newFormat} onChange={(e) => { setNewFormat(e.target.value); setXacNhanDoiHinhThuc(false) }} className={inputCls}>
               {FORMATS.map((f) => <option key={f.value} value={f.value}>{f.label}</option>)}
             </select>
-            <p className="text-xs text-gray-600 mt-1">
+            <p className="text-xs text-ink-mute mt-1">
               Hiện tại: {FORMATS.find((f) => f.value === show.format)?.label ?? show.format}
             </p>
           </div>
@@ -593,18 +593,18 @@ const OwnerShowSettingsPage = () => {
           {newFormat !== show.format && (
             !xacNhanDoiHinhThuc ? (
               <button onClick={() => setXacNhanDoiHinhThuc(true)} disabled={busy !== null}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg border border-red-500/40 text-red-400 text-sm font-bold hover:bg-red-500/10 disabled:opacity-50">
+                className="flex items-center gap-2 px-4 py-2 rounded-lg border border-red-500/40 text-danger text-sm font-bold hover:bg-red-500/10 disabled:opacity-50">
                 <Radio size={15} /> Đổi hình thức
               </button>
             ) : (
               <div className="bg-red-500/5 border border-red-500/30 rounded-lg p-4">
-                <p className="text-xs text-red-400 leading-relaxed flex items-start gap-1.5">
+                <p className="text-xs text-danger leading-relaxed flex items-start gap-1.5">
                   <AlertTriangle size={13} className="mt-px flex-shrink-0" />
                   Người đã mua vé cho hình thức cũ có thể được hoàn 100% tiền vé. Vẫn đổi?
                 </p>
                 <div className="flex gap-2 mt-3">
                   <button onClick={() => setXacNhanDoiHinhThuc(false)} disabled={busy !== null}
-                    className="flex-1 py-2 border border-gray-600 text-gray-300 rounded-lg text-sm font-medium hover:bg-gray-800 disabled:opacity-50">
+                    className="flex-1 py-2 border border-line-strong text-ink-soft rounded-lg text-sm font-medium hover:bg-sunken disabled:opacity-50">
                     Huỷ
                   </button>
                   <button onClick={doiHinhThuc} disabled={busy !== null}
