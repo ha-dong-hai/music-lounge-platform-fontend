@@ -1,5 +1,5 @@
-import { Outlet, NavLink, useNavigate } from 'react-router-dom'
-import { LayoutDashboard, Music, Package, LogOut, Users, Receipt, MessageSquareWarning, SlidersHorizontal, ShieldAlert, Banknote, Landmark, ShieldCheck, Settings2, TrendingUp, Gavel } from 'lucide-react'
+import { Outlet, NavLink, Link, useNavigate } from 'react-router-dom'
+import { LayoutDashboard, Music, Package, LogOut, Users, Receipt, MessageSquareWarning, SlidersHorizontal, ShieldAlert, Banknote, Landmark, ShieldCheck, Settings2, TrendingUp, Gavel, ExternalLink, UserCog } from 'lucide-react'
 import { useAuthStore } from '../store/useAuthStore'
 
 const AdminLayout = () => {
@@ -78,6 +78,17 @@ const AdminLayout = () => {
           <NavLink to="/admin/content-reports" className={linkClasses}>
             <ShieldAlert size={18} /> Báo cáo vi phạm
           </NavLink>
+          {/* LỐI RA — trước đây vào trang quản trị rồi thì chỉ còn Đăng xuất, bấm Back, hoặc tự
+              gõ URL mới ra được. Admin cần xem sản phẩm như khách thấy (kiểm một buổi diễn vừa
+              duyệt chẳng hạn) thì không có đường nào. */}
+          <div className="pt-2 mt-2 border-t border-gray-900 space-y-2">
+            <Link to="/account" className={linkClasses({ isActive: false })}>
+              <UserCog size={18} /> Tài khoản của tôi
+            </Link>
+            <Link to="/" className={linkClasses({ isActive: false })}>
+              <ExternalLink size={18} /> Về trang công khai
+            </Link>
+          </div>
         </nav>
 
         <div className="p-4 border-t border-gray-900">

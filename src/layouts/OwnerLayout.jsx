@@ -6,7 +6,7 @@
 // Các mục từng thiếu (thực đơn F&B, màn bếp, tài khoản nhận tiền, nhân viên, hồ sơ phòng trà,
 // khu vực/zone, tour 360°, donate phía chủ, án phạt venue, tiền & quyết toán) NAY ĐÃ CÓ ĐỦ.
 import { Outlet, NavLink, Link } from 'react-router-dom'
-import { Radio, LogOut, Package, BarChart3, CalendarDays, Store, Landmark, ScanLine, UtensilsCrossed, BookOpen, Mic2, Users, HeartHandshake, ShieldAlert, LayoutGrid, Box, Wallet, ShieldCheck } from 'lucide-react'
+import { Radio, LogOut, Package, BarChart3, CalendarDays, Store, Landmark, ScanLine, UtensilsCrossed, BookOpen, Mic2, Users, HeartHandshake, ShieldAlert, LayoutGrid, Box, Wallet, ShieldCheck, ExternalLink } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../store/useAuthStore'
 
@@ -103,16 +103,26 @@ const OwnerLayout = () => {
               <NavLink to="/owner/subscription" className={linkClasses}>
                 <Package size={18} /> Gói dịch vụ
               </NavLink>
-              {/* XÁC MINH DANH TÍNH là cửa BẮT BUỘC để bán vé (MLACP-397), nhưng nó nằm ở trang
-                  tài khoản chung chứ không thuộc khu này. Không có lối này thì chủ phòng trà vào
-                  đây rồi bị chặn lúc bán vé mà không biết đi đâu để mở khoá.
-                  Dùng Link chứ không NavLink: đây là đường RA KHỎI khu vực phòng trà nên không
-                  bao giờ ở trạng thái "đang chọn". */}
-              <Link to="/account?tab=identity" className={linkClasses({ isActive: false })}>
-                <ShieldCheck size={18} /> Định danh &amp; tài khoản
-              </Link>
             </>
           )}
+
+          {/* HAI LỐI RA, ĐỂ NGOÀI KHỐI CHỈ-DÀNH-CHO-CHỦ vì cả nhân viên cũng cần:
+              - Tài khoản: nhân viên cũng có hồ sơ riêng, và với chủ phòng trà thì XÁC MINH DANH
+                TÍNH là cửa BẮT BUỘC để bán vé (MLACP-397) mà lại nằm ở trang tài khoản chung —
+                không có lối này thì bị chặn lúc bán vé mà không biết đi đâu mở khoá.
+              - Trang công khai: trước đây vào khu này rồi thì chỉ còn cách Đăng xuất, bấm Back,
+                hoặc tự gõ URL mới ra được. Chủ phòng trà muốn xem trang phòng trà của mình hiện
+                ra sao với khách thì không có đường nào.
+              Dùng Link chứ không NavLink: đây là đường RA KHỎI khu vực này nên không bao giờ ở
+              trạng thái "đang chọn". */}
+          <div className="pt-2 mt-2 border-t border-gray-900 space-y-2">
+            <Link to="/account?tab=identity" className={linkClasses({ isActive: false })}>
+              <ShieldCheck size={18} /> Định danh &amp; tài khoản
+            </Link>
+            <Link to="/" className={linkClasses({ isActive: false })}>
+              <ExternalLink size={18} /> Về trang công khai
+            </Link>
+          </div>
         </nav>
 
         <div className="p-4 border-t border-gray-900">
