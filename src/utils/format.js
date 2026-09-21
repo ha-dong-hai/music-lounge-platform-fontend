@@ -41,11 +41,26 @@ export const formatCompactNumber = (value) => {
  * Chuỗi đã có offset (hoặc đã kết thúc bằng Z) thì giữ nguyên — KHÔNG được thêm lần nữa.
  *
  * Dùng cho mốc nào? Chỉ những trường backend trả về không có offset. Ví dụ đã biết:
- * `createdAt` của tài khoản nhận tiền. Gặp thêm chỗ nào thì bọc chỗ đó, đừng bọc tràn lan:
- * bọc nhầm một chuỗi đã có offset thì hàm này trả nguyên xi nên vô hại, nhưng đọc code sẽ khó hiểu.
+ * `createdAt` của tài khoản nhận tiền, và `createdAt` của danh sách người dùng Admin.
+ * Gặp thêm chỗ nào thì bọc chỗ đó, đừng bọc tràn lan.
+ *
+ * TUYỆT ĐỐI KHÔNG DÙNG CHO CHUỖI CHỈ-NGÀY HAY CHỈ-GIỜ. Hệ thống có ba trường như vậy:
+ *   ngày trong biểu đồ bán vé ("2026-08-17"), ngày sinh ở hàng đợi định danh ("1998-03-21"),
+ *   và giờ diễn của nghệ sĩ ("19:30:00").
+ * Chúng KHÔNG có múi giờ và KHÔNG ĐƯỢC có: ngày sinh không thuộc múi giờ nào, giờ diễn là giờ
+ * treo trên tường của phòng trà. Gắn 'Z' vào là hỏng theo hai kiểu khác nhau:
+ *   "19:30:00Z"   → Invalid Date. Hỏng ồn ào, thấy ngay.
+ *   "2026-08-17Z" → KHÔNG Invalid, mà thành nửa đêm UTC. Ở Việt Nam hiện thành 07:00 cùng ngày
+ *                   (ngày vẫn đúng), nhưng ở múi giờ âm thì lùi hẳn MỘT NGÀY. Hỏng im lặng, tệ hơn.
+ * Vì vậy hàm chỉ động vào chuỗi có đủ ngày VÀ giờ (có chữ 'T' và ít nhất HH:MM); mọi dạng khác
+ * trả nguyên văn. Chặn ở đây thay vì trông vào người gọi nhớ — người gọi sau sẽ không nhớ.
  */
+const DAY_DU_NGAY_GIO = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/
+
 export const mocUtc = (chuoi) => {
   if (!chuoi || typeof chuoi !== 'string') return chuoi
+  // Chỉ-ngày, chỉ-giờ, hay bất cứ dạng nào khác → không phải việc của hàm này.
+  if (!DAY_DU_NGAY_GIO.test(chuoi)) return chuoi
   // Đã có 'Z' cuối, hoặc có offset dạng +07:00 / -05:00 ở cuối → để nguyên.
   if (/(Z|[+-]\d{2}:?\d{2})$/.test(chuoi)) return chuoi
   return `${chuoi}Z`
