@@ -4,9 +4,11 @@
 // - DỜI LỊCH và ĐỔI HÌNH THỨC không phải sửa thông tin thường. Đổi sang hình thức người mua KHÔNG
 //   trả tiền cho (ví dụ họ mua vé xem tại chỗ mà chuyển thành online) là căn cứ hoàn 100% theo chính
 //   sách nền tảng. Vì vậy hai việc này có bước xác nhận riêng và nói rõ hệ quả.
-// - POSTER AI có HAI kết cục, và phải rẽ theo `data.status` chứ KHÔNG theo mã HTTP. Máy chủ chọn nhà
-//   cung cấp theo thứ tự Gemini → hàng đợi máy trạm → Cloudflare → OpenAI, và MÀN NÀY KHÔNG BIẾT
-//   đang chạy cái nào — đừng cố đoán, `status` tồn tại chính vì lý do đó:
+// - POSTER AI có HAI kết cục, và phải rẽ theo `data.status` chứ KHÔNG theo mã HTTP. Máy chủ chọn MỘT
+//   nhà cung cấp lúc dựng dịch vụ theo thứ tự ưu tiên Gemini → hàng đợi máy trạm → Cloudflare →
+//   OpenAI; đó KHÔNG phải chuỗi dự phòng lúc chạy, nhà cung cấp đang dùng mà lỗi thì trả 503 chứ
+//   không tự rơi xuống cái sau. MÀN NÀY KHÔNG BIẾT đang chạy cái nào — đừng cố đoán, `status` tồn
+//   tại chính vì lý do đó:
 //     * 'Succeeded' → ảnh có ngay trong câu trả lời (đường đồng bộ, đo thật ~15–16 giây). Cần một
 //       trạng thái CHỜ có điểm kết thúc, không phải vòng hỏi lại.
 //     * 'Queued'    → mới nhận đơn, imageUrl rỗng, kèm attemptId (đường máy trạm Google Flow). Ảnh
@@ -269,8 +271,13 @@ const OwnerShowSettingsPage = () => {
   const daNgungTuHoi = !!donChoXuLy
     && dayjs().diff(dayjs(donChoXuLy.createdAt), 'minute') >= NGUNG_TU_HOI_SAU_PHUT
 
-  const coQuyenAi = goi === undefined ? true : !!goi?.hasAiPosterSnapshot
+  // `/subscriptions/my` trả về gói MỚI NHẤT THEO NGÀY BẮT ĐẦU, KHÔNG lọc theo hiệu lực — nó vẫn trả
+  // một gói đã hết hạn kèm `hasAiPosterSnapshot: true`. Lệnh tạo poster thì đòi `Active` VÀ chưa hết
+  // hạn. Nên chỉ đọc `hasAiPosterSnapshot` là chưa đủ: gói hết hạn sẽ hiện nút bấm được, bấm vào
+  // nhận 422 "Gói subscription hiện tại của bạn không bao gồm tính năng tạo poster AI" — một câu
+  // nói sai nguyên nhân, vì gói CÓ tính năng đó, chỉ là đã hết hạn.
   const tranThangNay = goi?.maxAiPostersPerMonthSnapshot ?? null
+  const goiConHieuLuc = !!goi && goi.status === 'Active' && dayjs(goi.expiresAt).isAfter(dayjs())
   // Số còn lại ĐỌC TRƯỚC KHI BẤM (MLACP-483). Trước đây trường này chỉ có trong câu trả lời của
   // chính lần bấm, nên muốn biết còn mấy lượt thì phải tiêu một lượt — mà mỗi lượt là tiền thật.
   // Backend đếm bằng cùng một luật với lệnh tạo poster (AiPosterQuota), không phải bản chép lại,
@@ -314,21 +321,41 @@ const OwnerShowSettingsPage = () => {
             </p>
           </div>
 
-          {/* Gói không có tính năng này thì máy chủ từ chối ngay ở bước kiểm quyền. Nói trước còn hơn
-              để chủ phòng trà bấm rồi nhận một câu lỗi. Chưa đọc được gói (goi === undefined) thì
-              KHÔNG chặn — máy chủ mới là nơi quyết định, đoán sai mà chặn là chặn oan. */}
-          {goi !== undefined && !coQuyenAi && (
+          {/* NÓI RÕ NGUYÊN NHÂN, NHƯNG CHỈ CHẶN KHI CHẮC CHẮN.
+              Lệnh tạo poster tìm gói còn hiệu lực trong TẤT CẢ gói của chủ phòng trà, còn màn này chỉ
+              thấy gói mới nhất. Một gói cũ dài hạn còn hiệu lực trong khi gói mới nhất đã hết hạn là
+              chuyện hiếm nhưng có thể xảy ra — và chặn oan một người thực sự có quyền thì tệ hơn một
+              câu lỗi. Nên: gói hết hạn hay gói thiếu tính năng thì chỉ BÁO, vẫn cho bấm để máy chủ
+              quyết. Chỉ chặn khi KHÔNG CÓ bản ghi gói nào (goi === null) — lúc đó máy chủ chắc chắn
+              từ chối. Chưa đọc được gói (undefined) thì không nói gì và không chặn gì. */}
+          {goi === null && (
             <p className="text-xs text-gray-400 leading-relaxed bg-black/40 border border-gray-800 rounded-lg p-3">
-              Gói hiện tại của bạn không có tính năng tạo poster bằng AI. Bạn vẫn tự tải poster lên
+              Bạn chưa đăng ký gói dịch vụ nào nên chưa dùng được poster AI. Bạn vẫn tự tải poster lên
               được. <Link to="/owner/subscription" className="text-[#C3B665] hover:underline">Xem các gói</Link>
             </p>
           )}
 
+          {goi && !goiConHieuLuc && (
+            <p className="text-xs text-yellow-400 leading-relaxed bg-yellow-500/5 border border-yellow-500/30 rounded-lg p-3">
+              Gói <b>{goi.packageName}</b> đã hết hạn ngày {dayjs(goi.expiresAt).format('DD/MM/YYYY')} nên
+              poster AI tạm thời không dùng được — gói của bạn CÓ tính năng này, chỉ cần gia hạn.{' '}
+              <Link to="/owner/subscription" className="underline">Gia hạn gói</Link>
+            </p>
+          )}
+
+          {goi && goiConHieuLuc && !goi.hasAiPosterSnapshot && (
+            <p className="text-xs text-gray-400 leading-relaxed bg-black/40 border border-gray-800 rounded-lg p-3">
+              Gói <b>{goi.packageName}</b> không có tính năng tạo poster bằng AI. Bạn vẫn tự tải poster
+              lên được. <Link to="/owner/subscription" className="text-[#C3B665] hover:underline">Xem các gói</Link>
+            </p>
+          )}
+
           <div className="flex flex-wrap gap-2">
-            {/* Hết lượt thì máy chủ từ chối, nên chặn trước còn hơn để bấm rồi nhận lỗi. Chỉ chặn khi
-                BIẾT CHẮC là 0 — `conLai` null nghĩa là chưa đọc được, và đoán sai mà chặn là chặn oan. */}
+            {/* Chỉ chặn khi KHÔNG CÓ gói nào — xem giải thích ở khối báo phía trên. Hết lượt hay gói
+                hết hạn thì chỉ báo, vẫn cho bấm, vì hạn mức và hiệu lực đều tính từ gói mới nhất mà
+                màn này thấy, còn máy chủ thì xét tất cả gói của chủ phòng trà. */}
             <button onClick={taoPosterAi}
-              disabled={busy !== null || !!donChoXuLy || (goi !== undefined && !coQuyenAi) || conLai === 0}
+              disabled={busy !== null || !!donChoXuLy || goi === null}
               title={donChoXuLy ? 'Đang có đơn tạo poster chờ xử lý' : undefined}
               className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#C3B665] text-black text-sm font-bold hover:bg-[#d4c87f] disabled:opacity-40 disabled:cursor-not-allowed">
               {busy === 'ai' ? <Loader2 size={15} className="animate-spin" /> : <Sparkles size={15} />} Tạo poster bằng AI

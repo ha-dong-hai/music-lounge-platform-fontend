@@ -120,9 +120,15 @@ export const getShowTicketStats = async (id) => {
 // Poster AI (chỉ gói dịch vụ có tính năng này). `styleHint` KHÔNG bắt buộc và KHÔNG phải prompt:
 // máy chủ tự ghép prompt từ dữ liệu buổi diễn rồi nối câu này vào cuối.
 //
-// HAI KẾT CỤC, PHẢI RẼ THEO `data.status`, KHÔNG rẽ theo mã HTTP. Máy chủ chọn nhà cung cấp theo thứ
-// tự Gemini → hàng đợi máy trạm → Cloudflare → OpenAI; FE không biết và không nên đoán đang chạy cái
-// nào — đó chính là lý do trường `status` tồn tại:
+// HAI KẾT CỤC, PHẢI RẼ THEO `data.status`, KHÔNG rẽ theo mã HTTP.
+//
+// Máy chủ chọn MỘT nhà cung cấp lúc dựng dịch vụ (`AiImageProvider.Chon`), theo thứ tự ưu tiên
+// Gemini → hàng đợi máy trạm → Cloudflare → OpenAI, dựa trên biến môi trường nào đã khai. ĐÂY KHÔNG
+// PHẢI CHUỖI DỰ PHÒNG LÚC CHẠY: nhà cung cấp đang dùng mà lỗi thì lời gọi THẤT BẠI (503), không tự
+// rơi xuống nhà cung cấp sau. Backend cố ý chưa bật chuỗi dự phòng vì rơi từ Gemini xuống Cloudflare
+// sẽ cho ra poster CHỮ HỎNG thay vì một câu lỗi — mà poster hỏng tệ hơn lỗi, vì chủ phòng trà có thể
+// đem đi đăng. Vậy nên đừng viết UI kiểu "đang thử nhà cung cấp khác".
+// FE không biết và không nên đoán đang chạy cái nào — đó chính là lý do trường `status` tồn tại:
 //   - `status = 'Succeeded'`: `imageUrl` có ngay, `attemptId = null`. Đường đồng bộ, đo thật ~15–16
 //     giây một lượt → cần một trạng thái CHỜ, không cần vòng hỏi lại.
 //   - `status = 'Queued'`: `imageUrl` rỗng, `attemptId` là mã đơn. Đường máy trạm Google Flow; ảnh
