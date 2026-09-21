@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo, lazy, Suspense } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { ArrowLeft, Loader2, AlertCircle, WifiOff, Eye, Square, Lock, ShieldOff, X } from 'lucide-react'
+import { ArrowLeft, Loader2, AlertCircle, WifiOff, Eye, Square, Lock, ShieldOff, X, Sofa, Theater } from 'lucide-react'
 import toast from 'react-hot-toast'
 import StreamPlayer from '../../components/livestream/StreamPlayer'
 import ChatPanel from '../../components/livestream/ChatPanel'
@@ -13,6 +13,10 @@ import { useLivestreamHub } from '../../hooks/useLivestreamHub'
 
 import RatingModal from '../../components/livestream/RatingModal'
 import { formatCompactNumber } from '../../utils/format'
+import { getLoungeTour } from '../../services/loungeServices'
+
+// Chế độ "ngồi tại phòng trà" kéo theo three.js (~500KB) — chỉ tải khi người xem BẬT nó.
+const PanoramaViewer = lazy(() => import('../../components/lounge/PanoramaViewer'))
 
 const HEARTBEAT_INTERVAL_MS = 30000
 
@@ -27,6 +31,20 @@ const LivestreamWatchPage = () => {
 
   const [showRatingModal, setShowRatingModal] = useState(false)
 
+  // CHẾ ĐỘ "NGỒI TẠI PHÒNG TRÀ": xung quanh là toàn cảnh 360° thật của phòng trà, màn hình livestream lơ
+  // lửng ở chỗ sân khấu. Đây là LỰA CHỌN, mặc định vẫn là chế độ rạp — xem live trước hết là để xem rõ buổi
+  // diễn; video làm texture tốn GPU nên không ép mọi thiết bị. Không có tour, hoặc trình duyệt không có
+  // WebGL, thì nút không hiện và trang y như cũ.
+  const [immersive, setImmersive] = useState(false)
+  const [videoEl, setVideoEl] = useState(null)
+  const [tourScenes, setTourScenes] = useState([])
+  const webglOk = useMemo(() => {
+    try {
+      const c = document.createElement('canvas')
+      return !!(c.getContext('webgl2') || c.getContext('webgl'))
+    } catch { return false }
+  }, [])
+
   const [viewerCount, setViewerCount] = useState(0)
   const [messages, setMessages] = useState([])
   const [donationAlerts, setDonationAlerts] = useState([])
@@ -37,6 +55,17 @@ const LivestreamWatchPage = () => {
 
   const heartbeatRef = useRef(null)
 
+  // Tour 360° của phòng trà tổ chức buổi diễn này (endpoint đọc là công khai). Lỗi thì coi như không có tour.
+  const loungeId = showData?.lounge?.id
+  useEffect(() => {
+    if (!loungeId) return
+    let bo = false
+    getLoungeTour(loungeId)
+      .then((r) => { if (!bo && r.success) setTourScenes((r.data?.scenes ?? []).filter((sc) => sc.imageUrl)) })
+      .catch(() => {})
+    return () => { bo = true }
+  }, [loungeId])
+
   // 1. Lấy show detail thật -> lấy livestreamId -> lấy chi tiết livestream thật (HlsUrl/quyền xem)
   useEffect(() => {
     const initData = async () => {
@@ -45,13 +74,13 @@ const LivestreamWatchPage = () => {
       try {
         const showRes = await getShowDetail(showId)
         if (!showRes.success) {
-          setError('Streaming show not found.')
+          setError('Không tìm thấy buổi diễn phát trực tuyến.')
           return
         }
         setShowData(showRes.data)
 
         if (!showRes.data.livestreamId) {
-          setError('This show has no livestream session.')
+          setError('Buổi diễn này không có phiên phát trực tuyến.')
           return
         }
 
@@ -77,7 +106,7 @@ const LivestreamWatchPage = () => {
           // Lịch sử chat không tải được không nên chặn cả trang — vẫn xem được livestream/chat mới.
         }
       } catch {
-        setError('Server connection error.')
+        setError('Không kết nối được máy chủ. Vui lòng thử lại.')
       } finally {
         setIsLoading(false)
       }
@@ -274,7 +303,7 @@ const LivestreamWatchPage = () => {
       <div className="min-h-screen bg-page flex flex-col items-center justify-center text-ink">
         <AlertCircle size={40} className="text-danger mb-4" />
         <p className="text-xl mb-4">{error}</p>
-        <Link to="/" className="text-brand-text underline flex items-center gap-2"><ArrowLeft size={16} /> Return</Link>
+        <Link to="/" className="text-brand-text underline flex items-center gap-2"><ArrowLeft size={16} /> Về trang chủ</Link>
       </div>
     )
   }
@@ -283,9 +312,9 @@ const LivestreamWatchPage = () => {
     return (
       <div className="min-h-screen bg-page flex flex-col items-center justify-center text-ink px-4 text-center">
         <Lock size={40} className="text-brand-text mb-4" />
-        <p className="text-xl mb-2 font-bold">You need a ticket to watch this livestream</p>
-        <p className="text-ink-soft mb-6">Buy a livestream ticket for this show to unlock viewing.</p>
-        <Link to={`/shows/${showId}`} className="text-brand-text underline flex items-center gap-2"><ArrowLeft size={16} /> Back to show</Link>
+        <p className="text-xl mb-2 font-bold">Bạn cần vé xem trực tuyến để vào buổi phát này</p>
+        <p className="text-ink-soft mb-6">Hãy mua vé xem trực tuyến của buổi diễn này để mở khoá.</p>
+        <Link to={`/shows/${showId}`} className="text-brand-text underline flex items-center gap-2"><ArrowLeft size={16} /> Quay lại buổi diễn</Link>
       </div>
     )
   }
@@ -307,7 +336,7 @@ const LivestreamWatchPage = () => {
             <span className="flex items-center gap-1"><Eye size={12} /> {formatCompactNumber(viewerCount)}</span>
             {connectionState !== 'connected' && (
               <span className="flex items-center gap-1 text-warning">
-                <WifiOff size={11} /> {connectionState === 'reconnecting' ? 'Reconnecting...' : 'Connecting...'}
+                <WifiOff size={11} /> {connectionState === 'reconnecting' ? 'Đang kết nối lại…' : 'Đang kết nối…'}
               </span>
             )}
           </p>
@@ -386,11 +415,49 @@ const LivestreamWatchPage = () => {
               </div>
             </div>
           ) : (
-          <StreamPlayer
-            streamUrl={livestream?.hlsUrl}
-            donationAlerts={donationAlerts}
-            onAlertEnd={handleRemoveAlert}
-          />
+          <div className="absolute inset-0 bg-espresso">
+            <StreamPlayer
+              streamUrl={livestream?.hlsUrl}
+              donationAlerts={donationAlerts}
+              onAlertEnd={handleRemoveAlert}
+              hidden={immersive}
+              onVideoReady={setVideoEl}
+            />
+
+            {immersive && videoEl && (
+              <Suspense fallback={<div className="absolute inset-0 flex items-center justify-center text-cream-mute"><Loader2 className="animate-spin" size={28} /></div>}>
+                {/* Bọc ngoài để định vị: gốc PanoramaViewer đã là `relative`, truyền `absolute` vào className
+                    sẽ xung đột và làm khung co về chiều cao 0 (canvas vô hình). */}
+                <div className="absolute inset-0 z-10">
+                <PanoramaViewer
+                  scenes={tourScenes}
+                  autoRotate={false}
+                  videoScreen={{
+                    video: videoEl,
+                    // Vị trí màn hình: chú thích tên "Sân khấu" mà chủ phòng trà đặt trong tour, nếu không
+                    // có thì hướng 0° (giữa ảnh).
+                    yaw: tourScenes[0]?.hotspots?.find((h) => /sân khấu|stage/i.test(h.label || ''))?.yaw ?? 0,
+                    pitch: tourScenes[0]?.hotspots?.find((h) => /sân khấu|stage/i.test(h.label || ''))?.pitch ?? 0,
+                    widthDeg: 40,
+                    placeholder: livestream?.hlsUrl ? 'Đang kết nối tới buổi diễn' : 'Buổi diễn sắp bắt đầu',
+                  }}
+                  className="w-full h-full"
+                />
+                </div>
+              </Suspense>
+            )}
+
+            {tourScenes.length > 0 && webglOk && (
+              <button
+                type="button"
+                onClick={() => setImmersive((v) => !v)}
+                aria-pressed={immersive}
+                className="absolute left-1/2 -translate-x-1/2 top-4 z-30 inline-flex items-center gap-2 px-4 h-10 rounded-full bg-espresso/75 backdrop-blur-sm border border-cream/20 text-cream text-xs font-semibold hover:bg-brand hover:text-on-brand hover:border-brand transition-colors"
+              >
+                {immersive ? <><Theater size={15} /> Xem chế độ rạp</> : <><Sofa size={15} /> Ngồi tại phòng trà</>}
+              </button>
+            )}
+          </div>
           )}
         </div>
 

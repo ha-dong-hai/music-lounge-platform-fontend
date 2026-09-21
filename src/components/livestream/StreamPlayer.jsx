@@ -48,15 +48,15 @@ const DonateAlert = ({ alert, onEnd, duration = 5000 }) => {
       {/* ===== NỘI DUNG ===== */}
       <div className="flex items-center gap-3 px-4 py-2.5">
         <div className="w-8 h-8 rounded-full bg-brand/20 flex items-center justify-center flex-shrink-0">
-          <Heart size={16} className="text-brand-text fill-brand-text" />
+          <Heart size={16} className="text-brand-on-dark fill-brand-on-dark" />
         </div>
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-bold text-ink truncate">{alert.user?.name || 'Someone'}</p>
-          <p className="text-xs text-brand-text font-semibold truncate">
-            donated {alert.amount?.toLocaleString('vi-VN')}đ to {alert.performerName}
+          <p className="text-sm font-bold text-cream truncate">{alert.user?.name || 'Một khán giả'}</p>
+          <p className="text-xs text-brand-on-dark font-semibold truncate">
+            đã ủng hộ {alert.amount?.toLocaleString('vi-VN')}đ cho {alert.performerName}
           </p>
           {alert.message && (
-            <p className="text-[11px] text-ink-soft italic truncate">"{alert.message}"</p>
+            <p className="text-[11px] text-cream-mute italic truncate">"{alert.message}"</p>
           )}
         </div>
       </div>
@@ -72,8 +72,12 @@ const DonateAlert = ({ alert, onEnd, duration = 5000 }) => {
   )
 }
 
-const StreamPlayer = ({ streamUrl, donationAlerts, onAlertEnd }) => {
+// `hidden`: ẩn hình (nhưng VẪN phát, âm thanh vẫn chạy) khi trang đang ở chế độ "ngồi tại phòng trà" —
+// hình được vẽ lên màn hình trong không gian 360° thay vì ở đây. `onVideoReady` trả phần tử <video> ra ngoài
+// để làm nguồn texture; không tạo luồng thứ hai (không tốn thêm băng thông hay phí phát).
+const StreamPlayer = ({ streamUrl, donationAlerts, onAlertEnd, hidden = false, onVideoReady }) => {
   const videoRef = useRef(null)
+  useEffect(() => { if (videoRef.current) onVideoReady?.(videoRef.current) }, [onVideoReady])
 
   useEffect(() => {
     const video = videoRef.current
@@ -96,13 +100,14 @@ const StreamPlayer = ({ streamUrl, donationAlerts, onAlertEnd }) => {
   }, [streamUrl])
 
   return (
-    <div className="w-full h-full relative bg-page flex items-center justify-center">
+    <div className="w-full h-full relative bg-espresso flex items-center justify-center">
       
       <video 
         ref={videoRef} 
-        className="w-full h-full object-contain" 
-        playsInline 
-        controls 
+        // Chưa có luồng thì ẩn hẳn phần tử video: video rỗng tự vẽ nền xám đè lên sân khấu espresso.
+        className={hidden || !streamUrl ? 'absolute inset-0 w-full h-full opacity-0 pointer-events-none' : 'w-full h-full object-contain'}
+        playsInline
+        controls={!hidden && !!streamUrl}
       />
 
       {/* OVERLAY DONATE ALERTS (Góc dưới trái kiểu Twitch) */}
@@ -113,11 +118,11 @@ const StreamPlayer = ({ streamUrl, donationAlerts, onAlertEnd }) => {
       </div>
 
       {/* PLACEHOLDER KHI CHƯA CÓ STREAM URL */}
-      {!streamUrl && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center text-ink-soft z-10">
-          <DollarSign size={40} className="mb-3 text-brand-text" />
-          <p className="font-bold text-lg">Stream is not available yet</p>
-          <p className="text-sm text-ink-mute">Waiting for the host to go live...</p>
+      {!streamUrl && !hidden && (
+        <div className="absolute inset-0 flex flex-col items-center justify-center text-cream-mute z-10">
+          <DollarSign size={40} className="mb-3 text-brand-on-dark" />
+          <p className="font-bold text-lg text-cream">Chưa có tín hiệu phát</p>
+          <p className="text-sm text-cream-mute">Đang chờ phòng trà bắt đầu phát…</p>
         </div>
       )}
     </div>

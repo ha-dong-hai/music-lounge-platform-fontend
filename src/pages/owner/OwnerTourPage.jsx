@@ -38,7 +38,7 @@ const inputCls = 'mt-1 w-full px-3 py-2 bg-page border border-line rounded-lg te
 //   yaw -180..180, pitch -90..90, label ≤ 100 ký tự, infoText ≤ 2000 ký tự.
 const LOAI_HOTSPOT = [
   { value: 'Navigate', ten: 'Dẫn sang scene khác', mo: 'Khách bấm vào để nhảy sang điểm đứng khác.' },
-  { value: 'Info', ten: 'Chú thích', mo: 'Hiện một đoạn chữ tại điểm đó, không dẫn đi đâu.' },
+  { value: 'Info', ten: 'Chú thích', mo: 'Hiện một đoạn chữ tại điểm đó, không dẫn đi đâu. Đặt tên là "Sân khấu" để màn hình livestream nằm đúng chỗ này khi khán giả chọn "Ngồi tại phòng trà".' },
 ]
 
 const HotspotModal = ({ loungeId, scene, scenes, onClose, onSaved }) => {

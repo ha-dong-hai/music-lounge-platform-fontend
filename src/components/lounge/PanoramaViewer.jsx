@@ -11,15 +11,20 @@
 // - Vòng lặp dựng hình DỪNG khi khung ra khỏi màn hình (IntersectionObserver) và khi tab bị ẩn — không đốt
 //   pin/GPU cho thứ không ai thấy. Tự xoay chậm lúc mới vào và DỪNG ngay khi người dùng chạm; tắt hẳn khi
 //   prefers-reduced-motion.
+// - `videoScreen` (tuỳ chọn): đặt MỘT MÀN HÌNH VIDEO lơ lửng trong không gian, dùng cho livestream "ngồi tại
+//   phòng trà". Video là phần tử <video> đã có sẵn (HLS.js gắn ở StreamPlayer) — texture chỉ ĐỌC hình từ đó,
+//   âm thanh vẫn phát bình thường từ chính phần tử video. Khi luồng chưa có hình thì màn hình hiện tấm
+//   thông báo, không phải khung đen.
 // - Chạm hai ngón để phóng to, cuộn chuột để phóng to, phím mũi tên để quay (khung có tabIndex) — không
 //   chỉ dựa vào chuột.
 import { useEffect, useRef, useState, useCallback } from 'react'
 import * as THREE from 'three'
-import { Maximize2, Minimize2, Info, ArrowUpRight, Loader2, ImageOff, X } from 'lucide-react'
+import { Maximize2, Minimize2, Info, ArrowUpRight, Loader2, ImageOff, X, Tv } from 'lucide-react'
 import {
   viewLimits, directionFromYawPitch, dragToAngles, clampPitch, blackBorderCrop,
 } from '../../utils/panoramaMath'
 
+const SUBLINE = 'Màn hình sẽ sáng lên khi có tín hiệu'
 const RADIUS = 500
 const HOTSPOT_RADIUS = 400
 const prefersReducedMotion = () =>
@@ -59,14 +64,14 @@ const lerpAngle = (a, b, t) => {
   return a + d * t
 }
 
-const PanoramaViewer = ({ scenes = [], initialSceneId = null, className = '' }) => {
+const PanoramaViewer = ({ scenes = [], initialSceneId = null, className = '', videoScreen = null, autoRotate = true }) => {
   const containerRef = useRef(null)
   const mountRef = useRef(null)
   const hotspotEls = useRef(new Map())
   const three = useRef({}) // renderer, camera, scene, mesh — đối tượng three, không phải state React
   const view = useRef({
     yaw: 0, pitch: 0, fov: 70, tYaw: 0, tPitch: 0, tFov: 70,
-    limits: viewLimits(2, 70), auto: !prefersReducedMotion(), visible: true,
+    limits: viewLimits(2, 70), auto: autoRotate && !prefersReducedMotion(), visible: true,
     pointers: new Map(), pinchStart: null,
   })
 
@@ -79,6 +84,10 @@ const PanoramaViewer = ({ scenes = [], initialSceneId = null, className = '' }) 
   const [isFullscreen, setIsFullscreen] = useState(false)
 
   const scene = scenes.find((s) => s.id === sceneId) ?? scenes[0]
+
+  // Bản sao mới nhất của videoScreen cho các hàm chạy ngoài vòng render (tải ảnh, nút "Về màn hình").
+  const screenRef = useRef(videoScreen)
+  useEffect(() => { screenRef.current = videoScreen }, [videoScreen])
 
   const stopAuto = useCallback(() => {
     view.current.auto = false
@@ -179,6 +188,15 @@ const PanoramaViewer = ({ scenes = [], initialSceneId = null, className = '' }) 
         camera.fov = st.fov
         camera.updateProjectionMatrix()
       }
+      const sc = three.current.screen
+      if (sc) {
+        const ready = sc.video.readyState >= 2 && !sc.video.paused
+        if (ready !== sc.live) {
+          sc.live = ready
+          sc.mesh.material.map = ready ? sc.videoTex : sc.placeholderTex
+          sc.mesh.material.needsUpdate = true
+        }
+      }
       camera.rotation.set((st.pitch * Math.PI) / 180, ((90 - st.yaw) * Math.PI) / 180, 0)
       camera.updateMatrixWorld(true)
       camera.getWorldDirection(fwd)
@@ -257,7 +275,7 @@ const PanoramaViewer = ({ scenes = [], initialSceneId = null, className = '' }) 
         three.current.mesh = mesh
 
         st.limits = lim
-        st.yaw = st.tYaw = 0
+        st.yaw = st.tYaw = screenRef.current?.yaw ?? 0
         st.pitch = st.tPitch = 0
         st.fov = st.tFov = lim.fov
         three.current.camera.fov = lim.fov
@@ -271,6 +289,84 @@ const PanoramaViewer = ({ scenes = [], initialSceneId = null, className = '' }) 
     )
     return () => { cancelled = true }
   }, [scene?.id, scene?.imageUrl]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ===== MÀN HÌNH VIDEO trong không gian (livestream) =====
+  const screenVideo = videoScreen?.video
+  const screenYaw = videoScreen?.yaw ?? 0
+  const screenPitch = videoScreen?.pitch ?? 0
+  const screenWidthDeg = videoScreen?.widthDeg ?? 40
+  const screenPlaceholder = videoScreen?.placeholder ?? 'Buổi diễn sắp bắt đầu'
+  useEffect(() => {
+    const t = three.current
+    if (!t.scene || !screenVideo) return
+    const dist = 380
+    const w = 2 * dist * Math.tan((screenWidthDeg * Math.PI) / 360)
+    const h = (w * 9) / 16
+
+    const videoTex = new THREE.VideoTexture(screenVideo)
+    videoTex.colorSpace = THREE.SRGBColorSpace
+    videoTex.generateMipmaps = false
+    videoTex.minFilter = THREE.LinearFilter
+
+    // Tấm thông báo khi chưa có hình: cùng bảng màu espresso/cream của giao diện.
+    // Vẽ vào canvas KHÔNG tự chờ phông web: nếu Playfair Display chưa nạp xong thì canvas rơi về phông dự
+    // phòng và dấu tiếng Việt bị lệch ("sắ´p bắ´t"). Nên vẽ ngay một lần cho có hình, rồi chờ phông nạp
+    // (kèm đúng đoạn chữ để tải cả bộ ký tự tiếng Việt) và vẽ lại.
+    const canvas = document.createElement('canvas')
+    canvas.width = 1280
+    canvas.height = 720
+    const ctx = canvas.getContext('2d')
+    const paint = () => {
+      ctx.fillStyle = '#2A1F17'
+      ctx.fillRect(0, 0, 1280, 720)
+      ctx.fillStyle = '#F5EDE0'
+      ctx.font = '600 46px "Playfair Display", Georgia, serif'
+      ctx.textAlign = 'center'
+      ctx.textBaseline = 'middle'
+      ctx.fillText(screenPlaceholder, 640, 340)
+      ctx.fillStyle = '#BFAE99'
+      ctx.font = '400 26px "Plus Jakarta Sans", sans-serif'
+      ctx.fillText(SUBLINE, 640, 410)
+    }
+    paint()
+    const placeholderTex = new THREE.CanvasTexture(canvas)
+    placeholderTex.colorSpace = THREE.SRGBColorSpace
+    let disposed = false
+    Promise.all([
+      document.fonts.load('600 46px "Playfair Display"', screenPlaceholder),
+      document.fonts.load('400 26px "Plus Jakarta Sans"', SUBLINE),
+    ]).then(() => { if (!disposed) { paint(); placeholderTex.needsUpdate = true } }).catch(() => {})
+
+    const mesh = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({ map: placeholderTex, toneMapped: false }))
+    const frame = new THREE.Mesh(new THREE.PlaneGeometry(w * 1.035, h * 1.06), new THREE.MeshBasicMaterial({ color: 0x2a1f17 }))
+    const d = directionFromYawPitch(screenYaw, screenPitch)
+    mesh.position.set(d.x * dist, d.y * dist, d.z * dist)
+    frame.position.set(d.x * (dist + 1.5), d.y * (dist + 1.5), d.z * (dist + 1.5))
+    mesh.lookAt(0, 0, 0)
+    frame.lookAt(0, 0, 0)
+    t.scene.add(frame, mesh)
+    t.screen = { mesh, video: screenVideo, videoTex, placeholderTex, live: false }
+
+    return () => {
+      disposed = true
+      t.scene?.remove(frame, mesh)
+      mesh.geometry.dispose(); mesh.material.dispose()
+      frame.geometry.dispose(); frame.material.dispose()
+      videoTex.dispose(); placeholderTex.dispose()
+      t.screen = null
+    }
+  }, [screenVideo, screenYaw, screenPitch, screenWidthDeg, screenPlaceholder])
+
+  // Quay về nhìn thẳng vào màn hình và phóng vào — để xem buổi diễn rõ sau khi đã nhìn quanh phòng.
+  const focusScreen = () => {
+    const st = view.current
+    stopAuto()
+    st.tYaw = screenYaw
+    const lim = viewLimits(st.aspect ?? 2, 30)
+    st.tFov = lim.fov
+    st.limits = lim
+    st.tPitch = clampPitch(screenPitch, lim.pitchMax)
+  }
 
   // ===== toàn màn hình =====
   useEffect(() => {
@@ -379,6 +475,13 @@ const PanoramaViewer = ({ scenes = [], initialSceneId = null, className = '' }) 
         className="absolute right-4 top-4 z-10 w-10 h-10 rounded-full bg-espresso/70 backdrop-blur-sm text-cream flex items-center justify-center hover:bg-brand hover:text-on-brand transition-colors">
         {isFullscreen ? <Minimize2 size={17} /> : <Maximize2 size={17} />}
       </button>
+
+      {videoScreen?.video && (
+        <button type="button" onClick={focusScreen} aria-label="Quay về nhìn màn hình sân khấu"
+          className="absolute right-4 top-16 z-10 h-10 px-3.5 rounded-full bg-espresso/70 backdrop-blur-sm text-cream text-xs font-semibold flex items-center gap-2 hover:bg-brand hover:text-on-brand transition-colors">
+          <Tv size={15} /> Về màn hình
+        </button>
+      )}
 
       {scenes.length > 1 && (
         <div className="absolute left-4 right-4 bottom-4 z-10 flex gap-2 overflow-x-auto hide-scrollbar" role="tablist" aria-label="Các điểm đứng trong phòng trà">
