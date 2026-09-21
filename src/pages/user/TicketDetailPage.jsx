@@ -192,6 +192,32 @@ const TicketDetailPage = () => {
                             <p className="text-white font-bold text-lg">{eventDate.format('HH:mm DD/MM')}</p>
                         </div>
                     </div>
+
+                    {/* CHỖ NGỒI VÀ TRẠNG THÁI VÀO CỬA — backend trả trong `physicalDetail`, trước
+                        đây trang này không đọc khối đó. Nghĩa là người mua vé tại chỗ KHÔNG BIẾT
+                        mình được xếp chỗ nào, và cũng không biết vé đã bị quét chưa.
+                        Cả hai chỉ có ở vé tại chỗ; vé xem trực tuyến thì `physicalDetail` là null. */}
+                    {ticket.physicalDetail && (
+                      <div className="mt-5 pt-5 border-t border-gray-800 grid grid-cols-1 sm:grid-cols-2 gap-5 text-center sm:text-left">
+                        <div>
+                          <p className="text-gray-500 text-sm mb-1">Chỗ ngồi</p>
+                          <p className="text-white font-bold text-lg">
+                            {ticket.physicalDetail.seatInfo || 'Không xếp chỗ cố định'}
+                          </p>
+                        </div>
+                        <div className="sm:border-l sm:border-gray-800 sm:pl-6">
+                          <p className="text-gray-500 text-sm mb-1">Vào cửa</p>
+                          {ticket.physicalDetail.checkedInAt ? (
+                            <p className="text-green-400 font-bold text-lg inline-flex items-center gap-1.5">
+                              <CheckCircle2 size={17} />
+                              {dayjs(ticket.physicalDetail.checkedInAt).format('HH:mm DD/MM/YYYY')}
+                            </p>
+                          ) : (
+                            <p className="text-gray-400 font-bold text-lg">Chưa quét mã</p>
+                          )}
+                        </div>
+                      </div>
+                    )}
                 </div>
 
                 {/* PHẦN MÃ QR ĐỂ QUÉT CỬA (DÙNG MÃ QR THẬT TỪ BE) */}

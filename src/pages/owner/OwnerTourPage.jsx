@@ -29,21 +29,42 @@ import ConfirmModal from '../../components/shared/ConfirmModal'
 
 const inputCls = 'mt-1 w-full px-3 py-2 bg-black border border-gray-700 rounded-lg text-sm text-white focus:outline-none focus:border-[#C3B665]/50'
 
+// HOTSPOT CÓ HAI LOẠI, và `type` là TRƯỜNG BẮT BUỘC:
+//   Navigate — dẫn sang scene khác, phải có targetSceneId, và KHÔNG được trỏ về chính scene đó.
+//   Info     — hiện một chú thích tĩnh, dùng infoText, KHÔNG cần scene thứ hai.
+// LỖI CŨ Ở ĐÂY: form không gửi `type` bao giờ. Backend bắt buộc có (validator đòi Type parse được
+// thành Navigate hoặc Info), nên MỌI lần thêm hotspot đều bị 422 — tính năng này chưa từng chạy.
+// Giới hạn của backend, chặn sẵn ở form để không ai phải đoán từ một câu 422:
+//   yaw -180..180, pitch -90..90, label ≤ 100 ký tự, infoText ≤ 2000 ký tự.
+const LOAI_HOTSPOT = [
+  { value: 'Navigate', ten: 'Dẫn sang scene khác', mo: 'Khách bấm vào để nhảy sang điểm đứng khác.' },
+  { value: 'Info', ten: 'Chú thích', mo: 'Hiện một đoạn chữ tại điểm đó, không dẫn đi đâu.' },
+]
+
 const HotspotModal = ({ loungeId, scene, scenes, onClose, onSaved }) => {
-  const [form, setForm] = useState({ targetSceneId: '', label: '', yaw: 0, pitch: 0 })
+  const [form, setForm] = useState({ type: 'Navigate', targetSceneId: '', label: '', infoText: '', yaw: 0, pitch: 0 })
   const [isBusy, setIsBusy] = useState(false)
   const set = (k, v) => setForm((p) => ({ ...p, [k]: v }))
+  const laDanDuong = form.type === 'Navigate'
 
   const them = async (e) => {
     e.preventDefault()
-    if (!form.targetSceneId) { toast.error('Chọn scene mà hotspot này dẫn tới.'); return }
+    if (laDanDuong && !form.targetSceneId) { toast.error('Chọn scene mà hotspot này dẫn tới.'); return }
+    if (!laDanDuong && !form.infoText.trim()) { toast.error('Nhập nội dung chú thích.'); return }
+    const yaw = Number(form.yaw) || 0
+    const pitch = Number(form.pitch) || 0
+    if (yaw < -180 || yaw > 180) { toast.error('Hướng ngang phải từ -180 đến 180.'); return }
+    if (pitch < -90 || pitch > 90) { toast.error('Hướng dọc phải từ -90 đến 90.'); return }
     setIsBusy(true)
     try {
       await addTourHotspot(loungeId, scene.id, {
-        targetSceneId: Number(form.targetSceneId),
+        type: form.type,
+        // Chỉ gửi trường thuộc về loại đang chọn; gửi thừa là gửi thứ backend không đọc.
+        targetSceneId: laDanDuong ? Number(form.targetSceneId) : null,
+        infoText: laDanDuong ? null : form.infoText.trim(),
         label: form.label.trim() || null,
-        yaw: Number(form.yaw) || 0,
-        pitch: Number(form.pitch) || 0,
+        yaw,
+        pitch,
       })
       toast.success('Đã thêm hotspot.')
       onSaved(); onClose()
@@ -72,7 +93,15 @@ const HotspotModal = ({ loungeId, scene, scenes, onClose, onSaved }) => {
                   <li key={h.id} className="flex items-center justify-between gap-3 bg-black/40 border border-gray-800 rounded-lg p-3">
                     <div className="min-w-0">
                       <p className="text-sm text-white truncate">{h.label || 'Không nhãn'}</p>
-                      <p className="text-xs text-gray-500">→ {dich?.name || `scene #${h.targetSceneId}`}</p>
+                      {/* Hai loại hotspot hiện khác nhau: loại chú thích không dẫn đi đâu nên hiện
+                          nội dung chữ, đừng in ra "→ scene #null". */}
+                      {h.type === 'Info' ? (
+                        <p className="text-xs text-gray-500 whitespace-normal leading-relaxed">
+                          {h.infoText || '(chú thích trống)'}
+                        </p>
+                      ) : (
+                        <p className="text-xs text-gray-500">→ {dich?.name || `scene #${h.targetSceneId}`}</p>
+                      )}
                     </div>
                     <button onClick={async () => {
                       try {
@@ -92,32 +121,76 @@ const HotspotModal = ({ loungeId, scene, scenes, onClose, onSaved }) => {
             </ul>
           )}
 
-          {khac.length === 0 ? (
-            <p className="text-sm text-gray-500">Cần ít nhất hai scene mới tạo được hotspot để nhảy qua lại.</p>
+          {/* CHỈ loại Navigate mới cần scene thứ hai. Trước đây cả form bị chặn khi chỉ có một
+              scene, nên hotspot chú thích không tạo được dù nó không dẫn đi đâu. */}
+          {form.type === 'Navigate' && khac.length === 0 ? (
+            <div className="pt-4 border-t border-gray-800 space-y-3">
+              <p className="text-sm text-gray-500">
+                Cần ít nhất hai scene mới tạo được hotspot dẫn đường.
+              </p>
+              <button type="button" onClick={() => set('type', 'Info')}
+                className="text-xs font-bold text-[#C3B665] hover:underline">
+                Tạo hotspot chú thích thay vì dẫn đường →
+              </button>
+            </div>
           ) : (
             <form onSubmit={them} className="pt-4 border-t border-gray-800 space-y-3">
               <p className="text-xs text-gray-500">
                 Thêm hotspot mới. Muốn sửa một hotspot thì xoá rồi thêm lại — backend không có endpoint sửa.
               </p>
+
               <div>
-                <label className="text-xs text-gray-500">Dẫn tới scene <span className="text-red-400">*</span></label>
-                <select value={form.targetSceneId} onChange={(e) => set('targetSceneId', e.target.value)} className={inputCls}>
-                  <option value="">— chọn scene —</option>
-                  {khac.map((x) => <option key={x.id} value={x.id}>{x.name || `scene #${x.id}`}</option>)}
-                </select>
+                <label className="text-xs text-gray-500">Loại hotspot</label>
+                <div className="mt-1 grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {LOAI_HOTSPOT.map((l) => (
+                    <button key={l.value} type="button" onClick={() => set('type', l.value)}
+                      className={`text-left p-2.5 rounded-lg border transition-colors ${
+                        form.type === l.value ? 'border-[#C3B665] bg-[#C3B665]/10' : 'border-gray-700 hover:border-gray-600'
+                      }`}>
+                      <span className="block text-sm text-white font-medium">{l.ten}</span>
+                      <span className="block text-xs text-gray-500 mt-0.5 leading-relaxed">{l.mo}</span>
+                    </button>
+                  ))}
+                </div>
               </div>
+
+              {laDanDuong ? (
+                <div>
+                  <label className="text-xs text-gray-500">Dẫn tới scene <span className="text-red-400">*</span></label>
+                  <select value={form.targetSceneId} onChange={(e) => set('targetSceneId', e.target.value)} className={inputCls}>
+                    <option value="">— chọn scene —</option>
+                    {khac.map((x) => <option key={x.id} value={x.id}>{x.name || `scene #${x.id}`}</option>)}
+                  </select>
+                  <p className="text-[11px] text-gray-600 mt-1">
+                    Danh sách đã bỏ chính scene này — hotspot không trỏ về nơi chứa nó được.
+                  </p>
+                </div>
+              ) : (
+                <div>
+                  <label className="text-xs text-gray-500">Nội dung chú thích <span className="text-red-400">*</span></label>
+                  <textarea rows={3} maxLength={2000} value={form.infoText}
+                    onChange={(e) => set('infoText', e.target.value)}
+                    className={`${inputCls} resize-none`}
+                    placeholder="VD: Đây là cây piano Yamaha U3 phòng trà dùng từ 2018" />
+                  <p className="text-[11px] text-gray-600 mt-1">{form.infoText.length}/2000 ký tự</p>
+                </div>
+              )}
+
               <div>
                 <label className="text-xs text-gray-500">Nhãn hiển thị</label>
-                <input value={form.label} onChange={(e) => set('label', e.target.value)} className={inputCls} placeholder="VD: Sang khu sân khấu" />
+                <input value={form.label} maxLength={100} onChange={(e) => set('label', e.target.value)} className={inputCls}
+                  placeholder={laDanDuong ? 'VD: Sang khu sân khấu' : 'VD: Cây piano'} />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs text-gray-500">Hướng ngang (yaw)</label>
-                  <input type="number" value={form.yaw} onChange={(e) => set('yaw', e.target.value)} className={inputCls} />
+                  <input type="number" min="-180" max="180" value={form.yaw} onChange={(e) => set('yaw', e.target.value)} className={inputCls} />
+                  <p className="text-[11px] text-gray-600 mt-1">-180 đến 180</p>
                 </div>
                 <div>
                   <label className="text-xs text-gray-500">Hướng dọc (pitch)</label>
-                  <input type="number" value={form.pitch} onChange={(e) => set('pitch', e.target.value)} className={inputCls} />
+                  <input type="number" min="-90" max="90" value={form.pitch} onChange={(e) => set('pitch', e.target.value)} className={inputCls} />
+                  <p className="text-[11px] text-gray-600 mt-1">-90 đến 90</p>
                 </div>
               </div>
               <button type="submit" disabled={isBusy}
