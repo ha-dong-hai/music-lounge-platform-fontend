@@ -14,10 +14,13 @@
 //   bằng TÊN chủ tài khoản, không phải bằng số.
 // - Danh sách này CHỈ có tài khoản của phòng trà. Tài khoản nhận tiền của nghệ sĩ không duyệt ở đây.
 // - Từ chối thì `note` là thứ duy nhất cho chủ phòng trà biết phải sửa gì — bắt buộc nhập.
-// - `createdAt` của bảng này là cột DateTime KHÔNG kèm múi giờ ("2026-09-20T17:35:21.714"), giá trị
-//   là giờ UTC. Đưa thẳng vào dayjs là bị hiểu thành giờ máy → lệch đúng 7 tiếng ở Việt Nam, đủ để
-//   nhảy sang ngày hôm sau mà vẫn trông hợp lý. Phải bọc qua mocUtc(). Các mốc của án phạt thì có
-//   offset sẵn nên KHÔNG bọc.
+// - `createdAt` của bảng này hiện về KHÔNG kèm múi giờ ("2026-08-17T13:12:19.838"), dù giá trị là
+//   giờ UTC — gốc là DTO khai `DateTime` thay vì `DateTimeOffset`. Lệch đúng 7 tiếng ở Việt Nam,
+//   đủ để nhảy sang ngày hôm sau mà vẫn trông hợp lý. Toàn hệ thống chỉ có 2/139 trường bị vậy:
+//   trường này và `createdAt` của danh sách người dùng Admin. Backend đã có bản vá chờ merge.
+//   mocUtc() chỉ thêm 'Z' KHI chuỗi chưa có múi giờ, nên khi bản vá lên (chuỗi sẽ có "+00:00")
+//   hàm này TỰ TRỞ THÀNH KHÔNG LÀM GÌ — không phải gỡ, và không lệch ngược. Nó KHÔNG cộng trừ giờ.
+//   Các mốc của án phạt vốn đã có offset nên bọc hay không đều ra cùng một mốc.
 // - `expectedAccountHolder: null` kèm `holderNameMatches: false` là trạng thái CÓ THẬT khi chủ
 //   phòng trà chưa được chốt họ tên trên CCCD — đó đúng là lúc nút Duyệt phải chặn.
 import { useState, useEffect, useCallback } from 'react'
@@ -38,6 +41,25 @@ const CoDieuKien = ({ dat, chuDat, chuChuaDat }) => (
     {dat ? chuDat : chuChuaDat}
   </span>
 )
+
+// Mọi lý do khiến một tài khoản chưa duyệt được, theo thứ tự phải xử lý: số tài khoản hỏng thì
+// không còn gì để đối chiếu, nên nó đứng trước; định danh chưa duyệt thì chưa có tên chuẩn để so,
+// nên đứng trước việc so tên.
+const lyDoChuaDuyet = (it) => {
+  const ds = []
+  if (it.accountNumberUnreadable) {
+    ds.push('Số tài khoản lưu trong hệ thống không giải mã đọc được — yêu cầu chủ phòng trà khai báo lại. Không có số thì không có gì để chuyển tiền tới.')
+  }
+  if (!it.ownerIdentityApproved) {
+    ds.push('Hồ sơ định danh của chủ phòng trà chưa được duyệt — duyệt ở màn Duyệt định danh trước. Chưa có định danh thì chưa có tên chuẩn để đối chiếu.')
+  }
+  if (!it.holderNameMatches) {
+    ds.push(it.expectedAccountHolder
+      ? `Tên chủ tài khoản không khớp tên định danh hợp pháp ("${it.expectedAccountHolder}"). Tiền chuyển vào đây là chuyển cho người khác.`
+      : 'Chưa có tên định danh hợp pháp của chủ phòng trà để đối chiếu, nên không xác nhận được tên chủ tài khoản là đúng người.')
+  }
+  return ds
+}
 
 const ReviewModal = ({ item, approve, onClose, onSaved }) => {
   const [note, setNote] = useState('')
@@ -222,7 +244,12 @@ const AdminBankAccountsPage = () => {
                     </div>
 
                     <p className="text-sm text-gray-300 mt-1.5">
-                      {it.bankName} · <span className="font-mono">{it.accountNumberMasked}</span>
+                      {it.bankName} ·{' '}
+                      {/* Khi số tài khoản hỏng, backend trả một CÂU CHỮ chứ không phải số đã che —
+                          để nguyên font mã thì trông như một mã hợp lệ. Hiện khác đi cho đúng. */}
+                      {it.accountNumberUnreadable
+                        ? <span className="text-red-400 italic">{it.accountNumberMasked}</span>
+                        : <span className="font-mono">{it.accountNumberMasked}</span>}
                     </p>
                     <p className="text-sm text-gray-400 mt-0.5">
                       Chủ tài khoản: <span className="text-white">{it.accountHolder}</span>
@@ -260,14 +287,18 @@ const AdminBankAccountsPage = () => {
                   )}
                 </div>
 
+                {/* LIỆT KÊ ĐỦ MỌI LÝ DO, KHÔNG CHỈ MỘT. Dữ liệu thật đang có một hàng hỏng cả ba
+                    điều kiện cùng lúc; nêu từng lý do một thì người duyệt đi sửa xong cái thứ nhất
+                    lại quay lại gặp cái thứ hai. Mỗi lý do kèm luôn việc phải làm ở đâu. */}
                 {!duDieuKien && !it.isVerified && (
-                  <p className="mt-3 pt-3 border-t border-gray-800 text-xs text-yellow-400/90 leading-relaxed">
-                    {it.accountNumberUnreadable
-                      ? 'Số tài khoản lưu trong hệ thống không giải mã đọc được — yêu cầu chủ phòng trà khai báo lại, đừng duyệt.'
-                      : !it.ownerIdentityApproved
-                        ? 'Hồ sơ định danh của chủ phòng trà chưa được duyệt. Duyệt định danh trước ở màn Duyệt định danh.'
-                        : 'Tên chủ tài khoản không khớp tên định danh hợp pháp. Tiền chuyển vào đây là chuyển cho người khác.'}
-                  </p>
+                  <ul className="mt-3 pt-3 border-t border-gray-800 space-y-1.5">
+                    {lyDoChuaDuyet(it).map((ly) => (
+                      <li key={ly} className="text-xs text-yellow-400/90 leading-relaxed flex items-start gap-1.5">
+                        <AlertTriangle size={12} className="mt-0.5 flex-shrink-0" />
+                        {ly}
+                      </li>
+                    ))}
+                  </ul>
                 )}
               </li>
             )

@@ -1,5 +1,12 @@
+// GHI CHÚ — MỐC THỜI GIAN THIẾU MÚI GIỜ:
+// `createdAt` của UserAdminDto hiện về KHÔNG kèm múi giờ ("2026-08-17T13:12:19.838"), dù giá trị là
+// giờ UTC. Đưa thẳng vào dayjs là bị hiểu thành giờ máy → lệch đúng 7 tiếng ở Việt Nam.
+// mocUtc() chỉ thêm 'Z' KHI chuỗi chưa có múi giờ, nên khi backend sửa DTO (thành DateTimeOffset,
+// chuỗi sẽ có "+00:00") thì hàm này TỰ TRỞ THÀNH KHÔNG LÀM GÌ — không phải gỡ, và không có chuyện
+// lệch ngược 7 tiếng. Nó KHÔNG cộng trừ giờ, chỉ diễn giải một chuỗi thiếu thông tin.
 import { X, Loader2, Ban, Unlock, ShieldCheck } from 'lucide-react'
 import dayjs from 'dayjs'
+import { mocUtc } from '../../../utils/format'
 import { RoleBadge, StatusBadge } from './Badges'
 
 const AccountDetailModal = ({ selectedAcc, isModalLoading, isUpdating, onClose, onToggleBan }) => {
@@ -35,7 +42,7 @@ const AccountDetailModal = ({ selectedAcc, isModalLoading, isUpdating, onClose, 
                 </div>
                 <div>
                   <p className="text-xs text-gray-500 mb-1">Created at</p>
-                  <p className="text-sm text-white font-medium">{dayjs(selectedAcc.createdAt).format('HH:mm DD/MM/YYYY')}</p>
+                  <p className="text-sm text-white font-medium">{dayjs(mocUtc(selectedAcc.createdAt)).format('HH:mm DD/MM/YYYY')}</p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-500 mb-1">Role</p>
