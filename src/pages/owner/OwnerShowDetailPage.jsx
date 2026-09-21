@@ -461,7 +461,7 @@ const OwnerShowDetailPage = () => {
             dung đã khai" — câu đó đúng vào lúc viết, nhưng backend đã trả về qua operatorInfo.
             Không đọc thì chủ phòng trà khai xong không còn chỗ nào xem lại để đối chiếu hay sửa. */}
         {daKhaiVanBan && (
-          <div className="mb-4 p-3 rounded-lg bg-espresso/40 border border-line">
+          <div className="mb-4 p-3 rounded-lg bg-sunken/70 border border-line">
             <p className="text-xs text-ink-mute">Đã khai</p>
             <p className="text-sm text-ink mt-0.5 break-all">{vanHanh.legalApprovalReference}</p>
             <p className="text-xs mt-1.5">

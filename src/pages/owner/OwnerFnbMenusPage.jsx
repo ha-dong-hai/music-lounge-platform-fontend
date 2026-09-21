@@ -337,7 +337,7 @@ const OwnerFnbMenusPage = () => {
               ) : (
                 <ul className="space-y-2">
                   {[...items].sort((a, b) => a.displayOrder - b.displayOrder).map((it) => (
-                    <li key={it.id} className="flex items-start justify-between gap-3 bg-espresso/40 border border-line rounded-lg p-3">
+                    <li key={it.id} className="flex items-start justify-between gap-3 bg-sunken/70 border border-line rounded-lg p-3">
                       <div className="flex items-start gap-3 min-w-0">
                         <GripVertical size={14} className="text-ink-mute mt-1 flex-shrink-0" />
                         {it.imageUrl && <img src={it.imageUrl} alt="" className="w-12 h-12 rounded-lg object-cover flex-shrink-0" />}

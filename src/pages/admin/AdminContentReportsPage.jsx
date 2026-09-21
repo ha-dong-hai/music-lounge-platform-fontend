@@ -94,7 +94,7 @@ const AdminContentReportsPage = () => {
       <div className="bg-card border border-line rounded-xl overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left whitespace-nowrap">
-            <thead className="bg-espresso/50 border-b border-line">
+            <thead className="bg-sunken/80 border-b border-line">
               <tr>
                 <th className="p-4 text-brand-text font-semibold text-sm">Nội dung bị báo cáo</th>
                 <th className="p-4 text-brand-text font-semibold text-sm">Số lượt báo</th>

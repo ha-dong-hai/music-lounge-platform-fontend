@@ -118,7 +118,7 @@ const EvidenceModal = ({ donationId, onClose }) => {
                   const dongLoi = data.firstBrokenSequence != null && e.sequence >= data.firstBrokenSequence
                   return (
                     <div key={e.sequence}
-                      className={`p-4 rounded-lg border ${dongLoi ? 'border-red-500/30 bg-red-500/5' : 'border-line bg-espresso/40'}`}>
+                      className={`p-4 rounded-lg border ${dongLoi ? 'border-red-500/30 bg-red-500/5' : 'border-line bg-sunken/70'}`}>
                       <div className="flex flex-wrap items-center justify-between gap-2">
                         <div className="flex items-center gap-2 min-w-0">
                           <span className="text-xs text-ink-mute font-mono flex-shrink-0">#{e.sequence}</span>

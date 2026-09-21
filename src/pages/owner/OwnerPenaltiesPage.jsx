@@ -62,7 +62,7 @@ const AppealModal = ({ penalty, onClose, onSaved }) => {
         </div>
 
         <form onSubmit={submit} className="p-5 space-y-4">
-          <div className="bg-espresso/40 border border-line rounded-lg p-4">
+          <div className="bg-sunken/70 border border-line rounded-lg p-4">
             <p className="text-sm text-ink font-medium">{TYPE_VIEW[penalty.penaltyType]?.label ?? penalty.penaltyType}</p>
             <p className="text-xs text-ink-mute mt-1 leading-relaxed">{penalty.reason}</p>
           </div>

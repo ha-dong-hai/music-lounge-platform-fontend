@@ -34,7 +34,7 @@ const LoungeAbout = ({ lounge, zones = [] }) => {
                       <MapPin size={16} className="text-brand-text flex-shrink-0" />
                       {zone.name}
                     </h3>
-                    <span className="flex-shrink-0 inline-flex items-center gap-1 bg-espresso/60 text-white text-xs font-medium px-3 py-1 rounded-full border border-white/10">
+                    <span className="flex-shrink-0 inline-flex items-center gap-1 bg-sunken text-white text-xs font-medium px-3 py-1 rounded-full border border-white/10">
                       <Users size={12} /> {zone.capacity} seats
                     </span>
                   </div>

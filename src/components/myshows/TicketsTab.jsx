@@ -180,7 +180,7 @@ const TicketsTab = () => {
         <div className="flex flex-col gap-5">
           {[...Array(4)].map((_, i) => (
             <div key={i} className="bg-card border border-line rounded-2xl overflow-hidden flex">
-              <div className="w-1/4 sm:w-1/5 bg-espresso/40 p-4 flex flex-col items-center justify-center border-r-2 border-dashed border-line">
+              <div className="w-1/4 sm:w-1/5 bg-sunken/70 p-4 flex flex-col items-center justify-center border-r-2 border-dashed border-line">
                 <Skeleton className="h-8 w-8 mb-2" /><Skeleton className="h-4 w-12" />
               </div>
               <div className="flex-1 p-6 flex flex-col justify-center gap-3">
@@ -210,7 +210,7 @@ const TicketsTab = () => {
                   }`}
                 >
                   {/* KHỐI NGÀY bên trái */}
-                  <div className="w-1/4 sm:w-1/5 bg-espresso/40 p-4 flex flex-col items-center justify-center text-center border-r-2 border-dashed border-line">
+                  <div className="w-1/4 sm:w-1/5 bg-sunken/70 p-4 flex flex-col items-center justify-center text-center border-r-2 border-dashed border-line">
                     <p className="text-3xl sm:text-4xl font-bold text-brand-text">{eventDate.format('DD')}</p>
                     <p className="text-sm sm:text-base font-semibold text-ink uppercase mt-1">{eventDate.format('MMM')}</p>
                     <p className="text-sm font-bold text-ink-soft">{eventDate.format('HH:mm')}</p>

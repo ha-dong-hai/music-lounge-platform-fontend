@@ -298,7 +298,7 @@ const OwnerOperatePage = () => {
           </form>
 
           {veTraCuu && (
-            <div className="mt-4 bg-espresso/40 border border-line rounded-lg p-4">
+            <div className="mt-4 bg-sunken/70 border border-line rounded-lg p-4">
               <div className="flex items-start gap-2">
                 {veTraCuu.status === 'CheckedIn'
                   ? <CheckCircle2 size={18} className="text-success mt-0.5 flex-shrink-0" />

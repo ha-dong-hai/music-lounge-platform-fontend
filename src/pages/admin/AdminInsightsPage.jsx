@@ -97,7 +97,7 @@ const AdminInsightsPage = () => {
               <p className="text-xs text-ink-mute mt-0.5">Điểm do hệ thống tính từ vi phạm, khiếu nại và đánh giá.</p>
               <ul className="mt-4 space-y-2">
                 {content.topVenuesByReputation.map((v, i) => (
-                  <li key={v.loungeId} className="flex items-center justify-between gap-3 bg-espresso/40 border border-line rounded-lg px-4 py-2.5">
+                  <li key={v.loungeId} className="flex items-center justify-between gap-3 bg-sunken/70 border border-line rounded-lg px-4 py-2.5">
                     <span className="flex items-center gap-3 min-w-0">
                       <span className="text-ink-mute tabular-nums text-sm w-5 flex-shrink-0">{i + 1}</span>
                       <span className="text-ink text-sm truncate">{v.loungeName}</span>

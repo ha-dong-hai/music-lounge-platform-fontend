@@ -35,19 +35,19 @@ const ModerationModal = ({ moderation, onClose, onDecision, isProcessing }) => {
 
           {/* 4 thông số AI */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <div className="bg-espresso/30 rounded-xl p-4 flex flex-col items-center gap-2">
+            <div className="bg-sunken/50 rounded-xl p-4 flex flex-col items-center gap-2">
               <p className="text-xs text-ink-mute">AI Score</p>
               <AIScoreCircle score={moderation.aiScore} />
             </div>
-            <div className="bg-espresso/30 rounded-xl p-4 flex flex-col items-center gap-2">
+            <div className="bg-sunken/50 rounded-xl p-4 flex flex-col items-center gap-2">
               <p className="text-xs text-ink-mute">Risk</p>
               <RiskLevelBadge level={moderation.riskLevel} />
             </div>
-            <div className="bg-espresso/30 rounded-xl p-4 flex flex-col items-center gap-2">
+            <div className="bg-sunken/50 rounded-xl p-4 flex flex-col items-center gap-2">
               <p className="text-xs text-ink-mute">Recomendation</p>
               <AiRecommendationBadge recommendation={moderation.aiRecommendation} />
             </div>
-            <div className="bg-espresso/30 rounded-xl p-4 flex flex-col items-center justify-center gap-1 text-center">
+            <div className="bg-sunken/50 rounded-xl p-4 flex flex-col items-center justify-center gap-1 text-center">
               <p className="text-xs text-ink-mute">Deadline SLA</p>
               <p className={`text-sm font-bold ${isSlaOverdue ? 'text-danger' : 'text-ink'}`}>
                 {moderation.slaDeadline ? dayjs(moderation.slaDeadline).format('HH:mm DD/MM') : '-'}

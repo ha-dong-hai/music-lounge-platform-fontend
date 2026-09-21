@@ -205,7 +205,7 @@ const AdminDashboard = () => {
         <div className="space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <h2 className="text-sm font-semibold text-ink-soft">Doanh thu 6 tháng gần nhất</h2>
-            <div className="inline-flex rounded-lg border border-line p-0.5 bg-espresso/40" role="group" aria-label="Đại lượng doanh thu">
+            <div className="inline-flex rounded-lg border border-line p-0.5 bg-sunken/70" role="group" aria-label="Đại lượng doanh thu">
               {MEASURES.map((m) => (
                 <button key={m.key} onClick={() => setMeasure(m.key)} aria-pressed={measure === m.key}
                   className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${measure === m.key
@@ -290,7 +290,7 @@ const AdminDashboard = () => {
           ) : (
             <div className="space-y-3">
               {(recommender.models || []).map((m, i) => (
-                <div key={m.name ?? i} className="flex items-center justify-between bg-espresso/40 border border-line rounded-lg px-4 py-3">
+                <div key={m.name ?? i} className="flex items-center justify-between bg-sunken/70 border border-line rounded-lg px-4 py-3">
                   <span className="text-sm text-ink font-medium">{m.name}</span>
                   <span className="text-sm text-brand-text font-bold">
                     HR@{recommender.k}: {((m.hitRate ?? 0) * 100).toFixed(1)}%

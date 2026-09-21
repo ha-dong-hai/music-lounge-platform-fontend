@@ -16,7 +16,7 @@
 // - Backend BẮT X/Y/Z PHẢI CÙNG CÓ GIÁ TRỊ HOẶC CÙNG TRỐNG (trống cả ba = xoá vị trí 3D). Điền hai
 //   ô rồi bỏ trống ô thứ ba là bị từ chối — cố tình như vậy để không lưu dữ liệu nửa vời.
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { Loader2, Plus, Pencil, Ban, X, LayoutGrid, Save, Image as ImageIcon, Box, Eraser } from 'lucide-react'
+import { Loader2, Plus, Pencil, Ban, X, LayoutGrid, Save, Image as ImageIcon, Box, Eraser, PenTool, Undo2 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import {
   getLounges, getLoungeZones, createZone, updateZone, deactivateZone,
@@ -24,10 +24,11 @@ import {
 } from '../../services/loungeServices'
 import { uploadImage } from '../../services/userServices'
 import ConfirmModal from '../../components/shared/ConfirmModal'
+import ZoneSketchLayer from '../../components/owner/ZoneSketchLayer'
 
 const inputCls = 'mt-1 w-full px-3 py-2 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-brand/50'
 
-// Màu mặc định cho khu vực mới — lấy từ bảng màu đã kiểm của biểu đồ, đủ tương phản trên nền tối.
+// Màu mặc định cho khu vực mới — lấy từ bảng màu đã kiểm của biểu đồ, vẫn thấy rõ cả khi tô mờ trên nền sáng.
 const MAU_MAC_DINH = ['#3987e5', '#d95926', '#199e70', '#c98500', '#9085e9', '#d55181']
 
 const ZoneFormModal = ({ initial, loungeId, onClose, onSaved }) => {
@@ -110,6 +111,13 @@ const OwnerZonesPage = () => {
   const [isUploadingBg, setIsUploadingBg] = useState(false)
   const keoRef = useRef(null) // { zoneId, offsetX, offsetY }
   const khungRef = useRef(null)
+
+  // VẼ PHÁC: chủ vẽ tay một nét, hệ thống chỉnh thành hình chuẩn (src/utils/shapeRecognizer.js).
+  const [veMode, setVeMode] = useState(false)
+  const [veZoneId, setVeZoneId] = useState('')
+  const [hutLuoi, setHutLuoi] = useState(true)
+  const [coHoanTac, setCoHoanTac] = useState(false)
+  const hoanTacRef = useRef(null) // { zoneId, truoc } — trạng thái khu vực ngay trước lần vẽ gần nhất
 
   const load = useCallback(async () => {
     setIsLoading(true)
@@ -276,6 +284,62 @@ const OwnerZonesPage = () => {
     } finally { setIsUploadingBg(false) }
   }
 
+  // --- vẽ phác ---
+  // Backend chỉ lưu khu vực dạng HÌNH CHỮ NHẬT (x, y, width, height, rotationDeg — theo % khung). Vẽ tròn
+  // hay đa giác vẫn nhận diện được, nhưng lưu lại chỉ là khung chữ nhật bao quanh — và nói rõ điều đó
+  // với người dùng thay vì để họ tưởng hình tròn đã được lưu.
+  const apDungHinhVe = (shape, khung) => {
+    if (!veZoneId || !layout[veZoneId]) return
+    let cx, cy, w, h, rot = 0, ghiChu = null
+    if (shape.type === 'rect') {
+      ;({ x: cx, y: cy, width: w, height: h, rotation: rot } = shape)
+    } else if (shape.type === 'ellipse') {
+      cx = shape.cx; cy = shape.cy; w = shape.rx * 2; h = shape.ry * 2
+      ghiChu = 'Hệ thống hiện chỉ lưu khu vực dạng chữ nhật, nên đã lấy khung chữ nhật bao quanh hình tròn.'
+    } else if (shape.type === 'polygon') {
+      const xs = shape.points.map((q) => q[0])
+      const ys = shape.points.map((q) => q[1])
+      w = Math.max(...xs) - Math.min(...xs)
+      h = Math.max(...ys) - Math.min(...ys)
+      cx = Math.min(...xs) + w / 2
+      cy = Math.min(...ys) + h / 2
+      ghiChu = 'Hệ thống hiện chỉ lưu khu vực dạng chữ nhật, nên đã lấy khung chữ nhật bao quanh hình vừa vẽ.'
+    } else {
+      toast.error('Đường thẳng không dùng làm khu vực được. Hãy vẽ một hình khép kín.')
+      return
+    }
+    const lam = (v) => (hutLuoi ? Math.round(v / 2.5) * 2.5 : Math.round(v * 10) / 10)
+    const width = Math.min(100, Math.max(5, lam((w / khung.width) * 100)))
+    const height = Math.min(100, Math.max(5, lam((h / khung.height) * 100)))
+    const x = Math.max(0, Math.min(100 - width, lam(((cx - w / 2) / khung.width) * 100)))
+    const y = Math.max(0, Math.min(100 - height, lam(((cy - h / 2) / khung.height) * 100)))
+
+    hoanTacRef.current = { zoneId: veZoneId, truoc: layout[veZoneId] }
+    setCoHoanTac(true)
+    setLayout((p) => ({ ...p, [veZoneId]: { ...p[veZoneId], x, y, width, height, rotationDeg: rot } }))
+    toast.success(rot ? `Đã chỉnh thành hình chữ nhật, xoay ${rot}°.` : 'Đã chỉnh thành hình chữ nhật chuẩn.')
+    if (ghiChu) toast(ghiChu, { duration: 6000 })
+  }
+
+  const hoanTacVe = () => {
+    const h = hoanTacRef.current
+    if (!h) return
+    setLayout((p) => ({ ...p, [h.zoneId]: h.truoc }))
+    hoanTacRef.current = null
+    setCoHoanTac(false)
+  }
+
+  const batTatVe = () => {
+    setVeMode((v) => {
+      const bat = !v
+      if (bat && !veZoneId) {
+        const dau = zones.find((z) => z.isActive)
+        if (dau) setVeZoneId(String(dau.id))
+      }
+      return bat
+    })
+  }
+
   if (isLoading) {
     return <div className="py-20 flex justify-center"><Loader2 size={32} className="animate-spin text-brand-text" /></div>
   }
@@ -322,7 +386,7 @@ const OwnerZonesPage = () => {
               <div>
                 <h2 className="text-base font-semibold text-ink">Sơ đồ 2D</h2>
                 <p className="text-xs text-ink-mute mt-0.5 leading-relaxed">
-                  Kéo từng khối để đặt vị trí. Chỉ lưu khi bấm nút — kéo tới đâu lưu tới đó sẽ làm sơ đồ nhảy khi mạng chậm.
+                  Kéo từng khối để đặt vị trí, hoặc bấm Vẽ phác rồi vẽ tay hình khu vực — hệ thống tự chỉnh thành hình chuẩn. Chỉ lưu khi bấm nút — kéo tới đâu lưu tới đó sẽ làm sơ đồ nhảy khi mạng chậm.
                 </p>
               </div>
               <div className="flex flex-wrap gap-2">
@@ -338,12 +402,39 @@ const OwnerZonesPage = () => {
                     Bỏ ảnh nền
                   </button>
                 )}
+                <button onClick={batTatVe} aria-pressed={veMode}
+                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-bold transition-colors ${veMode ? 'bg-espresso text-cream border-espresso' : 'border-line text-ink-soft hover:bg-sunken'}`}>
+                  <PenTool size={13} /> {veMode ? 'Đang vẽ phác' : 'Vẽ phác'}
+                </button>
                 <button onClick={luuSoDo} disabled={isSavingLayout}
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand text-on-brand text-xs font-bold hover:bg-brand-hover disabled:opacity-50">
                   {isSavingLayout ? <Loader2 size={13} className="animate-spin" /> : <Save size={13} />} Lưu sơ đồ
                 </button>
               </div>
             </div>
+
+            {veMode && (
+              <div className="flex flex-wrap items-center gap-3 mb-3 px-3 py-2.5 rounded-lg bg-sunken/70 border border-line text-xs text-ink-soft">
+                <label className="flex items-center gap-2">
+                  <span className="font-semibold text-ink">Vẽ cho khu vực</span>
+                  <select value={veZoneId} onChange={(e) => setVeZoneId(e.target.value)}
+                    className="px-2 py-1 rounded-md border border-line bg-card text-ink text-xs">
+                    {dangHoatDong.map((z) => <option key={z.id} value={z.id}>{z.name}</option>)}
+                  </select>
+                </label>
+                <label className="flex items-center gap-1.5 cursor-pointer">
+                  <input type="checkbox" checked={hutLuoi} onChange={(e) => setHutLuoi(e.target.checked)} />
+                  Hút vào lưới
+                </label>
+                {coHoanTac && (
+                  <button onClick={hoanTacVe}
+                    className="inline-flex items-center gap-1 px-2 py-1 rounded-md border border-line bg-card text-ink font-semibold hover:bg-page">
+                    <Undo2 size={12} /> Hoàn tác
+                  </button>
+                )}
+                <span className="text-ink-mute">Vẽ một nét liền, khép kín (ví dụ một ô vuông). Thả tay ra là hệ thống chỉnh lại.</span>
+              </div>
+            )}
 
             <div
               ref={khungRef}
@@ -376,6 +467,12 @@ const OwnerZonesPage = () => {
                   </div>
                 )
               })}
+              <ZoneSketchLayer
+                enabled={veMode && !!veZoneId}
+                frameRef={khungRef}
+                onRecognized={apDungHinhVe}
+                onRejected={() => toast.error('Chưa nhận ra hình. Hãy vẽ một nét liền và khép kín, ví dụ một ô vuông.')}
+              />
             </div>
           </div>
 
@@ -386,7 +483,7 @@ const OwnerZonesPage = () => {
               {dangHoatDong.map((z) => {
                 const o = layout[z.id] ?? {}
                 return (
-                  <li key={z.id} className="bg-espresso/40 border border-line rounded-lg p-4">
+                  <li key={z.id} className="bg-sunken/70 border border-line rounded-lg p-4">
                     <div className="flex flex-wrap items-start justify-between gap-3">
                       <div className="flex items-start gap-3 min-w-0">
                         <span className="w-4 h-4 rounded-sm mt-0.5 flex-shrink-0" style={{ backgroundColor: o.color }} />
@@ -472,7 +569,7 @@ const OwnerZonesPage = () => {
           <p className="text-xs text-ink-mute mb-3">Giữ lại vì vé đã bán còn tham chiếu tới những khu vực này.</p>
           <ul className="space-y-2">
             {daNgung.map((z) => (
-              <li key={z.id} className="flex items-center justify-between gap-3 bg-espresso/20 border border-line/60 rounded-lg p-3 opacity-70">
+              <li key={z.id} className="flex items-center justify-between gap-3 bg-sunken/40 border border-line/60 rounded-lg p-3 opacity-70">
                 <span className="text-sm text-ink-soft">{z.name}</span>
                 <span className="text-xs text-ink-mute">{z.capacity} chỗ</span>
               </li>

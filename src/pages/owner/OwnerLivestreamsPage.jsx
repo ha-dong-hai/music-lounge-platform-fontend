@@ -190,7 +190,7 @@ const ShowLivestreamRow = ({ show, onChanged }) => {
               chiếu, và không biết mình đã khai hay chưa — trong khi đây là điều kiện bắt buộc để
               bắt đầu phát. */}
           {chiTiet?.operatorInfo?.vcpmcDeclared && (
-            <div className="p-3 rounded-lg bg-espresso/40 border border-line">
+            <div className="p-3 rounded-lg bg-sunken/70 border border-line">
               <p className="text-xs text-ink-mute">Đã khai mã tác quyền VCPMC</p>
               <p className="text-sm text-ink mt-0.5 break-all">
                 {chiTiet.operatorInfo.vcpmcRoyaltyReference || '(đã khai, không đọc lại được mã)'}

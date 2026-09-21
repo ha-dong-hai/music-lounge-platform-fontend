@@ -112,7 +112,7 @@ const ComplaintDetailModal = ({ complaint, onClose, onResolve }) => {
                 <p className="text-sm text-ink-soft">Action: <span className="text-ink">{c.resolvedAction}</span></p>
               )}
               {c.resolution && (
-                <p className="text-sm text-ink-soft bg-espresso/30 rounded-md p-2.5 italic">"{c.resolution}"</p>
+                <p className="text-sm text-ink-soft bg-sunken/50 rounded-md p-2.5 italic">"{c.resolution}"</p>
               )}
               {c.resolvedAt && (
                 <p className="text-xs text-ink-mute flex items-center gap-1.5">

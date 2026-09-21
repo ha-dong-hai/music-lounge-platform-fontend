@@ -93,7 +93,7 @@ const ConfirmPaidModal = ({ donation, onClose, onSaved }) => {
         </div>
 
         <form onSubmit={submit} className="p-5 space-y-4">
-          <div className="bg-espresso/40 border border-line rounded-lg p-4">
+          <div className="bg-sunken/70 border border-line rounded-lg p-4">
             <p className="text-sm text-ink font-medium">{donation.performerName}</p>
             <p className="text-xs text-ink-mute mt-0.5">{donation.showName}</p>
             <p className="text-lg text-brand-text font-bold mt-2 tabular-nums">{fmtMoney(donation.amountToPayPerformer)}</p>

@@ -98,7 +98,7 @@ const ReviewModal = ({ item, approve, onClose, onSaved }) => {
         </div>
 
         <form onSubmit={submit} className="p-5 space-y-4">
-          <div className="p-3 rounded-lg bg-espresso/50 border border-line space-y-1">
+          <div className="p-3 rounded-lg bg-sunken/80 border border-line space-y-1">
             <p className="text-sm text-ink">{item.loungeName}</p>
             <p className="text-xs text-ink-soft">{item.bankName} · {item.accountNumberMasked}</p>
             <p className="text-xs text-ink-soft">

@@ -70,7 +70,7 @@ const EditModal = ({ config, onClose, onSaved }) => {
 
           <div>
             <label className="text-xs text-ink-mute">Giá trị hiện tại</label>
-            <p className="mt-1 px-3 py-2 bg-espresso/60 border border-line rounded-lg text-sm text-ink-soft tabular-nums">
+            <p className="mt-1 px-3 py-2 bg-sunken border border-line rounded-lg text-sm text-ink-soft tabular-nums">
               {config.configValue}
             </p>
           </div>
@@ -143,7 +143,7 @@ const HistoryModal = ({ configKey, onClose }) => {
           ) : (
             <ul className="space-y-3">
               {rows.map((h) => (
-                <li key={h.id} className="bg-espresso/40 border border-line rounded-lg p-3">
+                <li key={h.id} className="bg-sunken/70 border border-line rounded-lg p-3">
                   <div className="flex items-center gap-2 text-sm tabular-nums">
                     <span className="text-ink-mute line-through">{h.oldValue ?? '—'}</span>
                     <span className="text-ink-mute">→</span>

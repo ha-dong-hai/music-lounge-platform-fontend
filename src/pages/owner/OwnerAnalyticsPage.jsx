@@ -260,7 +260,7 @@ const OwnerAnalyticsPage = () => {
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left whitespace-nowrap">
-              <thead className="bg-espresso/40 border-y border-line">
+              <thead className="bg-sunken/70 border-y border-line">
                 <tr>
                   <th className="p-4 text-xs font-semibold text-ink-soft uppercase">Buổi diễn</th>
                   <th className="p-4 text-xs font-semibold text-ink-soft uppercase">Vé bán / sức chứa</th>

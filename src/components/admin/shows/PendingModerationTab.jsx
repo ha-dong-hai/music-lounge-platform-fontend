@@ -119,7 +119,7 @@ const PendingModerationTab = () => {
       <div className="bg-card border border-line rounded-xl overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left whitespace-nowrap">
-            <thead className="bg-espresso/50 border-b border-line">
+            <thead className="bg-sunken/80 border-b border-line">
               <tr>
                 <th className="p-4 text-brand-text font-semibold text-sm">{targetType} ({targetType} ID)</th>
                 <th className="p-4 text-brand-text font-semibold text-sm">Rick level</th>

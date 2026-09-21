@@ -117,7 +117,7 @@ const FollowedLoungesTab = () => {
       ) : followedLounges.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
           {followedLounges.map(lounge => (
-            <Link key={lounge.id} to={`/lounge/${lounge.id}`} className="bg-espresso/30 border border-line rounded-xl p-6 flex flex-col items-center text-center hover:border-brand/40 transition-colors group">
+            <Link key={lounge.id} to={`/lounge/${lounge.id}`} className="bg-sunken/50 border border-line rounded-xl p-6 flex flex-col items-center text-center hover:border-brand/40 transition-colors group">
               <img src={lounge.primaryImageUrl || `https://api.dicebear.com/7.x/initials/svg?seed=${lounge.name}&backgroundColor=10b981`} alt={lounge.name} className="w-20 h-20 rounded-full mb-4 border-2 border-line group-hover:border-brand transition-colors object-cover" />
               <h3 className="text-ink font-bold group-hover:text-brand-text transition-colors">{lounge.name}</h3>
               <p className="text-ink-mute text-xs mt-1">{[lounge.district, lounge.city].filter(Boolean).join(', ') || '—'}</p>

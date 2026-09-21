@@ -25,7 +25,7 @@ const fmtTien = (v) => `${Number(v || 0).toLocaleString('vi-VN')}đ`
 const fmtPhanTram = (v) => `${Number(v || 0).toLocaleString('vi-VN', { maximumFractionDigits: 1 })}%`
 
 const O = ({ title, value, note, icon: Icon }) => (
-  <div className="bg-espresso/40 border border-line rounded-lg p-4">
+  <div className="bg-sunken/70 border border-line rounded-lg p-4">
     <div className="flex items-start justify-between gap-2">
       <p className="text-xs text-ink-mute">{title}</p>
       <Icon size={15} className="text-ink-mute flex-shrink-0" />
@@ -169,7 +169,7 @@ const ShowAnalyticsSection = ({ showId }) => {
           {forecast.status === 'Forecast' && forecast.projectedFinalSales != null ? (
             <>
               <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div className="bg-espresso/40 border border-line rounded-lg p-4">
+                <div className="bg-sunken/70 border border-line rounded-lg p-4">
                   <p className="text-xs text-ink-mute">Dự kiến bán được (cả buổi)</p>
                   <p className="text-xl font-bold text-ink mt-1 tabular-nums">
                     {fmtSo(forecast.projectedFinalSales)} vé
@@ -180,7 +180,7 @@ const ShowAnalyticsSection = ({ showId }) => {
                     </p>
                   )}
                 </div>
-                <div className="bg-espresso/40 border border-line rounded-lg p-4">
+                <div className="bg-sunken/70 border border-line rounded-lg p-4">
                   <p className="text-xs text-ink-mute">Còn lại</p>
                   <p className="text-xl font-bold text-ink mt-1 tabular-nums">{forecast.daysUntilShow} ngày</p>
                   {forecast.expectedPaceFraction != null && (
@@ -189,7 +189,7 @@ const ShowAnalyticsSection = ({ showId }) => {
                     </p>
                   )}
                 </div>
-                <div className="bg-espresso/40 border border-line rounded-lg p-4">
+                <div className="bg-sunken/70 border border-line rounded-lg p-4">
                   <p className="text-xs text-ink-mute">Dự kiến bán hết</p>
                   <p className="text-xl font-bold text-ink mt-1 tabular-nums">
                     {forecast.projectedSellThroughRate != null

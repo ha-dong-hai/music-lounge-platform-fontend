@@ -74,7 +74,7 @@ const ReviewModal = ({ target, onClose, onSaved }) => {
         </div>
 
         <form onSubmit={submit} className="p-5 space-y-4">
-          <div className="bg-espresso/40 border border-line rounded-lg p-3">
+          <div className="bg-sunken/70 border border-line rounded-lg p-3">
             <p className="text-sm text-ink font-medium">{target.item.fullName}</p>
             <p className="text-xs text-ink-mute mt-0.5">{target.item.email}</p>
           </div>
@@ -116,7 +116,7 @@ const ReviewModal = ({ target, onClose, onSaved }) => {
 }
 
 const DocBlock = ({ icon: Icon, title, status, children, onApprove, onReject, coDuLieu }) => (
-  <div className="bg-espresso/40 border border-line rounded-lg p-4">
+  <div className="bg-sunken/70 border border-line rounded-lg p-4">
     <div className="flex items-start justify-between gap-3">
       <div className="flex items-center gap-2 min-w-0">
         <Icon size={15} className="text-ink-mute flex-shrink-0" />

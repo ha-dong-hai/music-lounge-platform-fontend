@@ -49,7 +49,7 @@ const ReviewVenueModal = ({ venue, decision, onClose, onSaved }) => {
         </div>
 
         <form onSubmit={submit} className="p-5 space-y-4">
-          <div className="bg-espresso/40 border border-line rounded-lg p-3">
+          <div className="bg-sunken/70 border border-line rounded-lg p-3">
             <p className="text-sm text-ink font-medium">{venue.name ?? venue.loungeName}</p>
             {venue.ownerName && <p className="text-xs text-ink-mute mt-0.5">Chủ: {venue.ownerName}</p>}
             {venue.hasBusinessLicense === false && (

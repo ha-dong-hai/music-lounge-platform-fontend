@@ -195,7 +195,7 @@ const SocialLinksModal = ({ performer, onClose, onSaved }) => {
           ) : (
             <ul className="space-y-2">
               {links.map((l) => (
-                <li key={l.id} className="flex items-center justify-between gap-3 bg-espresso/40 border border-line rounded-lg p-3">
+                <li key={l.id} className="flex items-center justify-between gap-3 bg-sunken/70 border border-line rounded-lg p-3">
                   <div className="min-w-0">
                     <p className="text-ink text-sm font-medium">{l.platform}</p>
                     <a href={l.url} target="_blank" rel="noopener noreferrer"

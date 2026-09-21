@@ -10,7 +10,7 @@ const VenuesTable = ({ venues, isLoading, pagination, onPageChange, onReview, on
     <div className="bg-card border border-line rounded-xl overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full text-left whitespace-nowrap">
-          <thead className="bg-espresso/40 border-b border-line">
+          <thead className="bg-sunken/70 border-b border-line">
             <tr>
               <th className="p-4 text-xs font-semibold text-ink-soft uppercase tracking-wider">Venue</th>
               <th className="p-4 text-xs font-semibold text-ink-soft uppercase tracking-wider">Owner</th>

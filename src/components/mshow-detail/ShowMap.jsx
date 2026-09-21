@@ -306,7 +306,7 @@ const ShowMap = ({ showData }) => {
 
               {hold ? (
                 <>
-                  <div className="flex items-center justify-center gap-2 bg-espresso/40 border border-brand/40 rounded-lg py-2.5">
+                  <div className="flex items-center justify-center gap-2 bg-sunken/70 border border-brand/40 rounded-lg py-2.5">
                     <Timer size={16} className="text-brand-text" />
                     <span className="text-brand-text font-mono font-bold">{formatCountdown(secondsLeft)}</span>
                     <span className="text-ink-mute text-xs">còn lại để thanh toán</span>

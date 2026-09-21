@@ -79,7 +79,7 @@ const ReviewModal = ({ item, decision, onClose, onSaved }) => {
         </div>
 
         <form onSubmit={submit} className="p-5 space-y-4 overflow-y-auto">
-          <div className="p-3 rounded-lg bg-espresso/50 border border-line space-y-1.5">
+          <div className="p-3 rounded-lg bg-sunken/80 border border-line space-y-1.5">
             <p className="text-sm text-ink">{item.loungeName}</p>
             <p className="text-xs text-ink-soft">
               {TYPE_VIEW[item.penaltyType]?.label ?? item.penaltyType}

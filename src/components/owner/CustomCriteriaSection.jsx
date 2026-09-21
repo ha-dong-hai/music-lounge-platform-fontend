@@ -161,7 +161,7 @@ const CustomCriteriaSection = ({ loungeId }) => {
               const dangSua = suaTen?.id === c.id
               return (
                 <li key={c.id}
-                  className={`bg-espresso/40 border border-line rounded-lg p-3 ${daTat ? 'opacity-60' : ''}`}>
+                  className={`bg-sunken/70 border border-line rounded-lg p-3 ${daTat ? 'opacity-60' : ''}`}>
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0 flex-1">
                       {dangSua ? (

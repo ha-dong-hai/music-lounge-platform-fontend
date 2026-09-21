@@ -59,7 +59,7 @@ const RemoveModal = ({ rating, onClose, onDone }) => {
           </button>
         </div>
         <form onSubmit={submit} className="p-5 space-y-4">
-          <div className="p-3 rounded-lg bg-espresso/50 border border-line">
+          <div className="p-3 rounded-lg bg-sunken/80 border border-line">
             <SaoHang score={rating.score} />
             {rating.comment && <p className="text-sm text-ink-soft mt-1.5 leading-relaxed">{rating.comment}</p>}
           </div>

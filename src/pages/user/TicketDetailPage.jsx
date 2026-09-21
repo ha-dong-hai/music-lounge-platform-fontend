@@ -276,7 +276,7 @@ const TicketDetailPage = () => {
 
                     <div className="border border-line rounded-lg overflow-hidden">
                         <table className="w-full text-left">
-                            <thead className="bg-espresso/40">
+                            <thead className="bg-sunken/70">
                                 <tr>
                                     <th className="p-4 text-ink-soft font-medium text-sm">Hạng vé</th>
                                     <th className="p-4 text-ink-soft font-medium text-sm text-right">Price</th>
@@ -290,7 +290,7 @@ const TicketDetailPage = () => {
                                     </td>
                                     <td className="p-4 text-ink font-bold text-right">{formattedPrice}</td>
                                 </tr>
-                                <tr className="border-t-2 border-line bg-espresso/20">
+                                <tr className="border-t-2 border-line bg-sunken/40">
                                     <td className="p-4 text-ink font-bold">Tổng cộng</td>
                                     <td className="p-4 text-brand-text font-bold text-right text-lg">{formattedPrice}</td>
                                 </tr>

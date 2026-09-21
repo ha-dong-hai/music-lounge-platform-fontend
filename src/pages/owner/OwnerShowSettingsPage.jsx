@@ -329,7 +329,7 @@ const OwnerShowSettingsPage = () => {
               quyết. Chỉ chặn khi KHÔNG CÓ bản ghi gói nào (goi === null) — lúc đó máy chủ chắc chắn
               từ chối. Chưa đọc được gói (undefined) thì không nói gì và không chặn gì. */}
           {goi === null && (
-            <p className="text-xs text-ink-soft leading-relaxed bg-espresso/40 border border-line rounded-lg p-3">
+            <p className="text-xs text-ink-soft leading-relaxed bg-sunken/70 border border-line rounded-lg p-3">
               Bạn chưa đăng ký gói dịch vụ nào nên chưa dùng được poster AI. Bạn vẫn tự tải poster lên
               được. <Link to="/owner/subscription" className="text-brand-text hover:underline">Xem các gói</Link>
             </p>
@@ -344,7 +344,7 @@ const OwnerShowSettingsPage = () => {
           )}
 
           {goi && goiConHieuLuc && !goi.hasAiPosterSnapshot && (
-            <p className="text-xs text-ink-soft leading-relaxed bg-espresso/40 border border-line rounded-lg p-3">
+            <p className="text-xs text-ink-soft leading-relaxed bg-sunken/70 border border-line rounded-lg p-3">
               Gói <b>{goi.packageName}</b> không có tính năng tạo poster bằng AI. Bạn vẫn tự tải poster
               lên được. <Link to="/owner/subscription" className="text-brand-text hover:underline">Xem các gói</Link>
             </p>
@@ -376,7 +376,7 @@ const OwnerShowSettingsPage = () => {
               suốt quãng đó cửa sổ không có gì đổi ngoài một vòng xoay nhỏ trên nút — đủ lâu để người
               ta tưởng máy treo và bấm đi chỗ khác. Nói luôn con số để cái chờ có điểm kết thúc. */}
           {busy === 'ai' && (
-            <p className="text-xs text-ink-soft flex items-start gap-2 leading-relaxed bg-espresso/40 border border-line rounded-lg p-3">
+            <p className="text-xs text-ink-soft flex items-start gap-2 leading-relaxed bg-sunken/70 border border-line rounded-lg p-3">
               <Loader2 size={13} className="mt-px flex-shrink-0 animate-spin" />
               Đang tạo poster, thường khoảng 20 giây. Xin đừng rời trang.
             </p>
@@ -442,7 +442,7 @@ const OwnerShowSettingsPage = () => {
                   const v = ATTEMPT_VIEW[h.status] ?? { label: h.status, cls: 'text-ink-soft', icon: ImageIcon }
                   const laPosterDangDung = !!h.imageUrl && h.imageUrl === show.coverImageUrl
                   return (
-                    <li key={h.id} className="bg-espresso/40 border border-line rounded-lg px-3 py-2">
+                    <li key={h.id} className="bg-sunken/70 border border-line rounded-lg px-3 py-2">
                       <div className="flex items-center justify-between gap-3 text-xs">
                         <span className={`inline-flex items-center gap-1.5 ${v.cls}`}>
                           <v.icon size={12} className={h.status === 'Rendering' ? 'animate-spin' : ''} /> {v.label}
@@ -516,7 +516,7 @@ const OwnerShowSettingsPage = () => {
                 <button key={m.value} onClick={() => doiCheDoPhat(m.value)} disabled={busy !== null || dangChon}
                   className={`w-full text-left p-4 rounded-lg border transition-colors disabled:cursor-default ${dangChon
                     ? 'bg-sunken border-brand/40'
-                    : 'bg-espresso/40 border-line hover:border-line'}`}>
+                    : 'bg-sunken/70 border-line hover:border-line'}`}>
                   <div className="flex items-center justify-between gap-3">
                     <span className={`text-sm font-medium inline-flex items-center gap-2 ${dangChon ? 'text-brand-text' : 'text-ink'}`}>
                       <MonitorPlay size={15} /> {m.label}

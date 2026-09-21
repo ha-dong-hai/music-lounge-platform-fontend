@@ -90,7 +90,7 @@ const HotspotModal = ({ loungeId, scene, scenes, onClose, onSaved }) => {
               {scene.hotspots.map((h) => {
                 const dich = scenes.find((x) => x.id === h.targetSceneId)
                 return (
-                  <li key={h.id} className="flex items-center justify-between gap-3 bg-espresso/40 border border-line rounded-lg p-3">
+                  <li key={h.id} className="flex items-center justify-between gap-3 bg-sunken/70 border border-line rounded-lg p-3">
                     <div className="min-w-0">
                       <p className="text-sm text-ink truncate">{h.label || 'Không nhãn'}</p>
                       {/* Hai loại hotspot hiện khác nhau: loại chú thích không dẫn đi đâu nên hiện
@@ -447,7 +447,7 @@ const OwnerTourPage = () => {
                   <span key={sc.id}
                     title={sc.name || `Scene #${sc.id}`}
                     className={`absolute -translate-x-1/2 -translate-y-1/2 px-1.5 py-0.5 rounded-md text-[10px] font-bold whitespace-nowrap ${
-                      dangNham ? 'bg-brand text-on-brand ring-2 ring-line-strong/50' : 'bg-espresso/80 text-brand-text border border-brand/50'
+                      dangNham ? 'bg-brand text-on-brand ring-2 ring-line-strong/50' : 'bg-espresso/80 text-brand-on-dark border border-brand/50'
                     }`}
                     style={{ left: `${o.x}%`, top: `${o.y}%` }}>
                     {sc.name || `#${sc.id}`}
@@ -469,7 +469,7 @@ const OwnerTourPage = () => {
         ) : (
           <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {scenes.map((sc) => (
-              <li key={sc.id} className="bg-espresso/40 border border-line rounded-lg overflow-hidden">
+              <li key={sc.id} className="bg-sunken/70 border border-line rounded-lg overflow-hidden">
                 {sc.imageUrl && <img src={sc.imageUrl} alt="" className="w-full h-32 object-cover" />}
                 <div className="p-3">
                   <p className="text-sm text-ink font-medium truncate">{sc.name || `Scene #${sc.id}`}</p>
@@ -542,7 +542,7 @@ const OwnerTourPage = () => {
         </p>
 
         {donGhep ? (
-          <div className="mt-4 bg-espresso/40 border border-line rounded-lg p-4">
+          <div className="mt-4 bg-sunken/70 border border-line rounded-lg p-4">
             <p className="text-sm text-ink flex items-center gap-2">
               <Clock size={14} className="text-warning" /> Đơn ghép #{donGhep.id} — {donGhep.status}
             </p>

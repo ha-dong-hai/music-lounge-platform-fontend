@@ -210,7 +210,7 @@ const ComplaintPage = () => {
             </div>
 
             {ketQua.lookupReference && (
-              <div className="mt-5 bg-espresso/60 border border-line rounded-lg p-4">
+              <div className="mt-5 bg-sunken border border-line rounded-lg p-4">
                 <p className="text-xs text-ink-mute">Mã tra cứu của bạn</p>
                 <div className="flex items-center gap-3 mt-1.5 flex-wrap">
                   <code className="text-lg font-bold text-brand-text tracking-wide break-all">{ketQua.lookupReference}</code>
@@ -334,7 +334,7 @@ const ComplaintPage = () => {
                   {ketQuaTraCuu.resolvedAt && <p>Đã xử lý {dayjs(ketQuaTraCuu.resolvedAt).format('DD/MM/YYYY')}</p>}
                 </div>
                 {ketQuaTraCuu.resolution && (
-                  <div className="mt-3 bg-espresso/40 border border-line rounded-lg p-3">
+                  <div className="mt-3 bg-sunken/70 border border-line rounded-lg p-3">
                     <p className="text-xs text-ink-mute mb-1">Phản hồi của chúng tôi</p>
                     <p className="text-sm text-ink-soft leading-relaxed">{ketQuaTraCuu.resolution}</p>
                   </div>
@@ -376,7 +376,7 @@ const ComplaintPage = () => {
                   </div>
                   <p className="text-sm text-ink-soft mt-2 line-clamp-3">{c.description}</p>
                   {c.resolution && (
-                    <div className="mt-3 bg-espresso/40 border border-line rounded-lg p-3">
+                    <div className="mt-3 bg-sunken/70 border border-line rounded-lg p-3">
                       <p className="text-xs text-ink-mute mb-1">Phản hồi</p>
                       <p className="text-sm text-ink-soft leading-relaxed">{c.resolution}</p>
                     </div>
