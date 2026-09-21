@@ -25,7 +25,6 @@ import LoungeDetailPage from '../pages/lounge/LoungeDetailPage'
 import TicketDetailPage from '../pages/user/TicketDetailPage'
 import LoungeListPage from '../pages/lounge/LoungeListPage'
 import LivestreamWatchPage from '../pages/livestream/LivestreamWatchPage'
-import RatingModal from '../components/livestream/RatingModal'
 import AdminVenuesPage from '../pages/admin/AdminVenuesPage'
 import AdminFilterOptionsPage from '../pages/admin/AdminFilterOptionsPage'
 import AdminKycReviewsPage from '../pages/admin/AdminKycReviewsPage'
@@ -61,6 +60,8 @@ import ComplaintPage from '../pages/user/ComplaintPage'
 import PerformerConfirmationPage from '../pages/public/PerformerConfirmationPage'
 import PerformerDonationsPage from '../pages/public/PerformerDonationsPage'
 import PerformerPage from '../pages/public/PerformerPage'
+import NotificationsPage from '../pages/user/NotificationsPage'
+import NotFoundPage from '../pages/NotFoundPage'
 import OwnerShowsPage from '../pages/owner/OwnerShowsPage'
 import OwnerShowDetailPage from '../pages/owner/OwnerShowDetailPage'
 import FnbOrderPage from '../pages/fnb/FnbOrderPage'
@@ -76,11 +77,11 @@ const AppRouter = createBrowserRouter([
       { path: 'shows/:id', element: <EventDetailPage /> },
       { path: 'account', element: <AccountPage /> },
       { path: 'my-shows', element: <MyShowsPage /> },
+      { path: 'notifications', element: <NotificationsPage /> },
       { path: 'my-shows/ticket/:ticketId', element: <TicketDetailPage /> },
       { path: 'lounges', element: <LoungeListPage /> },
       { path: 'lounge/:id', element: <LoungeDetailPage /> }, 
       { path: 'lounge/:id/order', element: <FnbOrderPage /> },
-      { path: 'rating', element: <RatingModal /> },
     ],
   },
 
@@ -170,7 +171,12 @@ const AppRouter = createBrowserRouter([
       { path: 'refunds', element: <AdminRefundsPage /> },
       { path: 'settlements', element: <AdminSettlementsPage /> },
     ]
-  }
+  },
+
+  // BẮT TẤT CẢ — phải nằm CUỐI CÙNG. Không có nó thì mọi URL sai ra trang trắng hoàn toàn:
+  // không chữ, không nút, không cách đi tiếp ngoài nút Back. Người dùng sẽ nghĩ hệ thống hỏng
+  // chứ không nghĩ mình gõ sai địa chỉ.
+  { path: '*', element: <NotFoundPage /> },
 
 ])
 
