@@ -1,5 +1,5 @@
 import { Outlet, NavLink, useNavigate } from 'react-router-dom'
-import { LayoutDashboard, Music, Package, LogOut, Users, Receipt, MessageSquareWarning, SlidersHorizontal } from 'lucide-react'
+import { LayoutDashboard, Music, Package, LogOut, Users, Receipt, MessageSquareWarning, SlidersHorizontal, Landmark } from 'lucide-react'
 
 const AdminLayout = () => {
   const navigate = useNavigate()
@@ -41,6 +41,10 @@ const AdminLayout = () => {
           </NavLink>
           <NavLink to="/admin/accounts" className={linkClasses}>
             <Users size={18} /> Account management
+          </NavLink>
+          <NavLink to="/admin/bank-accounts" className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${isActive ? 'bg-[#C3B665]/10 text-[#C3B665]' : 'text-gray-400 hover:text-white hover:bg-gray-800'}`}>
+            <Landmark size={20} />
+            <span>Bank Accounts</span>
           </NavLink>
           <NavLink to="/admin/packages" className={linkClasses}>
             <Package size={18} /> Package

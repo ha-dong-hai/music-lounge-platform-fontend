@@ -86,3 +86,11 @@ export const reviewVenue = async (venueId, decision, reviewNote = '') => {
   }
   return axiosClient.post(`/admin/venues/${venueId}/review`, { decision, reviewNote });
 };
+
+export const getAdminBankAccounts = async (params = {}) => {
+  return axiosClient.get('/admin/bank-accounts', { params });
+};
+
+export const reviewBankAccount = async (id, approve, note = '') => {
+  return axiosClient.post(`/admin/bank-accounts/${id}/review`, { approve, note });
+};
