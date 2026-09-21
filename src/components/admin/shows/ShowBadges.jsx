@@ -37,8 +37,21 @@ export const StatusBadge = ({ status }) => {
 
 // ===== MODERATION BADGES =====
 // Vòng tròn điểm AI (0 -> 1 quy đổi ra %)
+// `score` NULL nghĩa là CHƯA ĐƯỢC CHẤM, không phải "chấm ra 0".
+// Khi hệ thống chưa cấu hình khoá AI thì dịch vụ chấm điểm trả null và tác vụ nền KHÔNG ghi gì vào
+// bản ghi — nên trường này giữ nguyên null (đã đối chiếu mã nguồn backend, không đoán).
+// Hiện "N/A" trơn là để người duyệt tự hiểu, mà hai cách hiểu sai đều có hại: tưởng hệ thống hỏng,
+// hoặc tưởng bản ghi này lọt lưới. Thực tế nó vẫn nằm trong hạn duyệt tay (SlaDeadline) — hàng rào
+// thật là thời hạn cho NGƯỜI, không phải điểm AI. Nên nói đúng câu đó ra.
 export const AIScoreCircle = ({ score }) => {
-  if (score === null || score === undefined) return <div className="text-gray-600 text-sm">N/A</div>
+  if (score === null || score === undefined) {
+    return (
+      <div className="text-center">
+        <p className="text-gray-500 text-sm font-medium">Chưa chấm</p>
+        <p className="text-[10px] text-gray-600 mt-0.5 leading-tight">vẫn trong hạn duyệt tay</p>
+      </div>
+    )
+  }
   const numScore = Math.round(score * 100)
   const colorClass = numScore >= 70 ? 'border-green-500 text-green-400' : numScore >= 40 ? 'border-yellow-500 text-yellow-400' : 'border-red-500 text-red-400'
   return (
