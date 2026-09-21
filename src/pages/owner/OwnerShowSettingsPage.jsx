@@ -71,6 +71,18 @@ const OwnerShowSettingsPage = () => {
   const [xacNhanDoiLich, setXacNhanDoiLich] = useState(false)
   const [xacNhanDoiHinhThuc, setXacNhanDoiHinhThuc] = useState(false)
 
+  // Chỉ tải lại LỊCH SỬ, không bật cờ đang tải — dùng cho vòng tự hỏi lại. Bật cờ sẽ làm cả màn
+  // nhảy về khung chờ mỗi 10 giây trong lúc người dùng đang đọc.
+  const taiLaiLichSu = useCallback(async () => {
+    try {
+      const hRes = await getAiPosterHistory(id)
+      if (hRes.success) setHistory(hRes.data ?? [])
+    } catch {
+      // Hỏi lại thất bại thì im lặng: đây là vòng chạy nền, không phải hành động của người dùng.
+      // Lần sau sẽ hỏi lại; báo lỗi mỗi 10 giây thì chỉ làm nhiễu.
+    }
+  }, [id])
+
   const load = useCallback(async () => {
     setIsLoading(true)
     try {
@@ -91,6 +103,33 @@ const OwnerShowSettingsPage = () => {
   }, [id])
 
   useEffect(() => { const chay = async () => { await load() }; chay() }, [load])
+
+  // Đơn poster do MÁY TRẠM NGOÀI HỆ THỐNG xử lý (máy cá nhân chạy Google Flow), mất 50-90 giây.
+  // Không có vòng này thì tạo đơn xong màn hình đứng ở "Đang chờ máy trạm" và chủ phòng trà phải
+  // tự tải lại trang mới biết ảnh xong — chỗ vướng rõ nhất của hướng dùng máy trạm.
+  //
+  // Chỉ chạy khi THỰC SỰ có đơn ở Queued/Rendering, và tự dừng khi đơn rời hai trạng thái đó
+  // (Succeeded/Failed/Expired). Nhờ vậy không có vòng lặp nào treo trên một tab bị bỏ quên.
+  // Khoảng 10 giây là con số tạm; đã hỏi backend số họ muốn, sẽ sửa theo.
+  useEffect(() => {
+    const dangCho = history.some((h) => h.status === 'Queued' || h.status === 'Rendering')
+    if (!dangCho) return
+    const dinhKy = setInterval(() => { taiLaiLichSu() }, 10000)
+    return () => clearInterval(dinhKy)
+  }, [history, taiLaiLichSu])
+
+  // Quay về một ảnh đã tạo trước đó. Dùng chính endpoint đặt poster thủ công, nên KHÔNG tốn thêm
+  // lần thử nào của hạn mức AI — đó là điểm chính khiến việc này đáng có.
+  const dungAnhNay = async (imageUrl) => {
+    setBusy('poster')
+    try {
+      await setShowPoster(id, imageUrl)
+      toast.success('Đã đặt ảnh này làm poster.')
+      await load()
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Không đặt được poster.')
+    } finally { setBusy(null) }
+  }
 
   const taoPosterAi = async () => {
     setBusy('ai')
@@ -247,21 +286,52 @@ const OwnerShowSettingsPage = () => {
               <ul className="space-y-1.5">
                 {history.slice(0, 5).map((h) => {
                   const v = ATTEMPT_VIEW[h.status] ?? { label: h.status, cls: 'text-gray-400', icon: ImageIcon }
+                  const laPosterDangDung = !!h.imageUrl && h.imageUrl === show.coverImageUrl
                   return (
-                    <li key={h.id} className="flex items-center justify-between gap-3 text-xs bg-black/40 border border-gray-800 rounded-lg px-3 py-2">
-                      <span className={`inline-flex items-center gap-1.5 ${v.cls}`}>
-                        <v.icon size={12} className={h.status === 'Rendering' ? 'animate-spin' : ''} /> {v.label}
-                      </span>
-                      <span className="text-gray-600">{dayjs(h.createdAt).format('HH:mm DD/MM')}</span>
+                    <li key={h.id} className="bg-black/40 border border-gray-800 rounded-lg px-3 py-2">
+                      <div className="flex items-center justify-between gap-3 text-xs">
+                        <span className={`inline-flex items-center gap-1.5 ${v.cls}`}>
+                          <v.icon size={12} className={h.status === 'Rendering' ? 'animate-spin' : ''} /> {v.label}
+                        </span>
+                        <span className="text-gray-600">{dayjs(h.createdAt).format('HH:mm DD/MM')}</span>
+                      </div>
+
+                      {/* ẢNH CỦA LẦN TẠO THÀNH CÔNG. Trước đây màn này không đọc `imageUrl` nên lịch
+                          sử chỉ hiện chữ "Xong" mà không có ảnh — chủ phòng trà không xem lại được
+                          mình đã tạo ra gì. Điều đó đáng kể vì SỐ LẦN THỬ MỖI BUỔI DIỄN CÓ GIỚI HẠN:
+                          muốn quay về một ảnh đã tạo trước đó thì phải thấy nó.
+                          Máy trạm xong thì backend tự gắn ảnh mới vào buổi diễn, nên ảnh mới nhất
+                          thường đang là poster — đánh dấu rõ để khỏi bấm lại vô ích. */}
+                      {h.imageUrl && (
+                        <div className="mt-2 flex items-start gap-2">
+                          <img src={h.imageUrl} alt="Poster đã tạo"
+                            className="w-20 h-20 object-cover rounded-md border border-gray-800 flex-shrink-0" />
+                          <div className="min-w-0">
+                            {laPosterDangDung ? (
+                              <p className="text-xs text-green-400">Đang dùng làm poster</p>
+                            ) : (
+                              <button onClick={() => dungAnhNay(h.imageUrl)} disabled={busy !== null}
+                                className="px-2.5 py-1.5 rounded-lg border border-gray-700 text-gray-300 text-xs font-bold hover:bg-gray-800 disabled:opacity-50">
+                                Dùng ảnh này
+                              </button>
+                            )}
+                            <a href={h.imageUrl} target="_blank" rel="noreferrer"
+                              className="block text-xs text-gray-600 hover:text-[#C3B665] mt-1.5">
+                              Xem ảnh gốc
+                            </a>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Lý do thất bại của ĐÚNG lần đó. Trước đây chỉ hiện "lỗi gần nhất" ở cuối
+                          danh sách, nên không biết lỗi thuộc lần nào. */}
+                      {h.errorMessage && (
+                        <p className="text-xs text-red-400/90 mt-1.5 leading-relaxed">{h.errorMessage}</p>
+                      )}
                     </li>
                   )
                 })}
               </ul>
-              {history.some((h) => h.errorMessage) && (
-                <p className="text-xs text-gray-600 mt-2">
-                  Lỗi gần nhất: {history.find((h) => h.errorMessage)?.errorMessage}
-                </p>
-              )}
             </div>
           )}
         </div>
