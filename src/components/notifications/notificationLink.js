@@ -37,12 +37,19 @@ export const buildLink = (notification, role) => {
   const canOperateLivestream = role === 'Owner' || role === 'Staff'
 
   switch (referenceType) {
-    case 'show':
+    case 'show': {
       // Chủ nhận kết quả duyệt cần màn vận hành (lý do từ chối, nút sửa, gửi duyệt lại), không phải
       // trang bán vé. Staff không vào được /owner/shows nên rơi về trang công khai.
-      return OPERATOR_SHOW_TYPES.has(type) && isOwner
-        ? `/owner/shows/${referenceId}`
-        : `/shows/${referenceId}`
+      if (!OPERATOR_SHOW_TYPES.has(type) || !isOwner) return `/shows/${referenceId}`
+      // Hai loại trên cùng mang referenceType 'show' và cùng mã buổi diễn, nhưng NGƯỜI NHẬN CẦN HAI
+      // BẢNG KHÁC NHAU: kết quả duyệt ở màn vận hành /owner/shows/:id, còn poster ở màn cài đặt
+      // /owner/shows/:id/settings — bảng "Poster" với lịch sử ảnh và nút "Dùng ảnh này" chỉ có ở đó.
+      // Trỏ cả hai về cùng một trang thì người nhận tin "poster đã xong" mở ra một trang không có
+      // tấm poster nào và không có gì để bấm.
+      return type === 'PosterGenerationResult'
+        ? `/owner/shows/${referenceId}/settings`
+        : `/owner/shows/${referenceId}`
+    }
     case 'livestream':
       // Kết quả duyệt buổi phát, gửi cho người vận hành → về màn vận hành livestream (Staff vào được).
       // Vai trò khác: trang xem, nhận mã buổi diễn — đúng kiểu referenceId từ #329.

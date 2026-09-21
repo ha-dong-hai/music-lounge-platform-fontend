@@ -42,6 +42,9 @@ const PLAYBACK_MODES = [
   { value: 'ThreeD', label: 'Không gian 3D', hint: 'Video được dán lên màn hình sân khấu trong không gian 3D của phòng trà.' },
 ]
 
+// Ngưng vòng tự hỏi lại sau bao lâu kể từ lúc đặt đơn. Xem giải thích ở effect bên dưới.
+const NGUNG_TU_HOI_SAU_PHUT = 15
+
 const ATTEMPT_VIEW = {
   Queued: { label: 'Đang chờ máy trạm', cls: 'text-yellow-400', icon: Clock },
   Rendering: { label: 'Đang tạo ảnh', cls: 'text-blue-400', icon: Loader2 },
@@ -70,6 +73,13 @@ const OwnerShowSettingsPage = () => {
   const [newFormat, setNewFormat] = useState('')
   const [xacNhanDoiLich, setXacNhanDoiLich] = useState(false)
   const [xacNhanDoiHinhThuc, setXacNhanDoiHinhThuc] = useState(false)
+
+  // Số lượt poster AI còn lại trong tháng. Backend CHỈ trả trường này trong câu trả lời của chính
+  // lần bấm "tạo poster" (PosterGenerationResultDto.remainingThisMonth) — không có endpoint nào đọc
+  // riêng, và gói subscription chỉ cho biết TRẦN (maxAiPostersPerMonthSnapshot) chứ không cho biết
+  // đã dùng bao nhiêu. Vì vậy chỗ này để null tới khi người dùng bấm lần đầu, thay vì đoán ra một
+  // con số. Đã ghi vào phần cần backend bổ sung.
+  const [conLaiThangNay, setConLaiThangNay] = useState(null)
 
   // Chỉ tải lại LỊCH SỬ, không bật cờ đang tải — dùng cho vòng tự hỏi lại. Bật cờ sẽ làm cả màn
   // nhảy về khung chờ mỗi 10 giây trong lúc người dùng đang đọc.
@@ -104,17 +114,28 @@ const OwnerShowSettingsPage = () => {
 
   useEffect(() => { const chay = async () => { await load() }; chay() }, [load])
 
-  // Đơn poster do MÁY TRẠM NGOÀI HỆ THỐNG xử lý (máy cá nhân chạy Google Flow), mất 50-90 giây.
-  // Không có vòng này thì tạo đơn xong màn hình đứng ở "Đang chờ máy trạm" và chủ phòng trà phải
-  // tự tải lại trang mới biết ảnh xong — chỗ vướng rõ nhất của hướng dùng máy trạm.
+  // Đơn poster do MÁY TRẠM NGOÀI HỆ THỐNG xử lý (máy cá nhân chạy Google Flow). Không có vòng này
+  // thì tạo đơn xong màn hình đứng ở "Đang chờ máy trạm" và chủ phòng trà phải tự tải lại trang mới
+  // biết ảnh xong — chỗ vướng rõ nhất của hướng dùng máy trạm.
   //
-  // Chỉ chạy khi THỰC SỰ có đơn ở Queued/Rendering, và tự dừng khi đơn rời hai trạng thái đó
-  // (Succeeded/Failed/Expired). Nhờ vậy không có vòng lặp nào treo trên một tab bị bỏ quên.
-  // Khoảng 10 giây là con số tạm; đã hỏi backend số họ muốn, sẽ sửa theo.
+  // Chỉ chạy khi THỰC SỰ có đơn ở Queued/Rendering, và tự dừng khi đơn rời hai trạng thái đó.
+  //
+  // BA MỐC DƯỚI ĐÂY LẤY TỪ HẰNG SỐ CỦA BACKEND (PosterQueue.cs), không phải phỏng đoán: một lượt
+  // chạy được đo chậm nhất ≈ 1,5 phút (49s sinh ảnh + 39s xuất bản), máy trạm giữ đơn tối đa 10
+  // phút, và đơn không ai nhận thì nằm chờ tới 6 TIẾNG mới hết hạn. Con số 6 tiếng là lý do phải
+  // giảm nhịp rồi dừng: hỏi lại mỗi 10 giây suốt 6 tiếng là hơn hai nghìn lượt gọi trên một tab bị
+  // bỏ quên, trong khi máy trạm chỉ bật khi có người ngồi làm việc. Nên: 10 giây cho ba phút đầu
+  // (phủ trọn trường hợp bình thường), 30 giây tới phút 15, rồi ngừng và mời bấm "Cập nhật".
+  //
+  // Vẫn dùng setInterval chứ không setTimeout: mỗi lượt hỏi thành công đều đổi `history` nên effect
+  // chạy lại và tự đặt nhịp mới, còn lượt hỏi THẤT BẠI thì không đổi `history` — với setTimeout
+  // chuỗi hỏi lại sẽ chết hẳn sau một lần mất mạng, còn interval thì hỏi lại lượt sau.
   useEffect(() => {
-    const dangCho = history.some((h) => h.status === 'Queued' || h.status === 'Rendering')
+    const dangCho = history.find((h) => h.status === 'Queued' || h.status === 'Rendering')
     if (!dangCho) return
-    const dinhKy = setInterval(() => { taiLaiLichSu() }, 10000)
+    const tuoiPhut = dayjs().diff(dayjs(dangCho.createdAt), 'minute')
+    if (tuoiPhut >= NGUNG_TU_HOI_SAU_PHUT) return
+    const dinhKy = setInterval(() => { taiLaiLichSu() }, tuoiPhut < 3 ? 10000 : 30000)
     return () => clearInterval(dinhKy)
   }, [history, taiLaiLichSu])
 
@@ -135,6 +156,8 @@ const OwnerShowSettingsPage = () => {
     setBusy('ai')
     try {
       const res = await generateAiPoster(id, styleHint.trim() || null)
+      // Trường này có ở CẢ HAI chế độ (mặc định của record nên đường gọi thẳng giữ nguyên hình dạng).
+      if (typeof res.data?.remainingThisMonth === 'number') setConLaiThangNay(res.data.remainingThisMonth)
       // Rẽ theo status, KHÔNG theo mã HTTP: hai chế độ nền tảng trả 202 và 200 khác nhau.
       if (res.data?.status === 'Queued') {
         toast.success('Poster đang được tạo, thường mất 1–2 phút. Bạn sẽ nhận thông báo khi xong.', { duration: 6000 })
@@ -223,6 +246,8 @@ const OwnerShowSettingsPage = () => {
 
   const laTrucTuyen = ['Online', 'Hybrid'].includes(show.format)
   const donChoXuLy = history.find((h) => ['Queued', 'Rendering'].includes(h.status))
+  const daNgungTuHoi = !!donChoXuLy
+    && dayjs().diff(dayjs(donChoXuLy.createdAt), 'minute') >= NGUNG_TU_HOI_SAU_PHUT
 
   return (
     <div className="space-y-6 max-w-3xl">
@@ -272,11 +297,28 @@ const OwnerShowSettingsPage = () => {
             </button>
           </div>
 
+          {/* Hạn mức tháng: chỉ biết được sau khi bấm, vì backend chỉ trả kèm câu trả lời của lần bấm. */}
+          {conLaiThangNay !== null && (
+            <p className="text-xs text-gray-500 leading-relaxed">
+              Còn <span className="text-gray-300 font-semibold">{conLaiThangNay}</span> lượt poster AI trong tháng này.
+              {conLaiThangNay === 0 && ' Hạn mức làm mới vào đầu tháng sau.'}
+            </p>
+          )}
+
           {donChoXuLy && (
             <p className="text-xs text-yellow-400 flex items-start gap-1.5 leading-relaxed bg-yellow-500/5 border border-yellow-500/30 rounded-lg p-3">
               <Clock size={13} className="mt-px flex-shrink-0" />
-              Poster đang được tạo, thường mất 1–2 phút. Nếu không có máy trạm nào trực thì đơn chờ tối đa 6 tiếng
-              rồi hết hạn — khi đó bạn có thể tự tải poster lên.
+              {daNgungTuHoi ? (
+                <span>
+                  Đơn đã đặt hơn {NGUNG_TU_HOI_SAU_PHUT} phút mà chưa xong, nên trang đã ngưng tự hỏi lại.
+                  Đơn vẫn còn hiệu lực và chờ tối đa 6 tiếng — bấm <b>Cập nhật</b> để xem, hoặc chờ thông báo.
+                </span>
+              ) : (
+                <span>
+                  Poster đang được tạo, thường mất 1–2 phút. Nếu không có máy trạm nào trực thì đơn chờ tối đa 6 tiếng
+                  rồi hết hạn — khi đó bạn có thể tự tải poster lên.
+                </span>
+              )}
             </p>
           )}
 
@@ -324,9 +366,24 @@ const OwnerShowSettingsPage = () => {
                       )}
 
                       {/* Lý do thất bại của ĐÚNG lần đó. Trước đây chỉ hiện "lỗi gần nhất" ở cuối
-                          danh sách, nên không biết lỗi thuộc lần nào. */}
+                          danh sách, nên không biết lỗi thuộc lần nào.
+
+                          Nói TRƯỚC chuyện hạn mức, rồi mới tới câu lỗi. Câu lỗi là nguyên văn của
+                          nhà cung cấp (thường tiếng Anh, đôi khi kèm mã nội bộ) — backend cố ý
+                          không đưa nó vào thông báo cho người dùng, chỉ trả về đây để chủ phòng
+                          trà đối chiếu. Đọc một dòng tiếng Anh lạ mà không biết mình có bị trừ lượt
+                          hay không là điều khiến người ta không dám bấm lại. Lần thất bại KHÔNG bị
+                          trừ ở cả hai loại hạn mức: hạn mức tháng chỉ đếm Succeeded/Queued/Rendering,
+                          còn giới hạn mỗi buổi diễn chỉ đếm Succeeded. */}
                       {h.errorMessage && (
-                        <p className="text-xs text-red-400/90 mt-1.5 leading-relaxed">{h.errorMessage}</p>
+                        <div className="mt-1.5">
+                          {['Failed', 'Expired'].includes(h.status) && (
+                            <p className="text-xs text-gray-400 leading-relaxed">
+                              Lần này không bị trừ lượt nào — chỉ lần tạo được ảnh mới tính vào hạn mức.
+                            </p>
+                          )}
+                          <p className="text-xs text-red-400/90 mt-1 leading-relaxed break-words">{h.errorMessage}</p>
+                        </div>
                       )}
                     </li>
                   )
