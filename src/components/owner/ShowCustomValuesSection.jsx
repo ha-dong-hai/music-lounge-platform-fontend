@@ -19,6 +19,14 @@
 //   TỪNG LỆCH ở hai ca thật, chỉ lộ ra khi so từng bước bằng tay.
 //   NHƯNG NÓ CHỈ ĐÚNG VỚI GIÁ TRỊ LÚC NẠP. Người dùng gõ xong thì nó cũ ngay — nên chỉ dùng khi ô
 //   chưa bị sửa, còn ô đã sửa thì dùng kiemTraGiaTri() tại chỗ. Xem loiCuaDong().
+//
+//   ĐỪNG XOÁ NHÁNH HIỆN CẢNH BÁO VÌ "THỬ MÃI KHÔNG THẤY NÓ CHẠY". Sau khi máy chủ có hàng rào kiểu
+//   dữ liệu (MLACP-470) và hàng rào hình dạng options (MLACP-472), KHÔNG CÒN ĐƯỜNG API NÀO ghi được
+//   một giá trị sai vào cơ sở dữ liệu nữa — bên backend đã thử gửi giá trị sai và bị từ chối 422.
+//   Nghĩa là `validationError` từ nay chỉ khác null với DÒNG DỮ LIỆU CŨ ghi trước khi có hàng rào.
+//   Trên dữ liệu sống bạn sẽ luôn thấy null, và đó là TIN TỐT chứ không phải nhánh chết.
+//   Muốn thử nhánh này thì phải có một dòng cũ, hoặc sửa thẳng dưới cơ sở dữ liệu — không thử được
+//   qua giao diện, và cũng không nên tìm cách thử được.
 // - `value` đi và về đều là CHUỖI TRẦN. Backend lưu y nguyên chuỗi gửi lên, không bọc JSON.
 //   Dữ liệu CŨ thì có dòng còn ở dạng JSON đóng gói ("\"Bolero\""), và máy chủ bóc một lớp nháy
 //   trước khi đối chiếu — nên màn này phải bóc y hệt, xem boMotLopNhay() / chuanHoaSoKhop().
