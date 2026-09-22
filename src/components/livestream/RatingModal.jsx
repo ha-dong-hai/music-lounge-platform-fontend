@@ -25,14 +25,14 @@ const RatingModal = ({ showName, onClose, onSubmit }) => {
   }, [submitted, onClose])
 
   const handleSubmit = async () => {
-    if (rating === 0) return toast.error('Please Rate!')
+    if (rating === 0) return toast.error('Vui lòng chọn số sao!')
     if (isSubmitting) return
     setIsSubmitting(true)
     try {
       await onSubmit(rating, comment.trim())
       setIsSubmitted(true) // chuyển màn cảm ơn → tự đóng
     } catch (err) {
-      toast.error('Rate Show failed. Try again.')
+      toast.error('Gửi đánh giá không thành công. Vui lòng thử lại.')
       setIsSubmitting(false)
     }
   }
@@ -44,8 +44,8 @@ const RatingModal = ({ showName, onClose, onSubmit }) => {
         <div className="absolute inset-0 bg-espresso/80 backdrop-blur-sm"></div>
         <div className="relative bg-card border border-brand/40 rounded-2xl w-full max-w-sm p-8 text-center shadow-2xl animate-in fade-in zoom-in-95 duration-300">
           <PartyPopper size={44} className="mx-auto text-brand-text mb-4" />
-          <h2 className="text-xl font-bold text-ink mb-2">Thank You!</h2>
-          <p className="text-sm text-ink-soft">Your review has been recorded.</p>
+          <h2 className="text-xl font-bold text-ink mb-2">Cảm ơn bạn!</h2>
+          <p className="text-sm text-ink-soft">Đánh giá của bạn đã được ghi nhận.</p>
         </div>
       </div>
     )
@@ -76,7 +76,7 @@ const RatingModal = ({ showName, onClose, onSubmit }) => {
         {/* BODY */}
         <div className="flex-1 overflow-y-auto p-5">
           <p className="text-sm text-ink-soft mb-6 text-center">
-            The Livestream has ended. How was your experience?
+            Buổi phát đã kết thúc. Trải nghiệm của bạn thế nào?
           </p>
 
           {/* STAR RATING — hover preview, click chọn */}
@@ -112,7 +112,7 @@ const RatingModal = ({ showName, onClose, onSubmit }) => {
               value={comment}
               onChange={(e) => setComment(e.target.value)}
               disabled={isSubmitting}
-              placeholder="What you liked or would like to improve about this livestream..."
+              placeholder="Bạn thích điều gì, hoặc muốn cải thiện điều gì ở buổi phát này…"
               className="w-full px-4 py-3 bg-page border border-line rounded-xl text-ink text-sm focus:outline-none focus:border-brand/50 resize-none disabled:opacity-50 placeholder:text-ink-mute"
             />
           </div>
@@ -125,14 +125,14 @@ const RatingModal = ({ showName, onClose, onSubmit }) => {
             disabled={isSubmitting}
             className="flex-1 py-2.5 border border-line-strong text-ink-soft rounded-lg font-medium hover:bg-sunken transition-colors disabled:opacity-50"
           >
-            Later
+            Để sau
           </button>
           <button
             onClick={handleSubmit}
             disabled={isSubmitting || rating === 0}
             className="flex-1 py-2.5 rounded-lg font-bold transition-colors flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed bg-brand text-on-brand hover:bg-brand-hover"
           >
-            {isSubmitting ? <><Loader2 size={16} className="animate-spin" /> Sending...</> : <> Review submitted</>}
+            {isSubmitting ? <><Loader2 size={16} className="animate-spin" /> Đang gửi…</> : <> Gửi đánh giá</>}
           </button>
         </div>
       </div>

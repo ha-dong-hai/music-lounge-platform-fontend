@@ -71,8 +71,8 @@ const WishlistTab = () => {
       ) : (
         <div className="bg-card border border-line rounded-2xl p-12 text-center min-h-[300px] flex flex-col items-center justify-center">
           <Heart size={40} className="text-ink-mute mb-4" />
-          <p className="text-ink-soft text-lg">Your wishlist is empty.</p>
-          <Link to="/" className="mt-4 text-brand-text font-semibold underline hover:text-brand-text">Find your favorite shows</Link>
+          <p className="text-ink-soft text-lg">Danh sách yêu thích đang trống.</p>
+          <Link to="/" className="mt-4 text-brand-text font-semibold underline hover:text-brand-text">Tìm đêm diễn bạn yêu thích</Link>
         </div>
       )}
     </div>

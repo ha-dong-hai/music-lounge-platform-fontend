@@ -98,18 +98,18 @@ const TicketsTab = () => {
   }, [tickets, activeSubTab, typeFilter, searchQuery])
 
   const subTabs = [
-    { key: 'all', label: 'All' },
-    { key: 'upcoming', label: 'Upcoming' },
-    { key: 'ended', label: 'Ended' }
+    { key: 'all', label: 'Tất cả' },
+    { key: 'upcoming', label: 'Sắp diễn ra' },
+    { key: 'ended', label: 'Đã kết thúc' }
   ]
   const typeTabs = [
-    { key: 'all', label: 'All' },
-    { key: 'offline', label: 'Offline' },
-    { key: 'online', label: 'Livestream' }
+    { key: 'all', label: 'Tất cả' },
+    { key: 'offline', label: 'Tại chỗ' },
+    { key: 'online', label: 'Trực tuyến' }
   ]
 
-  const pillCls = (active) => `px-4 py-2 rounded-full text-sm font-medium transition-all border ${
-    active ? 'bg-brand text-on-brand border-brand' : 'bg-transparent text-ink-soft border-line hover:border-line-strong hover:text-white'
+  const pillCls = (active) => `px-4 min-h-[44px] inline-flex items-center rounded-full text-sm font-medium transition-all border ${
+    active ? 'bg-brand text-on-brand border-brand' : 'bg-transparent text-ink-soft border-line hover:border-line-strong hover:text-ink'
   }`
 
   const resetFilters = () => {
@@ -126,7 +126,7 @@ const TicketsTab = () => {
           <ChevronLeft size={18} />
         </button>
         {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map(num => (
-          <button key={num} onClick={() => setPagination(prev => ({ ...prev, page: num }))} className={`w-10 h-10 rounded-md border text-sm font-medium transition-colors ${pagination.page === num ? 'bg-brand text-on-brand border-brand' : 'text-ink-soft border-line hover:border-line-strong hover:text-white'}`}>
+          <button key={num} onClick={() => setPagination(prev => ({ ...prev, page: num }))} className={`w-10 h-10 rounded-md border text-sm font-medium transition-colors ${pagination.page === num ? 'bg-brand text-on-brand border-brand' : 'text-ink-soft border-line hover:border-line-strong hover:text-ink'}`}>
             {num}
           </button>
         ))}
@@ -145,7 +145,7 @@ const TicketsTab = () => {
         <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-mute" />
         <input
           type="text"
-          placeholder="Search Ticket... (only in current page)"
+          placeholder="Tìm vé (trong trang hiện tại)"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="w-full pl-10 pr-10 py-2.5 bg-card border border-line rounded-xl text-sm text-ink placeholder:text-ink-mute focus:outline-none focus:border-brand/50"
@@ -193,8 +193,8 @@ const TicketsTab = () => {
         /* CHƯA CÓ VÉ GÌ CẢ */
         <div className="bg-card border border-line rounded-2xl p-12 text-center min-h-[300px] flex flex-col items-center justify-center">
           <Ticket size={40} className="text-ink-mute mb-4" />
-          <p className="text-ink-soft text-lg">There are no tickets in this section.</p>
-          <Link to="/" className="mt-4 text-brand-text font-semibold underline hover:text-brand-text">Discover more shows!</Link>
+          <p className="text-ink-soft text-lg">Chưa có vé nào trong mục này.</p>
+          <Link to="/" className="mt-4 text-brand-text font-semibold underline hover:text-brand-text">Khám phá thêm đêm diễn</Link>
         </div>
       ) : filteredTickets.length > 0 ? (
         <>
@@ -293,10 +293,10 @@ const TicketsTab = () => {
         /* CÓ VÉ NHƯNG BỘ LỌC KHÔNG KHỚP */
         <div className="bg-card border border-dashed border-line rounded-2xl p-12 text-center">
           <Search size={36} className="mx-auto text-ink-mute mb-4" />
-          <p className="text-ink-soft mb-1">No tickets match the filters.</p>
-          <p className="text-ink-mute text-sm mb-5">Try changing the keywords or filters</p>
+          <p className="text-ink-soft mb-1">Không có vé nào khớp bộ lọc.</p>
+          <p className="text-ink-mute text-sm mb-5">Thử đổi từ khoá hoặc bộ lọc</p>
           <button onClick={resetFilters} className="text-brand-text font-semibold text-sm underline hover:text-brand-text">
-            Remove all filters
+            Xoá mọi bộ lọc
           </button>
         </div>
       )}

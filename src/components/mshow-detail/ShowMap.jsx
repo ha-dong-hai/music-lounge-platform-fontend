@@ -352,10 +352,10 @@ const ShowMap = ({ showData }) => {
             <p className="text-ink-soft mb-6">Vui lòng đăng nhập để mua vé.</p>
             <div className="flex gap-3">
               <button onClick={() => setIsLoginModalOpen(false)} className="flex-1 py-2.5 border border-line text-ink-soft rounded-lg font-medium hover:bg-sunken transition-colors">
-                Cancel
+                Huỷ
               </button>
               <Link to="/login" className="flex-1 py-2.5 bg-brand text-on-brand rounded-lg font-bold hover:bg-brand-hover transition-colors flex items-center justify-center">
-                Login
+                Đăng nhập
               </Link>
             </div>
           </div>

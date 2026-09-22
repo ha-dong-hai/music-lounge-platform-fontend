@@ -50,7 +50,7 @@ const ShowSearchPage = () => {
   const [isLoading, setIsLoading] = useState(true)
   const [apiError, setApiError] = useState(null)
   const [pagination, setPagination] = useState({ page: 1, totalPages: 1 })
-  const [pageTitle, setPageTitle] = useState("List of shows")
+  const [pageTitle, setPageTitle] = useState("Danh sách buổi diễn")
 
   const [filterOptions, setFilterOptions] = useState({ genres: [], moods: [], atmospheres: [], cities: [] })
 
@@ -74,11 +74,11 @@ const ShowSearchPage = () => {
   // TIÊU ĐỀ TRANG
   useEffect(() => {
     if (!genreId) {
-      setPageTitle(keyword ? `Search results: "${keyword}"` : "List of shows")
+      setPageTitle(keyword ? `Kết quả cho “${keyword}”` : "Danh sách buổi diễn")
       return
     }
     const genre = filterOptions.genres.find(g => String(g.id) === String(genreId))
-    setPageTitle(genre ? `Genre ${genre.name}` : "List of shows")
+    setPageTitle(genre ? `Thể loại ${genre.name}` : "Danh sách buổi diễn")
   }, [genreId, keyword, filterOptions])
 
   // GỌI API SEARCH

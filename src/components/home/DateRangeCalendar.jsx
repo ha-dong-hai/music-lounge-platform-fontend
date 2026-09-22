@@ -101,7 +101,7 @@ const DateRangeCalendar = ({ initialStartDate = '', initialEndDate = '', onConfi
   const handleDayHover = (date) => setHoverDate(date)
 
   return (
-    <div className="bg-[#1a1a1a] border border-brand/30 rounded-xl p-4 shadow-2xl w-auto max-w-[560px] select-none">
+    <div className="bg-card border border-line rounded-xl p-4 shadow-lift w-auto max-w-[560px] select-none">
       {/* Header Tháng/Năm */}
       <div className="flex items-center justify-between mb-4">
         <button onClick={() => setCurrentMonth(prev => prev.subtract(1, 'month'))} className="p-1 rounded-md hover:bg-white/10 text-ink-soft hover:text-brand-text transition-colors">
@@ -128,14 +128,14 @@ const DateRangeCalendar = ({ initialStartDate = '', initialEndDate = '', onConfi
           onClick={() => { setStartDate(''); setEndDate(''); setHoverDate(null) }} 
           className="text-xs text-ink-soft hover:text-danger transition-colors"
         >
-          Remove date
+          Xoá ngày
         </button>
         {/* BẤM XONG 1 LẦN DUY NHẤT - TRUYỀN TRỰC TIẾP GIÁ TRỊ NHÁP HIỆN TẠI */}
         <button 
           onClick={() => onConfirm(startDate, endDate)} 
           className="text-xs bg-brand text-on-brand px-3 py-1 rounded-md font-bold hover:bg-brand-hover transition-colors"
         >
-          Confirm
+          Xong
         </button>
       </div>
     </div>

@@ -69,6 +69,9 @@ const HeroBanner = ({ events = [] }) => {
             key={event.id}
             className={`absolute inset-0 transition-opacity duration-1000 ${isActive ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
             aria-hidden={!isActive}
+            // `inert`: slide đang ẩn không nhận focus bàn phím/đọc màn hình (trước đây Tab vẫn rơi vào các
+            // nút "Đặt vé ngay" vô hình của slide khác).
+            inert={!isActive}
           >
             <div className="absolute inset-0 overflow-hidden">
               {event.coverImageUrl ? (
@@ -139,14 +142,14 @@ const HeroBanner = ({ events = [] }) => {
           <button
             onClick={goToPrev}
             aria-label="Buổi diễn trước"
-            className="absolute left-3 top-1/2 -translate-y-1/2 z-40 w-11 h-11 rounded-full bg-espresso/50 backdrop-blur-sm border border-cream/20 flex items-center justify-center text-cream opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-brand hover:text-on-brand hover:border-brand"
+            className="absolute left-3 top-1/2 -translate-y-1/2 z-40 w-11 h-11 rounded-full bg-espresso/50 backdrop-blur-sm border border-cream/20 flex items-center justify-center text-cream opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-all duration-300 hover:bg-brand hover:text-on-brand hover:border-brand"
           >
             <ArrowRight size={18} className="rotate-180" />
           </button>
           <button
             onClick={goToNext}
             aria-label="Buổi diễn tiếp theo"
-            className="absolute right-3 top-1/2 -translate-y-1/2 z-40 w-11 h-11 rounded-full bg-espresso/50 backdrop-blur-sm border border-cream/20 flex items-center justify-center text-cream opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-brand hover:text-on-brand hover:border-brand"
+            className="absolute right-3 top-1/2 -translate-y-1/2 z-40 w-11 h-11 rounded-full bg-espresso/50 backdrop-blur-sm border border-cream/20 flex items-center justify-center text-cream opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-all duration-300 hover:bg-brand hover:text-on-brand hover:border-brand"
           >
             <ArrowRight size={18} />
           </button>
@@ -158,8 +161,10 @@ const HeroBanner = ({ events = [] }) => {
                 onClick={() => setCurrentIndex(index)}
                 aria-label={`Đến buổi diễn thứ ${index + 1}`}
                 aria-current={index === currentIndex}
-                className={`h-1.5 rounded-full transition-all duration-300 ${index === currentIndex ? 'w-8 bg-brand' : 'w-4 bg-cream/40 hover:bg-cream/70'}`}
-              />
+                className="h-11 px-1 inline-flex items-center group/dot"
+              >
+                <span className={`block h-1.5 rounded-full transition-all duration-300 ${index === currentIndex ? 'w-8 bg-brand' : 'w-4 bg-cream/40 group-hover/dot:bg-cream/70'}`} />
+              </button>
             ))}
           </div>
         </>

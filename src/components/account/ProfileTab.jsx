@@ -64,7 +64,7 @@ const ProfileTab = () => {
         }
       } catch (err) {
         console.error('Error loading profile:', err)
-        toast.error('Error loading account information')
+        toast.error('Không tải được thông tin tài khoản')
       } finally {
         setIsFetchingProfile(false)
       }
@@ -88,10 +88,10 @@ const ProfileTab = () => {
       if (res.success) {
         const uploadedUrl = res.data.url
         setAvatarUrlToSave(uploadedUrl)
-        toast.success('Image uploaded successfully.!')
+        toast.success('Đã tải ảnh lên.')
       }
     } catch (err) {
-      toast.error('Image upload failed.')
+      toast.error('Tải ảnh lên không thành công.')
       setAvatarPreview(user?.avatarUrl || defaultAvatar)
       setAvatarUrlToSave(user?.avatarUrl || null)
     } finally {
@@ -101,7 +101,7 @@ const ProfileTab = () => {
 
   const onSubmit = async (data) => {
     if (!avatarUrlToSave) {
-      toast.error('Please wait for the image upload to complete')
+      toast.error('Vui lòng đợi ảnh tải lên xong')
       return
     }
 
@@ -118,9 +118,9 @@ const ProfileTab = () => {
       const updatedUser = { ...user, name: data.name, phone: data.phone, avatarUrl: avatarUrlToSave }
       useAuthStore.setState({ user: updatedUser })
       localStorage.setItem('user', JSON.stringify(updatedUser))
-      toast.success('Account information saved!')
+      toast.success('Đã lưu thông tin tài khoản.')
     } catch (err) {
-      toast.error('Update failed.')
+      toast.error('Cập nhật không thành công.')
     } finally {
       setIsSaving(false)
     }
@@ -152,7 +152,7 @@ const ProfileTab = () => {
         
         <div className="flex items-center gap-6 pb-6 border-b border-line">
           <div className="relative cursor-pointer group" onClick={handleAvatarClick}>
-            <img src={avatarPreview} alt="Avatar" className="w-24 h-24 rounded-full object-cover border-2 border-brand" />
+            <img src={avatarPreview} alt="Ảnh đại diện" className="w-24 h-24 rounded-full object-cover border-2 border-brand" />
             <div className="absolute inset-0 bg-espresso/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
               {isUploading ? <Loader2 size={24} className="text-ink animate-spin" /> : <Camera size={24} className="text-ink" />}
             </div>
@@ -160,14 +160,14 @@ const ProfileTab = () => {
             <input type="file" ref={fileInputRef} onChange={handleAvatarChange} className="hidden" accept="image/*" disabled={isUploading} />
           </div>
           <div>
-            <h3 className="text-ink font-bold text-lg">{user?.name || 'User Name'}</h3>
-            <p className="text-ink-soft text-sm">Click the image to change your profile picture.</p>
+            <h3 className="text-ink font-bold text-lg">{user?.name || 'Tên người dùng'}</h3>
+            <p className="text-ink-soft text-sm">Bấm vào ảnh để đổi ảnh đại diện.</p>
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label className="block text-sm font-medium text-ink-soft mb-2">Fullname</label>
+            <label className="block text-sm font-medium text-ink-soft mb-2">Họ và tên</label>
             <input type="text" {...register('name')} className={`w-full px-4 py-2.5 bg-page border rounded-lg text-ink text-sm focus:outline-none focus:border-brand/50 ${errors.name ? 'border-red-500' : 'border-line'}`} />
             {errors.name && <p className="mt-1 text-xs text-danger">{errors.name.message}</p>}
           </div>
@@ -179,7 +179,7 @@ const ProfileTab = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-ink-soft mb-2">Email (Cannot be changed)</label>
+            <label className="block text-sm font-medium text-ink-soft mb-2">Email (không đổi được)</label>
             <input type="email" value={user?.email || ''} disabled className="w-full px-4 py-2.5 bg-sunken/50 border border-line rounded-lg text-ink-mute text-sm cursor-not-allowed" />
           </div>
         </div>
@@ -190,7 +190,7 @@ const ProfileTab = () => {
             disabled={isSaving || isUploading} 
             className="flex items-center gap-2 bg-brand text-on-brand px-6 py-2.5 rounded-lg text-sm font-bold hover:bg-brand-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isSaving ? <><Loader2 size={16} className="animate-spin" /> Saving ...</> : <><Save size={16} /> Saved</>}
+            {isSaving ? <><Loader2 size={16} className="animate-spin" /> Đang lưu…</> : <><Save size={16} /> Đã lưu</>}
           </button>
         </div>
       </form>

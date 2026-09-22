@@ -37,7 +37,7 @@ const LoungeSidebar = ({ lounge }) => {
               rel="noreferrer"
               className="mt-2 ml-6 inline-flex items-center gap-1.5 text-sm text-brand-text hover:text-brand-text font-medium"
             >
-              View map <ExternalLink size={12} />
+              Xem bản đồ <ExternalLink size={12} />
             </a>
           )}
         </div>
@@ -54,7 +54,7 @@ const LoungeSidebar = ({ lounge }) => {
       {/* ===== CỘNG ĐỒNG: số liệu thật từ BE ===== */}
       <div className="bg-card border border-line rounded-xl p-6 flex flex-col gap-4 items-center justify-center text-center">
         <h3 className="text-sm font-bold text-brand-text text-xl flex items-center gap-2">
-          <Users size={22} /> Community
+          <Users size={22} /> Cộng đồng
         </h3>
         <Heart size={35} className="text-danger" />
 
@@ -63,7 +63,7 @@ const LoungeSidebar = ({ lounge }) => {
             <p className="text-ink font-bold text-2xl leading-tight">
               {formatCompactNumber(lounge.followerCount)}
             </p>
-            <p className="text-ink-mute text-xs font-medium mt-1">Follower</p>
+            <p className="text-ink-mute text-xs font-medium mt-1">Người theo dõi</p>
           </div>
           <div className="border-l border-line">
             <p className="text-ink font-bold text-2xl leading-tight">{lounge.upcomingShowCount ?? 0}</p>

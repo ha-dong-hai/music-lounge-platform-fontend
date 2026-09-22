@@ -84,7 +84,7 @@ const NotificationBell = () => {
     <div className="relative">
       <button
         onClick={openAndLoad}
-        className="relative flex items-center justify-center w-9 h-9 rounded-full border border-line hover:border-brand text-ink-soft hover:text-brand-text transition-colors"
+        className="relative flex items-center justify-center w-11 h-11 rounded-full border border-line hover:border-brand text-ink-soft hover:text-brand-text transition-colors"
         aria-label={unread > 0 ? `Thông báo, ${unread} chưa đọc` : 'Thông báo'}
       >
         <Bell size={18} />
@@ -96,7 +96,7 @@ const NotificationBell = () => {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 top-full mt-3 w-80 sm:w-96 bg-[#1a1a1a] rounded-xl shadow-lg border border-brand/20 py-2 z-50 animate-in fade-in slide-in-from-top-2">
+        <div className="absolute right-0 top-full mt-3 w-80 sm:w-96 bg-card rounded-xl shadow-lift border border-line py-2 z-50 animate-in fade-in slide-in-from-top-2">
           <div className="flex items-center justify-between px-4 py-2 border-b border-line mb-1">
             <p className="text-sm font-semibold text-ink">Thông báo</p>
             {unread > 0 && (

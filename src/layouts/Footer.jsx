@@ -13,7 +13,7 @@ import { Link } from 'react-router-dom'
 import { Mail, Phone } from 'lucide-react'
 
 const linkCls =
-  'inline-block py-1 text-cream-mute hover:text-brand-on-dark transition-colors focus-visible:outline-brand-on-dark'
+  'inline-flex items-center min-h-[44px] text-cream-mute hover:text-brand-on-dark transition-colors focus-visible:outline-brand-on-dark'
 
 const Footer = () => {
   return (

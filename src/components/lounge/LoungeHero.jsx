@@ -27,9 +27,9 @@ const LoungeHero = ({ lounge, isFollowing, onToggleFollow }) => {
   const handleShare = async () => {
     try {
       await navigator.clipboard.writeText(window.location.href)
-      toast.success('Link copied!')
+      toast.success('Đã sao chép liên kết.')
     } catch {
-      toast.error('Unable to copy.')
+      toast.error('Không sao chép được.')
     }
   }
 

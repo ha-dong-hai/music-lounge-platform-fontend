@@ -62,7 +62,7 @@ const ShowIntro  = ({ data, isFollowing, onToggleFollow }) => {
                 ))}
               </div>
             ) : (
-              <p className="text-ink text-sm">Updating</p>
+              <p className="text-ink text-sm">Đang cập nhật</p>
             )}
           </div>
         </div>
@@ -70,7 +70,7 @@ const ShowIntro  = ({ data, isFollowing, onToggleFollow }) => {
         {/* CỘT PHẢI: Logo & Button Theo dõi */}
         <div className="lg:col-span-2 flex flex-col items-center justify-start pt-2">
           <div className="w-24 h-24 rounded-full bg-card overflow-hidden shadow-md mb-4 border-2 border-brand">
-            <img src={data.loungeLogo} alt="Lounge Logo" className="w-full h-full object-cover" />
+            <img src={data.loungeLogo} alt="Logo phòng trà" className="w-full h-full object-cover" />
           </div>
           
           {/* ⭐ DÙNG PROPS TỪ CHA */}

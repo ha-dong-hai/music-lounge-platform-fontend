@@ -45,13 +45,13 @@ const AccountPage = () => {
                 onClick={() => setActiveTab('profile')} 
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${activeTab === 'profile' ? 'bg-sunken text-brand-text' : 'text-ink-soft hover:text-ink hover:bg-sunken/50'}`}
               >
-                <User size={18} /> Account information
+                <User size={18} /> Thông tin tài khoản
               </button>
               <button 
                 onClick={() => setActiveTab('followed')} 
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${activeTab === 'followed' ? 'bg-sunken text-brand-text' : 'text-ink-soft hover:text-ink hover:bg-sunken/50'}`}
               >
-                <Heart size={18} /> Followed lounge
+                <Heart size={18} /> Phòng trà đang theo dõi
               </button>
               <button
                 onClick={() => setActiveTab('identity')}

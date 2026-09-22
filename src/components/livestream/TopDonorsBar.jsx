@@ -73,7 +73,7 @@ const TopDonorsBar = ({ messages }) => {
             onClick={() => setShowLeaderboard(true)}
             className="text-[11px] font-semibold text-brand-text hover:text-brand-text transition-colors"
           >
-            View all
+            Xem tất cả
           </button>
         </div>
 

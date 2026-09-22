@@ -143,12 +143,12 @@ const Header = () => {
     <header className="sticky top-0 z-50 w-full bg-page/95 backdrop-blur border-b border-line px-4 sm:px-6 py-3 shadow-soft">
       <div className="flex items-center justify-between gap-4 sm:gap-8">
         <div className="flex items-center gap-4 sm:gap-8 flex-1 min-w-0">
-          <Link to="/" aria-label="Phòng Trà Sài Gòn — về trang chủ" className="font-display text-xl sm:text-2xl leading-none tracking-tight text-ink whitespace-nowrap flex-shrink-0">
+          <Link to="/" aria-label="Phòng Trà Sài Gòn — về trang chủ" className="font-display text-xl sm:text-2xl leading-none tracking-tight text-ink whitespace-nowrap flex-shrink-0 inline-flex items-center min-h-[44px]">
             Phòng Trà<span className="hidden min-[400px]:inline text-brand-text"> Sài Gòn</span>
           </Link>
 
           <form onSubmit={handleSearchSubmit} ref={oTimKiemRef} className="relative w-full max-w-md hidden md:block">
-            <button type="submit" className="absolute left-3 top-1/2 -translate-y-1/2 text-brand-text cursor-pointer" aria-label="Tìm kiếm">
+            <button type="submit" className="absolute left-1 top-1/2 -translate-y-1/2 w-10 h-10 inline-flex items-center justify-center text-brand-text cursor-pointer" aria-label="Tìm kiếm">
               <Search size={18} strokeWidth={2.5}/>
             </button>
             <input
@@ -164,7 +164,7 @@ const Header = () => {
               onKeyDown={handleKeyDown}
               autoComplete="off"
               placeholder="Tìm đêm nhạc, phòng trà, nghệ sĩ…"
-              className="w-full pl-10 pr-10 py-2.5 bg-sunken text-ink placeholder:text-ink-mute rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-brand transition-all"
+              className="w-full pl-11 pr-11 py-2.5 min-h-[44px] bg-sunken text-ink placeholder:text-ink-mute rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-brand transition-all"
             />
             {localSearch && (
               <button type="button" onClick={() => { setLocalSearch(''); setMoGoiY(false) }} className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-soft hover:text-ink">
@@ -240,21 +240,21 @@ const Header = () => {
           <Link to="/shows/search" aria-label="Tìm kiếm" className="md:hidden w-11 h-11 inline-flex items-center justify-center rounded-full text-ink-soft hover:bg-sunken hover:text-ink transition-colors">
             <Search size={20} />
           </Link>
-          <Link to="/my-shows" className="bg-transparent hover:bg-brand-hover hover:text-on-brand text-brand-text border border-brand px-5 py-2 rounded-full text-sm font-medium transition-colors hidden sm:block">
+          <Link to="/my-shows" className="bg-transparent hover:bg-brand-hover hover:text-on-brand text-brand-text border border-brand px-5 min-h-[44px] rounded-full text-sm font-medium transition-colors hidden sm:inline-flex items-center">
             Vé của tôi
           </Link>
 
           {!user ? (
             <div className="flex items-center gap-2">
-              <Link to="/login" className="text-sm font-medium text-ink-soft hover:text-ink px-3 py-2 rounded-xl border border-transparent hover:bg-sunken transition-all">Đăng nhập</Link>
-              <Link to="/register" className="bg-brand text-on-brand px-4 py-2 rounded-full text-sm font-semibold hover:bg-brand-hover transition-colors shadow-soft">Đăng ký</Link>
+              <Link to="/login" className="text-sm font-medium text-ink-soft hover:text-ink px-3 min-h-[44px] inline-flex items-center rounded-xl border border-transparent hover:bg-sunken transition-all">Đăng nhập</Link>
+              <Link to="/register" className="bg-brand text-on-brand px-4 min-h-[44px] inline-flex items-center rounded-full text-sm font-semibold hover:bg-brand-hover transition-colors shadow-soft">Đăng ký</Link>
             </div>
           ) : (
             <>
             {/* Thông báo chỉ có nghĩa với người đã đăng nhập — API /notifications yêu cầu xác thực. */}
             <NotificationBell />
             <div className="relative">
-              <button onClick={() => setIsUserMenuOpen(!isUserMenuOpen)} aria-haspopup="menu" aria-expanded={isUserMenuOpen} aria-label="Menu tài khoản" className="flex items-center gap-2 hover:text-ink transition-colors focus:outline-none">
+              <button onClick={() => setIsUserMenuOpen(!isUserMenuOpen)} aria-haspopup="menu" aria-expanded={isUserMenuOpen} aria-label="Menu tài khoản" className="flex items-center gap-2 min-h-[44px] hover:text-ink transition-colors focus:outline-none">
                 {user.avatarUrl ? (
                   <img src={user.avatarUrl} alt="avatar" className="w-9 h-9 rounded-full object-cover border border-brand" />
                 ) : (
@@ -318,7 +318,7 @@ const Header = () => {
           )}
 
           <div className="relative hidden sm:block">
-            <button onClick={() => setIsLangOpen(!isLangOpen)} className="flex items-center gap-1.5 px-3 py-2 rounded-full border border-line hover:border-brand text-sm font-medium text-ink-soft hover:text-brand-text transition-colors">
+            <button onClick={() => setIsLangOpen(!isLangOpen)} className="flex items-center gap-1.5 px-3 min-h-[44px] rounded-full border border-line hover:border-brand text-sm font-medium text-ink-soft hover:text-brand-text transition-colors">
               <Languages size={16} />
               <span>{currentLang === 'vi' ? 'VN' : 'EN'}</span>
               <ChevronDown size={14} className={`transition-transform duration-200 ${isLangOpen ? 'rotate-180' : ''}`} />

@@ -89,7 +89,7 @@ const ChatPanel = ({ messages, performers, onSendMessage, onSendDonation, onRepo
           <button
             onClick={() => setShowActionMenu(!showActionMenu)}
             className={`p-2 rounded-lg transition-colors ${showActionMenu ? 'text-brand-text bg-sunken' : 'text-ink-soft hover:text-ink hover:bg-sunken'}`}
-            aria-label="Chat actions"
+            aria-label="Tuỳ chọn trò chuyện"
           >
             <MoreVertical size={18} />
           </button>
@@ -104,7 +104,7 @@ const ChatPanel = ({ messages, performers, onSendMessage, onSendDonation, onRepo
                 className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-ink-soft hover:bg-sunken hover:text-ink transition-colors text-left"
               >
                 <Flag size={15} className="text-ink-soft" />
-                Report
+                Báo cáo
               </button>
 
               {/* Sẵn slot cho action tương lai: collapse chat, chặn user,... */}
@@ -184,7 +184,7 @@ const ChatPanel = ({ messages, performers, onSendMessage, onSendDonation, onRepo
             type="text"
             value={text}
             onChange={e => setText(e.target.value)}
-            placeholder="Say something..."
+            placeholder="Nhắn gì đó…"
             className="flex-1 min-w-0 bg-sunken text-ink text-sm rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-brand placeholder:text-ink-mute"
           />
           {/* NÚT SEND — donate chuyển sang phải của nó */}
@@ -196,7 +196,7 @@ const ChatPanel = ({ messages, performers, onSendMessage, onSendDonation, onRepo
             type="button"
             onClick={() => setShowDonate(true)}
             className="flex-shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-lg bg-brand text-on-brand text-xs font-bold hover:bg-brand-hover transition-colors"
-            aria-label="Donate"
+            aria-label="Ủng hộ"
           >
             <DollarSign size={16} />
           </button>

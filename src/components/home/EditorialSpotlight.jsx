@@ -38,7 +38,7 @@ const EditorialSpotlight = ({ lounge }) => {
           </p>
           {lounge?.id && (
             <Link to={`/lounge/${lounge.id}`}
-              className="inline-flex items-center gap-2 self-start text-sm font-semibold text-brand-on-dark hover:text-cream transition-colors">
+              className="inline-flex items-center gap-2 self-start min-h-[44px] text-sm font-semibold text-brand-on-dark hover:text-cream transition-colors">
               Ghé thăm {lounge.name} <ArrowRight size={16} />
             </Link>
           )}

@@ -29,19 +29,19 @@ const MyShowsPage = () => {
 
         {!user ? (
           <div className="bg-card border border-line rounded-2xl p-12 text-center">
-            <p className="text-lg font-semibold text-ink mb-2">You must logged in.</p>
-            <p className="text-ink-soft mb-6">Please log in to view your ticket list and wishlist.</p>
+            <p className="text-lg font-semibold text-ink mb-2">Bạn cần đăng nhập.</p>
+            <p className="text-ink-soft mb-6">Vui lòng đăng nhập để xem vé và danh sách yêu thích.</p>
             <Link to="/login" className="inline-block bg-brand text-on-brand px-6 py-2.5 rounded-lg font-semibold hover:bg-brand-hover transition-colors">Đăng nhập ngay</Link>
           </div>
         ) : (
           <>
             <div className="mb-6 border-b border-line">
               <div className="flex justify-end gap-8">
-                <button onClick={() => setActiveMainTab('shows')} className={`pb-4 text-lg font-bold border-b-2 transition-colors ${activeMainTab === 'shows' ? 'border-brand text-brand-text' : 'border-transparent text-ink-mute hover:text-ink'}`}>Shows</button>
+                <button onClick={() => setActiveMainTab('shows')} className={`pb-4 text-lg font-bold border-b-2 transition-colors ${activeMainTab === 'shows' ? 'border-brand text-brand-text' : 'border-transparent text-ink-mute hover:text-ink'}`}>Vé</button>
                 <button onClick={() => setActiveMainTab('wishlist')} className={`pb-4 text-lg font-bold border-b-2 transition-colors ${activeMainTab === 'wishlist' ? 'border-brand text-brand-text' : 'border-transparent text-ink-mute hover:text-ink'}`}>Yêu thích</button>
                 <button onClick={() => setActiveMainTab('transfers')} className={`pb-4 text-lg font-bold border-b-2 transition-colors ${activeMainTab === 'transfers' ? 'border-brand text-brand-text' : 'border-transparent text-ink-mute hover:text-ink'}`}>Vé chuyển đến</button>
                 <button onClick={() => setActiveMainTab('refunds')} className={`pb-4 text-lg font-bold border-b-2 transition-colors ${activeMainTab === 'refunds' ? 'border-brand text-brand-text' : 'border-transparent text-ink-mute hover:text-ink'}`}>Hoàn tiền</button>
-                <button onClick={() => setActiveMainTab('donations')} className={`pb-4 text-lg font-bold border-b-2 transition-colors ${activeMainTab === 'donations' ? 'border-brand text-brand-text' : 'border-transparent text-ink-mute hover:text-ink'}`}>Donate</button>
+                <button onClick={() => setActiveMainTab('donations')} className={`pb-4 text-lg font-bold border-b-2 transition-colors ${activeMainTab === 'donations' ? 'border-brand text-brand-text' : 'border-transparent text-ink-mute hover:text-ink'}`}>Ủng hộ</button>
               </div>
             </div>
 

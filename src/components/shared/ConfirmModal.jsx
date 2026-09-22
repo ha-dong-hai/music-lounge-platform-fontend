@@ -26,7 +26,7 @@ const ConfirmModal = ({
           onClick={onClose}
           disabled={isProcessing}
           className="absolute top-4 right-4 p-2 hover:bg-sunken rounded-full text-ink-mute hover:text-ink transition-colors disabled:opacity-30 z-10"
-          aria-label="Close"
+          aria-label="Đóng"
         >
           <X size={18} />
         </button>
@@ -54,7 +54,7 @@ const ConfirmModal = ({
               disabled={isProcessing}
               className="flex-1 py-3 border border-line text-ink-soft rounded-xl font-medium hover:bg-sunken hover:border-line-strong transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Cancel
+              Huỷ
             </button>
             <button
               onClick={onConfirm}

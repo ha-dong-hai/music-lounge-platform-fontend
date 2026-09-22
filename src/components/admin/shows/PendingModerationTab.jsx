@@ -98,19 +98,19 @@ const PendingModerationTab = () => {
       <div className="flex gap-2 mb-4">
         <button
           onClick={() => handleTabChange('Show')}
-          className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors ${targetType === 'Show' ? 'bg-brand text-on-brand' : 'bg-card text-ink-soft hover:text-white'}`}
+          className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors ${targetType === 'Show' ? 'bg-brand text-on-brand' : 'bg-card text-ink-soft hover:text-ink'}`}
         >
           Show
         </button>
         <button
           onClick={() => handleTabChange('Livestream')}
-          className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors ${targetType === 'Livestream' ? 'bg-brand text-on-brand' : 'bg-card text-ink-soft hover:text-white'}`}
+          className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors ${targetType === 'Livestream' ? 'bg-brand text-on-brand' : 'bg-card text-ink-soft hover:text-ink'}`}
         >
           Livestream
         </button>
         <button
           onClick={() => handleTabChange('TicketTier')}
-          className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors ${targetType === 'TicketTier' ? 'bg-brand text-on-brand' : 'bg-card text-ink-soft hover:text-white'}`}
+          className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors ${targetType === 'TicketTier' ? 'bg-brand text-on-brand' : 'bg-card text-ink-soft hover:text-ink'}`}
         >
           Hạng vé
         </button>

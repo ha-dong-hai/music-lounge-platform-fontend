@@ -592,7 +592,7 @@ const OwnerShowDetailPage = () => {
               placeholder="Gõ tên nghệ sĩ để tìm (từ 2 ký tự)"
               className="w-full px-3 py-2 bg-page border border-line rounded-lg text-sm text-ink placeholder:text-ink-mute" />
             {performerResults.length > 0 && (
-              <div className="absolute left-0 right-0 mt-1 bg-[#1a1a1a] border border-line rounded-lg z-10 overflow-hidden">
+              <div className="absolute left-0 right-0 mt-1 bg-card border border-line rounded-lg shadow-lift z-10 overflow-hidden">
                 {performerResults.map((p) => (
                   <button key={p.id} onClick={() => handleAddPerformer(p)} disabled={!!busy}
                     className="w-full text-left px-4 py-2.5 text-sm text-ink-soft hover:bg-sunken disabled:opacity-50">

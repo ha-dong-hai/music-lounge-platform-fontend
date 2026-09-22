@@ -34,7 +34,7 @@ const LoungeAbout = ({ lounge, zones = [] }) => {
                       <MapPin size={16} className="text-brand-text flex-shrink-0" />
                       {zone.name}
                     </h3>
-                    <span className="flex-shrink-0 inline-flex items-center gap-1 bg-sunken text-white text-xs font-medium px-3 py-1 rounded-full border border-white/10">
+                    <span className="flex-shrink-0 inline-flex items-center gap-1 bg-sunken text-ink text-xs font-medium px-3 py-1 rounded-full border border-line">
                       <Users size={12} /> {zone.capacity} seats
                     </span>
                   </div>
@@ -51,7 +51,7 @@ const LoungeAbout = ({ lounge, zones = [] }) => {
       {/* FALLBACK: ảnh sơ đồ layout tổng nếu không có zones */}
       {!hasZones && hasLayoutImage && (
         <div>
-          <h2 className="text-2xl font-bold text-ink mb-6">Area map</h2>
+          <h2 className="text-2xl font-bold text-ink mb-6">Sơ đồ mặt bằng</h2>
           <div className="bg-card border border-line rounded-xl overflow-hidden">
             <img src={lounge.areaLayoutImageUrl} alt="Sơ đồ khu vực" className="w-full object-contain" />
           </div>

@@ -125,7 +125,7 @@ const EventDetailPage = () => {
     try {
       // GỌI SERVICE
       await toggleWishlist(id, prevStatus)
-      toast.success(prevStatus ? 'Removed from Wishlist!' : 'Added to Wishlist!')
+      toast.success(prevStatus ? 'Đã bỏ khỏi yêu thích' : 'Đã thêm vào yêu thích')
     } catch (err) {
       setIsWishlisted(prevStatus)
       // Hiện lý do thật của backend (vé đã hết, buổi diễn đã đóng...) thay vì một câu chung chung.
@@ -326,11 +326,11 @@ const EventDetailPage = () => {
               <h2 className="text-xl font-bold text-ink">Chia sẻ sự kiện</h2>
               <button onClick={() => setIsShareModalOpen(false)} className="p-2 hover:bg-sunken rounded-full text-ink-soft transition-colors"><X size={20} /></button>
             </div>
-            <p className="text-ink-soft text-sm mb-3">Copy the link below to send to friends:</p>
+            <p className="text-ink-soft text-sm mb-3">Sao chép liên kết bên dưới để gửi bạn bè:</p>
             <div className="flex items-center gap-2 bg-page border border-line rounded-lg p-2 pl-4">
               <span className="text-ink-soft text-sm flex-1 truncate">{window.location.href}</span>
               <button onClick={handleCopyLink} className={`px-4 py-2 rounded-md text-sm font-bold transition-colors flex items-center gap-1.5 ${isCopied ? 'bg-green-500 text-white' : 'bg-brand text-on-brand hover:bg-brand-hover'}`}>
-                {isCopied ? <><Check size={14} /> Copied</> : <><Copy size={14} /> Sao chép</>}
+                {isCopied ? <><Check size={14} /> Đã sao chép</> : <><Copy size={14} /> Sao chép</>}
               </button>
             </div>
           </div>

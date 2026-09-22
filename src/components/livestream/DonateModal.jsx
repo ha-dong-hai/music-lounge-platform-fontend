@@ -20,10 +20,10 @@ const DonateModal = ({ performers, onClose, onSendDonation }) => {
     setIsProcessing(true)
     try {
       await onSendDonation(selectedPerformer.id, finalAmount, message)
-      toast.success('Donate successful!')
+      toast.success('Ủng hộ thành công!')
       onClose()
     } catch (err) {
-      toast.error('Donate fail!')
+      toast.error('Ủng hộ không thành công!')
     } finally {
       setIsProcessing(false)
     }
@@ -35,14 +35,14 @@ const DonateModal = ({ performers, onClose, onSendDonation }) => {
       <div className="relative bg-card border border-line rounded-2xl w-full max-w-md shadow-2xl flex flex-col" onClick={e => e.stopPropagation()}>
         
         <div className="p-5 border-b border-line flex justify-between items-center">
-          <h2 className="text-lg font-bold text-ink flex items-center gap-2"><Heart className="text-danger" size={20}/> Donate</h2>
+          <h2 className="text-lg font-bold text-ink flex items-center gap-2"><Heart className="text-danger" size={20}/> Ủng hộ</h2>
           <button onClick={onClose} className="text-ink-soft hover:text-ink"><X size={20}/></button>
         </div>
 
         <div className="p-5 space-y-5 overflow-y-auto">
           {/* CHỌN NGHỆ SĨ */}
           <div>
-            <label className="text-sm font-semibold text-ink-soft mb-2 block">Choose performer</label>
+            <label className="text-sm font-semibold text-ink-soft mb-2 block">Chọn nghệ sĩ</label>
             <div className="flex flex-wrap gap-2">
               {performers.map(p => (
                 <button
@@ -77,7 +77,7 @@ const DonateModal = ({ performers, onClose, onSendDonation }) => {
             </div>
             <input 
               type="number"
-              placeholder="Choose another amount..."
+              placeholder="Chọn số tiền khác…"
               value={customAmount}
               onChange={e => setCustomAmount(e.target.value)}
               className="mt-2 w-full bg-page border border-line rounded-lg px-3 py-2 text-sm text-ink focus:outline-none focus:border-brand"
@@ -92,7 +92,7 @@ const DonateModal = ({ performers, onClose, onSendDonation }) => {
               value={message}
               onChange={e => setMessage(e.target.value)}
               className="w-full bg-page border border-line rounded-lg px-3 py-2 text-sm text-ink focus:outline-none focus:border-brand resize-none"
-              placeholder="Send wishes to performer..."
+              placeholder="Gửi lời chúc tới nghệ sĩ…"
             />
           </div>
         </div>
@@ -104,7 +104,7 @@ const DonateModal = ({ performers, onClose, onSendDonation }) => {
             className="w-full py-3 rounded-xl bg-brand text-on-brand font-bold hover:bg-brand-hover transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
           >
             {isProcessing ? <Loader2 size={16} className="animate-spin"/> : <Heart size={16} className="fill-red-500 text-danger"/>}
-            Donate {finalAmount.toLocaleString('vi-VN')}đ
+            Ủng hộ {finalAmount.toLocaleString('vi-VN')}đ
           </button>
         </div>
       </div>

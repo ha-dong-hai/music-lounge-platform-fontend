@@ -49,7 +49,7 @@ const Khung = ({ children }) => (
     <div className="max-w-xl mx-auto px-4 sm:px-6 py-12">
       <div className="flex items-center gap-2 mb-8">
         <Music2 size={22} className="text-brand-text" />
-        <span className="text-lg font-bold tracking-wide text-brand-text">Music Lounge</span>
+        <span className="text-lg font-bold tracking-wide text-brand-text">Phòng Trà Sài Gòn</span>
       </div>
       {children}
     </div>

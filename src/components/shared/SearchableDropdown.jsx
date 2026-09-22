@@ -109,7 +109,7 @@ const SearchableDropdown = ({
                   })
                 ) : (
                   <li className="px-4 py-3 text-center text-sm text-ink-soft italic">
-                    No result
+                    Không có kết quả
                   </li>
                 )}
               </ul>

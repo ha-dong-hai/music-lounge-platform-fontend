@@ -79,10 +79,10 @@ const FollowedLoungesTab = () => {
 
     try {
       await toggleFollowLounge(lounge.id, true) // true = đang follow → BE DELETE
-      toast.success(`Unfollow ${lounge.name}`)
+      toast.success(`Đã bỏ theo dõi ${lounge.name}`)
     } catch (err) {
       setFollowedLounges(prevLounges) // rollback
-      toast.error('Process failed.')
+      toast.error('Thao tác thất bại.')
     } finally {
       setUnfollowingId(null)
     }
@@ -92,7 +92,7 @@ const FollowedLoungesTab = () => {
     <div className="bg-card border border-line rounded-2xl p-6 md:p-8">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
-          <h2 className="text-xl font-bold text-brand-text">Followed Lounges</h2>
+          <h2 className="text-xl font-bold text-brand-text">Phòng trà đang theo dõi</h2>
           {!isLoadingLounges && (
             <span className="px-2.5 py-1 rounded-full bg-brand/10 border border-brand/25 text-brand-text text-xs font-bold">
               {followedLounges.length}
@@ -105,7 +105,7 @@ const FollowedLoungesTab = () => {
           className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand-text hover:text-brand-text transition-all hover:gap-2 flex-shrink-0"
         >
           <Compass size={16} />
-          View more
+          Xem thêm
           <ChevronRight size={16} />
         </Link>
       </div>
@@ -129,7 +129,7 @@ const FollowedLoungesTab = () => {
                 className="mt-4 w-full flex items-center justify-center gap-1.5 py-2 rounded-lg border border-line text-ink-soft text-xs font-bold hover:bg-red-500/10 hover:border-red-500/40 hover:text-danger transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {unfollowingId === lounge.id
-                  ? <><Loader2 size={13} className="animate-spin" /> Processing...</>
+                  ? <><Loader2 size={13} className="animate-spin" /> Đang xử lý…</>
                   : <><UserMinus size={13} /> Bỏ theo dõi</>}
               </button>
 
@@ -151,8 +151,8 @@ const FollowedLoungesTab = () => {
       ) : (
         <div className="text-center py-12">
           <Building2 size={40} className="mx-auto text-ink-mute mb-4" />
-          <p className="text-ink-soft">No Followed Lounge.</p>
-          <Link to="/lounges" className="mt-4 inline-block text-brand-text font-semibold underline hover:text-brand-text">Discover musical lounge now!</Link>
+          <p className="text-ink-soft">Bạn chưa theo dõi phòng trà nào.</p>
+          <Link to="/lounges" className="mt-4 inline-block text-brand-text font-semibold underline hover:text-brand-text">Khám phá phòng trà ngay</Link>
         </div>
       )}
     </div>

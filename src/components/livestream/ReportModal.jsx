@@ -4,11 +4,11 @@ import toast from 'react-hot-toast'
 
 // Tạm dùng các lý do UI — khi BE có enum complaint thật thì thay
 const REPORT_REASONS = [
-  { value: 'Spam', label: 'Spam message / advertisement' },
-  { value: 'Harassment', label: 'Harassment and personal attacks' },
-  { value: 'Inappropriate', label: 'Inappropriate language' },
-  { value: 'Scam', label: 'Scams' },
-  { value: 'Other', label: 'Others' },
+  { value: 'Spam', label: 'Tin nhắn rác / quảng cáo' },
+  { value: 'Harassment', label: 'Quấy rối và công kích cá nhân' },
+  { value: 'Inappropriate', label: 'Ngôn từ không phù hợp' },
+  { value: 'Scam', label: 'Lừa đảo' },
+  { value: 'Other', label: 'Khác' },
 ]
 
 const ReportModal = ({ onClose, onSubmit }) => {
@@ -25,10 +25,10 @@ const ReportModal = ({ onClose, onSubmit }) => {
     setIsSubmitting(true)
     try {
       await onSubmit(selectedReason, description.trim())
-      toast.success('Report sent! An administrator will review it soon.')
+      toast.success('Đã gửi báo cáo. Quản trị viên sẽ xem xét sớm.')
       onClose()
     } catch (err) {
-      toast.error('Failed to send report. Please try again.')
+      toast.error('Gửi báo cáo không thành công. Vui lòng thử lại.')
     } finally {
       setIsSubmitting(false)
     }
@@ -47,8 +47,8 @@ const ReportModal = ({ onClose, onSubmit }) => {
               <Flag size={18} className="text-danger" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-ink">Report</h2>
-              <p className="text-xs text-ink-mute">Report the content of this livestream.</p>
+              <h2 className="text-lg font-bold text-ink">Báo cáo</h2>
+              <p className="text-xs text-ink-mute">Báo cáo nội dung của buổi phát này.</p>
             </div>
           </div>
           <button onClick={onClose} disabled={isSubmitting} className="p-2 hover:bg-sunken rounded-full text-ink-soft disabled:opacity-30">
@@ -97,7 +97,7 @@ const ReportModal = ({ onClose, onSubmit }) => {
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               disabled={isSubmitting}
-              placeholder="Make a description..."
+              placeholder="Mô tả vấn đề…"
               className="w-full px-4 py-3 bg-page border border-line rounded-xl text-ink text-sm focus:outline-none focus:border-brand/50 resize-none disabled:opacity-50 placeholder:text-ink-mute"
             />
             <p className={`text-xs mt-1.5 ${description.trim().length > 0 && description.trim().length < 10 ? 'text-warning' : 'text-ink-mute'}`}>
@@ -123,8 +123,8 @@ const ReportModal = ({ onClose, onSubmit }) => {
             className="flex-1 py-2.5 rounded-lg font-bold transition-colors flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed bg-red-500 text-white hover:bg-red-600"
           >
             {isSubmitting
-              ? <><Loader2 size={16} className="animate-spin" /> sending...</>
-              : <><Flag size={15} /> Submit report</>}
+              ? <><Loader2 size={16} className="animate-spin" /> đang gửi…</>
+              : <><Flag size={15} /> Gửi báo cáo</>}
           </button>
         </div>
       </div>

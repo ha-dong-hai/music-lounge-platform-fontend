@@ -133,7 +133,7 @@ const TicketDetailPage = () => {
                 <div className="mb-8">
                     <Link to="/my-shows" className="inline-flex items-center gap-2 text-sm font-medium text-ink-soft hover:text-brand-text transition-colors">
                         <ArrowLeft size={18} />
-                        Return to ticket list
+                        Về danh sách vé
                     </Link>
                 </div>
 
@@ -188,7 +188,7 @@ const TicketDetailPage = () => {
                             <p className="text-ink font-bold text-lg">{ticket.loungeName}</p>
                         </div>
                         <div className="sm:border-l sm:border-line sm:pl-6">
-                            <p className="text-ink-mute text-sm mb-1">Time</p>
+                            <p className="text-ink-mute text-sm mb-1">Thời gian</p>
                             <p className="text-ink font-bold text-lg">{eventDate.format('HH:mm DD/MM')}</p>
                         </div>
                     </div>
@@ -222,7 +222,7 @@ const TicketDetailPage = () => {
 
                 {/* PHẦN MÃ QR ĐỂ QUÉT CỬA (DÙNG MÃ QR THẬT TỪ BE) */}
                 <div className="bg-card rounded-2xl p-8 mb-6 flex flex-col items-center justify-center">
-                    <p className="text-ink font-bold text-lg mb-4">QR code Check-in</p>
+                    <p className="text-ink font-bold text-lg mb-4">Mã QR vào cửa</p>
                     <div className="p-4 bg-page border-2 border-brand rounded-xl">
                         <QRCode
                             value={ticket.qrCode || ticket.id}
@@ -233,7 +233,7 @@ const TicketDetailPage = () => {
                         />
                     </div>
                     <p className="text-ink-mute font-mono text-sm mt-4 break-all px-4 text-center">{ticket.id}</p>
-                    <p className="text-ink-soft text-xs mt-1">Show this screen to the ticket staff at the entrance</p>
+                    <p className="text-ink-soft text-xs mt-1">Đưa màn hình này cho nhân viên soát vé ở cửa</p>
                 </div>
 
                 {/* ================================ */}
@@ -241,7 +241,7 @@ const TicketDetailPage = () => {
                 {/* ================================ */}
                 <div className="bg-card border border-line rounded-2xl p-6 mb-6">
                     <div className="flex justify-between items-center mb-4">
-                        <h2 className="text-xl font-bold text-brand-text">Order detail</h2>
+                        <h2 className="text-xl font-bold text-brand-text">Chi tiết đơn hàng</h2>
                         <span className="text-ink-soft font-mono text-xs break-all">Order code: {ticket.id}</span>
                     </div>
 
@@ -249,17 +249,17 @@ const TicketDetailPage = () => {
                         <table className="w-full text-left">
                             <tbody>
                                 <tr className="border-b border-line">
-                                    <td className="p-4 text-ink-mute text-sm align-top w-1/3">Order date</td>
+                                    <td className="p-4 text-ink-mute text-sm align-top w-1/3">Ngày đặt</td>
                                     <td className="p-4 text-ink text-sm">{orderDate}</td>
                                 </tr>
                                 <tr className="border-b border-line">
-                                    <td className="p-4 text-ink-mute text-sm align-top">Ticket type</td>
+                                    <td className="p-4 text-ink-mute text-sm align-top">Loại vé</td>
                                     <td className="p-4 text-ink text-sm">
                                         {ticket.accessType === 'Physical' ? 'Vé trực tiếp (Offline)' : 'Vé Livestream (Online)'}
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td className="p-4 text-ink-mute text-sm align-top">Order status</td>
+                                    <td className="p-4 text-ink-mute text-sm align-top">Trạng thái đơn</td>
                                     <td className="p-4 text-right">
                                         <span className="inline-flex items-center gap-1.5 bg-green-500/15 text-success px-3 py-1 rounded-full text-xs font-bold border border-green-500/30">
                                             <CheckCircle2 size={14} /> {ticket.status === 'Confirmed' ? 'Paid' : ticket.status}
@@ -279,7 +279,7 @@ const TicketDetailPage = () => {
                             <thead className="bg-sunken/70">
                                 <tr>
                                     <th className="p-4 text-ink-soft font-medium text-sm">Hạng vé</th>
-                                    <th className="p-4 text-ink-soft font-medium text-sm text-right">Price</th>
+                                    <th className="p-4 text-ink-soft font-medium text-sm text-right">Giá</th>
                                 </tr>
                             </thead>
                             <tbody>

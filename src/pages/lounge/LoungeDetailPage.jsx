@@ -134,7 +134,7 @@ const LoungeDetailPage = () => {
   // HÀM TOGGLE FOLLOW (GỌI API)
   const handleToggleFollow = async () => {
     if (isUpdatingFollow || !lounge) return
-    if (!user) { toast.error('Please log in to follow.'); return }
+    if (!user) { toast.error('Vui lòng đăng nhập để theo dõi.'); return }
 
     const prevStatus = isFollowing
     setIsFollowing(!prevStatus)

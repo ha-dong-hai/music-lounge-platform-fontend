@@ -45,7 +45,7 @@ const ShowCarousel = ({ title, events = [], showViewMore = false, viewMoreLink =
         {showViewMore && (
           <Link
             to={viewMoreLink}
-            className="text-sm font-medium text-brand-text hover:text-ink flex items-center justify-end gap-1 transition-all hover:gap-2"
+            className="text-sm font-medium text-brand-text hover:text-ink flex items-center justify-end gap-1 min-h-[44px] transition-all hover:gap-2"
           >
             Xem thêm
             <ChevronRight size={20} />
