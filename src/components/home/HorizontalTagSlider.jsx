@@ -34,7 +34,7 @@ const HorizontalTagSlider = ({ label, options, selectedItems, onSelect, onRemove
         {canScrollLeft && (
           <button 
             onClick={() => scroll('left')}
-            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-7 h-7 rounded-full bg-white text-black shadow-md border border-gray-200 flex items-center justify-center opacity-0 group-hover/slider:opacity-100 transition-opacity"
+            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-7 h-7 rounded-full bg-espresso text-cream shadow-md border border-gray-200 flex items-center justify-center opacity-0 group-hover/slider:opacity-100 transition-opacity"
           >
             <ChevronLeft size={16} />
           </button>
@@ -56,8 +56,8 @@ const HorizontalTagSlider = ({ label, options, selectedItems, onSelect, onRemove
                 onClick={() => isSelected ? onRemove(value) : onSelect(value)}
                 className={`flex-shrink-0 px-4 py-1.5 rounded-full border text-sm font-medium transition-all ${
                   isSelected 
-                    ? 'bg-gray-900 text-white border-gray-900' 
-                    : 'bg-white text-gray-700 border-gray-300 hover:border-gray-400 hover:bg-gray-50'
+                    ? 'bg-card text-ink border-line' 
+                    : 'bg-card text-ink-mute border-gray-300 hover:border-line-strong hover:bg-gray-50'
                 }`}
               >
                 {value}
@@ -69,7 +69,7 @@ const HorizontalTagSlider = ({ label, options, selectedItems, onSelect, onRemove
         {canScrollRight && (
           <button 
             onClick={() => scroll('right')}
-            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-7 h-7 rounded-full bg-white text-black shadow-md border border-gray-200 flex items-center justify-center opacity-0 group-hover/slider:opacity-100 transition-opacity"
+            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-7 h-7 rounded-full bg-espresso text-cream shadow-md border border-gray-200 flex items-center justify-center opacity-0 group-hover/slider:opacity-100 transition-opacity"
           >
             <ChevronRight size={16} />
           </button>
@@ -81,7 +81,7 @@ const HorizontalTagSlider = ({ label, options, selectedItems, onSelect, onRemove
           {selectedItems.map(item => (
             <span key={item} className="inline-flex items-center gap-1 px-2.5 py-1 bg-gray-100 rounded-md text-xs font-medium text-gray-800 border border-gray-200">
               {item}
-              <button onClick={() => onRemove(item)} className="hover:text-red-600 ml-0.5"><X size={12}/></button>
+              <button onClick={() => onRemove(item)} className="hover:text-danger ml-0.5"><X size={12}/></button>
             </span>
           ))}
         </div>

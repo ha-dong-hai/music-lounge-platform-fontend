@@ -4,6 +4,7 @@ import { Heart } from 'lucide-react'
 import ShowCard from '../home/ShowCard'
 import Skeleton from '../shared/Skeleton'
 import { getWishlist } from '../../services/interactionServices'
+import { formatMinPrice } from '../../utils/formatPrice'
 
 const WishlistTab = () => {
   const [isLoading, setIsLoading] = useState(true)
@@ -23,7 +24,7 @@ const WishlistTab = () => {
             format: show.format,
             thumbnail: show.coverImageUrl,
             start_date: show.scheduledStart,
-            price: show.minPrice === 0 && show.maxPrice === 0 ? 'Miễn phí' : `${show.minPrice.toLocaleString('vi-VN')}đ`,
+            price: formatMinPrice(show),
             isWishlisted: true // MỌI item trong tab này đều đang được wishlist
           }))
           setWishlistShows(mapped)
@@ -68,10 +69,10 @@ const WishlistTab = () => {
           ))}
         </div>
       ) : (
-        <div className="bg-gray-900 border border-gray-800 rounded-2xl p-12 text-center min-h-[300px] flex flex-col items-center justify-center">
-          <Heart size={40} className="text-gray-700 mb-4" />
-          <p className="text-gray-400 text-lg">Your wishlist is empty.</p>
-          <Link to="/" className="mt-4 text-[#C3B665] font-semibold underline hover:text-[#d4c87f]">Find your favorite shows</Link>
+        <div className="bg-card border border-line rounded-2xl p-12 text-center min-h-[300px] flex flex-col items-center justify-center">
+          <Heart size={40} className="text-ink-mute mb-4" />
+          <p className="text-ink-soft text-lg">Danh sách yêu thích đang trống.</p>
+          <Link to="/" className="mt-4 text-brand-text font-semibold underline hover:text-brand-text">Tìm đêm diễn bạn yêu thích</Link>
         </div>
       )}
     </div>

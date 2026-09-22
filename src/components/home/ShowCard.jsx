@@ -1,21 +1,20 @@
 // src/components/home/EventCard.jsx
-import { CalendarDays, Heart } from 'lucide-react'
+import { CalendarDays, Heart, MapPin } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import dayjs from 'dayjs'
 import { useState, useRef, useEffect } from 'react'
 import { toggleWishlist } from '../../services/interactionServices'
 import toast from 'react-hot-toast'
+import CoverFallback from '../shared/CoverFallback'
 
 const ZOOM_DELAY = 600 // chỉnh thời gian hover cần thiết để poster mở rộng
 
-// ẢNH DEFAULT khi event không có ảnh (dùng chung ảnh fallback với HeroBanner cho đồng bộ)
-const DEFAULT_IMAGE = "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?q=80&w=2670&auto=format&fit=crop"
-
-const ShowCard = ({ 
+const ShowCard = ({
   id, 
   title, 
-  price, 
-  location,       
+  price,
+  location,
+  loungeName,
   thumbnail,
   start_date,
   format,          
@@ -31,8 +30,10 @@ const ShowCard = ({
   // Dọn timer khi unmount (tránh memory leak / setState trên component đã chết)
   useEffect(() => () => clearTimeout(zoomTimerRef.current), [])
 
-  // Nếu không có thumbnail thì dùng ảnh default
-  const displayImage = thumbnail || DEFAULT_IMAGE
+  // Ảnh lỗi (404, hết hạn CDN...) rơi về CÙNG hoạ tiết dự phòng như lúc không có ảnh — xem
+  // src/components/shared/CoverFallback.jsx để biết vì sao không dùng ảnh stock ở đây nữa.
+  const [imgFailed, setImgFailed] = useState(false)
+  const showFallback = !thumbnail || imgFailed
 
   const handleMouseEnter = () => {
     // Bắt đầu đếm: đủ ZOOM_DELAY mới mở rộng poster
@@ -59,15 +60,19 @@ const ShowCard = ({
         onMouseLeave: handleMouseLeave 
       }
 
-  const formattedDate = start_date ? dayjs(start_date).format('MMM D, h:mm A') : null
+  const formattedDate = start_date ? dayjs(start_date).format('HH:mm, DD/MM/YYYY') : null
 
   // LOGIC MÀU TAG FORMAT
   const formatStyles = {
-    Offline: 'bg-blue-500/80 text-white',
-    Online: 'bg-purple-500/80 text-white',
-    Hybrid: 'bg-green-500/80 text-white'
+    Offline: 'bg-espresso/85 text-cream',
+    Online: 'bg-brand text-on-brand',
+    Hybrid: 'bg-card/95 text-ink border border-line'
   }
-  const formatClass = formatStyles[format] || 'bg-gray-500/80 text-white'
+  // Nơi diễn. Các trang truyền tên phòng trà bằng hai tên prop khác nhau (`loungeName` ở trang chủ, `location` ở danh sách);
+  // trước đây thẻ nhận `location` nhưng KHÔNG hiển thị gì — khách nhìn thẻ không biết buổi diễn ở phòng trà nào.
+  const venue = loungeName || location
+  const nhanHinhThuc ={ Offline: 'Tại chỗ', Online: 'Trực tuyến', Hybrid: 'Kết hợp' }[format] || format
+  const formatClass = formatStyles[format] || 'bg-card/95 text-ink'
 
   // HÀM TOGGLE WISHLIST RIÊNG CHO CARD
   const handleWishlist = async (e) => {
@@ -77,109 +82,127 @@ const ShowCard = ({
     setWished(!prev)
     try {
       await toggleWishlist(id, prev)
-      toast.success(prev ? 'Remove from Wishlist!' : 'Added to Wishlist!')
+      toast.success(prev ? 'Đã bỏ khỏi danh sách yêu thích' : 'Đã thêm vào yêu thích')
       onWishlistChange?.(!prev)
-    } catch (err) {
+    } catch {
       setWished(prev)
-      toast.error('Process failed.')
+      toast.error('Thao tác thất bại, thử lại sau.')
     }
-  }
-
-  // Xử lý khi ảnh bị lỗi  → tự động thay bằng ảnh default
-  const handleImgError = (e) => {
-    e.target.onerror = null // tránh vòng lặp vô hạn nếu default image cũng lỗi
-    e.target.src = DEFAULT_IMAGE
   }
 
   return (
     <Wrapper {...wrapperProps}>
       
-      {/* === KHU VỰC ẢNH (trạng thái bình thường) === */}
-      <div className="relative w-full aspect-video bg-gray-200 mt-2 rounded-xl overflow-hidden cursor-pointer">
-        <img 
-          src={displayImage} 
-          alt={title} 
-          className="w-full h-full object-cover" 
-          loading="lazy"
-          onError={handleImgError}
-        />
-        
+      {/* === KHU VỰC ẢNH (trạng thái bình thường) ===
+          Viền chỉ (hairline) thay cho đổ bóng cứng, và scale-105 chậm khi hover — cùng ngôn ngữ với
+          Aura & Echo (docs/design/TRANG-CHU-BRIEF.md §3, §5): độ sâu tới từ chuyển động tinh tế, không
+          phải shadow nặng. */}
+      <div className="relative w-full aspect-video bg-sunken mt-2 rounded-xl overflow-hidden cursor-pointer border border-line">
+        {showFallback ? (
+          <CoverFallback className="w-full h-full transition-transform duration-700 ease-out group-hover:scale-105" />
+        ) : (
+          <img
+            src={thumbnail}
+            alt={title}
+            className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+            loading="lazy"
+            onError={() => setImgFailed(true)}
+          />
+        )}
+
         {/* TAG FORMAT GÓC TRÊN BÊN TRÁI */}
         {format && (
           <span className={`absolute top-2 left-2 px-2 py-1 rounded-md text-xs font-bold ${formatClass} backdrop-blur-sm z-[5]`}>
-            {format}
+            {nhanHinhThuc}
           </span>
         )}
 
-        {/* NÚT WISHLIST — chỉ hiện khi hover card (đã wishlist thì hiện luôn) */}
-        <button 
+        {/* NÚT WISHLIST.
+            - Trên máy có chuột: ẩn cho ảnh sạch, hiện khi rê chuột / Tab vào thẻ (đã yêu thích thì luôn hiện).
+            - Trên màn cảm ứng: LUÔN hiện. Bản cũ dùng `opacity-0 group-hover:opacity-100`, mà Tailwind v4 chỉ áp `hover:` trên
+              thiết bị có chuột — nên trên điện thoại nút vô hình vĩnh viễn, khách không có cách nào thêm yêu thích.
+            - Vùng bấm 44px (nút trong suốt), viên tròn nhìn thấy 32px; chữ kem trên nền espresso mờ (trước là chữ nâu đậm
+              trên nền nâu tối — gần như không đọc được). */}
+        <button
           onClick={handleWishlist}
-          className={`absolute top-2 right-2 z-30 p-1.5 rounded-full bg-black/50 backdrop-blur-sm transition-all duration-300 ${
-            wished
-              ? 'text-red-500 opacity-100'
-              : 'text-white opacity-0 group-hover:opacity-100 hover:text-red-400 hover:scale-110'
+          aria-pressed={wished}
+          className={`group/heart absolute top-0 right-0 z-30 w-11 h-11 flex items-center justify-center transition-opacity duration-300 ${
+            wished ? '' : 'reveal-on-hover'
           }`}
-          aria-label="Toggle wishlist"
+          aria-label={wished ? 'Bỏ khỏi danh sách yêu thích' : 'Thêm vào danh sách yêu thích'}
         >
-          <Heart size={16} className={wished ? 'fill-red-500' : ''} />
+          <span className="w-8 h-8 rounded-full bg-espresso/55 backdrop-blur-sm flex items-center justify-center text-cream transition-transform duration-200 group-hover/heart:scale-110 group-hover/heart:text-red-300">
+            <Heart size={16} className={wished ? 'fill-red-400 text-red-400' : ''} />
+          </span>
         </button>
 
-        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-300 pointer-events-none" />
+        <div className="absolute inset-0 bg-espresso/0 group-hover:bg-espresso/5 transition-colors duration-300 pointer-events-none" />
       </div>
 
       {/* === KHU VỰC NỘI DUNG (trạng thái bình thường) === */}
       <div className="px-1 space-y-1.5 flex flex-col flex-1">
-        <h3 className="font-semibold leading-snug line-clamp-2 group-hover:text-[#C3B665] transition-colors duration-200">
+        <h3 className="font-semibold leading-snug line-clamp-2 group-hover:text-brand-text transition-colors duration-200">
           {title}
         </h3>
-        
-        <p className="text-gray-400 text-sm">From {price}</p>
+        {venue && (
+          <p className="flex items-center gap-1.5 text-ink-soft text-sm min-w-0">
+            <MapPin size={14} className="flex-shrink-0 text-brand-text" />
+            <span className="truncate">{venue}</span>
+          </p>
+        )}
+
+        <p className="text-ink-soft text-sm">Từ {price}</p>
         
         <div className="mt-auto pt-2"></div>
 
         {formattedDate ? (
-          <div className="flex items-center gap-1.5 text-gray-400 text-xs font-medium">
+          <div className="flex items-center gap-1.5 text-ink-soft text-xs font-medium">
             <CalendarDays size={14} className="flex-shrink-0" />
             <span>{formattedDate}</span>
           </div>
         ) : (
-          <div className="flex items-center gap-1.5 text-gray-400 text-xs italic">
+          <div className="flex items-center gap-1.5 text-ink-mute text-xs italic">
             <CalendarDays size={14} className="flex-shrink-0" />
-            <span>No Date</span>
+            <span>Chưa có lịch</span>
           </div>
         )}
       </div>
 
       {/* OVERLAY POSTER MỞ RỘNG — phủ TOÀN CARD sau khi hover đủ lâu */}
      
-      <div 
-        className={`absolute inset-0 z-20 rounded-xl overflow-hidden bg-gray-900 shadow-2xl transition-all duration-600 ease-out ${
-          isZoomed 
-            ? 'opacity-100 scale-100' 
+      <div
+        className={`absolute inset-0 z-20 rounded-xl overflow-hidden bg-card border border-line-strong transition-all duration-[600ms] ease-out ${
+          isZoomed
+            ? 'opacity-100 scale-100 shadow-glow'
             : 'opacity-0 scale-[1.06] pointer-events-none'
         }`}
       >
-        <img 
-          src={displayImage} 
-          alt={title} 
-          className="w-full h-full object-cover"
-          onError={handleImgError}
-        />
+        {showFallback ? (
+          <CoverFallback className="w-full h-full" />
+        ) : (
+          <img
+            src={thumbnail}
+            alt={title}
+            className="w-full h-full object-cover"
+            onError={() => setImgFailed(true)}
+          />
+        )}
 
         {/* Gradient đọc chữ */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/25 to-transparent pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-t from-espresso/95 via-espresso/25 to-transparent pointer-events-none" />
 
         {/* Thông tin đè lên poster (pointer-events-none để click vẫn đi tới trang detail) */}
         <div className="absolute bottom-0 left-0 right-0 p-4 pointer-events-none">
           {format && (
             <span className={`inline-block px-2 py-1 mb-2 rounded-md text-xs font-bold ${formatClass}`}>
-              {format}
+              {nhanHinhThuc}
             </span>
           )}
-          <h3 className="font-bold text-white leading-snug line-clamp-2 mb-1.5">{title}</h3>
-          <p className="text-[#C3B665] text-sm font-medium mb-1.5">From {price}</p>
+          <h3 className="font-bold text-cream leading-snug line-clamp-2 mb-1.5">{title}</h3>
+          {venue && <p className="text-cream-mute text-xs mb-1.5 truncate">{venue}</p>}
+          <p className="text-brand-on-dark text-sm font-medium mb-1.5">Từ {price}</p>
           {formattedDate && (
-            <div className="flex items-center gap-1.5 text-gray-300 text-xs font-medium">
+            <div className="flex items-center gap-1.5 text-cream-mute text-xs font-medium">
               <CalendarDays size={13} className="flex-shrink-0" />
               <span>{formattedDate}</span>
             </div>

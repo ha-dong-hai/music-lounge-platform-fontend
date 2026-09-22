@@ -1,63 +1,51 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
+// authResult khớp AuthResultDto backend trả về từ /auth/login, /auth/register (sau verify-email),
+// /auth/google, /auth/refresh: { token, expiresAt, userId, email, fullName, role, loungeId,
+// refreshToken, refreshTokenExpiresAt }
+const mapAuthResultToUser = (authResult) => ({
+  id: authResult.userId,
+  email: authResult.email,
+  name: authResult.fullName,
+  role: authResult.role,
+  loungeId: authResult.loungeId ?? null,
+});
+
 export const useAuthStore = create(
   persist(
     (set, get) => ({
       user: null,
       token: null,
+      refreshToken: null,
       expiresAt: null,
-      isAuthenticated: false,
 
-      setAuth: (data) => {
+      login: (authResult) => {
         set({
-          user: {
-            userId: data.id || data.userId,
-            email: data.email,
-            fullName: data.fullName,
-            role: data.role,
-            loungeId: data.loungeId || null,
-            avatarUrl: data.avatarUrl || null,
-          },
-          token: data.accessToken || data.token,
-          expiresAt: data.expiresAtUtc || data.expiresAt,
-          isAuthenticated: true,
+          user: mapAuthResultToUser(authResult),
+          token: authResult.token,
+          refreshToken: authResult.refreshToken ?? null,
+          expiresAt: authResult.expiresAt ?? null,
         });
-      },
-
-      // Alias for setAuth (used by LoginPage)
-      login: (data) => {
-        get().setAuth(data);
-      },
-
-      setUser: (userData) => {
-        set((state) => ({
-          user: { ...state.user, ...userData },
-        }));
       },
 
       logout: () => {
-        set({
-          user: null,
-          token: null,
-          expiresAt: null,
-          isAuthenticated: false,
-        });
+        set({ user: null, token: null, refreshToken: null, expiresAt: null });
       },
 
       isTokenExpired: () => {
         const { expiresAt } = get();
         if (!expiresAt) return true;
-        return new Date(expiresAt) < new Date();
+        return new Date(expiresAt).getTime() <= Date.now();
       },
     }),
     {
-      name: 'auth-storage',
+      name: 'musiclounge-auth', // key lưu trong localStorage
       partialize: (state) => ({
         user: state.user,
         token: state.token,
+        refreshToken: state.refreshToken,
         expiresAt: state.expiresAt,
-        isAuthenticated: state.isAuthenticated,
       }),
     }
   )
