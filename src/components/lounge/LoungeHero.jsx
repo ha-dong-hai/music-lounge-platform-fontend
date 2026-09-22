@@ -51,14 +51,15 @@ const LoungeHero = ({ lounge, isFollowing, onToggleFollow }) => {
       <div className="absolute top-0 left-0 right-0 z-20 p-6 flex items-center justify-between">
         <button
           onClick={() => navigate(-1)}
-          className="p-2.5 bg-espresso/40 hover:bg-espresso/70 text-cream rounded-full backdrop-blur-sm transition-all border border-white/10"
+          aria-label="Quay lại"
+          className="w-11 h-11 flex items-center justify-center bg-espresso/40 hover:bg-espresso/70 text-cream rounded-full backdrop-blur-sm transition-all border border-white/10"
         >
           <ArrowLeft size={20} />
         </button>
         <div className="flex items-center gap-3">
           <button
             onClick={handleShare}
-            className="flex items-center gap-2 px-4 py-2 bg-espresso/40 hover:bg-espresso/70 text-cream rounded-full backdrop-blur-sm transition-all border border-white/10 text-sm font-medium"
+            className="flex items-center gap-2 px-4 min-h-[44px] bg-espresso/40 hover:bg-espresso/70 text-cream rounded-full backdrop-blur-sm transition-all border border-white/10 text-sm font-medium"
           >
             <Share2 size={18} /> Chia sẻ
           </button>
@@ -66,7 +67,7 @@ const LoungeHero = ({ lounge, isFollowing, onToggleFollow }) => {
           {/* NÚT FOLLOW — props từ cha */}
           <button
             onClick={onToggleFollow}
-            className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all text-sm font-bold ${
+            className={`flex items-center gap-2 px-4 min-h-[44px] rounded-full transition-all text-sm font-bold ${
               isFollowing
                 ? 'bg-white/10 text-cream border border-white/30 hover:bg-red-500/20 hover:text-danger hover:border-red-500/30'
                 : 'bg-brand hover:bg-brand-hover text-on-brand'
@@ -82,13 +83,15 @@ const LoungeHero = ({ lounge, isFollowing, onToggleFollow }) => {
         <>
           <button
             onClick={goToPrev}
-            className="absolute left-4 top-1/2 -translate-y-1/2 z-20 p-3 bg-espresso/40 hover:bg-brand-hover hover:text-on-brand text-cream rounded-full backdrop-blur-sm border border-white/10 transition-all opacity-0 group-hover:opacity-100"
+            aria-label="Ảnh trước"
+            className="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 flex items-center justify-center bg-espresso/40 hover:bg-brand-hover hover:text-on-brand text-cream rounded-full backdrop-blur-sm border border-white/10 transition-all opacity-0 group-hover:opacity-100 focus-visible:opacity-100"
           >
             <ChevronLeft size={24} />
           </button>
           <button
             onClick={goToNext}
-            className="absolute right-4 top-1/2 -translate-y-1/2 z-20 p-3 bg-espresso/40 hover:bg-brand-hover hover:text-on-brand text-cream rounded-full backdrop-blur-sm border border-white/10 transition-all opacity-0 group-hover:opacity-100"
+            aria-label="Ảnh tiếp theo"
+            className="absolute right-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 flex items-center justify-center bg-espresso/40 hover:bg-brand-hover hover:text-on-brand text-cream rounded-full backdrop-blur-sm border border-white/10 transition-all opacity-0 group-hover:opacity-100 focus-visible:opacity-100"
           >
             <ChevronRight size={24} />
           </button>
@@ -120,13 +123,18 @@ const LoungeHero = ({ lounge, isFollowing, onToggleFollow }) => {
 
       {/* ===== DOTS ===== */}
       {images.length > 1 && (
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-20">
+        <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex z-20">
+          {/* Nút 44px bọc chấm nhỏ: chấm 8px một mình quá bé để chạm (cùng cách làm ở HeroBanner trang chủ). */}
           {images.map((_, index) => (
             <button
               key={index}
               onClick={() => setCurrentIndex(index)}
-              className={`h-2 rounded-full transition-all ${index === currentIndex ? 'w-8 bg-brand' : 'w-2 bg-white/50'}`}
-            />
+              aria-label={`Xem ảnh ${index + 1}`}
+              aria-current={index === currentIndex}
+              className="h-11 px-1 inline-flex items-center"
+            >
+              <span className={`block h-2 rounded-full transition-all ${index === currentIndex ? 'w-8 bg-brand' : 'w-2 bg-cream/60'}`} />
+            </button>
           ))}
         </div>
       )}

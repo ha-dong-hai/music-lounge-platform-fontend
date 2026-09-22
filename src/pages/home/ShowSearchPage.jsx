@@ -1,7 +1,19 @@
-// src/pages/home/EventSearchPage.jsx
-import { useState, useEffect } from 'react'
+// src/pages/home/ShowSearchPage.jsx
+//
+// GHI CHÚ CHO ĐỘI FE — làm lại bố cục theo docs/design/TRANG-CHU-BRIEF.md; logic tìm kiếm GIỮ NGUYÊN (từ khoá, genreId,
+// bộ lọc modal, khoảng ngày, phân trang, đổi tên → id). Những gì đổi và vì sao:
+// - Trước đây đang tải hoặc gặp lỗi thì CẢ TRANG bị thay bằng khung chờ / thông báo lỗi: thanh lọc và các thẻ lọc biến mất.
+//   Hậu quả thật: nhập khoảng giá sai (max < min) → backend trả 400 → khách bị kẹt ở màn lỗi chỉ còn nút "Về trang chủ",
+//   không sửa được bộ lọc; và `apiError` không bao giờ được xoá nên đổi bộ lọc cũng không thoát. Nay đầu trang + bộ lọc luôn
+//   ở đó, chỉ vùng kết quả đổi trạng thái, và `apiError` được xoá mỗi lần tải lại.
+// - Bỏ chuỗi tiếng Anh còn sót ("Oops!", "Unable to connect to backend.", "Data loading error", "From/To") và màu cứng
+//   text-gray-800 (trên nền sáng thì đọc được, nhưng lệch token).
+// - Thẻ lọc đang bật là nút cả viên (44px, có tên "Bỏ lọc …") thay cho nút X 12px; thêm "Xoá tất cả bộ lọc".
+// - Trạng thái rỗng nói khác nhau khi ĐANG lọc (gợi ý nới bộ lọc, có nút xoá) và khi không lọc.
+// - Nút phân trang có tên và vùng chạm 44px; sang trang thì cuộn về đầu danh sách.
+import { useState, useEffect, useMemo } from 'react'
 import { useSearchParams, useLocation, Link } from 'react-router-dom'
-import { ArrowLeft, ChevronLeft, ChevronRight, X, CalendarDays } from 'lucide-react'
+import { ChevronLeft, ChevronRight, X, CalendarDays, SearchX, AlertCircle } from 'lucide-react'
 import ShowCard from '../../components/home/ShowCard'
 import Skeleton from '../../components/shared/Skeleton'
 import SectionHeader from '../../components/home/SectionHeader'
@@ -31,12 +43,20 @@ const namesToIds = (names, options) => {
   return ids.length > 0 ? ids : undefined
 }
 
+const fmtVnd = (v) => `${Number(v).toLocaleString('vi-VN')}đ`
+
+// Cả viên là một nút: bấm đâu cũng bỏ được bộ lọc đó (trước đây chỉ có nút X 12px).
 const RemovableTag = ({ label, onRemove, icon: Icon }) => (
-  <span className="inline-flex items-center gap-1 px-2.5 py-1 sm:px-3 sm:py-1.5 bg-sunken rounded-full text-xs font-medium text-ink-soft border border-line whitespace-nowrap">
-    {Icon && <Icon size={12} className="text-brand-text flex-shrink-0" />}
-    <span className="truncate max-w-[120px] sm:max-w-none">{label}</span>
-    <button onClick={onRemove} className="hover:text-danger ml-0.5 flex-shrink-0"><X size={12} /></button>
-  </span>
+  <button
+    type="button"
+    onClick={onRemove}
+    aria-label={`Bỏ lọc ${label}`}
+    className="group inline-flex items-center gap-1.5 min-h-[44px] pl-4 pr-3 bg-card rounded-full text-sm font-medium text-ink border border-line-strong hover:border-danger/60 hover:text-danger transition-colors max-w-full"
+  >
+    {Icon && <Icon size={14} className="text-brand-text group-hover:text-danger flex-shrink-0" />}
+    <span className="truncate">{label}</span>
+    <X size={14} className="text-ink-mute group-hover:text-danger flex-shrink-0" />
+  </button>
 )
 
 const ShowSearchPage = () => {
@@ -49,8 +69,8 @@ const ShowSearchPage = () => {
   const [events, setEvents] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [apiError, setApiError] = useState(null)
-  const [pagination, setPagination] = useState({ page: 1, totalPages: 1 })
-  const [pageTitle, setPageTitle] = useState("Danh sách buổi diễn")
+  const [totalPages, setTotalPages] = useState(1)
+  const [totalCount, setTotalCount] = useState(null)
 
   const [filterOptions, setFilterOptions] = useState({ genres: [], moods: [], atmospheres: [], cities: [] })
 
@@ -71,27 +91,34 @@ const ShowSearchPage = () => {
     fetchOptions()
   }, [])
 
-  // TIÊU ĐỀ TRANG
-  useEffect(() => {
-    if (!genreId) {
-      setPageTitle(keyword ? `Kết quả cho “${keyword}”` : "Danh sách buổi diễn")
-      return
-    }
+  // TIÊU ĐỀ TRANG — suy ra từ dữ liệu, không cần state + effect.
+  const pageTitle = useMemo(() => {
+    if (!genreId) return keyword ? `Kết quả cho “${keyword}”` : 'Tìm buổi diễn'
     const genre = filterOptions.genres.find(g => String(g.id) === String(genreId))
-    setPageTitle(genre ? `Thể loại ${genre.name}` : "Danh sách buổi diễn")
+    return genre ? `Thể loại ${genre.name}` : 'Tìm buổi diễn'
   }, [genreId, keyword, filterOptions])
+
+  const isFiltering = Object.values(appliedFilters).some(val => Array.isArray(val) ? val.length > 0 : val !== null && val !== '') || Boolean(startDate || endDate)
+
+  // TRANG HIỆN TẠI — gắn với "dấu vân tay" của bộ lọc: đổi từ khoá/bộ lọc/ngày thì page tự về 1 ngay trong lúc render.
+  // Bản cũ dùng một effect để reset về 1, nhưng effect chạy SAU lượt tải đầu: đang ở trang 2 mà đổi bộ lọc thì trang gửi hai
+  // request (page=2 với bộ lọc mới, rồi page=1) và thoáng hiện kết quả sai trang.
+  const filterKey = JSON.stringify([keyword, genreId, appliedFilters, startDate, endDate])
+  const [pageState, setPageState] = useState({ key: filterKey, page: 1 })
+  const page = pageState.key === filterKey ? pageState.page : 1
 
   // GỌI API SEARCH
   useEffect(() => {
     const fetchShows = async () => {
       setIsLoading(true)
+      setApiError(null) // lần tải mới thì lỗi của lần trước hết hiệu lực — không xoá thì khách kẹt ở màn lỗi mãi
       try {
         let res;
-        const commonParams = { page: pagination.page, pageSize: 12, includeSoldOut: true }
+        const commonParams = { page, pageSize: 12, includeSoldOut: true }
 
-        const isFiltering = Object.values(appliedFilters).some(val => Array.isArray(val) ? val.length > 0 : val !== null && val !== '') || startDate || endDate
+        const filtering = Object.values(appliedFilters).some(val => Array.isArray(val) ? val.length > 0 : val !== null && val !== '') || startDate || endDate
 
-        if (keyword || genreId || isFiltering) {
+        if (keyword || genreId || filtering) {
           // Thể loại đến từ hai nguồn: tham số genreId trên URL, và lựa chọn trong modal.
           // Gộp lại và bỏ trùng để không gửi một id hai lần.
           const genreIdsFromModal = namesToIds(appliedFilters.selectedGenres, filterOptions.genres) || []
@@ -122,15 +149,17 @@ const ShowSearchPage = () => {
             title: show.name,
             thumbnail: show.coverImageUrl,
             start_date: show.scheduledStart,
+            loungeName: show.loungeName,
             genre: show.genres && show.genres.length > 0 ? show.genres[0].name : 'Other',
             price: formatMinPrice(show),
             format: show.format,
             isWishlisted: show.isWishlisted
           }))
           setEvents(mapped)
-          setPagination(prev => ({ ...prev, totalPages: res.data.totalPages }))
+          setTotalPages(res.data.totalPages)
+          setTotalCount(typeof res.data.totalCount === 'number' ? res.data.totalCount : null)
         } else {
-          setApiError(res.message || 'Data loading error')
+          setApiError(res.message || 'Không tải được danh sách buổi diễn.')
         }
       } catch (err) {
         // Backend trả 400 kèm `message` tiếng Việt khi khoảng giá không hợp lệ (giá âm, giá
@@ -141,36 +170,93 @@ const ShowSearchPage = () => {
         setApiError(
           status >= 400 && status < 500 && beMessage
             ? beMessage
-            : 'Unable to connect to backend.'
+            : 'Không kết nối được máy chủ. Vui lòng thử lại sau ít phút.'
         )
       } finally {
         setIsLoading(false)
       }
     }
     fetchShows()
-  }, [keyword, genreId, appliedFilters, startDate, endDate, pagination.page, filterOptions])
-
-  // RESET TRANG VỀ 1 KHI ĐỔI FILTER
-  useEffect(() => { setPagination(prev => ({ ...prev, page: 1 })) }, [keyword, genreId, appliedFilters, startDate, endDate])
+  }, [keyword, genreId, appliedFilters, startDate, endDate, page, filterOptions])
 
   const removeFromFilterArray = (key, item) => setAppliedFilters(prev => ({ ...prev, [key]: prev[key].filter(i => i !== item) }))
-  
+
   const handleApplyFilters = (filters) => {
     setAppliedFilters(filters)
     setIsFilterOpen(false)
   }
 
-  const isFiltering = Object.values(appliedFilters).some(val => Array.isArray(val) ? val.length > 0 : val !== null && val !== '') || startDate || endDate
+  const clearAllFilters = () => {
+    setAppliedFilters(initialFilterState)
+    setStartDate('')
+    setEndDate('')
+  }
 
-  if (isLoading) {
-    return (
-      <div className="min-h-[60vh] bg-page text-ink">
-        <div className="max-w-[1600px] mx-auto px-6 py-8">
-          <div className="flex items-center gap-4 mb-8">
-            <Skeleton className="h-10 w-10 rounded-full" />
-            <Skeleton className="h-8 w-64" />
+  const sangTrang = (delta) => {
+    setPageState({ key: filterKey, page: page + delta })
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  const priceLabel = appliedFilters.minPrice && appliedFilters.maxPrice
+    ? `${fmtVnd(appliedFilters.minPrice)} – ${fmtVnd(appliedFilters.maxPrice)}`
+    : appliedFilters.minPrice ? `Từ ${fmtVnd(appliedFilters.minPrice)}` : appliedFilters.maxPrice ? `Đến ${fmtVnd(appliedFilters.maxPrice)}` : ''
+
+  const fmtNgay = (d) => dayjs(d).format('DD/MM/YYYY')
+
+  const pagerBtn = 'w-11 h-11 inline-flex items-center justify-center rounded-full border border-line-strong bg-card text-ink hover:border-brand hover:text-brand-text disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:border-line-strong disabled:hover:text-ink transition-colors'
+
+  return (
+    <div className="min-h-[60vh] bg-page text-ink">
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 pt-8 sm:pt-10">
+
+        {/* ĐẦU TRANG — cùng khuôn với "Khám phá phòng trà" và "Tất cả buổi diễn". Bỏ mũi tên quay lại riêng:
+            logo/điều hướng của Header đã dẫn về trang chủ ở mọi trang. */}
+        <div className="mb-4">
+          <h1 className="font-display text-3xl sm:text-4xl font-semibold text-ink break-words">{pageTitle}</h1>
+          <p className="text-ink-soft mt-1.5 leading-relaxed" aria-live="polite">
+            {isLoading
+              ? 'Đang tìm…'
+              : totalCount != null
+                ? `${totalCount.toLocaleString('vi-VN')} buổi diễn`
+                : 'Lọc theo thể loại, tâm trạng, không gian, giá hoặc ngày để tìm đêm nhạc hợp với bạn.'}
+          </p>
+        </div>
+
+        <SectionHeader
+          onOpenFilter={() => setIsFilterOpen(true)}
+          appliedFilters={appliedFilters}
+          startDate={startDate} setStartDate={setStartDate}
+          endDate={endDate} setEndDate={setEndDate}
+        />
+
+        {isFiltering && (
+          <div className="flex flex-wrap gap-2 items-center pb-4">
+            {appliedFilters.selectedProvince && (<RemovableTag label={appliedFilters.selectedProvince} onRemove={() => setAppliedFilters(prev => ({ ...prev, selectedProvince: null }))} />)}
+            {appliedFilters.selectedGenres.map(g => (<RemovableTag key={g} label={g} onRemove={() => removeFromFilterArray('selectedGenres', g)} />))}
+            {appliedFilters.selectedSpaces.map(s => (<RemovableTag key={s} label={s} onRemove={() => removeFromFilterArray('selectedSpaces', s)} />))}
+            {appliedFilters.selectedMoods.map(m => (<RemovableTag key={m} label={m} onRemove={() => removeFromFilterArray('selectedMoods', m)} />))}
+            {(appliedFilters.minPrice || appliedFilters.maxPrice) && (<RemovableTag label={priceLabel} onRemove={() => setAppliedFilters(prev => ({ ...prev, minPrice: '', maxPrice: '' }))} />)}
+            {(startDate || endDate) && (
+              <RemovableTag
+                icon={CalendarDays}
+                label={startDate && endDate ? `${fmtNgay(startDate)} → ${fmtNgay(endDate)}` : startDate ? `Từ ${fmtNgay(startDate)}` : `Đến ${fmtNgay(endDate)}`}
+                onRemove={() => { setStartDate(''); setEndDate('') }}
+              />
+            )}
+            <button
+              type="button"
+              onClick={clearAllFilters}
+              className="min-h-[44px] px-3 text-sm font-medium text-brand-text hover:underline underline-offset-4"
+            >
+              Xoá tất cả bộ lọc
+            </button>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-5 md:gap-x-6 gap-y-8">
+        )}
+      </div>
+
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 pb-10 sm:pb-16">
+        {isLoading ? (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-5 md:gap-x-6 gap-y-8" aria-busy="true" aria-label="Đang tải kết quả">
             {[...Array(8)].map((_, i) => (
               <div key={i} className="flex flex-col gap-3">
                 <Skeleton className="w-full aspect-video rounded-xl" />
@@ -179,77 +265,55 @@ const ShowSearchPage = () => {
               </div>
             ))}
           </div>
-        </div>
-      </div>
-    )
-  }
-
-  if (apiError) {
-    return (
-      <div className="min-h-[60vh] bg-page flex items-center justify-center text-ink px-4">
-        <div className="text-center max-w-md">
-          <p className="text-2xl font-bold text-danger mb-3">Oops! Lỗi kết nối</p>
-          <p className="text-ink-soft mb-6">{apiError}</p>
-          <Link to="/" className="inline-block text-brand-text font-semibold underline">Về trang chủ</Link>
-        </div>
-      </div>
-    )
-  }
-
-  return (
-    <div className="min-h-[60vh] bg-page text-ink">
-      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 pt-4 sm:pt-6">
-        
-        <div className="flex items-center gap-4 mb-8 pt-4">
-          <Link to="/" className="p-2 hover:bg-brand-hover/40 rounded-full transition-colors">
-            <ArrowLeft size={24} />
-          </Link>
-          <h1 className="text-2xl md:text-3xl font-bold text-ink-mute">{pageTitle}</h1>
-        </div>
-
-        <SectionHeader 
-          onOpenFilter={() => setIsFilterOpen(true)} 
-          appliedFilters={appliedFilters}
-          startDate={startDate} setStartDate={setStartDate} 
-          endDate={endDate} setEndDate={setEndDate}
-        />
-        
-        {isFiltering && (
-          <div className="flex flex-wrap gap-1.5 sm:gap-2 items-center pb-3 sm:pb-4">
-            {appliedFilters.selectedProvince && (<RemovableTag label={appliedFilters.selectedProvince} onRemove={() => setAppliedFilters(prev => ({ ...prev, selectedProvince: null }))} />)}
-            {appliedFilters.selectedGenres.map(g => (<RemovableTag key={g} label={g} onRemove={() => removeFromFilterArray('selectedGenres', g)} />))}
-            {appliedFilters.selectedSpaces.map(s => (<RemovableTag key={s} label={s} onRemove={() => removeFromFilterArray('selectedSpaces', s)} />))}
-            {appliedFilters.selectedMoods.map(m => (<RemovableTag key={m} label={m} onRemove={() => removeFromFilterArray('selectedMoods', m)} />))}
-            {(appliedFilters.minPrice || appliedFilters.maxPrice) && (<RemovableTag label={appliedFilters.minPrice && appliedFilters.maxPrice ? `${Number(appliedFilters.minPrice).toLocaleString('vi-VN')}đ - ${Number(appliedFilters.maxPrice).toLocaleString('vi-VN')}đ` : appliedFilters.minPrice ? `From ${Number(appliedFilters.minPrice).toLocaleString('vi-VN')}đ` : `To ${Number(appliedFilters.maxPrice).toLocaleString('vi-VN')}đ`} onRemove={() => setAppliedFilters(prev => ({ ...prev, minPrice: '', maxPrice: '' }))} />)}
-            {(startDate || endDate) && (<RemovableTag icon={CalendarDays} label={startDate && endDate ? `${startDate} → ${endDate}` : startDate ? `From ${startDate}` : `To ${endDate}`} onRemove={() => { setStartDate(''); setEndDate('') }} />)}
+        ) : apiError ? (
+          // Lỗi hiện NGAY TRONG vùng kết quả, bộ lọc phía trên vẫn dùng được để sửa (ví dụ khoảng giá sai).
+          <div role="alert" className="max-w-lg mx-auto bg-card border border-danger/30 rounded-2xl p-8 text-center">
+            <AlertCircle size={32} className="mx-auto mb-3 text-danger" />
+            <p className="font-display text-xl text-ink mb-1">Chưa tìm được kết quả</p>
+            <p className="text-sm text-ink-soft mb-5 leading-relaxed">{apiError}</p>
+            {isFiltering && (
+              <button onClick={clearAllFilters} className="inline-flex items-center min-h-[44px] px-6 rounded-full bg-brand text-on-brand font-bold text-sm hover:bg-brand-hover transition-colors">
+                Xoá bộ lọc và thử lại
+              </button>
+            )}
           </div>
-        )}
-      </div>
-
-      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 pb-10 sm:pb-16">
-        {events.length > 0 ? (
+        ) : events.length > 0 ? (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-5 md:gap-x-6 gap-y-8">
             {events.map((ev) => (<ShowCard key={ev.id} {...ev} />))}
           </div>
         ) : (
-          <div className="text-center py-20">
-            <p className="text-xl font-semibold text-gray-800 mb-2">Không tìm thấy sự kiện nào</p>
-            <p className="text-ink-mute">Hiện chưa có sự kiện nào thuộc danh mục này.</p>
+          <div className="max-w-lg mx-auto text-center py-16">
+            <SearchX size={34} className="mx-auto mb-4 text-ink-mute" />
+            <p className="font-display text-2xl text-ink mb-1.5">Chưa thấy buổi diễn phù hợp</p>
+            <p className="text-ink-soft leading-relaxed mb-6">
+              {isFiltering || keyword || genreId
+                ? 'Thử bỏ bớt một bộ lọc, hoặc đổi từ khoá ngắn hơn.'
+                : 'Hiện chưa có buổi diễn nào đang mở. Quay lại sau nhé.'}
+            </p>
+            {isFiltering ? (
+              <button onClick={clearAllFilters} className="inline-flex items-center min-h-[44px] px-6 rounded-full bg-brand text-on-brand font-bold text-sm hover:bg-brand-hover transition-colors">
+                Xoá tất cả bộ lọc
+              </button>
+            ) : (
+              <Link to="/lounges" className="inline-flex items-center min-h-[44px] px-6 rounded-full bg-brand text-on-brand font-bold text-sm hover:bg-brand-hover transition-colors">
+                Xem các phòng trà
+              </Link>
+            )}
           </div>
         )}
 
-        {events.length > 0 && pagination.totalPages > 1 && (
-          <div className="flex items-center justify-between p-4 mt-8">
-            <p className="text-sm text-ink-mute">Trang {pagination.page} / {pagination.totalPages}</p>
+        {!isLoading && !apiError && events.length > 0 && totalPages > 1 && (
+          <nav aria-label="Phân trang" className="flex items-center justify-between p-4 mt-8">
+            <p className="text-sm text-ink-soft tabular-nums" aria-live="polite">Trang {page} / {totalPages}</p>
             <div className="flex gap-2">
-              <button onClick={() => setPagination(prev => ({ ...prev, page: prev.page - 1 }))} disabled={pagination.page === 1} className="p-2 rounded-md border border-line text-ink-soft hover:border-brand hover:text-brand-text disabled:opacity-30 disabled:cursor-not-allowed transition-colors">
+              <button onClick={() => sangTrang(-1)} disabled={page === 1} aria-label="Trang trước" className={pagerBtn}>
                 <ChevronLeft size={18} />
               </button>
-              <button onClick={() => setPagination(prev => ({ ...prev, page: prev.page + 1 }))} disabled={pagination.page === pagination.totalPages} className="p-2 rounded-md border border-line text-ink-soft hover:border-brand hover:text-brand-text disabled:opacity-30 disabled:cursor-not-allowed transition-colors">
+              <button onClick={() => sangTrang(1)} disabled={page === totalPages} aria-label="Trang sau" className={pagerBtn}>
                 <ChevronRight size={18} />
               </button>
             </div>
-          </div>
+          </nav>
         )}
       </div>
 

@@ -144,7 +144,8 @@ const Header = () => {
       <div className="flex items-center justify-between gap-4 sm:gap-8">
         <div className="flex items-center gap-4 sm:gap-8 flex-1 min-w-0">
           <Link to="/" aria-label="Phòng Trà Sài Gòn — về trang chủ" className="font-display text-xl sm:text-2xl leading-none tracking-tight text-ink whitespace-nowrap flex-shrink-0 inline-flex items-center min-h-[44px]">
-            Phòng Trà<span className="hidden min-[400px]:inline text-brand-text"> Sài Gòn</span>
+            {/* ml-1.5 chứ không phải dấu cách đầu chuỗi: trong `inline-flex` khoảng trắng đầu của phần tử con bị nuốt. */}
+            Phòng Trà<span className="hidden min-[400px]:inline ml-1.5 text-brand-text">Sài Gòn</span>
           </Link>
 
           <form onSubmit={handleSearchSubmit} ref={oTimKiemRef} className="relative w-full max-w-md hidden md:block">

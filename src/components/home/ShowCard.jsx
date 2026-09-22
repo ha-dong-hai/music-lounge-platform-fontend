@@ -1,5 +1,5 @@
 // src/components/home/EventCard.jsx
-import { CalendarDays, Heart } from 'lucide-react'
+import { CalendarDays, Heart, MapPin } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import dayjs from 'dayjs'
 import { useState, useRef, useEffect } from 'react'
@@ -12,8 +12,9 @@ const ZOOM_DELAY = 600 // chỉnh thời gian hover cần thiết để poster m
 const ShowCard = ({
   id, 
   title, 
-  price, 
-  location,       
+  price,
+  location,
+  loungeName,
   thumbnail,
   start_date,
   format,          
@@ -67,7 +68,10 @@ const ShowCard = ({
     Online: 'bg-brand text-on-brand',
     Hybrid: 'bg-card/95 text-ink border border-line'
   }
-  const nhanHinhThuc = { Offline: 'Tại chỗ', Online: 'Trực tuyến', Hybrid: 'Kết hợp' }[format] || format
+  // Nơi diễn. Các trang truyền tên phòng trà bằng hai tên prop khác nhau (`loungeName` ở trang chủ, `location` ở danh sách);
+  // trước đây thẻ nhận `location` nhưng KHÔNG hiển thị gì — khách nhìn thẻ không biết buổi diễn ở phòng trà nào.
+  const venue = loungeName || location
+  const nhanHinhThuc ={ Offline: 'Tại chỗ', Online: 'Trực tuyến', Hybrid: 'Kết hợp' }[format] || format
   const formatClass = formatStyles[format] || 'bg-card/95 text-ink'
 
   // HÀM TOGGLE WISHLIST RIÊNG CHO CARD
@@ -113,17 +117,23 @@ const ShowCard = ({
           </span>
         )}
 
-        {/* NÚT WISHLIST — chỉ hiện khi hover card (đã wishlist thì hiện luôn) */}
-        <button 
+        {/* NÚT WISHLIST.
+            - Trên máy có chuột: ẩn cho ảnh sạch, hiện khi rê chuột / Tab vào thẻ (đã yêu thích thì luôn hiện).
+            - Trên màn cảm ứng: LUÔN hiện. Bản cũ dùng `opacity-0 group-hover:opacity-100`, mà Tailwind v4 chỉ áp `hover:` trên
+              thiết bị có chuột — nên trên điện thoại nút vô hình vĩnh viễn, khách không có cách nào thêm yêu thích.
+            - Vùng bấm 44px (nút trong suốt), viên tròn nhìn thấy 32px; chữ kem trên nền espresso mờ (trước là chữ nâu đậm
+              trên nền nâu tối — gần như không đọc được). */}
+        <button
           onClick={handleWishlist}
-          className={`absolute top-2 right-2 z-30 p-1.5 rounded-full bg-espresso/50 backdrop-blur-sm transition-all duration-300 ${
-            wished
-              ? 'text-danger opacity-100'
-              : 'text-ink opacity-0 group-hover:opacity-100 hover:text-danger hover:scale-110'
+          aria-pressed={wished}
+          className={`group/heart absolute top-0 right-0 z-30 w-11 h-11 flex items-center justify-center transition-opacity duration-300 ${
+            wished ? '' : 'reveal-on-hover'
           }`}
           aria-label={wished ? 'Bỏ khỏi danh sách yêu thích' : 'Thêm vào danh sách yêu thích'}
         >
-          <Heart size={16} className={wished ? 'fill-red-500' : ''} />
+          <span className="w-8 h-8 rounded-full bg-espresso/55 backdrop-blur-sm flex items-center justify-center text-cream transition-transform duration-200 group-hover/heart:scale-110 group-hover/heart:text-red-300">
+            <Heart size={16} className={wished ? 'fill-red-400 text-red-400' : ''} />
+          </span>
         </button>
 
         <div className="absolute inset-0 bg-espresso/0 group-hover:bg-espresso/5 transition-colors duration-300 pointer-events-none" />
@@ -134,7 +144,13 @@ const ShowCard = ({
         <h3 className="font-semibold leading-snug line-clamp-2 group-hover:text-brand-text transition-colors duration-200">
           {title}
         </h3>
-        
+        {venue && (
+          <p className="flex items-center gap-1.5 text-ink-soft text-sm min-w-0">
+            <MapPin size={14} className="flex-shrink-0 text-brand-text" />
+            <span className="truncate">{venue}</span>
+          </p>
+        )}
+
         <p className="text-ink-soft text-sm">Từ {price}</p>
         
         <div className="mt-auto pt-2"></div>
@@ -183,6 +199,7 @@ const ShowCard = ({
             </span>
           )}
           <h3 className="font-bold text-cream leading-snug line-clamp-2 mb-1.5">{title}</h3>
+          {venue && <p className="text-cream-mute text-xs mb-1.5 truncate">{venue}</p>}
           <p className="text-brand-on-dark text-sm font-medium mb-1.5">Từ {price}</p>
           {formattedDate && (
             <div className="flex items-center gap-1.5 text-cream-mute text-xs font-medium">

@@ -115,6 +115,18 @@
   .reveal { opacity: 1; transform: none; transition: none; }
 }
 
+/* Nút chỉ hiện khi rê chuột — NHƯNG chỉ trên thiết bị có chuột.
+   Lý do (đã gặp thật ở nút yêu thích trên thẻ buổi diễn): dùng `opacity-0 group-hover:opacity-100` thì trên điện thoại
+   không có "hover", nút vô hình vĩnh viễn — khách không thể bấm. Ở đây ẩn CHỈ khi (hover: hover); màn cảm ứng luôn thấy nút.
+   Dùng: đặt `.group` lên thẻ cha, `.reveal-on-hover` lên nút. Tab bàn phím vào thẻ hoặc vào chính nút cũng làm nút hiện.
+   (Đã thử biến thể tuỳ ý của Tailwind `[@media(hover:hover)]:…` — không sinh ra CSS, nên viết tay.) */
+@media (hover: hover) {
+  .reveal-on-hover { opacity: 0; }
+  .group:hover .reveal-on-hover,
+  .group:focus-within .reveal-on-hover,
+  .reveal-on-hover:focus-visible { opacity: 1; }
+}
+
 /* Ken Burns chậm cho ảnh hero — lấy đúng nhịp group-hover:scale-105 duration-1000 đã thấy trong
    code.html thật của Aura & Echo, nhưng chạy nền tự động và chậm hơn nhiều (18s) để không giật mắt. */
 @keyframes ken-burns {
