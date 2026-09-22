@@ -13,45 +13,25 @@
 //   bằng một lượt "Quên mật khẩu". Dùng resetPasswordSchema có sẵn.
 // - Đặt lại xong KHÔNG tự đăng nhập: backend chỉ trả 204, không phát token. Đưa người dùng sang
 //   trang đăng nhập là đúng luồng, đừng cố tự gọi login bằng mật khẩu mới.
+// - LÀM LẠI GIAO DIỆN (docs/design/TRANG-CHU-BRIEF.md): dùng khung/ô nhập/hộp thông báo chung của components/auth (bỏ chữ
+//   trắng trên nền nhạt, mã hex #BCAFA0). Logic, thông báo 401 gộp ba trường hợp và ngưỡng 15–64 ký tự giữ nguyên.
 import { useState } from 'react'
 import { Link, useSearchParams, useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { AudioLines, Lock, Eye, EyeOff, AlertCircle, CheckCircle2, ArrowLeft, ArrowRight, Loader2, KeyRound } from 'lucide-react'
+import { Lock, AlertCircle, CheckCircle2, ArrowLeft, ArrowRight, Loader2, KeyRound } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { resetPassword } from '../../services/aServices'
 import { resetPasswordSchema } from '../../schemas/authSchema'
+import AuthShell from '../../components/auth/AuthShell'
+import AuthField from '../../components/auth/AuthField'
+import AuthAlert from '../../components/auth/AuthAlert'
 
-const inputCls = 'w-full pl-10 pr-11 py-3 bg-card border border-line-strong rounded-lg text-ink placeholder-[#BCAFA0] text-sm focus:border-brand focus:ring-2 focus:ring-brand/40 focus:outline-none transition-all'
-
-// Khung ngoài dùng chung cho cả hai trạng thái của trang (có token / không token), tách ra ngoài
-// component để không bị định nghĩa lại mỗi lần render.
-const Khung = ({ children }) => (
-  <div className="min-h-screen flex flex-col justify-between bg-page text-ink" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-    <header className="bg-card sticky top-0 z-50 w-full shadow-md">
-      <div className="max-w-7xl mx-auto px-6 py-4">
-        <Link to="/" className="flex items-center gap-3 text-brand-text">
-          <AudioLines size={24} />
-          <span className="text-xl tracking-wide" style={{ fontFamily: "'Playfair Display', serif" }}>
-            Phòng Trà Sài Gòn • MusicLounge
-          </span>
-        </Link>
-      </div>
-    </header>
-
-    <main className="flex-grow flex items-center justify-center p-4 sm:p-6">
-      <div className="w-full max-w-md">
-        <div className="bg-card rounded-xl p-8 sm:p-10 border border-line-strong/40 shadow-2xl">
-          {children}
-        </div>
-      </div>
-    </main>
-
-    <footer className="w-full py-8 px-6 max-w-7xl mx-auto bg-card border-t border-line-strong/20">
-      <p className="text-xs text-ink-soft text-center">
-        © 2026 MusicLounge Sài Gòn. Bản quyền thuộc về Phòng Trà Trữ Tình &amp; Acoustic Ca Nhạc.
-      </p>
-    </footer>
+const backLink = (
+  <div className="mt-7 pt-5 border-t border-line text-center">
+    <Link to="/login" className="inline-flex items-center gap-1.5 min-h-[44px] text-sm text-ink-soft hover:text-brand-text transition-colors">
+      <ArrowLeft size={16} /> Về trang đăng nhập
+    </Link>
   </div>
 )
 
@@ -62,8 +42,6 @@ const ResetPasswordPage = () => {
 
   const [apiError, setApiError] = useState(null)
   const [isBusy, setIsBusy] = useState(false)
-  const [hienMk, setHienMk] = useState(false)
-  const [hienXacNhan, setHienXacNhan] = useState(false)
 
   const { register, handleSubmit, formState: { errors } } = useForm({
     resolver: zodResolver(resetPasswordSchema),
@@ -90,143 +68,93 @@ const ResetPasswordPage = () => {
   // KHÔNG TOKEN — không hiện form, vì form không token là form chắc chắn thất bại.
   if (!token) {
     return (
-      <Khung>
+      <AuthShell>
         <div className="text-center">
-          <div className="w-14 h-14 mx-auto rounded-full bg-danger/10 border border-danger/40 flex items-center justify-center">
+          <div className="w-14 h-14 mx-auto rounded-full bg-danger/10 border border-danger/30 flex items-center justify-center">
             <AlertCircle size={26} className="text-danger" />
           </div>
-          <h1 className="text-2xl text-ink mt-5 mb-2" style={{ fontFamily: "'Playfair Display', serif" }}>
-            Thiếu đường dẫn đặt lại
-          </h1>
-          <p className="text-sm text-ink-soft leading-relaxed">
+          <h1 className="font-display text-2xl sm:text-3xl font-semibold text-ink mt-5 mb-2">Thiếu đường dẫn đặt lại</h1>
+          <p className="text-sm sm:text-base text-ink-soft leading-relaxed">
             Trang này chỉ mở được từ đường dẫn trong email đặt lại mật khẩu. Nếu bạn dán đường dẫn bằng
             tay, có thể đã bị thiếu một đoạn — hãy bấm thẳng vào đường dẫn trong email, hoặc xin một
             đường dẫn mới.
           </p>
           <Link
             to="/forgot-password"
-            className="mt-6 w-full py-3.5 px-4 rounded-lg bg-brand hover:bg-brand-hover text-ink font-bold text-sm flex items-center justify-center gap-2 transition-colors"
+            className="mt-6 w-full min-h-[52px] rounded-full bg-brand hover:bg-brand-hover text-on-brand font-bold text-base flex items-center justify-center gap-2 transition-colors"
           >
             Xin đường dẫn mới <ArrowRight size={18} />
           </Link>
-          <Link to="/login" className="mt-5 text-sm text-brand-text hover:underline inline-flex items-center gap-1.5">
-            <ArrowLeft size={15} /> Về trang đăng nhập
-          </Link>
         </div>
-      </Khung>
+        {backLink}
+      </AuthShell>
     )
   }
 
   return (
-    <Khung>
+    <AuthShell>
       <div className="mb-6">
-        <span className="text-xs text-brand-text tracking-widest uppercase block mb-1">Đặt Lại Lối Vào</span>
-        <h1 className="text-2xl sm:text-3xl text-ink mb-2" style={{ fontFamily: "'Playfair Display', serif" }}>
-          Mật Khẩu Mới
-        </h1>
-        <p className="text-sm text-ink-soft leading-relaxed">
+        <h1 className="font-display text-3xl font-semibold text-ink mb-2">Đặt mật khẩu mới</h1>
+        <p className="text-sm sm:text-base text-ink-soft leading-relaxed">
           Chọn mật khẩu mới cho tài khoản của bạn. Đường dẫn này dùng một lần.
         </p>
       </div>
 
       {apiError && (
-        <div role="alert" className="mb-6 p-3.5 rounded-lg bg-danger/10 border border-danger/40 text-white flex items-start gap-3">
-          <AlertCircle size={20} className="text-danger flex-shrink-0 mt-0.5" />
-          <div className="text-sm leading-snug">
-            <p className="font-semibold">Không đặt lại được</p>
-            <p className="text-danger mt-0.5 leading-relaxed">{apiError}</p>
-            <Link to="/forgot-password" className="text-brand-text hover:underline inline-block mt-2">
-              Xin đường dẫn mới
-            </Link>
-          </div>
-        </div>
+        <AuthAlert tone="danger" title="Không đặt lại được" className="mb-6">
+          {apiError}
+          <Link to="/forgot-password" className="flex items-center min-h-[44px] text-brand-text font-medium hover:underline">
+            Xin đường dẫn mới
+          </Link>
+        </AuthAlert>
       )}
 
       {/* Gợi ý độ dài đặt TRƯỚC ô nhập: nói sau khi người dùng gõ xong mới báo lỗi là bắt gõ lại. */}
-      <div className="mb-5 p-4 rounded-lg bg-card border border-line-strong/50">
-        <p className="text-xs text-ink-soft flex items-start gap-2 leading-relaxed">
-          <KeyRound size={14} className="text-brand-text flex-shrink-0 mt-px" />
-          <span>
-            Mật khẩu cần <strong className="text-ink">từ 15 đến 64 ký tự</strong>. Không bắt buộc chữ hoa,
-            số hay ký tự đặc biệt — một cụm từ dễ nhớ vừa dài vừa an toàn hơn chuỗi ký tự rối, ví dụ
-            <em className="text-ink"> &ldquo;toi thich nghe nhac trinh&rdquo;</em>.
-          </span>
-        </p>
-      </div>
+      <p className="mb-5 rounded-xl border border-line bg-sunken/60 p-4 text-xs text-ink-soft flex items-start gap-2 leading-relaxed">
+        <KeyRound size={15} className="text-brand-text flex-shrink-0 mt-px" />
+        <span>
+          Mật khẩu cần <strong className="text-ink">từ 15 đến 64 ký tự</strong>. Không bắt buộc chữ hoa,
+          số hay ký tự đặc biệt — một cụm từ dễ nhớ vừa dài vừa an toàn hơn chuỗi ký tự rối, ví dụ
+          <em className="text-ink"> &ldquo;toi thich nghe nhac trinh&rdquo;</em>.
+        </span>
+      </p>
 
       <form className="space-y-5" onSubmit={handleSubmit(onSubmit)} noValidate>
-        <div>
-          <label className="block text-xs text-ink mb-2 uppercase tracking-wider" htmlFor="newPassword">
-            Mật Khẩu Mới <span className="text-brand-text">*</span>
-          </label>
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-ink-mute">
-              <Lock size={18} />
-            </div>
-            <input
-              {...register('newPassword')}
-              id="newPassword"
-              type={hienMk ? 'text' : 'password'}
-              autoFocus
-              placeholder="Cụm từ dễ nhớ của bạn"
-              className={inputCls}
-            />
-            <button
-              type="button"
-              onClick={() => setHienMk((v) => !v)}
-              className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-ink-mute hover:text-brand-text"
-              aria-label={hienMk ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
-            >
-              {hienMk ? <EyeOff size={18} /> : <Eye size={18} />}
-            </button>
-          </div>
-          {errors.newPassword && <p className="mt-1 text-xs text-danger">{errors.newPassword.message}</p>}
-        </div>
-
-        <div>
-          <label className="block text-xs text-ink mb-2 uppercase tracking-wider" htmlFor="confirmPassword">
-            Nhập Lại Mật Khẩu <span className="text-brand-text">*</span>
-          </label>
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-ink-mute">
-              <Lock size={18} />
-            </div>
-            <input
-              {...register('confirmPassword')}
-              id="confirmPassword"
-              type={hienXacNhan ? 'text' : 'password'}
-              placeholder="Nhập lại cho chắc"
-              className={inputCls}
-            />
-            <button
-              type="button"
-              onClick={() => setHienXacNhan((v) => !v)}
-              className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-ink-mute hover:text-brand-text"
-              aria-label={hienXacNhan ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
-            >
-              {hienXacNhan ? <EyeOff size={18} /> : <Eye size={18} />}
-            </button>
-          </div>
-          {errors.confirmPassword && <p className="mt-1 text-xs text-danger">{errors.confirmPassword.message}</p>}
-        </div>
+        <AuthField
+          id="newPassword"
+          label="Mật khẩu mới"
+          icon={Lock}
+          secret
+          autoComplete="new-password"
+          autoFocus
+          placeholder="Cụm từ dễ nhớ của bạn"
+          inputProps={register('newPassword')}
+          error={errors.newPassword?.message}
+        />
+        <AuthField
+          id="confirmPassword"
+          label="Nhập lại mật khẩu"
+          icon={Lock}
+          secret
+          autoComplete="new-password"
+          placeholder="Nhập lại cho chắc"
+          inputProps={register('confirmPassword')}
+          error={errors.confirmPassword?.message}
+        />
 
         <button
           type="submit"
           disabled={isBusy}
-          className="w-full py-3.5 px-4 rounded-lg bg-brand hover:bg-brand-hover text-ink font-bold text-sm flex items-center justify-center gap-2 transition-colors disabled:opacity-60"
+          className="w-full min-h-[52px] rounded-full bg-brand hover:bg-brand-hover text-on-brand font-bold text-base flex items-center justify-center gap-2 active:scale-[0.99] transition-all disabled:opacity-60 disabled:cursor-not-allowed"
         >
           {isBusy
-            ? <><Loader2 size={20} className="animate-spin" /> Đang đặt lại...</>
+            ? <><Loader2 size={20} className="animate-spin" /> Đang đặt lại…</>
             : <><CheckCircle2 size={18} /> Đặt lại mật khẩu</>}
         </button>
       </form>
 
-      <div className="mt-7 text-center pt-5 border-t border-line-strong/30">
-        <Link to="/login" className="text-sm text-brand-text hover:underline inline-flex items-center gap-1.5">
-          <ArrowLeft size={15} /> Về trang đăng nhập
-        </Link>
-      </div>
-    </Khung>
+      {backLink}
+    </AuthShell>
   )
 }
 
