@@ -1,5 +1,67 @@
-/* src/index.css */
+/* Font heading của bản mới (có thể bỏ nếu không muốn serif) */
 @import "tailwindcss";
+
+@theme {
+  /* Nền & bề mặt */
+  --color-page: #000000;           /* nền trang — đen như bản cũ */
+  --color-card: #111111;           /* thẻ/khối nổi trên nền đen */
+  --color-sunken: #1A1A1A;         /* vùng lõm, input, hover nhẹ */
+
+  /* Viền */
+  --color-line: #1F1F1F;           /* viền thường (tương đương gray-800 cũ) */
+  --color-line-strong: #374151;    /* viền nhấn, input focus (gray-700 cũ) */
+
+  /* Chữ trên nền SÁNG-TỐI (nền đen) */
+  --color-ink: #FFFFFF;            /* chữ chính */
+  --color-ink-soft: #D1D5DB;       /* chữ phụ (gray-300) */
+  --color-ink-mute: #6B7280;       /* chú thích (gray-500) */
+
+  /* Brand — vàng đồng */
+  --color-brand: #C3B665;          /* nền nút chính */
+  --color-brand-hover: #d4c87f;    /* hover nút chính */
+  --color-brand-text: #C3B665;     /* vàng dùng làm CHỮ/icon trên nền đen */
+  --color-on-brand: #000000;       /* chữ trên nền vàng */
+
+  /* Khối đậm (dùng thay "espresso" của bản mới — ở đây là xám đen) */
+  --color-espresso: #0A0A0A;       /* khối hero, gradient phủ */
+  --color-espresso-soft: #141414;
+  --color-cream: #FFFFFF;          /* chữ trên khối đậm */
+  --color-cream-mute: #9CA3AF;     /* chữ phụ trên khối đậm (gray-400) */
+  --color-brand-on-dark: #C3B665;  /* vàng làm chữ trên khối đậm */
+
+  /* Trạng thái */
+  --color-danger: #EF4444;         /* red-500 cũ */
+  --color-danger-soft: #FEE2E2;
+  --color-success: #22C55E;
+  --color-warning: #EAB308;
+
+  /* Font & shadow */
+  --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Playfair Display', Georgia, serif;
+  --shadow-soft: 0 1px 2px rgb(0 0 0 / 0.4), 0 4px 16px rgb(0 0 0 / 0.5);
+  --shadow-lift: 0 2px 4px rgb(0 0 0 / 0.5), 0 12px 32px rgb(0 0 0 / 0.6);
+  --shadow-glow: 0 12px 48px -12px rgb(195 182 101 / 0.25); /* glow vàng mờ */
+}
+
+@layer base {
+  html { color-scheme: light; -webkit-text-size-adjust: 100%; }
+  body {
+    background: var(--color-page);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3 { font-family: var(--font-display); letter-spacing: -0.005em; }
+  ::selection { background: rgb(212 160 58 / 0.35); }
+  /* Vòng focus rõ ràng cho người dùng bàn phím — không bao giờ tắt outline mà không thay thế. */
+  :focus-visible { outline: 2px solid var(--color-brand-text); outline-offset: 2px; border-radius: 4px; }
+  button, a, [role="button"], select { -webkit-tap-highlight-color: transparent; }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+  }
+}
+
 .hide-scrollbar::-webkit-scrollbar { display: none; }
 .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
@@ -33,4 +95,36 @@
 .no-spin {
   -moz-appearance: textfield; /* Firefox cũ */
   appearance: textfield;      /* Firefox mới + chuẩn */
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.7s var(--ease-out-soft), transform 0.7s var(--ease-out-soft);
+}
+.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+@media (prefers-reduced-motion: reduce) {
+  .reveal { opacity: 1; transform: none; transition: none; }
+}
+
+
+/* ===== HIỆN KHI HOVER — nhưng chỉ trên thiết bị có chuột (touch luôn thấy nút) ===== */
+@media (hover: hover) {
+  .reveal-on-hover { opacity: 0; }
+  .group:hover .reveal-on-hover,
+  .group:focus-within .reveal-on-hover,
+  .reveal-on-hover:focus-visible { opacity: 1; }
+}
+
+/* ===== KEN BURNS — zoom chậm cho ảnh hero ===== */
+@keyframes ken-burns {
+  from { transform: scale(1); }
+  to { transform: scale(1.06); }
+}
+.animate-ken-burns { animation: ken-burns 18s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+@media (prefers-reduced-motion: reduce) {
+  .animate-ken-burns { animation: none; }
 }

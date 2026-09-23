@@ -26,3 +26,14 @@ export const formatCompactNumber = (value) => {
   const hasRemainder = num % 1000 !== 0
   return `${thousands}K${hasRemainder ? '+' : ''}`
 }
+
+const DAY_DU_NGAY_GIO = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/
+
+export const mocUtc = (chuoi) => {
+  if (!chuoi || typeof chuoi !== 'string') return chuoi
+  // Chỉ-ngày, chỉ-giờ, hay bất cứ dạng nào khác → không phải việc của hàm này.
+  if (!DAY_DU_NGAY_GIO.test(chuoi)) return chuoi
+  // Đã có 'Z' cuối, hoặc có offset dạng +07:00 / -05:00 ở cuối → để nguyên.
+  if (/(Z|[+-]\d{2}:?\d{2})$/.test(chuoi)) return chuoi
+  return `${chuoi}Z`
+}
