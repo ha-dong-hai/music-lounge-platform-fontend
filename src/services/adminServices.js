@@ -36,15 +36,19 @@ export const getPendingModerations = async (params = {}) => {
   return axiosClient.get('/moderations/pending', { params });
 };
 
-// export const reviewShowModeration = async (showId, decision, reviewNote = '') => {
-//   if (decision !== 'Approved' && decision !== 'Rejected') {
-//     return Promise.reject(new Error('decision chỉ nhận "Approved" hoặc "Rejected"'));
-//   }
-//   return axiosClient.post(`/moderations/shows/${showId}/review`, {
-//     decision,
-//     reviewNote,
-//   });
-// };
+export const getPendingShows = async (params = {}) => {
+  return axiosClient.get('/moderations/pending', { params: { ...params, targetType: 'Show' } });
+};
+
+export const reviewShowModeration = async (showId, decision, reviewNote = '') => {
+  if (decision !== 'Approved' && decision !== 'Rejected') {
+    return Promise.reject(new Error('decision chỉ nhận "Approved" hoặc "Rejected"'));
+  }
+  return axiosClient.post(`/moderations/shows/${showId}/review`, {
+    decision,
+    reviewNote,
+  });
+};
 
 // ĐÃ BỎ hàm getAdminComplaints (gọi GET /complaints/pending). Ghi lại lý do để không ai thêm lại:
 //   - Endpoint đó vẫn tồn tại trên backend và trả cùng kiểu dữ liệu, nhưng nó KHÔNG GHI LOG ai xem.

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Landmark, CheckCircle2, Clock } from 'lucide-react'
 import toast from 'react-hot-toast'
-import { getAdminBankAccounts, reviewBankAccount } from '../../services/adminServices'
+import { getAdminBankAccounts, reviewPayoutBankAccount } from '../../services/adminServices'
 import BankAccountsTable from '../../components/admin/bank-accounts/BankAccountsTable'
 import BankAccountReviewModal from '../../components/admin/bank-accounts/BankAccountReviewModal'
 
@@ -75,7 +75,7 @@ const AdminBankAccountsPage = () => {
     if (!reviewTarget || processingDecision !== null) return
     setProcessingDecision(approve)
     try {
-      const res = await reviewBankAccount(reviewTarget.id, approve, note)
+      const res = await reviewPayoutBankAccount(reviewTarget.id, { approve, note })
       if (res.success) {
         toast.success(approve ? 'Bank account approved!' : 'Bank account rejected!')
         setReviewTarget(null)
