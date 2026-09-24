@@ -87,6 +87,13 @@ export const reviewVenue = async (venueId, decision, reviewNote = '') => {
   return axiosClient.post(`/admin/venues/${venueId}/review`, { decision, reviewNote });
 };
 
+// ===== GỠ ĐÁNH GIÁ =====
+// `reason` BẮT BUỘC. LƯU Ý: gỡ đánh giá qua hàng đợi báo cáo nội dung (content-reports/resolve với
+// action 'Removed') cũng dẫn tới cùng kết quả. Dùng hàm này khi gỡ trực tiếp mà không đi từ báo cáo nào.
+export const removeRating = async (ratingId, reason) => {
+  return axiosClient.post(`/admin/ratings/${ratingId}/remove`, { reason });
+};
+
 export const getAdminBankAccounts = async (params = {}) => {
   return axiosClient.get('/admin/bank-accounts', { params });
 };
