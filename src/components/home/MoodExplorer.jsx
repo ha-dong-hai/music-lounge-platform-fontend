@@ -1,15 +1,4 @@
 // src/components/home/MoodExplorer.jsx
-//
-// GHI CHÚ CHO ĐỘI FE:
-// - Dùng ĐÚNG hai danh mục thật của backend (`moods` và `atmospheres` từ /lounge-shows/filter-options)
-//   — không tự bịa thêm nhãn nào. Gộp chung một hàng vì với người dùng đều là "chọn không khí muốn
-//   nghe", không cần phân biệt kỹ thuật mood/atmosphere.
-// - Icon là SVG đơn nét, KHÔNG dùng emoji hay icon nhiều màu — xem docs/design/TRANG-CHU-BRIEF.md §6:
-//   "badge/icon kiểu AI" là một dấu hiệu slop đã tra cứu được, nên chọn đúng 1 icon lucide có nghĩa
-//   cho từng khái niệm, cùng bộ nét với icon còn lại của trang (không tự vẽ icon riêng kiểu sticker).
-// - Bấm vào một chip điều hướng sang /shows/search với state.appliedFilters — ĐÚNG hình dạng dữ liệu
-//   mà ShowSearchPage đọc (xem initialFilterState ở đó): { selectedMoods: [...] } hoặc
-//   { selectedSpaces: [...] } (atmospheres được ShowSearchPage gọi là "selectedSpaces").
 import { useNavigate } from 'react-router-dom'
 import {
   Flame, Heart, Moon, Disc3, Waves, Gem, Coffee, Trees, Square, PenLine,
@@ -18,16 +7,9 @@ import {
 // Icon cố định theo TÊN thật trả về từ backend — nếu Admin đổi tên danh mục, mục đó rơi về icon
 // mặc định (Disc3) thay vì vỡ trang.
 const MOOD_ICON = {
-  'Sôi động': Flame,
-  'Lãng mạn': Heart,
-  'Thư giãn': Moon,
-  'Hoài niệm': Disc3,
-  'Sâu lắng': Waves,
-  'Sang trọng': Gem,
-  'Ấm cúng': Coffee,
-  'Ngoài trời': Trees,
-  'Hiện đại': Square,
-  'Cổ điển': PenLine,
+  'Sôi động': Flame, 'Lãng mạn': Heart, 'Thư giãn': Moon, 'Hoài niệm': Disc3,
+  'Sâu lắng': Waves, 'Sang trọng': Gem, 'Ấm cúng': Coffee, 'Ngoài trời': Trees,
+  'Hiện đại': Square, 'Cổ điển': PenLine,
 }
 
 const MoodExplorer = ({ moods = [], atmospheres = [] }) => {

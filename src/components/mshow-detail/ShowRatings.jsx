@@ -1,17 +1,5 @@
 // src/components/mshow-detail/ShowRatings.jsx
-//
-// GHI CHÚ CHO ĐỘI FE:
-// - Điểm trung bình và phân bố sao do BACKEND tính trên TOÀN BỘ đánh giá còn hiệu lực, không phải
-//   trên trang đang xem. Đừng tính lại từ `items` — trang 2 sẽ ra số khác trang 1.
-// - Đánh giá đã bị Admin gỡ thì không nằm trong danh sách và không tính vào điểm. Nghĩa là gỡ xong
-//   phải tải lại cả khối, không chỉ xoá dòng khỏi state, nếu không điểm trung bình hiển thị sẽ lệch.
-// - `averageScore` là null khi chưa có đánh giá nào — KHÔNG hiện 0.0 sao, vì 0 sao trông như bị
-//   đánh giá tệ chứ không phải chưa ai đánh giá.
-// - `userName` có thể null (người dùng đã xoá tài khoản / đánh giá ẩn danh) → hiện "Khán giả".
-// - `scoreDistribution` là object khoá 1..5 dạng chuỗi; khoá nào không có đánh giá thì backend có
-//   thể không trả khoá đó, nên phải mặc định 0 chứ không đọc thẳng.
-// - Nút gỡ chỉ hiện với Admin. Ẩn nút không phải là bảo mật (backend vẫn chặn 403), nhưng hiện nút
-//   không bấm được thì vô nghĩa. `reason` là BẮT BUỘC — backend từ chối nếu để trống.
+
 import { useState, useEffect, useCallback } from 'react'
 import { Loader2, Star, MessageSquare, Trash2, X } from 'lucide-react'
 import dayjs from 'dayjs'

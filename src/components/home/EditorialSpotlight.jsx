@@ -1,14 +1,5 @@
 // src/components/home/EditorialSpotlight.jsx
-//
-// GHI CHÚ CHO ĐỘI FE — thay cho khối "trích dẫn to đùng cô lập" ở bản nháp đầu:
-// - Đây là NỀN TẢNG nhiều phòng trà độc lập, không phải một phòng trà duy nhất — nên câu chuyện ở
-//   đây nói về VĂN HOÁ phòng trà Sài Gòn nói chung (bolero, nhạc Trịnh, acoustic), không bịa lịch sử
-//   riêng của một quán ("thành lập năm...", địa chỉ, hotline). Xem docs/design/TRANG-CHU-BRIEF.md §2.
-// - Ảnh là ẢNH KHÔNG GIAN của một phòng trà thật (prop `lounge`), KHÔNG phải poster show: poster mang
-//   sẵn chữ riêng (có poster AI còn bị méo chữ) nên khi phóng to làm ảnh lớn vừa xấu vừa tranh với
-//   tiêu đề. Ảnh không gian mang đúng bầu không khí mà khối "văn hoá phòng trà" này muốn kể.
-// - Bố cục lệch (ảnh ~45%, cột chữ nền espresso) theo đúng hướng đã duyệt ở Stitch — không đối xứng
-//   kiểu khối trích dẫn giữa trang mặc định của mọi trang AI dựng.
+
 import { Link } from 'react-router-dom'
 import { ArrowRight } from 'lucide-react'
 import Reveal from '../shared/Reveal'

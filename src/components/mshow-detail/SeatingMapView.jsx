@@ -1,17 +1,5 @@
 // src/components/mshow-detail/SeatingMapView.jsx
-//
-// GHI CHÚ CHO ĐỘI FE:
-// - Sơ đồ chỗ của KHÁN GIẢ — chỉ để xem và chọn khu vực. Màn kéo–thả để ĐẶT vị trí khu vực là của
-//   chủ phòng trà (OwnerZonesPage), đừng nhập Konva vào đây: khán giả không di chuyển khu vực, và
-//   thêm thư viện canvas vào trang chi tiết là bắt mọi người tải thêm mấy trăm KB không dùng tới.
-// - TOẠ ĐỘ LÀ PHẦN TRĂM 0–100 trên canvas (xem SetZoneLayout2DCommandValidator), không phải pixel.
-//   Vì vậy dựng bằng position absolute + % là đủ và tự co theo màn hình.
-// - GET /lounge-shows/{id}/seating-map CHỈ trả khu vực có ít nhất một hạng vé trong buổi diễn này.
-//   Phòng trà có 5 khu nhưng buổi này chỉ bán 2 thì sơ đồ chỉ hiện 2 — giống TicketBox thật, KHÔNG
-//   phải thiếu dữ liệu.
-// - Khu vực CHƯA ĐẶT VỊ TRÍ (layout2DX/Y null) thì không vẽ được lên sơ đồ. Không bỏ im: xếp xuống
-//   danh sách phía dưới, nếu không thì khu vực đó biến mất khỏi mắt khán giả dù đang bán vé.
-// - `availableCount = null` nghĩa là KHÔNG GIỚI HẠN (có hạng giá không đặt quota), không phải hết vé.
+
 import { useState, useEffect } from 'react'
 import { Loader2, Map, Info } from 'lucide-react'
 import { getShowSeatingMap } from '../../services/showServices'
@@ -42,8 +30,7 @@ const SeatingMapView = ({ showId, selectedZoneId, onSelectZone }) => {
         const res = await getShowSeatingMap(showId)
         if (res.success) setData(res.data)
       } catch {
-        // Sơ đồ là phần bổ trợ: lỗi ở đây KHÔNG được chặn việc mua vé, nên chỉ ẩn khối đi.
-        setData(null)
+        setData(null) // Sơ đồ là bổ trợ: lỗi không được chặn việc mua vé
       } finally {
         setIsLoading(false)
       }
@@ -83,8 +70,6 @@ const SeatingMapView = ({ showId, selectedZoneId, onSelectZone }) => {
         <>
           <div className="relative w-full rounded-xl overflow-hidden border border-line bg-page"
             style={{ aspectRatio: '16 / 9' }}>
-            {/* Ảnh mặt bằng do chủ phòng trà tải lên, nếu có. Không có thì để nền trơn — vẫn đọc
-                được vì mỗi khu vực đã có nhãn riêng. */}
             {data.areaLayoutImageUrl && (
               <img src={data.areaLayoutImageUrl} alt="Mặt bằng phòng trà"
                 className="absolute inset-0 w-full h-full object-cover opacity-45" />
@@ -108,16 +93,11 @@ const SeatingMapView = ({ showId, selectedZoneId, onSelectZone }) => {
                     width: `${z.layout2DWidth ?? 12}%`,
                     height: `${z.layout2DHeight ?? 12}%`,
                     transform: `rotate(${z.layout2DRotationDeg ?? 0}deg)`,
-                    // Màu do chủ phòng trà đặt; không có thì dùng màu trung tính của hệ thống.
                     backgroundColor: z.color ? `${z.color}55` : 'rgba(195,182,101,0.20)',
                   }}
                 >
-                  <span className="text-[10px] sm:text-xs font-bold text-ink leading-tight text-center truncate max-w-full">
-                    {z.name}
-                  </span>
-                  <span className="text-[9px] sm:text-[10px] text-ink-soft/90 leading-tight">
-                    {nhanConLai(z)}
-                  </span>
+                  <span className="text-[10px] sm:text-xs font-bold text-ink leading-tight text-center truncate max-w-full">{z.name}</span>
+                  <span className="text-[9px] sm:text-[10px] text-ink-soft/90 leading-tight">{nhanConLai(z)}</span>
                 </button>
               )
             })}
@@ -125,13 +105,11 @@ const SeatingMapView = ({ showId, selectedZoneId, onSelectZone }) => {
 
           <p className="text-xs text-ink-mute mt-3 flex items-start gap-1.5 leading-relaxed">
             <Info size={12} className="mt-0.5 flex-shrink-0" />
-            Bấm vào một khu vực để chỉ xem hạng vé của khu đó. Sơ đồ chỉ hiện khu vực có bán vé trong
-            buổi diễn này.
+            Bấm vào một khu vực để chỉ xem hạng vé của khu đó. Sơ đồ chỉ hiện khu vực có bán vé trong buổi diễn này.
           </p>
         </>
       )}
 
-      {/* KHU VỰC CHƯA ĐẶT VỊ TRÍ — vẫn bán vé, nên phải hiện ở đâu đó */}
       {chuaCoViTri.length > 0 && (
         <div className={coViTri.length > 0 ? 'mt-5 pt-5 border-t border-line' : ''}>
           {coViTri.length > 0 && (

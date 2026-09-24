@@ -1,13 +1,5 @@
 // src/components/shared/CoverFallback.jsx
-//
-// GHI CHÚ CHO ĐỘI FE — vì sao file này tồn tại:
-// Trước đây khi một buổi diễn/phòng trà chưa có ảnh bìa, cả ba nơi (ShowCard, HeroBanner,
-// LoungeDetailPage) đều rơi về CÙNG MỘT ảnh Unsplash chụp tán rừng nhìn lên trời — không liên quan
-// gì tới phòng trà, không mang giọng thương hiệu, và lặp lại giống hệt nhau ở khắp nơi trên trang.
-// Đây đúng là kiểu "ảnh stock ngẫu nhiên" khiến giao diện trông như mẫu dựng sẵn, không phải sản
-// phẩm được chăm chút — thứ người dùng gọi là AI slop. Ô trống này giờ là một hoạ tiết THUỘC VỀ
-// thương hiệu (gradient ấm + đường kẻ khuông nhạc mờ + icon guitar), không mượn ảnh chụp bất kỳ.
-// Không cần tải ảnh nào — nhẹ hơn, và không bao giờ "lỗi ảnh" vì không có request nào để hỏng.
+
 import { Guitar } from 'lucide-react'
 
 const CoverFallback = ({ className = '' }) => (
