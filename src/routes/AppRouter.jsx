@@ -27,6 +27,7 @@ import AdminVenuesPage from '../pages/admin/AdminVenuesPage'
 import AdminFilterOptionsPage from '../pages/admin/AdminFilterOptionsPage'
 import AdminBankAccountsPage from '../pages/admin/AdminBankAccountsPage'
 import NotFoundPage from '../pages/NotFoundPage'
+import ComplaintPage from '../pages/user/ComplaintPage'
 
 const AppRouter = createBrowserRouter([
   {
@@ -47,6 +48,9 @@ const AppRouter = createBrowserRouter([
   },
 
   { path: '/livestream/:showId', element: <LivestreamWatchPage /> },
+
+  // Trang cong khai: khach chua dang nhap cung gui khieu nai duoc
+  { path: '/complaints', element: <ComplaintPage /> },
 
   {
     path: '/admin',
