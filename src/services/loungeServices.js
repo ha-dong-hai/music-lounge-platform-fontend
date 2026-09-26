@@ -11,3 +11,7 @@ export const getLoungeZones = async (loungeId, activeOnly = true) => {
 export const getLounges = async (params = {}) => {
   return axiosClient.get('/lounges', { params });
 };
+
+export const getLoungeTour = async (loungeId) => {
+  return axiosClient.get(`/lounges/${loungeId}/tour`);
+};
