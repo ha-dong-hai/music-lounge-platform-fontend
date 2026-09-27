@@ -28,6 +28,7 @@ import AdminFilterOptionsPage from '../pages/admin/AdminFilterOptionsPage'
 import AdminBankAccountsPage from '../pages/admin/AdminBankAccountsPage'
 import NotFoundPage from '../pages/NotFoundPage'
 import ComplaintPage from '../pages/user/ComplaintPage'
+import FnbOrderPage from '../pages/fnb/FnbOrderPage'
 
 const AppRouter = createBrowserRouter([
   {
@@ -43,6 +44,7 @@ const AppRouter = createBrowserRouter([
       { path: 'my-shows/ticket/:ticketId', element: <TicketDetailPage /> },
       { path: 'lounges', element: <LoungeListPage /> },
       { path: 'lounge/:id', element: <LoungeDetailPage /> }, 
+      { path: 'lounge/:id/order', element: <FnbOrderPage /> },
       { path: 'rating', element: <RatingModal /> }, 
     ],
   },
