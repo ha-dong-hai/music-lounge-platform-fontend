@@ -1,0 +1,175 @@
+// src/pages/user/NotificationsPage.jsx
+
+import { useState, useEffect, useCallback } from 'react'
+import { Link } from 'react-router-dom'
+import { Bell, Loader2, CheckCheck, ArrowLeft, Inbox } from 'lucide-react'
+import dayjs from 'dayjs'
+import toast from 'react-hot-toast'
+import { useAuthStore } from '../../store/useAuthStore'
+import { buildLink } from '../../components/notifications/notificationLink'
+import {
+  getMyNotifications, markNotificationRead, markAllNotificationsRead,
+} from '../../services/notificationServices'
+
+const TRANG = 20
+
+const NotificationsPage = () => {
+  const { user } = useAuthStore()
+  const role = user?.role
+
+  const [items, setItems] = useState([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [page, setPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
+  const [totalCount, setTotalCount] = useState(0)
+  const [isBusy, setIsBusy] = useState(false)
+
+  const load = useCallback(async () => {
+    setIsLoading(true)
+    try {
+      const res = await getMyNotifications({ page, pageSize: TRANG })
+      if (res.success) {
+        setItems(res.data?.items ?? [])
+        setTotalPages(res.data?.totalPages ?? 1)
+        setTotalCount(res.data?.totalCount ?? 0)
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Không tải được thông báo.')
+      setItems([])
+    } finally {
+      setIsLoading(false)
+    }
+  }, [page])
+
+  useEffect(() => { const chay = async () => { await load() }; chay() }, [load])
+
+  // Đánh dấu đã đọc NGAY TRÊN DANH SÁCH đang hiện, không tải lại: tải lại thì dòng vừa bấm đổi màu
+  // và có thể nhảy vị trí ngay dưới tay người dùng.
+  const danhDauDaDoc = async (n) => {
+    if (n.isRead) return
+    setItems((ds) => ds.map((x) => (x.id === n.id ? { ...x, isRead: true } : x)))
+    try {
+      await markNotificationRead(n.id)
+    } catch {
+      // Hỏng thì trả lại trạng thái cũ, đừng để màn hình nói dối là đã đọc.
+      setItems((ds) => ds.map((x) => (x.id === n.id ? { ...x, isRead: false } : x)))
+    }
+  }
+
+  const danhDauTatCa = async () => {
+    setIsBusy(true)
+    try {
+      await markAllNotificationsRead()
+      toast.success('Đã đánh dấu tất cả là đã đọc.')
+      await load()
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Không đánh dấu được.')
+    } finally { setIsBusy(false) }
+  }
+
+  const soChuaDoc = items.filter((n) => !n.isRead).length
+
+  if (!user) {
+    return (
+      <div className="min-h-[60vh] bg-page text-ink flex flex-col items-center justify-center px-6">
+        <Bell size={34} className="text-ink-mute mb-4" />
+        <p className="text-lg font-semibold mb-2">Cần đăng nhập để xem thông báo</p>
+        <Link to="/login" className="mt-2 px-6 py-2.5 bg-brand text-on-brand rounded-lg font-bold hover:bg-brand-hover">
+          Đăng nhập
+        </Link>
+      </div>
+    )
+  }
+
+  return (
+    <div className="min-h-[60vh] bg-page text-ink pb-20">
+      <div className="max-w-3xl mx-auto px-6 py-8">
+        <Link to="/" className="inline-flex items-center gap-2 text-sm font-medium text-ink-soft hover:text-brand-text mb-6">
+          <ArrowLeft size={18} /> Về trang chủ
+        </Link>
+
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+          <div className="flex items-center gap-3">
+            <Bell size={26} className="text-brand-text" />
+            <div>
+              <h1 className="text-2xl font-bold">Thông báo</h1>
+              {totalCount > 0 && (
+                <p className="text-sm text-ink-mute mt-0.5">{totalCount.toLocaleString('vi-VN')} thông báo</p>
+              )}
+            </div>
+          </div>
+
+          {soChuaDoc > 0 && (
+            <button onClick={danhDauTatCa} disabled={isBusy}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg border border-line text-ink-soft text-sm font-bold hover:bg-sunken disabled:opacity-50">
+              {isBusy ? <Loader2 size={15} className="animate-spin" /> : <CheckCheck size={15} />}
+              Đánh dấu tất cả đã đọc
+            </button>
+          )}
+        </div>
+
+        {isLoading ? (
+          <div className="py-24 flex justify-center"><Loader2 size={30} className="animate-spin text-brand-text" /></div>
+        ) : items.length === 0 ? (
+          <div className="bg-card border border-line rounded-2xl p-16 text-center">
+            <Inbox size={34} className="mx-auto mb-4 text-ink-mute" />
+            <p className="text-lg font-semibold mb-1">Chưa có thông báo nào</p>
+            <p className="text-sm text-ink-mute">
+              Khi có vé mới, kết quả duyệt hay thay đổi buổi diễn, thông báo sẽ hiện ở đây.
+            </p>
+          </div>
+        ) : (
+          <div className="bg-card border border-line rounded-2xl divide-y divide-line overflow-hidden">
+            {items.map((n) => {
+              const link = buildLink(n, role)
+              const ruot = (
+                <div className={`px-5 py-4 transition-colors hover:bg-sunken/50 ${n.isRead ? '' : 'bg-brand/5'}`}>
+                  <div className="flex items-start gap-3">
+                    {n.isRead
+                      ? <span className="mt-1.5 w-2 h-2 flex-shrink-0" />
+                      : <span className="mt-1.5 w-2 h-2 rounded-full bg-brand flex-shrink-0" />}
+                    <div className="min-w-0">
+                      <p className={`text-sm ${n.isRead ? 'text-ink-soft' : 'text-ink font-semibold'}`}>{n.title}</p>
+                      {n.body && <p className="text-sm text-ink-mute mt-1 leading-relaxed">{n.body}</p>}
+                      <p className="text-xs text-ink-mute mt-1.5">
+                        {dayjs(n.createdAt).format('HH:mm DD/MM/YYYY')}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )
+
+              // Không có link là bình thường (loại chưa có màn, hoặc vai trò không vào được) —
+              // vẫn bấm được để đánh dấu đã đọc, chỉ là không đi đâu.
+              return link ? (
+                <Link key={n.id} to={link} onClick={() => danhDauDaDoc(n)} className="block">
+                  {ruot}
+                </Link>
+              ) : (
+                <button key={n.id} onClick={() => danhDauDaDoc(n)} className="block w-full text-left">
+                  {ruot}
+                </button>
+              )
+            })}
+          </div>
+        )}
+
+        {totalPages > 1 && (
+          <div className="flex items-center justify-center gap-3 mt-6">
+            <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page <= 1}
+              className="px-4 py-2 rounded-lg border border-line text-sm text-ink-soft hover:bg-sunken disabled:opacity-40">
+              Trước
+            </button>
+            <span className="text-sm text-ink-mute">Trang {page}/{totalPages}</span>
+            <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page >= totalPages}
+              className="px-4 py-2 rounded-lg border border-line text-sm text-ink-soft hover:bg-sunken disabled:opacity-40">
+              Sau
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+export default NotificationsPage
