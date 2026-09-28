@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-//import { signInWithPopup } from 'firebase/auth';
+// ⛔ ĐÃ ẨN: Google Login — bỏ import firebase khi khôi phục thì mở lại
+// import { signInWithPopup } from 'firebase/auth';
 import toast from 'react-hot-toast';
 import * as aServices from '../services/aServices';
 import { useAuthStore } from '../store/useAuthStore';
-//import { firebaseAuth, googleAuthProvider, isFirebaseConfigured } from '../config/firebase';
+// ⛔ ĐÃ ẨN: Google Login
+// import { firebaseAuth, googleAuthProvider, isFirebaseConfigured } from '../config/firebase';
 
 // Trang đích sau khi có token thật (login / verify-email) — theo role backend trả về
 const destinationForRole = (role) => (role === 'Admin' ? '/admin' : '/');
@@ -84,8 +86,10 @@ export const useAuth = () => {
     }
   };
 
-  // Mở popup đăng nhập Google qua Firebase, lấy Firebase ID token rồi gửi cho backend — không dùng
-  // trực tiếp token của thư viện Google OAuth thuần vì backend chỉ verify được Firebase ID token.
+  // ⛔ ĐÃ ẨN: GOOGLE LOGIN — khi khôi phục, mở lại 2 hàm dưới đây (giữ nguyên code gốc):
+  //
+  // // Mở popup đăng nhập Google qua Firebase, lấy Firebase ID token rồi gửi cho backend — không dùng
+  // // trực tiếp token của thư viện Google OAuth thuần vì backend chỉ verify được Firebase ID token.
   // const handleGoogleSignIn = async (acceptTerms = false) => {
   //   if (!isFirebaseConfigured) {
   //     toast.error('Đăng nhập Google chưa được cấu hình (thiếu Firebase Web config).');
@@ -105,7 +109,7 @@ export const useAuth = () => {
   //     setIsSubmitting(false);
   //   }
   // };
-
+  //
   // const handleGoogleLogin = async (idToken, acceptTerms = false) => {
   //   setIsSubmitting(true);
   //   try {
@@ -137,12 +141,12 @@ export const useAuth = () => {
 
   return {
     isSubmitting,
-    //isGoogleLoginAvailable: isFirebaseConfigured,
+    // ⛔ ĐÃ ẨN: isGoogleLoginAvailable: isFirebaseConfigured,
     handleLogin,
     handleRegister,
     handleVerifyEmail,
     handleResendCode,
-    //handleGoogleSignIn,
+    // ⛔ ĐÃ ẨN: handleGoogleSignIn,
     handleLogout,
   };
 };
