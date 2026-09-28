@@ -30,6 +30,8 @@ import NotFoundPage from '../pages/NotFoundPage'
 import ComplaintPage from '../pages/user/ComplaintPage'
 import FnbOrderPage from '../pages/fnb/FnbOrderPage'
 import PaymentResultPage from '../pages/payment/PaymentResultPage'
+import NotificationsPage from '../pages/user/NotificationsPage'
+import LoginPage from '../pages/auth/LoginPage'
 
 const AppRouter = createBrowserRouter([
   {
@@ -42,6 +44,7 @@ const AppRouter = createBrowserRouter([
       { path: 'shows/:id', element: <EventDetailPage /> },
       { path: 'account', element: <AccountPage /> },
       { path: 'my-shows', element: <MyShowsPage /> },
+      { path: 'notifications', element: <NotificationsPage /> },
       { path: 'my-shows/ticket/:ticketId', element: <TicketDetailPage /> },
       { path: 'lounges', element: <LoungeListPage /> },
       { path: 'lounge/:id', element: <LoungeDetailPage /> }, 
@@ -54,6 +57,8 @@ const AppRouter = createBrowserRouter([
 
   // Trang cong khai: khach chua dang nhap cung gui khieu nai duoc
   { path: '/complaints', element: <ComplaintPage /> },
+
+  { path: '/login', element: <LoginPage /> },
 
   { path: '/payment/success', element: <PaymentResultPage status="success" /> },
   { path: '/payment/failed', element: <PaymentResultPage status="failed" /> },
