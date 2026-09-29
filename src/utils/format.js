@@ -26,7 +26,41 @@ export const formatCompactNumber = (value) => {
   const hasRemainder = num % 1000 !== 0
   return `${thousands}K${hasRemainder ? '+' : ''}`
 }
-
+/**
+ * Vá mốc thời gian KHÔNG KÈM MÚI GIỜ trước khi đưa cho dayjs.
+ *
+ * GHI CHÚ CHO ĐỘI FE — VÌ SAO CẦN HÀM NÀY:
+ * Backend trả hai dạng mốc thời gian khác nhau, tuỳ kiểu cột trong cơ sở dữ liệu:
+ *   DateTimeOffset → "2026-09-18T17:35:21.63+00:00"  (có offset, dayjs đọc đúng)
+ *   DateTime       → "2026-09-20T17:35:21.7140735"   (KHÔNG offset, nhưng giá trị là giờ UTC)
+ * Dạng thứ hai đưa thẳng vào dayjs sẽ bị hiểu là GIỜ MÁY NGƯỜI DÙNG. Ở Việt Nam (UTC+7) là lệch
+ * đúng 7 tiếng — đủ để một mốc buổi tối nhảy sang ngày hôm sau, và không ai nhận ra vì nó vẫn ra
+ * một ngày trông hợp lý.
+ *
+ * Hàm này thêm 'Z' khi chuỗi chưa có múi giờ, để dayjs hiểu đúng là UTC rồi tự đổi về giờ máy.
+ * Chuỗi đã có offset (hoặc đã kết thúc bằng Z) thì giữ nguyên — KHÔNG được thêm lần nữa.
+ *
+ * Dùng cho mốc nào? Chỉ những trường backend trả về không có offset. Ví dụ đã biết:
+ * `createdAt` của tài khoản nhận tiền, và `createdAt` của danh sách người dùng Admin.
+ * Gặp thêm chỗ nào thì bọc chỗ đó, đừng bọc tràn lan.
+ *
+ * TUYỆT ĐỐI KHÔNG DÙNG CHO CHUỖI CHỈ-NGÀY HAY CHỈ-GIỜ. Hệ thống có ba trường như vậy:
+ *   ngày trong biểu đồ bán vé ("2026-08-17"), ngày sinh ở hàng đợi định danh ("1998-03-21"),
+ *   và giờ diễn của nghệ sĩ ("19:30:00").
+ * Chúng KHÔNG có múi giờ và KHÔNG ĐƯỢC có: ngày sinh không thuộc múi giờ nào, giờ diễn là giờ
+ * treo trên tường của phòng trà. Gắn 'Z' vào là hỏng theo hai kiểu khác nhau:
+ *   "19:30:00Z"   → Invalid Date. Hỏng ồn ào, thấy ngay.
+ *   "2026-08-17Z" → trên V8 (node, Chrome, Edge) thì KHÔNG Invalid mà thành nửa đêm UTC: ở Việt
+ *                   Nam hiện 07:00 cùng ngày (ngày vẫn đúng), ở múi giờ âm thì lùi hẳn MỘT NGÀY.
+ *                   Hỏng im lặng, tệ hơn hỏng ồn ào.
+ *                   ĐỪNG ĐỌC DÒNG TRÊN THÀNH LỜI HỨA: chuẩn ECMA-262 chỉ cho phép phần múi giờ khi
+ *                   chuỗi CÓ phần giờ, nên dạng chỉ-ngày kèm 'Z' nằm ngoài định dạng chuẩn và do
+ *                   từng engine tự xử. Safari có thể trả Invalid Date thay vì nửa đêm UTC.
+ *                   Một hành vi vừa im lặng sai ở engine này vừa có thể vỡ ở engine khác thì càng
+ *                   phải chặn, chứ không phải càng đáng tin.
+ * Vì vậy hàm chỉ động vào chuỗi có đủ ngày VÀ giờ (có chữ 'T' và ít nhất HH:MM); mọi dạng khác
+ * trả nguyên văn. Chặn ở đây thay vì trông vào người gọi nhớ — người gọi sau sẽ không nhớ.
+ */
 const DAY_DU_NGAY_GIO = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/
 
 export const mocUtc = (chuoi) => {

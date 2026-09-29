@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import {
   Flame, Heart, Moon, Disc3, Waves, Gem, Coffee, Trees, Square, PenLine,
 } from 'lucide-react'
+import SectionTitle from '../shared/SectionTitle'
 
 // Icon cố định theo TÊN thật trả về từ backend — nếu Admin đổi tên danh mục, mục đó rơi về icon
 // mặc định (Disc3) thay vì vỡ trang.
@@ -12,7 +13,9 @@ const MOOD_ICON = {
   'Hiện đại': Square, 'Cổ điển': PenLine,
 }
 
-const MoodExplorer = ({ moods = [], atmospheres = [] }) => {
+// `hienTieuDe=false` khi khối này nằm BÊN TRONG mục 'Tìm theo' của trang chủ: ở đó nó đã có
+// tiêu đề mục chung rồi, thêm một tiêu đề nữa là hai tầng tiêu đề cho một việc.
+const MoodExplorer = ({ moods = [], atmospheres = [], hienTieuDe = true }) => {
   const navigate = useNavigate()
   const items = [
     ...moods.map(m => ({ ...m, kind: 'mood' })),
@@ -27,10 +30,13 @@ const MoodExplorer = ({ moods = [], atmospheres = [] }) => {
 
   return (
     <section>
-      <div className="mb-4 sm:mb-6">
-        <p className="text-xs font-semibold uppercase tracking-[0.15em] text-brand-text mb-1">Gợi ý không gian theo tâm trạng</p>
-        <h2 className="font-display text-xl sm:text-2xl font-semibold text-ink">Khám phá theo không khí</h2>
-      </div>
+      {hienTieuDe && (
+        <SectionTitle
+          nhan="Gợi ý không gian theo tâm trạng"
+          tieuDe="Khám phá theo không khí"
+          ghiChu="Chọn một không khí để lọc đêm diễn"
+        />
+      )}
       <div className="flex gap-2.5 overflow-x-auto hide-scrollbar pb-1">
         {items.map((item) => {
           const Icon = MOOD_ICON[item.name] || Disc3
@@ -38,7 +44,7 @@ const MoodExplorer = ({ moods = [], atmospheres = [] }) => {
             <button
               key={`${item.kind}-${item.id}`}
               onClick={() => goTo(item)}
-              className="flex-shrink-0 inline-flex items-center gap-2 pl-3.5 pr-4 py-2.5 rounded-full border border-line bg-card text-sm font-medium text-ink-soft hover:border-brand hover:text-ink transition-colors"
+              className="flex-shrink-0 inline-flex items-center gap-2 min-h-[44px] pl-3.5 pr-4 py-2.5 rounded-full border border-line bg-card text-sm font-medium text-ink-soft hover:border-brand hover:text-ink transition-colors"
             >
               <Icon size={16} className="text-brand-text flex-shrink-0" strokeWidth={1.5} />
               {item.name}

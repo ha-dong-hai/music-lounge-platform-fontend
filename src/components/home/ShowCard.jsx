@@ -131,8 +131,8 @@ const ShowCard = ({
           }`}
           aria-label={wished ? 'Bỏ khỏi danh sách yêu thích' : 'Thêm vào danh sách yêu thích'}
         >
-          <span className="w-8 h-8 rounded-full bg-espresso/55 backdrop-blur-sm flex items-center justify-center text-cream transition-transform duration-200 group-hover/heart:scale-110 group-hover/heart:text-red-300">
-            <Heart size={16} className={wished ? 'fill-red-400 text-red-400' : ''} />
+          <span className="w-8 h-8 rounded-full bg-espresso/55 backdrop-blur-sm flex items-center justify-center text-cream transition-transform duration-200 group-hover/heart:scale-110 group-hover/heart:text-danger">
+            <Heart size={16} className={wished ? 'fill-danger text-danger' : ''} />
           </span>
         </button>
 

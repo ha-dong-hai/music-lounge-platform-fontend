@@ -6,8 +6,13 @@ import toast from 'react-hot-toast'
 import NotificationBell from '../components/notifications/NotificationBell'
 import { getShowSuggestions, getTrendingShows, getRecommendedShows } from '../services/showServices'
 
+// GỢI Ý TÌM KIẾM — GHI CHÚ CHO ĐỘI FE:
+// - Gọi /lounge-shows/suggestions, trả về { id, name, coverImageUrl }. Chỉ có tên và ảnh, KHÔNG có
+//   ngày diễn hay giá — đừng bày thêm trường không có rồi hiện "undefined".
+// - Backend trả mảng rỗng khi q rỗng, nhưng vẫn phải chặn ở FE: gọi API cho chuỗi rỗng là gọi vô ích.
 // - CHỐNG DỘI 300ms là bắt buộc: không có nó thì mỗi ký tự gõ vào là một request, và các phản hồi
 //   về không theo thứ tự sẽ làm danh sách nhảy. Mỗi lần gõ mới huỷ luôn lượt chờ cũ.
+// - Bấm vào một gợi ý là đi THẲNG tới buổi diễn đó (/shows/:id), không phải đi tới trang tìm kiếm.
 const DO_TRE_GOI_Y = 300
 
 // ⭐ BỎ PROPS searchQuery, setSearchQuery ĐI

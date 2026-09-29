@@ -9,6 +9,7 @@ import { holdTicket, cancelHold, purchaseTicket } from '../../services/ticketSer
 import { useAuthStore } from '../../store/useAuthStore'
 import Skeleton from '../shared/Skeleton'
 import SeatingMapView from './SeatingMapView'
+import { ghiNhoThanhToan, LOAI_THANH_TOAN } from '../../utils/paymentContext'
 
 const formatVnd = (amount) => `${Number(amount || 0).toLocaleString('vi-VN')}đ`
 
@@ -138,6 +139,7 @@ const ShowMap = ({ showData }) => {
     try {
       const res = await purchaseTicket(hold.holdId)
       if (res.success) {
+        ghiNhoThanhToan(LOAI_THANH_TOAN.VE)
         window.location.href = res.data.paymentUrl
       }
     } catch (err) {

@@ -1,6 +1,9 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
+// authResult khớp AuthResultDto backend trả về từ /auth/login, /auth/register (sau verify-email),
+// /auth/google, /auth/refresh: { token, expiresAt, userId, email, fullName, role, loungeId,
+// refreshToken, refreshTokenExpiresAt }
 const mapAuthResultToUser = (authResult) => ({
   id: authResult.userId,
   email: authResult.email,

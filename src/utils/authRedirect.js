@@ -1,0 +1,59 @@
+// src/utils/authRedirect.js
+//
+// Quyết định đưa người dùng đi đâu sau khi đăng nhập. Tách khỏi hooks/useAuth.js để KIỂM THỬ ĐƯỢC:
+// useAuth kéo theo firebase + react-router nên không chạy thẳng bằng node, còn hai hàm dưới đây là
+// hàm thuần. Xem src/utils/authRedirect.test.mjs.
+//
+// Bốn vai đăng nhập của hệ thống: Audience, Staff, Owner, Admin. Performer KHÔNG có tài khoản.
+
+// Đích mặc định của mỗi vai, khớp đúng guard trong routes/AppRouter.jsx:
+//   - Admin -> /admin  (requiredRoles={['Admin']}, AppRouter.jsx:151)
+//   - Owner -> /owner  (requiredRoles={['Owner','Staff']}, AppRouter.jsx:114)
+//   - Staff -> /owner  (cùng cổng trên, và cùng chỗ mà liên kết "Khu vực phòng trà" ở
+//                       Header.jsx:294-301 dẫn tới, để hai lối vào không lệch nhau)
+// Vai nào không có trong bảng (Audience, hoặc vai lạ backend thêm sau) thì về trang chủ.
+export const DICH_THEO_VAI = {
+  Admin: '/admin',
+  Owner: '/owner',
+  Staff: '/owner',
+};
+
+export const destinationForRole = (role) => DICH_THEO_VAI[role] ?? '/';
+
+// Chỉ chấp nhận đường dẫn NỘI BỘ. Chặn `//evil.com` (giao thức tương đối) và mọi URL tuyệt đối —
+// nếu không, một liên kết dạng /login với state dựng sẵn có thể biến trang đăng nhập thành bàn đạp
+// chuyển hướng ra ngoài.
+export const duongDanNoiBoHopLe = (p) =>
+  typeof p === 'string' && p.startsWith('/') && !p.startsWith('//');
+
+// Khu vực có giới hạn vai, lấy đúng theo guard trong routes/AppRouter.jsx:
+//   - `/admin…`  requiredRoles={['Admin']}          (AppRouter.jsx:151)
+//   - `/owner…`  requiredRoles={['Owner','Staff']}  (AppRouter.jsx:114)
+// Mọi đường dẫn khác: ai đăng nhập cũng vào được.
+const KHU_VUC_THEO_VAI = [
+  { tien_to: '/admin', vai: ['Admin'] },
+  { tien_to: '/owner', vai: ['Owner', 'Staff'] },
+];
+
+// `path` có vừa với `tien_to` không — so theo RANH GIỚI ĐOẠN đường dẫn, không so tiền tố trần.
+// Nếu so tiền tố trần thì `/ownership` cũng bị tính là thuộc khu `/owner`.
+const thuocKhu = (path, tien_to) => path === tien_to || path.startsWith(`${tien_to}/`);
+
+export const vaiVaoDuoc = (role, path) => {
+  if (!duongDanNoiBoHopLe(path)) return false;
+  // Bỏ query string trước khi so khu vực: `/admin?x=1` vẫn là khu admin.
+  const chiDuongDan = path.split('?')[0];
+  const khu = KHU_VUC_THEO_VAI.find((k) => thuocKhu(chiDuongDan, k.tien_to));
+  return khu ? khu.vai.includes(role) : true;
+};
+
+// Sau khi đăng nhập: ưu tiên quay lại đúng trang người dùng bị chặn giữa chừng (ProtectedRoute gửi
+// kèm `state.from`); không có, không hợp lệ, HOẶC vai này không vào được chỗ đó → về đích của vai.
+//
+// LỖI ĐÃ SỬA: bản đầu của hàm này trả `from` mà không hỏi vai có vào được không. Hậu quả thật:
+// người mở `/owner/shows/12/settings` khi chưa đăng nhập bị đẩy ra `/login` kèm `from`, rồi đăng
+// nhập bằng tài khoản ADMIN — hàm trả lại `/owner/shows/12/settings`, ProtectedRoute của khu
+// `/owner` chỉ nhận Owner/Staff nên chặn Admin và ném về `/`. Admin đăng nhập xong nằm ở trang chủ
+// thay vì khu quản trị. Bản vá: `from` chỉ được dùng khi vai đó thật sự vào được.
+export const dichSauDangNhap = (role, from) =>
+  duongDanNoiBoHopLe(from) && vaiVaoDuoc(role, from) ? from : destinationForRole(role);

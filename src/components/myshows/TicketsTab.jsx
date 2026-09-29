@@ -12,8 +12,8 @@ const isOnlineTicket = (accessType) => !!accessType && accessType !== 'Physical'
 // ===== BADGE: LOẠI VÉ =====
 const AccessTypeBadge = ({ accessType }) => (
   isOnlineTicket(accessType)
-    ? <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-purple-500/15 text-purple-400 border border-purple-500/30"><Video size={12} /> Vé Livestream</span>
-    : <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-blue-500/15 text-sky-400 border border-blue-500/30"><MapPin size={12} /> Vé tại chỗ</span>
+    ? <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-purple-500/15 text-purple-700 border border-purple-500/30"><Video size={12} /> Vé Livestream</span>
+    : <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-blue-500/15 text-sky-700 border border-blue-500/30"><MapPin size={12} /> Vé tại chỗ</span>
 )
 
 // ===== BADGE: THỜI GIAN (Sắp diễn ra / Hôm nay / Đã diễn ra) =====
@@ -262,7 +262,7 @@ const TicketsTab = () => {
                       {online ? (
                         <Link
                           to={`/livestream/${ev.showId}`}
-                          className="relative z-10 flex-shrink-0 flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-purple-500/10 border border-purple-500/40 text-purple-400 text-xs font-bold hover:bg-purple-500/25 transition-colors"
+                          className="relative z-10 flex-shrink-0 flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-purple-500/10 border border-purple-500/40 text-purple-700 text-xs font-bold hover:bg-purple-500/25 transition-colors"
                         >
                           <Video size={14} /> Vào xem trực tuyến
                         </Link>

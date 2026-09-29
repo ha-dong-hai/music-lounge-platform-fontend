@@ -50,22 +50,6 @@ export const getAdminComplaints = async (params = {}) => {
   return axiosClient.get('/admin/complaints', { params });
 };
 
-export const getAdminVenues = async (params = {}) => {
-  return axiosClient.get('/admin/venues/pending', { params });
-};
-
-export const createFilterOption = async (type, payload) => {
-  return axiosClient.post(`/admin/${type}`, payload);
-};
-
-export const updateFilterOption = async (type, id, payload) => {
-  return axiosClient.put(`/admin/${type}/${id}`, payload);
-};
-
-export const deleteFilterOption = async (type, id) => {
-  return axiosClient.delete(`/admin/${type}/${id}`);
-};
-
 export const getPendingShows = async (params = {}) => {
   return axiosClient.get('/admin/shows/pending', { params });
 };
@@ -80,11 +64,164 @@ export const reviewShowModeration = async (showId, decision, reviewNote = '') =>
   });
 };
 
-export const reviewVenue = async (venueId, decision, reviewNote = '') => {
+// ĐÃ BỎ hàm getAdminComplaints (gọi GET /complaints/pending). Ghi lại lý do để không ai thêm lại:
+//   - Endpoint đó vẫn tồn tại trên backend và trả cùng kiểu dữ liệu, nhưng nó KHÔNG GHI LOG ai xem.
+//     Dữ liệu khiếu nại có mô tả sự việc và số điện thoại người khiếu nại (kể cả khách không có tài
+//     khoản), nên phải trả lời được câu "ai đã đọc dữ liệu của tôi" — chỉ /admin/complaints làm được.
+//   - Hàng đợi đang mở lấy được từ chính /admin/complaints bằng ?status=Open&status=Investigating,
+//     nên không mất chức năng gì.
+// (Ghi chú cũ ở đây nói '/admin/complaints' trả 404 — đúng vào thời điểm đó, nhưng MLACP-462 đã thêm
+//  endpoint này, và nó là đường nên dùng.)
+
+// Lịch sử khiếu nại cho Admin — MỌI trạng thái, không chỉ hàng đợi đang mở (MLACP-462).
+// status: mảng, gửi lặp kiểu ?status=Resolved&status=Rejected (paramsSerializer trong axios.js lo sẵn).
+//   Bỏ trống = mọi trạng thái. Tên sai → 422, message liệt kê các giá trị hợp lệ.
+// pageSize mặc định 20 (KHÁC /complaints/pending mặc định 10). Item cùng ComplaintDto với /pending.
+// Mỗi lần gọi backend GHI LOG kèm mã Admin + bộ lọc, vì dữ liệu gồm mô tả và số điện thoại
+// người khiếu nại (kể cả khách không đăng nhập) — đừng gọi nền / gọi thừa.
+export const getComplaintHistory = async (params = {}) => {
+  return axiosClient.get('/admin/complaints', { params });
+};
+
+export const getAdminVenues = async (params = {}) => {
+  return axiosClient.get('/admin/venues/pending', { params });
+};
+
+export const reviewLivestreamModeration = async (livestreamId, decision, reviewNote = '') => {
   if (decision !== 'Approved' && decision !== 'Rejected') {
     return Promise.reject(new Error('decision chỉ nhận "Approved" hoặc "Rejected"'));
   }
-  return axiosClient.post(`/admin/venues/${venueId}/review`, { decision, reviewNote });
+  return axiosClient.post(`/moderations/livestreams/${livestreamId}/review`, {
+    decision,
+    reviewNote,
+  });
+};
+
+// ===== DANH MỤC LỌC (thể loại nhạc / tâm trạng / không gian / loại buổi diễn) — Admin CRUD =====
+// typeKey trùng đoạn đường dẫn của backend, nhưng vẫn qua danh sách cho phép: không ghép thẳng
+// chuỗi gọi từ giao diện vào URL.
+// PUT và DELETE trả 204 không body — interceptor trong config/axios.js quy về { success: true, data: null }.
+// 409 khi trùng tên, hoặc khi xoá mục đang được buổi diễn sử dụng; message của backend nói rõ lý do.
+//
+// MỖI LOẠI MỘT BODY KHÁC NHAU, ĐỪNG GỬI CHUNG:
+//   genres          POST/PUT { name, nameEn }
+//   moods           POST/PUT { name }
+//   atmospheres     POST/PUT { name }
+//   eventCategories POST { name, description } — PUT { name, description, isActive }
+// Loại buổi diễn là cái duy nhất có isActive, và PUT là GHI ĐÈ TOÀN BỘ: thiếu trường nào là xoá
+// trường đó. Danh sách /catalog/event-categories CHỈ trả id + name của mục đang bật, nên giao diện
+// không biết description cũ — xem ghi chú ở OptionFormModal trước khi sửa chỗ này.
+const FILTER_OPTION_TYPES = {
+  genres: {
+    segment: 'genres',
+    body: (d) => ({ name: d.name, nameEn: d.nameEn || null }),
+  },
+  moods: {
+    segment: 'moods',
+    body: (d) => ({ name: d.name }),
+  },
+  atmospheres: {
+    segment: 'atmospheres',
+    body: (d) => ({ name: d.name }),
+  },
+  eventCategories: {
+    segment: 'event-categories',
+    // isActive chỉ có trong body PUT; POST không nhận trường này (mục mới luôn đang bật).
+    body: (d, { dangSua } = {}) => (dangSua
+      ? { name: d.name, description: d.description || null, isActive: d.isActive !== false }
+      : { name: d.name, description: d.description || null }),
+  },
+};
+
+const filterOptionType = (typeKey) => {
+  const cauHinh = FILTER_OPTION_TYPES[typeKey];
+  if (!cauHinh) throw new Error(`Loại danh mục lọc không hợp lệ: ${typeKey}`);
+  return cauHinh;
+};
+
+const filterOptionPath = (typeKey) => `/admin/${filterOptionType(typeKey).segment}`;
+
+export const createFilterOption = async (typeKey, data) => {
+  const cauHinh = filterOptionType(typeKey);
+  return axiosClient.post(`/admin/${cauHinh.segment}`, cauHinh.body(data, { dangSua: false }));
+};
+
+export const updateFilterOption = async (typeKey, id, data) => {
+  const cauHinh = filterOptionType(typeKey);
+  return axiosClient.put(`/admin/${cauHinh.segment}/${id}`, cauHinh.body(data, { dangSua: true }));
+};
+
+export const deleteFilterOption = async (typeKey, id) => {
+  return axiosClient.delete(`${filterOptionPath(typeKey)}/${id}`);
+};
+
+// ===== DUYỆT HỒ SƠ PHÒNG TRÀ =====
+// Phòng trà ở trạng thái Pending KHÔNG hiện trong danh sách công khai và KHÔNG mở bán vé được.
+// Không duyệt thì chủ phòng trà treo vô thời hạn — đây là cửa chặn đầu tiên của toàn bộ luồng.
+// decision: 'Approved' | 'Rejected'. Từ chối thì reviewNote là thứ duy nhất cho chủ biết phải sửa gì.
+export const reviewVenue = async (loungeId, decision, reviewNote = '') => {
+  if (decision !== 'Approved' && decision !== 'Rejected') {
+    return Promise.reject(new Error('decision chỉ nhận "Approved" hoặc "Rejected"'));
+  }
+  return axiosClient.post(`/admin/venues/${loungeId}/review`, { decision, reviewNote });
+};
+
+// ===== DUYỆT ĐỊNH DANH (KYC) =====
+// status: 'Pending' | 'Approved' | 'Rejected'. Mỗi dòng là MỘT NGƯỜI với tối đa HAI giấy tờ
+// (CCCD và hồ sơ thuế) được duyệt ĐỘC LẬP nhau.
+export const getKycReviewQueue = async (params = {}) => {
+  return axiosClient.get('/admin/kyc-reviews', { params });
+};
+
+// document: 'CitizenCard' | 'TaxProfile'. userId là mã người dùng, không phải mã giấy tờ.
+// ⚠ TỪ CHỐI thì `note` LÀ BẮT BUỘC: người gửi phải biết phải sửa gì, "bị từ chối" mà không kèm lý do
+// thì họ không làm gì được tiếp.
+export const reviewKycDocument = async (userId, document, { approve, note = null }) => {
+  return axiosClient.post(`/admin/kyc-reviews/${userId}/${document}`, { approve, note });
+};
+
+// Ảnh CCCD của người khác — trả về FILE nhị phân. side: 'front' | 'back'.
+// Admin xem giấy tờ của người khác thì backend GHI LOG, nên đừng gọi nền hay gọi thửa.
+export const getUserCitizenCardImage = async (userId, side) => {
+  return axiosClient.get(`/admin/users/${userId}/citizen-card/${side}`, { responseType: 'blob' });
+};
+
+// ===== DUYỆT TÀI KHOẢN NHẬN TIỀN =====
+// Chỉ liệt kê tài khoản của PHÒNG TRÀ — tài khoản nhận tiền của nghệ sĩ không duyệt ở đây nên
+// không xuất hiện trong danh sách này.
+// verified=false là hàng đợi chờ duyệt; verified=true để tra lại cái đã duyệt.
+// Mỗi dòng có BA CỜ ứng với đúng ba điều kiện mà lệnh duyệt sẽ kiểm:
+//   holderNameMatches      — tên chủ tài khoản khớp tên định danh hợp pháp của chủ phòng trà
+//   ownerIdentityApproved  — hồ sơ định danh của chủ đã được duyệt
+//   accountNumberUnreadable— số tài khoản lưu bị hỏng, không giải mã đọc được
+// Hiện ba cờ này NGAY TRÊN DANH SÁCH: không có chúng thì người duyệt bấm xong mới nhận lỗi.
+export const getAdminBankAccounts = async (params = {}) => {
+  return axiosClient.get('/admin/bank-accounts', { params });
+};
+
+// Tên chủ tài khoản phải khớp tên định danh hợp pháp của chủ phòng trà; lệch thì từ chối.
+export const reviewPayoutBankAccount = async (bankAccountId, { approve, note = null }) => {
+  return axiosClient.post(`/admin/bank-accounts/${bankAccountId}/review`, { approve, note });
+};
+
+// TEN CU cua nhanh frontend-only (phuc), giu lai khi gop nhanh 29/09 de PR dang lam cua dong doi
+// khong vo. CUNG endpoint voi reviewPayoutBankAccount ngay tren, nen goi qua do - chi co MOT cho
+// dinh nghia loi goi. Giu dung chu ky cu (tham so vi tri, note mac dinh chuoi rong).
+export const reviewBankAccount = (id, approve, note = '') =>
+  reviewPayoutBankAccount(id, { approve, note });
+
+// ===== DANH MỤC PHÍA ADMIN (khác đường công khai) =====
+// Hai endpoint này tồn tại VÌ đường công khai cố tình giấu bớt:
+//   /catalog/event-categories chỉ trả mục đang bật, và chỉ (id, name)
+//   /shows/filter-options không trả nameEn của thể loại nhạc
+// Màn quản trị PHẢI dùng hai đường dưới đây, nếu không thì sửa một mục là ghi rỗng lên trường mình
+// không đọc được, và tắt một mục đi là không còn đường bật lại.
+export const getAdminEventCategories = async () => {
+  return axiosClient.get('/admin/event-categories');
+};
+
+export const getAdminGenres = async () => {
+  return axiosClient.get('/admin/genres');
 };
 
 // ===== GỠ ĐÁNH GIÁ =====
@@ -94,36 +231,61 @@ export const removeRating = async (ratingId, reason) => {
   return axiosClient.post(`/admin/ratings/${ratingId}/remove`, { reason });
 };
 
-export const getAdminBankAccounts = async (params = {}) => {
-  return axiosClient.get('/admin/bank-accounts', { params });
+// ===== CẤU HÌNH HỆ THỐNG =====
+// Trả về MẢNG TRẦN các tham số. isMoneyRate đánh dấu tham số liên quan TỈ LỆ TIỀN — nhóm này có
+// ràng buộc chéo với nhau, đổi một cái có thể bị từ chối nếu tổng vượt ngưỡng cho phép.
+export const getSystemConfigs = async () => {
+  return axiosClient.get('/admin/system-config');
 };
 
-export const reviewBankAccount = async (id, approve, note = '') => {
-  return axiosClient.post(`/admin/bank-accounts/${id}/review`, { approve, note });
+export const getSystemConfigHistory = async (key) => {
+  return axiosClient.get(`/admin/system-config/${encodeURIComponent(key)}/history`);
 };
 
-// ===== DUYỆT ĐỊNH DANH (KYC) =====
-
-// (CCCD và hồ sơ thuế) được duyệt ĐỘC LẬP nhau.
-export const getKycReviewQueue = async (params = {}) => {
-  return axiosClient.get('/admin/kyc-reviews', { params });
+// ⚠ `note` BẮT BUỘC — đây là lý do ghi vào lịch sử thay đổi, không phải trường phụ. Đổi một tỉ lệ tiền
+// mà không ai biết vì sao là thứ không truy được về sau.
+export const updateSystemConfig = async (key, { configValue, note }) => {
+  return axiosClient.put(`/admin/system-config/${encodeURIComponent(key)}`, { configValue, note });
 };
 
-export const reviewKycDocument = async (userId, document, { approve, note = null }) => {
-  return axiosClient.post(`/admin/kyc-reviews/${userId}/${document}`, { approve, note });
+// Duyệt HẠNG VÉ bị đưa vào diện kiểm duyệt (cùng hệ với duyệt buổi phát).
+// decision: 'Approved' | 'Rejected'. Hạng vé chưa duyệt KHÔNG được tính vào khoảng giá hiển thị
+// trên thẻ buổi diễn, nên bỏ quên hàng đợi này là vé của chủ không bán được mà họ không hiểu vì sao.
+export const reviewTicketTier = async (tierId, decision, reviewNote = '') => {
+  if (decision !== 'Approved' && decision !== 'Rejected') {
+    return Promise.reject(new Error('decision chỉ nhận "Approved" hoặc "Rejected"'));
+  }
+  return axiosClient.post(`/moderations/ticket-tiers/${tierId}/review`, { decision, reviewNote });
 };
 
-export const getUserCitizenCardImage = async (userId, side) => {
-  return axiosClient.get(`/admin/users/${userId}/citizen-card/${side}`, { responseType: 'blob' });
-};
+// ===== SOÁT CẤU HÌNH HỆ THỐNG =====
+// Trả về DANH SÁCH CÁI ĐANG THIẾU, không bao giờ trả giá trị cấu hình (không lộ secret).
+// Mỗi dòng: { feature, key, impact, severity } với severity: 'Broken' = tính năng không dùng được,
+// 'Degraded' = vẫn chạy nhưng mất một lớp. Danh sách rỗng = không thiếu gì.
+// Đây là thứ đọc TRƯỚC khi đi tìm lỗi "tự nhiên tính năng X không chạy trên môi trường này".
+export const getConfigurationAudit = async () => axiosClient.get('/admin/configuration-audit');
 
-// ===== KIỂM TRA LEDGER =====
-
+// ===== KIỂM TRA TOÀN VẸN SỔ CÁI =====
+// Mỗi dòng là một bút toán LỆCH: { issueType, journalId, debitTotal, creditTotal, detail }.
+// Danh sách rỗng = sổ cái cân. Có dòng nào là chuyện của kế toán, KHÔNG phải lỗi giao diện —
+// đừng "sửa" bằng cách ẩn đi.
 export const getLedgerIntegrityCheck = async () => axiosClient.get('/admin/ledger/integrity-check');
 
+// ===== TÁC VỤ ĐỊNH KỲ (HANGFIRE) =====
+// getRecurringJobs trả về MẢNG CHUỖI (id của job), không phải object — không có tên hiển thị,
+// không có lần chạy gần nhất, không có trạng thái. Muốn xem chi tiết thì vào dashboard Hangfire.
+// triggerRecurringJob chạy job NGAY. Vài job trong số này động vào tiền (quyết toán, án phạt),
+// backend có ghi log ai bấm — nên giao diện phải hỏi lại trước khi chạy.
 export const getRecurringJobs = async () => axiosClient.get('/admin/jobs');
 
 export const triggerRecurringJob = async (jobId) => {
   if (!jobId) return Promise.reject(new Error('Thiếu id tác vụ.'));
   return axiosClient.post(`/admin/jobs/${encodeURIComponent(jobId)}/trigger`);
 };
+
+// ===== NHẬT KÝ BẰNG CHỨNG CỦA MỘT KHOẢN DONATE =====
+// Chuỗi sự kiện có băm nối tiếp nhau (hash / previousHash). `chainIntact = false` nghĩa là có dòng
+// bị sửa, bị xoá hoặc bị chèn thêm sau khi ghi — và `firstBrokenSequence` là dòng đầu tiên lệch.
+// Đây là bằng chứng dùng khi nghệ sĩ và phòng trà nói khác nhau về việc đã chuyển tiền chưa.
+export const getDonationEvidence = async (donationId) =>
+  axiosClient.get(`/admin/donations/${donationId}/evidence`);
