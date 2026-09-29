@@ -5,6 +5,7 @@ import { getAdminComplaints } from '../../services/adminServices'
 import { CATEGORY_CONFIG, STATUS_CONFIG, TARGET_TYPE_LABELS } from '../../components/admin/complaints/ComplaintBadges'
 import ComplaintsTable from '../../components/admin/complaints/ComplaintsTable'
 import ComplaintDetailModal from '../../components/admin/complaints/ComplaintDetailModal'
+import ComplaintsFilterBar from '../../components/admin/complaints/ComplaintsFilterBar'
 
 
 const AdminComplaintPage = () => {
