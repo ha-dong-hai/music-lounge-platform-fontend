@@ -34,6 +34,8 @@ import NotificationsPage from '../pages/user/NotificationsPage'
 import LoginPage from '../pages/auth/LoginPage'
 import AdminInsightsPage from '../pages/admin/AdminInsightsPage'
 import AdminKycReviewsPage from '../pages/admin/AdminKycReviewsPage'
+import AdminLedgerPage from '../pages/admin/AdminLedgerPage'
+import AdminPenaltyAppealsPage from '../pages/admin/AdminPenaltyAppealsPage'
 
 const AppRouter = createBrowserRouter([
   {
@@ -85,7 +87,9 @@ const AppRouter = createBrowserRouter([
       { path: 'filter-options', element: <AdminFilterOptionsPage /> },
       { path: 'kyc-reviews', element: <AdminKycReviewsPage /> },
       { path: 'insights', element: <AdminInsightsPage /> },
+      { path: 'ledger', element: <AdminLedgerPage /> },
       { path: 'bank-accounts', element: <AdminBankAccountsPage /> },
+      { path: 'penalty-appeals', element: <AdminPenaltyAppealsPage /> },
     ]
   },
 

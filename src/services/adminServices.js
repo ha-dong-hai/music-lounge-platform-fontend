@@ -116,3 +116,14 @@ export const reviewKycDocument = async (userId, document, { approve, note = null
 export const getUserCitizenCardImage = async (userId, side) => {
   return axiosClient.get(`/admin/users/${userId}/citizen-card/${side}`, { responseType: 'blob' });
 };
+
+// ===== KIỂM TRA LEDGER =====
+
+export const getLedgerIntegrityCheck = async () => axiosClient.get('/admin/ledger/integrity-check');
+
+export const getRecurringJobs = async () => axiosClient.get('/admin/jobs');
+
+export const triggerRecurringJob = async (jobId) => {
+  if (!jobId) return Promise.reject(new Error('Thiếu id tác vụ.'));
+  return axiosClient.post(`/admin/jobs/${encodeURIComponent(jobId)}/trigger`);
+};
