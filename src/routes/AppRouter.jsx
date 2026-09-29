@@ -36,6 +36,8 @@ import AdminInsightsPage from '../pages/admin/AdminInsightsPage'
 import AdminKycReviewsPage from '../pages/admin/AdminKycReviewsPage'
 import AdminLedgerPage from '../pages/admin/AdminLedgerPage'
 import AdminPenaltyAppealsPage from '../pages/admin/AdminPenaltyAppealsPage'
+import AdminRefundsPage from '../pages/admin/AdminRefundsPage'
+import AdminSettlementsPage from '../pages/admin/AdminSettlementsPage'
 
 const AppRouter = createBrowserRouter([
   {
@@ -90,6 +92,8 @@ const AppRouter = createBrowserRouter([
       { path: 'ledger', element: <AdminLedgerPage /> },
       { path: 'bank-accounts', element: <AdminBankAccountsPage /> },
       { path: 'penalty-appeals', element: <AdminPenaltyAppealsPage /> },
+      { path: 'refunds', element: <AdminRefundsPage /> },
+      { path: 'settlements', element: <AdminSettlementsPage /> },
     ]
   },
 
