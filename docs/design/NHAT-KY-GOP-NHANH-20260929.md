@@ -175,6 +175,40 @@ JSX, màu mặc định, gọi thẳng `.format()` → đều đỏ.
 | `kiem-gsap` | đỏ — **cố ý**, là định nghĩa hoàn thành của việc chuyển sang framer-motion |
 | 7 bộ kiểm `src/utils/*.test.mjs` | **cả 7 qua** |
 
-**Chưa kiểm — nói rõ để không ai tưởng đã xong:** chưa mở trang nào trong trình duyệt. Build xanh và lint
-sạch **không** chứng minh trang hiển thị được — ba lỗi sập trang ở §7 đều là loại chỉ lộ lúc chạy, và chỉ bị
-bắt nhờ lint `no-undef`. Còn 40 lỗi lint khác, đều có sẵn từ một trong hai nhánh cha.
+**Lúc commit gộp (132e233) chưa mở trang nào trong trình duyệt** — build xanh và lint sạch không chứng minh
+trang hiển thị được; ba lỗi sập trang ở §7 chỉ bị bắt nhờ lint `no-undef`. Còn 40 lỗi lint khác, đều có sẵn
+từ một trong hai nhánh cha. Việc kiểm lúc chạy làm ở mục dưới.
+
+## 9. Kiểm lúc chạy (30/09) — mở thật từng địa chỉ, 5 vai
+
+**Môi trường — không chạm Azure:** backend dựng từ `origin/master` 413dcc8 trong worktree riêng, database
+riêng trên SQL Express của máy (`SU26SE039_FE_KIEM`, migrate mới), mọi khoá bí mật để trống (Email.Host rỗng
+→ OTP chỉ in ra log, không gửi mail). Dữ liệu dựng bằng chính API (đăng ký + OTP, tạo 2 phòng trà, Admin
+duyệt 1, gán nhân viên) + `DemoDataScript.Seed` (12 buổi diễn, 12 khán giả). Web chạy vite với cấu hình tạm
+trỏ `/api`, `/uploads`, `/hubs` về máy. Bộ quét **huỷ mọi request tới `*.azurewebsites.net`** và đếm: 0.
+
+**Kết quả:** 96 lượt (khách 28 · khán giả 10 · chủ 20 · nhân viên 20 · Admin 18), đăng nhập qua giao diện đủ
+4 vai, **0 trang sập**. Bộ quét được chứng minh bắt được lỗi: chèn một biến chưa khai báo vào
+ForgotPasswordPage → báo SẬP, trang đối chứng /login vẫn xanh; file khôi phục, cmp khớp.
+
+**Lỗi thật tìm được — có sẵn ở nhánh cha, không do gộp:**
+1. **Nhân viên không bán được vé tại quầy trên web (ĐÃ SỬA).** Trang Vận hành lấy danh sách buổi diễn từ
+   `/lounge-shows/mine` (RequireOwner → nhân viên 403, trang hiện "chưa có buổi diễn" dù có), và lấy giá để
+   bán từ `ticket-stats` (có doanh thu, chỉ chủ/Admin → 403, "chưa có hạng vé nào để bán"). Sửa: danh sách
+   theo `?mine=true` (OperatedShows, MLACP-466 — như OwnerLivestreamsPage), giá từ `/ticket-tiers` lọc đúng
+   hai điều kiện của SellWalkInTicketCommandHandler (hạng Physical, đợt giá không chỉ-Online). **Kiểm đầu-cuối:**
+   nhân viên đăng nhập, bán 1 vé thật trên DB kiểm → toast "Đã bán 1 vé tại quầy.", chỗ còn 80 → 79, 0 lỗi API.
+2. **Khách chưa đăng nhập mở được /account, /notifications, /my-shows/ticket/:id (ĐÃ SỬA)** → form rỗng +
+   toast lỗi (API 401). Sửa: bọc `ProtectedRoute` ở router → sang /login kèm `state.from`. Kiểm hai chiều:
+   khách bị chuyển, khán giả đã đăng nhập vẫn vào đủ, 0 lỗi.
+3. **`useLivestreamHub.js` ghi cứng địa chỉ hub Azure (ĐÃ SỬA)**, bỏ qua `VITE_API_BASE_URL` — chạy ở máy
+   vẫn nối production. Nay lấy cùng máy chủ với axios (`new URL('/hubs/livestream', baseURL)`); mặc định vẫn
+   ra đúng địa chỉ Azure cũ khi không đặt biến môi trường.
+
+**Việc của backend (không tự sửa — cần chủ dự án mở task):** route `GET /lounge-shows/mine` vẫn gắn
+`RequireOwner` trong khi handler của nó đã được MLACP-466 làm cho hiểu vai nhân viên → nửa sửa đó không bao
+giờ tới được nhân viên; 4 test của MLACP-466 không phủ tầng quyền của route này.
+
+**Chưa kiểm:** trang nghệ sĩ có dữ liệu thật (DB kiểm chưa có nghệ sĩ — trang báo "Không tìm thấy" đúng); các
+luồng có thanh toán VNPay (không có khoá sandbox trên máy); giao diện điện thoại; mọi thao tác ghi khác ngoài
+bán vé tại quầy.

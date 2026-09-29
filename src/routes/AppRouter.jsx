@@ -76,10 +76,14 @@ const AppRouter = createBrowserRouter([
       { path: 'shows', element: <ShowListPage /> },
       { path: 'shows/search', element: <ShowSearchPage /> },
       { path: 'shows/:id', element: <EventDetailPage /> },
-      { path: 'account', element: <AccountPage /> },
+      // Ba trang dưới chỉ có nghĩa khi đã đăng nhập: trước đây không bọc gì, khách mở vào thấy form
+      // rỗng + toast "Không tải được…" vì API trả 401 (đo 30/09). Bọc ở router để khách sang /login kèm
+      // state.from và đăng nhập xong quay lại đúng trang. /my-shows cố ý KHÔNG bọc: trang đó tự hiện
+      // khung "Bạn cần đăng nhập" ngay trong trang, không gọi API khi chưa đăng nhập.
+      { path: 'account', element: <ProtectedRoute><AccountPage /></ProtectedRoute> },
       { path: 'my-shows', element: <MyShowsPage /> },
-      { path: 'notifications', element: <NotificationsPage /> },
-      { path: 'my-shows/ticket/:ticketId', element: <TicketDetailPage /> },
+      { path: 'notifications', element: <ProtectedRoute><NotificationsPage /></ProtectedRoute> },
+      { path: 'my-shows/ticket/:ticketId', element: <ProtectedRoute><TicketDetailPage /></ProtectedRoute> },
       { path: 'lounges', element: <LoungeListPage /> },
       { path: 'lounge/:id', element: <LoungeDetailPage /> }, 
       { path: 'lounge/:id/order', element: <FnbOrderPage /> },

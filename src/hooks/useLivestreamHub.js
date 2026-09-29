@@ -4,8 +4,12 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 import * as signalR from '@microsoft/signalr'
 import { useAuthStore } from '../store/useAuthStore'
+import axiosClient from '../config/axios'
 
-const HUB_BASE_URL = 'https://musiclounge-api.azurewebsites.net/hubs/livestream'
+// Lấy cùng máy chủ với axios (một nguồn: VITE_API_BASE_URL, mặc định Azure) — '/hubs/...' là đường dẫn
+// tuyệt đối nên thay hẳn phần '/api/v1'. Bản trước ghi cứng địa chỉ Azure, nên chạy web ở máy trỏ
+// backend máy thì livestream vẫn nối production (đo 30/09).
+const HUB_BASE_URL = new URL('/hubs/livestream', axiosClient.defaults.baseURL).href
 
 export const useLivestreamHub = (livestreamId, handlers = {}) => {
   const [connectionState, setConnectionState] = useState('idle')

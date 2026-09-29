@@ -15,6 +15,11 @@
 // - DANH SÁCH KHÁCH có TÊN và EMAIL người mua. Vì vậy nó không tự tải khi mở trang: phải bấm mới
 //   tải, và chỉ tải cho buổi diễn đang chọn. Đừng đưa danh sách này ra màn nào người ngoài xem được,
 //   và đừng in nó ra log.
+// - DANH SÁCH GIÁ ĐỂ BÁN TẠI QUẦY lấy từ GET /ticket-tiers (AllowAnonymous), KHÔNG lấy từ ticket-stats.
+//   ticket-stats có doanh thu nên chỉ chủ/Admin xem được — bản trước dựng ô chọn giá từ đó, nên nhân
+//   viên (người đứng quầy) nhận 403 và thấy "chưa có hạng vé nào để bán": không bán được vé nào (đo
+//   30/09). Lọc đúng hai điều kiện backend kiểm ở SellWalkInTicketCommandHandler: hạng vé Physical và
+//   đợt giá KHÔNG phải chỉ-Online — không lọc thì đưa ra lựa chọn mà máy chủ sẽ từ chối.
 import { useState, useEffect, useCallback, useRef } from 'react'
 import {
   Loader2, Play, Square, QrCode, Ticket, Search, CheckCircle2, XCircle, Users, Banknote, RefreshCw,
@@ -22,7 +27,8 @@ import {
 } from 'lucide-react'
 import dayjs from 'dayjs'
 import toast from 'react-hot-toast'
-import { getMyShows, startShow, endShow, getShowTicketStats, getShowOrders } from '../../services/showServices'
+import { getShows, startShow, endShow, getShowTicketStats, getShowOrders, getTicketTiers } from '../../services/showServices'
+import { useAuthStore } from '../../store/useAuthStore'
 import { getTicketByQr, checkInTicket, sellWalkInTicket } from '../../services/ticketServices'
 
 const fmtMoney = (v) => `${Number(v || 0).toLocaleString('vi-VN')}đ`
@@ -63,13 +69,20 @@ const OwnerOperatePage = () => {
   const [priceId, setPriceId] = useState('')
   const [quantity, setQuantity] = useState(1)
   const clientRequestIdRef = useRef(null)
+  const [giaBanQuay, setGiaBanQuay] = useState([])
+  // Số liệu vé có doanh thu — backend chỉ mở cho chủ/Admin; nhân viên không gọi để khỏi nhận 403.
+  const xemDuocSoLieu = useAuthStore((st) => st.user?.role) !== 'Staff'
 
   const showDangChon = shows.find((s) => s.id === showId) ?? null
 
   const loadShows = useCallback(async () => {
     setIsLoading(true)
     try {
-      const res = await getMyShows({ pageSize: 100 })
+      // GET /lounge-shows?mine=true chứ KHÔNG phải /lounge-shows/mine: route /mine gắn RequireOwner nên
+      // nhân viên nhận 403 và màn này hiện "chưa có buổi diễn" dù phòng trà có (đo 30/09 trên backend
+      // chạy máy). ?mine=true đi qua OperatedShows (MLACP-466): nhân viên thấy buổi của phòng trà mình
+      // vận hành, chủ thấy buổi của mình — đúng cách OwnerLivestreamsPage đang làm.
+      const res = await getShows({ mine: true, pageSize: 100 })
       if (res.success) {
         const items = res.data.items ?? []
         setShows(items)
@@ -110,8 +123,28 @@ const OwnerOperatePage = () => {
     } finally { setBusy(null) }
   }
 
+  const loadGiaBanQuay = useCallback(async () => {
+    if (!showId) { setGiaBanQuay([]); return }
+    try {
+      const res = await getTicketTiers(showId)
+      const tiers = res.success ? res.data ?? [] : []
+      setGiaBanQuay(
+        tiers
+          .filter((t) => t.accessType === 'Physical')
+          .flatMap((t) => (t.prices ?? [])
+            .filter((p) => p.purchaseChannel !== 'Online')
+            .map((p) => ({ priceId: p.id, tierName: t.name, priceName: p.name, unitPrice: p.price, conLai: p.availableSlots }))),
+      )
+    } catch (err) {
+      setGiaBanQuay([])
+      toast.error(err.response?.data?.message || 'Không tải được hạng vé để bán.')
+    }
+  }, [showId])
+
+  useEffect(() => { const chay = async () => { await loadGiaBanQuay() }; chay() }, [loadGiaBanQuay])
+
   const loadStats = useCallback(async () => {
-    if (!showId) { setStats(null); return }
+    if (!showId || !xemDuocSoLieu) { setStats(null); return }
     setIsLoadingStats(true)
     try {
       const res = await getShowTicketStats(showId)
@@ -125,7 +158,7 @@ const OwnerOperatePage = () => {
     } finally {
       setIsLoadingStats(false)
     }
-  }, [showId])
+  }, [showId, xemDuocSoLieu])
 
   useEffect(() => { const chay = async () => { await loadStats() }; chay() }, [loadStats])
 
@@ -199,7 +232,7 @@ const OwnerOperatePage = () => {
         toast.success(`Đã bán ${quantity} vé tại quầy.`)
         clientRequestIdRef.current = null // lượt bán kết thúc — lượt sau phải có mã mới
         setQuantity(1)
-        await loadStats()
+        await Promise.all([loadStats(), loadGiaBanQuay()])
       }
     } catch (err) {
       // KHÔNG xoá mã ở đây: lần bấm lại phải mang đúng mã cũ thì chốt chống trùng mới có tác dụng.
@@ -341,9 +374,9 @@ const OwnerOperatePage = () => {
           title="Bán vé tại quầy"
           subtitle="Dành cho khách tới thẳng cửa. Bấm lại sau khi mất mạng sẽ KHÔNG thu tiền hai lần — hệ thống nhận ra cùng một lượt bán."
         >
-          {!stats || stats.byPrice.length === 0 ? (
+          {giaBanQuay.length === 0 ? (
             <p className="py-6 text-center text-sm text-ink-mute">
-              Buổi diễn này chưa có hạng vé nào để bán.
+              Buổi diễn này không có đợt giá nào bán tại quầy — chỉ bán online, hoặc chưa có hạng vé vào cửa.
             </p>
           ) : (
             <form onSubmit={handleSell} className="space-y-3">
@@ -352,9 +385,10 @@ const OwnerOperatePage = () => {
                 <select value={priceId} onChange={(e) => setPriceId(e.target.value)}
                   className="mt-1 w-full px-3 py-2 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-brand/50">
                   <option value="">— chọn hạng vé —</option>
-                  {stats.byPrice.map((p) => (
-                    <option key={p.priceId} value={p.priceId}>
+                  {giaBanQuay.map((p) => (
+                    <option key={p.priceId} value={p.priceId} disabled={p.conLai === 0}>
                       {p.tierName} · {p.priceName} — {fmtMoney(p.unitPrice)}
+                      {p.conLai != null ? ` · còn ${p.conLai}` : ''}
                     </option>
                   ))}
                 </select>
