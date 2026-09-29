@@ -20,9 +20,9 @@ import OptionTypeTab from '../../components/admin/filter-options/OptionTypeTab'
 // Cấu hình 4 tab — genres có nameEn, eventCategories có description, 2 loại kia chỉ có name.
 // `typeKey` phải trùng khoá trong FILTER_OPTION_TYPES ở adminServices.js.
 const TABS = [
-  { key: 'genres',          label: 'Genres',          typeLabel: 'Genre',          hasNameEn: true },
-  { key: 'moods',           label: 'Moods',           typeLabel: 'Mood',           hasNameEn: false },
-  { key: 'atmospheres',     label: 'Atmospheres',     typeLabel: 'Atmosphere',     hasNameEn: false },
+  { key: 'genres',          label: 'Thể loại',          typeLabel: 'Genre',          hasNameEn: true },
+  { key: 'moods',           label: 'Tâm trạng',           typeLabel: 'Mood',           hasNameEn: false },
+  { key: 'atmospheres',     label: 'Không gian',     typeLabel: 'Atmosphere',     hasNameEn: false },
   { key: 'eventCategories', label: 'Loại buổi diễn',  typeLabel: 'Loại buổi diễn', hasNameEn: false, hasDescription: true, hasIsActive: true },
 ]
 
@@ -49,7 +49,7 @@ const AdminFilterOptionsPage = () => {
         cities: d.cities || [],
       }))
     } else {
-      toast.error('Failed to load filter options')
+      toast.error('Không tải được danh mục bộ lọc.')
     }
 
     if (theLoai.status === 'fulfilled' && theLoai.value?.success) {
@@ -78,7 +78,7 @@ const AdminFilterOptionsPage = () => {
       <div className="flex items-center gap-3 mb-6">
         <SlidersHorizontal size={28} className="text-brand-text" />
         <div>
-          <h1 className="text-2xl font-bold text-ink">Filter Options</h1>
+          <h1 className="text-2xl font-bold text-ink">Bộ lọc & phân loại</h1>
           <p className="text-ink-soft text-sm">
             Manage genres, moods, atmospheres and event categories used in show filters across the platform.
           </p>

@@ -19,6 +19,7 @@ import toast from 'react-hot-toast'
 import { getLoungeDetail } from '../../services/loungeServices'
 import { getMenus, getMenuItems, createFnbOrder, getMyFnbOrders, payFnbOrder } from '../../services/fnbServices'
 import { useAuthStore } from '../../store/useAuthStore'
+import { ghiNhoThanhToan, LOAI_THANH_TOAN } from '../../utils/paymentContext'
 
 const fmtMoney = (v) => `${Number(v || 0).toLocaleString('vi-VN')}đ`
 
@@ -138,6 +139,8 @@ const FnbOrderPage = () => {
     try {
       const res = await payFnbOrder(orderId)
       if (res.success && res.data?.paymentUrl) {
+        // Kèm đường quay về đúng thực đơn của quán khách đang ngồi.
+        ghiNhoThanhToan(LOAI_THANH_TOAN.GOI_MON, window.location.pathname)
         window.location.assign(res.data.paymentUrl)
         return
       }

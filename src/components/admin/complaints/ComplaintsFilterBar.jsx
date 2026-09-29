@@ -14,7 +14,7 @@ const ComplaintsFilterBar = ({
         <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-mute" />
         <input
           type="text"
-          placeholder="Search Complaint, Number, #ID... (trong trang hiện tại)"
+          placeholder="Tìm theo nội dung, số điện thoại, #mã (trong trang hiện tại)"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="w-full pl-10 pr-4 py-2.5 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-brand/50"
@@ -26,7 +26,7 @@ const ComplaintsFilterBar = ({
         onChange={(e) => setCategoryFilter(e.target.value)}
         className="w-full lg:w-auto px-4 py-2.5 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-brand/50 cursor-pointer"
       >
-        <option value="all">All categories</option>
+        <option value="all">Mọi phân loại</option>
         {Object.keys(CATEGORY_CONFIG).map(key => (
           <option key={key} value={key}>{CATEGORY_CONFIG[key].label}</option>
         ))}
@@ -37,13 +37,13 @@ const ComplaintsFilterBar = ({
         onChange={(e) => setStatusFilter(e.target.value)}
         className="w-full lg:w-auto px-4 py-2.5 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-brand/50 cursor-pointer"
       >
-        <option value="all">All statuses</option>
+        <option value="all">Mọi trạng thái</option>
         {/* Trang dùng GET /admin/complaints (mọi trạng thái) và gửi lựa chọn này lên server qua tham số status.
             Đúng 4 giá trị Complaint.Status của backend — sai tên thì backend trả 422. */}
-        <option value="Open">Pending</option>
-        <option value="Investigating">Investigating</option>
-        <option value="Resolved">Resolved</option>
-        <option value="Rejected">Rejected</option>
+        <option value="Open">Chờ xử lý</option>
+        <option value="Investigating">Đang xem xét</option>
+        <option value="Resolved">Đã giải quyết</option>
+        <option value="Rejected">Đã từ chối</option>
       </select>
     </div>
   )

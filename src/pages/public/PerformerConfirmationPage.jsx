@@ -33,12 +33,12 @@ const STATE_VIEW = {
   Expired: {
     tieuDe: 'Liên kết đã hết hạn',
     mo: 'Hãy liên hệ phòng trà để họ gửi lại một liên kết mới.',
-    cls: 'border-yellow-500/30', icon: Clock, mauIcon: 'text-warning',
+    cls: 'border-warning/30', icon: Clock, mauIcon: 'text-warning',
   },
   Outdated: {
     tieuDe: 'Thông tin đã thay đổi sau khi liên kết được gửi',
     mo: 'Tài khoản nhận tiền đã bị sửa sau khi email được gửi, nên nội dung trong liên kết này không còn đúng. Hãy liên hệ phòng trà để họ gửi lại liên kết mới.',
-    cls: 'border-red-500/30', icon: AlertTriangle, mauIcon: 'text-danger',
+    cls: 'border-danger/30', icon: AlertTriangle, mauIcon: 'text-danger',
   },
 }
 
@@ -117,7 +117,7 @@ const PerformerConfirmationPage = () => {
   if (loi || !info) {
     return (
       <Khung>
-        <div className="bg-card border border-red-500/30 rounded-2xl p-6">
+        <div className="bg-card border border-danger/30 rounded-2xl p-6">
           <AlertTriangle size={22} className="text-danger mb-3" />
           <h1 className="text-xl font-bold mb-2">Không mở được liên kết</h1>
           <p className="text-sm text-ink-soft leading-relaxed">{loi}</p>
@@ -129,7 +129,7 @@ const PerformerConfirmationPage = () => {
   if (daTraLoi) {
     return (
       <Khung>
-        <div className="bg-card border border-green-500/30 rounded-2xl p-6">
+        <div className="bg-card border border-success/30 rounded-2xl p-6">
           <CheckCircle2 size={22} className="text-success mb-3" />
           <h1 className="text-xl font-bold mb-2">Đã ghi nhận</h1>
           <p className="text-sm text-ink-soft leading-relaxed">
@@ -208,7 +208,7 @@ const PerformerConfirmationPage = () => {
 
         <button onClick={() => setDecision('Confirm')}
           className={`w-full text-left p-4 rounded-xl border transition-colors ${decision === 'Confirm'
-            ? 'bg-green-500/10 border-green-500/40' : 'bg-card border-line hover:border-line'}`}>
+            ? 'bg-success/10 border-success/40' : 'bg-card border-line hover:border-line'}`}>
           <span className="flex items-center gap-2 text-sm font-medium text-ink">
             <CheckCircle2 size={16} className="text-success" /> Đúng, tôi đã nhận
           </span>
@@ -219,7 +219,7 @@ const PerformerConfirmationPage = () => {
 
         <button onClick={() => setDecision('Dispute')}
           className={`w-full text-left p-4 rounded-xl border transition-colors ${decision === 'Dispute'
-            ? 'bg-red-500/10 border-red-500/40' : 'bg-card border-line hover:border-line'}`}>
+            ? 'bg-danger/10 border-danger/40' : 'bg-card border-line hover:border-line'}`}>
           <span className="flex items-center gap-2 text-sm font-medium text-ink">
             <XCircle size={16} className="text-danger" /> Không đúng, hoặc tôi chưa nhận
           </span>

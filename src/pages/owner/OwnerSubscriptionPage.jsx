@@ -19,6 +19,7 @@ import {
   changePackage,
   cancelSubscription,
 } from '../../services/packageServices'
+import { ghiNhoThanhToan, LOAI_THANH_TOAN } from '../../utils/paymentContext'
 
 const fmtMoney = (v) => `${Number(v || 0).toLocaleString('vi-VN')}đ`
 
@@ -55,6 +56,9 @@ const OwnerSubscriptionPage = () => {
     try {
       const res = await fn()
       if (res.success && res.data?.paymentUrl) {
+        // Ghi lại đây là thanh toán GÓI DỊCH VỤ để trang /payment/success nói đúng luồng
+        // (backend redirect về URL cố định, không kèm query param — xem utils/paymentContext.js).
+        ghiNhoThanhToan(LOAI_THANH_TOAN.GOI)
         window.location.href = res.data.paymentUrl
         return
       }

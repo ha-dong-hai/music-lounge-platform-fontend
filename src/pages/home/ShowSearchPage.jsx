@@ -7,7 +7,7 @@
 //   không sửa được bộ lọc; và `apiError` không bao giờ được xoá nên đổi bộ lọc cũng không thoát. Nay đầu trang + bộ lọc luôn
 //   ở đó, chỉ vùng kết quả đổi trạng thái, và `apiError` được xoá mỗi lần tải lại.
 // - Bỏ chuỗi tiếng Anh còn sót ("Oops!", "Unable to connect to backend.", "Data loading error", "From/To") và màu cứng
-//   text-gray-800 (trên nền sáng thì đọc được, nhưng lệch token).
+//   text-ink (trên nền sáng thì đọc được, nhưng lệch token).
 // - Thẻ lọc đang bật là nút cả viên (44px, có tên "Bỏ lọc …") thay cho nút X 12px; thêm "Xoá tất cả bộ lọc".
 // - Trạng thái rỗng nói khác nhau khi ĐANG lọc (gợi ý nới bộ lọc, có nút xoá) và khi không lọc.
 // - Nút phân trang có tên và vùng chạm 44px; sang trang thì cuộn về đầu danh sách.

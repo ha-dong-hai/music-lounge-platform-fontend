@@ -201,7 +201,9 @@ const AdminDashboard = () => {
       </div>
 
       {/* === DOANH THU 6 THÁNG — một nút chuyển đại lượng, áp cho cả hai khối bên dưới === */}
-      {dashboard ? (
+      {/* Chỉ vẽ khi `months` đúng là mảng: dữ liệu lệch dạng thì rơi về nhánh "chưa có dữ liệu" bên dưới thay vì sập cả trang
+          (`months.at` trên undefined). */}
+      {dashboard && Array.isArray(dashboard.months) ? (
         <div className="space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <h2 className="text-sm font-semibold text-ink-soft">Doanh thu 6 tháng gần nhất</h2>

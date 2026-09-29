@@ -20,11 +20,11 @@ const AccountsTable = ({
         <table className="w-full text-left whitespace-nowrap">
           <thead className="bg-sunken/70 border-b border-line">
             <tr>
-              <th className="p-4 text-xs font-semibold text-ink-soft uppercase tracking-wider">Account</th>
-              <th className="p-4 text-xs font-semibold text-ink-soft uppercase tracking-wider">Role</th>
-              <th className="p-4 text-xs font-semibold text-ink-soft uppercase tracking-wider">Created at</th>
-              <th className="p-4 text-xs font-semibold text-ink-soft uppercase tracking-wider">Status</th>
-              <th className="p-4 text-xs font-semibold text-ink-soft uppercase tracking-wider text-right">Action</th>
+              <th className="p-4 text-xs font-semibold text-ink-soft uppercase tracking-wider">Tài khoản</th>
+              <th className="p-4 text-xs font-semibold text-ink-soft uppercase tracking-wider">Vai trò</th>
+              <th className="p-4 text-xs font-semibold text-ink-soft uppercase tracking-wider">Ngày tạo</th>
+              <th className="p-4 text-xs font-semibold text-ink-soft uppercase tracking-wider">Trạng thái</th>
+              <th className="p-4 text-xs font-semibold text-ink-soft uppercase tracking-wider text-right">Thao tác</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-line">
@@ -72,7 +72,7 @@ const AccountsTable = ({
               <tr>
                 <td colSpan="5" className="p-10 text-center text-ink-mute">
                   <UsersIcon size="32" className="mx-auto mb-3 opacity-50" />
-                  No matching account found.
+                  Không tìm thấy tài khoản phù hợp.
                 </td>
               </tr>
             )}

@@ -29,7 +29,7 @@ const ComplaintDetailModal = ({ complaint, onClose, onResolve }) => {
         {/* HEADER */}
         <div className="flex-none flex justify-between items-start p-6 border-b border-line">
           <div>
-            <p className="text-sm text-ink-mute mb-1">Report detail</p>
+            <p className="text-sm text-ink-mute mb-1">Chi tiết khiếu nại</p>
             <h2 className="text-xl font-bold text-ink font-mono">#{c.id}</h2>
           </div>
           <button onClick={onClose} className="p-2 hover:bg-sunken rounded-full text-ink-soft">
@@ -41,32 +41,32 @@ const ComplaintDetailModal = ({ complaint, onClose, onResolve }) => {
         <div className="flex-1 overflow-y-auto p-6 space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <p className="text-xs text-ink-mute mb-1.5">Complaint Target</p>
+              <p className="text-xs text-ink-mute mb-1.5">Đối tượng bị khiếu nại</p>
               <p className="text-sm text-ink font-medium">
                 {TARGET_TYPE_LABELS[c.targetType] || c.targetType} <span className="text-ink-mute">#{c.targetId}</span>
               </p>
             </div>
             <div>
-              <p className="text-xs text-ink-mute mb-1.5">Catergory</p>
+              <p className="text-xs text-ink-mute mb-1.5">Phân loại</p>
               <CategoryBadge category={c.category} />
             </div>
             <div>
-              <p className="text-xs text-ink-mute mb-1.5">Status</p>
+              <p className="text-xs text-ink-mute mb-1.5">Trạng thái</p>
               <StatusBadge status={c.status} />
             </div>
             <div>
-              <p className="text-xs text-ink-mute mb-1.5">Created at</p>
+              <p className="text-xs text-ink-mute mb-1.5">Ngày gửi</p>
               <p className="text-sm text-ink">{dayjs(c.createdAt).format('HH:mm:ss DD/MM/YYYY')}</p>
             </div>
             <div>
-              <p className="text-xs text-ink-mute mb-1.5">Sender</p>
+              <p className="text-xs text-ink-mute mb-1.5">Người gửi</p>
               <p className="text-sm text-ink font-medium flex items-center gap-1.5">
                 <User size={13} className="text-ink-mute" />
-                {c.complainantName || <span className="italic text-ink-mute">Anonymous</span>}
+                {c.complainantName || <span className="italic text-ink-mute">Ẩn danh</span>}
               </p>
             </div>
             <div>
-              <p className="text-xs text-ink-mute mb-1.5">Contact Number</p>
+              <p className="text-xs text-ink-mute mb-1.5">Số điện thoại liên hệ</p>
               <p className="text-sm text-ink font-mono flex items-center gap-1.5">
                 <Phone size={13} className="text-ink-mute" />
                 {c.contactPhone || '—'}
@@ -76,7 +76,7 @@ const ComplaintDetailModal = ({ complaint, onClose, onResolve }) => {
 
           {/* NỘI DUNG KHIẾU NẠI */}
           <div>
-            <p className="text-xs text-ink-mute mb-1.5">Complaint description</p>
+            <p className="text-xs text-ink-mute mb-1.5">Nội dung khiếu nại</p>
             <p className="text-sm text-ink-soft leading-relaxed bg-sunken/50 p-3 rounded-md whitespace-pre-line">
               {c.description || 'None'}
             </p>

@@ -41,16 +41,16 @@ const OptionTypeTab = ({ typeKey, typeLabel, hasNameEn, hasDescription, hasIsAct
         : await createFilterOption(typeKey, formData)
 
       if (res.success) {
-        toast.success(editingOption ? 'Updated successfully!' : 'Created successfully!')
+        toast.success(editingOption ? 'Đã cập nhật.' : 'Đã tạo mới.')
         setIsFormOpen(false)
         onRefresh() // refetch cả 3 loại về page
       } else {
-        toast.error(res.message || 'Operation failed.')
+        toast.error(res.message || 'Thao tác không thành công.')
       }
     } catch (err) {
       // BE có thể trả lỗi nghiệp vụ: VD genre đang được show dùng → không cho xóa
       const beMessage = err?.response?.data?.message
-      toast.error(beMessage || 'Operation failed.')
+      toast.error(beMessage || 'Thao tác không thành công.')
     } finally {
       setIsSaving(false)
     }
@@ -63,15 +63,15 @@ const OptionTypeTab = ({ typeKey, typeLabel, hasNameEn, hasDescription, hasIsAct
     try {
       const res = await deleteFilterOption(typeKey, deleteTarget.id)
       if (res.success) {
-        toast.success(`Deleted "${deleteTarget.name}"`)
+        toast.success(`Đã xoá "${deleteTarget.name}"`)
         setDeleteTarget(null)
         onRefresh()
       } else {
-        toast.error(res.message || 'Delete failed.')
+        toast.error(res.message || 'Không xoá được.')
       }
     } catch (err) {
       const beMessage = err?.response?.data?.message
-      toast.error(beMessage || 'Delete failed.')
+      toast.error(beMessage || 'Không xoá được.')
     } finally {
       setIsDeleting(false)
     }
@@ -130,7 +130,7 @@ const OptionTypeTab = ({ typeKey, typeLabel, hasNameEn, hasDescription, hasIsAct
             <thead className="bg-sunken/70 border-b border-line">
               <tr>
                 <th className="p-4 text-xs font-semibold text-ink-soft uppercase tracking-wider w-24">ID</th>
-                <th className="p-4 text-xs font-semibold text-ink-soft uppercase tracking-wider">Name</th>
+                <th className="p-4 text-xs font-semibold text-ink-soft uppercase tracking-wider">Tên</th>
                 {hasNameEn && (
                   <th className="p-4 text-xs font-semibold text-ink-soft uppercase tracking-wider">Name (EN)</th>
                 )}
@@ -140,7 +140,7 @@ const OptionTypeTab = ({ typeKey, typeLabel, hasNameEn, hasDescription, hasIsAct
                 {coTat && (
                   <th className="p-4 text-xs font-semibold text-ink-soft uppercase tracking-wider">Trạng thái</th>
                 )}
-                <th className="p-4 text-xs font-semibold text-ink-soft uppercase tracking-wider text-right">Actions</th>
+                <th className="p-4 text-xs font-semibold text-ink-soft uppercase tracking-wider text-right">Thao tác</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-line">
@@ -171,7 +171,7 @@ const OptionTypeTab = ({ typeKey, typeLabel, hasNameEn, hasDescription, hasIsAct
                         <button
                           onClick={() => openEdit(opt)}
                           className="p-2 rounded-lg bg-line/30 text-ink-soft hover:bg-line/50 hover:text-brand-text transition-colors"
-                          title="Edit"
+                          title="Sửa"
                         >
                           <Pencil size={14} />
                         </button>
@@ -198,7 +198,7 @@ const OptionTypeTab = ({ typeKey, typeLabel, hasNameEn, hasDescription, hasIsAct
                         <button
                           onClick={() => setDeleteTarget(opt)}
                           className="p-2 rounded-lg bg-line/30 text-ink-soft hover:bg-red-500/15 hover:text-danger transition-colors"
-                          title="Delete"
+                          title="Xoá"
                         >
                           <Trash2 size={14} />
                         </button>

@@ -11,13 +11,13 @@ const ComplaintsTable = ({ complaints, isLoading, pagination, onViewDetail, onPa
           <thead className="bg-sunken/70 border-b border-line">
             <tr>
               <th className="p-4 text-xs font-semibold text-ink-soft uppercase tracking-wider">#ID</th>
-              <th className="p-4 text-xs font-semibold text-ink-soft uppercase tracking-wider">Categories</th>
-              <th className="p-4 text-xs font-semibold text-ink-soft uppercase tracking-wider">Description</th>
-              <th className="p-4 text-xs font-semibold text-ink-soft uppercase tracking-wider">Target</th>
-              <th className="p-4 text-xs font-semibold text-ink-soft uppercase tracking-wider">Contact Number</th>
-              <th className="p-4 text-xs font-semibold text-ink-soft uppercase tracking-wider">Status</th>
-              <th className="p-4 text-xs font-semibold text-ink-soft uppercase tracking-wider">Created</th>
-              <th className="p-4 text-xs font-semibold text-ink-soft uppercase tracking-wider text-center">Action</th>
+              <th className="p-4 text-xs font-semibold text-ink-soft uppercase tracking-wider">Phân loại</th>
+              <th className="p-4 text-xs font-semibold text-ink-soft uppercase tracking-wider">Nội dung</th>
+              <th className="p-4 text-xs font-semibold text-ink-soft uppercase tracking-wider">Đối tượng</th>
+              <th className="p-4 text-xs font-semibold text-ink-soft uppercase tracking-wider">Số điện thoại</th>
+              <th className="p-4 text-xs font-semibold text-ink-soft uppercase tracking-wider">Trạng thái</th>
+              <th className="p-4 text-xs font-semibold text-ink-soft uppercase tracking-wider">Ngày gửi</th>
+              <th className="p-4 text-xs font-semibold text-ink-soft uppercase tracking-wider text-center">Thao tác</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-line">

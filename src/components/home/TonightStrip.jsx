@@ -13,6 +13,7 @@ import { Link } from 'react-router-dom'
 import dayjs from 'dayjs'
 import { CalendarDays, MapPin } from 'lucide-react'
 import Reveal from '../shared/Reveal'
+import SectionTitle from '../shared/SectionTitle'
 import CoverFallback from '../shared/CoverFallback'
 
 const TonightStrip = ({ events = [] }) => {
@@ -32,17 +33,14 @@ const TonightStrip = ({ events = [] }) => {
 
   return (
     <section>
-      <div className="flex items-end justify-between mb-4 sm:mb-6">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.15em] text-brand-text mb-1">Lịch diễn cập nhật thời gian thực</p>
-          <h2 className="font-display text-xl sm:text-2xl font-semibold text-ink">
-            {laTrongTuan ? 'Tối nay & tuần này tại các phòng trà' : 'Sắp diễn ra tại các phòng trà'}
-          </h2>
-        </div>
-        <p className="hidden sm:block text-sm text-ink-mute italic">
-          {laTrongTuan ? 'Hiển thị các đêm diễn từ hôm nay đến Chủ Nhật' : 'Các đêm diễn gần nhất đang mở bán'}
-        </p>
-      </div>
+      {/* Mục đầu tiên ngay dưới hero nên KHÔNG kẻ đường phân mục: kẻ ở đây sẽ cắt rời tấm hero khỏi
+          phần nội dung, trong khi hai thứ đó phải đọc liền một mạch. */}
+      <SectionTitle
+        keDau={false}
+        nhan="Lịch diễn cập nhật thời gian thực"
+        tieuDe={laTrongTuan ? 'Tối nay & tuần này tại các phòng trà' : 'Sắp diễn ra tại các phòng trà'}
+        ghiChu={laTrongTuan ? 'Từ hôm nay đến Chủ Nhật' : 'Các đêm diễn gần nhất đang mở bán'}
+      />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {upcoming.map((ev, i) => (

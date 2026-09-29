@@ -137,3 +137,24 @@
 @media (prefers-reduced-motion: reduce) {
   .animate-ken-burns { animation: none; }
 }
+
+/* Chữ hoa đầu đoạn (drop cap) — thủ pháp chữ ký của bố cục tạp chí in, và là một trong sáu kỹ
+   thuật mà mẫu "editorial-grid-magazine" nêu đích danh (cùng với lưới bất đối xứng, trích dẫn nổi,
+   đường phân mục, khoảng trắng rộng).
+   Dùng ::first-letter chứ KHÔNG bọc chữ cái đầu trong <span>: trình đọc màn hình vẫn đọc liền mạch
+   cả từ, và khi người dùng chọn/sao chép thì văn bản không bị tách làm đôi.
+   Chỉ dùng cho khối kể chuyện, không dùng cho chữ chức năng. */
+.drop-cap::first-letter {
+  float: left;
+  font-family: var(--font-display);
+  font-size: 3.4em;
+  line-height: 0.82;
+  font-weight: 600;
+  padding-right: 0.08em;
+  padding-top: 0.06em;
+  color: var(--color-brand-on-dark);
+}
+/* Trên màn hẹp, chữ cái to choán mất dòng đầu nên thu nhỏ lại cho dễ đọc. */
+@media (max-width: 640px) {
+  .drop-cap::first-letter { font-size: 2.6em; }
+}

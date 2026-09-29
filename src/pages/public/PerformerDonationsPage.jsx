@@ -20,7 +20,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import {
   Loader2, ArrowLeft, Heart, Landmark, Building2, AlertTriangle, CheckCircle2, XCircle,
-  Clock, FileCheck2, ShieldCheck, X, Link2Off,
+  Clock, FileCheck2, ShieldCheck, X, Link2Off, RefreshCw,
 } from 'lucide-react'
 import dayjs from 'dayjs'
 import toast from 'react-hot-toast'
@@ -34,10 +34,10 @@ const fmtPhanTram = (r) => `${(Number(r || 0) * 100).toLocaleString('vi-VN', { m
 // Màu theo chặng: xám = còn trên đường, xanh = nghệ sĩ đã xác nhận nhận được, đỏ = nghệ sĩ nói chưa.
 const MAU_CHANG = {
   PlatformHolding: 'text-ink-soft bg-line/40',
-  VenueHolding: 'text-sky-700 bg-blue-500/10',
-  VenueReportedPaid: 'text-warning bg-yellow-500/10',
-  PerformerConfirmed: 'text-success bg-green-500/10',
-  PerformerDisputed: 'text-danger bg-red-500/10',
+  VenueHolding: 'text-brand-text bg-brand/10',
+  VenueReportedPaid: 'text-warning bg-warning/10',
+  PerformerConfirmed: 'text-success bg-success/10',
+  PerformerDisputed: 'text-danger bg-danger/10',
 }
 
 const OCard = ({ title, value, note, icon: Icon, color }) => (
@@ -93,14 +93,14 @@ const EvidenceModal = ({ donationId, onClose }) => {
           ) : (
             <>
               {data.chainIntact ? (
-                <div className="flex items-start gap-2 p-4 rounded-lg border border-green-500/25 bg-green-500/5">
+                <div className="flex items-start gap-2 p-4 rounded-lg border border-success/30 bg-success/5">
                   <ShieldCheck size={18} className="text-success flex-shrink-0 mt-0.5" />
                   <p className="text-sm text-ink-soft leading-relaxed">
                     Chuỗi bằng chứng còn nguyên: không dòng nào bị sửa, xoá hay chèn thêm sau khi ghi.
                   </p>
                 </div>
               ) : (
-                <div className="flex items-start gap-2 p-4 rounded-lg border border-red-500/30 bg-red-500/5">
+                <div className="flex items-start gap-2 p-4 rounded-lg border border-danger/30 bg-danger/5">
                   <Link2Off size={18} className="text-danger flex-shrink-0 mt-0.5" />
                   <div>
                     <p className="text-sm text-ink font-medium">Chuỗi bằng chứng bị đứt</p>
@@ -118,7 +118,7 @@ const EvidenceModal = ({ donationId, onClose }) => {
                   const dongLoi = data.firstBrokenSequence != null && e.sequence >= data.firstBrokenSequence
                   return (
                     <div key={e.sequence}
-                      className={`p-4 rounded-lg border ${dongLoi ? 'border-red-500/30 bg-red-500/5' : 'border-line bg-sunken/70'}`}>
+                      className={`p-4 rounded-lg border ${dongLoi ? 'border-danger/30 bg-danger/5' : 'border-line bg-sunken/70'}`}>
                       <div className="flex flex-wrap items-center justify-between gap-2">
                         <div className="flex items-center gap-2 min-w-0">
                           <span className="text-xs text-ink-mute font-mono flex-shrink-0">#{e.sequence}</span>
@@ -177,9 +177,13 @@ const PerformerDonationsPage = () => {
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
   const [evidenceId, setEvidenceId] = useState(null)
+  const [capNhatLuc, setCapNhatLuc] = useState(null)
 
-  const load = useCallback(async () => {
-    setIsLoading(true)
+  // `im = true` là làm mới NGẦM: giữ nguyên nội dung đang hiển thị thay vì thay cả trang bằng vòng
+  // quay. Bắt buộc phải tách như vậy, nếu không cứ 45 giây trang lại nháy trắng một lần dưới tay
+  // người đang đọc — vừa khó chịu vừa làm mất chỗ họ đang cuộn tới.
+  const load = useCallback(async (im = false) => {
+    if (!im) setIsLoading(true)
     // Hai nguồn độc lập: sao kê tổng hợp lỗi thì bảng chi tiết vẫn phải hiện, và ngược lại.
     const [tong, ds] = await Promise.allSettled([
       getPerformerDonationSummary(performerId),
@@ -193,12 +197,35 @@ const PerformerDonationsPage = () => {
       setRows([])
     }
     if (tong.status !== 'fulfilled' && ds.status !== 'fulfilled') {
-      toast.error('Không tải được sao kê donate.')
+      // Làm mới ngầm mà lỗi thì im lặng: người dùng không bấm gì cả, bắn toast lên mặt họ là vô cớ.
+      // Mốc "cập nhật lúc" sẽ đứng yên, và đó chính là tín hiệu cho biết số liệu đang cũ dần.
+      if (!im) toast.error('Không tải được sao kê donate.')
+    } else {
+      setCapNhatLuc(new Date())
     }
-    setIsLoading(false)
+    if (!im) setIsLoading(false)
   }, [performerId, page])
 
   useEffect(() => { const chay = async () => { await load() }; chay() }, [load])
+
+  // TỰ LÀM MỚI — và vì sao KHÔNG phải là "thời gian thực".
+  // Cập nhật đẩy thật sẽ phải đi qua SignalR, nhưng `LivestreamHub.cs:15` gắn `[Authorize]`: người
+  // chưa đăng nhập KHÔNG kết nối được, mà đây lại đúng là trang cho người chưa đăng nhập. Nên cách
+  // trung thực nhất hiện có là hỏi lại máy chủ theo chu kỳ và NÓI RÕ số liệu cũ tới mức nào bằng
+  // mốc "Cập nhật lúc" — thay vì gắn nhãn "realtime" cho một thứ không phải vậy.
+  // Dừng hẳn khi tab bị ẩn: không ai đang đọc thì hỏi máy chủ chỉ tốn pin và băng thông.
+  useEffect(() => {
+    const dinhKy = setInterval(() => {
+      if (!document.hidden) load(true)
+    }, 45000)
+    // Quay lại tab thì làm mới ngay, khỏi phải chờ hết một chu kỳ.
+    const khiHien = () => { if (!document.hidden) load(true) }
+    document.addEventListener('visibilitychange', khiHien)
+    return () => {
+      clearInterval(dinhKy)
+      document.removeEventListener('visibilitychange', khiHien)
+    }
+  }, [load])
 
   if (isLoading) {
     return (
@@ -225,14 +252,32 @@ const PerformerDonationsPage = () => {
             Sao kê donate {summary?.performerName ? `· ${summary.performerName}` : ''}
           </h1>
         </div>
-        <p className="text-sm text-ink-mute leading-relaxed mb-8">
+        <p className="text-sm text-ink-mute leading-relaxed mb-4">
           Tiền donate đi qua hai chặng: nền tảng thu, chuyển cho phòng trà, rồi phòng trà chuyển cho
           nghệ sĩ. Trang này cho biết từng khoản đang ở chặng nào. Không hiển thị số tài khoản, mã
-          chuyển khoản hay ảnh chứng từ.
+          chuyển khoản hay ảnh chứng từ.{' '}
+          <Link to="/minh-bach" className="text-brand-text hover:underline">Cách tiền đi qua từng chặng</Link>.
         </p>
 
+        {/* Mốc cập nhật — nói thẳng số liệu cũ tới đâu thay vì gắn nhãn "thời gian thực" cho một
+            thứ không phải vậy (lý do đầy đủ ở khối tự làm mới phía trên). `aria-live="polite"` để
+            người dùng trình đọc màn hình cũng biết trang vừa tự làm mới. */}
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-2 mb-8">
+          <p className="text-xs text-ink-mute" aria-live="polite">
+            {capNhatLuc
+              ? `Cập nhật lúc ${dayjs(capNhatLuc).format('HH:mm:ss')} · tự làm mới mỗi 45 giây`
+              : 'Đang chờ số liệu…'}
+          </p>
+          <button
+            onClick={() => load(true)}
+            className="inline-flex items-center gap-1.5 min-h-[44px] -my-2 px-2 text-xs font-medium text-brand-text hover:underline"
+          >
+            <RefreshCw size={13} /> Làm mới ngay
+          </button>
+        </div>
+
         {!summary ? (
-          <div className="bg-card border border-yellow-500/30 rounded-xl p-6 flex items-start gap-3 mb-6">
+          <div className="bg-card border border-warning/30 rounded-xl p-6 flex items-start gap-3 mb-6">
             <AlertTriangle size={18} className="text-warning flex-shrink-0 mt-0.5" />
             <p className="text-sm text-ink-soft leading-relaxed">
               Không tải được phần tổng hợp. Bảng chi tiết bên dưới (nếu có) vẫn đúng.
@@ -249,7 +294,7 @@ const PerformerDonationsPage = () => {
                 icon={Landmark} color="text-ink-soft"
                 note="Chưa tới kỳ chuyển cho phòng trà." />
               <OCard title="Phòng trà còn giữ" value={fmtTien(summary.heldByVenue)}
-                icon={Building2} color="text-sky-700"
+                icon={Building2} color="text-brand-text"
                 note={`Hạn chuyển cho nghệ sĩ: ${summary.policy?.venuePayoutDays ?? '—'} ngày.`} />
               <OCard title="Quá hạn tại phòng trà" value={fmtTien(summary.overdueAtVenue)}
                 icon={AlertTriangle} color={summary.overdueCount > 0 ? 'text-danger' : 'text-ink-mute'}
@@ -333,12 +378,12 @@ const PerformerDonationsPage = () => {
                         {d.stageLabel}
                       </span>
                       {d.overdue && (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-red-500/10 text-danger text-xs font-medium">
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-danger/10 text-danger text-xs font-medium">
                           <AlertTriangle size={11} /> Quá hạn
                         </span>
                       )}
                       {d.paidLate && (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-yellow-500/10 text-warning text-xs">
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-warning/10 text-warning text-xs">
                           <Clock size={11} /> Chuyển sau hạn
                         </span>
                       )}

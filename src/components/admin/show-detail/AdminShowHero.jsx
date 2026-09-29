@@ -61,7 +61,7 @@ const AdminShowHero = ({ data, moderation, onOpenModeration, onOpenShare }) => {
 
           <div className="flex items-center gap-6">
             <button onClick={onOpenShare} className="flex items-center gap-2 text-cream-mute hover:text-brand-on-dark transition-colors">
-              <Share2 size={20} /><span className="font-medium text-sm md:text-base">Share</span>
+              <Share2 size={20} /><span className="font-medium text-sm md:text-base">Chia sẻ</span>
             </button>
             {moderation && (
               <span className="text-sm text-warning font-medium flex items-center gap-1.5">

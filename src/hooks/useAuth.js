@@ -1,16 +1,22 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { signInWithPopup } from 'firebase/auth';
 import toast from 'react-hot-toast';
 import * as aServices from '../services/aServices';
 import { useAuthStore } from '../store/useAuthStore';
 import { firebaseAuth, googleAuthProvider, isFirebaseConfigured } from '../config/firebase';
 
-// Trang đích sau khi có token thật (login / verify-email) — theo role backend trả về
-const destinationForRole = (role) => (role === 'Admin' ? '/admin' : '/');
+// LỖI ĐÃ SỬA: bản trước là `role === 'Admin' ? '/admin' : '/'`, nghĩa là CHỈ Admin được đưa về khu
+// của mình; Owner và Staff đăng nhập xong rơi về trang chủ công khai và phải tự gõ URL `/owner`.
+// Bảng đích theo vai và hàm chọn đích nằm ở utils/authRedirect.js — tách ra để chạy kiểm thử được
+// bằng node (xem utils/authRedirect.test.mjs), vì file này kéo theo firebase + react-router.
+import { dichSauDangNhap } from '../utils/authRedirect';
 
 export const useAuth = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  // Trang người dùng đang muốn vào trước khi bị ProtectedRoute chặn (nếu có).
+  const trangDinhVao = location.state?.from;
   const storeLogin = useAuthStore((s) => s.login);
   const storeLogout = useAuthStore((s) => s.logout);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -22,7 +28,7 @@ export const useAuth = () => {
       if (res.success) {
         storeLogin(res.data);
         toast.success(`Chào mừng trở lại, ${res.data.fullName}!`);
-        navigate(destinationForRole(res.data.role), { replace: true });
+        navigate(dichSauDangNhap(res.data.role, trangDinhVao), { replace: true });
       }
       return res;
     } catch (err) {
@@ -62,7 +68,7 @@ export const useAuth = () => {
       if (res.success) {
         storeLogin(res.data);
         toast.success('Xác thực thành công!');
-        navigate(destinationForRole(res.data.role), { replace: true });
+        navigate(dichSauDangNhap(res.data.role, trangDinhVao), { replace: true });
       }
       return res;
     } catch (err) {
@@ -113,7 +119,7 @@ export const useAuth = () => {
       if (res.success) {
         storeLogin(res.data);
         toast.success(`Chào mừng, ${res.data.fullName}!`);
-        navigate(destinationForRole(res.data.role), { replace: true });
+        navigate(dichSauDangNhap(res.data.role, trangDinhVao), { replace: true });
       }
       return res;
     } catch (err) {

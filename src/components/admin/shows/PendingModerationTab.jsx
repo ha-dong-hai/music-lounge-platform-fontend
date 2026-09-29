@@ -25,7 +25,7 @@ const RiskLevelBadge = ({ level }) => {
     Critical: 'bg-red-500/10 text-danger border-red-500/20',
   }
   const labels = { Low: 'Low', Medium: 'Medium', High: 'High', Critical: 'Critical' }
-  if (!level) return <span className="text-xs text-ink-mute">Not rated</span>
+  if (!level) return <span className="text-xs text-ink-mute">Chưa chấm</span>
   return (
     <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border ${styles[level]}`}>
       {labels[level] || level}
@@ -122,11 +122,11 @@ const PendingModerationTab = () => {
             <thead className="bg-sunken/80 border-b border-line">
               <tr>
                 <th className="p-4 text-brand-text font-semibold text-sm">{targetType} ({targetType} ID)</th>
-                <th className="p-4 text-brand-text font-semibold text-sm">Rick level</th>
-                <th className="p-4 text-brand-text font-semibold text-sm">Flag reason</th>
+                <th className="p-4 text-brand-text font-semibold text-sm">Mức rủi ro</th>
+                <th className="p-4 text-brand-text font-semibold text-sm">Lý do gắn cờ</th>
                 <th className="p-4 text-brand-text font-semibold text-sm">AI score</th>
-                <th className="p-4 text-brand-text font-semibold text-sm">Deadlin SLA</th>
-                <th className="p-4 text-brand-text font-semibold text-sm text-right">Action</th>
+                <th className="p-4 text-brand-text font-semibold text-sm">Hạn duyệt</th>
+                <th className="p-4 text-brand-text font-semibold text-sm text-right">Thao tác</th>
               </tr>
             </thead>
             <tbody>
@@ -150,7 +150,7 @@ const PendingModerationTab = () => {
                           <AlertTriangle size={12} /> {item.flagReason}
                         </p>
                       ) : (
-                        <p className="text-xs text-ink-mute">None</p>
+                        <p className="text-xs text-ink-mute">Không có</p>
                       )}
                     </td>
                     <td className="p-4"><AIScoreCircle score={item.aiScore} /></td>

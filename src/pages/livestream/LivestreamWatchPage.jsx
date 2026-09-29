@@ -14,6 +14,7 @@ import { useLivestreamHub } from '../../hooks/useLivestreamHub'
 import RatingModal from '../../components/livestream/RatingModal'
 import { formatCompactNumber } from '../../utils/format'
 import { getLoungeTour } from '../../services/loungeServices'
+import { ghiNhoThanhToan, LOAI_THANH_TOAN } from '../../utils/paymentContext'
 
 // Chế độ "ngồi tại phòng trà" kéo theo three.js (~500KB) — chỉ tải khi người xem BẬT nó.
 const PanoramaViewer = lazy(() => import('../../components/lounge/PanoramaViewer'))
@@ -236,6 +237,7 @@ const LivestreamWatchPage = () => {
         isMessagePublic: true,
       })
       if (res.success && res.data?.paymentUrl) {
+        ghiNhoThanhToan(LOAI_THANH_TOAN.UNG_HO)
         window.location.href = res.data.paymentUrl
       }
     } catch (err) {

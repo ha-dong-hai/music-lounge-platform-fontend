@@ -36,14 +36,14 @@ export const PackageCard = ({ pkg, onEdit, onToggleStatus }) => {
         <button
           onClick={() => onEdit(pkg)}
           className="p-2 bg-espresso/70 backdrop-blur-md border border-white/10 text-ink-soft hover:text-brand-text hover:border-brand/50 rounded-lg transition-colors"
-          title="Edit Package"
+          title="Sửa gói"
         >
           <Pencil size={13} />
         </button>
         <button
           onClick={() => onToggleStatus(pkg)}
           className="p-2 bg-espresso/70 backdrop-blur-md border border-white/10 text-ink-soft hover:text-brand-text hover:border-brand/50 rounded-lg transition-colors"
-          title="Hide Package"
+          title="Ẩn gói"
         >
           <EyeOff size={13} />
         </button>
@@ -104,7 +104,7 @@ export const HiddenPackageCard = ({ pkg, onEdit, onRestore }) => {
   const miniFeatures = [
     { label: `${pkg.maxTicketsPerEvent?.toLocaleString('vi-VN')} Ticket`, enabled: true },
     { label: 'Poster AI', enabled: pkg.hasAiPoster },
-    { label: 'Tour Scenes', enabled: pkg.maxTourScenes > 0 },
+    { label: 'Cảnh tham quan 360°', enabled: pkg.maxTourScenes > 0 },
   ]
 
   return (
@@ -144,7 +144,7 @@ export const HiddenPackageCard = ({ pkg, onEdit, onRestore }) => {
         <button
           onClick={() => onEdit(pkg)}
           className="p-2 rounded-lg border border-line/60 text-ink-mute hover:text-brand-text hover:border-brand/50 transition-colors"
-          title="Edit Package"
+          title="Sửa gói"
         >
           <Pencil size={14} />
         </button>

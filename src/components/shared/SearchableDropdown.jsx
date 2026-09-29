@@ -49,7 +49,7 @@ const SearchableDropdown = ({
   return (
     <div ref={wrapperRef} className="space-y-2">
       {/* Label */}
-      <label className="block text-sm font-semibold text-gray-900">{label}</label>
+      <label className="block text-sm font-semibold text-ink">{label}</label>
       
       <div className="flex gap-2 items-start flex-wrap">
         {/* Main Trigger Button */}
@@ -57,9 +57,9 @@ const SearchableDropdown = ({
           <button
             onClick={() => !isDisabled && setIsOpen(!isOpen)}
             className={`w-full flex items-center justify-between px-4 py-2.5 bg-card border ${
-              isOpen ? 'border-line ring-1 ring-line' : 'border-gray-300'
+              isOpen ? 'border-line ring-1 ring-line' : 'border-line-strong'
             } rounded-lg text-left text-sm hover:border-line-strong transition-colors ${
-              isDisabled ? 'opacity-50 cursor-not-allowed bg-gray-50' : 'cursor-pointer'
+              isDisabled ? 'opacity-50 cursor-not-allowed bg-sunken' : 'cursor-pointer'
             }`}
             disabled={isDisabled}
           >
@@ -71,9 +71,9 @@ const SearchableDropdown = ({
 
           {/* Dropdown List with Search */}
           {isOpen && (
-            <div className="absolute z-50 top-full mt-1 w-full bg-card border border-gray-200 rounded-xl shadow-xl overflow-hidden animate-in fade-in slide-in-from-top-2">
+            <div className="absolute z-50 top-full mt-1 w-full bg-card border border-line rounded-xl shadow-xl overflow-hidden animate-in fade-in slide-in-from-top-2">
               {/* Search Input inside dropdown */}
-              <div className="p-2 border-b border-gray-100">
+              <div className="p-2 border-b border-line">
                 <div className="relative">
                   <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-soft" />
                   <input
@@ -82,7 +82,7 @@ const SearchableDropdown = ({
                     placeholder="Tìm kiếm..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-9 pr-3 py-2 bg-gray-50 border-none rounded-lg text-on-brand text-sm focus:ring-2 focus:ring-blue-100 outline-none"
+                    className="w-full pl-9 pr-3 py-2 bg-sunken border-none rounded-lg text-on-brand text-sm focus:ring-2 focus:ring-brand/30 outline-none"
                   />
                 </div>
               </div>
@@ -100,7 +100,7 @@ const SearchableDropdown = ({
                             setSearchTerm('')
                             if (!multiSelect) setIsOpen(false)
                           }}
-                          className="w-full text-left px-4 py-2.5 text-sm text-ink-mute hover:bg-blue-50 hover:text-blue-700 transition-colors"
+                          className="w-full text-left px-4 py-2.5 text-sm text-ink-mute hover:bg-sunken hover:text-brand-text transition-colors"
                         >
                           {value}
                         </button>
@@ -122,12 +122,12 @@ const SearchableDropdown = ({
           {safeSelectedItems.map((item) => (
             <span 
               key={item}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 border border-gray-300 rounded-md text-sm font-medium text-gray-800 animate-in fade-in slide-in-from-bottom-1 duration-200"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-sunken border border-line-strong rounded-md text-sm font-medium text-ink animate-in fade-in slide-in-from-bottom-1 duration-200"
             >
               {item}
               <button
                 onClick={() => onRemove(item)}
-                className="hover:text-danger transition-colors p-0.5 hover:bg-red-50 rounded"
+                className="hover:text-danger transition-colors p-0.5 hover:bg-danger/10 rounded"
               >
                 <X size={14} strokeWidth={3} />
               </button>
@@ -135,7 +135,7 @@ const SearchableDropdown = ({
           ))}
           
           {safeSelectedItems.length === 0 && (
-            <div className="hidden sm:flex px-3 py-1.5 bg-gray-50 border border-dashed border-gray-300 rounded-md text-xs text-transparent select-none">
+            <div className="hidden sm:flex px-3 py-1.5 bg-sunken border border-dashed border-line-strong rounded-md text-xs text-transparent select-none">
               Placeholder
             </div>
           )}

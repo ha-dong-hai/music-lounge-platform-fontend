@@ -12,7 +12,7 @@ import { getFilterOptions } from '../../services/showServices'
 
 const baseButtonClasses = "px-4 py-2 rounded-lg border text-sm font-medium transition-all"
 const activeBtnClasses = "bg-card text-ink border-line"
-const inactiveBtnClasses = "bg-card text-ink-mute border-gray-300 hover:border-line-strong active:bg-gray-50"
+const inactiveBtnClasses = "bg-card text-ink-mute border-line hover:border-line-strong active:bg-sunken"
 
 const FilterModal = ({ isOpen, onClose, initialFilters, onApply }) => {
   const [localFilters, setLocalFilters] = useState(initialFilters)
@@ -83,9 +83,9 @@ const FilterModal = ({ isOpen, onClose, initialFilters, onApply }) => {
       
       <div className="relative bg-card w-full max-w-3xl h-[90vh] max-h-[90vh] sm:h-auto sm:max-h-[85vh] flex flex-col rounded-t-2xl sm:rounded-2xl shadow-2xl animate-in slide-in-from-bottom duration-300 overflow-hidden">
         
-        <div className="flex-none w-full flex items-center justify-between p-6 border-b border-gray-100 bg-card z-10">
-          <h2 className="text-xl font-bold text-gray-900">Bộ lọc</h2>
-          <button onClick={onClose} className="p-2 hover:bg-gray-100 text-ink-mute rounded-full transition-colors">
+        <div className="flex-none w-full flex items-center justify-between p-6 border-b border-line bg-card z-10">
+          <h2 className="text-xl font-bold text-ink">Bộ lọc</h2>
+          <button onClick={onClose} className="p-2 hover:bg-sunken text-ink-mute rounded-full transition-colors">
             <X size={24} strokeWidth={2} />
           </button>
         </div>
@@ -104,10 +104,10 @@ const FilterModal = ({ isOpen, onClose, initialFilters, onApply }) => {
             />
           </section>
 
-          <hr className="border-gray-200"/>
+          <hr className="border-line"/>
 
           <section className="space-y-6">
-            <h3 className="font-bold text-lg text-gray-900">Âm nhạc</h3>
+            <h3 className="font-bold text-lg text-ink">Âm nhạc</h3>
             <HorizontalTagSlider
               label="Thể loại"
               options={options.genres}
@@ -117,10 +117,10 @@ const FilterModal = ({ isOpen, onClose, initialFilters, onApply }) => {
             />
           </section>
 
-          <hr className="border-gray-200"/>
+          <hr className="border-line"/>
 
           <section className="space-y-4">
-            <h3 className="font-bold text-lg text-gray-900">Mức giá</h3>
+            <h3 className="font-bold text-lg text-ink">Mức giá</h3>
             <div className="flex items-center gap-3">
               <div className="relative flex-1">
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-soft text-sm font-medium">đ</span>
@@ -131,7 +131,7 @@ const FilterModal = ({ isOpen, onClose, initialFilters, onApply }) => {
                   placeholder="Từ"
                   value={localFilters.minPrice}
                   onChange={e => setLocalFilters(prev => ({ ...prev, minPrice: e.target.value }))}
-                  className="w-full pl-7 pr-3 py-2.5 border border-gray-300 rounded-lg text-sm text-on-brand focus:outline-none focus:ring-2 focus:ring-line focus:border-transparent [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  className="w-full pl-7 pr-3 py-2.5 border border-line-strong rounded-lg text-sm text-on-brand focus:outline-none focus:ring-2 focus:ring-line focus:border-transparent [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 />
               </div>
               <span className="text-ink-soft font-light">—</span>
@@ -144,18 +144,18 @@ const FilterModal = ({ isOpen, onClose, initialFilters, onApply }) => {
                   placeholder="Đến"
                   value={localFilters.maxPrice}
                   onChange={e => setLocalFilters(prev => ({ ...prev, maxPrice: e.target.value }))}
-                  className="w-full pl-7 pr-3 py-2.5 border border-gray-300 rounded-lg text-sm text-on-brand focus:outline-none focus:ring-2 focus:ring-line focus:border-transparent [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  className="w-full pl-7 pr-3 py-2.5 border border-line-strong rounded-lg text-sm text-on-brand focus:outline-none focus:ring-2 focus:ring-line focus:border-transparent [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 />
               </div>
             </div>
           </section>
 
-          <hr className="border-gray-200"/>
+          <hr className="border-line"/>
 
           <section className="space-y-5">
-            <h3 className="font-bold text-lg text-gray-900">Phòng trà</h3>
+            <h3 className="font-bold text-lg text-ink">Phòng trà</h3>
             <div className="space-y-2">
-              <label className="block text-sm font-semibold text-gray-900">Không gian</label>
+              <label className="block text-sm font-semibold text-ink">Không gian</label>
               <div className="flex flex-wrap gap-2">
                 {options.atmospheres.map((space) => {
                   const isSelected = localFilters.selectedSpaces.includes(space.name)
@@ -173,7 +173,7 @@ const FilterModal = ({ isOpen, onClose, initialFilters, onApply }) => {
             </div>
 
             <div className="space-y-2 pt-2">
-              <label className="block text-sm font-semibold text-gray-900">Tâm trạng</label>
+              <label className="block text-sm font-semibold text-ink">Tâm trạng</label>
               <div className="flex flex-wrap gap-2">
                 {options.moods.map((mood) => {
                   const isSelected = localFilters.selectedMoods.includes(mood.name)
@@ -193,10 +193,10 @@ const FilterModal = ({ isOpen, onClose, initialFilters, onApply }) => {
           <div className="h-4"></div>
         </div>
 
-        <div className="flex-none w-full bg-card border-t border-gray-100 p-6 grid grid-cols-2 gap-4 z-10">
+        <div className="flex-none w-full bg-card border-t border-line p-6 grid grid-cols-2 gap-4 z-10">
           <button
             onClick={handleReset}
-            className="py-3 rounded-xl border border-gray-300 text-ink-mute font-semibold hover:bg-gray-50 transition-colors cursor-pointer"
+            className="py-3 rounded-xl border border-line-strong text-ink-mute font-semibold hover:bg-sunken transition-colors cursor-pointer"
           >
             Đặt lại
           </button>

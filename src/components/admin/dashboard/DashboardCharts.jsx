@@ -65,7 +65,7 @@ const RevenueTooltip = ({ active, payload }) => {
 
 // Cột chồng 6 tháng, MỘT đại lượng mỗi lúc (measure do trang chọn) trên MỘT trục —
 // không vẽ gmv và platformRevenue chung một biểu đồ hai trục.
-export const RevenueByMonthChart = ({ months, measure }) => {
+export const RevenueByMonthChart = ({ months = [], measure }) => {
   const rows = toRows(months, measure)
   return (
     <div className="space-y-3">
@@ -155,7 +155,7 @@ export const RevenueShareBar = ({ month, measure }) => {
 }
 
 // Xếp hạng có số cụ thể → bảng, không phải biểu đồ.
-export const TopShowsTable = ({ shows }) => {
+export const TopShowsTable = ({ shows = [] }) => {
   if (!shows.length) {
     return <p className="text-sm text-ink-mute py-8 text-center">Chưa có buổi diễn nào bán được vé trong kỳ.</p>
   }
@@ -202,7 +202,7 @@ const GenreTooltip = ({ active, payload }) => {
 
 // Một chuỗi → một màu, không có hộp chú giải (tiêu đề khối đã nói đang vẽ gì). Mọi thanh có số ở
 // đầu thanh nên ẩn trục giá trị.
-export const GenreDemandChart = ({ genres }) => {
+export const GenreDemandChart = ({ genres = [] }) => {
   if (!genres.length) {
     return <p className="text-sm text-ink-mute py-8 text-center">Chưa có vé nào bán ra trong kỳ.</p>
   }

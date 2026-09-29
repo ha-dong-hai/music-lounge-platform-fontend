@@ -41,6 +41,7 @@ import {
   updatePerformance,
 } from '../../services/showServices'
 import { getTiers, createTier, deleteTier, updateTier } from '../../services/ticketTierServices'
+import { getLoungeZones } from '../../services/loungeServices'
 import ShowAnalyticsSection from '../../components/owner/ShowAnalyticsSection'
 import { searchPerformers } from '../../services/catalogServices'
 
@@ -79,15 +80,30 @@ const OwnerShowDetailPage = () => {
   const [suaHangVe, setSuaHangVe] = useState(null)     // { id, name, description, totalCapacity }
   const [showTierForm, setShowTierForm] = useState(false)
   const [tierForm, setTierForm] = useState({
-    name: '', accessType: 'Physical', totalCapacity: '',
+    name: '', accessType: 'Physical', totalCapacity: '', zoneId: '',
     priceName: 'Vé thường', price: '', quota: '', purchaseChannel: 'Both',
   })
+  // Khu vực chỗ ngồi của phòng trà, để gắn cho hạng vé (TicketTier.ZoneId -> SeatingZone).
+  const [zones, setZones] = useState([])
 
   const load = useCallback(async () => {
     try {
       const [sRes, tRes] = await Promise.all([getShowDetail(id), getTiers(id)])
       if (sRes.success) setShow(sRes.data)
       if (tRes.success) setTiers(tRes.data || [])
+
+      // Khu vực chỗ ngồi thuộc PHÒNG TRÀ, không thuộc buổi diễn — nên phải biết loungeId trước,
+      // lấy từ chính chi tiết buổi diễn (LoungeSummaryDto có Id). Lỗi ở đây không được làm hỏng cả
+      // trang: không có khu vực thì ô chọn chỉ trống, phần còn lại vẫn dùng bình thường.
+      const loungeId = sRes?.success ? sRes.data?.lounge?.id : null
+      if (loungeId) {
+        try {
+          const zRes = await getLoungeZones(loungeId)
+          setZones(zRes?.success ? (zRes.data || []) : [])
+        } catch {
+          setZones([])
+        }
+      }
     } catch {
       toast.error('Không tải được buổi diễn.')
     }
@@ -263,7 +279,10 @@ const OwnerShowDetailPage = () => {
         name: tierForm.name.trim(),
         description: null,
         accessType: tierForm.accessType,
-        zoneId: null,
+        // Gắn khu vực chỗ ngồi đã chọn. Trước đây chỗ này ghi cứng `null`, nên không hạng vé nào
+        // từng có khu vực và sơ đồ chỗ ngồi bên phía khán giả không lọc ra được gì.
+        // Vé xem trực tuyến thì luôn null — không có chỗ ngồi vật lý.
+        zoneId: tierForm.accessType === 'Physical' && tierForm.zoneId ? Number(tierForm.zoneId) : null,
         totalCapacity: tierForm.totalCapacity ? Number(tierForm.totalCapacity) : null,
         prices: [{
           name: tierForm.priceName.trim() || 'Vé thường',
@@ -276,7 +295,7 @@ const OwnerShowDetailPage = () => {
       })
       toast.success('Đã tạo hạng vé.')
       setShowTierForm(false)
-      setTierForm({ name: '', accessType: 'Physical', totalCapacity: '', priceName: 'Vé thường', price: '', quota: '', purchaseChannel: 'Both' })
+      setTierForm({ name: '', accessType: 'Physical', totalCapacity: '', zoneId: '', priceName: 'Vé thường', price: '', quota: '', purchaseChannel: 'Both' })
       await load()
     } catch (err) {
       toast.error(err.response?.data?.message || 'Không tạo được hạng vé.', { duration: 6000 })
@@ -727,6 +746,34 @@ const OwnerShowDetailPage = () => {
                 </select>
               </div>
             </div>
+
+            {/* KHU VỰC CHỖ NGỒI — ô này trước đây KHÔNG tồn tại, và `createTier` gửi cứng
+                `zoneId: null`. Vì vậy chưa hạng vé nào từng được gắn khu vực, và sơ đồ chỗ ngồi
+                bên phía khán giả (ShowMap.jsx:84 lọc `tier.zoneId === zoneDangChon`) không bao giờ
+                khớp được gì — nhìn vào thì tưởng sơ đồ không liên kết với hạng vé, trong khi liên
+                kết đã có sẵn trong mô hình dữ liệu (TicketTier.ZoneId -> SeatingZone).
+                Chỉ hỏi với vé VÀO XEM TẠI CHỖ: vé xem trực tuyến không có chỗ ngồi vật lý, và
+                chính entity cũng ghi `null = online (no physical zone)`. */}
+            {tierForm.accessType === 'Physical' && (
+              <div>
+                <label className="text-xs text-ink-mute">Khu vực chỗ ngồi</label>
+                <select value={tierForm.zoneId}
+                  onChange={(e) => setTierForm((p) => ({ ...p, zoneId: e.target.value }))}
+                  className="mt-1 w-full px-3 py-2 bg-page border border-line rounded-lg text-sm text-ink">
+                  <option value="">— Không gắn khu vực nào —</option>
+                  {zones.map((z) => (
+                    <option key={z.id} value={z.id}>
+                      {z.name}{z.capacity ? ` · ${z.capacity} chỗ` : ''}
+                    </option>
+                  ))}
+                </select>
+                <p className="text-[11px] text-ink-mute mt-1 leading-relaxed">
+                  {zones.length === 0
+                    ? 'Phòng trà chưa khai báo khu vực nào. Tạo ở mục Khu vực chỗ ngồi trước, rồi quay lại gắn cho hạng vé.'
+                    : 'Gắn khu vực thì khán giả bấm vào khu đó trên sơ đồ sẽ lọc ra đúng hạng vé này. Để trống thì hạng vé chỉ hiện ở danh sách chung.'}
+                </p>
+              </div>
+            )}
 
             <div className="grid grid-cols-3 gap-3">
               <div>

@@ -22,7 +22,7 @@ const ModerationModal = ({ moderation, onClose, onDecision, isProcessing }) => {
             <ShieldAlert size={22} className="text-warning" />
           </div>
           <div className="flex-1 min-w-0">
-            <h2 className="text-lg font-bold text-ink">Content approval</h2>
+            <h2 className="text-lg font-bold text-ink">Duyệt nội dung</h2>
             <p className="text-sm text-ink-mute">Show #{moderation.targetId} • Need Admin approval</p>
           </div>
           <button onClick={onClose} disabled={isProcessing} className="p-2 hover:bg-sunken rounded-full text-ink-soft disabled:opacity-30">
@@ -40,15 +40,15 @@ const ModerationModal = ({ moderation, onClose, onDecision, isProcessing }) => {
               <AIScoreCircle score={moderation.aiScore} />
             </div>
             <div className="bg-sunken/50 rounded-xl p-4 flex flex-col items-center gap-2">
-              <p className="text-xs text-ink-mute">Risk</p>
+              <p className="text-xs text-ink-mute">Mức rủi ro</p>
               <RiskLevelBadge level={moderation.riskLevel} />
             </div>
             <div className="bg-sunken/50 rounded-xl p-4 flex flex-col items-center gap-2">
-              <p className="text-xs text-ink-mute">Recomendation</p>
+              <p className="text-xs text-ink-mute">Đề xuất</p>
               <AiRecommendationBadge recommendation={moderation.aiRecommendation} />
             </div>
             <div className="bg-sunken/50 rounded-xl p-4 flex flex-col items-center justify-center gap-1 text-center">
-              <p className="text-xs text-ink-mute">Deadline SLA</p>
+              <p className="text-xs text-ink-mute">Hạn duyệt</p>
               <p className={`text-sm font-bold ${isSlaOverdue ? 'text-danger' : 'text-ink'}`}>
                 {moderation.slaDeadline ? dayjs(moderation.slaDeadline).format('HH:mm DD/MM') : '-'}
               </p>
@@ -61,7 +61,7 @@ const ModerationModal = ({ moderation, onClose, onDecision, isProcessing }) => {
             <div className="flex items-start gap-2 bg-yellow-500/5 border border-yellow-500/20 rounded-lg p-3">
               <AlertTriangle size={16} className="text-warning flex-shrink-0 mt-0.5" />
               <div>
-                <p className="text-xs font-bold text-warning mb-1">Flag reason</p>
+                <p className="text-xs font-bold text-warning mb-1">Lý do gắn cờ</p>
                 <p className="text-sm text-warning/90">{moderation.flagReason}</p>
               </div>
             </div>
@@ -74,7 +74,7 @@ const ModerationModal = ({ moderation, onClose, onDecision, isProcessing }) => {
               rows={3}
               value={reviewNote}
               onChange={(e) => setReviewNote(e.target.value)}
-              placeholder="Reason for approval / rejection..."
+              placeholder="Lý do duyệt hoặc từ chối…"
               disabled={isProcessing}
               className="w-full px-4 py-2.5 bg-page border border-line rounded-lg text-ink text-sm focus:outline-none focus:border-brand/50 resize-none disabled:opacity-50"
             />
@@ -90,7 +90,7 @@ const ModerationModal = ({ moderation, onClose, onDecision, isProcessing }) => {
           >
             {isProcessing === 'approve'
               ? <><Loader2 size={18} className="animate-spin" /> Processing...</>
-              : <><Check size={18} strokeWidth={3} /> Approval</>}
+              : <><Check size={18} strokeWidth={3} /> Duyệt</>}
           </button>
           <button
             onClick={() => onDecision('reject', reviewNote)}
@@ -99,7 +99,7 @@ const ModerationModal = ({ moderation, onClose, onDecision, isProcessing }) => {
           >
             {isProcessing === 'reject'
               ? <><Loader2 size={18} className="animate-spin" /> Processing...</>
-              : <><X size={18} strokeWidth={3} /> Reject</>}
+              : <><X size={18} strokeWidth={3} /> Từ chối</>}
           </button>
         </div>
       </div>

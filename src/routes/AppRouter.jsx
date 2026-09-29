@@ -60,6 +60,7 @@ import ComplaintPage from '../pages/user/ComplaintPage'
 import PerformerConfirmationPage from '../pages/public/PerformerConfirmationPage'
 import PerformerDonationsPage from '../pages/public/PerformerDonationsPage'
 import PerformerPage from '../pages/public/PerformerPage'
+import TransparencyHubPage from '../pages/public/TransparencyHubPage'
 import NotificationsPage from '../pages/user/NotificationsPage'
 import NotFoundPage from '../pages/NotFoundPage'
 import OwnerShowsPage from '../pages/owner/OwnerShowsPage'
@@ -82,6 +83,10 @@ const AppRouter = createBrowserRouter([
       { path: 'lounges', element: <LoungeListPage /> },
       { path: 'lounge/:id', element: <LoungeDetailPage /> }, 
       { path: 'lounge/:id/order', element: <FnbOrderPage /> },
+      // Cua cong khai cua cam ket minh bach tien ung ho. Dat TRONG MainLayout (co Header +
+      // Footer) chu khong dung rieng nhu /performers/:id/donations, vi day la trang nguoi la
+      // ghe vao tu chan trang — ho can dieu huong day du de di tiep.
+      { path: 'minh-bach', element: <TransparencyHubPage /> },
     ],
   },
 

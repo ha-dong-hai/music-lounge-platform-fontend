@@ -3,31 +3,31 @@ import { Ban, Building2, UserCog, User as UserIcon, Users as UsersIcon } from 'l
 const StatsCards = ({ stats, roleFilter, statusFilter, onSelectFilter }) => {
   const cards = [
     {
-      key: 'total', label: 'Total', value: stats.total,
+      key: 'total', label: 'Tổng', value: stats.total,
       icon: <UsersIcon size={24} className="text-brand-text" />, iconBg: 'bg-brand/10',
       active: roleFilter === 'all' && statusFilter === 'all', activeStyle: 'border-brand ring-1 ring-brand',
       onClick: () => onSelectFilter('all', 'all'),
     },
     {
-      key: 'users', label: 'Audience', value: stats.users,
+      key: 'users', label: 'Khán giả', value: stats.users,
       icon: <UserIcon size={24} className="text-ink-soft" />, iconBg: 'bg-line-strong/10',
       active: roleFilter === 'Audience', activeStyle: 'border-line-strong ring-1 ring-line-strong',
       onClick: () => onSelectFilter('Audience', 'all'),
     },
     {
-      key: 'owners', label: 'Owner', value: stats.owners,
+      key: 'owners', label: 'Chủ phòng trà', value: stats.owners,
       icon: <Building2 size={24} className="text-sky-700" />, iconBg: 'bg-blue-500/10',
       active: roleFilter === 'Owner', activeStyle: 'border-blue-500 ring-1 ring-blue-500',
       onClick: () => onSelectFilter('Owner', 'all'),
     },
     {
-      key: 'staff', label: 'Staff', value: stats.staff,
+      key: 'staff', label: 'Nhân viên', value: stats.staff,
       icon: <UserCog size={24} className="text-orange-700" />, iconBg: 'bg-orange-500/10',
       active: roleFilter === 'Staff', activeStyle: 'border-orange-500 ring-1 ring-orange-500',
       onClick: () => onSelectFilter('Staff', 'all'),
     },
     {
-      key: 'banned', label: 'Banned', value: stats.banned,
+      key: 'banned', label: 'Đã bị khoá', value: stats.banned,
       icon: <Ban size={24} className="text-danger" />, iconBg: 'bg-red-500/10',
       active: statusFilter === 'banned', activeStyle: 'border-red-500 ring-1 ring-red-500',
       onClick: () => onSelectFilter('all', 'banned'),

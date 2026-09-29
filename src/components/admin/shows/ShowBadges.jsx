@@ -8,7 +8,7 @@ export const FormatBadge = ({ format }) => {
     hybrid: 'bg-blue-500/10 text-sky-700 border-blue-500/20',
   }
   const icons = { offline: <Building size={12} />, livestream: <Radio size={12} />, hybrid: <Cast size={12} /> }
-  const labels = { offline: 'Offline', livestream: 'Livestream', hybrid: 'Hybrid' }
+  const labels = { offline: 'Tại chỗ', livestream: 'Livestream', hybrid: 'Kết hợp' }
   const key = format ? format.toLowerCase() : 'offline'
   if (!labels[key]) return null
   return (
@@ -26,7 +26,7 @@ export const StatusBadge = ({ status }) => {
     ended: 'bg-red-500/10 text-danger border-red-500/20',
     cancelled: 'bg-red-500/10 text-danger border-red-500/20',
   }
-  const labels = { published: 'Published', ongoing: 'Ongoing', draft: 'Draft', ended: 'Ended', cancelled: 'Cancelled' }
+  const labels = { published: 'Đã xuất bản', ongoing: 'Đang diễn ra', draft: 'Bản nháp', ended: 'Đã kết thúc', cancelled: 'Đã huỷ' }
   const key = status ? status.toLowerCase() : 'draft'
   return (
     <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border ${styles[key] || styles.draft}`}>
@@ -69,7 +69,7 @@ export const RiskLevelBadge = ({ level }) => {
     Critical: 'bg-red-500/10 text-danger border-red-500/20',
   }
   const labels = { Low: 'Low', Medium: 'Medium', High: 'High', Critical: 'Critical' }
-  if (!level) return <span className="text-xs text-ink-mute">Not rated</span>
+  if (!level) return <span className="text-xs text-ink-mute">Chưa chấm</span>
   return (
     <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border ${styles[level]}`}>
       {labels[level] || level}

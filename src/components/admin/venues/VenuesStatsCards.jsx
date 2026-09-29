@@ -13,7 +13,7 @@ const VenuesStatsCards = ({ counts, statusFilter, onSelectStatus }) => {
   const cards = [
     {
       key: 'all',
-      label: 'Total venues',
+      label: 'Tổng phòng trà',
       value: counts.total,
       icon: <Building2 size={24} className="text-brand-text" />,
       iconBg: 'bg-brand/10',
@@ -23,7 +23,7 @@ const VenuesStatsCards = ({ counts, statusFilter, onSelectStatus }) => {
     },
     {
       key: 'Pending',
-      label: 'Pending',
+      label: 'Chờ duyệt',
       value: counts.Pending || 0,
       icon: <Clock size={24} className="text-warning" />,
       iconBg: 'bg-yellow-500/10',
@@ -33,7 +33,7 @@ const VenuesStatsCards = ({ counts, statusFilter, onSelectStatus }) => {
     },
     {
       key: 'Approved',
-      label: 'Approved',
+      label: 'Đã duyệt',
       value: counts.Approved || 0,
       icon: <CheckCircle2 size={24} className="text-success" />,
       iconBg: 'bg-green-500/10',
@@ -43,7 +43,7 @@ const VenuesStatsCards = ({ counts, statusFilter, onSelectStatus }) => {
     },
     {
       key: 'problem',
-      label: 'Problem',
+      label: 'Có vấn đề',
       value: problemCount,
       icon: <ShieldAlert size={24} className="text-danger" />,
       iconBg: 'bg-red-500/10',

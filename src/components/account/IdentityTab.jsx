@@ -40,6 +40,31 @@ const IdentityTab = () => {
   const [uploadingSide, setUploadingSide] = useState(null)
   const [busyCccd, setBusyCccd] = useState(false)
 
+  // LỖI ĐÃ SỬA — "gửi xong không thấy lưu, và không có cách xem lại ảnh đã đăng".
+  //
+  // Hai triệu chứng chỉ do MỘT nguyên nhân. Bản trước xác định đã nộp hay chưa bằng
+  // `profile?.citizenCardVerified ?? profile?.hasCitizenCard` — HAI TÊN TRƯỜNG KHÔNG CÓ THẬT.
+  // `UserProfileDto` (Application/Users/DTOs/UserProfileDto.cs) chỉ trả Id, FullName, Email, Phone,
+  // PhoneVerified, AvatarUrl, AiConsent và bốn danh sách sở thích — KHÔNG có trường CCCD nào.
+  // Nên cờ đó LUÔN false: gửi xong, tải lại hồ sơ, giao diện vẫn vẽ form rỗng như chưa từng gửi
+  // (trông y hệt mất dữ liệu — nhưng dữ liệu ĐÃ lưu), và hai nút xem ảnh vốn nằm trong đúng nhánh
+  // không bao giờ chạy tới nên chưa từng hiện ra.
+  //
+  // Backend KHÔNG có đường nào đọc trạng thái CCCD (đã tìm cả Users/Queries: chỉ có
+  // GetMyCitizenCardImage và GetCitizenCardImage, không query nào trả tình trạng). Thứ duy nhất
+  // đọc được là CHÍNH TẤM ẢNH — nên dùng nó làm bằng chứng: lấy được ảnh mặt trước nghĩa là đã nộp
+  // (GetMyCitizenCardImageQueryHandler:36 ném NotFound khi chưa có).
+  //
+  // ĐỀ NGHỊ CHO BACKEND: thêm trường CCCD vào UserProfileDto (`citizenCardStatus`,
+  // `citizenCardNumberMasked`, `citizenCardReviewNote`). Khi có thì bỏ hẳn cách dò bằng ảnh, VÀ
+  // hiện được trạng thái duyệt — hiện tại giao diện KHÔNG phân biệt được "chờ duyệt", "đã duyệt"
+  // và "bị từ chối", chỉ biết là "đã nộp".
+  //
+  // null = đang dò · true/false = kết luận.
+  const [daNopCccd, setDaNopCccd] = useState(null)
+  const [anhCccd, setAnhCccd] = useState({ front: null, back: null })
+  const [nopLai, setNopLai] = useState(false)
+
   // Thuế
   const [tax, setTax] = useState({ businessType: '', taxCode: '', legalName: '' })
   const [busyTax, setBusyTax] = useState(false)
@@ -67,6 +92,42 @@ const IdentityTab = () => {
   }, [])
 
   useEffect(() => { const chay = async () => { await load() }; chay() }, [load])
+
+  // Tải ảnh CCCD đã nộp về để (a) biết là đã nộp hay chưa, (b) hiện ngay tại chỗ cho người dùng
+  // đối chiếu xem có chụp nhầm, chụp mờ, chụp ngược mặt không — trước khi Admin duyệt.
+  const taiAnhDaNop = useCallback(async () => {
+    const [truoc, sau] = await Promise.allSettled([
+      getMyCitizenCardImage('front'),
+      getMyCitizenCardImage('back'),
+    ])
+    const thanhUrl = (kq) => {
+      if (kq.status !== 'fulfilled' || !kq.value) return null
+      // Service đặt responseType 'blob' nên interceptor trả thẳng Blob, không bóc `.data`.
+      const blob = kq.value instanceof Blob ? kq.value : kq.value?.data
+      return blob instanceof Blob ? URL.createObjectURL(blob) : null
+    }
+    const urlTruoc = thanhUrl(truoc)
+    const urlSau = thanhUrl(sau)
+    // Mặt trước là căn cứ: chưa nộp thì backend ném NotFound cho cả hai mặt.
+    setDaNopCccd(Boolean(urlTruoc))
+    setAnhCccd((cu) => {
+      // Thu hồi URL của lần tải trước để không rò bộ nhớ khi người dùng nộp lại nhiều lần.
+      if (cu.front) URL.revokeObjectURL(cu.front)
+      if (cu.back) URL.revokeObjectURL(cu.back)
+      return { front: urlTruoc, back: urlSau }
+    })
+  }, [])
+
+  useEffect(() => { const chay = async () => { await taiAnhDaNop() }; chay() }, [taiAnhDaNop])
+
+  // Rời tab thì trả lại bộ nhớ của các object URL đang giữ.
+  useEffect(() => () => {
+    setAnhCccd((cu) => {
+      if (cu.front) URL.revokeObjectURL(cu.front)
+      if (cu.back) URL.revokeObjectURL(cu.back)
+      return { front: null, back: null }
+    })
+  }, [])
 
   const guiMa = async () => {
     setBusyPhone('send')
@@ -122,7 +183,11 @@ const IdentityTab = () => {
       })
       toast.success('Đã gửi hồ sơ định danh. Admin sẽ duyệt.')
       setCccd({ citizenCardNumber: '', frontImageUrl: '', backImageUrl: '', dateOfBirth: '' })
-      await load()
+      setNopLai(false)
+      // Tải lại ẢNH ĐÃ NỘP, không chỉ `load()`. Đây chính là chỗ bản trước hụt: `load()` chỉ lấy
+      // UserProfileDto — thứ không chứa thông tin CCCD nào — nên sau khi gửi, màn hình quay về
+      // đúng form rỗng ban đầu và người dùng tưởng dữ liệu không được lưu.
+      await Promise.all([load(), taiAnhDaNop()])
     } catch (err) {
       toast.error(err.response?.data?.message || 'Không gửi được hồ sơ định danh.')
     } finally { setBusyCccd(false) }
@@ -164,7 +229,8 @@ const IdentityTab = () => {
   }
 
   const daXacThucSdt = profile?.phoneVerified ?? profile?.isPhoneVerified ?? false
-  const daCoCccd = profile?.citizenCardVerified ?? profile?.hasCitizenCard ?? false
+  // `daCoCccd` cũ đã bỏ: nó đọc hai tên trường không tồn tại trong UserProfileDto nên luôn false.
+  // Trạng thái nộp hồ sơ nay lấy từ `daNopCccd` — xem khối giải thích ở phần khai báo state.
 
   return (
     <div className="space-y-5">
@@ -208,21 +274,55 @@ const IdentityTab = () => {
         title="Định danh cá nhân (CCCD)"
         subtitle="Cần thiết khi bạn nhận tiền từ nền tảng. Ảnh được lưu ở vùng riêng tư, chỉ bạn và Admin xem được."
       >
-        {daCoCccd ? (
-          <div className="space-y-3">
+        {daNopCccd === null ? (
+          <div className="py-6 flex items-center justify-center gap-2 text-sm text-ink-mute">
+            <Loader2 size={16} className="animate-spin" /> Đang kiểm tra hồ sơ đã nộp…
+          </div>
+        ) : daNopCccd && !nopLai ? (
+          <div className="space-y-4">
             <p className="text-sm text-success flex items-center gap-2">
               <ShieldCheck size={16} /> Đã gửi hồ sơ định danh
             </p>
-            <div className="flex flex-wrap gap-2">
-              <button onClick={() => xemAnhCccd('front')}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-line text-ink-soft text-xs font-bold hover:bg-sunken">
-                <ExternalLink size={13} /> Xem mặt trước
-              </button>
-              <button onClick={() => xemAnhCccd('back')}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-line text-ink-soft text-xs font-bold hover:bg-sunken">
-                <ExternalLink size={13} /> Xem mặt sau
-              </button>
+
+            {/* Hiện ảnh NGAY TẠI CHỖ. Trước đây chỉ có nút mở tab mới, nghĩa là muốn kiểm tra mình
+                chụp có mờ, có ngược mặt, có nhầm giấy tờ không thì phải rời trang. Giấy tờ tuỳ thân
+                đã gửi đi là thứ người ta cần soát lại ngay, không phải mở ra ở chỗ khác. */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {[['front', 'Mặt trước', anhCccd.front], ['back', 'Mặt sau', anhCccd.back]].map(([side, label, url]) => (
+                <figure key={side} className="rounded-lg border border-line overflow-hidden bg-sunken/40">
+                  {url ? (
+                    <img src={url} alt={`Ảnh CCCD ${label.toLowerCase()} bạn đã nộp`}
+                      className="w-full aspect-[8/5] object-cover" />
+                  ) : (
+                    <div className="w-full aspect-[8/5] flex items-center justify-center text-xs text-ink-mute px-3 text-center">
+                      Không tải được ảnh {label.toLowerCase()}
+                    </div>
+                  )}
+                  <figcaption className="flex items-center justify-between gap-2 px-3 py-2 border-t border-line">
+                    <span className="text-xs text-ink-soft">{label}</span>
+                    {url && (
+                      <button onClick={() => xemAnhCccd(side)}
+                        className="inline-flex items-center gap-1 min-h-[44px] -my-2 px-1 text-xs font-medium text-brand-text hover:underline">
+                        <ExternalLink size={12} /> Xem cỡ lớn
+                      </button>
+                    )}
+                  </figcaption>
+                </figure>
+              ))}
             </div>
+
+            <div className="flex items-start gap-2 rounded-lg border border-line bg-sunken/40 p-3">
+              <AlertTriangle size={15} className="text-ink-mute flex-shrink-0 mt-0.5" />
+              <p className="text-xs text-ink-soft leading-relaxed">
+                Ảnh bị mờ, chụp thiếu góc hay nhầm mặt thì Admin sẽ từ chối. Bạn nộp lại được bất cứ
+                lúc nào — hồ sơ sẽ quay về trạng thái chờ duyệt.
+              </p>
+            </div>
+
+            <button onClick={() => setNopLai(true)}
+              className="inline-flex items-center gap-1.5 min-h-[44px] px-4 rounded-lg border border-line text-ink-soft text-sm font-bold hover:bg-sunken transition-colors">
+              <Upload size={14} /> Nộp lại hồ sơ
+            </button>
           </div>
         ) : (
           <form onSubmit={guiCccd} className="space-y-4">
@@ -253,10 +353,21 @@ const IdentityTab = () => {
               ))}
             </div>
 
-            <button type="submit" disabled={busyCccd || uploadingSide !== null}
-              className="w-full py-2.5 bg-brand text-on-brand rounded-lg font-bold flex items-center justify-center gap-2 disabled:opacity-50">
-              {busyCccd && <Loader2 size={16} className="animate-spin" />} Gửi hồ sơ định danh
-            </button>
+            <div className="flex flex-wrap gap-3">
+              <button type="submit" disabled={busyCccd || uploadingSide !== null}
+                className="flex-1 min-w-[200px] py-2.5 bg-brand text-on-brand rounded-lg font-bold flex items-center justify-center gap-2 disabled:opacity-50">
+                {busyCccd && <Loader2 size={16} className="animate-spin" />}
+                {nopLai ? 'Gửi lại hồ sơ định danh' : 'Gửi hồ sơ định danh'}
+              </button>
+              {/* Chỉ hiện khi đang NỘP LẠI: người đã có hồ sơ cần đường lùi, nếu không thì mở form
+                  ra rồi là kẹt, phải tải lại trang mới xem lại được ảnh cũ. */}
+              {nopLai && (
+                <button type="button" onClick={() => setNopLai(false)} disabled={busyCccd}
+                  className="min-h-[44px] px-4 rounded-lg border border-line text-ink-soft text-sm font-bold hover:bg-sunken disabled:opacity-50 transition-colors">
+                  Huỷ, xem lại hồ sơ đã nộp
+                </button>
+              )}
+            </div>
           </form>
         )}
       </Card>

@@ -13,7 +13,7 @@ const FormatBadge = ({ format }) => {
     hybrid: 'bg-blue-500/10 text-sky-700 border-blue-500/20',
   }
   const icons = { offline: <Building size={12} />, livestream: <Radio size={12} />, hybrid: <Cast size={12} /> }
-  const labels = { offline: 'Offline', livestream: 'Livestream', hybrid: 'Hybrid' }
+  const labels = { offline: 'Tại chỗ', livestream: 'Livestream', hybrid: 'Kết hợp' }
   const key = format ? format.toLowerCase() : 'offline'
   if (!labels[key]) return null
   return (
@@ -108,13 +108,13 @@ const AllShowsTab = () => {
           <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-mute" />
           <input
             type="text"
-            placeholder="Search current page..."
+            placeholder="Tìm trong trang hiện tại…"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-10 pr-4 py-2.5 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-brand/50"
           />
         </div>
-        <p className="text-sm text-ink-mute whitespace-nowrap">Total: {pagination.totalCount} Show</p>
+        <p className="text-sm text-ink-mute whitespace-nowrap">Tổng: {pagination.totalCount} buổi diễn</p>
       </div>
 
       <div className="bg-card border border-line rounded-xl overflow-hidden">
@@ -122,12 +122,12 @@ const AllShowsTab = () => {
           <table className="w-full text-left whitespace-nowrap">
             <thead className="bg-sunken/80 border-b border-line">
               <tr>
-                <th className="p-4 text-brand-text font-semibold text-sm">Show name</th>
-                <th className="p-4 text-brand-text font-semibold text-sm">Lounge</th>
-                <th className="p-4 text-brand-text font-semibold text-sm">Type</th>
-                <th className="p-4 text-brand-text font-semibold text-sm">Schedule</th>
-                <th className="p-4 text-brand-text font-semibold text-sm">Status</th>
-                <th className="p-4 text-brand-text font-semibold text-sm text-right">Action</th>
+                <th className="p-4 text-brand-text font-semibold text-sm">Tên buổi diễn</th>
+                <th className="p-4 text-brand-text font-semibold text-sm">Phòng trà</th>
+                <th className="p-4 text-brand-text font-semibold text-sm">Hình thức</th>
+                <th className="p-4 text-brand-text font-semibold text-sm">Lịch diễn</th>
+                <th className="p-4 text-brand-text font-semibold text-sm">Trạng thái</th>
+                <th className="p-4 text-brand-text font-semibold text-sm text-right">Thao tác</th>
               </tr>
             </thead>
             <tbody>
@@ -167,9 +167,9 @@ const AllShowsTab = () => {
                     <td className="p-4 text-right">
                       <Link 
                         to={`/admin/shows/${show.id}`} 
-                        className="inline-flex items-center gap-1.5 text-brand-text border border-brand/30 hover:bg-brand-hover/10 px-3 py-1.5 rounded-md text-xs font-bold transition-colors"
+                        className="inline-flex items-center gap-1.5 min-h-[40px] text-brand-text border border-brand/30 hover:bg-brand-hover/10 px-3 rounded-md text-xs font-bold transition-colors"
                       >
-                        View detail
+                        Xem chi tiết
                       </Link>
                     </td>
                   </tr>

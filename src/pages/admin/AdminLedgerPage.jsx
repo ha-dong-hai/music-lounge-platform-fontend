@@ -43,7 +43,8 @@ const AdminLedgerPage = () => {
     try {
       const res = await getLedgerIntegrityCheck()
       if (res.success) {
-        setIssues(res.data ?? [])
+        // Chỉ nhận mảng: dạng khác thì coi như "chưa kiểm được" (null) thay vì để `.map` làm sập cả trang.
+        setIssues(Array.isArray(res.data) ? res.data : null)
         setKiemLuc(new Date())
       } else {
         setIssues(null)
@@ -61,7 +62,8 @@ const AdminLedgerPage = () => {
     setIsLoadingJobs(true)
     try {
       const res = await getRecurringJobs()
-      if (res.success) setJobs(res.data ?? [])
+      // Chỉ nhận mảng: dạng khác thì coi như danh sách rỗng, thay vì để `.map` làm sập cả trang.
+      if (res.success) setJobs(Array.isArray(res.data) ? res.data : [])
     } catch (err) {
       toast.error(err.response?.data?.message || 'Không tải được danh sách tác vụ định kỳ.')
     } finally {

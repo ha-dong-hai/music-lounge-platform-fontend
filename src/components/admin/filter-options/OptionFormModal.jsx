@@ -28,7 +28,7 @@ const OptionFormModal = ({ isOpen, typeLabel, hasNameEn, hasDescription, editing
     const handleSubmit = (e) => {
         e.preventDefault()
         if (!formData.name.trim()) {
-            toast.error('Please enter a name')
+            toast.error('Vui lòng nhập tên.')
             return
         }
         onSubmit({

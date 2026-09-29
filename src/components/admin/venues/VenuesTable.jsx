@@ -1,24 +1,24 @@
-import { Loader2, ChevronLeft, ChevronRight, Building2, ExternalLink, ShieldAlert } from 'lucide-react'
+import { Loader2, ChevronLeft, ChevronRight, Building2, FileText, ShieldAlert } from 'lucide-react'
 import dayjs from 'dayjs'
-import { Link } from 'react-router-dom'
 import { VenueStatusBadge, LicenseBadge } from './VenueBadges'
 
-// Component thuần UI: nhận data đã lọc + callbacks từ cha
-// onViewPublicPage cu bi bo: bang dung <Link> mo trang cong khai, khong qua callback nao.
-const VenuesTable = ({ venues, isLoading, pagination, onPageChange, onReview, onPenalize }) => {
+// Component thuần UI: nhận data đã lọc + callbacks từ cha.
+// `onViewDossier` mở HỒ SƠ ĐÃ NỘP. Bản trước nút này là <Link to={`/lounge/{id}`}> mở thẳng trang
+// giới thiệu công khai — xem mục "VÌ SAO CÓ FILE NÀY" trong VenueDossierModal.jsx.
+const VenuesTable = ({ venues, isLoading, pagination, onPageChange, onViewDossier, onReview, onPenalize }) => {
   return (
     <div className="bg-card border border-line rounded-xl overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full text-left whitespace-nowrap">
           <thead className="bg-sunken/70 border-b border-line">
             <tr>
-              <th className="p-4 text-xs font-semibold text-ink-soft uppercase tracking-wider">Venue</th>
-              <th className="p-4 text-xs font-semibold text-ink-soft uppercase tracking-wider">Owner</th>
-              <th className="p-4 text-xs font-semibold text-ink-soft uppercase tracking-wider">Address</th>
-              <th className="p-4 text-xs font-semibold text-ink-soft uppercase tracking-wider">License</th>
-              <th className="p-4 text-xs font-semibold text-ink-soft uppercase tracking-wider">Status</th>
-              <th className="p-4 text-xs font-semibold text-ink-soft uppercase tracking-wider">Date</th>
-              <th className="p-4 text-xs font-semibold text-ink-soft uppercase tracking-wider text-right">Action</th>
+              <th className="p-4 text-xs font-semibold text-ink-soft uppercase tracking-wider">Phòng trà</th>
+              <th className="p-4 text-xs font-semibold text-ink-soft uppercase tracking-wider">Chủ phòng trà</th>
+              <th className="p-4 text-xs font-semibold text-ink-soft uppercase tracking-wider">Địa chỉ</th>
+              <th className="p-4 text-xs font-semibold text-ink-soft uppercase tracking-wider">Giấy phép</th>
+              <th className="p-4 text-xs font-semibold text-ink-soft uppercase tracking-wider">Trạng thái</th>
+              <th className="p-4 text-xs font-semibold text-ink-soft uppercase tracking-wider">Ngày</th>
+              <th className="p-4 text-xs font-semibold text-ink-soft uppercase tracking-wider text-right">Thao tác</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-line">
@@ -56,14 +56,15 @@ const VenuesTable = ({ venues, isLoading, pagination, onPageChange, onReview, on
                   <td className="p-4"><VenueStatusBadge status={v.status} /></td>
                   <td className="p-4 text-sm text-ink-soft">{dayjs(v.createdAt).format('DD/MM/YYYY')}</td>
                   <td className="p-4 text-right">
-                    {/* Nút xem trang public của venue */}
-                    <Link
-                      to={`/lounge/${v.loungeId}`}
-                      target="_blank"
+                    {/* "Xem hồ sơ" mở hồ sơ ĐÃ NỘP (chủ, địa chỉ, giấy phép kinh doanh) — đó mới là
+                        thứ cần đọc trước khi bấm Duyệt. Liên kết sang trang công khai vẫn còn,
+                        nhưng nằm bên trong hồ sơ như việc phụ. */}
+                    <button
+                      onClick={() => onViewDossier?.(v)}
                       className="inline-flex items-center gap-1.5 text-brand-text border border-brand/30 hover:bg-brand-hover/10 px-3 py-1.5 rounded-md text-xs font-bold transition-colors"
                     >
-                      <ExternalLink size={12} /> Xem
-                    </Link>
+                      <FileText size={12} /> Xem hồ sơ
+                    </button>
                     {/* Phòng trà ở Pending không hiện công khai và không bán vé được — không duyệt
                         thì chủ phòng trà treo vô thời hạn. */}
                     {onReview && v.status === 'Pending' && (

@@ -11,7 +11,7 @@ const AccountsFilterBar = ({
         <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-mute" />
         <input
           type="text"
-          placeholder="Search name, email, or phone number..."
+          placeholder="Tìm theo tên, email hoặc số điện thoại…"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="w-full pl-10 pr-4 py-2.5 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-brand/50"
@@ -23,11 +23,11 @@ const AccountsFilterBar = ({
         onChange={(e) => setRoleFilter(e.target.value)}
         className="w-full md:w-auto px-4 py-2.5 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-brand/50 cursor-pointer"
       >
-        <option value="all">All roles</option>
-        <option value="Audience">Customer</option>
-        <option value="Owner">Owner</option>
-        <option value="Staff">Staff</option>
-        <option value="Admin">Admin</option>
+        <option value="all">Mọi vai trò</option>
+        <option value="Audience">Khán giả</option>
+        <option value="Owner">Chủ phòng trà</option>
+        <option value="Staff">Nhân viên</option>
+        <option value="Admin">Quản trị viên</option>
       </select>
 
       <select
@@ -35,9 +35,9 @@ const AccountsFilterBar = ({
         onChange={(e) => setStatusFilter(e.target.value)}
         className="w-full md:w-auto px-4 py-2.5 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-brand/50 cursor-pointer"
       >
-        <option value="all">All status</option>
-        <option value="active">Active</option>
-        <option value="banned">Banned</option>
+        <option value="all">Mọi trạng thái</option>
+        <option value="active">Đang hoạt động</option>
+        <option value="banned">Đã bị khoá</option>
       </select>
     </div>
   )

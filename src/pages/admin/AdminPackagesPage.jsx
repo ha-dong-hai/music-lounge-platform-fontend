@@ -28,7 +28,7 @@ const AdminPackagesPage = () => {
           setPackages(res.data)
         }
       } catch (err) {
-        toast.error('Error loading Package')
+        toast.error('Không tải được danh sách gói.')
       } finally {
         setIsLoading(false)
       }
@@ -67,11 +67,11 @@ const AdminPackagesPage = () => {
         isActive: !pkg.isActive
       }
       await updatePackage(pkg.id, payload)
-      toast.success(`${!pkg.isActive ? 'Show' : 'Hide'} ${pkg.name} Package`)
+      toast.success(`${!pkg.isActive ? 'Đã hiện' : 'Đã ẩn'} gói ${pkg.name}`)
       setPackages(prev => prev.map(p => p.id === pkg.id ? { ...p, isActive: !pkg.isActive } : p))
       setConfirmPkg(null)
     } catch (err) {
-      toast.error('Process failed')
+      toast.error('Thao tác không thành công.')
     }
   }
 
@@ -93,10 +93,10 @@ const AdminPackagesPage = () => {
         const res = await updatePackage(currentPkg.id, payload)
         if (res.success) {
           setPackages(prev => prev.map(p => p.id === currentPkg.id ? { ...p, ...payload } : p))
-          toast.success('Package updated successfully!')
+          toast.success('Đã cập nhật gói.')
           setIsModalOpen(false)
         } else {
-          toast.error(res.message || 'Process failed.')
+          toast.error(res.message || 'Thao tác không thành công.')
         }
       } else {
         // ===== CREATE (POST): không cần isActive (BE tự default true) =====
@@ -112,7 +112,7 @@ const AdminPackagesPage = () => {
         }
         const res = await createPackage(payload)
         if (!res.success) {
-          toast.success(res.message || 'Process failed.')
+          toast.success(res.message || 'Thao tác không thành công.')
           return
         } 
       }
@@ -120,15 +120,15 @@ const AdminPackagesPage = () => {
       const listRes = await getPackages(false)
       if (listRes.success) {
         setPackages(listRes.data)
-        toast.success(currentPkg ? 'Package updated successfully!' : 'Successfully created package!')
+        toast.success(currentPkg ? 'Đã cập nhật gói.' : 'Đã tạo gói mới.')
         setIsModalOpen(false)
       } else {
-        toast.error('Saved, but unable to reload the list.')
+        toast.error('Đã lưu, nhưng chưa tải lại được danh sách.')
       }
 
     } catch (err) {
       console.error(err)
-      toast.error('Process failed. Please try again.')
+      toast.error('Thao tác không thành công. Vui lòng thử lại.')
     } finally {
       setIsSaving(false)
     }
@@ -152,7 +152,7 @@ const AdminPackagesPage = () => {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-ink mb-1">Package Managment</h1>
+            <h1 className="text-2xl font-bold text-ink mb-1">Quản lý gói dịch vụ</h1>
             <p className="text-ink-soft text-sm">Set up subscription plans for lounge owner.</p>
           </div>
           <button onClick={openCreateModal} className="flex items-center gap-2 bg-brand text-on-brand px-4 py-2.5 rounded-lg font-bold text-sm hover:bg-brand-hover transition-colors">
@@ -163,7 +163,7 @@ const AdminPackagesPage = () => {
           <div className="w-16 h-16 rounded-2xl bg-brand/10 border border-brand/25 flex items-center justify-center mb-4">
             <Box size={28} className="text-brand-text" />
           </div>
-          <p className="text-ink-soft font-semibold mb-1">No packages available yet.</p>
+          <p className="text-ink-soft font-semibold mb-1">Chưa có gói dịch vụ nào.</p>
           <p className="text-ink-mute text-sm mb-5">Create the first package for lounge owners to subscribe.</p>
           <button onClick={openCreateModal} className="flex items-center gap-2 bg-brand text-on-brand px-4 py-2.5 rounded-lg font-bold text-sm hover:bg-brand-hover transition-colors">
             <Plus size={16} /> Create first package
@@ -186,8 +186,8 @@ const AdminPackagesPage = () => {
       {/* ===== HEADER ===== */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-ink mb-1">Package Management</h1>
-          <p className="text-ink-soft text-sm">Set up subscription plans.</p>
+          <h1 className="text-2xl font-bold text-ink mb-1">Quản lý gói dịch vụ</h1>
+          <p className="text-ink-soft text-sm">Thiết lập các gói đăng ký dịch vụ.</p>
         </div>
         <button
           onClick={openCreateModal}
@@ -201,7 +201,7 @@ const AdminPackagesPage = () => {
       <section className="space-y-4">
         <div className="flex items-center gap-2.5">
           <span className="w-2 h-2 rounded-full bg-green-400" />
-          <h2 className="text-sm font-bold text-ink-soft uppercase tracking-wide">Showing</h2>
+          <h2 className="text-sm font-bold text-ink-soft uppercase tracking-wide">Đang hiển thị</h2>
           <span className="px-2 py-0.5 rounded-full bg-green-500/10 border border-green-500/25 text-success text-xs font-bold">
             {activePkgs.length}
           </span>
@@ -225,7 +225,7 @@ const AdminPackagesPage = () => {
         <section className="space-y-4">
           <div className="flex items-center gap-2.5">
             <span className="w-2 h-2 rounded-full bg-red-400" />
-            <h2 className="text-sm font-bold text-ink-soft uppercase tracking-wide">Hide</h2>
+            <h2 className="text-sm font-bold text-ink-soft uppercase tracking-wide">Đang ẩn</h2>
             <span className="px-2 py-0.5 rounded-full bg-red-500/10 border border-red-500/25 text-danger text-xs font-bold">
               {hiddenPkgs.length}
             </span>

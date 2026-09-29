@@ -22,7 +22,7 @@ const ShareModal = ({ onClose }) => {
         <div className="flex items-center gap-2 bg-page border border-line rounded-lg p-2 pl-4">
           <span className="text-ink-soft text-sm flex-1 truncate">{window.location.href}</span>
           <button onClick={handleCopyLink} className={`px-4 py-2 rounded-md text-sm font-bold transition-colors flex items-center gap-1.5 ${isCopied ? 'bg-green-500 text-white' : 'bg-brand text-on-brand hover:bg-brand-hover'}`}>
-            {isCopied ? <><Check size={14} /> Đã copy</> : <><Copy size={14} /> Copy</>}
+            {isCopied ? <><Check size={14} /> Đã copy</> : <><Copy size={14} /> Sao chép</>}
           </button>
         </div>
       </div>

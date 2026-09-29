@@ -33,6 +33,11 @@ const Footer = () => {
           <ul className="text-sm">
             <li><Link to="/shows" className={linkCls}>Các đêm diễn</Link></li>
             <li><Link to="/lounges" className={linkCls}>Phòng trà</Link></li>
+            {/* Cửa công khai của sao kê tiền ủng hộ. Đặt ở chân trang vì đây là chỗ duy nhất xuất
+                hiện trên MỌI trang công khai — trước đây trang minh bạch chỉ vào được từ tab "Ủng
+                hộ" (phải đăng nhập) hoặc từ line-up trong chi tiết một đêm diễn, nên người ngoài
+                không có đường nào tìm ra. Đặt trên "khiếu nại" vì đây là lời hứa, không phải sự cố. */}
+            <li><Link to="/minh-bach" className={linkCls}>Minh bạch tiền ủng hộ</Link></li>
             <li><Link to="/complaints" className={linkCls}>Gửi &amp; tra cứu khiếu nại</Link></li>
             <li><a href="#" className={linkCls}>Giới thiệu</a></li>
             <li><a href="#" className={linkCls}>Điều khoản sử dụng</a></li>

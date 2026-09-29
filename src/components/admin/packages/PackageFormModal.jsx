@@ -50,7 +50,7 @@ const PackageFormModal = ({ isOpen, editingPkg, isSaving, onClose, onSubmit }) =
   const handleSubmit = (e) => {
     e.preventDefault()
     if (!formData.name.trim()) {
-      toast.error('Please fill package name')
+      toast.error('Vui lòng nhập tên gói.')
       return
     }
     onSubmit(formData)
@@ -76,7 +76,7 @@ const PackageFormModal = ({ isOpen, editingPkg, isSaving, onClose, onSubmit }) =
           {/* Tên gói & Giá */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-ink-soft mb-2">Package name</label>
+              <label className="block text-sm font-medium text-ink-soft mb-2">Tên gói</label>
               <input
                 type="text" required
                 disabled={isEditing} // BE không cho sửa tên khi EDIT
@@ -104,19 +104,19 @@ const PackageFormModal = ({ isOpen, editingPkg, isSaving, onClose, onSubmit }) =
           {/* Chu kỳ & Max Tickets */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-ink-soft mb-2">Payment cycle</label>
+              <label className="block text-sm font-medium text-ink-soft mb-2">Chu kỳ thanh toán</label>
               <select
                 disabled={isEditing} // BE không cho sửa chu kỳ khi EDIT
                 value={formData.billingCycle}
                 onChange={e => setFormData({...formData, billingCycle: e.target.value})}
                 className={`${inputCls} cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed`}
               >
-                <option value="Monthly">Monthly</option>
-                <option value="Yearly">Yearly</option>
+                <option value="Monthly">Hàng tháng</option>
+                <option value="Yearly">Hàng năm</option>
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-ink-soft mb-2">Max Ticket/Show</label>
+              <label className="block text-sm font-medium text-ink-soft mb-2">Số vé tối đa mỗi buổi diễn</label>
               <input
                 type="number" required min="0"
                 value={formData.maxTicketsPerEvent}
@@ -163,7 +163,7 @@ const PackageFormModal = ({ isOpen, editingPkg, isSaving, onClose, onSubmit }) =
               value={formData.description}
               onChange={e => setFormData({...formData, description: e.target.value})}
               className={`${inputCls} resize-none`}
-              placeholder="Briefly describe the package benefits...."
+              placeholder="Mô tả ngắn gọn quyền lợi của gói…"
             />
           </div>
 
@@ -176,7 +176,7 @@ const PackageFormModal = ({ isOpen, editingPkg, isSaving, onClose, onSubmit }) =
                 onChange={e => handleToggleAiPoster(e.target.checked)}
                 className="w-4 h-4 rounded border-line-strong bg-sunken text-brand-text focus:ring-brand focus:ring-offset-0"
               />
-              <span className="text-sm text-ink flex items-center gap-1.5"><Sparkles size={14} className="text-brand-text" /> Support Poster with AI</span>
+              <span className="text-sm text-ink flex items-center gap-1.5"><Sparkles size={14} className="text-brand-text" /> Hỗ trợ tạo poster bằng AI</span>
             </label>
 
             {/* Chỉ hiện khi Edit, vì Create BE tự mặc định true */}
@@ -188,7 +188,7 @@ const PackageFormModal = ({ isOpen, editingPkg, isSaving, onClose, onSubmit }) =
                   onChange={e => setFormData({...formData, isActive: e.target.checked})}
                   className="w-4 h-4 rounded border-line-strong bg-sunken text-brand-text focus:ring-brand focus:ring-offset-0"
                 />
-                <span className="text-sm text-ink">Show this package to Buyer.</span>
+                <span className="text-sm text-ink">Hiển thị gói này cho người mua.</span>
               </label>
             )}
           </div>

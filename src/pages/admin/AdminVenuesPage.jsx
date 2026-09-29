@@ -7,6 +7,7 @@ import VenuesFilterBar from '../../components/admin/venues/VenuesFilterBar'
 import VenuesTable from '../../components/admin/venues/VenuesTable'
 import ReviewVenueModal from '../../components/admin/venues/ReviewVenueModal'
 import IssuePenaltyModal from '../../components/admin/venues/IssuePenaltyModal'
+import VenueDossierModal from '../../components/admin/venues/VenueDossierModal'
 
 // 6 status BE hỗ trợ
 const ALL_STATUSES = ['Pending', 'Approved', 'Warned', 'Suspended', 'Locked', 'Rejected']
@@ -26,6 +27,7 @@ const AdminVenuesPage = () => {
 
   // Duyet ho so phong tra: khong duyet thi phong tra treo mai o Pending, khong ban ve duoc.
   const [reviewTarget, setReviewTarget] = useState(null) // { venue, decision }
+  const [dossierTarget, setDossierTarget] = useState(null) // ho so dang mo de doc truoc khi duyet
   // Khoa tai lai: effect lay danh sach chi phu thuoc [page, statusFilter], nen dat lai cung mot
   // trang se KHONG chay lai. Tang khoa nay moi buoc effect chay.
   const [reloadKey, setReloadKey] = useState(0)
@@ -71,7 +73,7 @@ const AdminVenuesPage = () => {
         }
       } catch (err) {
         console.error('Error loading venues:', err)
-        toast.error('Unable to load Musical Venue')
+        toast.error('Không tải được danh sách phòng trà.')
       } finally {
         setIsLoading(false)
       }
@@ -105,7 +107,7 @@ const AdminVenuesPage = () => {
       <div className="flex items-center gap-3">
         <Building2 size={28} className="text-brand-text" />
         <div>
-          <h1 className="text-2xl font-bold text-ink">Manage Venue</h1>
+          <h1 className="text-2xl font-bold text-ink">Quản lý phòng trà</h1>
           <p className="text-ink-soft text-sm">Manage the status of tea rooms within the system.</p>
         </div>
       </div>
@@ -129,9 +131,23 @@ const AdminVenuesPage = () => {
         isLoading={isLoading}
         pagination={pagination}
         onPageChange={(page) => setPagination(prev => ({ ...prev, page }))}
+        onViewDossier={(venue) => setDossierTarget(venue)}
         onReview={(venue, decision) => setReviewTarget({ venue, decision })}
         onPenalize={(venue) => setPenalizeTarget(venue)}
       />
+
+      {/* Hồ sơ đã nộp. Bấm Duyệt/Từ chối ngay trong đó thì ĐÓNG hồ sơ rồi mới mở hộp thoại nhập lý
+          do — hai hộp thoại chồng nhau vừa che mất nội dung vừa làm rối thứ tự focus bàn phím. */}
+      {dossierTarget && (
+        <VenueDossierModal
+          venue={dossierTarget}
+          onClose={() => setDossierTarget(null)}
+          onReview={(venue, decision) => {
+            setDossierTarget(null)
+            setReviewTarget({ venue, decision })
+          }}
+        />
+      )}
 
       {penalizeTarget && (
         <IssuePenaltyModal

@@ -55,7 +55,7 @@ const AdminComplaintPage = () => {
                 if (cancelled) return
                 console.error('Error loading complaints:', err)
                 // 422 = tên trạng thái sai; message của backend liệt kê giá trị hợp lệ nên hiện thẳng.
-                toast.error(err?.response?.data?.message || 'Unable to load complaint list')
+                toast.error(err?.response?.data?.message || 'Không tải được danh sách khiếu nại.')
             } finally {
                 if (!cancelled) setIsLoading(false)
             }
@@ -87,7 +87,7 @@ const AdminComplaintPage = () => {
     // 4. EXPORT CSV các dòng đã lọc
     const handleExportCSV = () => {
         if (filteredComplaints.length === 0) {
-            toast.error('No data to export')
+            toast.error('Không có dữ liệu để xuất.')
             return
         }
         const header = ['ID', 'Category', 'Target', 'Description', 'Contact number', 'Status', 'Create']
@@ -109,7 +109,7 @@ const AdminComplaintPage = () => {
         a.download = `complaints_page${pagination.page}_${dayjs().format('YYYYMMDD_HHmm')}.csv`
         a.click()
         URL.revokeObjectURL(url)
-        toast.success('Exported CSV!')
+        toast.success('Đã xuất tệp CSV.')
     }
 
     return (
@@ -117,8 +117,8 @@ const AdminComplaintPage = () => {
 
             {/* HEADER */}
             <div>
-                <h1 className="text-2xl font-bold text-ink mb-1">Report Management</h1>
-                <p className="text-ink-soft text-sm">User complaints.</p>
+                <h1 className="text-2xl font-bold text-ink mb-1">Xử lý khiếu nại</h1>
+                <p className="text-ink-soft text-sm">Khiếu nại do người dùng gửi.</p>
             </div>
 
             {/* FILTERS */}

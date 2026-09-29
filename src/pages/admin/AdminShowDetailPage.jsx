@@ -90,7 +90,7 @@ const AdminShowDetailPage = () => {
       )
 
       if (res.success) {
-        toast.success(decision === 'approve' ? 'Content approved!' : 'Content rejected!')
+        toast.success(decision === 'approve' ? 'Đã duyệt nội dung.' : 'Đã từ chối nội dung.')
         setIsModerationOpen(false)
         setModeration(null)
         // Refresh lại show (status có thể đổi sau khi duyệt, VD: Draft → Published)
@@ -99,13 +99,13 @@ const AdminShowDetailPage = () => {
           setData(prev => ({ ...prev, status: detailRes.data.status }))
         }
       } else {
-        toast.error(res.message || 'Process failed.')
+        toast.error(res.message || 'Thao tác không thành công.')
       }
     } catch (err) {
       console.error('Lỗi duyệt:', err)
       // Hiển thị message BE trả về (VD: moderation đã được xử lý, không tồn tại...)
       const beMessage = err?.response?.data?.message
-      toast.error(beMessage || 'Process failed. Try again.')
+      toast.error(beMessage || 'Thao tác không thành công. Hãy thử lại.')
     } finally {
       setProcessingDecision(null)
     }
@@ -160,8 +160,8 @@ const AdminShowDetailPage = () => {
       {/* TABS */}
       <div className="max-w-[1600px] mx-auto px-6 mt-8 mb-6 border-b border-line">
         <div className="flex gap-8">
-          <button onClick={() => setActiveTab('intro')} className={`pb-4 text-lg font-bold border-b-2 transition-colors ${activeTab === 'intro' ? 'border-brand text-brand-text' : 'border-transparent text-ink-mute hover:text-ink'}`}>Detail</button>
-          <button onClick={() => setActiveTab('map')} className={`pb-4 text-lg font-bold border-b-2 transition-colors ${activeTab === 'map' ? 'border-brand text-brand-text' : 'border-transparent text-ink-mute hover:text-ink'}`}>Seating area</button>
+          <button onClick={() => setActiveTab('intro')} className={`pb-4 text-lg font-bold border-b-2 transition-colors ${activeTab === 'intro' ? 'border-brand text-brand-text' : 'border-transparent text-ink-mute hover:text-ink'}`}>Chi tiết</button>
+          <button onClick={() => setActiveTab('map')} className={`pb-4 text-lg font-bold border-b-2 transition-colors ${activeTab === 'map' ? 'border-brand text-brand-text' : 'border-transparent text-ink-mute hover:text-ink'}`}>Khu vực chỗ ngồi</button>
         </div>
       </div>
 

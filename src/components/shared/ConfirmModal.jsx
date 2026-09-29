@@ -37,7 +37,7 @@ const ConfirmModal = ({
           <div className={`
             relative w-16 h-16 mx-auto mb-5 rounded-2xl flex items-center justify-center
             ${danger
-              ? 'bg-red-500/10 border border-red-500/30 shadow-[0_0_30px_rgba(239,68,68,0.15)]'
+              ? 'bg-danger/10 border border-danger/30 shadow-[0_0_30px_rgba(179,56,44,0.15)]'
               : 'bg-brand/10 border border-brand/30 shadow-[0_0_30px_rgba(195,182,101,0.15)]'}
           `}>
             <AlertTriangle size={30} className={danger ? 'text-danger' : 'text-brand-text'} />
@@ -61,7 +61,7 @@ const ConfirmModal = ({
               disabled={isProcessing}
               className={`flex-1 py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98] ${
                 danger
-                  ? 'bg-red-500 text-white hover:bg-red-600 shadow-lg shadow-red-500/20'
+                  ? 'bg-danger text-page hover:bg-danger/90 shadow-lg shadow-danger/20'
                   : 'bg-brand text-on-brand hover:bg-brand-hover shadow-lg shadow-brand/20'
               }`}
             >
@@ -71,7 +71,7 @@ const ConfirmModal = ({
           </div>
         </div>
 
-        <div className={`h-1 w-full ${danger ? 'bg-gradient-to-r from-transparent via-red-500/60 to-transparent' : 'bg-gradient-to-r from-transparent via-brand/60 to-transparent'}`} />
+        <div className={`h-1 w-full ${danger ? 'bg-gradient-to-r from-transparent via-danger/60 to-transparent' : 'bg-gradient-to-r from-transparent via-brand/60 to-transparent'}`} />
       </div>
     </div>
   )
