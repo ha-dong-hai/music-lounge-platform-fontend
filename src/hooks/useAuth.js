@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-// ⛔ ĐÃ ẨN: Google Login — bỏ import firebase khi khôi phục thì mở lại
+
 // import { signInWithPopup } from 'firebase/auth';
 import toast from 'react-hot-toast';
 import * as aServices from '../services/aServices';
 import { useAuthStore } from '../store/useAuthStore';
-// ⛔ ĐÃ ẨN: Google Login
+
 // import { firebaseAuth, googleAuthProvider, isFirebaseConfigured } from '../config/firebase';
 
 // Trang đích sau khi có token thật (login / verify-email) — theo role backend trả về
@@ -86,8 +86,6 @@ export const useAuth = () => {
     }
   };
 
-  // ⛔ ĐÃ ẨN: GOOGLE LOGIN — khi khôi phục, mở lại 2 hàm dưới đây (giữ nguyên code gốc):
-  //
   // // Mở popup đăng nhập Google qua Firebase, lấy Firebase ID token rồi gửi cho backend — không dùng
   // // trực tiếp token của thư viện Google OAuth thuần vì backend chỉ verify được Firebase ID token.
   // const handleGoogleSignIn = async (acceptTerms = false) => {

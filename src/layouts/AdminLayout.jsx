@@ -1,5 +1,5 @@
 import { Outlet, NavLink, useNavigate } from 'react-router-dom'
-import { LayoutDashboard, Music, Package, LogOut, Users, Receipt, MessageSquareWarning, SlidersHorizontal, Landmark } from 'lucide-react'
+import { LayoutDashboard, Music, Package, LogOut, Users, Receipt, MessageSquareWarning, SlidersHorizontal, Landmark, TrendingUp, ShieldCheck } from 'lucide-react'
 
 const AdminLayout = () => {
   const navigate = useNavigate()
@@ -17,7 +17,7 @@ const AdminLayout = () => {
     }`
 
   return (
-    <div className="flex h-screen bg-black overflow-hidden">
+    <div className="flex h-screen bg-black chat-scrollbar overflow-hidden ">
 
       {/* SIDEBAR */}
       <aside className="w-64 bg-gray-950 text-white flex flex-col h-full flex-shrink-0 border-r border-gray-900">
@@ -38,6 +38,12 @@ const AdminLayout = () => {
           <NavLink to="/admin/filter-options" className={linkClasses}>
             <SlidersHorizontal size={20} />
             <span>Filter Options</span>
+          </NavLink>
+          <NavLink to="/admin/kyc-reviews" className={linkClasses}>
+            <ShieldCheck size={18} /> Duyệt định danh
+          </NavLink>
+          <NavLink to="/admin/insights" className={linkClasses}>
+            <TrendingUp size={18} /> Nội dung &amp; tương tác
           </NavLink>
           <NavLink to="/admin/accounts" className={linkClasses}>
             <Users size={18} /> Account management

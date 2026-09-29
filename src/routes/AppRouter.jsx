@@ -32,6 +32,8 @@ import FnbOrderPage from '../pages/fnb/FnbOrderPage'
 import PaymentResultPage from '../pages/payment/PaymentResultPage'
 import NotificationsPage from '../pages/user/NotificationsPage'
 import LoginPage from '../pages/auth/LoginPage'
+import AdminInsightsPage from '../pages/admin/AdminInsightsPage'
+import AdminKycReviewsPage from '../pages/admin/AdminKycReviewsPage'
 
 const AppRouter = createBrowserRouter([
   {
@@ -81,6 +83,8 @@ const AppRouter = createBrowserRouter([
       { path: 'complaint', element: <AdminComplaintPage /> },
       { path: 'venues', element: <AdminVenuesPage /> },
       { path: 'filter-options', element: <AdminFilterOptionsPage /> },
+      { path: 'kyc-reviews', element: <AdminKycReviewsPage /> },
+      { path: 'insights', element: <AdminInsightsPage /> },
       { path: 'bank-accounts', element: <AdminBankAccountsPage /> },
     ]
   },

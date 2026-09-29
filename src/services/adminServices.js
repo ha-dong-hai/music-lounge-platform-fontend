@@ -101,3 +101,18 @@ export const getAdminBankAccounts = async (params = {}) => {
 export const reviewBankAccount = async (id, approve, note = '') => {
   return axiosClient.post(`/admin/bank-accounts/${id}/review`, { approve, note });
 };
+
+// ===== DUYỆT ĐỊNH DANH (KYC) =====
+
+// (CCCD và hồ sơ thuế) được duyệt ĐỘC LẬP nhau.
+export const getKycReviewQueue = async (params = {}) => {
+  return axiosClient.get('/admin/kyc-reviews', { params });
+};
+
+export const reviewKycDocument = async (userId, document, { approve, note = null }) => {
+  return axiosClient.post(`/admin/kyc-reviews/${userId}/${document}`, { approve, note });
+};
+
+export const getUserCitizenCardImage = async (userId, side) => {
+  return axiosClient.get(`/admin/users/${userId}/citizen-card/${side}`, { responseType: 'blob' });
+};
