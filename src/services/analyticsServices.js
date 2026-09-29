@@ -19,3 +19,17 @@ export const getRecommenderEvaluation = async (k = 10) => {
 export const getAdminDashboard = async (params = {}) => {
   return axiosClient.get('/analytics/admin-dashboard', { params });
 };
+
+// ===== THỐNG KÊ PHÍA ADMIN =====
+
+export const getAdminContentOverview = async () => {
+  return axiosClient.get('/analytics/admin-content-overview');
+};
+
+export const getAudienceEngagement = async (params = {}) => {
+  return axiosClient.get('/analytics/audience-engagement', { params });
+};
+
+export const getAiRecommendationPerformance = async (params = {}) => {
+  return axiosClient.get('/analytics/ai-recommendation-performance', { params });
+};
