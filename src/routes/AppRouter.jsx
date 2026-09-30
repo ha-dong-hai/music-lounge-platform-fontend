@@ -38,6 +38,8 @@ import AdminLedgerPage from '../pages/admin/AdminLedgerPage'
 import AdminPenaltyAppealsPage from '../pages/admin/AdminPenaltyAppealsPage'
 import AdminRefundsPage from '../pages/admin/AdminRefundsPage'
 import AdminSettlementsPage from '../pages/admin/AdminSettlementsPage'
+import AdminContentReportsPage from '../pages/admin/AdminContentReportsPage'
+import AdminSystemConfigPage from '../pages/admin/AdminSystemConfigPage'
 
 const AppRouter = createBrowserRouter([
   {
@@ -89,9 +91,11 @@ const AppRouter = createBrowserRouter([
       { path: 'filter-options', element: <AdminFilterOptionsPage /> },
       { path: 'kyc-reviews', element: <AdminKycReviewsPage /> },
       { path: 'insights', element: <AdminInsightsPage /> },
+      { path: 'system-config', element: <AdminSystemConfigPage /> },
       { path: 'ledger', element: <AdminLedgerPage /> },
       { path: 'bank-accounts', element: <AdminBankAccountsPage /> },
       { path: 'penalty-appeals', element: <AdminPenaltyAppealsPage /> },
+      { path: 'content-reports', element: <AdminContentReportsPage /> },
       { path: 'refunds', element: <AdminRefundsPage /> },
       { path: 'settlements', element: <AdminSettlementsPage /> },
     ]
