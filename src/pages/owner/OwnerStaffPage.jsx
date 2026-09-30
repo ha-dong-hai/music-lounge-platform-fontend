@@ -66,7 +66,7 @@ const AddStaffModal = ({ loungeId, onClose, onSaved }) => {
           </p>
 
           <form onSubmit={traCuu} className="flex gap-2">
-            <input value={email} onChange={(e) => { setEmail(e.target.value); setNguoiTim(null) }}
+            <input aria-label="email@example.com" value={email} onChange={(e) => { setEmail(e.target.value); setNguoiTim(null) }}
               type="email" placeholder="email@example.com" autoFocus className={`flex-1 ${inputCls}`} />
             <button type="submit" disabled={busy !== null || !email.trim()}
               className="flex items-center gap-1.5 px-4 py-2 border border-line text-ink-soft text-sm font-bold hover:bg-sunken disabled:opacity-50">

@@ -63,7 +63,7 @@ const ProfileTab = () => {
             setAvatarUrlToSave(null)
           }
         }
-      } catch (err) {
+      } catch {
         console.error('Error loading profile:', err)
         toast.error('Không tải được thông tin tài khoản')
       } finally {
@@ -91,7 +91,7 @@ const ProfileTab = () => {
         setAvatarUrlToSave(uploadedUrl)
         toast.success('Đã tải ảnh lên.')
       }
-    } catch (err) {
+    } catch {
       toast.error('Tải ảnh lên không thành công.')
       setAvatarPreview(user?.avatarUrl || defaultAvatar)
       setAvatarUrlToSave(user?.avatarUrl || null)
@@ -120,7 +120,7 @@ const ProfileTab = () => {
       useAuthStore.setState({ user: updatedUser })
       localStorage.setItem('user', JSON.stringify(updatedUser))
       toast.success('Đã lưu thông tin tài khoản.')
-    } catch (err) {
+    } catch {
       toast.error('Cập nhật không thành công.')
     } finally {
       setIsSaving(false)
@@ -152,36 +152,37 @@ const ProfileTab = () => {
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         
         <div className="flex items-center gap-6 pb-6 border-b border-line">
-          <div className="relative cursor-pointer group" onClick={handleAvatarClick}>
-            <img src={avatarPreview} alt="Ảnh đại diện" className="w-24 h-24 object-cover border-2 border-ink" />
-            <div className="absolute inset-0 bg-ink/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-              {isUploading ? <Loader2 size={24} className="text-ink animate-spin" /> : <Camera size={24} className="text-ink" />}
-            </div>
-            <div className="absolute bottom-0 right-0 p-1.5 bg-ink text-lamp border-2 border-line"><Camera size={14} /></div>
-            <input type="file" ref={fileInputRef} onChange={handleAvatarChange} className="hidden" accept="image/*" disabled={isUploading} />
-          </div>
+          {/* Nút thật (bản cũ là <div onClick>, bàn phím không tới được). Lớp phủ khi rê chuột dùng chữ sáng trên nền mực. */}
+          <button type="button" onClick={handleAvatarClick} disabled={isUploading} aria-label="Đổi ảnh đại diện" className="relative group flex-shrink-0">
+            <img src={avatarPreview} alt="" className="w-24 h-24 object-cover border-2 border-ink" />
+            <span className={`absolute inset-0 bg-board/60 flex items-center justify-center transition-opacity ${isUploading ? 'opacity-100' : 'opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100'}`}>
+              {isUploading ? <Loader2 size={24} className="text-lamp animate-spin" aria-hidden="true" /> : <Camera size={24} className="text-lamp" aria-hidden="true" />}
+            </span>
+            <span className="absolute bottom-0 right-0 p-1.5 bg-ink text-lamp"><Camera size={14} aria-hidden="true" /></span>
+          </button>
+          <input type="file" ref={fileInputRef} onChange={handleAvatarChange} className="hidden" accept="image/*" disabled={isUploading} />
           <div>
             <h3 className="text-ink font-bold text-lg">{user?.name || 'Tên người dùng'}</h3>
-            <p className="text-ink-soft text-sm">Bấm vào ảnh để đổi ảnh đại diện.</p>
+            <p className="text-ink-soft text-sm">Bấm vào ảnh để đổi ảnh đại diện (tệp hình).</p>
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label className="block text-sm font-medium text-ink-soft mb-2">Họ và tên</label>
-            <input type="text" {...register('name')} className={`w-full px-4 py-2.5 bg-page border text-ink text-sm focus:outline-none focus:border-ink/50 ${errors.name ? 'border-danger' : 'border-line'}`} />
-            {errors.name && <p className="mt-1 text-xs text-danger">{errors.name.message}</p>}
+            <label htmlFor="ho-so-ten" className="block font-semibold text-ink mb-1">Họ và tên</label>
+            <input type="text" {...register('name')} id="ho-so-ten" aria-invalid={errors.name ? 'true' : undefined} aria-describedby={errors.name ? 'ho-so-ten-loi' : undefined} className={`w-full px-4 py-2.5 bg-card border-2 text-ink focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2 ${errors.name ? 'border-danger' : 'border-ink'}`} />
+            {errors.name && <p id="ho-so-ten-loi" className="mt-1.5 text-sm font-semibold text-danger">{errors.name.message}</p>}
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-ink-soft mb-2">Số điện thoại</label>
-            <input type="tel" {...register('phone')} className={`w-full px-4 py-2.5 bg-page border text-ink text-sm focus:outline-none focus:border-ink/50 ${errors.phone ? 'border-danger' : 'border-line'}`} />
-            {errors.phone && <p className="mt-1 text-xs text-danger">{errors.phone.message}</p>}
+            <label htmlFor="ho-so-sdt" className="block font-semibold text-ink mb-1">Số điện thoại</label>
+            <input type="tel" {...register('phone')} id="ho-so-sdt" aria-invalid={errors.phone ? 'true' : undefined} aria-describedby={errors.phone ? 'ho-so-sdt-loi' : undefined} className={`w-full px-4 py-2.5 bg-card border-2 text-ink focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2 ${errors.phone ? 'border-danger' : 'border-ink'}`} />
+            {errors.phone && <p id="ho-so-sdt-loi" className="mt-1.5 text-sm font-semibold text-danger">{errors.phone.message}</p>}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-ink-soft mb-2">Email (không đổi được)</label>
-            <input type="email" value={user?.email || ''} disabled className="w-full px-4 py-2.5 bg-sunken/50 border border-line text-ink-mute text-sm cursor-not-allowed" />
+            <label htmlFor="ho-so-email" className="block font-semibold text-ink mb-1">Email <span className="font-normal text-ink-mute">(không đổi được)</span></label>
+            <input id="ho-so-email" type="email" value={user?.email || ''} disabled className="w-full px-4 py-2.5 bg-sunken/50 border border-line text-ink-mute text-sm cursor-not-allowed" />
           </div>
         </div>
 
@@ -191,7 +192,7 @@ const ProfileTab = () => {
             disabled={isSaving || isUploading} 
             className="flex items-center gap-2 bg-ink text-lamp px-6 py-2.5 text-sm font-bold hover:bg-board transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isSaving ? <><Loader2 size={16} className="animate-spin" /> Đang lưu…</> : <><Save size={16} /> Đã lưu</>}
+            {isSaving ? <><Loader2 size={16} className="animate-spin" aria-hidden="true" /> Đang lưu…</> : <><Save size={16} aria-hidden="true" /> Lưu thay đổi</>}
           </button>
         </div>
       </form>

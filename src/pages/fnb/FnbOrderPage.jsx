@@ -181,19 +181,20 @@ const FnbOrderPage = () => {
                       <div className="min-w-0">
                         <p className="text-ink font-medium">{item.name}</p>
                         {item.description && <p className="text-xs text-ink-mute mt-0.5">{item.description}</p>}
-                        <p className="text-ink text-sm font-bold mt-1">{fmtMoney(item.price)}</p>
+                        <p className="font-mono mt-1">{fmtMoney(item.price)}</p>
                       </div>
                       <div className="flex items-center gap-2 flex-shrink-0">
                         {cart[item.id] ? (
                           <>
-                            <button onClick={() => changeQty(item.id, -1)} className="w-8 h-8 border border-line flex items-center justify-center hover:border-ink hover:text-ink" aria-label="Bớt một">
-                              <Minus size={14} />
+                            <button type="button" onClick={() => changeQty(item.id, -1)} className="w-11 h-11 border-2 border-ink flex items-center justify-center hover:bg-ink hover:text-lamp" aria-label={`Bớt một ${item.name}`}>
+                              <Minus size={16} aria-hidden="true" />
                             </button>
-                            <span className="w-6 text-center font-bold">{cart[item.id]}</span>
+                            {/* Số lượng đọc lên khi đổi (aria-live): người dùng trình đọc màn hình biết lượt bấm đã có tác dụng. */}
+                            <span className="w-8 text-center font-mono font-semibold" aria-live="polite" aria-label={`${cart[item.id]} phần ${item.name}`}>{cart[item.id]}</span>
                           </>
                         ) : null}
-                        <button onClick={() => changeQty(item.id, 1)} className="w-8 h-8 bg-ink text-lamp flex items-center justify-center hover:bg-board" aria-label="Thêm một">
-                          <Plus size={14} />
+                        <button type="button" onClick={() => changeQty(item.id, 1)} className="w-11 h-11 bg-ink text-lamp flex items-center justify-center hover:bg-board" aria-label={`Thêm một ${item.name}`}>
+                          <Plus size={16} aria-hidden="true" />
                         </button>
                       </div>
                     </div>
@@ -227,11 +228,12 @@ const FnbOrderPage = () => {
                     })}
                   </div>
 
+                  <label htmlFor="goi-mon-so-ban" className="block font-semibold mb-1">Số bàn hoặc vị trí <span className="font-normal text-ink-mute">(không bắt buộc)</span></label>
                   <input
+                    id="goi-mon-so-ban"
                     value={tableNote}
                     onChange={(e) => setTableNote(e.target.value)}
-                    placeholder="Số bàn / vị trí (không bắt buộc)"
-                    className="w-full px-3 py-2 bg-page border border-line text-sm placeholder:text-ink-mute mb-3"
+                    className="w-full min-h-[44px] px-3 bg-card border-2 border-ink text-ink mb-3 focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2"
                   />
 
                   <div className="flex justify-between font-bold border-t border-line pt-3 mb-4">
@@ -240,13 +242,21 @@ const FnbOrderPage = () => {
                   </div>
 
                   <button
+                    type="button"
                     onClick={handleSubmit}
                     disabled={!user || !!busy}
-                    className="w-full py-2.5 bg-ink text-lamp font-bold text-sm hover:bg-board disabled:opacity-50"
+                    aria-describedby={!user ? 'goi-mon-can-dang-nhap' : undefined}
+                    className="w-full min-h-[48px] bg-ink text-lamp font-semibold hover:bg-board disabled:opacity-50"
                   >
-                    {busy === 'submit' ? 'Đang gửi...' : 'Gửi đơn tới quầy'}
+                    {busy === 'submit' ? 'Đang gửi…' : 'Gửi đơn tới quầy'}
                   </button>
-                  <p className="text-[11px] text-ink-mute mt-2 leading-relaxed">
+                  {/* Nút bị khoá thì lý do phải nằm NGAY cạnh nút, không chỉ ở đầu trang. */}
+                  {!user && (
+                    <p id="goi-mon-can-dang-nhap" className="text-sm mt-2">
+                      Cần <Link to="/login" state={{ from: `/lounge/${loungeId}/order` }} className="font-semibold underline underline-offset-4">đăng nhập</Link> để gửi đơn.
+                    </p>
+                  )}
+                  <p className="text-sm text-ink-soft mt-2 leading-relaxed">
                     Đơn gửi đi mặc định là trả tiền mặt tại quầy. Sau khi gửi, bạn có thể chọn trả online.
                   </p>
                 </>

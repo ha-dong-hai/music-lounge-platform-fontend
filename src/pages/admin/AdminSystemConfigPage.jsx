@@ -80,13 +80,13 @@ const EditModal = ({ config, onClose, onSaved }) => {
               Giá trị mới <span className="text-danger">*</span>
               <span className="text-ink-mute"> · kiểu {config.dataType}</span>
             </label>
-            <input value={configValue} onChange={(e) => setConfigValue(e.target.value)}
+            <input aria-label="Giá trị mới (bắt buộc)" value={configValue} onChange={(e) => setConfigValue(e.target.value)}
               className="mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink focus:outline-none focus:border-ink/50 tabular-nums" />
           </div>
 
           <div>
             <label className="text-xs text-ink-mute">Lý do thay đổi <span className="text-danger">*</span></label>
-            <textarea value={note} onChange={(e) => setNote(e.target.value)} rows={3}
+            <textarea aria-label="Lý do thay đổi" value={note} onChange={(e) => setNote(e.target.value)} rows={3}
               className="mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink focus:outline-none focus:border-ink/50 resize-none"
               placeholder="Vì sao đổi, theo quyết định nào. Nội dung này lưu vĩnh viễn trong lịch sử." />
           </div>

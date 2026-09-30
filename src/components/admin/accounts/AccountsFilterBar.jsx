@@ -9,7 +9,7 @@ const AccountsFilterBar = ({
     <div className="bg-card border border-line p-4 flex flex-col md:flex-row gap-4 items-center">
       <div className="relative flex-1 w-full">
         <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-mute" />
-        <input
+        <input aria-label="Tìm theo tên, email hoặc số điện thoại"
           type="text"
           placeholder="Tìm theo tên, email hoặc số điện thoại…"
           value={searchQuery}
@@ -18,7 +18,7 @@ const AccountsFilterBar = ({
         />
       </div>
 
-      <select
+      <select aria-label="Lọc theo vai trò"
         value={roleFilter}
         onChange={(e) => setRoleFilter(e.target.value)}
         className="w-full md:w-auto px-4 py-2.5 bg-page border border-line text-sm text-ink focus:outline-none focus:border-ink/50 cursor-pointer"
@@ -30,7 +30,7 @@ const AccountsFilterBar = ({
         <option value="Admin">Quản trị viên</option>
       </select>
 
-      <select
+      <select aria-label="Lọc theo trạng thái"
         value={statusFilter}
         onChange={(e) => setStatusFilter(e.target.value)}
         className="w-full md:w-auto px-4 py-2.5 bg-page border border-line text-sm text-ink focus:outline-none focus:border-ink/50 cursor-pointer"

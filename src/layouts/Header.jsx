@@ -168,7 +168,7 @@ const Header = () => {
             <button type="submit" className="absolute left-1 top-1/2 -translate-y-1/2 w-10 h-10 inline-flex items-center justify-center text-ink cursor-pointer" aria-label="Tìm kiếm">
               <Search size={18} strokeWidth={2.5}/>
             </button>
-            <input
+            <input aria-label="Tìm đêm nhạc, phòng trà, nghệ sĩ"
               type="text"
               value={localSearch}
               onChange={e => {

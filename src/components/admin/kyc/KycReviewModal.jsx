@@ -50,7 +50,7 @@ const KycReviewModal = ({ target, isProcessing, onClose, onSubmit }) => {
             <label className="text-xs text-ink-mute">
               Ghi chú {laTuChoi && <span className="text-danger">* (bắt buộc khi từ chối)</span>}
             </label>
-            <textarea value={note} onChange={(e) => setNote(e.target.value)} rows={4} disabled={isProcessing}
+            <textarea aria-label={laTuChoi ? "Ghi chú (bắt buộc khi từ chối)" : "Ghi chú"} value={note} onChange={(e) => setNote(e.target.value)} rows={4} disabled={isProcessing}
               className="mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink focus:outline-none focus:border-ink/50 resize-none disabled:opacity-50"
               placeholder={laTuChoi
                 ? 'Ví dụ: ảnh mặt sau bị mờ, không đọc được số; hãy chụp lại rõ hơn.'

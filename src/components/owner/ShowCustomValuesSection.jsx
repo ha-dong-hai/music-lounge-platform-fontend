@@ -360,7 +360,7 @@ const ShowCustomValuesSection = ({ showId }) => {
               </label>
 
               {c.dataType === 'Select' && Array.isArray(opts) ? (
-                <select value={giaTriHienTai} onChange={(e) => dat(c.criteriaId, e.target.value)} className={inputCls}>
+                <select aria-label={c.name} value={giaTriHienTai} onChange={(e) => dat(c.criteriaId, e.target.value)} className={inputCls}>
                   <option value="">— không đặt —</option>
                   {opts.map((o) => <option key={String(o)} value={String(o)}>{String(o)}</option>)}
                   {lac !== null && (
@@ -368,7 +368,7 @@ const ShowCustomValuesSection = ({ showId }) => {
                   )}
                 </select>
               ) : c.dataType === 'Boolean' ? (
-                <select value={giaTriHienTai} onChange={(e) => dat(c.criteriaId, e.target.value)} className={inputCls}>
+                <select aria-label={c.name} value={giaTriHienTai} onChange={(e) => dat(c.criteriaId, e.target.value)} className={inputCls}>
                   <option value="">— không đặt —</option>
                   <option value="true">Có</option>
                   <option value="false">Không</option>
@@ -378,7 +378,7 @@ const ShowCustomValuesSection = ({ showId }) => {
                 </select>
               ) : c.dataType === 'Range' && opts && typeof opts === 'object' ? (
                 <>
-                  <input type="number" value={giaTriHienTai}
+                  <input type="number" aria-label={c.name} value={giaTriHienTai}
                     min={opts.min} max={opts.max} step={opts.step ?? 1}
                     onChange={(e) => dat(c.criteriaId, e.target.value)} className={inputCls} />
                   <p className="text-[11px] text-ink-mute mt-1">
@@ -388,7 +388,7 @@ const ShowCustomValuesSection = ({ showId }) => {
                 </>
               ) : (
                 // Text, hoặc Select/Range mà options không đọc được → chữ tự do, tối đa 1000 ký tự
-                <input value={giaTriHienTai} maxLength={1000}
+                <input aria-label={c.name} value={giaTriHienTai} maxLength={1000}
                   onChange={(e) => dat(c.criteriaId, e.target.value)} className={inputCls} />
               )}
 

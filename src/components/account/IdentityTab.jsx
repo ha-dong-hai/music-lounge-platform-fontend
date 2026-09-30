@@ -264,7 +264,7 @@ const IdentityTab = () => {
               </button>
             </div>
             <form onSubmit={xacThuc} className="flex gap-2">
-              <input value={code} onChange={(e) => setCode(e.target.value)} placeholder="Nhập mã nhận được"
+              <input aria-label="Nhập mã nhận được" value={code} onChange={(e) => setCode(e.target.value)} placeholder="Nhập mã nhận được"
                 className="flex-1 px-3 py-2 bg-page border border-line text-sm text-ink focus:outline-none focus:border-ink/50" />
               <button type="submit" disabled={busyPhone !== null || !code.trim()}
                 className="px-4 py-2 bg-ink text-lamp text-sm font-bold disabled:opacity-50">
@@ -354,12 +354,12 @@ const IdentityTab = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="text-xs text-ink-mute">Số CCCD <span className="text-danger">*</span></label>
-                <input value={cccd.citizenCardNumber} onChange={(e) => setCccd((p) => ({ ...p, citizenCardNumber: e.target.value }))}
+                <input aria-label="Số CCCD" value={cccd.citizenCardNumber} onChange={(e) => setCccd((p) => ({ ...p, citizenCardNumber: e.target.value }))}
                   className={inputCls} inputMode="numeric" />
               </div>
               <div>
                 <label className="text-xs text-ink-mute">Ngày sinh (như trên CCCD) <span className="text-danger">*</span></label>
-                <input type="date" value={cccd.dateOfBirth} onChange={(e) => setCccd((p) => ({ ...p, dateOfBirth: e.target.value }))}
+                <input aria-label="Ngày sinh (như trên CCCD)" type="date" value={cccd.dateOfBirth} onChange={(e) => setCccd((p) => ({ ...p, dateOfBirth: e.target.value }))}
                   className={inputCls} />
               </div>
             </div>
@@ -427,7 +427,7 @@ const IdentityTab = () => {
             <form onSubmit={luuThue} className="space-y-4">
               <div>
                 <label className="text-xs text-ink-mute">Loại hình <span className="text-danger">*</span></label>
-                <select value={tax.businessType} onChange={(e) => setTax((p) => ({ ...p, businessType: e.target.value }))} className={inputCls}>
+                <select aria-label="Loại hình" value={tax.businessType} onChange={(e) => setTax((p) => ({ ...p, businessType: e.target.value }))} className={inputCls}>
                   <option value="">— chọn —</option>
                   <option value="HouseholdBusiness">Hộ kinh doanh</option>
                   <option value="Individual">Cá nhân kinh doanh</option>
@@ -435,11 +435,11 @@ const IdentityTab = () => {
               </div>
               <div>
                 <label className="text-xs text-ink-mute">Mã số thuế <span className="text-danger">*</span></label>
-                <input value={tax.taxCode} onChange={(e) => setTax((p) => ({ ...p, taxCode: e.target.value }))} className={inputCls} inputMode="numeric" />
+                <input aria-label="Mã số thuế" value={tax.taxCode} onChange={(e) => setTax((p) => ({ ...p, taxCode: e.target.value }))} className={inputCls} inputMode="numeric" />
               </div>
               <div>
                 <label className="text-xs text-ink-mute">Tên pháp lý</label>
-                <input value={tax.legalName} onChange={(e) => setTax((p) => ({ ...p, legalName: e.target.value }))} className={inputCls} />
+                <input aria-label="Tên pháp lý" value={tax.legalName} onChange={(e) => setTax((p) => ({ ...p, legalName: e.target.value }))} className={inputCls} />
                 <p className="text-xs text-ink-mute mt-1">
                   Tên này cần khớp với tên chủ tài khoản ngân hàng nhận tiền.
                 </p>

@@ -50,7 +50,7 @@ const VcpmcRoyaltyCard = ({ showId, declared, reference, onSaved }) => {
         </p>
       )}
       <div className="flex gap-2">
-        <input
+        <input aria-label="Mã khai báo bản quyền VCPMC"
           value={ma}
           onChange={(e) => setMa(e.target.value)}
           placeholder={declared ? 'Nhập mã mới để thay mã đang khai' : 'Mã tham chiếu đã thanh toán tác quyền VCPMC'}

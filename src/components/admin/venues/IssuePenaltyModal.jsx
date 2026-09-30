@@ -109,7 +109,7 @@ const IssuePenaltyModal = ({ venue, onClose, onSaved }) => {
           {penaltyType === 'Suspension' && (
             <div>
               <label className="text-xs text-ink-mute">Số ngày đình chỉ <span className="text-danger">*</span></label>
-              <input type="number" min="1" value={suspensionDays}
+              <input aria-label="Số ngày đình chỉ" type="number" min="1" value={suspensionDays}
                 onChange={(e) => setSuspensionDays(e.target.value)}
                 className="mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink focus:outline-none focus:border-ink/50 tabular-nums" />
             </div>
@@ -117,7 +117,7 @@ const IssuePenaltyModal = ({ venue, onClose, onSaved }) => {
 
           <div>
             <label className="text-xs text-ink-mute">Lý do <span className="text-danger">*</span></label>
-            <textarea rows={4} value={reason} maxLength={1000}
+            <textarea aria-label="Lý do" rows={4} value={reason} maxLength={1000}
               onChange={(e) => setReason(e.target.value)}
               placeholder="Nêu cụ thể việc đã xảy ra, ngày nào, buổi diễn nào — chủ phòng trà dùng đúng câu này để sửa hoặc để khiếu nại."
               className="mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink resize-none focus:outline-none focus:border-ink/50" />
@@ -126,7 +126,7 @@ const IssuePenaltyModal = ({ venue, onClose, onSaved }) => {
 
           <div>
             <label className="text-xs text-ink-mute">Dẫn chứng <span className="text-ink-mute">(không bắt buộc)</span></label>
-            <input value={evidenceRef} maxLength={500}
+            <input aria-label="Dẫn chứng (không bắt buộc)" value={evidenceRef} maxLength={500}
               onChange={(e) => setEvidenceRef(e.target.value)}
               placeholder="Mã báo cáo vi phạm, liên kết ảnh chụp, số biên bản..."
               className="mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink focus:outline-none focus:border-ink/50" />

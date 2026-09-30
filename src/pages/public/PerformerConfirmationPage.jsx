@@ -231,7 +231,7 @@ const PerformerConfirmationPage = () => {
 
         <div>
           <label className="text-xs text-ink-mute">Ghi chú thêm (không bắt buộc)</label>
-          <textarea value={note} onChange={(e) => setNote(e.target.value)} rows={3} maxLength={500}
+          <textarea aria-label="Ghi chú thêm (không bắt buộc)" value={note} onChange={(e) => setNote(e.target.value)} rows={3} maxLength={500}
             className="mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink focus:outline-none focus:border-ink/50 resize-none"
             placeholder="Nếu có gì cần nói rõ thêm, hãy ghi ở đây." />
         </div>

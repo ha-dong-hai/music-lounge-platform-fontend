@@ -102,7 +102,7 @@ const ConfirmPaidModal = ({ donation, onClose, onSaved }) => {
 
           <div>
             <label className="text-xs text-ink-mute">Mã giao dịch chuyển khoản <span className="text-danger">*</span></label>
-            <input value={paymentRef} onChange={(e) => setPaymentRef(e.target.value)} className={inputCls}
+            <input aria-label="Mã giao dịch chuyển khoản" value={paymentRef} onChange={(e) => setPaymentRef(e.target.value)} className={inputCls}
               placeholder="Mã do ngân hàng của bạn cấp" />
             <p className="text-xs text-ink-mute mt-1">
               Đây là bằng chứng để đối chiếu nếu nghệ sĩ nói chưa nhận được tiền.

@@ -179,13 +179,13 @@ const PrivacyTab = () => {
           <div className="mt-4 space-y-3">
             <div>
               <label className="text-xs text-ink-mute">Mật khẩu hiện tại</label>
-              <input type="password" value={matKhau} onChange={(e) => setMatKhau(e.target.value)}
+              <input aria-label="Mật khẩu hiện tại" type="password" value={matKhau} onChange={(e) => setMatKhau(e.target.value)}
                 className="mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink focus:outline-none focus:border-danger/50" />
               <p className="text-xs text-ink-mute mt-1">Dùng để xác minh đúng là bạn. Đăng nhập bằng Google thì bỏ trống.</p>
             </div>
             <div>
               <label className="text-xs text-ink-mute">Gõ <strong className="text-danger">{XAC_NHAN}</strong> để xác nhận</label>
-              <input value={goXacNhan} onChange={(e) => setGoXacNhan(e.target.value)}
+              <input aria-label={`Gõ ${XAC_NHAN} để xác nhận`} value={goXacNhan} onChange={(e) => setGoXacNhan(e.target.value)}
                 className="mt-1 w-full px-3 py-2 bg-page border border-danger/40 text-sm text-ink focus:outline-none focus:border-danger" />
             </div>
             <div className="flex gap-3">

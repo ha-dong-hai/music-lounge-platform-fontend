@@ -12,7 +12,7 @@ const ComplaintsFilterBar = ({
     <div className="bg-card border border-line p-4 flex flex-col lg:flex-row gap-4 items-center">
       <div className="relative flex-1 w-full">
         <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-mute" />
-        <input
+        <input aria-label="Tìm theo nội dung, số điện thoại, #mã (trong trang hiện tại)"
           type="text"
           placeholder="Tìm theo nội dung, số điện thoại, #mã (trong trang hiện tại)"
           value={searchQuery}
@@ -21,7 +21,7 @@ const ComplaintsFilterBar = ({
         />
       </div>
 
-      <select
+      <select aria-label="Lọc theo loại vấn đề"
         value={categoryFilter}
         onChange={(e) => setCategoryFilter(e.target.value)}
         className="w-full lg:w-auto px-4 py-2.5 bg-page border border-line text-sm text-ink focus:outline-none focus:border-ink/50 cursor-pointer"
@@ -32,7 +32,7 @@ const ComplaintsFilterBar = ({
         ))}
       </select>
 
-      <select
+      <select aria-label="Lọc theo trạng thái"
         value={statusFilter}
         onChange={(e) => setStatusFilter(e.target.value)}
         className="w-full lg:w-auto px-4 py-2.5 bg-page border border-line text-sm text-ink focus:outline-none focus:border-ink/50 cursor-pointer"

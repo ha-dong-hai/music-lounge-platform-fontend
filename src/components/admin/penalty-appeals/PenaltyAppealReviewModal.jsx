@@ -70,7 +70,7 @@ const PenaltyAppealReviewModal = ({ target, isProcessing, onClose, onSubmit }) =
 
           <div>
             <label className="text-xs text-ink-mute">Lý do quyết định <span className="text-danger">*</span></label>
-            <textarea rows={4} value={reviewNote} onChange={(e) => setReviewNote(e.target.value)} disabled={isProcessing}
+            <textarea aria-label="Lý do quyết định" rows={4} value={reviewNote} onChange={(e) => setReviewNote(e.target.value)} disabled={isProcessing}
               placeholder={laHuy
                 ? 'VD: đã xem lại bằng chứng, sự việc do lỗi hệ thống chứ không do phòng trà'
                 : 'VD: bằng chứng chủ phòng trà đưa ra không bác được sự việc đã ghi nhận ngày 12/09'}

@@ -107,7 +107,7 @@ const RatingModal = ({ showName, onClose, onSubmit }) => {
             <label className="block text-sm font-medium text-ink-soft mb-2">
               Description <span className="text-ink-mute">(không bắt buộc)</span>
             </label>
-            <textarea
+            <textarea aria-label="Description (không bắt buộc)"
               rows={3}
               value={comment}
               onChange={(e) => setComment(e.target.value)}

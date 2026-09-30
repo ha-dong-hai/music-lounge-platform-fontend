@@ -192,25 +192,25 @@ const ShowFormModal = ({ initial, loungeId, catalog, onClose, onSaved }) => {
         <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-5 space-y-4">
           <div>
             <label className="text-xs text-ink-mute">Tên buổi diễn *</label>
-            <input value={form.name} onChange={(e) => set('name', e.target.value)}
+            <input aria-label="Tên buổi diễn" value={form.name} onChange={(e) => set('name', e.target.value)}
               className="mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink" />
           </div>
 
           <div>
             <label className="text-xs text-ink-mute">Mô tả *</label>
-            <textarea value={form.description} onChange={(e) => set('description', e.target.value)} rows={3}
+            <textarea aria-label="Mô tả" value={form.description} onChange={(e) => set('description', e.target.value)} rows={3}
               className="mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink" />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="text-xs text-ink-mute">Bắt đầu *</label>
-              <input type="datetime-local" value={form.scheduledStart} onChange={(e) => set('scheduledStart', e.target.value)}
+              <input aria-label="Bắt đầu" type="datetime-local" value={form.scheduledStart} onChange={(e) => set('scheduledStart', e.target.value)}
                 className="mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink" />
             </div>
             <div>
               <label className="text-xs text-ink-mute">Kết thúc</label>
-              <input type="datetime-local" value={form.scheduledEnd} onChange={(e) => set('scheduledEnd', e.target.value)}
+              <input aria-label="Kết thúc" type="datetime-local" value={form.scheduledEnd} onChange={(e) => set('scheduledEnd', e.target.value)}
                 className="mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink" />
             </div>
           </div>
@@ -219,26 +219,26 @@ const ShowFormModal = ({ initial, loungeId, catalog, onClose, onSaved }) => {
             <div>
               {/* Hình thức chốt lúc tạo — đổi sau phải qua endpoint riêng PUT /format */}
               <label className="text-xs text-ink-mute">Hình thức {isEdit && '(không đổi ở đây)'}</label>
-              <select value={form.format} onChange={(e) => set('format', e.target.value)} disabled={isEdit}
+              <select aria-label="Hình thức" value={form.format} onChange={(e) => set('format', e.target.value)} disabled={isEdit}
                 className="mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink disabled:opacity-50">
                 {FORMATS.map((f) => <option key={f.value} value={f.value}>{f.label}</option>)}
               </select>
             </div>
             <div>
               <label className="text-xs text-ink-mute">Sức chứa tại chỗ</label>
-              <input type="number" min="1" value={form.offlineQuota} onChange={(e) => set('offlineQuota', e.target.value)}
+              <input aria-label="Sức chứa tại chỗ" type="number" min="1" value={form.offlineQuota} onChange={(e) => set('offlineQuota', e.target.value)}
                 className="mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink" />
             </div>
             <div>
               <label className="text-xs text-ink-mute">Sức chứa trực tuyến</label>
-              <input type="number" min="1" value={form.onlineQuota} onChange={(e) => set('onlineQuota', e.target.value)}
+              <input aria-label="Sức chứa trực tuyến" type="number" min="1" value={form.onlineQuota} onChange={(e) => set('onlineQuota', e.target.value)}
                 className="mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink" />
             </div>
           </div>
 
           <div>
             <label className="text-xs text-ink-mute">Danh mục</label>
-            <select value={form.categoryId} onChange={(e) => set('categoryId', e.target.value)}
+            <select aria-label="Danh mục" value={form.categoryId} onChange={(e) => set('categoryId', e.target.value)}
               className="mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink">
               <option value="">— không chọn —</option>
               {catalog.categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}

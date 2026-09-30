@@ -138,7 +138,7 @@ const AdminSettlementsPage = () => {
                   </div>
 
                   <div className="flex flex-col gap-2 w-full sm:w-72">
-                    <input
+                    <input aria-label="Lý do quyết định (bắt buộc)"
                       value={notes[s.settlementId] || ''}
                       onChange={(e) => setNotes((p) => ({ ...p, [s.settlementId]: e.target.value }))}
                       placeholder="Lý do quyết định (bắt buộc)"

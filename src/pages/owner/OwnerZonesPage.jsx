@@ -74,15 +74,15 @@ const ZoneFormModal = ({ initial, loungeId, onClose, onSaved }) => {
         <form onSubmit={submit} className="p-5 space-y-4">
           <div>
             <label className="text-xs text-ink-mute">Tên khu vực <span className="text-danger">*</span></label>
-            <input value={form.name} onChange={(e) => set('name', e.target.value)} className={inputCls} placeholder="VD: Khu sân khấu" />
+            <input aria-label="Tên khu vực" value={form.name} onChange={(e) => set('name', e.target.value)} className={inputCls} placeholder="VD: Khu sân khấu" />
           </div>
           <div>
             <label className="text-xs text-ink-mute">Mô tả</label>
-            <textarea value={form.description} onChange={(e) => set('description', e.target.value)} rows={2} className={`${inputCls} resize-none`} />
+            <textarea aria-label="Mô tả" value={form.description} onChange={(e) => set('description', e.target.value)} rows={2} className={`${inputCls} resize-none`} />
           </div>
           <div>
             <label className="text-xs text-ink-mute">Sức chứa <span className="text-danger">*</span></label>
-            <input type="number" min="0" step="1" value={form.capacity} onChange={(e) => set('capacity', e.target.value)} className={inputCls} />
+            <input aria-label="Sức chứa" type="number" min="0" step="1" value={form.capacity} onChange={(e) => set('capacity', e.target.value)} className={inputCls} />
             <p className="text-xs text-ink-mute mt-1">Số chỗ tối đa của khu vực này.</p>
           </div>
           <button type="submit" disabled={isBusy}
@@ -510,14 +510,14 @@ const OwnerZonesPage = () => {
                       {[['width', 'Rộng (%)'], ['height', 'Cao (%)'], ['rotationDeg', 'Góc quay (°)']].map(([key, label]) => (
                         <div key={key}>
                           <label className="text-xs text-ink-mute">{label}</label>
-                          <input type="number" value={o[key] ?? 0}
+                          <input aria-label={`${label} của ${z.name}`} type="number" value={o[key] ?? 0}
                             onChange={(e) => doiKichThuoc(z.id, key, e.target.value)}
                             className="mt-1 w-full px-2 py-1.5 bg-page border border-line rounded-md text-xs text-ink focus:outline-none focus:border-ink/50 tabular-nums" />
                         </div>
                       ))}
                       <div>
                         <label className="text-xs text-ink-mute">Màu</label>
-                        <input type="color" value={o.color ?? '#3987e5'}
+                        <input aria-label="Màu" type="color" value={o.color ?? '#3987e5'}
                           onChange={(e) => setLayout((p) => ({ ...p, [z.id]: { ...p[z.id], color: e.target.value } }))}
                           className="mt-1 w-full h-[30px] bg-page border border-line rounded-md cursor-pointer" />
                       </div>
@@ -533,7 +533,7 @@ const OwnerZonesPage = () => {
                         {['x', 'y', 'z'].map((truc) => (
                           <div key={truc} className="w-20">
                             <label className="text-xs text-ink-mute uppercase">{truc}</label>
-                            <input type="number" step="any"
+                            <input aria-label={`Toạ độ ${truc.toUpperCase()} trong không gian 3D của ${z.name}`} type="number" step="any"
                               value={(layout3D[z.id] ?? {})[truc] ?? ''}
                               onChange={(e) => doiToaDo3D(z.id, truc, e.target.value)}
                               className="mt-1 w-full px-2 py-1.5 bg-page border border-line rounded-md text-xs text-ink focus:outline-none focus:border-ink/50 tabular-nums" />

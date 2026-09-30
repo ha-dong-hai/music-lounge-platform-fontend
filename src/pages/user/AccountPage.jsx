@@ -15,7 +15,14 @@ import IdentityTab from '../../components/account/IdentityTab'
 import PreferencesTab from '../../components/account/PreferencesTab'
 import PrivacyTab from '../../components/account/PrivacyTab'
 
-const TABS_HOP_LE = ['profile', 'followed', 'identity', 'preferences', 'privacy']
+const MUC = [
+  { key: 'profile', nhan: 'Thông tin tài khoản', icon: User },
+  { key: 'followed', nhan: 'Phòng trà đang theo dõi', icon: Heart },
+  { key: 'identity', nhan: 'Định danh và thuế', icon: ShieldCheck },
+  { key: 'preferences', nhan: 'Sở thích gợi ý', icon: Sparkles },
+  { key: 'privacy', nhan: 'Dữ liệu và tài khoản', icon: Lock },
+]
+const TABS_HOP_LE = MUC.map((m) => m.key)
 
 const AccountPage = () => {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -33,46 +40,24 @@ const AccountPage = () => {
   }
 
   return (
-    <div className="min-h-[60vh] bg-page text-ink pb-16">
+    <div className="min-h-[60vh] bg-stock text-ink pb-16">
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6 py-8">
-        <h1 className="text-4xl text-ink mb-8">Tài khoản của tôi</h1>
+        <h1 className="text-5xl text-ink mb-8">Tài khoản của tôi</h1>
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           
-          {/* SIDEBAR TABS */}
-          <div className="lg:col-span-1">
-            <div className="bg-card border border-line p-4 space-y-2 sticky top-24">
-              <button 
-                onClick={() => setActiveTab('profile')} 
-                className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors ${activeTab === 'profile' ? 'bg-sunken text-ink' : 'text-ink-soft hover:text-ink hover:bg-sunken/50'}`}
-              >
-                <User size={18} /> Thông tin tài khoản
-              </button>
-              <button 
-                onClick={() => setActiveTab('followed')} 
-                className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors ${activeTab === 'followed' ? 'bg-sunken text-ink' : 'text-ink-soft hover:text-ink hover:bg-sunken/50'}`}
-              >
-                <Heart size={18} /> Phòng trà đang theo dõi
-              </button>
-              <button
-                onClick={() => setActiveTab('identity')}
-                className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors ${activeTab === 'identity' ? 'bg-sunken text-ink' : 'text-ink-soft hover:text-ink hover:bg-sunken/50'}`}
-              >
-                <ShieldCheck size={18} /> Định danh &amp; thuế
-              </button>
-              <button
-                onClick={() => setActiveTab('preferences')}
-                className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors ${activeTab === 'preferences' ? 'bg-sunken text-ink' : 'text-ink-soft hover:text-ink hover:bg-sunken/50'}`}
-              >
-                <Sparkles size={18} /> Sở thích gợi ý
-              </button>
-              <button
-                onClick={() => setActiveTab('privacy')}
-                className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors ${activeTab === 'privacy' ? 'bg-sunken text-ink' : 'text-ink-soft hover:text-ink hover:bg-sunken/50'}`}
-              >
-                <Lock size={18} /> Dữ liệu &amp; tài khoản
-              </button>
-            </div>
-          </div>
+          {/* MENU MỤC — nút có aria-current khi đang mở (bản cũ chỉ đổi màu nền). */}
+          <nav aria-label="Mục tài khoản" className="lg:col-span-1">
+            <ul className="border-y-2 border-ink lg:sticky lg:top-24">
+              {MUC.map(({ key, nhan, icon: Icon }) => (
+                <li key={key} className="border-t border-ink/20 first:border-t-0">
+                  <button type="button" onClick={() => setActiveTab(key)} aria-current={activeTab === key ? 'page' : undefined}
+                    className={`w-full flex items-center gap-3 px-3 min-h-[48px] text-left font-semibold border-l-4 transition-colors ${activeTab === key ? 'bg-ink text-lamp border-ember' : 'text-ink border-transparent hover:bg-sunken'}`}>
+                    <Icon size={18} aria-hidden="true" /> {nhan}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </nav>
 
           {/* NỘI DUNG TAB */}
           <div className="lg:col-span-3">

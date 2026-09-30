@@ -33,7 +33,7 @@ const quet = (d) => {
     if (!t.endsWith('.jsx')) continue
     // Bỏ chú thích (giữ nguyên độ dài để số dòng không lệch): chú thích hay nhắc "<input>" khi giải thích.
     const s = readFileSync(p, 'utf8')
-      .replace(/\/\*[\s\S]*?\*\//g, (k) => k.replace(/[^\n]/g, ' '))
+      .replace(/(?<![\w"'])\/\*[\s\S]*?\*\//g, (k) => k.replace(/[^\n]/g, ' '))
       .replace(/(^|[^:'"`])\/\/[^\n]*/g, (k, a) => a + ' '.repeat(k.length - a.length))
     const htmlFor = new Set([...s.matchAll(/htmlFor=(\{[^}]*\}|"[^"]*")/g)].map((m) => m[1]))
     // vùng nằm trong <label>…</label>
@@ -47,6 +47,10 @@ const quet = (d) => {
       if (loai === 'file' && /hidden|sr-only/.test(giaTri(the, 'className') || '')) continue
       soO++
       if (/aria-label(ledby)?=/.test(the)) continue
+      // Ô nhận thuộc tính từ OTruong ({...p} gồm id; OTruong in <label htmlFor={id}>): đã có tên.
+      if (/\{\.\.\.p\}/.test(the) && s.includes('OTruong')) continue
+      // Ô là con trực tiếp của một <Field> mà Field tự gắn id bằng cloneElement (OwnerLoungePage): nối lúc chạy.
+      if (/cloneElement\(children, \{ id/.test(s) && /<Field\b[^<]*>\s*$/.test(s.slice(Math.max(0, m.index - 400), m.index))) continue
       const id = giaTri(the, 'id')
       if (id && htmlFor.has(id)) continue
       if (trongNhan.some(([a, b]) => m.index > a && m.index < b)) continue

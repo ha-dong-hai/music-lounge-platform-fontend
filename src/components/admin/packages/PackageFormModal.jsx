@@ -77,7 +77,7 @@ const PackageFormModal = ({ isOpen, editingPkg, isSaving, onClose, onSubmit }) =
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-ink-soft mb-2">Tên gói</label>
-              <input
+              <input aria-label="Tên gói"
                 type="text" required
                 disabled={isEditing} // BE không cho sửa tên khi EDIT
                 value={formData.name}
@@ -88,7 +88,7 @@ const PackageFormModal = ({ isOpen, editingPkg, isSaving, onClose, onSubmit }) =
             <div>
               <label className="block text-sm font-medium text-ink-soft mb-2">Giá (VNĐ)</label>
               <div className="relative">
-                <input
+                <input aria-label="Giá (VNĐ)"
                   type="text" required
                   inputMode="numeric"
                   value={formData.price === 0 ? '' : formData.price.toLocaleString('vi-VN')}
@@ -105,7 +105,7 @@ const PackageFormModal = ({ isOpen, editingPkg, isSaving, onClose, onSubmit }) =
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-ink-soft mb-2">Chu kỳ thanh toán</label>
-              <select
+              <select aria-label="Chu kỳ thanh toán"
                 disabled={isEditing} // BE không cho sửa chu kỳ khi EDIT
                 value={formData.billingCycle}
                 onChange={e => setFormData({...formData, billingCycle: e.target.value})}
@@ -117,7 +117,7 @@ const PackageFormModal = ({ isOpen, editingPkg, isSaving, onClose, onSubmit }) =
             </div>
             <div>
               <label className="block text-sm font-medium text-ink-soft mb-2">Số vé tối đa mỗi buổi diễn</label>
-              <input
+              <input aria-label="Số vé tối đa mỗi buổi diễn"
                 type="number" required min="0"
                 value={formData.maxTicketsPerEvent}
                 onChange={e => setFormData({...formData, maxTicketsPerEvent: e.target.value})}
@@ -132,7 +132,7 @@ const PackageFormModal = ({ isOpen, editingPkg, isSaving, onClose, onSubmit }) =
               <label className="block text-sm font-medium text-ink-soft mb-2 flex items-center gap-1.5">
                 <Sparkles size={14} className="text-ink" /> Poster AI / tháng
               </label>
-              <input
+              <input aria-label="Poster AI / tháng"
                 type="number" min="0"
                 value={formData.maxAiPostersPerMonth}
                 disabled={!formData.hasAiPoster} // Chỉ nhập được khi bật AI Poster
@@ -145,7 +145,7 @@ const PackageFormModal = ({ isOpen, editingPkg, isSaving, onClose, onSubmit }) =
               <label className="block text-sm font-medium text-ink-soft mb-2 flex items-center gap-1.5">
                 <Box size={14} className="text-ink" /> Tour 360°
               </label>
-              <input
+              <input aria-label="Tour 360°"
                 type="number" min="0"
                 value={formData.maxTourScenes}
                 onChange={e => setFormData({...formData, maxTourScenes: e.target.value})}
@@ -158,7 +158,7 @@ const PackageFormModal = ({ isOpen, editingPkg, isSaving, onClose, onSubmit }) =
           {/* Mô tả */}
           <div>
             <label className="block text-sm font-medium text-ink-soft mb-2">Mô tả gói</label>
-            <textarea
+            <textarea aria-label="Mô tả gói"
               rows="3"
               value={formData.description}
               onChange={e => setFormData({...formData, description: e.target.value})}

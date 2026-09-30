@@ -71,7 +71,7 @@ const AllShowsTab = () => {
       <div className="bg-card border border-line p-4 mb-6 flex flex-col md:flex-row gap-4 items-center">
         <div className="relative flex-1 w-full">
           <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-mute" />
-          <input
+          <input aria-label="Tìm trong trang hiện tại"
             type="text"
             placeholder="Tìm trong trang hiện tại…"
             value={searchQuery}

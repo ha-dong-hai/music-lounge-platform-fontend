@@ -495,7 +495,7 @@ const LivestreamWatchPage = () => {
               </p>
               <div>
                 <label className="text-xs text-ink-mute">Lý do <span className="text-danger">*</span></label>
-                <textarea rows={3} value={lyDoCatSong} maxLength={500}
+                <textarea aria-label="Lý do" rows={3} value={lyDoCatSong} maxLength={500}
                   onChange={(e) => setLyDoCatSong(e.target.value)}
                   placeholder="Nội dung vi phạm cụ thể là gì"
                   className="mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink resize-none focus:outline-none focus:border-danger/50" />

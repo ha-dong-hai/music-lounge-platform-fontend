@@ -76,7 +76,7 @@ const DonateModal = ({ performers, onClose, onSendDonation }) => {
                 </button>
               ))}
             </div>
-            <input 
+            <input aria-label="Mức tiền" 
               type="number"
               placeholder="Chọn số tiền khác…"
               value={customAmount}
@@ -88,7 +88,7 @@ const DonateModal = ({ performers, onClose, onSendDonation }) => {
           {/* LỜI NHẮN */}
           <div>
             <label className="text-sm font-semibold text-ink-soft mb-2 block">Lời nhắn (Dùng cho sổ cái)</label>
-            <textarea
+            <textarea aria-label="Lời nhắn (Dùng cho sổ cái)"
               rows={2}
               value={message}
               onChange={e => setMessage(e.target.value)}

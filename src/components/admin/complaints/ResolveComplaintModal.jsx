@@ -95,7 +95,7 @@ const ResolveComplaintModal = ({ complaint, onClose, onSaved }) => {
 
           <div>
             <label className="text-xs text-ink-mute">Kết luận</label>
-            <select value={status} onChange={(e) => setStatus(e.target.value)} className={inputCls}>
+            <select aria-label="Kết luận" value={status} onChange={(e) => setStatus(e.target.value)} className={inputCls}>
               {STATUSES.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
             </select>
             <p className="text-xs text-ink-mute mt-1">{STATUSES.find((s) => s.value === status)?.hint}</p>
@@ -104,7 +104,7 @@ const ResolveComplaintModal = ({ complaint, onClose, onSaved }) => {
           {canResolved && (
             <div>
               <label className="text-xs text-ink-mute">Hành động</label>
-              <select value={action} onChange={(e) => { setAction(e.target.value); setGoXacNhan('') }} className={inputCls}>
+              <select aria-label="Hành động" value={action} onChange={(e) => { setAction(e.target.value); setGoXacNhan('') }} className={inputCls}>
                 {ACTIONS.map((a) => <option key={a.value} value={a.value}>{a.label}</option>)}
               </select>
               <p className={`text-xs mt-1.5 leading-relaxed ${hanhDong?.danger ? 'text-danger' : 'text-ink-mute'}`}>
@@ -116,7 +116,7 @@ const ResolveComplaintModal = ({ complaint, onClose, onSaved }) => {
 
           <div>
             <label className="text-xs text-ink-mute">Phản hồi cho người khiếu nại</label>
-            <textarea value={resolution} onChange={(e) => setResolution(e.target.value)} rows={4}
+            <textarea aria-label="Phản hồi cho người khiếu nại" value={resolution} onChange={(e) => setResolution(e.target.value)} rows={4}
               className={`${inputCls} resize-none`}
               placeholder="Người khiếu nại đọc được nội dung này khi tra cứu kết quả." />
           </div>
@@ -126,7 +126,7 @@ const ResolveComplaintModal = ({ complaint, onClose, onSaved }) => {
               <p className="text-xs text-danger leading-relaxed">
                 Hành động này huỷ buổi diễn và hoàn tiền cho tất cả người đang giữ vé. Gõ <strong>{XAC_NHAN}</strong> để xác nhận.
               </p>
-              <input value={goXacNhan} onChange={(e) => setGoXacNhan(e.target.value)}
+              <input aria-label={`Gõ ${XAC_NHAN} để xác nhận huỷ buổi diễn và hoàn tiền`} value={goXacNhan} onChange={(e) => setGoXacNhan(e.target.value)}
                 className="mt-2 w-full px-3 py-2 bg-page border border-danger/40 text-sm text-ink focus:outline-none focus:border-danger" />
             </div>
           )}

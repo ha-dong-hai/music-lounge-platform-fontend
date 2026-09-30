@@ -157,7 +157,7 @@ const HotspotModal = ({ loungeId, scene, scenes, onClose, onSaved }) => {
               {laDanDuong ? (
                 <div>
                   <label className="text-xs text-ink-mute">Dẫn tới scene <span className="text-danger">*</span></label>
-                  <select value={form.targetSceneId} onChange={(e) => set('targetSceneId', e.target.value)} className={inputCls}>
+                  <select aria-label="Dẫn tới scene" value={form.targetSceneId} onChange={(e) => set('targetSceneId', e.target.value)} className={inputCls}>
                     <option value="">— chọn scene —</option>
                     {khac.map((x) => <option key={x.id} value={x.id}>{x.name || `scene #${x.id}`}</option>)}
                   </select>
@@ -168,7 +168,7 @@ const HotspotModal = ({ loungeId, scene, scenes, onClose, onSaved }) => {
               ) : (
                 <div>
                   <label className="text-xs text-ink-mute">Nội dung chú thích <span className="text-danger">*</span></label>
-                  <textarea rows={3} maxLength={2000} value={form.infoText}
+                  <textarea aria-label="Nội dung chú thích" rows={3} maxLength={2000} value={form.infoText}
                     onChange={(e) => set('infoText', e.target.value)}
                     className={`${inputCls} resize-none`}
                     placeholder="VD: Đây là cây piano Yamaha U3 phòng trà dùng từ 2018" />
@@ -178,18 +178,18 @@ const HotspotModal = ({ loungeId, scene, scenes, onClose, onSaved }) => {
 
               <div>
                 <label className="text-xs text-ink-mute">Nhãn hiển thị</label>
-                <input value={form.label} maxLength={100} onChange={(e) => set('label', e.target.value)} className={inputCls}
+                <input aria-label="Nhãn hiển thị" value={form.label} maxLength={100} onChange={(e) => set('label', e.target.value)} className={inputCls}
                   placeholder={laDanDuong ? 'VD: Sang khu sân khấu' : 'VD: Cây piano'} />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs text-ink-mute">Hướng ngang (yaw)</label>
-                  <input type="number" min="-180" max="180" value={form.yaw} onChange={(e) => set('yaw', e.target.value)} className={inputCls} />
+                  <input aria-label="Hướng ngang (yaw)" type="number" min="-180" max="180" value={form.yaw} onChange={(e) => set('yaw', e.target.value)} className={inputCls} />
                   <p className="text-[11px] text-ink-mute mt-1">-180 đến 180</p>
                 </div>
                 <div>
                   <label className="text-xs text-ink-mute">Hướng dọc (pitch)</label>
-                  <input type="number" min="-90" max="90" value={form.pitch} onChange={(e) => set('pitch', e.target.value)} className={inputCls} />
+                  <input aria-label="Hướng dọc (pitch)" type="number" min="-90" max="90" value={form.pitch} onChange={(e) => set('pitch', e.target.value)} className={inputCls} />
                   <p className="text-[11px] text-ink-mute mt-1">-90 đến 90</p>
                 </div>
               </div>
@@ -496,7 +496,7 @@ const OwnerTourPage = () => {
                       {['x', 'y'].map((truc) => (
                         <div key={truc} className="w-16">
                           <label className="text-xs text-ink-mute uppercase">{truc}</label>
-                          <input type="number" step="any" min="0" max="100"
+                          <input aria-label={`Vị trí ${truc.toUpperCase()} trên mặt bằng (%) của ${sc.name || `cảnh #${sc.id}`}`} type="number" step="any" min="0" max="100"
                             value={(viTri[sc.id] ?? {})[truc] ?? ''}
                             onChange={(e) => doiViTri(sc.id, truc, e.target.value)}
                             className="mt-1 w-full px-2 py-1.5 bg-page border border-line rounded-md text-xs text-ink focus:outline-none focus:border-ink/50 tabular-nums" />

@@ -66,15 +66,15 @@ const PayoutAccountModal = ({ request, onClose, onSaved }) => {
 
           <div>
             <label className="text-xs text-ink-mute">Ngân hàng <span className="text-danger">*</span></label>
-            <input value={form.bankName} onChange={(e) => set('bankName', e.target.value)} className={inputCls} placeholder="VD: Vietcombank" />
+            <input aria-label="Ngân hàng" value={form.bankName} onChange={(e) => set('bankName', e.target.value)} className={inputCls} placeholder="VD: Vietcombank" />
           </div>
           <div>
             <label className="text-xs text-ink-mute">Số tài khoản <span className="text-danger">*</span></label>
-            <input value={form.accountNumber} onChange={(e) => set('accountNumber', e.target.value)} className={inputCls} inputMode="numeric" />
+            <input aria-label="Số tài khoản" value={form.accountNumber} onChange={(e) => set('accountNumber', e.target.value)} className={inputCls} inputMode="numeric" />
           </div>
           <div>
             <label className="text-xs text-ink-mute">Tên chủ tài khoản <span className="text-danger">*</span></label>
-            <input value={form.accountHolder} onChange={(e) => set('accountHolder', e.target.value)} className={inputCls} />
+            <input aria-label="Tên chủ tài khoản" value={form.accountHolder} onChange={(e) => set('accountHolder', e.target.value)} className={inputCls} />
           </div>
 
           <label className="flex items-start gap-2 text-xs text-ink-soft cursor-pointer leading-relaxed">

@@ -123,7 +123,7 @@ const AdminRefundsPage = () => {
                   </div>
 
                   <div className="flex flex-col gap-2 w-full sm:w-72">
-                    <input
+                    <input aria-label={r.payoutAccountRequired ? 'Mã giao dịch chuyển khoản' : 'Ghi chú xử lý (không bắt buộc)'}
                       value={notes[r.id] || ''}
                       onChange={(e) => setNotes((p) => ({ ...p, [r.id]: e.target.value }))}
                       placeholder={r.payoutAccountRequired ? 'Mã giao dịch chuyển khoản' : 'Ghi chú xử lý (không bắt buộc)'}

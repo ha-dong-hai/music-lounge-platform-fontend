@@ -199,12 +199,12 @@ const OwnerFinancePage = () => {
           </div>
           <div>
             <label className="text-xs text-ink-mute block">Từ ngày</label>
-            <input type="date" value={tuNgay} onChange={(e) => doiLoc(() => setTuNgay(e.target.value))}
+            <input aria-label="Từ ngày" type="date" value={tuNgay} onChange={(e) => doiLoc(() => setTuNgay(e.target.value))}
               className="mt-1 px-3 py-1.5 bg-page border border-line text-sm text-ink" />
           </div>
           <div>
             <label className="text-xs text-ink-mute block">Đến ngày</label>
-            <input type="date" value={denNgay} onChange={(e) => doiLoc(() => setDenNgay(e.target.value))}
+            <input aria-label="Đến ngày" type="date" value={denNgay} onChange={(e) => doiLoc(() => setDenNgay(e.target.value))}
               className="mt-1 px-3 py-1.5 bg-page border border-line text-sm text-ink" />
           </div>
           {(tuNgay || denNgay || loai) && (

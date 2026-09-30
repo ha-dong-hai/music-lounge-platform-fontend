@@ -83,11 +83,11 @@ const PerformerFormModal = ({ initial, genres, onClose, onSaved }) => {
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="text-xs text-ink-mute">Tên nghệ sĩ <span className="text-danger">*</span></label>
-              <input value={form.name} onChange={(e) => set('name', e.target.value)} className={inputCls} />
+              <input aria-label="Tên nghệ sĩ" value={form.name} onChange={(e) => set('name', e.target.value)} className={inputCls} />
             </div>
             <div>
               <label className="text-xs text-ink-mute">Loại hình <span className="text-danger">*</span></label>
-              <select value={form.type} onChange={(e) => set('type', e.target.value)} className={inputCls}>
+              <select aria-label="Loại hình" value={form.type} onChange={(e) => set('type', e.target.value)} className={inputCls}>
                 {PERFORMER_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
               </select>
             </div>
@@ -95,7 +95,7 @@ const PerformerFormModal = ({ initial, genres, onClose, onSaved }) => {
 
           <div>
             <label className="text-xs text-ink-mute">Email liên lạc</label>
-            <input type="email" value={form.contactEmail} onChange={(e) => set('contactEmail', e.target.value)} className={inputCls} />
+            <input aria-label="Email liên lạc" type="email" value={form.contactEmail} onChange={(e) => set('contactEmail', e.target.value)} className={inputCls} />
             <p className="text-xs text-warning/80 mt-1 leading-relaxed">
               Nơi gửi liên kết để nghệ sĩ tự xác nhận đã nhận tiền donate. Không có email thì tiền donate
               sẽ mắc lại ở bước chờ nghệ sĩ xác nhận.
@@ -104,12 +104,12 @@ const PerformerFormModal = ({ initial, genres, onClose, onSaved }) => {
 
           <div>
             <label className="text-xs text-ink-mute">Giới thiệu</label>
-            <textarea value={form.bio} onChange={(e) => set('bio', e.target.value)} rows={3} className={`${inputCls} resize-none`} />
+            <textarea aria-label="Giới thiệu" value={form.bio} onChange={(e) => set('bio', e.target.value)} rows={3} className={`${inputCls} resize-none`} />
           </div>
 
           <div>
             <label className="text-xs text-ink-mute">Đường dẫn ảnh đại diện</label>
-            <input value={form.avatarUrl} onChange={(e) => set('avatarUrl', e.target.value)} className={inputCls} placeholder="https://..." />
+            <input aria-label="Đường dẫn ảnh đại diện" value={form.avatarUrl} onChange={(e) => set('avatarUrl', e.target.value)} className={inputCls} placeholder="https://..." />
           </div>
 
           <div>
@@ -214,12 +214,12 @@ const SocialLinksModal = ({ performer, onClose, onSaved }) => {
           <form onSubmit={them} className="pt-4 border-t border-line space-y-3">
             <p className="text-xs text-ink-mute">Thêm liên kết mới. Muốn sửa một liên kết thì xoá rồi thêm lại.</p>
             <div className="grid grid-cols-2 gap-3">
-              <input value={form.platform} onChange={(e) => set('platform', e.target.value)}
+              <input aria-label="Thể loại nhạc" value={form.platform} onChange={(e) => set('platform', e.target.value)}
                 placeholder="Nền tảng (VD: Facebook)" className={`${inputCls} mt-0`} />
-              <input value={form.displayName} onChange={(e) => set('displayName', e.target.value)}
+              <input aria-label="Tên hiển thị" value={form.displayName} onChange={(e) => set('displayName', e.target.value)}
                 placeholder="Tên hiển thị" className={`${inputCls} mt-0`} />
             </div>
-            <input value={form.url} onChange={(e) => set('url', e.target.value)}
+            <input aria-label="https://" value={form.url} onChange={(e) => set('url', e.target.value)}
               placeholder="https://..." className={`${inputCls} mt-0`} />
             <button type="submit" disabled={isBusy}
               className="w-full py-2 border border-line text-ink-soft text-sm font-bold hover:bg-sunken flex items-center justify-center gap-2 disabled:opacity-50">

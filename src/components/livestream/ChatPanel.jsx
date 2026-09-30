@@ -180,7 +180,7 @@ const ChatPanel = ({ messages, performers, onSendMessage, onSendDonation, onRepo
           <button type="button" onClick={() => setShowEmoji(!showEmoji)} className={`p-2 transition-colors flex-shrink-0 ${showEmoji ? 'text-ink bg-sunken' : 'text-ink-soft hover:text-ink'}`} aria-label="Chèn biểu tượng cảm xúc">
             <Smile size={20} />
           </button>
-          <input
+          <input aria-label="Nhắn gì đó"
             ref={inputRef}
             type="text"
             value={text}

@@ -68,7 +68,7 @@ const OptionFormModal = ({ isOpen, typeLabel, hasNameEn, hasDescription, editing
                         <label className="block text-sm font-medium text-ink-soft mb-2">
                             Name (Vietnamese) <span className="text-danger">*</span>
                         </label>
-                        <input
+                        <input aria-label="Name (Vietnamese)"
                             type="text"
                             value={formData.name}
                             onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
@@ -84,7 +84,7 @@ const OptionFormModal = ({ isOpen, typeLabel, hasNameEn, hasDescription, editing
                             <label className="block text-sm font-medium text-ink-soft mb-2">
                                 Mô tả <span className="text-ink-mute text-xs">(không bắt buộc)</span>
                             </label>
-                            <textarea
+                            <textarea aria-label="Mô tả (không bắt buộc)"
                                 rows={3}
                                 value={formData.description}
                                 onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
@@ -100,7 +100,7 @@ const OptionFormModal = ({ isOpen, typeLabel, hasNameEn, hasDescription, editing
                             <label className="block text-sm font-medium text-ink-soft mb-2">
                                 Name (English) <span className="text-ink-mute text-xs">(không bắt buộc)</span>
                             </label>
-                            <input
+                            <input aria-label="Name (English) (không bắt buộc)"
                                 type="text"
                                 value={formData.nameEn}
                                 onChange={(e) => setFormData(prev => ({ ...prev, nameEn: e.target.value }))}

@@ -1,9 +1,13 @@
 // src/pages/user/NotificationsPage.jsx
+//
+// 30/09/2026: thông báo chưa đọc có nhãn CHỮ "Mới" (bản cũ chỉ một chấm và chữ đậm — trình đọc màn hình không biết);
+// lỗi tải là trạng thái riêng có nút thử lại (bản cũ hiện "Chưa có thông báo nào" khi tải hỏng — nói sai); ngày giờ qua
+// utils/ngayVietNam.
 
 import { useState, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import { Bell, Loader2, CheckCheck, ArrowLeft, Inbox } from 'lucide-react'
-import dayjs from 'dayjs'
+import { ngayDayDu, gioTrongNgay } from '../../utils/ngayVietNam'
 import toast from 'react-hot-toast'
 import { useAuthStore } from '../../store/useAuthStore'
 import { buildLink } from '../../components/notifications/notificationLink'
@@ -23,18 +27,21 @@ const NotificationsPage = () => {
   const [totalPages, setTotalPages] = useState(1)
   const [totalCount, setTotalCount] = useState(0)
   const [isBusy, setIsBusy] = useState(false)
+  const [loiTai, setLoiTai] = useState(false)
 
   const load = useCallback(async () => {
     setIsLoading(true)
+    setLoiTai(false)
     try {
       const res = await getMyNotifications({ page, pageSize: TRANG })
-      if (res.success) {
+      if (!res.success) throw new Error('thong-bao')
+      {
         setItems(res.data?.items ?? [])
         setTotalPages(res.data?.totalPages ?? 1)
         setTotalCount(res.data?.totalCount ?? 0)
       }
-    } catch (err) {
-      toast.error(err.response?.data?.message || 'Không tải được thông báo.')
+    } catch {
+      setLoiTai(true)
       setItems([])
     } finally {
       setIsLoading(false)
@@ -82,7 +89,7 @@ const NotificationsPage = () => {
   }
 
   return (
-    <div className="min-h-[60vh] bg-page text-ink pb-20">
+    <div className="min-h-[60vh] bg-stock text-ink pb-20">
       <div className="max-w-3xl mx-auto px-6 py-8">
         <Link to="/" className="inline-flex items-center gap-2 text-sm font-medium text-ink-soft hover:text-ink mb-6">
           <ArrowLeft size={18} /> Về trang chủ
@@ -109,7 +116,12 @@ const NotificationsPage = () => {
         </div>
 
         {isLoading ? (
-          <div className="py-24 flex justify-center"><Loader2 size={30} className="animate-spin text-ink" /></div>
+          <div className="h-64 border-2 border-ink/20 bg-ink/5 animate-pulse" aria-busy="true" aria-label="Đang tải thông báo" />
+        ) : loiTai ? (
+          <div role="alert" className="flex flex-wrap items-center gap-4 border-2 border-ink p-5">
+            <p>Thông báo chưa tải được.</p>
+            <button type="button" onClick={load} className="min-h-[44px] px-5 bg-ink text-lamp font-semibold hover:bg-board">Thử lại</button>
+          </div>
         ) : items.length === 0 ? (
           <div className="bg-card border border-line p-16 text-center">
             <Inbox size={34} className="mx-auto mb-4 text-ink-mute" />
@@ -119,20 +131,21 @@ const NotificationsPage = () => {
             </p>
           </div>
         ) : (
-          <div className="bg-card border border-line divide-y divide-line overflow-hidden">
+          <div className="border-y-2 border-ink bg-card divide-y divide-ink/20">
             {items.map((n) => {
               const link = buildLink(n, role)
               const ruot = (
-                <div className={`px-5 py-4 transition-colors hover:bg-sunken/50 ${n.isRead ? '' : 'bg-ink/5'}`}>
+                <div className={`px-4 py-4 transition-colors hover:bg-sunken ${n.isRead ? '' : 'border-l-4 border-ink'}`}>
                   <div className="flex items-start gap-3">
                     {n.isRead
                       ? <span className="mt-1.5 w-2 h-2 flex-shrink-0" />
                       : <span className="mt-1.5 w-2 h-2 bg-ink flex-shrink-0" />}
                     <div className="min-w-0">
-                      <p className={`text-sm ${n.isRead ? 'text-ink-soft' : 'text-ink font-semibold'}`}>{n.title}</p>
+                      {!n.isRead && <span className="inline-block mb-1 px-1.5 bg-ink text-lamp text-xs font-semibold">Mới</span>}
+                      <p className={n.isRead ? 'text-ink-soft' : 'text-ink font-semibold'}>{n.title}</p>
                       {n.body && <p className="text-sm text-ink-mute mt-1 leading-relaxed">{n.body}</p>}
                       <p className="text-xs text-ink-mute mt-1.5">
-                        {dayjs(n.createdAt).format('HH:mm DD/MM/YYYY')}
+                        {gioTrongNgay(n.createdAt)} · {ngayDayDu(n.createdAt)}
                       </p>
                     </div>
                   </div>
@@ -156,14 +169,14 @@ const NotificationsPage = () => {
 
         {totalPages > 1 && (
           <div className="flex items-center justify-center gap-3 mt-6">
-            <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page <= 1}
-              className="px-4 py-2 border border-line text-sm text-ink-soft hover:bg-sunken disabled:opacity-40">
-              Trước
+            <button type="button" onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page <= 1}
+              className="min-h-[44px] px-4 border-2 border-ink font-semibold hover:bg-ink hover:text-lamp disabled:opacity-40">
+              Trang trước
             </button>
-            <span className="text-sm text-ink-mute">Trang {page}/{totalPages}</span>
-            <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page >= totalPages}
-              className="px-4 py-2 border border-line text-sm text-ink-soft hover:bg-sunken disabled:opacity-40">
-              Sau
+            <span className="font-mono text-sm">Trang {page} trên {totalPages}</span>
+            <button type="button" onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page >= totalPages}
+              className="min-h-[44px] px-4 border-2 border-ink font-semibold hover:bg-ink hover:text-lamp disabled:opacity-40">
+              Trang sau
             </button>
           </div>
         )}

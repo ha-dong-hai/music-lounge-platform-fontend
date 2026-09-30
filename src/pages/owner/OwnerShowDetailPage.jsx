@@ -498,7 +498,7 @@ const OwnerShowDetailPage = () => {
 
         {isDraft ? (
           <div className="flex gap-2">
-            <input value={legalRef} onChange={(e) => setLegalRef(e.target.value)}
+            <input aria-label="Số văn bản chấp thuận biểu diễn" value={legalRef} onChange={(e) => setLegalRef(e.target.value)}
               placeholder={daKhaiVanBan ? 'Nhập số mới để thay giá trị đang khai' : 'VD: 1234/SVHTT-QLVH hoặc đường dẫn tới văn bản'}
               className="flex-1 px-3 py-2 bg-page border border-line text-sm text-ink placeholder:text-ink-mute" />
             <button onClick={handleSaveLegal} disabled={!legalRef.trim() || !!busy}
@@ -568,7 +568,7 @@ const OwnerShowDetailPage = () => {
                   <div className="mt-3 pt-3 border-t border-line grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <div>
                       <label className="text-xs text-ink-mute">Vai trò</label>
-                      <select value={suaTietMuc.role}
+                      <select aria-label="Vai trò" value={suaTietMuc.role}
                         onChange={(e) => setSuaTietMuc((v) => ({ ...v, role: e.target.value }))}
                         className="mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink">
                         {ROLES.map((r) => <option key={r.value} value={r.value}>{r.label}</option>)}
@@ -576,7 +576,7 @@ const OwnerShowDetailPage = () => {
                     </div>
                     <div>
                       <label className="text-xs text-ink-mute">Giờ diễn</label>
-                      <input type="time" value={suaTietMuc.setTime}
+                      <input aria-label="Giờ diễn" type="time" value={suaTietMuc.setTime}
                         onChange={(e) => setSuaTietMuc((v) => ({ ...v, setTime: e.target.value }))}
                         className="mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink" />
                       <p className="text-[11px] text-ink-mute mt-1">Để trống nếu chưa chốt giờ.</p>
@@ -608,7 +608,7 @@ const OwnerShowDetailPage = () => {
 
         {isDraft && (
           <div className="relative">
-            <input value={performerQuery} onChange={(e) => handleSearchPerformer(e.target.value)}
+            <input aria-label="Gõ tên nghệ sĩ để tìm (từ 2 ký tự)" value={performerQuery} onChange={(e) => handleSearchPerformer(e.target.value)}
               placeholder="Gõ tên nghệ sĩ để tìm (từ 2 ký tự)"
               className="w-full px-3 py-2 bg-page border border-line text-sm text-ink placeholder:text-ink-mute" />
             {performerResults.length > 0 && (
@@ -690,13 +690,13 @@ const OwnerShowDetailPage = () => {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div>
                         <label className="text-xs text-ink-mute">Tên hạng vé *</label>
-                        <input value={suaHangVe.name}
+                        <input aria-label="Tên hạng vé" value={suaHangVe.name}
                           onChange={(e) => setSuaHangVe((v) => ({ ...v, name: e.target.value }))}
                           className="mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink" />
                       </div>
                       <div>
                         <label className="text-xs text-ink-mute">Sức chứa</label>
-                        <input type="number" min="1" value={suaHangVe.totalCapacity}
+                        <input aria-label="Sức chứa" type="number" min="1" value={suaHangVe.totalCapacity}
                           onChange={(e) => setSuaHangVe((v) => ({ ...v, totalCapacity: e.target.value }))}
                           className="mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink" />
                         <p className="text-[11px] text-ink-mute mt-1">Để trống = không giới hạn.</p>
@@ -704,7 +704,7 @@ const OwnerShowDetailPage = () => {
                     </div>
                     <div>
                       <label className="text-xs text-ink-mute">Mô tả</label>
-                      <input value={suaHangVe.description}
+                      <input aria-label="Mô tả" value={suaHangVe.description}
                         onChange={(e) => setSuaHangVe((v) => ({ ...v, description: e.target.value }))}
                         placeholder="VD: Ghế sát sân khấu, có nước uống"
                         className="mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink" />
@@ -734,13 +734,13 @@ const OwnerShowDetailPage = () => {
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="text-xs text-ink-mute">Tên hạng vé *</label>
-                <input value={tierForm.name} onChange={(e) => setTierForm((p) => ({ ...p, name: e.target.value }))}
+                <input aria-label="Tên hạng vé" value={tierForm.name} onChange={(e) => setTierForm((p) => ({ ...p, name: e.target.value }))}
                   placeholder="VD: Ghế thường"
                   className="mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink" />
               </div>
               <div>
                 <label className="text-xs text-ink-mute">Loại</label>
-                <select value={tierForm.accessType} onChange={(e) => setTierForm((p) => ({ ...p, accessType: e.target.value }))}
+                <select aria-label="Loại" value={tierForm.accessType} onChange={(e) => setTierForm((p) => ({ ...p, accessType: e.target.value }))}
                   className="mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink">
                   <option value="Physical">Vào xem tại chỗ</option>
                   <option value="Livestream">Xem trực tuyến</option>
@@ -758,7 +758,7 @@ const OwnerShowDetailPage = () => {
             {tierForm.accessType === 'Physical' && (
               <div>
                 <label className="text-xs text-ink-mute">Khu vực chỗ ngồi</label>
-                <select value={tierForm.zoneId}
+                <select aria-label="Khu vực chỗ ngồi" value={tierForm.zoneId}
                   onChange={(e) => setTierForm((p) => ({ ...p, zoneId: e.target.value }))}
                   className="mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink">
                   <option value="">— Không gắn khu vực nào —</option>
@@ -779,19 +779,19 @@ const OwnerShowDetailPage = () => {
             <div className="grid grid-cols-3 gap-3">
               <div>
                 <label className="text-xs text-ink-mute">Giá (đồng) *</label>
-                <input type="number" min="1" step="1" value={tierForm.price}
+                <input aria-label="Giá (đồng)" type="number" min="1" step="1" value={tierForm.price}
                   onChange={(e) => setTierForm((p) => ({ ...p, price: e.target.value }))}
                   className="mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink" />
               </div>
               <div>
                 <label className="text-xs text-ink-mute">Số lượng</label>
-                <input type="number" min="1" value={tierForm.quota}
+                <input aria-label="Số lượng" type="number" min="1" value={tierForm.quota}
                   onChange={(e) => setTierForm((p) => ({ ...p, quota: e.target.value }))}
                   className="mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink" />
               </div>
               <div>
                 <label className="text-xs text-ink-mute">Kênh bán</label>
-                <select value={tierForm.purchaseChannel} onChange={(e) => setTierForm((p) => ({ ...p, purchaseChannel: e.target.value }))}
+                <select aria-label="Kênh bán" value={tierForm.purchaseChannel} onChange={(e) => setTierForm((p) => ({ ...p, purchaseChannel: e.target.value }))}
                   className="mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink">
                   <option value="Both">Online + tại quầy</option>
                   <option value="Online">Chỉ online</option>

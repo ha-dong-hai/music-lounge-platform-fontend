@@ -6,7 +6,7 @@ const VenuesFilterBar = ({ statusFilter, setStatusFilter }) => {
     <div className="bg-card border border-line p-4 flex flex-col md:flex-row gap-4 items-center justify-between">
       <div className="flex items-center gap-3">
         <p className="text-sm text-ink-soft">Lọc theo trạng thái:</p>
-        <select
+        <select aria-label="Lọc theo trạng thái"
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
           className="px-4 py-2.5 bg-page border border-line text-sm text-ink focus:outline-none focus:border-ink/50 cursor-pointer"

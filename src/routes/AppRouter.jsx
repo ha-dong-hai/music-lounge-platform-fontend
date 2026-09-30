@@ -90,18 +90,19 @@ const AppRouter = createBrowserRouter([
       // Footer) chu khong dung rieng nhu /performers/:id/donations, vi day la trang nguoi la
       // ghe vao tu chan trang — ho can dieu huong day du de di tiep.
       { path: 'minh-bach', element: <TransparencyHubPage /> },
+      // 30/09/2026: ba trang công khai dưới đây trước đứng RIÊNG ngoài MainLayout — không có đầu trang, người vào từ
+      // trang vé hay trang buổi diễn chỉ còn một đường ra là "Về trang chủ". Nay có Header + Footer như mọi trang khán giả.
+      // Khách chưa đăng nhập vẫn gửi khiếu nại và xem sao kê ủng hộ được (không bọc ProtectedRoute).
+      { path: 'complaints', element: <ComplaintPage /> },
+      { path: 'performers/:performerId', element: <PerformerPage /> },
+      { path: 'performers/:performerId/donations', element: <PerformerDonationsPage /> },
     ],
   },
 
   { path: '/livestream/:showId', element: <LivestreamWatchPage /> },
 
-  // Trang cong khai: khach chua dang nhap cung gui khieu nai duoc
-  { path: '/complaints', element: <ComplaintPage /> },
   // Nghe si mo tu lien ket email, KHONG co tai khoan — khong duoc doi dang nhap
   { path: '/performer-confirmation', element: <PerformerConfirmationPage /> },
-  // Sao kê donate công khai — cố tình KHÔNG bọc ProtectedRoute: khán giả chưa đăng nhập phải xem được.
-  { path: '/performers/:performerId', element: <PerformerPage /> },
-  { path: '/performers/:performerId/donations', element: <PerformerDonationsPage /> },
   { path: '/login', element: <LoginPage /> },
   { path: '/register', element: <RegisterPage /> },
   { path: '/verify-email', element: <VerifyEmailPage /> },

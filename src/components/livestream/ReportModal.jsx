@@ -92,7 +92,7 @@ const ReportModal = ({ onClose, onSubmit }) => {
             <label className="block text-sm font-medium text-ink-soft mb-2.5">
               Description <span className="text-danger">*</span>
             </label>
-            <textarea
+            <textarea aria-label="Description"
               rows={4}
               value={description}
               onChange={(e) => setDescription(e.target.value)}

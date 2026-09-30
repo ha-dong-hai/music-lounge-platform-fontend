@@ -79,15 +79,15 @@ const AccountFormModal = ({ initial, chuSoHuu, onClose, onSaved }) => {
         <form onSubmit={handleSubmit} className="p-5 space-y-4">
           <div>
             <label className="text-xs text-ink-mute">Ngân hàng <span className="text-danger">*</span></label>
-            <input value={form.bankName} onChange={(e) => set('bankName', e.target.value)} className={inputCls} placeholder="VD: Vietcombank" />
+            <input aria-label="Ngân hàng" value={form.bankName} onChange={(e) => set('bankName', e.target.value)} className={inputCls} placeholder="VD: Vietcombank" />
           </div>
           <div>
             <label className="text-xs text-ink-mute">Số tài khoản <span className="text-danger">*</span></label>
-            <input value={form.accountNumber} onChange={(e) => set('accountNumber', e.target.value)} className={inputCls} inputMode="numeric" />
+            <input aria-label="Số tài khoản" value={form.accountNumber} onChange={(e) => set('accountNumber', e.target.value)} className={inputCls} inputMode="numeric" />
           </div>
           <div>
             <label className="text-xs text-ink-mute">Tên chủ tài khoản <span className="text-danger">*</span></label>
-            <input value={form.accountHolder} onChange={(e) => set('accountHolder', e.target.value)} className={inputCls} />
+            <input aria-label="Tên chủ tài khoản" value={form.accountHolder} onChange={(e) => set('accountHolder', e.target.value)} className={inputCls} />
             <p className="text-xs text-warning/80 mt-1 leading-relaxed">
               Phải trùng tên trên giấy tờ định danh của chủ phòng trà. Lệch tên thì Admin sẽ từ chối khi duyệt.
             </p>

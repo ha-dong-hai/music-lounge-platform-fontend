@@ -18,7 +18,7 @@
 //   Nghĩa là phòng trà đã từng hoạt động thì thực tế không xoá được — và đó là hành vi đúng, vì xoá
 //   đi là mất lịch sử show. Nút xoá vì vậy nói trước điều kiện này chứ không để chủ bấm rồi mới
 //   nhận lỗi. Xoá xong thì claim lounge_id trong token thành sai, nên phải refresh token như lúc tạo.
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useId, cloneElement, isValidElement } from 'react'
 import { Loader2, Store, Save, Upload, FileText, ExternalLink, AlertTriangle, CheckCircle2, Clock, Trash2, ArrowLeft, ArrowRight } from 'lucide-react'
 import toast from 'react-hot-toast'
 import {
@@ -48,17 +48,22 @@ const emptyForm = {
   street: '', ward: '', city: '', latitude: '', longitude: '',
 }
 
-const Field = ({ label, required, hint, children }) => (
-  <div>
-    <label className="text-xs text-ink-mute">
-      {label} {required && <span className="text-danger">*</span>}
-    </label>
-    {children}
-    {hint && <p className="text-xs text-ink-mute mt-1">{hint}</p>}
-  </div>
-)
+// Nhãn NỐI với ô (htmlFor + id tự sinh, gợi ý qua aria-describedby) — bản cũ in nhãn cạnh ô mà không nối, nên cả 9 ô
+// của hồ sơ phòng trà không có tên cho trình đọc màn hình. Gợi ý in TRƯỚC ô.
+const Field = ({ label, required, hint, children }) => {
+  const id = useId()
+  return (
+    <div>
+      <label htmlFor={id} className="block font-semibold text-ink mb-1">
+        {label}{required && <><span className="text-danger" aria-hidden="true"> *</span><span className="sr-only"> (bắt buộc)</span></>}
+      </label>
+      {hint && <p id={`${id}-goi-y`} className="text-sm text-ink-soft mb-1.5">{hint}</p>}
+      {isValidElement(children) ? cloneElement(children, { id, 'aria-describedby': hint ? `${id}-goi-y` : undefined, 'aria-required': required || undefined }) : children}
+    </div>
+  )
+}
 
-const inputCls = 'mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink focus:outline-none focus:border-ink/50'
+const inputCls = 'w-full min-h-[44px] px-3 bg-card border-2 border-ink text-ink focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2'
 
 const OwnerLoungePage = () => {
   const login = useAuthStore((st) => st.login)

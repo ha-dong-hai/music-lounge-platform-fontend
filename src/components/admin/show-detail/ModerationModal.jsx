@@ -70,7 +70,7 @@ const ModerationModal = ({ moderation, onClose, onDecision, isProcessing }) => {
           {/* Ghi chú duyệt */}
           <div>
             <label className="block text-sm font-medium text-ink-soft mb-2">Ghi chú duyệt (không bắt buộc)</label>
-            <textarea
+            <textarea aria-label="Ghi chú duyệt (không bắt buộc)"
               rows={3}
               value={reviewNote}
               onChange={(e) => setReviewNote(e.target.value)}

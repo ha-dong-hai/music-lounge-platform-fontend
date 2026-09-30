@@ -307,7 +307,7 @@ const OwnerOperatePage = () => {
 
       <div>
         <label className="text-xs text-ink-mute">Buổi diễn</label>
-        <select value={showId ?? ''} onChange={(e) => { chonBuoiDien(Number(e.target.value)); setVeTraCuu(null); setPriceId('') }}
+        <select aria-label="Buổi diễn" value={showId ?? ''} onChange={(e) => { chonBuoiDien(Number(e.target.value)); setVeTraCuu(null); setPriceId('') }}
           className="mt-1 w-full max-w-xl px-3 py-2 bg-page border border-line text-sm text-ink focus:outline-none focus:border-ink/50">
           {shows.map((s) => (
             <option key={s.id} value={s.id}>
@@ -372,7 +372,7 @@ const OwnerOperatePage = () => {
         {/* === SOÁT VÉ === */}
         <Card title="Soát vé tại cửa" subtitle="Tra cứu trước để đối chiếu, rồi mới soát. Soát vé không hoàn tác được.">
           <form onSubmit={handleLookup} className="flex gap-2">
-            <input value={qr} onChange={(e) => { setQr(e.target.value); setVeTraCuu(null) }}
+            <input aria-label="Quét hoặc nhập mã QR trên vé" value={qr} onChange={(e) => { setQr(e.target.value); setVeTraCuu(null) }}
               placeholder="Quét hoặc nhập mã QR trên vé" autoFocus
               className="flex-1 px-3 py-2 bg-page border border-line text-sm text-ink focus:outline-none focus:border-ink/50" />
             <button type="submit" disabled={busy !== null || !qr.trim()}
@@ -434,7 +434,7 @@ const OwnerOperatePage = () => {
             <form onSubmit={handleSell} className="space-y-3">
               <div>
                 <label className="text-xs text-ink-mute">Hạng vé</label>
-                <select value={priceId} onChange={(e) => setPriceId(e.target.value)}
+                <select aria-label="Hạng vé" value={priceId} onChange={(e) => setPriceId(e.target.value)}
                   className="mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink focus:outline-none focus:border-ink/50">
                   <option value="">— chọn hạng vé —</option>
                   {giaBanQuay.map((p) => (
@@ -447,7 +447,7 @@ const OwnerOperatePage = () => {
               </div>
               <div>
                 <label className="text-xs text-ink-mute">Số lượng</label>
-                <input type="number" min="1" step="1" value={quantity}
+                <input aria-label="Số lượng" type="number" min="1" step="1" value={quantity}
                   onChange={(e) => setQuantity(e.target.value)}
                   className="mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink focus:outline-none focus:border-ink/50" />
               </div>

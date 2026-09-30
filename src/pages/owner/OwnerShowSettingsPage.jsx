@@ -310,7 +310,7 @@ const OwnerShowSettingsPage = () => {
         <div className="space-y-4">
           <div>
             <label className="text-xs text-ink-mute">Gợi ý phong cách cho AI <span className="text-ink-mute">(không bắt buộc)</span></label>
-            <input value={styleHint} onChange={(e) => setStyleHint(e.target.value)} className={inputCls}
+            <input aria-label="Gợi ý phong cách cho AI (không bắt buộc)" value={styleHint} onChange={(e) => setStyleHint(e.target.value)} className={inputCls}
               placeholder="VD: tông trầm, nhiều cây xanh" maxLength={300} />
             {/* KHÔNG phải ô viết prompt. Máy chủ tự ghép prompt từ dữ liệu buổi diễn (tên chương
                 trình, tên phòng trà, ngày giờ, thể loại) rồi nối câu này vào cuối dưới dạng "Yêu
@@ -556,7 +556,7 @@ const OwnerShowSettingsPage = () => {
         <div className="space-y-3">
           <div>
             <label className="text-xs text-ink-mute">Giờ bắt đầu mới</label>
-            <input type="datetime-local" value={newStart} onChange={(e) => { setNewStart(e.target.value); setXacNhanDoiLich(false) }}
+            <input aria-label="Giờ bắt đầu mới" type="datetime-local" value={newStart} onChange={(e) => { setNewStart(e.target.value); setXacNhanDoiLich(false) }}
               className={inputCls} />
             <p className="text-xs text-ink-mute mt-1">
               Hiện tại: {dayjs(show.scheduledStart).format('HH:mm DD/MM/YYYY')}
@@ -598,7 +598,7 @@ const OwnerShowSettingsPage = () => {
         <div className="space-y-3">
           <div>
             <label className="text-xs text-ink-mute">Hình thức mới</label>
-            <select value={newFormat} onChange={(e) => { setNewFormat(e.target.value); setXacNhanDoiHinhThuc(false) }} className={inputCls}>
+            <select aria-label="Hình thức mới" value={newFormat} onChange={(e) => { setNewFormat(e.target.value); setXacNhanDoiHinhThuc(false) }} className={inputCls}>
               {FORMATS.map((f) => <option key={f.value} value={f.value}>{f.label}</option>)}
             </select>
             <p className="text-xs text-ink-mute mt-1">

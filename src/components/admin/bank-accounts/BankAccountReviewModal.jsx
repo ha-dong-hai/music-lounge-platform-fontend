@@ -93,7 +93,7 @@ const BankAccountReviewModal = ({ account, onClose, onDecision, isProcessing }) 
           {/* Note */}
           <div>
             <label className="block text-sm font-medium text-ink-mute mb-2">Ghi chú duyệt (không bắt buộc)</label>
-            <textarea
+            <textarea aria-label="Ghi chú duyệt (không bắt buộc)"
               rows={3}
               value={note}
               onChange={(e) => setNote(e.target.value)}

@@ -24,7 +24,7 @@ const FollowedLoungesTab = () => {
         if (res.success) {
           setFollowedLounges(res.data.items || [])
         }
-      } catch (err) {
+      } catch {
         console.log("Error loading the following list")
       } finally {
         setIsLoadingLounges(false)
@@ -62,7 +62,7 @@ const FollowedLoungesTab = () => {
         setMutedIds((p) => [...p, lounge.id])
         toast.success('Đã tắt thông báo từ phòng trà này.')
       }
-    } catch (err) {
+    } catch {
       toast.error(err.response?.data?.message || 'Không đổi được trạng thái thông báo.')
     } finally {
       setMutingId(null)
@@ -81,7 +81,7 @@ const FollowedLoungesTab = () => {
     try {
       await toggleFollowLounge(lounge.id, true) // true = đang follow → BE DELETE
       toast.success(`Đã bỏ theo dõi ${lounge.name}`)
-    } catch (err) {
+    } catch {
       setFollowedLounges(prevLounges) // rollback
       toast.error('Thao tác thất bại.')
     } finally {

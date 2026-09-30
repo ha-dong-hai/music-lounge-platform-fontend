@@ -53,7 +53,7 @@ const RemoveModal = ({ rating, onClose, onDone }) => {
           </div>
           <div>
             <label className="text-xs text-ink-mute">Lý do gỡ <span className="text-danger">*</span></label>
-            <textarea rows={3} value={reason} onChange={(e) => setReason(e.target.value)}
+            <textarea aria-label="Lý do gỡ" rows={3} value={reason} onChange={(e) => setReason(e.target.value)}
               placeholder="VD: nội dung xúc phạm, không liên quan tới buổi diễn"
               className="mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink resize-none focus:outline-none focus:border-ink/50" />
             <p className="text-xs text-ink-mute mt-1 leading-relaxed">
