@@ -291,24 +291,30 @@ const PanoramaViewer = ({ scenes = [], initialSceneId = null, className = '', vi
     videoTex.generateMipmaps = false
     videoTex.minFilter = THREE.LinearFilter
 
-    // Tấm thông báo khi chưa có hình: cùng bảng màu espresso/cream của giao diện.
-    // Vẽ vào canvas KHÔNG tự chờ phông web: nếu Playfair Display chưa nạp xong thì canvas rơi về phông dự
+    // Tấm thông báo khi chưa có hình: cùng bảng màu sơn then / ánh đèn của giao diện, ĐỌC TỪ TOKEN (canvas không
+    // hiểu var(--…), nên lấy giá trị đã tính của :root). Bản trước ghi cứng mã màu và hai phông của thiết kế cũ
+    // (đã gỡ khỏi trang) — canvas lặng lẽ rơi về Georgia, không ai thấy cho tới khi cổng kiem:the-gioi quét file này.
+    // Vẽ vào canvas KHÔNG tự chờ phông web: nếu phông chưa nạp xong thì canvas rơi về phông dự
     // phòng và dấu tiếng Việt bị lệch ("sắ´p bắ´t"). Nên vẽ ngay một lần cho có hình, rồi chờ phông nạp
     // (kèm đúng đoạn chữ để tải cả bộ ký tự tiếng Việt) và vẽ lại.
+    const goc = getComputedStyle(document.documentElement)
+    const mau = (ten) => goc.getPropertyValue(ten).trim()
+    const PHONG_TIEU_DE = '400 52px Anton'
+    const PHONG_PHU = '400 26px "Be Vietnam Pro"'
     const canvas = document.createElement('canvas')
     canvas.width = 1280
     canvas.height = 720
     const ctx = canvas.getContext('2d')
     const paint = () => {
-      ctx.fillStyle = '#2A1F17'
+      ctx.fillStyle = mau('--color-board')
       ctx.fillRect(0, 0, 1280, 720)
-      ctx.fillStyle = '#F5EDE0'
-      ctx.font = '600 46px "Playfair Display", Georgia, serif'
+      ctx.fillStyle = mau('--color-lamp')
+      ctx.font = `${PHONG_TIEU_DE}, sans-serif`
       ctx.textAlign = 'center'
       ctx.textBaseline = 'middle'
       ctx.fillText(screenPlaceholder, 640, 340)
-      ctx.fillStyle = '#BFAE99'
-      ctx.font = '400 26px "Plus Jakarta Sans", sans-serif'
+      ctx.fillStyle = mau('--color-lamp-mute')
+      ctx.font = `${PHONG_PHU}, sans-serif`
       ctx.fillText(SUBLINE, 640, 410)
     }
     paint()
@@ -316,12 +322,12 @@ const PanoramaViewer = ({ scenes = [], initialSceneId = null, className = '', vi
     placeholderTex.colorSpace = THREE.SRGBColorSpace
     let disposed = false
     Promise.all([
-      document.fonts.load('600 46px "Playfair Display"', screenPlaceholder),
-      document.fonts.load('400 26px "Plus Jakarta Sans"', SUBLINE),
+      document.fonts.load(PHONG_TIEU_DE, screenPlaceholder),
+      document.fonts.load(PHONG_PHU, SUBLINE),
     ]).then(() => { if (!disposed) { paint(); placeholderTex.needsUpdate = true } }).catch(() => {})
 
     const mesh = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({ map: placeholderTex, toneMapped: false }))
-    const frame = new THREE.Mesh(new THREE.PlaneGeometry(w * 1.035, h * 1.06), new THREE.MeshBasicMaterial({ color: 0x2a1f17 }))
+    const frame = new THREE.Mesh(new THREE.PlaneGeometry(w * 1.035, h * 1.06), new THREE.MeshBasicMaterial({ color: new THREE.Color(mau('--color-board')) }))
     const d = directionFromYawPitch(screenYaw, screenPitch)
     mesh.position.set(d.x * dist, d.y * dist, d.z * dist)
     frame.position.set(d.x * (dist + 1.5), d.y * (dist + 1.5), d.z * (dist + 1.5))
@@ -398,7 +404,7 @@ const PanoramaViewer = ({ scenes = [], initialSceneId = null, className = '', vi
   return (
     <div
       ref={containerRef}
-      className={`relative overflow-hidden bg-espresso select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-brand ${className}`}
+      className={`relative overflow-hidden bg-ink select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-ink ${className}`}
       tabIndex={0}
       role="group"
       aria-label={`Xem không gian phòng trà 360 độ${scene.name ? `, cảnh ${scene.name}` : ''}. Dùng chuột kéo hoặc phím mũi tên để nhìn quanh, phím cộng trừ để phóng to.`}
@@ -407,16 +413,16 @@ const PanoramaViewer = ({ scenes = [], initialSceneId = null, className = '', vi
       <div ref={mountRef} className="absolute inset-0" />
 
       {/* Lớp chuyển cảnh */}
-      <div className={`absolute inset-0 bg-espresso pointer-events-none transition-opacity duration-200 ${fading || loading ? 'opacity-100' : 'opacity-0'}`} />
+      <div className={`absolute inset-0 bg-ink pointer-events-none transition-opacity duration-200 ${fading || loading ? 'opacity-100' : 'opacity-0'}`} />
 
       {loading && !error && (
-        <div className="absolute inset-0 flex items-center justify-center text-cream-mute" role="status">
+        <div className="absolute inset-0 flex items-center justify-center text-lamp-mute" role="status">
           <Loader2 className="animate-spin" size={28} />
           <span className="sr-only">Đang tải ảnh 360°</span>
         </div>
       )}
       {error && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-cream-mute text-sm" role="alert">
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-lamp-mute text-sm" role="alert">
           <ImageOff size={28} strokeWidth={1.5} />
           Không tải được ảnh 360° của cảnh này.
         </div>
@@ -432,7 +438,7 @@ const PanoramaViewer = ({ scenes = [], initialSceneId = null, className = '', vi
           onClick={() => (h.type === 'Navigate' ? goToScene(h.targetSceneId) : setOpenInfo(h.id === openInfo ? null : h.id))}
           aria-label={h.label || (h.type === 'Navigate' ? 'Sang cảnh khác' : 'Xem chú thích')}
           title={h.label || undefined}
-          className="absolute left-0 top-0 z-10 flex items-center gap-2 rounded-full bg-card/95 text-ink border border-line-strong shadow-lift pl-2 pr-3 py-1.5 text-xs font-semibold hover:bg-brand hover:text-on-brand transition-colors opacity-0"
+          className="absolute left-0 top-0 z-10 flex items-center gap-2 bg-card/95 text-ink border border-line-strong shadow-lift pl-2 pr-3 py-1.5 text-xs font-semibold hover:bg-ink hover:text-lamp transition-colors opacity-0"
           style={{ willChange: 'transform' }}
         >
           {h.type === 'Navigate' ? <ArrowUpRight size={15} /> : <Info size={15} />}
@@ -441,7 +447,7 @@ const PanoramaViewer = ({ scenes = [], initialSceneId = null, className = '', vi
       ))}
 
       {info && (
-        <div className="absolute left-1/2 bottom-16 -translate-x-1/2 z-20 w-[min(92%,26rem)] rounded-xl bg-card border border-line shadow-lift p-4 text-sm text-ink-soft">
+        <div className="absolute left-1/2 bottom-16 -translate-x-1/2 z-20 w-[min(92%,26rem)] bg-card border border-line shadow-lift p-4 text-sm text-ink-soft">
           <button type="button" onClick={() => setOpenInfo(null)} aria-label="Đóng chú thích"
             className="absolute right-2 top-2 p-1 rounded-md text-ink-mute hover:bg-sunken"><X size={14} /></button>
           {info.label && <p className="font-semibold text-ink mb-1 pr-6">{info.label}</p>}
@@ -450,18 +456,18 @@ const PanoramaViewer = ({ scenes = [], initialSceneId = null, className = '', vi
       )}
 
       {/* Gợi ý thao tác — biến mất sau lần chạm đầu tiên */}
-      <div className={`absolute left-4 top-4 z-10 px-3 py-1.5 rounded-full bg-espresso/70 backdrop-blur-sm text-cream text-xs transition-opacity duration-500 pointer-events-none ${hintVisible && !loading ? 'opacity-100' : 'opacity-0'}`}>
+      <div className={`absolute left-4 top-4 z-10 px-3 py-1.5 bg-ink/70 text-lamp text-xs transition-opacity duration-500 pointer-events-none ${hintVisible && !loading ? 'opacity-100' : 'opacity-0'}`}>
         Kéo để nhìn quanh · Cuộn để phóng to
       </div>
 
       <button type="button" onClick={toggleFullscreen} aria-label={isFullscreen ? 'Thoát toàn màn hình' : 'Xem toàn màn hình'}
-        className="absolute right-4 top-4 z-10 w-10 h-10 rounded-full bg-espresso/70 backdrop-blur-sm text-cream flex items-center justify-center hover:bg-brand hover:text-on-brand transition-colors">
+        className="absolute right-4 top-4 z-10 w-10 h-10 bg-ink/70 text-lamp flex items-center justify-center hover:bg-ink hover:text-lamp transition-colors">
         {isFullscreen ? <Minimize2 size={17} /> : <Maximize2 size={17} />}
       </button>
 
       {videoScreen?.video && (
         <button type="button" onClick={focusScreen} aria-label="Quay về nhìn màn hình sân khấu"
-          className="absolute right-4 top-16 z-10 h-10 px-3.5 rounded-full bg-espresso/70 backdrop-blur-sm text-cream text-xs font-semibold flex items-center gap-2 hover:bg-brand hover:text-on-brand transition-colors">
+          className="absolute right-4 top-16 z-10 h-10 px-3.5 bg-ink/70 text-lamp text-xs font-semibold flex items-center gap-2 hover:bg-ink hover:text-lamp transition-colors">
           <Tv size={15} /> Về màn hình
         </button>
       )}
@@ -470,7 +476,7 @@ const PanoramaViewer = ({ scenes = [], initialSceneId = null, className = '', vi
         <div className="absolute left-4 right-4 bottom-4 z-10 flex gap-2 overflow-x-auto hide-scrollbar" role="tablist" aria-label="Các điểm đứng trong phòng trà">
           {scenes.map((s, i) => (
             <button key={s.id} type="button" role="tab" aria-selected={s.id === scene.id} onClick={() => goToScene(s.id)}
-              className={`flex-shrink-0 px-3.5 py-1.5 rounded-full text-xs font-semibold backdrop-blur-sm transition-colors ${s.id === scene.id ? 'bg-brand text-on-brand' : 'bg-espresso/70 text-cream hover:bg-espresso'}`}>
+              className={`flex-shrink-0 px-3.5 py-1.5 text-xs font-semibold transition-colors ${s.id === scene.id ? 'bg-ink text-lamp' : 'bg-ink/70 text-lamp hover:bg-ink'}`}>
               {s.name || `Cảnh ${i + 1}`}
             </button>
           ))}

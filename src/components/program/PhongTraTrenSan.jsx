@@ -6,11 +6,10 @@
 // khan hiếm), nút Theo dõi NGAY TRÊN THẺ (hành động được chứng minh mạnh nhất trong nghiên cứu: Songkick).
 // Phòng trà có diễn đêm nay thì ô đó "sáng đèn" (khối mực, chữ sáng) — cùng tín hiệu với bảng giờ diễn.
 // Chưa đăng nhập mà bấm Theo dõi: nói trước là cần đăng nhập (nguyên tắc 6) — nút ghi rõ và dẫn tới /login.
+// Hình thức của từng ô nằm ở ThePhongTra.jsx (dùng chung với trang danh sách phòng trà).
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
 import toast from 'react-hot-toast'
-import { MapPin } from 'lucide-react'
-import CoverFallback from '../shared/CoverFallback'
+import ThePhongTra from './ThePhongTra'
 import { getLounges } from '../../services/loungeServices'
 import { toggleFollowLounge, getFollowedLounges } from '../../services/interactionServices'
 
@@ -76,41 +75,10 @@ const PhongTraTrenSan = ({ daDangNhap, phongTraSangDen = new Set(), onTai }) => 
 
   return (
     <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-      {ds.map((l) => {
-        const sangDen = phongTraSangDen.has(l.name)
-        const theoDoi = dangTheoDoi.has(l.id)
-        return (
-          <li key={l.id} className={`flex flex-col border-2 border-ink ${sangDen ? 'bg-ink text-lamp shadow-glow' : 'bg-stock text-ink'}`}>
-            <Link to={`/lounge/${l.id}`} className="block m-3 mb-0 aspect-[4/3] overflow-hidden border border-ink bg-board">
-              {l.primaryImageUrl ? <img src={l.primaryImageUrl} alt={`Không gian ${l.name}`} loading="lazy" className="w-full h-full object-cover" /> : <CoverFallback />}
-            </Link>
-            <div className="flex flex-col gap-2 p-4 flex-1">
-              <Link to={`/lounge/${l.id}`} className={`font-display text-3xl leading-none hover:underline ${sangDen ? 'text-lamp' : 'text-ink'}`}>{l.name}</Link>
-              <p className={`flex items-center gap-1 text-sm ${sangDen ? 'text-lamp-mute' : 'text-ink-soft'}`}>
-                <MapPin size={13} aria-hidden="true" /> {[l.district, l.city].filter(Boolean).join(', ') || '—'}
-              </p>
-              <p className={`font-mono text-sm ${sangDen ? 'text-lamp' : 'text-ink'}`}>
-                {sangDen ? 'Có diễn đêm nay' : l.upcomingShowCount > 0 ? `${l.upcomingShowCount} đêm diễn sắp tới` : 'Chưa có đêm diễn mới'}
-              </p>
-              <div className="mt-auto pt-2">
-                {daDangNhap ? (
-                  <button type="button" onClick={() => batTat(l)} disabled={dangBam === l.id} aria-pressed={theoDoi}
-                    className={`w-full min-h-[44px] border-2 font-semibold transition-colors disabled:opacity-60 ${sangDen
-                      ? (theoDoi ? 'bg-lamp text-ink border-lamp' : 'border-lamp text-lamp hover:bg-lamp hover:text-ink')
-                      : (theoDoi ? 'bg-ink text-lamp border-ink' : 'border-ink text-ink hover:bg-ink hover:text-lamp')}`}>
-                    {theoDoi ? 'Đang theo dõi' : 'Theo dõi'}
-                  </button>
-                ) : (
-                  <Link to="/login" state={{ from: '/' }}
-                    className={`flex items-center justify-center w-full min-h-[44px] border-2 font-semibold ${sangDen ? 'border-lamp text-lamp' : 'border-ink text-ink'}`}>
-                    Đăng nhập để theo dõi
-                  </Link>
-                )}
-              </div>
-            </div>
-          </li>
-        )
-      })}
+      {ds.map((l) => (
+        <ThePhongTra key={l.id} l={l} sangDen={phongTraSangDen.has(l.name)} daDangNhap={daDangNhap}
+          dangTheoDoi={dangTheoDoi.has(l.id)} dangBam={dangBam === l.id} onTheoDoi={batTat} tuTrang="/" />
+      ))}
     </ul>
   )
 }

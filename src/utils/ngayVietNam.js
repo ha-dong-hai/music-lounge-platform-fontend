@@ -47,3 +47,8 @@ export const khoaNgay = (d) => dayjs(d).format('YYYY-MM-DD')
 // Ngày viết gọn kiểu Việt: NGÀY/THÁNG. Không dùng MM/DD của Mỹ — 03/09 mà đọc nhầm thành 9 tháng 3
 // thì người ta lỡ đêm diễn.
 export const ngayGon = (d) => dayjs(d).format('DD/MM')
+
+// Ngày của một dòng trong lịch diễn: "Ngày mai 01/10", "Thứ sáu 09/10". Khác năm với mốc thì in đủ NGÀY/THÁNG/NĂM —
+// "09/01" của năm sau mà không ghi năm sẽ bị đọc thành tháng Một vừa qua.
+export const ngayTrongLich = (d, moc = dayjs()) =>
+  dayjs(d).isSame(dayjs(moc), 'year') ? `${nhanNgay(d, moc)} ${ngayGon(d)}` : ngayDayDu(d)

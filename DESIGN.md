@@ -254,6 +254,43 @@ Mọi đường cong dùng ease-out-soft; không nảy. `prefers-reduced-motion`
   "Độ phổ biến" hiện là số buổi diễn sắp tới (dòng nhạc) hoặc thứ tự danh mục của backend (tâm trạng, không gian) vì
   chưa có dữ liệu lượt bấm.
 
+## Trang phòng trà: bộ ảnh, lịch diễn, đoạn văn dài, danh sách (30/09/2026)
+
+> Căn cứ: `reports/Trang phòng trà ảnh và lịch diễn.md` (repo backend). Mẫu chuẩn: `src/pages/lounge/`,
+> `src/components/lounge/BoAnh.jsx`, `LichDienPhongTra.jsx`, `src/components/shared/DoanVanDai.jsx`, `src/utils/lichPhongTra.js`.
+> Bộ kiểm: `kiem_phong_tra.mjs` (dữ liệu nhỏ, lớn, trống, lỗi giả lập ở tầng mạng; 1440 và 390px).
+
+**Thứ tự trang địa điểm:** tên + địa chỉ + bộ ảnh (khối sơn then) → LỊCH DIỄN → giới thiệu và chỗ ngồi → tham quan 360°.
+Lịch diễn là thứ người ta vào trang địa điểm để tìm; không đặt nó dưới phần "cộng đồng" hay sau giới thiệu.
+
+**Bộ ảnh (mọi nơi có nhiều ảnh):**
+- KHÔNG tự chuyển ảnh. Nút trước/sau là nút thật, luôn hiện, 48px, nằm dưới ảnh chứ không đè lên ảnh.
+- Ảnh nhỏ thay cho chấm tròn; kèm bộ đếm "3 / 12". Tới 10 ảnh in hết ảnh nhỏ; nhiều hơn in 9 + ô "+N" mở lớp phủ có đủ mọi ảnh.
+- Điện thoại: vuốt ngang + bộ đếm + "Xem tất cả N ảnh"; không in dải ảnh nhỏ.
+- Lớp phủ là `<dialog>` của trình duyệt (giữ focus, Esc đóng, trả focus về nút đã mở).
+- Không có ảnh: ô "Chưa có ảnh". Cấm ảnh kho, cấm ảnh của nơi khác.
+
+**Lịch diễn của một địa điểm:** danh sách dọc, gần nhất trước, buổi đang diễn đứng đầu, không có nút sắp xếp, không băng
+chuyền ngang. In sẵn 20 buổi (tới 24 thì in hết), còn lại "Xem thêm N buổi diễn". Đêm đã diễn nằm trong khối đóng sẵn.
+Chưa có buổi nào: nói thật và mời theo dõi. Lỗi tải là trạng thái riêng có "Thử lại".
+
+**Đoạn văn người dùng nhập:** ngắn thì in hết. Chỉ cắt (6 dòng) khi phần bị giấu từ 3 dòng trở lên, đo chiều cao thật.
+Nút `<button aria-expanded>` ngay sau đoạn văn, nhãn tự mô tả ("Đọc tiếp phần giới thiệu"). Không cắt đoạn có liên kết.
+
+**Danh sách dài các thẻ (phòng trà, về sau là buổi diễn):** in từng đợt 24 thẻ + nút "Xem thêm N …" ghi số; không cuộn vô
+hạn. Từ khoá, bộ lọc và số thẻ đã mở nằm trong địa chỉ trang để Quay lại không mất chỗ. Tìm được khi gõ không dấu. 0 kết
+quả: gọi tên từ khoá + một nút bấm được để đi tiếp. Tới 8 mục thì không in ô tìm kiếm.
+
+**Không bịa dữ liệu:** trường nào API không trả thì KHÔNG in gì thay cho nó — không nhãn dòng nhạc mặc định, không câu
+giới thiệu giữ chỗ, không "0 người theo dõi". Một con số chỉ có một nguồn trên một trang.
+
+**Vòng focus trên khối tối** lấy màu ánh đèn (`src/index.css`); vòng màu mực trên sơn then là vô hình.
+
+**Giới hạn đã biết:** các ngưỡng 20 / 24 (lịch), 10 (ảnh nhỏ), 6 và 3 dòng (đoạn văn), 24 (thẻ) lấy từ quan sát DICE,
+Ticketmaster và nghiên cứu Baymard, NN/g trên thương mại điện tử — chưa có số đo của chính trang này. Chữ thay thế của ảnh
+không có chú thích chỉ định danh ("ảnh 3 trên 12"), chưa mô tả nội dung. Danh sách phòng trà tải hết về trình duyệt (trần
+500) vì API chưa có tham số tìm theo tên.
+
 ## Tiêu chí duyệt giao diện (chốt 30/09/2026)
 
 > Rút từ chính lời chủ dự án trong ngày 30/09 và từ những bản đã bị từ chối. Mục đích: trang nào làm lại cũng được

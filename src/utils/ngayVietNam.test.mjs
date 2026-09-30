@@ -4,7 +4,7 @@
 // về một chuỗi trông hợp lý, chỉ là sai ngày — và người dùng phát hiện bằng cách tới nhầm hôm.
 import dayjs from 'dayjs'
 import 'dayjs/locale/vi.js'  // .js tường minh: node chạy ESM thuần không tự thêm đuôi như Vite
-import { thuVietHoa, nhanNgay, ngayGon, gioTrongNgay, ngayDayDu, khoaNgay } from './ngayVietNam.js'
+import { thuVietHoa, nhanNgay, ngayGon, gioTrongNgay, ngayDayDu, khoaNgay, ngayTrongLich } from './ngayVietNam.js'
 
 dayjs.locale('vi')
 
@@ -53,6 +53,12 @@ kiem('khoaNgay là ISO để sắp được bằng chuỗi', khoaNgay('2026-09-0
 kiem('khoaNgay sắp đúng thứ tự bằng so sánh chuỗi',
   [khoaNgay('2026-10-01'), khoaNgay('2026-09-30')].sort().join('|'),
   '2026-09-30|2026-10-01')
+
+// Dòng lịch diễn: cùng năm thì nhãn + NGÀY/THÁNG; khác năm thì in đủ năm (09/01 của năm sau không được đọc thành
+// tháng Một vừa qua).
+kiem('ngayTrongLich hôm sau', ngayTrongLich('2026-09-24T20:00:00', moc), 'Ngày mai 24/09')
+kiem('ngayTrongLich trong năm', ngayTrongLich('2026-10-09T20:00:00', moc), 'Thứ sáu 09/10')
+kiem('ngayTrongLich sang năm sau in đủ năm', ngayTrongLich('2027-01-09T20:00:00', moc), '09/01/2027')
 
 console.log(`\n${dat} đạt, ${hong} hỏng`)
 process.exit(hong > 0 ? 1 : 0)

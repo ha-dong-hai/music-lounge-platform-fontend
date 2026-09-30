@@ -99,6 +99,12 @@
   ::selection { background: var(--color-stock); color: var(--color-ink); }
   /* Vòng focus rõ ràng cho người dùng bàn phím — không bao giờ tắt outline mà không thay thế. */
   :focus-visible { outline: 2px solid var(--color-ink); outline-offset: 2px; border-radius: 2px; }
+  /* Trên khối tối, vòng focus màu mực chìm vào nền (mực #231A15 trên sơn then #14110F gần như bằng nhau — phát hiện
+     30/09 khi dựng bộ ảnh phòng trà trên khối sơn then). Ở đó vòng focus lấy màu ánh đèn. Mặt giấy sáng lồng bên
+     trong khối tối (thẻ, hộp thoại) trả lại màu mực. WCAG 2.2 SC 2.4.7 / 1.4.11: chỉ báo focus phải nhìn thấy được. */
+  :is(.bg-board, .bg-board-soft, .bg-ink) :focus-visible,
+  :is(.bg-board, .bg-board-soft, .bg-ink):focus-visible { outline-color: var(--color-lamp); }
+  :is(.bg-board, .bg-board-soft, .bg-ink) :is(.bg-card, .bg-stock, .bg-page, .bg-sunken) :focus-visible { outline-color: var(--color-ink); }
   a { text-underline-offset: 3px; }
   /* Thanh cuộn in theo mực — phần trình duyệt tự vẽ cũng thuộc thế giới. */
   html { scrollbar-color: var(--color-ink) var(--color-sunken); }

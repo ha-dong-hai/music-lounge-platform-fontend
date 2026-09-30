@@ -35,6 +35,10 @@ const DA_CHUYEN = [
   // 30/09: trang Ve cua toi va nam tab cua no.
   'src/pages/user/MyShowsPage.jsx',
   'src/components/myshows',
+  // 30/09: trang phong tra (chi tiet + danh sach), bo anh, lich dien, trinh xem 360.
+  'src/pages/lounge',
+  'src/components/lounge',
+  'src/components/shared/DoanVanDai.jsx',
 ]
 
 const TIEN_TO = '(?:bg|text|border|ring|outline|from|to|via|decoration|fill|stroke|divide|shadow|caret|accent|placeholder|ring-offset)(?:-[trblxy])?'

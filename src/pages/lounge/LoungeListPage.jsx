@@ -1,324 +1,234 @@
 // src/pages/lounge/LoungeListPage.jsx
 //
-// GHI CHÚ CHO ĐỘI FE — thiết kế lại theo docs/design/TRANG-CHU-BRIEF.md:
-// - Trước đây thẻ phòng trà là một vòng tròn 96px + tên + nút, và khi phòng trà chưa có ảnh thì gọi dịch vụ
-//   ngoài api.dicebear.com để sinh vòng tròn chữ cái nền xanh lục #10b981 (màu mặc định của Tailwind, lạc
-//   tông) — vừa là một request mạng thừa, vừa là kiểu "avatar chữ cái" chung chung. Chọn phòng trà là chọn
-//   KHÔNG GIAN, nên thẻ giờ lấy ảnh không gian làm chính; chưa có ảnh thì dùng CoverFallback của thương hiệu.
-// - Thông tin đặt lên thẻ đều là dữ liệu thật của API: upcomingShowCount (phòng nào sắp có show — điều khách cần
-//   để quyết định), followerCount, địa chỉ. Danh sách KHÔNG có trường không gian/atmosphere nên không bịa bộ lọc đó.
-// - HTML hợp lệ: trước đây <button> nằm TRONG <a>. Giờ thẻ là <article>, liên kết trải kín thẻ bằng tên phòng
-//   trà (stretched link), nút theo dõi là phần tử anh em nằm trên (z-10) — người dùng bàn phím/đọc màn hình đi
-//   qua hai đích riêng biệt, đúng nghĩa.
-// - Nút theo dõi luôn hiện (không chỉ khi rê chuột) và cao 44px: trên điện thoại không có "rê chuột".
-// GIỮ NGUYÊN mọi hành vi cũ: tìm theo tên/quận/thành phố/địa chỉ phía client, theo dõi lạc quan có hoàn lại
-// khi lỗi, bắt đăng nhập, chặn bấm đúp khi đang xử lý, skeleton, trạng thái không có kết quả.
+// DANH SÁCH PHÒNG TRÀ TRÊN SÀN — làm lại 30/09/2026 trong thế giới "tờ chương trình".
+//
+// BẢN CŨ chỉ xin 50 phòng trà đầu rồi tìm kiếm TRONG 50 đó: phòng trà thứ 51 không bao giờ hiện và tìm cũng không
+// ra. Lỗi tải thì hiện đúng khung "Hiện chưa có phòng trà nào" — nói sai sự thật. Thẻ là một kiểu khác với thẻ
+// phòng trà ở trang chủ. Chưa đăng nhập mà bấm trái tim thì chỉ nhận một thông báo lỗi.
+//
+// QUYẾT ĐỊNH VÀ NGUỒN (reports/Trang phòng trà ảnh và lịch diễn.md ở repo backend, 30/09/2026):
+//  - TẢI HẾT rồi tìm phía trình duyệt. API /lounges chỉ nhận city, page, pageSize (kẹp 50) — CHƯA có tham số tìm
+//    theo tên, nên muốn tìm đúng thì phải có đủ danh sách. TRAN_TRANG = 10 trang (500 phòng trà) là trần: quá số đó
+//    trang nói rõ là chưa hiện hết. Đường nâng cấp: thêm tham số `keyword` ở backend rồi tìm phía máy chủ.
+//  - IN TỪNG ĐỢT + nút "Xem thêm", KHÔNG cuộn vô hạn, KHÔNG đánh số trang. NN/g: cuộn vô hạn làm mất chân trang,
+//    mất vị trí khi bấm Quay lại, và khó dùng bằng bàn phím; GOV.UK: tránh cuộn vô hạn; Baymard (qua Smashing 2016,
+//    đo trên thương mại điện tử): "tải thêm" sau mỗi 50–100 mục trên máy tính, 15–30 trên điện thoại. MOI_DOT = 24
+//    nằm trong khoảng của điện thoại và chia hết cho lưới 2, 3, 4 cột. Danh sách ngắn hơn một đợt thì không có nút.
+//    Vài chục phòng trà (tình trạng thật của sàn) thì in hết, không có điều khiển chia trang nào (GOV.UK: chỉ chia
+//    trang khi nó cải thiện hiệu năng hoặc khả năng dùng).
+//  - TRẠNG THÁI NẰM TRONG ĐỊA CHỈ (?q=…&theo-doi=1&hien=48): vào một phòng trà rồi bấm Quay lại thì từ khoá, bộ lọc
+//    và số thẻ đã mở còn nguyên. Baymard: mất vị trí khi Quay lại là lỗi phổ biến nhất của danh sách "tải thêm" —
+//    đây cũng là lý do báo cáo nghiêng về phân trang đánh số; giữ trạng thái trong địa chỉ xử lý đúng điểm đó mà
+//    không phải chia trang một danh sách đã có sẵn trong trình duyệt.
+//  - Tìm được khi gõ KHÔNG DẤU ("phu nhuan" ra "Phú Nhuận").
+//  - KHÔNG lọc theo quận: cấp quận/huyện đã bỏ từ 01/07/2025, phòng trà mới không có quận. Tìm theo chữ vẫn khớp
+//    quận cũ, phường, đường, thành phố nếu phòng trà có ghi.
+//  - 0 kết quả: nói rõ không có gì khớp, kèm lối đi tiếp BẤM ĐƯỢC (NN/g, Baymard: lời khuyên suông không ai đọc).
+//  - Lỗi tải là trạng thái riêng có nút thử lại.
+// GIỮ NGUYÊN: theo dõi lạc quan có hoàn lại khi lỗi, chặn bấm đúp, lọc "Đang theo dõi".
 import { useState, useEffect, useMemo } from 'react'
-import { Link } from 'react-router-dom'
-import { Search, MapPin, Users, Heart, ArrowLeft, Loader2, X, Building2, CalendarClock } from 'lucide-react'
-import Skeleton from '../../components/shared/Skeleton'
-import CoverFallback from '../../components/shared/CoverFallback'
-import Reveal from '../../components/shared/Reveal'
+import { useLocation, useSearchParams } from 'react-router-dom'
+import { Plus, Search, X } from 'lucide-react'
 import toast from 'react-hot-toast'
+import ThePhongTra from '../../components/program/ThePhongTra'
 import { getLounges } from '../../services/loungeServices'
 import { getFollowedLounges, toggleFollowLounge } from '../../services/interactionServices'
 import { useAuthStore } from '../../store/useAuthStore'
-import { formatCompactNumber } from '../../utils/format'
+import { boDau, NGUONG_KHONG_CAT } from '../../utils/nhomGu'
+
+const CO_TRANG = 50   // backend kẹp pageSize ở 50
+const TRAN_TRANG = 10 // tối đa 500 phòng trà — xem ghi chú đầu file
+const MOI_DOT = 24
+// Tới 8 phòng trà thì nhìn một lượt là thấy hết — ô tìm kiếm chỉ thêm việc. Cùng ngưỡng "đừng thu gọn thứ đã ngắn"
+// của DESIGN.md (utils/nhomGu.js). Lựa chọn thiết kế, không có nguồn riêng cho ô tìm kiếm.
+const NGUONG_CO_TIM = NGUONG_KHONG_CAT
+
+const taiTatCa = async () => {
+  const dau = await getLounges({ page: 1, pageSize: CO_TRANG })
+  if (!dau?.success) throw new Error(dau?.message || 'lounges')
+  let ds = dau.data?.items ?? []
+  const tong = dau.data?.totalCount ?? ds.length
+  const soTrang = Math.min(Math.ceil(tong / CO_TRANG), TRAN_TRANG)
+  for (let trang = 2; trang <= soTrang; trang++) {
+    const res = await getLounges({ page: trang, pageSize: CO_TRANG })
+    if (!res?.success) throw new Error(res?.message || 'lounges')
+    ds = ds.concat(res.data?.items ?? [])
+  }
+  return { ds, tong }
+}
 
 const LoungeListPage = () => {
   const { user } = useAuthStore()
+  const location = useLocation()
 
-  const [lounges, setLounges] = useState([])
+  const [lounges, setLounges] = useState(null) // null = đang tải
+  const [tong, setTong] = useState(0)
+  const [loi, setLoi] = useState(false)
+  const [lanTai, setLanTai] = useState(0)
   const [followedIds, setFollowedIds] = useState(new Set())
-  const [isLoading, setIsLoading] = useState(true)
-  const [searchQuery, setSearchQuery] = useState('')
-  const [onlyFollowed, setOnlyFollowed] = useState(false)
   const [updatingId, setUpdatingId] = useState(null)
-  const [failedImages, setFailedImages] = useState(new Set())
 
-  // 1. FETCH PHÒNG TRÀ & DANH SÁCH FOLLOW CỦA USER
+  // Từ khoá, bộ lọc và số thẻ đã mở sống trong địa chỉ trang (replace: không nhồi lịch sử mỗi ký tự gõ).
+  const [thamSo, setThamSo] = useSearchParams()
+  const searchQuery = thamSo.get('q') ?? ''
+  const onlyFollowed = thamSo.get('theo-doi') === '1'
+  const soHien = Math.max(MOI_DOT, Number.parseInt(thamSo.get('hien') ?? '', 10) || MOI_DOT)
+  const datThamSo = (doi) => setThamSo((cu) => {
+    const moi = new URLSearchParams(cu)
+    for (const [k, v] of Object.entries(doi)) (v ? moi.set(k, v) : moi.delete(k))
+    return moi
+  }, { replace: true })
+  // Đổi từ khoá hay bộ lọc thì danh sách là danh sách KHÁC: số thẻ đã mở về lại một đợt.
+  const setSearchQuery = (q) => datThamSo({ q, hien: null })
+  const batTatTheoDoi = () => datThamSo({ 'theo-doi': onlyFollowed ? null : '1', hien: null })
+
   useEffect(() => {
-    const fetchData = async () => {
-      setIsLoading(true)
-      try {
-        const promises = [getLounges({ page: 1, pageSize: 50 })]
+    let huy = false
+    taiTatCa()
+      .then(({ ds, tong: t }) => { if (!huy) { setLounges(ds); setTong(t); setLoi(false) } })
+      .catch(() => { if (!huy) { setLoi(true); setLounges([]) } })
+    return () => { huy = true }
+  }, [lanTai])
 
-        // Nếu user đã đăng nhập, lấy danh sách ID đã follow để hiển thị chính xác trạng thái
-        if (user) {
-          promises.push(getFollowedLounges({ page: 1, pageSize: 100 }))
-        }
-
-        const [loungesRes, followsRes] = await Promise.all(promises)
-
-        if (loungesRes?.success) {
-          setLounges(loungesRes.data.items || loungesRes.data || [])
-        }
-
-        if (followsRes?.success) {
-          const ids = (followsRes.data.items || []).map(item => item.id)
-          setFollowedIds(new Set(ids))
-        }
-      } catch (err) {
-        console.error('Lỗi tải danh sách phòng trà:', err)
-        toast.error('Không tải được danh sách phòng trà.')
-      } finally {
-        setIsLoading(false)
-      }
-    }
-    fetchData()
+  useEffect(() => {
+    if (!user) return
+    let huy = false
+    getFollowedLounges({ page: 1, pageSize: 100 })
+      .then((res) => { if (!huy && res?.success) setFollowedIds(new Set((res.data?.items ?? []).map((x) => x.id))) })
+      .catch(() => {}) // không đọc được thì nút hiện "Theo dõi" — máy chủ vẫn là nơi quyết định
+    return () => { huy = true }
   }, [user])
 
-  // 2. TOGGLE FOLLOW / UNFOLLOW
-  const handleToggleFollow = async (e, lounge) => {
-    e.preventDefault()
-    e.stopPropagation()
-
-    if (!user) {
-      toast.error('Vui lòng đăng nhập để theo dõi phòng trà.')
-      return
-    }
-
+  const handleToggleFollow = async (lounge) => {
     if (updatingId) return
     setUpdatingId(lounge.id)
-
-    const isCurrentlyFollowing = followedIds.has(lounge.id)
-
-    // Optimistic Update
-    setFollowedIds(prev => {
-      const next = new Set(prev)
-      if (isCurrentlyFollowing) {
-        next.delete(lounge.id)
-      } else {
-        next.add(lounge.id)
-      }
-      return next
-    })
-
+    const dang = followedIds.has(lounge.id)
+    const doi = (them) => setFollowedIds((prev) => { const next = new Set(prev); them ? next.add(lounge.id) : next.delete(lounge.id); return next })
+    doi(!dang)
     try {
-      await toggleFollowLounge(lounge.id, isCurrentlyFollowing)
-      toast.success(
-        isCurrentlyFollowing
-          ? `Đã bỏ theo dõi ${lounge.name}`
-          : `Đang theo dõi ${lounge.name}`
-      )
-    } catch {
-      // Rollback nếu API lỗi
-      setFollowedIds(prev => {
-        const next = new Set(prev)
-        if (isCurrentlyFollowing) {
-          next.add(lounge.id)
-        } else {
-          next.delete(lounge.id)
-        }
-        return next
-      })
-      toast.error('Thao tác thất bại, vui lòng thử lại.')
+      await toggleFollowLounge(lounge.id, dang)
+      toast.success(dang ? `Đã bỏ theo dõi ${lounge.name}.` : `Đã theo dõi ${lounge.name} — bạn sẽ được báo khi có đêm diễn mới.`)
+    } catch (err) {
+      doi(dang)
+      toast.error(err.response?.data?.message || 'Không cập nhật được theo dõi.')
     } finally {
       setUpdatingId(null)
     }
   }
 
-  // 3. TÌM KIẾM THEO TÊN / ĐỊA CHỈ (CLIENT-SIDE) + LỌC "ĐANG THEO DÕI"
-  const filteredLounges = useMemo(() => {
-    const q = searchQuery.toLowerCase().trim()
-    return lounges.filter(l => {
+  const daLoc = useMemo(() => {
+    const q = boDau(searchQuery)
+    return (lounges ?? []).filter((l) => {
       if (onlyFollowed && !followedIds.has(l.id)) return false
       if (!q) return true
-      const name = (l.name || '').toLowerCase()
-      const city = (l.city || '').toLowerCase()
-      const district = (l.district || '').toLowerCase()
-      const address = (l.fullAddress || '').toLowerCase()
-      return name.includes(q) || city.includes(q) || district.includes(q) || address.includes(q)
+      return [l.name, l.street, l.ward, l.district, l.city].some((x) => boDau(x).includes(q))
     })
   }, [lounges, searchQuery, onlyFollowed, followedIds])
 
+  const dangIn = daLoc.slice(0, soHien)
+  const conLai = daLoc.length - dangIn.length
+  const dangLoc = Boolean(searchQuery.trim()) || onlyFollowed
+  const xoaLoc = () => datThamSo({ q: null, 'theo-doi': null, hien: null })
+
   return (
-    <div className="min-h-[60vh] bg-page text-ink pb-20">
-      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 pt-6">
+    <div className="min-h-[70vh] bg-stock text-ink pb-24">
+      <div className="max-w-[1440px] mx-auto px-4 sm:px-8 pt-10">
 
-        {/* TIÊU ĐỀ */}
-        <div className="flex items-start gap-3 mb-8">
-          <Link
-            to="/"
-            aria-label="Về trang chủ"
-            className="mt-1 w-11 h-11 -ml-2 inline-flex items-center justify-center text-ink-soft hover:text-ink hover:bg-sunken rounded-full transition-colors flex-shrink-0"
-          >
-            <ArrowLeft size={22} />
-          </Link>
-          <div>
-            <h1 className="font-display text-3xl sm:text-4xl font-semibold text-ink">Khám phá phòng trà</h1>
-            <p className="text-ink-soft mt-1.5 max-w-xl leading-relaxed">
-              Mỗi phòng trà một không gian riêng. Xem ảnh, chọn nơi hợp với bạn và theo dõi để không bỏ lỡ đêm diễn mới.
-            </p>
-          </div>
-        </div>
+        <h1 className="text-[clamp(2.75rem,6vw,5rem)] leading-[0.98]">Phòng trà trên sàn</h1>
+        <p className="text-lg text-ink-soft mt-3 max-w-[60ch]">
+          Mỗi phòng trà một không gian riêng. Xem ảnh, xem lịch diễn, rồi theo dõi nơi bạn thích để được báo khi có đêm diễn mới.
+        </p>
 
-        {/* THANH TÌM KIẾM + BỘ LỌC */}
-        <div className="flex flex-wrap items-center gap-3 mb-8">
+        {/* TÌM + LỌC */}
+        <div className="flex flex-wrap items-center gap-3 mt-8 pb-5 border-b-2 border-ink">
+          {(lounges?.length ?? 0) > NGUONG_CO_TIM || searchQuery ? (
           <div className="relative flex-1 min-w-[16rem] max-w-xl">
-            <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-ink-mute pointer-events-none" />
+            <Search size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-mute pointer-events-none" aria-hidden="true" />
             <input
               type="search"
-              placeholder="Tìm theo tên hoặc khu vực"
+              placeholder="Tên phòng trà, đường, phường, thành phố"
               aria-label="Tìm phòng trà"
               value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
-              className="w-full h-12 pl-11 pr-11 bg-card border border-line-strong rounded-full text-sm text-ink placeholder:text-ink-mute focus:outline-none focus:border-brand-text focus:ring-2 focus:ring-brand/30 transition-colors"
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full min-h-[48px] pl-11 pr-12 bg-card border-2 border-ink text-ink placeholder:text-ink-mute focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2 focus:ring-offset-stock [&::-webkit-search-cancel-button]:hidden"
             />
             {searchQuery && (
-              <button
-                onClick={() => setSearchQuery('')}
-                aria-label="Xoá từ khoá"
-                className="absolute right-1.5 top-1/2 -translate-y-1/2 w-9 h-9 inline-flex items-center justify-center rounded-full text-ink-mute hover:text-ink hover:bg-sunken"
-              >
-                <X size={16} />
+              <button type="button" onClick={() => setSearchQuery('')} aria-label="Xoá từ khoá"
+                className="absolute right-0.5 top-1/2 -translate-y-1/2 w-11 h-11 inline-flex items-center justify-center text-ink hover:bg-ink hover:text-lamp transition-colors">
+                <X size={18} aria-hidden="true" />
               </button>
             )}
           </div>
+          ) : null}
 
           {user && (
-            <button
-              type="button"
-              aria-pressed={onlyFollowed}
-              onClick={() => setOnlyFollowed(v => !v)}
-              className={`h-12 px-5 inline-flex items-center gap-2 rounded-full border text-sm font-medium transition-colors ${
-                onlyFollowed
-                  ? 'bg-espresso text-cream border-espresso'
-                  : 'bg-card text-ink-soft border-line-strong hover:border-brand hover:text-ink'
-              }`}
-            >
-              <Heart size={15} className={onlyFollowed ? 'fill-current' : ''} /> Đang theo dõi
+            <button type="button" aria-pressed={onlyFollowed} onClick={batTatTheoDoi}
+              className={`min-h-[48px] px-5 border-2 border-ink font-semibold transition-colors ${onlyFollowed ? 'bg-ink text-lamp' : 'bg-card text-ink hover:bg-ink hover:text-lamp'}`}>
+              Đang theo dõi
             </button>
           )}
 
-          {!isLoading && (
-            <p className="text-sm text-ink-mute ml-auto" aria-live="polite">
-              {filteredLounges.length} phòng trà
+          {lounges !== null && !loi && (
+            <p className="font-mono text-sm text-ink-mute ml-auto" role="status">
+              {dangLoc ? `${daLoc.length} trên ${lounges.length} phòng trà` : `${lounges.length} phòng trà`}
             </p>
           )}
         </div>
 
-        {/* DANH SÁCH PHÒNG TRÀ */}
-        {isLoading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-6">
-            {[...Array(6)].map((_, i) => (
-              <div key={i} className="bg-card border border-line rounded-2xl overflow-hidden">
-                <Skeleton className="w-full aspect-[4/3]" />
-                <div className="p-5 space-y-3">
-                  <Skeleton className="h-5 w-3/4" />
-                  <Skeleton className="h-3 w-1/2" />
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : filteredLounges.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-6">
-            {filteredLounges.map((lounge, i) => {
-              const isFollowing = followedIds.has(lounge.id)
-              const isProcessing = updatingId === lounge.id
-              const hasPhoto = lounge.primaryImageUrl && !failedImages.has(lounge.id)
-              const place = [lounge.district, lounge.city].filter(Boolean).join(', ') || lounge.fullAddress
-
-              return (
-                // Hai lớp: lớp ngoài chỉ lo hiện-dần (.reveal có `transition` riêng), lớp trong lo rê chuột —
-                // để hai `transition` không đè nhau.
-                <Reveal key={lounge.id} as="article" delay={Math.min(i, 5) * 60}>
-                <div className="group relative h-full bg-card border border-line rounded-2xl overflow-hidden hover:border-line-strong hover:shadow-glow transition-[border-color,box-shadow] duration-300">
-                  {/* ẢNH KHÔNG GIAN */}
-                  <div className="relative aspect-[4/3] bg-sunken overflow-hidden">
-                    {hasPhoto ? (
-                      <img
-                        src={lounge.primaryImageUrl}
-                        alt=""
-                        loading="lazy"
-                        onError={() => setFailedImages(prev => new Set(prev).add(lounge.id))}
-                        className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-                      />
-                    ) : (
-                      <CoverFallback className="w-full h-full" />
-                    )}
-
-                    {lounge.upcomingShowCount > 0 && (
-                      <span className="absolute left-3 bottom-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-espresso/85 backdrop-blur-sm text-cream text-xs font-semibold">
-                        <CalendarClock size={13} className="text-brand-on-dark" />
-                        {lounge.upcomingShowCount} đêm sắp diễn ra
-                      </span>
-                    )}
-                  </div>
-
-                  {/* THÔNG TIN */}
-                  <div className="p-5">
-                    <h2 className="font-display text-xl font-semibold text-ink leading-snug line-clamp-1">
-                      {/* liên kết trải kín cả thẻ (::after) — nút theo dõi nằm trên nó nên vẫn bấm riêng được */}
-                      <Link
-                        to={`/lounge/${lounge.id}`}
-                        className="after:absolute after:inset-0 after:z-0 focus-visible:outline-offset-[-2px] hover:text-brand-text transition-colors"
-                      >
-                        {lounge.name}
-                      </Link>
-                    </h2>
-
-                    {place && (
-                      <p className="mt-1.5 flex items-center gap-1.5 text-sm text-ink-soft">
-                        <MapPin size={14} className="text-brand-text flex-shrink-0" />
-                        <span className="line-clamp-1">{place}</span>
-                      </p>
-                    )}
-
-                    {typeof lounge.followerCount === 'number' && (
-                      <p className="mt-2 flex items-center gap-1.5 text-xs text-ink-mute">
-                        <Users size={13} /> {formatCompactNumber(lounge.followerCount)} người theo dõi
-                      </p>
-                    )}
-                  </div>
-
-                  {/* THEO DÕI — luôn hiện, 44px, nằm trên liên kết trải kín thẻ */}
-                  <button
-                    type="button"
-                    onClick={(e) => handleToggleFollow(e, lounge)}
-                    disabled={isProcessing}
-                    aria-pressed={isFollowing}
-                    aria-label={isFollowing ? `Bỏ theo dõi ${lounge.name}` : `Theo dõi ${lounge.name}`}
-                    className={`absolute right-3 top-3 z-10 w-11 h-11 inline-flex items-center justify-center rounded-full backdrop-blur-sm border transition-colors disabled:opacity-60 ${
-                      isFollowing
-                        ? 'bg-espresso/85 border-espresso text-brand-on-dark'
-                        : 'bg-card/90 border-line text-ink-soft hover:text-danger hover:border-danger/40'
-                    }`}
-                  >
-                    {isProcessing
-                      ? <Loader2 size={18} className="animate-spin" />
-                      : <Heart size={18} className={isFollowing ? 'fill-current' : ''} />}
+        {/* DANH SÁCH */}
+        <div className="mt-8">
+          {lounges === null ? (
+            <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" aria-busy="true" aria-label="Đang tải danh sách phòng trà">
+              {[0, 1, 2, 3, 4, 5, 6, 7].map((i) => <li key={i} className="h-96 border-2 border-ink/20 bg-ink/5 animate-pulse" />)}
+            </ul>
+          ) : loi ? (
+            <div role="alert" className="flex flex-wrap items-center gap-4 border-2 border-ink p-5">
+              <p>Danh sách phòng trà chưa tải được.</p>
+              <button type="button" onClick={() => { setLounges(null); setLanTai((n) => n + 1) }} className="min-h-[44px] px-5 bg-ink text-lamp font-semibold hover:bg-board transition-colors">Thử lại</button>
+            </div>
+          ) : daLoc.length === 0 ? (
+            <div className="border-2 border-ink p-6 sm:p-8">
+              <h2 className="text-3xl">
+                {lounges.length === 0 ? 'Sàn chưa có phòng trà nào được duyệt.'
+                  : searchQuery.trim() ? <>Không có phòng trà nào khớp “{searchQuery.trim()}”.</>
+                    : 'Bạn chưa theo dõi phòng trà nào.'}
+              </h2>
+              {lounges.length > 0 && (
+                <>
+                  <p className="text-ink-soft mt-2">
+                    {searchQuery.trim()
+                      ? (onlyFollowed ? 'Bạn đang chỉ xem các phòng trà đã theo dõi.' : 'Thử tên ngắn hơn, hoặc tên đường, phường.')
+                      : 'Bấm “Theo dõi” trên thẻ của phòng trà bạn thích.'}
+                  </p>
+                  <button type="button" onClick={xoaLoc} className="mt-5 min-h-[48px] px-6 bg-ink text-lamp font-semibold hover:bg-board transition-colors">
+                    Xem tất cả {lounges.length} phòng trà
                   </button>
+                </>
+              )}
+            </div>
+          ) : (
+            <>
+              <ul id="ds-phong-tra" className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {dangIn.map((l) => (
+                  <ThePhongTra key={l.id} l={l} daDangNhap={Boolean(user)} dangTheoDoi={followedIds.has(l.id)}
+                    dangBam={updatingId === l.id} onTheoDoi={handleToggleFollow} tuTrang={location} />
+                ))}
+              </ul>
+              {conLai > 0 && (
+                <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-2">
+                  <button type="button" onClick={() => datThamSo({ hien: String(soHien + MOI_DOT) })} aria-controls="ds-phong-tra"
+                    className="inline-flex items-center gap-2 min-h-[52px] px-7 border-2 border-ink font-semibold hover:bg-ink hover:text-lamp transition-colors">
+                    <Plus size={18} aria-hidden="true" /> Xem thêm {Math.min(conLai, MOI_DOT)} phòng trà
+                  </button>
+                  <p className="font-mono text-sm text-ink-mute">Đang hiện {dangIn.length} trên {daLoc.length}</p>
                 </div>
-                </Reveal>
-              )
-            })}
-          </div>
-        ) : (
-          /* KHÔNG CÓ KẾT QUẢ */
-          <div className="bg-card border border-dashed border-line-strong rounded-2xl py-16 px-6 text-center">
-            <Building2 size={44} strokeWidth={1.25} className="mx-auto text-ink-mute mb-3" />
-            <p className="font-display text-xl text-ink mb-1">
-              {onlyFollowed && !searchQuery ? 'Bạn chưa theo dõi phòng trà nào' : 'Không tìm thấy phòng trà phù hợp'}
-            </p>
-            <p className="text-ink-soft text-sm">
-              {searchQuery
-                ? <>Không có kết quả cho “{searchQuery}”. Thử một tên hoặc khu vực khác.</>
-                : onlyFollowed
-                  ? 'Bấm hình trái tim trên thẻ phòng trà để theo dõi.'
-                  : 'Hiện chưa có phòng trà nào.'}
-            </p>
-            {(searchQuery || onlyFollowed) && (
-              <button
-                onClick={() => { setSearchQuery(''); setOnlyFollowed(false) }}
-                className="mt-5 h-11 px-5 rounded-full border border-line-strong text-sm font-medium text-ink hover:bg-sunken transition-colors"
-              >
-                Xem tất cả phòng trà
-              </button>
-            )}
-          </div>
-        )}
-
+              )}
+              {tong > lounges.length && conLai === 0 && !dangLoc && (
+                <p className="text-sm text-ink-mute mt-6">Đang hiện {lounges.length} trên tổng {tong} phòng trà của sàn.</p>
+              )}
+            </>
+          )}
+        </div>
       </div>
     </div>
   )

@@ -1,28 +1,45 @@
 // src/pages/lounge/LoungeDetailPage.jsx
-import { useState, useEffect, lazy, Suspense } from 'react'
-import { useParams, Link } from 'react-router-dom'
-import { ArrowLeft } from 'lucide-react'
-import dayjs from 'dayjs'
+//
+// TRANG PHÒNG TRÀ — làm lại 30/09/2026 trong thế giới "tờ chương trình".
+//
+// THỨ TỰ NỘI DUNG: tên + địa chỉ + bộ ảnh → LỊCH DIỄN → giới thiệu và chỗ ngồi → tham quan 360°. Lịch diễn đứng
+// ngay sau phần đầu vì đó là thứ người ta vào trang địa điểm để tìm (DICE và Ticketmaster đều xếp như vậy — xem
+// reports/Trang phòng trà ảnh và lịch diễn.md ở repo backend). Bản cũ đặt lịch diễn ở CUỐI trang, sau cả khối
+// "Cộng đồng".
+//
+// NHỮNG THỨ BẢN CŨ BỊA RA, NAY BỎ:
+//  - Ảnh kho Unsplash khi phòng trà chưa có ảnh (cho người mua vé xem không gian của một nơi khác).
+//  - Dòng nhạc "Acoustic" và tâm trạng "Chill" gắn cho mọi buổi diễn thiếu dữ liệu.
+//  - Câu giữ chỗ cho phần giới thiệu và cho mô tả khu vực.
+// Thông báo tiếng Anh ("Following…", "Unfollowed…", "Updating") đã đổi sang tiếng Việt.
+//
+// MỘT CON SỐ, MỘT NGUỒN: số đêm diễn sắp tới in ở tiêu đề "Lịch diễn" là số dòng THẬT của danh sách bên dưới, không
+// lấy `upcomingShowCount` của API chi tiết — hai nguồn đếm theo hai cách thì cùng một trang sẽ in hai con số khác nhau.
+import { useState, useEffect, useCallback, lazy, Suspense } from 'react'
+import { useParams, Link, useLocation } from 'react-router-dom'
+import { ArrowLeft, ExternalLink, MapPin, Share2 } from 'lucide-react'
 import toast from 'react-hot-toast'
-import LoungeHero from '../../components/lounge/LoungeHero'
+import BoAnh from '../../components/lounge/BoAnh'
+import LichDienPhongTra from '../../components/lounge/LichDienPhongTra'
 import LoungeAbout from '../../components/lounge/LoungeAbout'
-import LoungeSidebar from '../../components/lounge/LoungeSidebar'
-import Skeleton from '../../components/shared/Skeleton'
-import ShowCarousel from '../../components/home/ShowCarousel'
 import { useAuthStore } from '../../store/useAuthStore'
+import { getLoungeDetail, getLoungeZones, getLoungeTour } from '../../services/loungeServices'
+import { getShowsByLounge } from '../../services/showServices'
+import { getFollowedLounges, toggleFollowLounge } from '../../services/interactionServices'
+import { chiaLichPhongTra, TRAN_TAI } from '../../utils/lichPhongTra'
 
 // Trình xem 360° kéo theo three.js (~500KB) — chỉ tải khi phòng trà THẬT SỰ có tour, không làm nặng
 // bundle chính của mọi trang.
 const PanoramaViewer = lazy(() => import('../../components/lounge/PanoramaViewer'))
-import { getLoungeDetail, getLoungeZones, getLoungeTour } from '../../services/loungeServices'
-import { getShowsByLounge } from '../../services/showServices'
-import { getFollowedLounges, toggleFollowLounge } from '../../services/interactionServices'
-import { formatMinPrice } from '../../utils/formatPrice'
 
-const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?q=80&w=2670&auto=format&fit=crop'
+const NUT_DAC = 'inline-flex items-center justify-center min-h-[52px] px-7 bg-stock text-ink font-display text-2xl hover:bg-lamp transition-colors disabled:opacity-60'
+const NUT_VIEN = 'inline-flex items-center justify-center min-h-[52px] px-7 border-2 border-lamp text-lamp font-semibold hover:bg-lamp hover:text-board transition-colors disabled:opacity-60'
+const NUT_VIEN_GIAY = 'inline-flex items-center justify-center min-h-[48px] px-6 border-2 border-ink text-ink font-semibold hover:bg-ink hover:text-lamp transition-colors disabled:opacity-60'
+const NUT_CHU = 'inline-flex items-center gap-2 min-h-[44px] px-2 font-medium text-lamp-mute hover:text-lamp transition-colors'
 
 const LoungeDetailPage = () => {
   const { id } = useParams()
+  const location = useLocation()
   const { user, token } = useAuthStore()
 
   const [isLoading, setIsLoading] = useState(true)
@@ -30,143 +47,129 @@ const LoungeDetailPage = () => {
   const [lounge, setLounge] = useState(null)
   const [zones, setZones] = useState([])
   const [tourScenes, setTourScenes] = useState([])
-  const [loungeShows, setLoungeShows] = useState([])
+  // Lịch diễn có vòng đời RIÊNG: null = đang tải, mảng = đã có; lỗi thì hiện nút thử lại tại chỗ chứ không ẩn cả khối.
+  const [buoiDien, setBuoiDien] = useState(null)
+  const [tongBuoi, setTongBuoi] = useState(0)
+  const [loiLich, setLoiLich] = useState(false)
 
-  // STATE FOLLOW
   const [isFollowing, setIsFollowing] = useState(false)
   const [isUpdatingFollow, setIsUpdatingFollow] = useState(false)
 
+  const taiLich = useCallback(async (loungeId) => {
+    setLoiLich(false)
+    setBuoiDien(null)
+    try {
+      const res = await getShowsByLounge(loungeId, { page: 1, pageSize: TRAN_TAI })
+      if (!res?.success) throw new Error(res?.message || 'lich')
+      setBuoiDien(res.data?.items ?? [])
+      setTongBuoi(res.data?.totalCount ?? 0)
+    } catch {
+      setLoiLich(true)
+      setBuoiDien([])
+    }
+  }, [])
+
   useEffect(() => {
+    let huy = false
     const fetchLoungeData = async () => {
       setIsLoading(true)
       setApiError(null)
+      setZones([]); setTourScenes([])
       try {
         const resLounge = await getLoungeDetail(id)
-
+        if (huy) return
         if (!resLounge.success) {
-          setApiError(resLounge.message || 'Không tìm thấy phòng trà')
+          setApiError(resLounge.message || 'Không tìm thấy phòng trà này.')
           return
         }
-
         const beData = resLounge.data
 
-        // ===== MAPPING IMAGES: dùng trực tiếp path BE (proxy lo phần forward) =====
-        const gallery = (beData.galleryImages || [])
+        // Ảnh: thư viện theo thứ tự chủ phòng trà đã xếp; chưa có thư viện thì dùng ảnh đại diện; không có gì thì
+        // mảng RỖNG (BoAnh in ô "Chưa có ảnh") — không bao giờ thay bằng ảnh của nơi khác.
+        const thuVien = (beData.galleryImages || [])
+          .filter((g) => g.imageUrl)
           .slice()
           .sort((a, b) => (a.orderIndex || 0) - (b.orderIndex || 0))
-          .map(g => ({ url: g.imageUrl || FALLBACK_IMAGE, caption: g.caption }))
+          .map((g) => ({ url: g.imageUrl, caption: g.caption || null }))
+        const images = thuVien.length > 0 ? thuVien : beData.primaryImageUrl ? [{ url: beData.primaryImageUrl, caption: null }] : []
 
-        const images = gallery.length > 0
-          ? gallery
-          : beData.primaryImageUrl
-            ? [{ url: beData.primaryImageUrl, caption: null }]
-            : [{ url: FALLBACK_IMAGE, caption: null }]
-
-        const mappedLounge = {
-          ...beData,
-          images,
-          tags: [beData.atmosphereName, beData.city].filter(Boolean),
-          description: beData.description || 'Phòng trà chưa có phần giới thiệu.',
-          areaLayoutImageUrl: beData.areaLayoutImageUrl, // dùng trực tiếp (null nếu không có)
-        }
-        setLounge(mappedLounge)
+        setLounge({ ...beData, images })
 
         // ===== FOLLOW: true/false dùng luôn, null mới check API =====
         if (typeof beData.isFollowing === 'boolean') {
           setIsFollowing(beData.isFollowing)
         } else if (user && token) {
-          try {
-            const followRes = await getFollowedLounges({ page: 1, pageSize: 100 })
-            if (followRes.success) {
-              const followedIds = followRes.data.items.map(l => l.id)
-              setIsFollowing(followedIds.includes(beData.id))
-            }
-          } catch { console.log('Error check follow status') }
+          getFollowedLounges({ page: 1, pageSize: 100 })
+            .then((followRes) => {
+              if (!huy && followRes.success) setIsFollowing(followRes.data.items.some((l) => l.id === beData.id))
+            })
+            .catch(() => {}) // không đọc được thì nút hiện "Theo dõi" — máy chủ vẫn là nơi quyết định
         }
 
-        // ===== FETCH SONG SONG: KHU VỰC + BUỔI DIỄN CỦA PHÒNG TRÀ NÀY =====
-        // SỬA LỖI CŨ: chỗ này từng destructure [zonesRes, showsRes] từ một Promise.all CHỈ CÓ MỘT
-        // phần tử, nên showsRes luôn undefined (danh sách buổi diễn chưa bao giờ hiện) và zonesRes
-        // lại nhận kết quả getShows — một object phân trang, không phải mảng — nên Array.isArray
-        // trả false và khu vực cũng không hiện. Cả hai khối đều là code chết.
-        // Đồng thời đổi sang /lounge-shows/by-lounge/{id}: backend lọc theo phòng trà sẵn, không
-        // phải tải 50 buổi của toàn hệ thống rồi lọc ở FE (cách cũ bỏ sót buổi nằm ngoài 50 đầu).
-        const [zonesRes, showsRes, tourRes] = await Promise.all([
-          getLoungeZones(beData.id).catch(() => null),
-          getShowsByLounge(beData.id, { page: 1, pageSize: 6 }).catch(() => null),
-          // Tour lỗi hay chưa có thì trang vẫn dùng bình thường, chỉ không hiện khối 360°.
-          getLoungeTour(beData.id).catch(() => null),
-        ])
-
-        if (tourRes?.success) {
-          setTourScenes((tourRes.data?.scenes ?? []).filter((sc) => sc.imageUrl))
-        }
-
-        if (zonesRes?.success && Array.isArray(zonesRes.data)) {
-          setZones(zonesRes.data)
-        }
-
-        if (showsRes?.success) {
-          const filteredShows = (showsRes.data?.items ?? [])
-            .sort((a, b) => dayjs(b.scheduledStart).valueOf() - dayjs(a.scheduledStart).valueOf())
-            .map(show => ({
-              id: show.id,
-              title: show.name,
-              thumbnail: show.coverImageUrl, // dùng trực tiếp
-              start_date: show.scheduledStart,
-              genre: show.genres?.[0]?.name || 'Acoustic',
-              mood: 'Chill',
-              price: formatMinPrice(show)
-            }))
-          setLoungeShows(filteredShows)
-        }
+        // Lịch diễn, khu vực và tour tải SONG SONG, mỗi thứ tự chịu lỗi của mình: tour hay khu vực lỗi thì chỉ khối
+        // đó không hiện; lịch diễn lỗi thì có trạng thái lỗi riêng (xem taiLich).
+        taiLich(beData.id)
+        getLoungeZones(beData.id)
+          .then((r) => { if (!huy && r?.success && Array.isArray(r.data)) setZones(r.data) })
+          .catch(() => {})
+        getLoungeTour(beData.id)
+          .then((r) => { if (!huy && r?.success) setTourScenes((r.data?.scenes ?? []).filter((sc) => sc.imageUrl)) })
+          .catch(() => {})
       } catch (err) {
-        console.error('Lounge loading error:', err)
-        // Giữ err lại trong log: lỗi tải phòng trà thường là 404 hoặc phòng trà bị đình chỉ.
-        setApiError('Không tải được thông tin phòng trà.')
+        if (huy) return
+        // 404 cũng là câu trả lời của phòng trà bị đình chỉ: với người ngoài, nó không tồn tại.
+        setApiError(err.response?.status === 404 ? 'Không tìm thấy phòng trà này.' : 'Trang phòng trà chưa tải được.')
       } finally {
-        setIsLoading(false)
+        if (!huy) setIsLoading(false)
       }
     }
     fetchLoungeData()
-  }, [id, user, token])
+    return () => { huy = true }
+  }, [id, user, token, taiLich])
 
-  // HÀM TOGGLE FOLLOW (GỌI API)
   const handleToggleFollow = async () => {
     if (isUpdatingFollow || !lounge) return
-    if (!user) { toast.error('Vui lòng đăng nhập để theo dõi.'); return }
-
     const prevStatus = isFollowing
     setIsFollowing(!prevStatus)
+    setLounge((prev) => ({ ...prev, followerCount: Math.max(0, (prev.followerCount ?? 0) + (prevStatus ? -1 : 1)) }))
     setIsUpdatingFollow(true)
     try {
       await toggleFollowLounge(lounge.id, prevStatus)
-      toast.success(prevStatus ? `Unfollowed ${lounge.name}` : `Following ${lounge.name}`)
-      // Cập nhật đồng bộ followerCount hiển thị
-      setLounge(prev => ({ ...prev, followerCount: prev.followerCount + (prevStatus ? -1 : 1) }))
+      toast.success(prevStatus ? `Đã bỏ theo dõi ${lounge.name}.` : `Đã theo dõi ${lounge.name} — bạn sẽ được báo khi có đêm diễn mới.`)
     } catch (err) {
       setIsFollowing(prevStatus)
-      setLounge(prev => ({ ...prev, followerCount: prev.followerCount + (prevStatus ? 1 : -1) }))
-      toast.error(err.response?.data?.message || 'Thao tác không thành công.')
+      setLounge((prev) => ({ ...prev, followerCount: Math.max(0, (prev.followerCount ?? 0) + (prevStatus ? 1 : -1)) }))
+      toast.error(err.response?.data?.message || 'Không cập nhật được theo dõi.')
     } finally {
       setIsUpdatingFollow(false)
     }
   }
 
+  const handleShare = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href)
+      toast.success('Đã sao chép liên kết trang phòng trà.')
+    } catch {
+      toast.error('Trình duyệt không cho sao chép. Hãy chép địa chỉ trên thanh địa chỉ.')
+    }
+  }
+
   if (isLoading) {
     return (
-      <div className="min-h-[60vh] bg-page">
-        <div className="w-full h-[500px] md:h-[600px] bg-card flex items-end">
-          <div className="w-full max-w-[1600px] mx-auto px-6 md:px-12 pb-6 md:pb-12">
-            <Skeleton className="h-12 md:h-16 w-1/2 mb-4" />
-            <div className="flex gap-2"><Skeleton className="h-8 w-24 rounded-full" /><Skeleton className="h-8 w-24 rounded-full" /></div>
+      <div className="min-h-screen bg-stock pb-20" aria-busy="true" aria-label="Đang tải trang phòng trà">
+        <div className="bg-board">
+          <div className="max-w-[1440px] mx-auto grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
+            <div className="px-4 sm:px-8 py-12 space-y-5">
+              <div className="h-4 w-32 bg-lamp/10 animate-pulse" />
+              <div className="h-16 w-4/5 bg-lamp/10 animate-pulse" />
+              <div className="h-6 w-2/3 bg-lamp/10 animate-pulse" />
+              <div className="h-12 w-44 bg-lamp/10 animate-pulse" />
+            </div>
+            <div className="aspect-[4/3] bg-board-soft animate-pulse" />
           </div>
         </div>
-        <div className="max-w-[1600px] mx-auto px-6 mt-12">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-2 space-y-12"><Skeleton className="h-64 rounded-2xl" /><Skeleton className="h-96 rounded-2xl" /></div>
-            <div className="lg:col-span-1 space-y-6"><Skeleton className="h-64 rounded-2xl" /><Skeleton className="h-48 rounded-2xl" /></div>
-          </div>
+        <div className="max-w-[1440px] mx-auto px-4 sm:px-8 mt-12">
+          <div className="h-64 border-2 border-ink/20 bg-ink/5 animate-pulse" />
         </div>
       </div>
     )
@@ -174,44 +177,103 @@ const LoungeDetailPage = () => {
 
   if (apiError || !lounge) {
     return (
-      <div className="min-h-[60vh] bg-page flex flex-col items-center justify-center text-ink">
-        <h1 className="text-2xl font-bold mb-4">{apiError || 'Không tìm thấy phòng trà'}</h1>
-        <Link to="/" className="text-brand-text flex items-center gap-2"><ArrowLeft size={18} /> Về trang chủ</Link>
+      <div className="min-h-[70vh] bg-stock flex flex-col items-center justify-center text-ink px-4 text-center">
+        <h1 className="text-4xl mb-4">{apiError || 'Không tìm thấy phòng trà này.'}</h1>
+        <Link to="/lounges" className="inline-flex items-center gap-2 min-h-[44px] font-semibold underline underline-offset-4"><ArrowLeft size={18} aria-hidden="true" /> Xem các phòng trà trên sàn</Link>
       </div>
     )
   }
 
+  const soSapToi = buoiDien ? chiaLichPhongTra(buoiDien).sapToi.length : 0
+  const coLich = soSapToi > 0
+  const khuVuc = [lounge.ward, lounge.district, lounge.city].filter(Boolean).join(', ')
+  const diaChi = lounge.fullAddress || khuVuc
+  // Có toạ độ thì dẫn đúng điểm; không có thì để Google Maps tìm theo địa chỉ chữ. Không nhúng bản đồ: một liên kết
+  // mở bản đồ là đủ cho việc chỉ đường và không tải thêm kịch bản bên thứ ba vào mọi lượt xem trang.
+  const banDo = lounge.latitude && lounge.longitude
+    ? `https://www.google.com/maps/search/?api=1&query=${lounge.latitude},${lounge.longitude}`
+    : diaChi ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${lounge.name}, ${diaChi}`)}` : null
+
+  // Nút theo dõi dùng ở hai nơi (đầu trang trên khối tối, và trạng thái "chưa có đêm diễn" trên giấy sáng).
+  const nutTheoDoi = (kieu) => (
+    user ? (
+      <button type="button" onClick={handleToggleFollow} disabled={isUpdatingFollow} aria-pressed={isFollowing} className={kieu}>
+        {isFollowing ? 'Đang theo dõi' : 'Theo dõi'}
+      </button>
+    ) : (
+      <Link to="/login" state={{ from: location }} className={kieu}>Đăng nhập để theo dõi</Link>
+    )
+  )
+
   return (
-    <div className="min-h-[60vh] bg-page text-ink pb-20">
-      <LoungeHero lounge={lounge} isFollowing={isFollowing} onToggleFollow={handleToggleFollow} />
-      <div className="max-w-[1600px] mx-auto px-6 mt-12">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 space-y-12">
-            <LoungeAbout lounge={lounge} zones={zones} />
+    <div className="min-h-screen bg-stock text-ink pb-24">
 
-            {tourScenes.length > 0 && (
-              <section aria-labelledby="tour-360-title">
-                <h2 id="tour-360-title" className="font-display text-2xl font-semibold text-ink mb-1">Tham quan không gian 360°</h2>
-                <p className="text-sm text-ink-mute mb-4">Nhìn quanh phòng trà trước khi chọn chỗ ngồi — kéo để xoay, cuộn để phóng to.</p>
-                <Suspense fallback={<Skeleton className="w-full aspect-video rounded-2xl" />}>
-                  <PanoramaViewer scenes={tourScenes} className="w-full aspect-video rounded-2xl border border-line shadow-glow" />
-                </Suspense>
-              </section>
+      {/* ===== ĐẦU TRANG: khối sơn then, chữ bên trái, bộ ảnh bên phải (cùng khuôn với trang buổi diễn) ===== */}
+      <section className="bg-board text-lamp" aria-labelledby="ten-phong-tra">
+        <div className="max-w-[1440px] mx-auto grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
+          <div className="order-first lg:order-last sm:px-8 sm:pt-8 lg:pl-0 lg:py-10 pb-2">
+            <BoAnh anh={lounge.images} ten={lounge.name} />
+          </div>
+
+          <div className="px-4 sm:px-8 py-8 lg:py-14 flex flex-col items-start">
+            <p><Link to="/lounges" className="text-sm text-lamp-mute underline underline-offset-4 decoration-1 hover:text-lamp">Phòng trà trên sàn</Link></p>
+            <h1 id="ten-phong-tra" className="mt-3 text-[clamp(2.5rem,5vw,4.5rem)] leading-[1.1] text-lamp break-words">{lounge.name}</h1>
+            {lounge.atmosphereName && <p className="mt-4 text-lg text-lamp">Không gian {lounge.atmosphereName.toLowerCase()}</p>}
+
+            {diaChi && (
+              <p className="mt-4 flex items-start gap-2 text-lamp-mute">
+                <MapPin size={18} className="flex-shrink-0 mt-0.5" aria-hidden="true" /><span>{diaChi}</span>
+              </p>
             )}
-          </div>
-          <div className="lg:col-span-1 lg:sticky lg:top-20 lg:self-start">
-            <LoungeSidebar lounge={lounge} />
-          </div>
-        </div>
-      </div>
+            {banDo && (
+              <a href={banDo} target="_blank" rel="noreferrer"
+                className="ml-[26px] inline-flex items-center gap-1.5 min-h-[44px] text-lamp font-semibold underline underline-offset-4 decoration-1 hover:decoration-2">
+                Chỉ đường <ExternalLink size={14} aria-hidden="true" /><span className="sr-only">(mở Google Maps ở thẻ mới)</span>
+              </a>
+            )}
 
-      {/* BUỔI DIỄN CỦA PHÒNG TRÀ NÀY — trước đây state loungeShows được set nhưng không render ở
-          đâu, nên dù fetch có chạy cũng không ai thấy. Danh sách rỗng thì không hiện cả khối. */}
-      {loungeShows.length > 0 && (
-        <div className="mt-16 bg-page text-brand-text rounded-2xl mx-6 md:mx-auto md:max-w-[1600px] p-6 md:p-10">
-          <ShowCarousel title={`Buổi diễn tại ${lounge.name}`} events={loungeShows} showViewMore={false} />
+            <div className="mt-6 flex flex-wrap items-center gap-3 w-full">
+              {coLich && <a href="#lich-dien" className={`${NUT_DAC} w-full sm:w-auto`}>Xem lịch diễn</a>}
+              {nutTheoDoi(`${coLich ? NUT_VIEN : NUT_DAC} w-full sm:w-auto`)}
+            </div>
+            {/* Chưa ai theo dõi thì không in "0 người theo dõi": con số 0 không giúp ai quyết định điều gì. */}
+            {lounge.followerCount > 0 && (
+              <p className="mt-3 font-mono text-sm text-lamp-mute">{lounge.followerCount.toLocaleString('vi-VN')} người theo dõi</p>
+            )}
+
+            <div className="flex flex-wrap items-center gap-x-4 mt-6 -ml-2">
+              <button type="button" onClick={handleShare} className={NUT_CHU}><Share2 size={20} aria-hidden="true" /> Chia sẻ</button>
+              <Link to={`/lounge/${lounge.id}/order`} className={NUT_CHU}>Gọi món tại bàn</Link>
+            </div>
+          </div>
         </div>
-      )}
+      </section>
+
+      <div className="max-w-[1440px] mx-auto px-4 sm:px-8">
+        {/* ===== LỊCH DIỄN ===== */}
+        <section id="lich-dien" aria-labelledby="tieu-de-lich" className="pt-12 scroll-mt-24">
+          <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 mb-5">
+            <h2 id="tieu-de-lich" className="text-5xl">Lịch diễn</h2>
+            {coLich && <p className="font-mono text-sm text-ink-mute">{soSapToi} đêm diễn sắp tới</p>}
+          </div>
+          <LichDienPhongTra ds={buoiDien} tong={tongBuoi} loi={loiLich} onThuLai={() => taiLich(lounge.id)}
+            tenPhongTra={lounge.name} theoDoi={nutTheoDoi(NUT_VIEN_GIAY)} />
+        </section>
+
+        {/* ===== GIỚI THIỆU + CHỖ NGỒI ===== */}
+        <div className="pt-16"><LoungeAbout lounge={lounge} zones={zones} /></div>
+
+        {/* ===== THAM QUAN 360° ===== */}
+        {tourScenes.length > 0 && (
+          <section aria-labelledby="tour-360-title" className="pt-16">
+            <h2 id="tour-360-title" className="text-4xl mb-2">Tham quan không gian 360°</h2>
+            <p className="text-ink-soft mb-5">Nhìn quanh phòng trà trước khi chọn chỗ ngồi: kéo để xoay, cuộn để phóng to.</p>
+            <Suspense fallback={<div className="w-full aspect-video border-2 border-ink/20 bg-ink/5 animate-pulse" aria-busy="true" aria-label="Đang tải trình xem 360°" />}>
+              <PanoramaViewer scenes={tourScenes} className="w-full aspect-video border-2 border-ink" />
+            </Suspense>
+          </section>
+        )}
+      </div>
     </div>
   )
 }
