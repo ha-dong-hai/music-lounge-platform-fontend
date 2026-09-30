@@ -29,6 +29,7 @@ import {
   acknowledgeDonation, confirmDonationPaid, hideDonationMessage,
 } from '../../services/donationServices'
 import { uploadImage } from '../../services/userServices'
+import NutXacNhan from '../../components/shared/NutXacNhan'
 
 const fmtMoney = (v) => `${Number(v || 0).toLocaleString('vi-VN')}đ`
 const inputCls = 'mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink focus:outline-none focus:border-ink/50'
@@ -373,11 +374,15 @@ Không hoàn tiền, và lời nhắn gốc vẫn được lưu để đối chi
                     </button>
                   )}
                   {tab === 'ack' ? (
-                    <button onClick={() => xacNhanNhan(d)} disabled={dangBan}
-                      className="flex items-center gap-2 px-4 py-2 bg-ink text-lamp text-sm font-bold hover:bg-board disabled:opacity-50">
+                    // 01/10/2026: ghi một dòng KHÔNG sửa được vào nhật ký bằng chứng (AcknowledgeDonationCommandHandler,
+                    // VenueAcknowledged) — hỏi lại một lần, và nói điều người bấm đang cam kết.
+                    <NutXacNhan onXacNhan={() => xacNhanNhan(d)} disabled={dangBan} nguyHiem={false}
+                      tieuDe="Xác nhận đã nhận tiền?" nhanXacNhan="Tôi đã nhận được tiền" nhanGiu="Chưa, để kiểm tra lại"
+                      noiDung="Chỉ bấm khi tiền đã về tài khoản ngân hàng của phòng trà. Lời xác nhận được ghi vào nhật ký bằng chứng công khai của khoản ủng hộ và không sửa được."
+                      className="flex items-center gap-2 px-4 min-h-[44px] bg-ink text-lamp text-sm font-bold hover:bg-board disabled:opacity-50">
                       {dangBan ? <Loader2 size={15} className="animate-spin" /> : <CheckCircle2 size={15} />}
                       Tôi đã nhận được tiền
-                    </button>
+                    </NutXacNhan>
                   ) : (
                     <button onClick={() => setTraNgheSi(d)} disabled={dangBan || chuaNhanTien}
                       title={chuaNhanTien ? 'Nền tảng chưa chuyển tiền về cho bạn' : undefined} aria-label={chuaNhanTien ? 'Nền tảng chưa chuyển tiền về cho bạn' : undefined}
