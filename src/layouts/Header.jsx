@@ -150,7 +150,7 @@ const Header = () => {
           </Link>
 
           <form onSubmit={handleSearchSubmit} ref={oTimKiemRef} className="relative w-full max-w-md hidden md:block">
-            <button type="submit" className="absolute left-1 top-1/2 -translate-y-1/2 w-10 h-10 inline-flex items-center justify-center text-brand-text cursor-pointer" aria-label="Tìm kiếm">
+            <button type="submit" className="absolute left-1 top-1/2 -translate-y-1/2 w-10 h-10 inline-flex items-center justify-center text-ink cursor-pointer" aria-label="Tìm kiếm">
               <Search size={18} strokeWidth={2.5}/>
             </button>
             <input
@@ -179,7 +179,7 @@ const Header = () => {
               <div className="absolute top-full left-0 right-0 mt-2 bg-card border-2 border-ink shadow-lift overflow-hidden z-50">
                 {dangTaiGoiY ? (
                   <div className="py-6 flex justify-center">
-                    <Loader2 size={20} className="animate-spin text-brand-text" />
+                    <Loader2 size={20} className="animate-spin text-ink" />
                   </div>
                 ) : goiY.length === 0 ? (
                   <p className="px-4 py-4 text-sm text-ink-mute">
@@ -261,17 +261,17 @@ const Header = () => {
         </div>
 
         <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
-          <Link to="/shows/search" aria-label="Tìm kiếm" className="md:hidden w-11 h-11 inline-flex items-center justify-center text-ink hover:bg-ink hover:text-cream transition-colors">
+          <Link to="/shows/search" aria-label="Tìm kiếm" className="md:hidden w-11 h-11 inline-flex items-center justify-center text-ink hover:bg-ink hover:text-lamp transition-colors">
             <Search size={20} />
           </Link>
-          <Link to="/my-shows" className="bg-transparent hover:bg-ink hover:text-cream text-ink border-2 border-ink px-5 min-h-[44px] text-sm font-semibold transition-colors hidden sm:inline-flex items-center">
+          <Link to="/my-shows" className="bg-transparent hover:bg-ink hover:text-lamp text-ink border-2 border-ink px-5 min-h-[44px] text-sm font-semibold transition-colors hidden sm:inline-flex items-center">
             Vé của tôi
           </Link>
 
           {!user ? (
             <div className="flex items-center gap-2">
               <Link to="/login" className="text-sm font-semibold text-ink hover:underline underline-offset-4 px-2 sm:px-3 min-h-[44px] inline-flex items-center whitespace-nowrap">Đăng nhập</Link>
-              <Link to="/register" className="bg-ink text-cream px-3 sm:px-5 min-h-[44px] inline-flex items-center whitespace-nowrap text-sm font-semibold hover:bg-brand-hover transition-colors">Đăng ký</Link>
+              <Link to="/register" className="bg-ink text-lamp px-3 sm:px-5 min-h-[44px] inline-flex items-center whitespace-nowrap text-sm font-semibold hover:bg-board transition-colors">Đăng ký</Link>
             </div>
           ) : (
             <>
@@ -280,9 +280,9 @@ const Header = () => {
             <div className="relative">
               <button onClick={() => setIsUserMenuOpen(!isUserMenuOpen)} aria-haspopup="menu" aria-expanded={isUserMenuOpen} aria-label="Menu tài khoản" className="flex items-center gap-2 min-h-[44px] hover:text-ink transition-colors focus:outline-none">
                 {user.avatarUrl ? (
-                  <img src={user.avatarUrl} alt="avatar" className="w-9 h-9 rounded-full object-cover border border-brand" />
+                  <img src={user.avatarUrl} alt="avatar" className="w-9 h-9 object-cover border-2 border-ink" />
                 ) : (
-                  <div className="w-9 h-9 rounded-full bg-page text-ink flex items-center justify-center border border-brand/30">
+                  <div className="w-9 h-9 bg-card text-ink flex items-center justify-center border-2 border-ink">
                     <User size={20} />
                   </div>
                 )}
@@ -290,22 +290,22 @@ const Header = () => {
                 <ChevronDown size={14} className={`hidden lg:block transition-transform duration-200 ${isUserMenuOpen ? 'rotate-180' : ''}`} />
               </button>
               {isUserMenuOpen && (
-                <div className="absolute right-0 top-full mt-3 w-56 bg-card rounded-xl shadow-lift border border-line py-2 z-50 animate-in fade-in slide-in-from-top-2">
+                <div className="absolute right-0 top-full mt-3 w-56 bg-card border-2 border-ink shadow-lift py-2 z-50 animate-in fade-in slide-in-from-top-2">
                   <div className="px-4 py-2 border-b border-line mb-1">
                     <p className="text-xs text-ink-mute">Xin chào,</p>
                     <p className="text-sm font-semibold text-ink truncate">{user.email}</p>
                   </div>
                   <Link to="/account" className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-ink-soft hover:bg-sunken hover:text-ink transition-colors text-left">
-                    <Settings size={18} className="text-brand-text" /> Thông tin tài khoản
+                    <Settings size={18} className="text-ink" /> Thông tin tài khoản
                   </Link>
                   <Link to="/my-shows" className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-ink-soft hover:bg-sunken transition-colors text-left">
-                    <Ticket size={18} className="text-brand-text" /> Vé của tôi
+                    <Ticket size={18} className="text-ink" /> Vé của tôi
                   </Link>
                   <Link to="/notifications" className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-ink-soft hover:bg-sunken transition-colors text-left">
-                    <Bell size={18} className="text-brand-text" /> Thông báo
+                    <Bell size={18} className="text-ink" /> Thông báo
                   </Link>
                   <Link to="/complaints" className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-ink-soft hover:bg-sunken transition-colors text-left">
-                    <MessageSquareWarning size={18} className="text-brand-text" /> Khiếu nại
+                    <MessageSquareWarning size={18} className="text-ink" /> Khiếu nại
                   </Link>
 
                   {/* LỐI VÀO KHU LÀM VIỆC THEO VAI TRÒ.
@@ -317,7 +317,7 @@ const Header = () => {
                   {(user.role === 'Owner' || user.role === 'Staff') && (
                     <>
                       <div className="my-1 border-t border-line"></div>
-                      <Link to="/owner" className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-brand-text hover:bg-sunken transition-colors text-left font-medium">
+                      <Link to="/owner" className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-ink hover:bg-sunken transition-colors text-left font-medium">
                         <Store size={18} /> Khu vực phòng trà
                       </Link>
                     </>
@@ -325,7 +325,7 @@ const Header = () => {
                   {user.role === 'Admin' && (
                     <>
                       <div className="my-1 border-t border-line"></div>
-                      <Link to="/admin" className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-brand-text hover:bg-sunken transition-colors text-left font-medium">
+                      <Link to="/admin" className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-ink hover:bg-sunken transition-colors text-left font-medium">
                         <LayoutDashboard size={18} /> Trang quản trị
                       </Link>
                     </>
@@ -348,11 +348,11 @@ const Header = () => {
               <ChevronDown size={14} className={`transition-transform duration-200 ${isLangOpen ? 'rotate-180' : ''}`} />
             </button>
             {isLangOpen && (
-              <div className="absolute right-0 top-full mt-3 w-44 bg-card rounded-xl shadow-lift border border-line py-2 z-50 animate-in fade-in slide-in-from-top-2">
-                <button onClick={() => handleChangeLang('vi')} className={`w-full flex items-center justify-between px-4 py-2.5 text-sm transition-colors ${currentLang === 'vi' ? 'text-brand-text bg-sunken/50' : 'text-ink-soft hover:bg-sunken hover:text-ink'}`}>
+              <div className="absolute right-0 top-full mt-3 w-44 bg-card border-2 border-ink shadow-lift py-2 z-50 animate-in fade-in slide-in-from-top-2">
+                <button onClick={() => handleChangeLang('vi')} className={`w-full flex items-center justify-between px-4 py-2.5 text-sm transition-colors ${currentLang === 'vi' ? 'text-ink bg-sunken/50' : 'text-ink-soft hover:bg-sunken hover:text-ink'}`}>
                   Tiếng Việt {currentLang === 'vi' && <Check size={14} />}
                 </button>
-                <button onClick={() => handleChangeLang('en')} className={`w-full flex items-center justify-between px-4 py-2.5 text-sm transition-colors ${currentLang === 'en' ? 'text-brand-text bg-sunken/50' : 'text-ink-soft hover:bg-sunken hover:text-ink'}`}>
+                <button onClick={() => handleChangeLang('en')} className={`w-full flex items-center justify-between px-4 py-2.5 text-sm transition-colors ${currentLang === 'en' ? 'text-ink bg-sunken/50' : 'text-ink-soft hover:bg-sunken hover:text-ink'}`}>
                   English {currentLang === 'en' && <Check size={14} />}
                 </button>
               </div>

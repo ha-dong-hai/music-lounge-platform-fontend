@@ -36,7 +36,7 @@ const NutDatCho = ({ showId, daDangNhap, lon = false }) => (
       Đặt chỗ
     </Link>
     {!daDangNhap && (
-      <span className="inline-flex items-center justify-center gap-1 text-[11px] text-cream-mute">
+      <span className="inline-flex items-center justify-center gap-1 text-[11px] text-lamp-mute">
         <LogIn size={11} aria-hidden="true" /> Cần đăng nhập để đặt
       </span>
     )}
@@ -51,7 +51,7 @@ const DongBang = ({ dong, mo, onMo, onRoi, chiSo, daDangNhap }) => {
   const cacBuoi = dong.tatCa ?? [buoi]
   return (
     <li
-      className={`border ${dong.dangDien ? 'border-ember' : 'border-cream/10'} ${mo ? 'bg-espresso shadow-glow' : 'bg-espresso/40 hover:bg-espresso/70'} transition-colors`}
+      className={`border ${dong.dangDien ? 'border-ember' : 'border-lamp/10'} ${mo ? 'bg-ink shadow-glow' : 'bg-ink/40 hover:bg-ink/70'} transition-colors`}
       onMouseEnter={() => onMo(dong.khoa, 'chuot')}
       onMouseLeave={onRoi}
     >
@@ -74,13 +74,13 @@ const DongBang = ({ dong, mo, onMo, onRoi, chiSo, daDangNhap }) => {
           {/* Dòng đang mở thì tên phòng trà "lên đèn": quầng sáng màu ánh đèn quanh chữ — thứ phân biệt hộp đèn bật/tắt. */}
           <span className={`block font-display text-3xl text-lamp leading-none md:truncate ${mo ? '[text-shadow:0_0_18px_rgb(255_233_168/0.55)]' : ''}`}>{dong.tenPhongTra}</span>
           {dong.soBuoiThem > 0 && (
-            <span className="block text-xs text-cream-mute mt-1">+{dong.soBuoiThem} buổi nữa đêm nay</span>
+            <span className="block text-xs text-lamp-mute mt-1">+{dong.soBuoiThem} buổi nữa đêm nay</span>
           )}
         </button>
 
-        <p className="order-4 md:order-none col-span-2 md:col-span-1 text-sm text-cream md:truncate" title={nguoiHat}>{nguoiHat}</p>
+        <p className="order-4 md:order-none col-span-2 md:col-span-1 text-sm text-lamp md:truncate" title={nguoiHat}>{nguoiHat}</p>
 
-        <p className="hidden md:flex items-center gap-1 text-sm text-cream-mute">
+        <p className="hidden md:flex items-center gap-1 text-sm text-lamp-mute">
           <MapPin size={13} aria-hidden="true" /> {buoi.district || buoi.province || '—'}
         </p>
 
@@ -117,14 +117,14 @@ const DongBang = ({ dong, mo, onMo, onRoi, chiSo, daDangNhap }) => {
                   <img src={dong.anh} alt={`Không gian ${dong.tenPhongTra}`} className="w-full h-full object-cover" />
                 </div>
               )}
-              <div className="flex flex-col gap-4 text-cream">
-                <p className="text-lg text-cream">{buoi.title}</p>
+              <div className="flex flex-col gap-4 text-lamp">
+                <p className="text-lg text-lamp">{buoi.title}</p>
                 <div>
-                  <p className="text-xs text-cream-mute mb-1.5">Người hát theo thứ tự lên sân khấu</p>
+                  <p className="text-xs text-lamp-mute mb-1.5">Người hát theo thứ tự lên sân khấu</p>
                   <ol className="space-y-1">
                     {(buoi.performers?.length ? buoi.performers : ['Line-up đang cập nhật']).map((ten, i) => (
                       <li key={ten} className="flex items-baseline gap-2">
-                        <span className="font-mono text-xs text-brand-on-dark">{i + 1}</span>
+                        <span className="font-mono text-xs text-stock">{i + 1}</span>
                         <span>{ten}</span>
                       </li>
                     ))}
@@ -132,26 +132,26 @@ const DongBang = ({ dong, mo, onMo, onRoi, chiSo, daDangNhap }) => {
                 </div>
                 <div>
                   <p className="font-display text-3xl text-lamp leading-none [text-shadow:0_0_18px_rgb(255_233_168/0.45)]">{buoi.price}</p>
-                  <p className="text-sm text-cream-mute mt-1.5 max-w-prose">{CAU_GIA}</p>
+                  <p className="text-sm text-lamp-mute mt-1.5 max-w-prose">{CAU_GIA}</p>
                 </div>
                 {/* ĐÃ BỎ (30/09) dấu mộc đỏ trong hộp đèn: đỏ mộc trên nền tím than chỉ đạt ~2:1, không đọc được. Lời hứa giữ
                     hộ vẫn in ở đây bằng chữ (điện thoại không có dấu mộc lấn mép bảng nên dòng này là chỗ duy nhất nói). */}
                 <div className="flex flex-col items-start gap-2 mt-auto">
                   <NutDatCho showId={buoi.id} daDangNhap={daDangNhap} lon />
-                  <p className="font-mono text-xs text-cream-mute">Tiền vé được giữ hộ tới khi buổi diễn diễn ra.</p>
+                  <p className="font-mono text-xs text-lamp-mute">Tiền vé được giữ hộ tới khi buổi diễn diễn ra.</p>
                 </div>
               </div>
               {cacBuoi.length > 1 && (
-                <div className={`${dong.anh ? 'md:col-span-2' : ''} border-t border-cream/15 pt-4`}>
-                  <p className="text-xs text-cream-mute mb-2">Các buổi đêm nay tại {dong.tenPhongTra}</p>
-                  <ul className="divide-y divide-cream/10">
+                <div className={`${dong.anh ? 'md:col-span-2' : ''} border-t border-lamp/15 pt-4`}>
+                  <p className="text-xs text-lamp-mute mb-2">Các buổi đêm nay tại {dong.tenPhongTra}</p>
+                  <ul className="divide-y divide-lamp/10">
                     {cacBuoi.map((b) => (
                       <li key={b.id} className="flex flex-wrap items-center gap-x-4 gap-y-1 py-2">
-                        <span className="font-mono text-brand-on-dark w-14">{gioTrongNgay(b.start_date)}</span>
-                        <span className="flex-1 min-w-0 truncate text-cream">{b.title}</span>
-                        <span className="font-mono text-sm text-cream-mute">{b.price}</span>
+                        <span className="font-mono text-stock w-14">{gioTrongNgay(b.start_date)}</span>
+                        <span className="flex-1 min-w-0 truncate text-lamp">{b.title}</span>
+                        <span className="font-mono text-sm text-lamp-mute">{b.price}</span>
                         {b.id === buoi.id
-                          ? <span className="inline-flex items-center min-h-[44px] px-3 text-sm text-cream-mute">Buổi sớm nhất</span>
+                          ? <span className="inline-flex items-center min-h-[44px] px-3 text-sm text-lamp-mute">Buổi sớm nhất</span>
                           : <Link to={`/shows/${b.id}`} className="inline-flex items-center min-h-[44px] px-3 font-semibold text-lamp underline underline-offset-4">Xem và đặt</Link>}
                       </li>
                     ))}
@@ -167,10 +167,10 @@ const DongBang = ({ dong, mo, onMo, onRoi, chiSo, daDangNhap }) => {
 }
 
 const KhungBang = ({ children }) => (
-  <div className="relative bg-board text-cream border-[3px] border-ink p-3 sm:p-5 shadow-lift">
+  <div className="relative bg-board text-lamp border-[3px] border-ink p-3 sm:p-5 shadow-lift">
     {/* Cột cuối RỘNG CỐ ĐỊNH ở cả hàng tiêu đề lẫn dòng: để "auto" thì ở hàng tiêu đề nó rỗng (0px) còn ở dòng nó chứa
         nút Đặt chỗ, các cột fr co khác nhau và tiêu đề lệch 50–95px so với dữ liệu (người duyệt đo 30/09). */}
-    <div className="hidden md:grid grid-cols-[7.5rem_3.5rem_minmax(0,1.4fr)_minmax(0,1.2fr)_7.5rem_7rem_9rem] gap-x-4 px-4 pb-3 text-xs text-cream-mute border-b border-cream/15 mb-3">
+    <div className="hidden md:grid grid-cols-[7.5rem_3.5rem_minmax(0,1.4fr)_minmax(0,1.2fr)_7.5rem_7rem_9rem] gap-x-4 px-4 pb-3 text-xs text-lamp-mute border-b border-lamp/15 mb-3">
       <span>Giờ</span><span /><span>Phòng trà</span><span>Người hát</span><span>Khu vực</span><span>Trạng thái</span><span />
     </div>
     {children}
@@ -199,9 +199,9 @@ const BangGioDien = ({ dong = [], dangTai, loi, onThuLai, daDangNhap, demGanNhat
       <KhungBang>
         <ul className="space-y-2" aria-busy="true" aria-label="Đang tải bảng giờ diễn">
           {[0, 1, 2].map((i) => (
-            <li key={i} className="flex items-center gap-4 px-4 py-4 bg-espresso/40 border border-cream/10">
+            <li key={i} className="flex items-center gap-4 px-4 py-4 bg-ink/40 border border-lamp/10">
               <KyTuLat chu="--:--" lat={false} className="text-2xl opacity-60" />
-              <span className="h-6 w-56 bg-cream/10 animate-pulse" />
+              <span className="h-6 w-56 bg-lamp/10 animate-pulse" />
             </li>
           ))}
         </ul>
@@ -213,7 +213,7 @@ const BangGioDien = ({ dong = [], dangTai, loi, onThuLai, daDangNhap, demGanNhat
     return (
       <KhungBang>
         <div role="alert" className="flex flex-wrap items-center justify-between gap-4 px-4 py-6">
-          <p className="text-cream">Bảng giờ diễn chưa tải được. Kiểm tra kết nối rồi thử lại.</p>
+          <p className="text-lamp">Bảng giờ diễn chưa tải được. Kiểm tra kết nối rồi thử lại.</p>
           <button type="button" onClick={onThuLai} className="inline-flex items-center gap-2 min-h-[44px] px-5 bg-stock text-ink font-semibold">
             <RotateCcw size={16} aria-hidden="true" /> Thử lại
           </button>
@@ -228,12 +228,12 @@ const BangGioDien = ({ dong = [], dangTai, loi, onThuLai, daDangNhap, demGanNhat
         <div role="status" className="px-4 py-5">
           <KyTuLat chu="ĐÊM NAY CHƯA CÓ PHÒNG TRÀ NÀO LÊN ĐÈN" lat={false} className="text-sm sm:text-base flex-wrap" />
           {demGanNhat ? (
-            <p className="text-cream-mute mt-4">
+            <p className="text-lamp-mute mt-4">
               Đêm gần nhất có diễn: <span className="text-lamp">{demGanNhat.nhan}</span>, {demGanNhat.soBuoi} buổi.{' '}
               <a href="#lich-tuan" className="underline text-lamp">Xem lịch tuần này</a>
             </p>
           ) : (
-            <p className="text-cream-mute mt-4">Chưa có buổi diễn nào mở bán trong những ngày tới. Theo dõi phòng trà bên dưới để được báo khi có đêm mới.</p>
+            <p className="text-lamp-mute mt-4">Chưa có buổi diễn nào mở bán trong những ngày tới. Theo dõi phòng trà bên dưới để được báo khi có đêm mới.</p>
           )}
         </div>
       </KhungBang>

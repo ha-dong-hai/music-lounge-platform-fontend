@@ -137,7 +137,7 @@ const HomePage = () => {
               <h1 id="dem-nay" className="text-[clamp(3rem,8vw,6rem)] leading-[0.95] text-ink">Đêm nay ở Sài Gòn</h1>
               <p className="font-mono text-base sm:text-lg mt-3" aria-live="polite">{dongPhu}</p>
             </div>
-            <Link to="/shows/search" className="inline-flex items-center gap-2 min-h-[44px] px-5 border-2 border-ink font-semibold hover:bg-ink hover:text-cream transition-colors">
+            <Link to="/shows/search" className="inline-flex items-center gap-2 min-h-[44px] px-5 border-2 border-ink font-semibold hover:bg-ink hover:text-lamp transition-colors">
               <SlidersHorizontal size={16} aria-hidden="true" /> Tìm và lọc buổi diễn
             </Link>
           </div>
@@ -195,7 +195,7 @@ const HomePage = () => {
                   <ul className="flex flex-wrap gap-2">
                     {ds.map((x) => (
                       <li key={x.key}>
-                        <Link to={x.to} state={x.state} className="inline-flex items-center gap-2 min-h-[40px] px-3 border-2 border-ink bg-card text-sm font-medium hover:bg-ink hover:text-cream transition-colors">
+                        <Link to={x.to} state={x.state} className="inline-flex items-center gap-2 min-h-[40px] px-3 border-2 border-ink bg-card text-sm font-medium hover:bg-ink hover:text-lamp transition-colors">
                           {x.ten}
                           {x.so != null && <span className="font-mono text-xs">{x.so}</span>}
                         </Link>

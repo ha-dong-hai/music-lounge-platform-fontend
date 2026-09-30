@@ -6,7 +6,7 @@
 // `tone`: 'ink' trên giấy sáng, 'lamp' trên khối mực (chân trang, thanh bên, màn đăng nhập).
 const Wordmark = ({ tone = 'ink', className = '' }) => (
   <span
-    className={`font-display leading-none tracking-normal ${tone === 'lamp' ? 'text-cream' : 'text-ink'} ${className}`}
+    className={`font-display leading-none tracking-normal ${tone === 'lamp' ? 'text-lamp' : 'text-ink'} ${className}`}
   >
     MusicLounge
   </span>

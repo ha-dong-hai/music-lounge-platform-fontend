@@ -12,7 +12,7 @@ const KyTuLat = ({ chu, tone = 'lamp', lat = true, treMs = 0, className = '' }) 
     tone === 'ember'
       ? 'bg-ember text-board'
       : tone === 'ink'
-        ? 'bg-ink text-cream'
+        ? 'bg-ink text-lamp'
         : 'bg-board text-lamp'
   return (
     <span className={`inline-flex gap-[3px] ${className}`} aria-label={chu} role="text">

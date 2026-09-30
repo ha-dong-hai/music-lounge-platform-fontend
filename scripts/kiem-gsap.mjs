@@ -13,7 +13,7 @@
 // nuôi hai thư viện chuyển động cho cùng một việc mà không ai để ý. Cổng này chặn đúng đường đó.
 //
 // TRÌNH TỰ GỠ, LÀM SAI LÀ VỠ TRANG:
-//   1. thay ScrollFloat trong SectionTitle.jsx   2. thay/bỏ SplitText trong HeroBanner.jsx
+//   1. thay ScrollFloat trong SectionTitle.jsx   2. (XONG 30/09) SplitText đi cùng HeroBanner.jsx — file đã xoá với trang chủ cũ
 //   3. cổng này xanh                              4. LÚC ĐÓ mới gỡ gói khỏi package.json
 //
 // Chạy: npm run kiem-gsap

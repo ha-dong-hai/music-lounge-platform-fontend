@@ -66,7 +66,7 @@ const PhongTraTrenSan = ({ daDangNhap, phongTraSangDen = new Set(), onTai }) => 
     return (
       <div role="alert" className="flex flex-wrap items-center gap-4 border-2 border-ink p-5">
         <p>Danh sách phòng trà chưa tải được.</p>
-        <button type="button" onClick={() => setLanTai((n) => n + 1)} className="min-h-[44px] px-5 bg-ink text-cream font-semibold">Thử lại</button>
+        <button type="button" onClick={() => setLanTai((n) => n + 1)} className="min-h-[44px] px-5 bg-ink text-lamp font-semibold">Thử lại</button>
       </div>
     )
   }
@@ -80,13 +80,13 @@ const PhongTraTrenSan = ({ daDangNhap, phongTraSangDen = new Set(), onTai }) => 
         const sangDen = phongTraSangDen.has(l.name)
         const theoDoi = dangTheoDoi.has(l.id)
         return (
-          <li key={l.id} className={`flex flex-col border-2 border-ink ${sangDen ? 'bg-espresso text-cream shadow-glow' : 'bg-stock text-ink'}`}>
+          <li key={l.id} className={`flex flex-col border-2 border-ink ${sangDen ? 'bg-ink text-lamp shadow-glow' : 'bg-stock text-ink'}`}>
             <Link to={`/lounge/${l.id}`} className="block m-3 mb-0 aspect-[4/3] overflow-hidden border border-ink bg-board">
               {l.primaryImageUrl ? <img src={l.primaryImageUrl} alt={`Không gian ${l.name}`} loading="lazy" className="w-full h-full object-cover" /> : <CoverFallback />}
             </Link>
             <div className="flex flex-col gap-2 p-4 flex-1">
               <Link to={`/lounge/${l.id}`} className={`font-display text-3xl leading-none hover:underline ${sangDen ? 'text-lamp' : 'text-ink'}`}>{l.name}</Link>
-              <p className={`flex items-center gap-1 text-sm ${sangDen ? 'text-cream-mute' : 'text-ink-soft'}`}>
+              <p className={`flex items-center gap-1 text-sm ${sangDen ? 'text-lamp-mute' : 'text-ink-soft'}`}>
                 <MapPin size={13} aria-hidden="true" /> {[l.district, l.city].filter(Boolean).join(', ') || '—'}
               </p>
               <p className={`font-mono text-sm ${sangDen ? 'text-lamp' : 'text-ink'}`}>
@@ -97,7 +97,7 @@ const PhongTraTrenSan = ({ daDangNhap, phongTraSangDen = new Set(), onTai }) => 
                   <button type="button" onClick={() => batTat(l)} disabled={dangBam === l.id} aria-pressed={theoDoi}
                     className={`w-full min-h-[44px] border-2 font-semibold transition-colors disabled:opacity-60 ${sangDen
                       ? (theoDoi ? 'bg-lamp text-ink border-lamp' : 'border-lamp text-lamp hover:bg-lamp hover:text-ink')
-                      : (theoDoi ? 'bg-ink text-cream border-ink' : 'border-ink text-ink hover:bg-ink hover:text-cream')}`}>
+                      : (theoDoi ? 'bg-ink text-lamp border-ink' : 'border-ink text-ink hover:bg-ink hover:text-lamp')}`}>
                     {theoDoi ? 'Đang theo dõi' : 'Theo dõi'}
                   </button>
                 ) : (

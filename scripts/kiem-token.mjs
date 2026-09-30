@@ -24,6 +24,8 @@ import { join, relative } from 'node:path'
 // giờ được phép đỏ trở lại.
 const KHU_CANH = [
   'src/components/home',
+  'src/components/program', // linh kiện trang chủ mới (30/09) — trước đó cổng canh nhầm thư mục trang chủ CŨ
+  'src/components/brand',
   'src/pages/home',
   'src/components/shared',
   'src/pages/public',

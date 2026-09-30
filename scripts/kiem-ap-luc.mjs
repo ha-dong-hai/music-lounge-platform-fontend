@@ -21,7 +21,8 @@ import { readdirSync, statSync } from 'node:fs'
 import { docTep } from './lib/docTep.mjs'
 import { join, relative } from 'node:path'
 
-const KHU_CANH = ['src/components/home', 'src/pages/home']
+// src/components/program: bảng giờ diễn mới (30/09) là nơi cám dỗ "sắp hết vé" lớn nhất — phải được canh.
+const KHU_CANH = ['src/components/home', 'src/components/program', 'src/pages/home']
 const BO_QUA = ['src/components/reactbits']
 
 // SỐ THẬT HAY BIẾN ĐỀU LÀ SỐ.

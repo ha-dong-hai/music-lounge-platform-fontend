@@ -5,7 +5,12 @@
    vàng hoa cúc + mực ronéo tím than; dấu mộc đỏ CHỈ cho trạng thái tiền; hộp đèn mica (khối mực, chữ sáng) CHỈ cho
    phòng trà có diễn đêm nay; than hồng CHỈ cho buổi đang diễn. Thay hệ "Sáng ấm" (nền kem + serif) cũ — đó là cụm
    giao diện mặc định mà máy hay sinh ra.
-   TÊN TOKEN GIỮ NGUYÊN để cả 61 trang đổi thế giới cùng lúc; token mới thêm ở cuối khối.
+   HAI BỘ TỪ VỰNG, KHÔNG TRỘN (chủ dự án 30/09: "thiết kế cũ đừng để bị trộn lẫn hay ảnh hưởng"):
+   - TỪ VỰNG MỚI (dưới "Thế giới tờ chương trình"): stock, ink*, board*, lamp*, stamp, ember + nền cấu trúc page/card/
+     sunken/line + trạng thái danger/success/warning. Mọi file ĐÃ CHUYỂN chỉ được dùng bộ này.
+   - TỪ VỰNG CŨ (brand*, on-brand, espresso*, cream*): chỉ còn để các trang CHƯA làm lại không vỡ màu trong lúc chuyển.
+     File đã chuyển mà dùng tên cũ thì `npm run kiem:the-gioi` báo ĐỎ. Trần giới hạn: tồn tại tới khi danh sách nợ
+     của máy kiểm về 0 — khi đó XOÁ cả khối này (đường nâng cấp đã định, không phải tuỳ chọn).
    Mọi cặp chữ/nền dưới đây đã tính bằng máy đạt WCAG 2.2 AA (chữ thường >= 4.5:1, 22/22 cặp — 30/09).
    KHÔNG viết mã màu hex hay lớp bg-gray, bg-black trong component — dùng token này. */
 @theme {
@@ -20,6 +25,7 @@
   --color-ink-soft: #433D80;      /* 9.5:1 / 5.8:1 */
   --color-ink-mute: #4D4889;      /* 8.1:1 / 5.0:1 */
 
+  /* ── TỪ VỰNG CŨ — chỉ cho trang chưa chuyển; CẤM trong file đã chuyển (scripts/kiem-the-gioi-moi.mjs) ── */
   --color-brand: #26215A;         /* nền nút chính: khối mực (chữ on-brand sáng đèn trên đó 12:1) */
   --color-brand-hover: #1B1745;
   --color-brand-text: #26215A;    /* chữ/icon nhấn trên nền sáng */
@@ -35,10 +41,12 @@
   --color-success: #2F7A4F;
   --color-warning: #8A5A00;
 
-  /* Token riêng của thế giới */
-  --color-stock: #F4C542;         /* giấy tờ bướm vàng hoa cúc — phủ trang ở màn công khai (Persuade) */
-  --color-board: #1B1745;         /* mặt bảng giờ diễn, đậm hơn mực một nấc */
-  --color-lamp: #FFE9A8;          /* ánh đèn mica / ô chữ lật */
+  /* ── TỪ VỰNG MỚI — thế giới tờ chương trình ── */
+  --color-stock: #F4C542;         /* giấy tờ bướm vàng hoa cúc — phủ trang ở màn công khai (Persuade); chữ vàng trên khối mực 8.9:1 */
+  --color-board: #1B1745;         /* mặt bảng giờ diễn, đậm hơn mực một nấc; cũng là màu rê chuột của nút mực */
+  --color-board-soft: #332C73;    /* mặt bảng sáng hơn một nấc (dòng rê chuột) */
+  --color-lamp: #FFE9A8;          /* ánh đèn mica / ô chữ lật / chữ sáng trên khối mực 12:1 */
+  --color-lamp-mute: #CFC9EE;     /* chữ phụ trên khối mực 9.2:1 */
   --color-stamp: #C8252C;         /* dấu mộc — CHỈ trạng thái tiền: giữ hộ, đã hoàn, đã quyết toán */
   --color-ember: #F2682A;         /* than hồng — CHỈ buổi đang diễn */
 
@@ -153,36 +161,4 @@
   .group:hover .reveal-on-hover,
   .group:focus-within .reveal-on-hover,
   .reveal-on-hover:focus-visible { opacity: 1; }
-}
-
-/* Ken Burns chậm cho ảnh hero — lấy đúng nhịp group-hover:scale-105 duration-1000 đã thấy trong
-   code.html thật của Aura & Echo, nhưng chạy nền tự động và chậm hơn nhiều (18s) để không giật mắt. */
-@keyframes ken-burns {
-  from { transform: scale(1); }
-  to { transform: scale(1.06); }
-}
-.animate-ken-burns { animation: ken-burns 18s var(--ease-out-soft) forwards; }
-@media (prefers-reduced-motion: reduce) {
-  .animate-ken-burns { animation: none; }
-}
-
-/* Chữ hoa đầu đoạn (drop cap) — thủ pháp chữ ký của bố cục tạp chí in, và là một trong sáu kỹ
-   thuật mà mẫu "editorial-grid-magazine" nêu đích danh (cùng với lưới bất đối xứng, trích dẫn nổi,
-   đường phân mục, khoảng trắng rộng).
-   Dùng ::first-letter chứ KHÔNG bọc chữ cái đầu trong <span>: trình đọc màn hình vẫn đọc liền mạch
-   cả từ, và khi người dùng chọn/sao chép thì văn bản không bị tách làm đôi.
-   Chỉ dùng cho khối kể chuyện, không dùng cho chữ chức năng. */
-.drop-cap::first-letter {
-  float: left;
-  font-family: var(--font-display);
-  font-size: 3.4em;
-  line-height: 0.82;
-  font-weight: 400;
-  padding-right: 0.08em;
-  padding-top: 0.06em;
-  color: var(--color-stamp);
-}
-/* Trên màn hẹp, chữ cái to choán mất dòng đầu nên thu nhỏ lại cho dễ đọc. */
-@media (max-width: 640px) {
-  .drop-cap::first-letter { font-size: 2.6em; }
 }

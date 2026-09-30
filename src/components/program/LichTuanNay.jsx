@@ -24,7 +24,7 @@ const LichTuanNay = ({ buoiDien = [], dangTai }) => {
     <div className="border-2 border-ink overflow-x-auto">
       <table className="w-full min-w-[640px] text-left">
         <caption className="sr-only">Lịch diễn bảy ngày tới, theo ngày và giờ</caption>
-        <thead className="bg-ink text-cream text-sm">
+        <thead className="bg-ink text-lamp text-sm">
           <tr>
             <th scope="col" className="font-semibold px-4 py-3 w-40">Ngày</th>
             <th scope="col" className="font-semibold px-4 py-3">Phòng trà</th>
@@ -48,7 +48,7 @@ const LichTuanNay = ({ buoiDien = [], dangTai }) => {
                 <td className="px-4 py-3 text-sm">{b.performers?.length ? b.performers.join(', ') : b.title}</td>
                 <td className="px-4 py-3 font-mono">{gioTrongNgay(b.start_date)}</td>
                 <td className="px-4 py-3 text-right">
-                  <Link to={`/shows/${b.id}`} className="font-semibold underline underline-offset-4 decoration-2 hover:text-brand-hover">Xem và đặt</Link>
+                  <Link to={`/shows/${b.id}`} className="font-semibold underline underline-offset-4 decoration-2 hover:text-board">Xem và đặt</Link>
                 </td>
               </tr>
             )

@@ -22,10 +22,14 @@ import { docTep } from './lib/docTep.mjs'
 // Vùng đã dọn. CHỈ THÊM, không bao giờ bớt — bớt một dòng ở đây là cho phép một vùng đã sạch bẩn lại.
 const KHU_CANH = [
   'src/pages/home/HomePage.jsx',
-  'src/components/home/MangSet.jsx',
-  'src/components/home/ChuongTrinhDemNay.jsx',
-  'src/components/home/DongBuoiDien.jsx',
-  'src/components/home/NhungDemSapToi.jsx',
+  // 30/09: bốn file trang chủ cũ (MangSet, ChuongTrinhDemNay, DongBuoiDien, NhungDemSapToi) đã XOÁ cùng thế giới
+  // cũ; phần canh CHUYỂN sang các linh kiện thay chỗ chúng — không phải bớt khu canh.
+  'src/components/program/BangGioDien.jsx',
+  'src/components/program/LichTuanNay.jsx',
+  'src/components/program/PhongTraTrenSan.jsx',
+  'src/components/program/CuongVeCamKet.jsx',
+  'src/components/program/KyTuLat.jsx',
+  'src/components/program/DauMoc.jsx',
 ]
 
 // `.format(` của dayjs. Bắt cả `dayjs(x).format(`, `t.format(`, `homNay.format(`.
