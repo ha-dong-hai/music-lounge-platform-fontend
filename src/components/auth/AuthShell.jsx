@@ -2,6 +2,7 @@
 
 import { Link } from 'react-router-dom'
 import { Armchair, Rotate3d, Heart } from 'lucide-react'
+import Wordmark from '../brand/Wordmark'
 
 const POINTS = [
   { icon: Armchair, text: 'Chọn chỗ ngồi ngay trên sơ đồ phòng trà' },
@@ -17,7 +18,7 @@ const Aside = () => (
       className="absolute inset-0 bg-[radial-gradient(ellipse_at_20%_10%,rgb(212_160_58/0.35),transparent_55%),radial-gradient(ellipse_at_90%_95%,rgb(138_90_18/0.45),transparent_50%)]"
     />
     <div className="relative">
-      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-on-dark mb-5">Phòng Trà Sài Gòn</p>
+      <p className="text-2xl mb-5"><Wordmark tone="lamp" /></p>
       <p className="font-display text-3xl xl:text-4xl leading-snug text-cream">
         Những đêm nhạc mộc, ngồi đúng chỗ mình chọn.
       </p>
@@ -41,10 +42,10 @@ const AuthShell = ({ children, withAside = false }) => (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 h-16 flex items-center">
         <Link
           to="/"
-          aria-label="Phòng Trà Sài Gòn — về trang chủ"
+          aria-label="MusicLounge — về trang chủ"
           className="font-display text-xl sm:text-2xl leading-none tracking-tight text-ink inline-flex items-center min-h-[44px]"
         >
-          Phòng Trà <span className="text-brand-text ml-1.5">Sài Gòn</span>
+          <Wordmark />
         </Link>
       </div>
     </header>
@@ -65,7 +66,7 @@ const AuthShell = ({ children, withAside = false }) => (
     </main>
 
     <footer className="border-t border-line bg-card/60 px-4 py-5 text-center text-xs text-ink-mute">
-      © 2026 Phòng Trà Sài Gòn
+      © 2026 MusicLounge
     </footer>
   </div>
 )

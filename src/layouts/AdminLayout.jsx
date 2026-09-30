@@ -103,7 +103,7 @@ const AdminLayout = () => {
   return (
     <PortalShell
       portalName="Quản trị hệ thống"
-      pageTitle="Hệ thống quản trị Music Lounge"
+      pageTitle="Quản trị MusicLounge"
       nav={nav}
       footer={footer}
       headerRight={

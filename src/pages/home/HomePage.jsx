@@ -1,328 +1,220 @@
 // src/pages/home/HomePage.jsx
 //
-// TRANG CHỦ = MỘT TỜ CHƯƠNG TRÌNH, đọc từ trên xuống theo THỜI GIAN.
-// Đặc tả: docs/design/DAC-TA-TRANG-CHU.md. Mọi quyết định dưới đây đều trỏ về một mục của nó.
+// TRANG CHỦ — "Đêm nay ở Sài Gòn", thế giới TỜ CHƯƠNG TRÌNH CA NHẠC (chủ dự án chốt 30/09; hợp đồng hướng thiết kế ở
+// .impeccable/surfaces/src-pages-home-homepage-jsx.md; ảnh mẫu Stitch ở .impeccable/mocks/stitch/).
+// Kiến trúc venue-first 23/09 (YEU-CAU-THIET-KE-LAI-TRANG-CHU.md §7.1): tiêu đề đêm nay → BẢNG GIỜ DIỄN (mỗi dòng một
+// phòng trà) → phòng trà trên sàn (không bao giờ trống) → lịch tuần → tìm theo gu → tiền của bạn đi đâu → lối ra.
+// Khối "gợi ý cá nhân" và "khối biên tập" của bản cũ bị bỏ khỏi trang chủ theo §7.1 (đa số lượt vào không thấy gì).
 //
-// Nhịp trang: măng sét → đêm nay (theo giờ) → những đêm sắp tới (theo ngày) → khối biên tập →
-// gợi ý cho người đã đăng nhập → mục lục duyệt theo không khí/dòng nhạc → cam kết → lối ra.
-import { useState, useEffect, useMemo } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
-import { ArrowRight } from 'lucide-react'
-import EventCarousel from '../../components/home/ShowCarousel'
-import SectionHeader from '../../components/home/SectionHeader'
-import FilterModal from '../../components/home/FilterModal'
-import MangSet from '../../components/home/MangSet'
-import ChuongTrinhDemNay from '../../components/home/ChuongTrinhDemNay'
-import NhungDemSapToi from '../../components/home/NhungDemSapToi'
-import MoodExplorer from '../../components/home/MoodExplorer'
-import EditorialSpotlight from '../../components/home/EditorialSpotlight'
-import TrustStrip from '../../components/home/TrustStrip'
-import Reveal from '../../components/shared/Reveal'
-import SectionTitle from '../../components/shared/SectionTitle'
-import { getShows, getRecommendedShows, getFilterOptions } from '../../services/showServices'
-import { getLounges } from '../../services/loungeServices'
-import { formatMinPrice } from '../../utils/formatPrice'
-import { ngayGon, thuVietHoa } from '../../utils/ngayVietNam'
-import { timDemGanNhat, locDemNay } from '../../utils/lichDien'
+// Tầng DỮ LIỆU giữ nguyên từ bản cũ (đã kiểm): sortBy='StartingSoon' — KHÔNG dùng 'Newest' vì ở backend đó là
+// OrderByDescending(Id), tức thứ tự ĐƯỢC TẠO, sẽ im lặng bỏ sót buổi diễn tối nay.
+// THÊM một lượt gọi cho buổi ĐANG DIỄN: 'StartingSoon' lọc ScheduledStart > now nên buổi đã lên sân khấu biến khỏi
+// danh sách — mà "đang diễn" là trạng thái bảng giờ diễn phải in (màu than hồng dành riêng cho nó).
+import { useState, useEffect, useMemo, useCallback } from 'react'
+import { Link } from 'react-router-dom'
 import dayjs from 'dayjs'
+import { SlidersHorizontal } from 'lucide-react'
+import BangGioDien from '../../components/program/BangGioDien'
+import { gomTheoPhongTra } from '../../utils/bangGioDien'
+import PhongTraTrenSan from '../../components/program/PhongTraTrenSan'
+import LichTuanNay from '../../components/program/LichTuanNay'
+import DauMoc from '../../components/program/DauMoc'
+import CuongVeCamKet from '../../components/program/CuongVeCamKet'
+import { getShows, getFilterOptions } from '../../services/showServices'
+import { formatMinPrice } from '../../utils/formatPrice'
+import { ngayDayDu, thuVietHoa } from '../../utils/ngayVietNam'
+import { timDemGanNhat, locDemNay } from '../../utils/lichDien'
 import { useAuthStore } from '../../store/useAuthStore'
 
-// Số buổi diễn tải về cho cả trang. Với sortBy='StartingSoon' thì đây là "N buổi diễn gần nhất
-// tính từ bây giờ", đủ phủ đêm nay cộng vài ngày tới.
 const SO_BUOI_TAI = 50
 
-const initialFilterState = {
+// Hình dạng bộ lọc rỗng mà ShowSearchPage đọc từ location.state (initialFilterState của nó).
+const BO_LOC_TRONG = {
   selectedProvince: null, selectedDistricts: [], selectedWards: [],
   selectedGenres: [], selectedSubGenres: [], selectedSpaces: [], selectedMoods: [],
   minPrice: '', maxPrice: '',
 }
 
-// Chuyển một dòng của /lounge-shows sang hình dạng mà các khối trên trang dùng.
-// Tách ra hàm riêng vì hai lượt gọi (danh sách và gợi ý) phải ra CÙNG một hình dạng — trước đây hai
-// chỗ chép tay giống nhau, nên thêm trường mới là phải nhớ sửa hai nơi.
+// Một dòng của /lounge-shows sang hình dạng các khối dùng — một chỗ duy nhất cho mọi lượt gọi.
 const doiSangDong = (show) => ({
   id: show.id,
   title: show.name,
   thumbnail: show.coverImageUrl,
   start_date: show.scheduledStart,
   province: show.loungeCity,
-  // Quận/huyện: ở TP.HCM thì "Quận 1" nói nhiều hơn "TP.HCM" — người ta quyết định đi hay không
-  // dựa vào quãng đường, không dựa vào tên thành phố.
   district: show.loungeDistrict,
   loungeName: show.loungeName,
-  // AI DIỄN. Backend trả sẵn (LoungeShowListItemDto.PerformerNames), sắp theo OrderIndex — tức
-  // đúng thứ tự lên sân khấu. Trang chủ trước đây bỏ trường này đi không dùng.
+  // Người hát theo OrderIndex (backend sắp sẵn) — đúng thứ tự lên sân khấu.
   performers: show.performerNames ?? [],
   genre: show.genres?.[0]?.name || 'Khác',
   genreId: show.genres?.[0]?.id || null,
-  // Show chưa có hạng vé nào thì minPrice/maxPrice là null — gọi thẳng .toLocaleString() trên null
-  // sẽ làm vỡ cả khối, nên phải chặn trước khi format.
   price: formatMinPrice(show),
   format: show.format,
-  isWishlisted: show.isWishlisted,
+  status: show.status,
 })
 
+const TieuDeKhoi = ({ id, children, phu }) => (
+  <div className="flex flex-wrap items-end justify-between gap-3 border-b-2 border-ink pb-3 mb-7">
+    <h2 id={id} className="text-4xl sm:text-5xl text-ink">{children}</h2>
+    {phu}
+  </div>
+)
+
 const HomePage = () => {
-  const navigate = useNavigate()
-  // §7 — TRẠNG THÁI NGƯỜI DÙNG. Trang chủ phải biết người đang mở nó là ai.
-  // Mua vé bắt buộc đăng nhập (ràng buộc backend), nên lời mời "đặt vé" phải nói trước điều đó cho
-  // khách chưa đăng nhập, thay vì để họ bấm rồi mới đâm vào bức tường. Xem DongBuoiDien.jsx.
   const daDangNhap = Boolean(useAuthStore((s) => s.user))
 
-  const [isLoading, setIsLoading] = useState(true)
-  // Lỗi của lượt tải danh sách buổi diễn. Tách riêng khỏi isLoading để khối chương trình
-  // phân biệt được 'đang tải' với 'tải hỏng' — hai trạng thái phải nói hai câu khác nhau.
+  const [dangTai, setDangTai] = useState(true)
   const [loiTai, setLoiTai] = useState(false)
-  // Tăng khoá này để chạy lại lượt tải khi người dùng bấm 'Thử lại'.
-  const [reloadKey, setReloadKey] = useState(0)
-  const [allEvents, setAllEvents] = useState([])
-  const [recommendEvents, setRecommendEvents] = useState([])
+  const [lanTai, setLanTai] = useState(0)
+  const [sapToi, setSapToi] = useState([])
+  const [dangDien, setDangDien] = useState([])
+  const [anhPhongTra, setAnhPhongTra] = useState({})
+  const [gu, setGu] = useState({ moods: [], atmospheres: [] })
 
-  const [isFilterOpen, setIsFilterOpen] = useState(false)
-  const [appliedFilters, setAppliedFilters] = useState(initialFilterState)
-  const [startDate, setStartDate] = useState('')
-  const [endDate, setEndDate] = useState('')
-
-  // Phòng trà có ảnh không gian thật, cho khối biên tập.
-  const [spotlightLounge, setSpotlightLounge] = useState(null)
   useEffect(() => {
-    getLounges({ pageSize: 10 })
-      .then(res => { if (res.success) setSpotlightLounge((res.data.items || []).find(l => l.primaryImageUrl) || null) })
-      .catch(err => console.error('Lỗi tải phòng trà cho khối biên tập:', err))
-  }, [])
-
-  // Danh mục tâm trạng/không gian thật — cùng nguồn dữ liệu FilterModal đang dùng, không gọi API
-  // riêng nào mới ở backend.
-  const [moods, setMoods] = useState([])
-  const [atmospheres, setAtmospheres] = useState([])
-  useEffect(() => {
-    getFilterOptions()
-      .then(res => { if (res.success) { setMoods(res.data.moods || []); setAtmospheres(res.data.atmospheres || []) } })
-      .catch(err => console.error('Lỗi tải danh mục không khí:', err))
-  }, [])
-
-  // Gợi ý cá nhân hoá. KHÁC /trending (trending xếp theo độ hot chung, ai vào cũng thấy như nhau).
-  // Chỉ gọi khi người dùng ĐÃ ĐĂNG NHẬP — xem chỗ hiển thị ở dưới để biết lý do.
-  useEffect(() => {
-    // Chỉ CHẶN lượt gọi, không xoá trạng thái ở đây: gọi setState thẳng trong thân effect làm
-    // React render dây chuyền (react-hooks/set-state-in-effect). Đăng xuất thì dữ liệu gợi ý cũ
-    // còn nằm trong state nhưng KHÔNG hiện, vì điều kiện hiển thị dưới kia đã có `daDangNhap`.
-    if (!daDangNhap) return
-    getRecommendedShows({ limit: 10 })
-      .then(res => { if (res.success) setRecommendEvents(res.data.map(doiSangDong)) })
-      .catch(err => console.error('Lỗi API Recommend:', err))
-  }, [daDangNhap])
-
-  // DANH SÁCH BUỔI DIỄN CHO CẢ TRANG.
-  //
-  // ĐÃ SỬA MỘT LỖI IM LẶNG: bản trước gọi sortBy='Newest'. Tra ở backend thì 'Newest' là
-  // `OrderByDescending(s => s.Id)` (LoungeShowRepository.ApplySort) — tức sắp theo thứ tự ĐƯỢC TẠO,
-  // không phải theo lịch diễn. Nên "50 buổi mới nhất" là 50 buổi được TẠO gần đây nhất, và một buổi
-  // diễn TỐI NAY do phòng trà đăng từ tháng trước có thể không nằm trong đó. Khi ấy trang chủ bỏ sót
-  // nó mà không có dấu hiệu gì: khối đêm nay vẫn hiện, vẫn đẹp, chỉ là thiếu.
-  // 'StartingSoon' lọc `ScheduledStart > now` rồi sắp TĂNG DẦN theo giờ diễn — đúng thứ một tờ
-  // chương trình cần, và đúng thứ tự trang đang trình bày.
-  // ĐÁNH ĐỔI ĐÃ BIẾT: 'StartingSoon' loại luôn buổi đã bắt đầu, nên một đêm diễn khai mạc lúc 21:00
-  // sẽ rời khỏi trang từ 21:01, dù khán giả đến muộn vẫn vào được. Đổi lại là danh sách đêm nay
-  // KHÔNG BAO GIỜ THIẾU. Thà mất một dòng đã bắt đầu còn hơn im lặng giấu mất cả một đêm diễn.
-  useEffect(() => {
-    const taiDanhSach = async () => {
-      setIsLoading(true)
+    let huy = false
+    const tai = async () => {
+      setDangTai(true)
       setLoiTai(false)
       try {
-        const res = await getShows({ page: 1, pageSize: SO_BUOI_TAI, sortBy: 'StartingSoon', includeSoldOut: true })
-        if (res.success) setAllEvents(res.data.items.map(doiSangDong))
-      } catch (err) {
-        console.error('Lỗi tải danh sách buổi diễn:', err)
-        setLoiTai(true)
+        const [a, b] = await Promise.all([
+          getShows({ page: 1, pageSize: SO_BUOI_TAI, sortBy: 'StartingSoon', includeSoldOut: true }),
+          // Buổi đang diễn: danh sách công khai không lọc giờ, rồi giữ đúng status Ongoing.
+          getShows({ page: 1, pageSize: SO_BUOI_TAI, sortBy: 'Newest', includeSoldOut: true }),
+        ])
+        if (huy) return
+        setSapToi(a.success ? a.data.items.map(doiSangDong) : [])
+        setDangDien(b.success ? b.data.items.filter((x) => x.status === 'Ongoing').map(doiSangDong) : [])
+      } catch {
+        if (!huy) setLoiTai(true)
+      } finally {
+        if (!huy) setDangTai(false)
       }
-      finally { setIsLoading(false) }
     }
-    taiDanhSach()
-  }, [reloadKey])
+    tai()
+    return () => { huy = true }
+  }, [lanTai])
 
-  // CHƯƠNG TRÌNH ĐÊM NAY = phần còn lại của NGÀY HÔM NAY.
-  // Mốc dưới do backend lo sẵn ('StartingSoon' đã bỏ buổi đã bắt đầu), nên ở đây chỉ cắt mốc trên.
-  const buoiDemNay = useMemo(() => locDemNay(allEvents), [allEvents])
+  useEffect(() => {
+    getFilterOptions()
+      .then((res) => { if (res.success) setGu({ moods: res.data.moods || [], atmospheres: res.data.atmospheres || [] }) })
+      .catch(() => {}) // khối "tìm theo gu" tự ẩn khi không có danh mục — không chặn trang
+  }, [])
 
-  // ĐÊM DIỄN GẦN NHẤT SAU HÔM NAY.
-  //
-  // Đây là câu trả lời cho câu hỏi mà một người mở trang lúc đêm nay trống thật sự đang có: "vậy
-  // hôm nào mới có?". Trước đây trang không trả lời — nó hiện một hộp lớn nói "chưa có buổi diễn
-  // nào mở bán" rồi để người ta tự đi tìm.
-  //
-  // Không tốn thêm lượt gọi API nào: `allEvents` đã được backend sắp TĂNG DẦN theo giờ diễn
-  // ('StartingSoon'), nên buổi đầu tiên sau nửa đêm hôm nay chính là đêm gần nhất. `.find` dừng
-  // ngay ở phần tử đầu khớp.
-  //
-  // `soBuoi` đếm số buổi diễn TRONG CHÍNH đêm đó. Đây là con số DỒI DÀO (còn nhiều thứ để xem),
-  // không phải con số khan hiếm — ranh giới này là luật §9 của đặc tả và có cổng máy canh.
-  const demGanNhat = useMemo(() => timDemGanNhat(allEvents), [allEvents])
+  // Ảnh không gian của phòng trà (DTO buổi diễn không có loungeId nên ghép theo TÊN; không khớp thì dùng ảnh bìa buổi diễn).
+  const khiTaiPhongTra = useCallback((items) => {
+    setAnhPhongTra(Object.fromEntries(items.filter((l) => l.primaryImageUrl).map((l) => [l.name, l.primaryImageUrl])))
+  }, [])
 
-  // Con số cho măng sét. Đếm từ chính mảng trên nên không bao giờ lệch với thứ đang hiển thị —
-  // đặc tả §1 cấm số liệu không truy được về dữ liệu thật.
-  const demDemNay = useMemo(() => ({
-    soBuoi: buoiDemNay.length,
-    soPhongTra: new Set(buoiDemNay.map((ev) => ev.loungeName).filter(Boolean)).size,
-  }), [buoiDemNay])
+  const buoiDemNay = useMemo(() => {
+    const ids = new Set(dangDien.map((x) => x.id))
+    return [...dangDien, ...locDemNay(sapToi).filter((x) => !ids.has(x.id))]
+  }, [sapToi, dangDien])
+  const dongBang = useMemo(() => gomTheoPhongTra(buoiDemNay, anhPhongTra), [buoiDemNay, anhPhongTra])
+  const phongTraSangDen = useMemo(() => new Set(dongBang.map((d) => d.tenPhongTra)), [dongBang])
+  const demGanNhat = useMemo(() => timDemGanNhat(sapToi), [sapToi])
 
-  // MỤC LỤC DÒNG NHẠC.
-  // Đây là thứ CÒN LẠI của các băng chuyền "Thể loại X" cũ. Lý do hạ xuống thành một hàng chip:
-  // trang đã đi suốt theo trục THỜI GIAN từ măng sét tới đây; chen mấy băng chuyền xếp theo THỂ LOẠI
-  // vào giữa là đổi trục giữa chừng và quay lại đúng ngôn ngữ kho thẻ mà đặc tả §4 đã bác.
-  // Con số bên cạnh đếm trong CHÍNH danh sách đã tải, và nhãn mục nói rõ như vậy — không trình bày
-  // nó như tổng số buổi diễn của cả sàn (§1).
-  const mucLucDongNhac = useMemo(() => {
-    const nhom = {}
-    allEvents.forEach((ev) => {
-      if (!nhom[ev.genre]) nhom[ev.genre] = []
-      nhom[ev.genre].push(ev)
-    })
-    return Object.keys(nhom)
-      .sort((a, b) => nhom[b].length - nhom[a].length)
-      .map((ten) => {
-        const genreId = nhom[ten][0]?.genreId
-        return {
-          genreId: genreId ? String(genreId) : ten.toLowerCase(),
-          genreName: ten,
-          soBuoiDien: nhom[ten].length,
-          slug: genreId ? `/shows/search?genreId=${genreId}` : `/shows/search?genre=${ten.toLowerCase()}`,
-        }
-      })
-  }, [allEvents])
+  const homNay = dayjs()
+  const dongPhu = dangTai
+    ? 'Đang dò bảng giờ…'
+    : dongBang.length > 0
+      ? `${thuVietHoa(homNay)} ${ngayDayDu(homNay)}, ${dongBang.length} phòng trà sáng đèn`
+      : `${thuVietHoa(homNay)} ${ngayDayDu(homNay)}, chưa phòng trà nào lên đèn`
 
-  const handleApplyFilters = (filters) => {
-    setAppliedFilters(filters)
-    setIsFilterOpen(false)
-    navigate('/shows/search', { state: { appliedFilters: filters } })
-  }
+  const dongNhac = useMemo(() => {
+    const dem = new Map()
+    sapToi.forEach((b) => { if (b.genreId) dem.set(b.genreId, { ten: b.genre, so: (dem.get(b.genreId)?.so || 0) + 1 }) })
+    return [...dem.entries()].sort((a, b) => b[1].so - a[1].so)
+  }, [sapToi])
 
-  const handleApplyDates = (start, end) => {
-    if (start || end) navigate('/shows/search', { state: { startDate: start, endDate: end } })
-  }
-
-  // KHÔNG chặn cả trang bằng một màn skeleton riêng: măng sét, khối biên tập và dải cam kết không
-  // phụ thuộc lượt tải đó. Mỗi khối tự lo trạng thái của mình (đặc tả §2).
   return (
-    <div className="min-h-[60vh] bg-page text-ink">
-      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 pt-4 sm:pt-6">
-        <SectionHeader
-          onOpenFilter={() => setIsFilterOpen(true)}
-          appliedFilters={appliedFilters}
-          startDate={startDate} setStartDate={setStartDate}
-          endDate={endDate} setEndDate={setEndDate}
-          onApplyDates={handleApplyDates}
-        />
-      </div>
+    <div className="bg-stock text-ink">
+      <div className="max-w-[1440px] mx-auto px-4 sm:px-8 pt-10 sm:pt-14 pb-20">
+        {/* ĐÊM NAY — tiêu đề tờ chương trình + bảng giờ diễn chiếm trọn chiều ngang */}
+        <section aria-labelledby="dem-nay">
+          <div className="flex flex-wrap items-end justify-between gap-6 mb-8">
+            <div>
+              <h1 id="dem-nay" className="text-[clamp(3rem,8vw,6rem)] leading-[0.95] text-ink">Đêm nay ở Sài Gòn</h1>
+              <p className="font-mono text-base sm:text-lg mt-3" aria-live="polite">{dongPhu}</p>
+            </div>
+            <Link to="/shows/search" className="inline-flex items-center gap-2 min-h-[44px] px-5 border-2 border-ink font-semibold hover:bg-ink hover:text-cream transition-colors">
+              <SlidersHorizontal size={16} aria-hidden="true" /> Tìm và lọc buổi diễn
+            </Link>
+          </div>
 
-      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 pb-10 sm:pb-16 space-y-8 sm:space-y-12 lg:space-y-16">
-        {/* 1. MĂNG SÉT — ngày hôm nay và một câu nói đêm nay thành phố có gì. Con số lấy từ dữ
-               liệu thật đã tải; không có dữ liệu thì câu đó tự rút gọn chứ không bịa số. */}
-        <MangSet soBuoiDemNay={demDemNay.soBuoi} soPhongTra={demDemNay.soPhongTra} />
-
-        {/* 2. ĐÊM NAY — khối trung tâm, mốc GIỜ chạy dọc bên trái như tờ lịch phát sóng. */}
-        <section>
-          <SectionTitle
-            keDau={false}
-            nhan="Chương trình đêm nay"
-            tieuDe="Xếp theo giờ lên sân khấu"
-            ghiChu="Giờ bên trái là khung giờ, giờ cạnh tên là giờ diễn"
-          />
-          <ChuongTrinhDemNay
-            events={buoiDemNay}
-            dangTai={isLoading}
-            loi={loiTai}
-            onThuLai={() => setReloadKey((k) => k + 1)}
-            daDangNhap={daDangNhap}
-            demGanNhat={demGanNhat}
-            homNay={`${thuVietHoa(dayjs())} ${ngayGon(dayjs())}`}
-          />
-        </section>
-
-        {/* 3. NHỮNG ĐÊM SẮP TỚI — cùng loại dòng, mốc đổi từ GIỜ sang NGÀY.
-               Trả lời câu hỏi thật của người vừa đọc xong đêm nay: "đêm nay tôi bận thì hôm nào có
-               gì?" — thay vì đổi sang trục dòng nhạc giữa chừng. */}
-        <section id="dem-sap-toi" className="scroll-mt-24">
-          <SectionTitle
-            nhan="Những đêm sắp tới"
-            tieuDe="Lịch diễn vài ngày tới"
-            ghiChu="Mốc bên trái là ngày diễn"
-          />
-          <NhungDemSapToi events={allEvents} dangTai={isLoading} daDangNhap={daDangNhap} />
-        </section>
-
-        {/* 4. KHỐI BIÊN TẬP — nền espresso, điểm dừng mắt duy nhất giữa các khối nền sáng (§5). */}
-        {spotlightLounge && (
-          <Reveal>
-            <EditorialSpotlight lounge={spotlightLounge} />
-          </Reveal>
-        )}
-
-        {/* 5. GỢI Ý CÁ NHÂN — CHỈ cho người đã đăng nhập.
-               Bản trước hiện mục "Dành riêng cho bạn" cho cả khách vãng lai. Với người chưa đăng
-               nhập thì backend không có gì để cá nhân hoá, nên nội dung thực chất là thứ phổ biến
-               chung — và cái nhãn "dành riêng cho bạn" lúc đó là một lời nói sai (§1: mọi chữ phải
-               truy được về dữ liệu thật). Không đăng nhập thì mục này không tồn tại, thế là trung
-               thực; chứ không phải đổi tên mục cho êm tai. */}
-        {daDangNhap && recommendEvents.length > 0 && (
-          <Reveal as="section">
-            <EventCarousel title="Dành riêng cho bạn" events={recommendEvents} />
-          </Reveal>
-        )}
-
-        {/* 6. MỤC LỤC DUYỆT — gộp không khí và dòng nhạc vào MỘT mục.
-               Trước đây là hai mục rời nằm cách nhau, dù với người dùng cả hai đều trả lời đúng một
-               câu: "tôi muốn tự tìm theo gu của mình". */}
-        {(moods.length > 0 || atmospheres.length > 0 || mucLucDongNhac.length > 0) && (
-          <Reveal as="section">
-            <SectionTitle
-              nhan="Tự tìm theo gu"
-              tieuDe="Duyệt theo không khí hoặc dòng nhạc"
-              ghiChu="Số bên cạnh đếm trong các đêm sắp tới"
+          <div className="relative">
+            <BangGioDien
+              dong={dongBang}
+              dangTai={dangTai}
+              loi={loiTai}
+              onThuLai={() => setLanTai((n) => n + 1)}
+              daDangNhap={daDangNhap}
+              demGanNhat={demGanNhat}
             />
-            {(moods.length > 0 || atmospheres.length > 0) && (
-              <div className="mb-6">
-                <p className="text-xs font-semibold uppercase tracking-[0.15em] text-ink-mute mb-3">Không khí</p>
-                <MoodExplorer moods={moods} atmospheres={atmospheres} hienTieuDe={false} />
-              </div>
-            )}
-            {mucLucDongNhac.length > 0 && (
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.15em] text-ink-mute mb-3">Dòng nhạc</p>
-                <ul className="flex flex-wrap gap-2.5">
-                  {mucLucDongNhac.map((muc) => (
-                    <li key={muc.genreId}>
-                      <Link
-                        to={muc.slug}
-                        className="inline-flex items-center gap-2 min-h-[44px] pl-4 pr-3.5 rounded-full border border-line bg-card text-sm font-medium text-ink-soft hover:border-brand hover:text-ink transition-colors"
-                      >
-                        {muc.genreName}
-                        <span className="text-xs text-ink-mute tabular-nums">{muc.soBuoiDien}</span>
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </Reveal>
+            {/* Dấu mộc đóng lấn mép trên-phải của bảng, nửa trên giấy vàng (hợp đồng hướng: "dấu mộc đè mép bảng").
+                Đặt TRONG mép phải (right-6) chứ không lấn ra ngoài: bản -right-7 làm trang tràn ngang 6px ở 1440px.
+                -top-7 để không chạm nút "Tìm và lọc" ngay phía trên. Đây là dấu mộc DUY NHẤT của khối — trong hộp đèn
+                đã bỏ (đỏ mộc trên tím than ~2:1). Chỉ từ md: điện thoại hộp đèn in lời hứa giữ hộ bằng chữ. */}
+            <DauMoc
+              vongNgoai="MUSICLOUNGE · TIỀN VÉ GIỮ HỘ · "
+              giua={'GIỮ HỘ\nTỚI KHI DIỄN'}
+              size={104}
+              xoay={-12}
+              className="hidden md:block absolute -top-7 right-6 pointer-events-none"
+            />
+          </div>
+        </section>
+
+        <section aria-labelledby="phong-tra-tren-san" className="mt-24">
+          <TieuDeKhoi id="phong-tra-tren-san" phu={<Link to="/lounges" className="font-semibold underline">Mọi phòng trà</Link>}>
+            Phòng trà trên sàn
+          </TieuDeKhoi>
+          <PhongTraTrenSan daDangNhap={daDangNhap} phongTraSangDen={phongTraSangDen} onTai={khiTaiPhongTra} />
+        </section>
+
+        <section aria-labelledby="lich-tuan-td" id="lich-tuan" className="mt-24 scroll-mt-24">
+          <TieuDeKhoi id="lich-tuan-td" phu={<Link to="/shows" className="font-semibold underline">Mọi buổi diễn</Link>}>
+            Lịch diễn bảy ngày tới
+          </TieuDeKhoi>
+          <LichTuanNay buoiDien={sapToi} dangTai={dangTai} />
+        </section>
+
+        {(gu.moods.length > 0 || gu.atmospheres.length > 0 || dongNhac.length > 0) && (
+          <section aria-labelledby="theo-gu" className="mt-24">
+            <TieuDeKhoi id="theo-gu">Tìm theo gu</TieuDeKhoi>
+            <div className="grid gap-8 md:grid-cols-3">
+              {[
+                ['Dòng nhạc', dongNhac.map(([id, v]) => ({ key: id, ten: v.ten, so: v.so, to: `/shows/search?genreId=${id}` }))],
+                // Trang tìm kiếm nhận tâm trạng/không gian qua location.state theo TÊN (ShowSearchPage: appliedFilters
+                // → namesToIds), không qua query — cùng cách MoodExplorer cũ; dòng nhạc thì đọc ?genreId.
+                ['Tâm trạng', gu.moods.map((m) => ({ key: m.id, ten: m.name, to: '/shows/search', state: { appliedFilters: { ...BO_LOC_TRONG, selectedMoods: [m.name] } } }))],
+                ['Không gian', gu.atmospheres.map((a) => ({ key: a.id, ten: a.name, to: '/shows/search', state: { appliedFilters: { ...BO_LOC_TRONG, selectedSpaces: [a.name] } } }))],
+              ].filter(([, ds]) => ds.length > 0).map(([tieuDe, ds]) => (
+                <div key={tieuDe}>
+                  <h3 className="text-lg mb-3">{tieuDe}</h3>
+                  <ul className="flex flex-wrap gap-2">
+                    {ds.map((x) => (
+                      <li key={x.key}>
+                        <Link to={x.to} state={x.state} className="inline-flex items-center gap-2 min-h-[40px] px-3 border-2 border-ink bg-card text-sm font-medium hover:bg-ink hover:text-cream transition-colors">
+                          {x.ten}
+                          {x.so != null && <span className="font-mono text-xs">{x.so}</span>}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </section>
         )}
 
-        {/* 7. CAM KẾT — ba câu sự thật, đặt sát chân trang vì người ta đọc cam kết lúc đang cân
-               nhắc đặt vé, không phải lúc vừa vào trang. */}
-        <Reveal>
-          <TrustStrip />
-        </Reveal>
-
-        {/* 8. LỐI RA. */}
-        <div className="flex justify-center pt-2">
-          <Link to="/shows"
-            className="inline-flex items-center gap-2 min-h-[44px] px-5 py-2.5 rounded-lg border border-brand/40 text-brand-text text-sm font-bold hover:bg-brand-hover/10 transition-colors">
-            Xem tất cả buổi diễn <ArrowRight size={16} />
-          </Link>
-        </div>
+        <section aria-labelledby="tien-di-dau" className="mt-24">
+          <TieuDeKhoi id="tien-di-dau" phu={<Link to="/minh-bach" className="font-semibold underline">Trang minh bạch</Link>}>
+            Tiền của bạn đi đâu
+          </TieuDeKhoi>
+          <CuongVeCamKet />
+        </section>
       </div>
-
-      <FilterModal isOpen={isFilterOpen} onClose={() => setIsFilterOpen(false)} initialFilters={appliedFilters} onApply={handleApplyFilters} />
     </div>
   )
 }

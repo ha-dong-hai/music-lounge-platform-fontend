@@ -1,50 +1,70 @@
-/* Font heading của bản mới (có thể bỏ nếu không muốn serif) */
 @import "tailwindcss";
 
 /* ===== DESIGN TOKENS — nguồn màu/chữ duy nhất của giao diện =====
-   Hướng "Sáng ấm": nền ngà, chữ nâu espresso, điểm nhấn vàng đồng.
-   Mọi cặp chữ/nền dưới đây đã kiểm đạt WCAG 2.2 AA (chữ thường >= 4.5:1).
-   KHÔNG viết mã màu hex hay lớp bg-gray, bg-black trong component — dùng token này để giao diện
-   luôn đồng bộ và đổi tông một chỗ là đổi cả hệ thống. */
+   Thế giới "TỜ CHƯƠNG TRÌNH CA NHẠC" (chủ dự án chốt 30/09, hợp đồng hướng ở .impeccable/surfaces): giấy tờ bướm
+   vàng hoa cúc + mực ronéo tím than; dấu mộc đỏ CHỈ cho trạng thái tiền; hộp đèn mica (khối mực, chữ sáng) CHỈ cho
+   phòng trà có diễn đêm nay; than hồng CHỈ cho buổi đang diễn. Thay hệ "Sáng ấm" (nền kem + serif) cũ — đó là cụm
+   giao diện mặc định mà máy hay sinh ra.
+   TÊN TOKEN GIỮ NGUYÊN để cả 61 trang đổi thế giới cùng lúc; token mới thêm ở cuối khối.
+   Mọi cặp chữ/nền dưới đây đã tính bằng máy đạt WCAG 2.2 AA (chữ thường >= 4.5:1, 22/22 cặp — 30/09).
+   KHÔNG viết mã màu hex hay lớp bg-gray, bg-black trong component — dùng token này. */
 @theme {
   --color-danger-soft: color-mix(in srgb, var(--color-danger) 12%, var(--color-card));  /* nen nhat cho canh bao; suy tu token, khong bia hex */
-  --color-page: #FBF7F0;          /* nền trang */
-  --color-card: #FFFDF9;          /* thẻ, khung nổi trên nền */
-  --color-sunken: #F3ECE0;        /* ô nhập, vùng lõm, hover nhẹ */
-  --color-line: #E4D9C8;          /* viền thường */
-  --color-line-strong: #CDBFA8;   /* viền nhấn, ô nhập */
+  --color-page: #FFFFFF;          /* giấy trắng — nền mặc định của màn vận hành (Operate) */
+  --color-card: #FFFFFF;          /* tờ giấy nổi */
+  --color-sunken: #F5F3FA;        /* ô nhập, vùng lõm: giấy ánh mực rất nhạt */
+  --color-line: #D6D3E8;          /* đường kẻ mực nhạt */
+  --color-line-strong: #26215A;   /* đường kẻ mực đậm — viền in */
 
-  --color-ink: #2B2118;           /* chữ chính, 14.7:1 trên nền */
-  --color-ink-soft: #5A4838;      /* chữ phụ, 8.1:1 */
-  --color-ink-mute: #75624F;      /* chú thích, 5.4:1 */
+  --color-ink: #26215A;           /* mực ronéo tím than: 14.5:1 trên giấy trắng, 8.9:1 trên giấy vàng */
+  --color-ink-soft: #433D80;      /* 9.5:1 / 5.8:1 */
+  --color-ink-mute: #4D4889;      /* 8.1:1 / 5.0:1 */
 
-  --color-brand: #D4A03A;         /* nền nút chính (chữ on-brand trên đó 6.7:1) */
-  --color-brand-hover: #C18F2B;
-  --color-brand-text: #8A5A12;    /* vàng đồng dùng làm CHỮ/icon trên nền sáng, 5.5:1 */
-  --color-on-brand: #2B2118;
+  --color-brand: #26215A;         /* nền nút chính: khối mực (chữ on-brand sáng đèn trên đó 12:1) */
+  --color-brand-hover: #1B1745;
+  --color-brand-text: #26215A;    /* chữ/icon nhấn trên nền sáng */
+  --color-on-brand: #FFE9A8;
 
-  --color-espresso: #2A1F17;      /* khối đậm có chủ đích: hero, chân trang, thanh bên */
-  --color-espresso-soft: #3A2C21;
-  --color-cream: #F5EDE0;         /* chữ trên khối espresso, 13.8:1 */
-  --color-cream-mute: #BFAE99;    /* chữ phụ trên espresso, 7.4:1 */
-  --color-brand-on-dark: #D9A441; /* vàng dùng làm chữ trên espresso, 7.1:1 */
+  --color-espresso: #26215A;      /* khối đậm có chủ đích: bảng giờ, chân trang, thanh bên */
+  --color-espresso-soft: #332C73;
+  --color-cream: #FFE9A8;         /* chữ "sáng đèn" trên khối mực, 12:1 */
+  --color-cream-mute: #CFC9EE;    /* chữ phụ trên khối mực, 9.2:1 */
+  --color-brand-on-dark: #F4C542; /* vàng giấy dùng làm chữ trên khối mực, 8.9:1 */
 
-  --color-danger: #B3382C;
+  --color-danger: #B3261E;
   --color-success: #2F7A4F;
-  --color-warning: #9A6A10;
+  --color-warning: #8A5A00;
 
-  --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
-  --font-display: 'Playfair Display', Georgia, serif;
-  --shadow-soft: 0 1px 2px rgb(43 33 24 / 0.05), 0 4px 16px rgb(43 33 24 / 0.06);
-  --shadow-lift: 0 2px 4px rgb(43 33 24 / 0.06), 0 12px 32px rgb(43 33 24 / 0.10);
-  /* Glow ấm thay cho đổ bóng cứng — theo lối "Soft Ambient Occlusion" (xem docs/design/TRANG-CHU-BRIEF.md §3):
-     mờ rộng, độ đục thấp, tông vàng đồng thay vì đen thuần. */
-  --shadow-glow: 0 12px 48px -12px rgb(138 90 18 / 0.28);
+  /* Token riêng của thế giới */
+  --color-stock: #F4C542;         /* giấy tờ bướm vàng hoa cúc — phủ trang ở màn công khai (Persuade) */
+  --color-board: #1B1745;         /* mặt bảng giờ diễn, đậm hơn mực một nấc */
+  --color-lamp: #FFE9A8;          /* ánh đèn mica / ô chữ lật */
+  --color-stamp: #C8252C;         /* dấu mộc — CHỈ trạng thái tiền: giữ hộ, đã hoàn, đã quyết toán */
+  --color-ember: #F2682A;         /* than hồng — CHỈ buổi đang diễn */
 
-  /* Hai đường cong chuyển động dùng xuyên suốt thay cho ease/linear mặc định — mô phỏng "expo-out"
-     và "spring" của animejs bằng CSS thuần, không thêm thư viện (lý do: docs/design/TRANG-CHU-BRIEF.md §5). */
+  --font-sans: 'Be Vietnam Pro', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Anton', 'Be Vietnam Pro', sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;  /* chỉ cho giờ, số tiền, số sê-ri — dữ liệu, không trang trí */
+
+  /* Góc in: giấy cắt vuông. Ghi đè thang bo góc của Tailwind để các lớp rounded-lg/xl/2xl rải khắp mã cũ vuông lại
+     theo thế giới mới; rounded-full (ảnh đại diện, chấm) giữ nguyên. */
+  --radius-xs: 1px;
+  --radius-sm: 2px;
+  --radius-md: 2px;
+  --radius-lg: 3px;
+  --radius-xl: 3px;
+  --radius-2xl: 4px;
+  --radius-3xl: 4px;
+
+  /* Bóng của tờ giấy nằm trên mặt bàn: có độ lệch và độ nhoè, tông mực chứ không đen thuần. */
+  --shadow-soft: 0 1px 1px rgb(38 33 90 / 0.06), 0 3px 10px -2px rgb(38 33 90 / 0.10);
+  --shadow-lift: 0 2px 3px rgb(38 33 90 / 0.08), 0 14px 30px -10px rgb(38 33 90 / 0.28);
+  /* Quầng sáng TRONG hộp đèn mica — chỉ dùng cho phòng trà có diễn đêm nay. */
+  --shadow-glow: inset 0 0 0 1px rgb(255 233 168 / 0.30), inset 0 0 60px rgb(255 233 168 / 0.16), 0 10px 30px -12px rgb(27 23 69 / 0.6);
+
+  /* Đường cong chuyển động dùng xuyên suốt thay cho ease/linear mặc định — "expo-out" bằng CSS thuần.
+     ĐÃ BỎ (30/09) --ease-spring (cubic-bezier nảy quá đích): không nơi nào dùng, và giấy in không nảy. */
   --ease-out-soft: cubic-bezier(0.16, 1, 0.3, 1);
-  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 @layer base {
@@ -55,11 +75,20 @@
     font-family: var(--font-sans);
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
+    caret-color: var(--color-ink);
+    /* Chữ số dạng bảng mặc định: giờ, giá, số tiền luôn thẳng cột (kỷ luật "lưới số cố định"). */
+    font-variant-numeric: tabular-nums;
   }
-  h1, h2, h3 { font-family: var(--font-display); letter-spacing: -0.005em; }
-  ::selection { background: rgb(212 160 58 / 0.35); }
+  /* Tiêu đề: chữ khối hẹp của tờ chương trình. Anton chỉ có một độ đậm — phân cấp bằng CỠ, không bằng đậm nhạt. */
+  /* Anton chỉ ở cỡ lớn: dưới ~20px chữ khối hẹp bết lại, nên h3 (nhãn khối, tiêu đề thẻ) dùng chữ thân đậm. */
+  h1, h2 { font-family: var(--font-display); font-weight: 400; letter-spacing: 0; line-height: 1.05; text-wrap: balance; }
+  h3 { font-family: var(--font-sans); font-weight: 700; letter-spacing: -0.01em; text-wrap: balance; }
+  ::selection { background: var(--color-stock); color: var(--color-ink); }
   /* Vòng focus rõ ràng cho người dùng bàn phím — không bao giờ tắt outline mà không thay thế. */
-  :focus-visible { outline: 2px solid var(--color-brand-text); outline-offset: 2px; border-radius: 4px; }
+  :focus-visible { outline: 2px solid var(--color-ink); outline-offset: 2px; border-radius: 2px; }
+  a { text-underline-offset: 3px; }
+  /* Thanh cuộn in theo mực — phần trình duyệt tự vẽ cũng thuộc thế giới. */
+  html { scrollbar-color: var(--color-ink) var(--color-sunken); }
   button, a, [role="button"], select { -webkit-tap-highlight-color: transparent; }
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
@@ -71,22 +100,20 @@
 .chat-scrollbar {
   /* Firefox */
   scrollbar-width: thin;
-  scrollbar-color: rgba(138, 90, 18, 0.45) rgba(43, 33, 24, 0.06);
+  scrollbar-color: rgb(38 33 90 / 0.45) rgb(38 33 90 / 0.06);
 }
 /* Chrome / Edge / Safari */
 .chat-scrollbar::-webkit-scrollbar {
   width: 8px;
 }
 .chat-scrollbar::-webkit-scrollbar-track {
-  background: rgba(43, 33, 24, 0.05);
-  border-radius: 999px;
+  background: rgb(38 33 90 / 0.05);
 }
 .chat-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(138, 90, 18, 0.35);
-  border-radius: 999px;
+  background: rgb(38 33 90 / 0.35);
 }
 .chat-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: rgba(138, 90, 18, 0.65);
+  background: rgb(38 33 90 / 0.65);
 }
 
 /* ===== ẨN MŨI TÊN LÊN/XUỐNG CỦA INPUT NUMBER ===== */
@@ -150,10 +177,10 @@
   font-family: var(--font-display);
   font-size: 3.4em;
   line-height: 0.82;
-  font-weight: 600;
+  font-weight: 400;
   padding-right: 0.08em;
   padding-top: 0.06em;
-  color: var(--color-brand-on-dark);
+  color: var(--color-stamp);
 }
 /* Trên màn hẹp, chữ cái to choán mất dòng đầu nên thu nhỏ lại cho dễ đọc. */
 @media (max-width: 640px) {

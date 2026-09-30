@@ -21,6 +21,7 @@ import {
 import dayjs from 'dayjs'
 import toast from 'react-hot-toast'
 import { lookupPerformerConfirmation, respondToPerformerConfirmation } from '../../services/performerConfirmationServices'
+import Wordmark from '../../components/brand/Wordmark'
 
 const fmtMoney = (v) => `${Number(v || 0).toLocaleString('vi-VN')}đ`
 
@@ -49,7 +50,7 @@ const Khung = ({ children }) => (
     <div className="max-w-xl mx-auto px-4 sm:px-6 py-12">
       <div className="flex items-center gap-2 mb-8">
         <Music2 size={22} className="text-brand-text" />
-        <span className="text-lg font-bold tracking-wide text-brand-text">Phòng Trà Sài Gòn</span>
+        <span className="text-2xl"><Wordmark /></span>
       </div>
       {children}
     </div>
@@ -238,7 +239,7 @@ const PerformerConfirmationPage = () => {
         <label className="flex items-start gap-2 text-xs text-ink-soft cursor-pointer leading-relaxed">
           <input type="checkbox" checked={dongY} onChange={(e) => setDongY(e.target.checked)}
             className="accent-brand mt-0.5 flex-shrink-0" />
-          Tôi đồng ý cho Music Lounge xử lý email và thông tin tài khoản nhận tiền của tôi cho mục đích
+          Tôi đồng ý cho MusicLounge xử lý email và thông tin tài khoản nhận tiền của tôi cho mục đích
           xác nhận khoản chi này.
         </label>
 

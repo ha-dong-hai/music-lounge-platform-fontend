@@ -14,6 +14,7 @@ import { useLocation, useNavigate, Link } from 'react-router-dom'
 import { Mail, Timer, AlertCircle, CheckCircle2, ArrowLeft, Loader2 } from 'lucide-react'
 import { useAuth } from '../../hooks/useAuth'
 import * as aServices from '../../services/aServices'
+import Wordmark from '../../components/brand/Wordmark'
 
 const formatCountdown = (secondsLeft) => {
   const m = Math.max(0, Math.floor(secondsLeft / 60))
@@ -110,8 +111,8 @@ const VerifyEmailPage = () => {
     <div className="min-h-screen flex flex-col bg-page text-ink">
       <header className="w-full border-b border-line bg-card/90 backdrop-blur-md sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 h-16 flex items-center">
-          <Link to="/" aria-label="Phòng Trà Sài Gòn — về trang chủ" className="font-display text-xl sm:text-2xl leading-none tracking-tight text-ink inline-flex items-center min-h-[44px]">
-            Phòng Trà <span className="text-brand-text ml-1.5">Sài Gòn</span>
+          <Link to="/" aria-label="MusicLounge — về trang chủ" className="font-display text-xl sm:text-2xl leading-none tracking-tight text-ink inline-flex items-center min-h-[44px]">
+            <Wordmark />
           </Link>
         </div>
       </header>

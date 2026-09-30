@@ -1,10 +1,11 @@
 import { Search, User, ChevronDown, LogOut, Ticket, Settings, X, Languages, Check, Loader2, Store, LayoutDashboard, Bell, MessageSquareWarning } from 'lucide-react'
 import { useState, useEffect, useRef } from 'react'
-import { Link, useNavigate } from 'react-router-dom' 
+import { Link, NavLink, useNavigate } from 'react-router-dom' 
 import { useAuthStore } from '../store/useAuthStore'
 import toast from 'react-hot-toast'
 import NotificationBell from '../components/notifications/NotificationBell'
 import { getShowSuggestions, getTrendingShows, getRecommendedShows } from '../services/showServices'
+import Wordmark from '../components/brand/Wordmark'
 
 // GỢI Ý TÌM KIẾM — GHI CHÚ CHO ĐỘI FE:
 // - Gọi /lounge-shows/suggestions, trả về { id, name, coverImageUrl }. Chỉ có tên và ảnh, KHÔNG có
@@ -140,12 +141,12 @@ const Header = () => {
   }
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-page/95 backdrop-blur border-b border-line px-4 sm:px-6 py-3 shadow-soft">
-      <div className="flex items-center justify-between gap-4 sm:gap-8">
+    // Đầu trang in trên giấy tờ bướm, kẻ mực dưới chân — không kính mờ (glass là trang trí, không thuộc thế giới giấy in).
+    <header className="sticky top-0 z-50 w-full bg-stock border-b-2 border-ink px-4 sm:px-6 py-3">
+      <div className="flex items-center justify-between gap-2 sm:gap-8">
         <div className="flex items-center gap-4 sm:gap-8 flex-1 min-w-0">
-          <Link to="/" aria-label="Phòng Trà Sài Gòn — về trang chủ" className="font-display text-xl sm:text-2xl leading-none tracking-tight text-ink whitespace-nowrap flex-shrink-0 inline-flex items-center min-h-[44px]">
-            {/* ml-1.5 chứ không phải dấu cách đầu chuỗi: trong `inline-flex` khoảng trắng đầu của phần tử con bị nuốt. */}
-            Phòng Trà<span className="hidden min-[400px]:inline ml-1.5 text-brand-text">Sài Gòn</span>
+          <Link to="/" aria-label="MusicLounge — về trang chủ" className="text-xl sm:text-3xl leading-none whitespace-nowrap flex-shrink-0 inline-flex items-center min-h-[44px]">
+            <Wordmark />
           </Link>
 
           <form onSubmit={handleSearchSubmit} ref={oTimKiemRef} className="relative w-full max-w-md hidden md:block">
@@ -165,7 +166,7 @@ const Header = () => {
               onKeyDown={handleKeyDown}
               autoComplete="off"
               placeholder="Tìm đêm nhạc, phòng trà, nghệ sĩ…"
-              className="w-full pl-11 pr-11 py-2.5 min-h-[44px] bg-sunken text-ink placeholder:text-ink-mute rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-brand transition-all"
+              className="w-full pl-11 pr-11 py-2.5 min-h-[44px] bg-card text-ink placeholder:text-ink-mute border-2 border-ink text-sm focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2 focus:ring-offset-stock transition-all"
             />
             {localSearch && (
               <button type="button" onClick={() => { setLocalSearch(''); setMoGoiY(false) }} className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-soft hover:text-ink">
@@ -175,7 +176,7 @@ const Header = () => {
 
             {/* DANH SÁCH GỢI Ý */}
             {moGoiY && localSearch.trim().length >= 2 && (
-              <div className="absolute top-full left-0 right-0 mt-2 bg-card border border-line rounded-xl shadow-2xl overflow-hidden z-50">
+              <div className="absolute top-full left-0 right-0 mt-2 bg-card border-2 border-ink shadow-lift overflow-hidden z-50">
                 {dangTaiGoiY ? (
                   <div className="py-6 flex justify-center">
                     <Loader2 size={20} className="animate-spin text-brand-text" />
@@ -206,8 +207,8 @@ const Header = () => {
             )}
             {/* GỢI Ý MẶC ĐỊNH — hiện khi bấm vào ô mà chưa gõ đủ 2 ký tự */}
             {moGoiY && localSearch.trim().length < 2 && goiYMacDinh.items.length > 0 && (
-              <div className="absolute top-full left-0 right-0 mt-2 bg-card border border-line rounded-xl shadow-lift overflow-hidden z-50">
-                <p className="px-4 pt-3 pb-1 text-xs font-semibold uppercase tracking-[0.12em] text-ink-mute">
+              <div className="absolute top-full left-0 right-0 mt-2 bg-card border-2 border-ink shadow-lift overflow-hidden z-50">
+                <p className="px-4 pt-3 pb-1 text-sm font-semibold text-ink-mute">
                   {goiYMacDinh.kieu === 'ca-nhan' ? 'Gợi ý riêng cho bạn' : 'Đang được quan tâm'}
                 </p>
                 <ul>
@@ -235,20 +236,42 @@ const Header = () => {
               </div>
             )}
           </form>
+
+          {/* MENU CHÍNH — hai lời hứa ngang nhau (PRODUCT.md) nên "Minh bạch" đứng cạnh Phòng trà / Buổi diễn, không chỉ
+              nằm ở chân trang. Chỉ từ xl (1280px): hẹp hơn thì ô tìm kiếm + nút tài khoản đã chiếm hết hàng.
+              CỐ Ý CHƯA LÀM menu cho điện thoại/máy bảng: ba đường dẫn này có ở chân trang mọi trang công khai; menu trượt
+              (Sheet của shadcn/Radix) sẽ làm cùng đợt dựng shadcn khi lan thiết kế ra các trang khác. */}
+          <nav aria-label="Menu chính" className="hidden xl:flex items-center gap-1 flex-shrink-0">
+            {[
+              { to: '/lounges', nhan: 'Phòng trà' },
+              { to: '/shows', nhan: 'Buổi diễn' },
+              { to: '/minh-bach', nhan: 'Minh bạch' },
+            ].map((m) => (
+              <NavLink
+                key={m.to}
+                to={m.to}
+                className={({ isActive }) =>
+                  `inline-flex items-center min-h-[44px] px-3 text-sm font-semibold text-ink underline-offset-[6px] decoration-2 hover:underline whitespace-nowrap ${isActive ? 'underline' : ''}`
+                }
+              >
+                {m.nhan}
+              </NavLink>
+            ))}
+          </nav>
         </div>
 
         <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
-          <Link to="/shows/search" aria-label="Tìm kiếm" className="md:hidden w-11 h-11 inline-flex items-center justify-center rounded-full text-ink-soft hover:bg-sunken hover:text-ink transition-colors">
+          <Link to="/shows/search" aria-label="Tìm kiếm" className="md:hidden w-11 h-11 inline-flex items-center justify-center text-ink hover:bg-ink hover:text-cream transition-colors">
             <Search size={20} />
           </Link>
-          <Link to="/my-shows" className="bg-transparent hover:bg-brand-hover hover:text-on-brand text-brand-text border border-brand px-5 min-h-[44px] rounded-full text-sm font-medium transition-colors hidden sm:inline-flex items-center">
+          <Link to="/my-shows" className="bg-transparent hover:bg-ink hover:text-cream text-ink border-2 border-ink px-5 min-h-[44px] text-sm font-semibold transition-colors hidden sm:inline-flex items-center">
             Vé của tôi
           </Link>
 
           {!user ? (
             <div className="flex items-center gap-2">
-              <Link to="/login" className="text-sm font-medium text-ink-soft hover:text-ink px-3 min-h-[44px] inline-flex items-center rounded-xl border border-transparent hover:bg-sunken transition-all">Đăng nhập</Link>
-              <Link to="/register" className="bg-brand text-on-brand px-4 min-h-[44px] inline-flex items-center rounded-full text-sm font-semibold hover:bg-brand-hover transition-colors shadow-soft">Đăng ký</Link>
+              <Link to="/login" className="text-sm font-semibold text-ink hover:underline underline-offset-4 px-2 sm:px-3 min-h-[44px] inline-flex items-center whitespace-nowrap">Đăng nhập</Link>
+              <Link to="/register" className="bg-ink text-cream px-3 sm:px-5 min-h-[44px] inline-flex items-center whitespace-nowrap text-sm font-semibold hover:bg-brand-hover transition-colors">Đăng ký</Link>
             </div>
           ) : (
             <>
@@ -319,7 +342,7 @@ const Header = () => {
           )}
 
           <div className="relative hidden sm:block">
-            <button onClick={() => setIsLangOpen(!isLangOpen)} className="flex items-center gap-1.5 px-3 min-h-[44px] rounded-full border border-line hover:border-brand text-sm font-medium text-ink-soft hover:text-brand-text transition-colors">
+            <button onClick={() => setIsLangOpen(!isLangOpen)} className="flex items-center gap-1.5 px-3 min-h-[44px] border-2 border-transparent hover:border-ink text-sm font-medium text-ink transition-colors">
               <Languages size={16} />
               <span>{currentLang === 'vi' ? 'VN' : 'EN'}</span>
               <ChevronDown size={14} className={`transition-transform duration-200 ${isLangOpen ? 'rotate-180' : ''}`} />
