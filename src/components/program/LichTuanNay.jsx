@@ -21,16 +21,18 @@ const LichTuanNay = ({ buoiDien = [], dangTai }) => {
   }
 
   return (
-    <div className="border-2 border-ink overflow-x-auto">
+    // `relative` là BẮT BUỘC: bảng có nhãn sr-only (position: absolute). Khung cuộn không phải khối chứa của nó thì
+    // nhãn thoát khỏi vùng cắt overflow và kéo CẢ TRANG rộng ra (đo 30/09: 530px trên màn 390px — chỉ lộ khi bảng có dữ liệu).
+    <div className="relative border-2 border-ink overflow-x-auto">
       <table className="w-full min-w-[640px] text-left">
         <caption className="sr-only">Lịch diễn bảy ngày tới, theo ngày và giờ</caption>
         <thead className="bg-ink text-lamp text-sm">
           <tr>
             <th scope="col" className="font-semibold px-4 py-3 w-40">Ngày</th>
             <th scope="col" className="font-semibold px-4 py-3">Phòng trà</th>
-            <th scope="col" className="font-semibold px-4 py-3">Người hát</th>
+            <th scope="col" className="font-semibold px-4 py-3">Buổi diễn</th>
             <th scope="col" className="font-semibold px-4 py-3 w-24">Giờ</th>
-            <th scope="col" className="px-4 py-3 w-28"><span className="sr-only">Đặt vé</span></th>
+            <th scope="col" className="px-4 py-3 w-36"><span className="sr-only">Đặt vé</span></th>
           </tr>
         </thead>
         <tbody>
@@ -45,10 +47,16 @@ const LichTuanNay = ({ buoiDien = [], dangTai }) => {
                   <span className="font-display text-xl leading-none">{b.loungeName || b.title}</span>
                   {b.district && <span className="block text-xs text-ink-soft mt-1">{b.district}</span>}
                 </td>
-                <td className="px-4 py-3 text-sm">{b.performers?.length ? b.performers.join(', ') : b.title}</td>
+                {/* TÊN BUỔI trước, người hát sau: bản trước chỉ in người hát, nên có dữ liệu thật (30/09) mới lộ ra là
+                    khán giả không biết đêm đó diễn gì. Chưa có line-up thì chỉ in tên buổi, không in câu giữ chỗ. */}
+                <td className="px-4 py-3">
+                  <span className="block font-semibold">{b.title}</span>
+                  {b.performers?.length > 0 && <span className="block text-sm text-ink-soft mt-0.5">{b.performers.join(', ')}</span>}
+                </td>
                 <td className="px-4 py-3 font-mono">{gioTrongNgay(b.start_date)}</td>
                 <td className="px-4 py-3 text-right">
-                  <Link to={`/shows/${b.id}`} className="font-semibold underline underline-offset-4 decoration-2 hover:text-board">Xem và đặt</Link>
+                  {/* whitespace-nowrap + cột w-36: cột w-28 làm "Xem và đặt" gãy thành hai dòng. */}
+                  <Link to={`/shows/${b.id}`} className="whitespace-nowrap font-semibold underline underline-offset-4 decoration-2 hover:text-board">Xem và đặt</Link>
                 </td>
               </tr>
             )

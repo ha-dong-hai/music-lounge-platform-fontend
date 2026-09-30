@@ -1,4 +1,4 @@
-import { Search, User, ChevronDown, LogOut, Ticket, Settings, X, Languages, Check, Loader2, Store, LayoutDashboard, Bell, MessageSquareWarning } from 'lucide-react'
+import { Search, User, ChevronDown, LogOut, Ticket, Settings, X, Menu, Languages, Check, Loader2, Store, LayoutDashboard, Bell, MessageSquareWarning } from 'lucide-react'
 import { useState, useEffect, useRef } from 'react'
 import { Link, NavLink, useNavigate } from 'react-router-dom' 
 import { useAuthStore } from '../store/useAuthStore'
@@ -17,6 +17,13 @@ import Wordmark from '../components/brand/Wordmark'
 const DO_TRE_GOI_Y = 300
 
 // ⭐ BỎ PROPS searchQuery, setSearchQuery ĐI
+// Menu chính — một nguồn cho cả hàng liên kết (≥1280px) và bảng menu (hẹp hơn).
+const MENU_CHINH = [
+  { to: '/lounges', nhan: 'Phòng trà' },
+  { to: '/shows', nhan: 'Buổi diễn' },
+  { to: '/minh-bach', nhan: 'Minh bạch' },
+]
+
 const Header = () => {
   const { user, logout } = useAuthStore()
   const navigate = useNavigate() //
@@ -37,6 +44,14 @@ const Header = () => {
   const [isLangOpen, setIsLangOpen] = useState(false)
   const [currentLang, setCurrentLang] = useState(localStorage.getItem('lang') || 'vi')
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
+  const [moMenu, setMoMenu] = useState(false)
+  // Esc đóng bảng menu — người dùng bàn phím không phải tab ngược về nút để đóng.
+  useEffect(() => {
+    if (!moMenu) return
+    const khiBam = (e) => { if (e.key === 'Escape') setMoMenu(false) }
+    window.addEventListener('keydown', khiBam)
+    return () => window.removeEventListener('keydown', khiBam)
+  }, [moMenu])
 
   // Gõ tới đâu gợi ý tới đó, nhưng chỉ gọi API sau khi người dùng ngừng gõ 300ms.
   // Cờ "đang tải" được bật trong handler onChange (hành động của người dùng) chứ không trong effect:
@@ -238,15 +253,11 @@ const Header = () => {
           </form>
 
           {/* MENU CHÍNH — hai lời hứa ngang nhau (PRODUCT.md) nên "Minh bạch" đứng cạnh Phòng trà / Buổi diễn, không chỉ
-              nằm ở chân trang. Chỉ từ xl (1280px): hẹp hơn thì ô tìm kiếm + nút tài khoản đã chiếm hết hàng.
-              CỐ Ý CHƯA LÀM menu cho điện thoại/máy bảng: ba đường dẫn này có ở chân trang mọi trang công khai; menu trượt
-              (Sheet của shadcn/Radix) sẽ làm cùng đợt dựng shadcn khi lan thiết kế ra các trang khác. */}
+              nằm ở chân trang. Từ xl (1280px) hiện thành hàng; hẹp hơn thì ô tìm kiếm + nút tài khoản đã chiếm hết
+              hàng, nên ba liên kết nằm trong bảng mở bằng nút "Menu" (pre-mortem 30/09, T7: dưới 1280px trước đây
+              KHÔNG có đường nào tới "Minh bạch" ngoài chân trang). */}
           <nav aria-label="Menu chính" className="hidden xl:flex items-center gap-1 flex-shrink-0">
-            {[
-              { to: '/lounges', nhan: 'Phòng trà' },
-              { to: '/shows', nhan: 'Buổi diễn' },
-              { to: '/minh-bach', nhan: 'Minh bạch' },
-            ].map((m) => (
+            {MENU_CHINH.map((m) => (
               <NavLink
                 key={m.to}
                 to={m.to}
@@ -271,7 +282,8 @@ const Header = () => {
           {!user ? (
             <div className="flex items-center gap-2">
               <Link to="/login" className="text-sm font-semibold text-ink hover:underline underline-offset-4 px-2 sm:px-3 min-h-[44px] inline-flex items-center whitespace-nowrap">Đăng nhập</Link>
-              <Link to="/register" className="bg-ink text-lamp px-3 sm:px-5 min-h-[44px] inline-flex items-center whitespace-nowrap text-sm font-semibold hover:bg-board transition-colors">Đăng ký</Link>
+              {/* Dưới sm "Đăng ký" nằm trong bảng menu: hàng đầu trang 390px không đủ chỗ cho cả nút Menu lẫn hai nút này. */}
+              <Link to="/register" className="bg-ink text-lamp px-3 sm:px-5 min-h-[44px] hidden sm:inline-flex items-center whitespace-nowrap text-sm font-semibold hover:bg-board transition-colors">Đăng ký</Link>
             </div>
           ) : (
             <>
@@ -359,8 +371,43 @@ const Header = () => {
             )}
           </div>
 
+          <button
+            type="button"
+            onClick={() => setMoMenu((v) => !v)}
+            aria-expanded={moMenu}
+            aria-controls="menu-chinh-hep"
+            aria-label={moMenu ? 'Đóng menu' : 'Mở menu'}
+            className="xl:hidden w-11 h-11 inline-flex items-center justify-center text-ink border-2 border-ink hover:bg-ink hover:text-lamp transition-colors"
+          >
+            {moMenu ? <X size={20} aria-hidden="true" /> : <Menu size={20} aria-hidden="true" />}
+          </button>
         </div>
       </div>
+
+      {/* BẢNG MENU cho màn hình dưới 1280px — nằm trong dòng chảy của đầu trang (đẩy nội dung xuống), không phải lớp phủ:
+          không cần bẫy focus, đóng bằng Esc / bấm liên kết / bấm lại nút. */}
+      {moMenu && (
+        <nav id="menu-chinh-hep" aria-label="Menu chính" className="xl:hidden mt-3 border-t-2 border-ink pt-2">
+          <ul>
+            {MENU_CHINH.map((m) => (
+              <li key={m.to}>
+                <NavLink to={m.to} onClick={() => setMoMenu(false)}
+                  className={({ isActive }) => `flex items-center min-h-[48px] px-1 text-base font-semibold text-ink border-b border-ink/15 ${isActive ? 'underline decoration-2 underline-offset-[6px]' : ''}`}>
+                  {m.nhan}
+                </NavLink>
+              </li>
+            ))}
+            <li className="sm:hidden">
+              <Link to="/my-shows" onClick={() => setMoMenu(false)} className="flex items-center min-h-[48px] px-1 text-base font-semibold text-ink border-b border-ink/15">Vé của tôi</Link>
+            </li>
+            {!user && (
+              <li className="sm:hidden">
+                <Link to="/register" onClick={() => setMoMenu(false)} className="flex items-center min-h-[48px] px-1 text-base font-semibold text-ink">Đăng ký</Link>
+              </li>
+            )}
+          </ul>
+        </nav>
+      )}
       {(isLangOpen || isUserMenuOpen) && <div className="fixed inset-0 z-40" onClick={() => { setIsLangOpen(false); setIsUserMenuOpen(false) }} />}
     </header>
   )
