@@ -3,8 +3,16 @@ import { X, Check, Loader2, ShieldAlert, AlertTriangle } from 'lucide-react'
 import dayjs from 'dayjs'
 import { AIScoreCircle, RiskLevelBadge, AiRecommendationBadge } from '../shows/ShowBadges'
 
+// SỬA 01/10/2026: ReviewShowCommandValidator BẮT BUỘC ReviewNote khi Rejected, và ReviewShowCommandHandler gửi nguyên văn
+// lý do cho chủ phòng trà. Bản cũ ghi "Ghi chú duyệt (không bắt buộc)" → bấm Từ chối không lý do thì nhận 400. Nay chặn
+// sớm, lỗi in dưới ô, và nói rõ ai đọc lý do.
 const ModerationModal = ({ moderation, onClose, onDecision, isProcessing }) => {
   const [reviewNote, setReviewNote] = useState('')
+  const [loiLyDo, setLoiLyDo] = useState(null)
+  const tuChoi = () => {
+    if (!reviewNote.trim()) { setLoiLyDo('Từ chối thì phải ghi lý do — chủ phòng trà đọc đúng câu này để sửa.'); return }
+    onDecision('reject', reviewNote.trim())
+  }
 
   if (!moderation) return null
 
@@ -23,7 +31,7 @@ const ModerationModal = ({ moderation, onClose, onDecision, isProcessing }) => {
           </div>
           <div className="flex-1 min-w-0">
             <h2 className="text-3xl text-ink">Duyệt nội dung</h2>
-            <p className="text-sm text-ink-mute">Show #{moderation.targetId} • Need Admin approval</p>
+            <p className="text-sm text-ink-mute">Buổi diễn #{moderation.targetId} · chờ quản trị viên duyệt</p>
           </div>
           <button onClick={onClose} disabled={isProcessing} className="p-2 hover:bg-sunken text-ink-soft disabled:opacity-30" aria-label="Đóng">
             <X size={20} />
@@ -69,22 +77,25 @@ const ModerationModal = ({ moderation, onClose, onDecision, isProcessing }) => {
 
           {/* Ghi chú duyệt */}
           <div>
-            <label className="block text-sm font-medium text-ink-soft mb-2">Ghi chú duyệt (không bắt buộc)</label>
-            <textarea aria-label="Ghi chú duyệt (không bắt buộc)"
-              rows={3}
+            <label htmlFor="ghi-chu-duyet" className="block font-semibold text-ink">Lý do / ghi chú</label>
+            <p id="ghi-chu-duyet-goi-y" className="text-sm text-ink-soft mb-1">Bắt buộc khi từ chối. Được gửi nguyên văn cho chủ phòng trà.</p>
+            <textarea id="ghi-chu-duyet"
+              rows={3} maxLength={1000}
               value={reviewNote}
-              onChange={(e) => setReviewNote(e.target.value)}
-              placeholder="Lý do duyệt hoặc từ chối…"
+              onChange={(e) => { setReviewNote(e.target.value); setLoiLyDo(null) }}
               disabled={isProcessing}
-              className="w-full px-4 py-2.5 bg-page border border-line text-ink text-sm focus:outline-none focus:border-ink/50 resize-none disabled:opacity-50"
+              aria-invalid={loiLyDo ? 'true' : undefined}
+              aria-describedby={`ghi-chu-duyet-goi-y${loiLyDo ? ' ghi-chu-duyet-loi' : ''}`}
+              className={`w-full px-3 py-2 bg-card border-2 text-ink resize-none focus:outline-none focus:ring-2 focus:ring-ink disabled:opacity-50 ${loiLyDo ? 'border-danger' : 'border-ink'}`}
             />
+            {loiLyDo && <p id="ghi-chu-duyet-loi" className="mt-1 text-sm font-semibold text-danger">{loiLyDo}</p>}
           </div>
         </div>
 
         {/* ===== FOOTER: 2 NÚT ===== */}
         <div className="flex-none flex flex-col sm:flex-row gap-3 p-6 border-t border-line">
           <button
-            onClick={() => onDecision('approve', reviewNote)}
+            type="button" onClick={() => onDecision('approve', reviewNote.trim())}
             disabled={isProcessing}
             className="flex-1 py-3 bg-success text-lamp font-bold hover:bg-success transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
@@ -93,7 +104,7 @@ const ModerationModal = ({ moderation, onClose, onDecision, isProcessing }) => {
               : <><Check size={18} strokeWidth={3} /> Duyệt</>}
           </button>
           <button
-            onClick={() => onDecision('reject', reviewNote)}
+            type="button" onClick={tuChoi}
             disabled={isProcessing}
             className="flex-1 py-3 bg-danger text-lamp font-bold hover:bg-danger transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >

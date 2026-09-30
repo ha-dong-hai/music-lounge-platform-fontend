@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { AlertTriangle, Check, X, Eye, Loader2, ChevronLeft, ChevronRight } from 'lucide-react'
 import dayjs from 'dayjs'
 import toast from 'react-hot-toast'
+import HopXacNhan from '../../shared/HopXacNhan'
 import { getPendingModerations, reviewLivestreamModeration, reviewTicketTier } from '../../../services/adminServices'
 import { FormatBadge } from './ShowBadges'
 
@@ -67,10 +68,25 @@ const PendingModerationTab = () => {
 
   // Duyệt HẠNG VÉ. Hạng vé chưa duyệt KHÔNG được tính vào khoảng giá hiện trên thẻ buổi diễn,
   // nên bỏ quên hàng đợi này là vé của chủ phòng trà không bán được mà họ không hiểu vì sao.
-  const handleReviewTier = async (tierId, decision) => {
+  // SỬA 01/10/2026: Review{TicketTier,Livestream}CommandValidator BẮT BUỘC ReviewNote khi Rejected ("Phải ghi lý do khi
+  // từ chối"), nhưng bản cũ gọi service với reviewNote mặc định '' → nút Từ chối LUÔN trả 400, Admin không từ chối được
+  // hạng vé hay buổi phát nào. Lý do được gửi nguyên văn cho chủ phòng trà (NotifyAsync trong hai handler). Nay Từ chối
+  // mở HopXacNhan có ô lý do bắt buộc.
+  const [tuChoi, setTuChoi] = useState(null) // { loai: 'tier' | 'ls', id }
+  const [lyDo, setLyDo] = useState('')
+  const [loiLyDo, setLoiLyDo] = useState(null)
+  const guiTuChoi = async () => {
+    if (!lyDo.trim()) { setLoiLyDo('Ghi lý do — chủ phòng trà đọc đúng câu này để sửa.'); return }
+    const { loai, id } = tuChoi
+    if (loai === 'tier') await handleReviewTier(id, 'Rejected', lyDo.trim())
+    else await handleReviewLivestream(id, 'Rejected', lyDo.trim())
+    setTuChoi(null)
+  }
+
+  const handleReviewTier = async (tierId, decision, note = '') => {
     setBusyId(tierId)
     try {
-      await reviewTicketTier(tierId, decision)
+      await reviewTicketTier(tierId, decision, note)
       toast.success(decision === 'Approved' ? 'Đã duyệt hạng vé.' : 'Đã từ chối hạng vé.')
       await fetchPending()
     } catch (err) {
@@ -80,11 +96,11 @@ const PendingModerationTab = () => {
     }
   }
 
-  const handleReviewLivestream = async (livestreamId, decision) => {
+  const handleReviewLivestream = async (livestreamId, decision, note = '') => {
     setBusyId(livestreamId)
     try {
-      await reviewLivestreamModeration(livestreamId, decision)
-      toast.success(decision === 'Approved' ? 'Đã duyệt livestream.' : 'Đã từ chối livestream.')
+      await reviewLivestreamModeration(livestreamId, decision, note)
+      toast.success(decision === 'Approved' ? 'Đã duyệt buổi phát.' : 'Đã từ chối buổi phát.')
       fetchPending()
     } catch (err) {
       toast.error(err.response?.data?.message || 'Thao tác thất bại.')
@@ -141,8 +157,8 @@ const PendingModerationTab = () => {
                 items.map(item => (
                   <tr key={item.id} className="border-b border-line hover:bg-card/50 transition-colors">
                     <td className="p-4 text-ink font-medium">
-                      {targetType} #{item.targetId}
-                      <p className="text-xs text-ink-mute mt-1">Created: {dayjs(item.createdAt).format('HH:mm DD/MM/YYYY')}</p>
+                      {{ Show: 'Buổi diễn', Livestream: 'Buổi phát', TicketTier: 'Hạng vé' }[targetType] ?? targetType} #{item.targetId}
+                      <p className="text-xs text-ink-mute mt-1">Tạo lúc {dayjs(item.createdAt).format('HH:mm DD/MM/YYYY')}</p>
                     </td>
                     <td className="p-4"><FormatBadge format={item.format} /></td>
                     <td className="p-4"><RiskLevelBadge level={item.riskLevel} /></td>
@@ -170,7 +186,7 @@ const PendingModerationTab = () => {
                             <Check size={14} /> Duyệt
                           </button>
                           <button
-                            onClick={() => handleReviewTier(item.targetId, 'Rejected')}
+                            type="button" onClick={() => { setLyDo(''); setLoiLyDo(null); setTuChoi({ loai: 'tier', id: item.targetId }) }}
                             disabled={busyId === item.targetId}
                             className="inline-flex items-center gap-1.5 bg-danger/10 border border-danger/40 text-danger px-3 py-1.5 rounded-md text-xs font-bold hover:bg-danger/20 disabled:opacity-50"
                           >
@@ -182,7 +198,7 @@ const PendingModerationTab = () => {
                           to={`/admin/shows/${item.targetId}`}
                           className="inline-flex items-center gap-1.5 bg-ink text-lamp px-3 py-1.5 rounded-md text-xs font-bold hover:bg-board transition-colors"
                         >
-                          <Eye size={14} /> Review
+                          <Eye size={14} aria-hidden="true" /> Xem và duyệt
                         </Link>
                       ) : (
                         <div className="flex items-center justify-end gap-2">
@@ -191,14 +207,14 @@ const PendingModerationTab = () => {
                             disabled={busyId === item.targetId}
                             className="inline-flex items-center gap-1.5 bg-success/10 border border-success/40 text-success px-3 py-1.5 rounded-md text-xs font-bold hover:bg-success/20 disabled:opacity-50"
                           >
-                            <Check size={14} /> Approve
+                            <Check size={14} aria-hidden="true" /> Duyệt
                           </button>
                           <button
-                            onClick={() => handleReviewLivestream(item.targetId, 'Rejected')}
+                            type="button" onClick={() => { setLyDo(''); setLoiLyDo(null); setTuChoi({ loai: 'ls', id: item.targetId }) }}
                             disabled={busyId === item.targetId}
                             className="inline-flex items-center gap-1.5 bg-danger/10 border border-danger/40 text-danger px-3 py-1.5 rounded-md text-xs font-bold hover:bg-danger/20 disabled:opacity-50"
                           >
-                            <X size={14} /> Reject
+                            <X size={14} aria-hidden="true" /> Từ chối
                           </button>
                         </div>
                       )}
@@ -238,6 +254,16 @@ const PendingModerationTab = () => {
           </div>
         )}
       </div>
+      <HopXacNhan mo={!!tuChoi} dangXuLy={busyId != null} nhanGiu="Không, quay lại"
+        tieuDe={tuChoi?.loai === 'tier' ? `Từ chối hạng vé #${tuChoi?.id}?` : `Từ chối buổi phát #${tuChoi?.id}?`}
+        nhanXacNhan="Từ chối" onDong={() => setTuChoi(null)} onXacNhan={guiTuChoi}>
+        <label htmlFor="ly-do-tu-choi" className="block font-semibold text-ink">Lý do <span className="text-danger" aria-hidden="true">*</span><span className="sr-only"> (bắt buộc)</span></label>
+        <p id="ly-do-tu-choi-goi-y" className="text-sm">Gửi nguyên văn cho chủ phòng trà.</p>
+        <textarea id="ly-do-tu-choi" rows={3} maxLength={1000} value={lyDo} onChange={(e) => { setLyDo(e.target.value); setLoiLyDo(null) }}
+          aria-invalid={loiLyDo ? 'true' : undefined} aria-describedby={`ly-do-tu-choi-goi-y${loiLyDo ? ' ly-do-tu-choi-loi' : ''}`}
+          className={`mt-1 w-full px-3 py-2 bg-card border-2 text-ink resize-none focus:outline-none focus:ring-2 focus:ring-ink ${loiLyDo ? 'border-danger' : 'border-ink'}`} />
+        {loiLyDo && <p id="ly-do-tu-choi-loi" className="mt-1 text-sm font-semibold text-danger">{loiLyDo}</p>}
+      </HopXacNhan>
     </div>
   )
 }
