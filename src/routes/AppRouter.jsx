@@ -184,7 +184,11 @@ const AppRouter = createBrowserRouter([
   // Trang thử nghiệm nội bộ, CHỈ tồn tại khi chạy `vite` (dev) — bản build production loại bỏ hẳn dòng này
   // và cả trang, nên không lộ ra cho người dùng cuối. Xem pages/dev/Stage360Playground.jsx.
   ...(import.meta.env.DEV
-    ? [{ path: '/__dev/stage360', lazy: async () => ({ Component: (await import('../pages/dev/Stage360Playground')).default }) }]
+    ? [
+        { path: '/__dev/stage360', lazy: async () => ({ Component: (await import('../pages/dev/Stage360Playground')).default }) },
+        // Thử TanStack Table 9 + Query trước khi dùng cho bảng thật (lỗi #6601) — xem pages/dev/ThuBangTanstack.jsx.
+        { path: '/__dev/bang', lazy: async () => ({ Component: (await import('../pages/dev/ThuBangTanstack')).default }) },
+      ]
     : []),
 
   // BẮT TẤT CẢ — phải nằm CUỐI CÙNG. Không có nó thì mọi URL sai ra trang trắng hoàn toàn:
