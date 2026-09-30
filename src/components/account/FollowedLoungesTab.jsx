@@ -1,162 +1,155 @@
-import { useState, useEffect } from 'react'
+// src/components/account/FollowedLoungesTab.jsx
+//
+// LÀM LẠI 30/09/2026:
+// - Sửa lỗi: khối catch của "Tắt thông báo" không nhận `err` mà vẫn đọc `err.response` → ReferenceError, lỗi mạng
+//   biến thành lỗi JavaScript không ai thấy thay vì một thông báo.
+// - Hai nút nằm TRONG <Link> (HTML cấm phần tử tương tác lồng nhau; bản cũ phải chặn preventDefault) → mỗi phòng
+//   trà là một dòng: tên là liên kết, hai nút đứng riêng bên phải.
+// - Tải hỏng là trạng thái riêng có nút thử lại (bản cũ console.log rồi in "Bạn chưa theo dõi phòng trà nào" — sai).
+// - "Tắt thông báo" là nút bật/tắt có aria-pressed; bỏ theo dõi xong có thể hoàn tác ngay trong thông báo.
+import { useState, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
-import { Building2, UserMinus, Loader2, ChevronRight, Compass, Bell, BellOff } from 'lucide-react'
-import Skeleton from '../shared/Skeleton'
 import toast from 'react-hot-toast'
+import { BellOff, Bell } from 'lucide-react'
 import { getFollowedLounges, toggleFollowLounge, getMutedLounges, muteLounge, unmuteLounge } from '../../services/interactionServices'
 import { anhChuCai } from '../../utils/anhChuCai'
 
+const NUT = 'inline-flex items-center justify-center gap-1.5 min-h-[44px] px-3 border-2 text-sm font-semibold transition-colors disabled:opacity-60'
+
 const FollowedLoungesTab = () => {
-  const [followedLounges, setFollowedLounges] = useState([])
-  const [isLoadingLounges, setIsLoadingLounges] = useState(true)
-  const [unfollowingId, setUnfollowingId] = useState(null)
-  // Tat thong bao KHAC voi bo theo doi: van theo doi de phong tra con trong danh sach,
-  // nhung khong nhan thong bao moi lan ho dang buoi dien moi.
+  const [ds, setDs] = useState([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [loiTai, setLoiTai] = useState(false)
+  const [dangBo, setDangBo] = useState(null)
+  // Tắt thông báo KHÁC với bỏ theo dõi: vẫn theo dõi để phòng trà còn trong danh sách,
+  // nhưng không nhận thông báo mỗi lần họ đăng buổi diễn mới.
   const [mutedIds, setMutedIds] = useState([])
-  const [mutingId, setMutingId] = useState(null)
+  const [dangTat, setDangTat] = useState(null)
 
-  // GỌI API LẤY DANH SÁCH PHÒNG TRÀ ĐANG THEO DÕI (chuyên trách của tab này)
-  useEffect(() => {
-    const fetchFollows = async () => {
-      setIsLoadingLounges(true)
-      try {
-        const res = await getFollowedLounges({ page: 1, pageSize: 100 })
-        if (res.success) {
-          setFollowedLounges(res.data.items || [])
-        }
-      } catch {
-        console.log("Error loading the following list")
-      } finally {
-        setIsLoadingLounges(false)
-      }
-    }
-    fetchFollows()
-  }, [])
-
-  // UNFOLLOW — optimistic update: xóa khỏi list ngay, lỗi thì rollback
-  useEffect(() => {
-    const chay = async () => {
-      try {
-        const res = await getMutedLounges()
-        if (res.success) setMutedIds((res.data ?? []).map((m) => m.loungeId ?? m.id))
-      } catch {
-        // Khong lam phien nguoi dung vi mot danh sach phu — im lang bo qua.
-      }
-    }
-    chay()
-  }, [])
-
-  const handleToggleMute = async (e, lounge) => {
-    e.preventDefault()
-    e.stopPropagation()
-    if (mutingId) return
-    const dangTat = mutedIds.includes(lounge.id)
-    setMutingId(lounge.id)
+  const load = useCallback(async () => {
+    setIsLoading(true)
+    setLoiTai(false)
     try {
-      if (dangTat) {
+      const res = await getFollowedLounges({ page: 1, pageSize: 100 })
+      if (!res.success) throw new Error('theo-doi')
+      setDs(res.data.items || [])
+    } catch {
+      setLoiTai(true)
+    } finally {
+      setIsLoading(false)
+    }
+    try {
+      const res = await getMutedLounges()
+      if (res.success) setMutedIds((res.data ?? []).map((m) => m.loungeId ?? m.id))
+    } catch {
+      // Danh sách phụ: hỏng thì mọi nút hiện "Tắt thông báo" — bấm vẫn đúng, chỉ không biết trạng thái cũ.
+    }
+  }, [])
+
+  useEffect(() => { const chay = async () => { await load() }; chay() }, [load])
+
+  const doiThongBao = async (lounge) => {
+    if (dangTat) return
+    const daTat = mutedIds.includes(lounge.id)
+    setDangTat(lounge.id)
+    try {
+      if (daTat) {
         await unmuteLounge(lounge.id)
         setMutedIds((p) => p.filter((x) => x !== lounge.id))
-        toast.success('Đã bật lại thông báo.')
       } else {
         await muteLounge(lounge.id)
         setMutedIds((p) => [...p, lounge.id])
-        toast.success('Đã tắt thông báo từ phòng trà này.')
       }
-    } catch {
-      toast.error(err.response?.data?.message || 'Không đổi được trạng thái thông báo.')
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Chưa đổi được thông báo. Hãy thử lại.')
     } finally {
-      setMutingId(null)
+      setDangTat(null)
     }
   }
 
-  const handleUnfollow = async (e, lounge) => {
-    e.preventDefault()      // button nằm trong <Link> → chặn navigate
-    e.stopPropagation()
-    if (unfollowingId) return
-
-    setUnfollowingId(lounge.id)
-    const prevLounges = followedLounges
-    setFollowedLounges(current => current.filter(l => l.id !== lounge.id))
-
+  const theoDoiLai = async (lounge, viTri) => {
     try {
-      await toggleFollowLounge(lounge.id, true) // true = đang follow → BE DELETE
-      toast.success(`Đã bỏ theo dõi ${lounge.name}`)
-    } catch {
-      setFollowedLounges(prevLounges) // rollback
-      toast.error('Thao tác thất bại.')
+      await toggleFollowLounge(lounge.id, false) // false = đang không theo dõi → BE POST
+      setDs((p) => { const moi = [...p]; moi.splice(Math.min(viTri, moi.length), 0, lounge); return moi })
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Chưa theo dõi lại được.')
+    }
+  }
+
+  // Cập nhật lạc quan: bỏ khỏi danh sách ngay, lỗi thì trả lại.
+  const boTheoDoi = async (lounge) => {
+    if (dangBo) return
+    setDangBo(lounge.id)
+    const truoc = ds
+    const viTri = ds.findIndex((l) => l.id === lounge.id)
+    setDs((p) => p.filter((l) => l.id !== lounge.id))
+    try {
+      await toggleFollowLounge(lounge.id, true) // true = đang theo dõi → BE DELETE
+      toast((t) => (
+        <span className="flex items-center gap-3">
+          Đã bỏ theo dõi {lounge.name}.
+          <button type="button" className="underline font-semibold min-h-[44px]" onClick={() => { toast.dismiss(t.id); theoDoiLai(lounge, viTri) }}>Hoàn tác</button>
+        </span>
+      ), { duration: 8000 })
+    } catch (err) {
+      setDs(truoc)
+      toast.error(err.response?.data?.message || 'Chưa bỏ theo dõi được. Hãy thử lại.')
     } finally {
-      setUnfollowingId(null)
+      setDangBo(null)
     }
   }
 
   return (
-    <div className="bg-card border border-line p-6 md:p-8">
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-3">
-          <h2 className="text-xl text-ink">Phòng trà đang theo dõi</h2>
-          {!isLoadingLounges && (
-            <span className="px-2.5 py-1 bg-ink/10 border border-ink/25 text-ink text-xs font-bold">
-              {followedLounges.length}
-            </span>
-          )}
-        </div>
-
-        <Link
-          to="/lounges"
-          className="inline-flex items-center gap-1.5 text-sm font-semibold text-ink hover:text-ink transition-all hover:gap-2 flex-shrink-0"
-        >
-          <Compass size={16} />
-          Xem thêm
-          <ChevronRight size={16} />
-        </Link>
+    <section aria-labelledby="theo-doi-td">
+      <div className="flex flex-wrap items-end justify-between gap-3 mb-4">
+        <h2 id="theo-doi-td" className="text-4xl">
+          Phòng trà đang theo dõi{!isLoading && !loiTai && <span className="font-mono text-xl text-ink-mute"> · {ds.length}</span>}
+        </h2>
+        <Link to="/lounges" className="inline-flex items-center min-h-[44px] font-semibold underline underline-offset-4">Tìm phòng trà khác</Link>
       </div>
 
-      {isLoadingLounges ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-          {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-48" />)}
+      {isLoading ? (
+        <div className="h-48 bg-ink/5 animate-pulse" aria-busy="true" aria-label="Đang tải danh sách theo dõi" />
+      ) : loiTai ? (
+        <div role="alert" className="flex flex-wrap items-center gap-4 border-2 border-ink p-5">
+          <p>Danh sách theo dõi chưa tải được.</p>
+          <button type="button" onClick={load} className={`${NUT} border-ink hover:bg-ink hover:text-lamp`}>Thử lại</button>
         </div>
-      ) : followedLounges.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-          {followedLounges.map(lounge => (
-            <Link key={lounge.id} to={`/lounge/${lounge.id}`} className="bg-sunken/50 border border-line p-6 flex flex-col items-center text-center hover:border-ink/40 transition-colors group">
-              <img src={lounge.primaryImageUrl || anhChuCai(lounge.name)} alt={lounge.name} className="w-20 h-20 mb-4 border-2 border-line group-hover:border-ink transition-colors object-cover" />
-              <h3 className="text-ink font-bold group-hover:text-ink transition-colors">{lounge.name}</h3>
-              <p className="text-ink-mute text-xs mt-1">{[lounge.district, lounge.city].filter(Boolean).join(', ') || '—'}</p>
-
-              {/* NÚT BỎ THEO DÕI */}
-              <button
-                onClick={(e) => handleUnfollow(e, lounge)}
-                disabled={unfollowingId === lounge.id}
-                className="mt-4 w-full flex items-center justify-center gap-1.5 py-2 border border-line text-ink-soft text-xs font-bold hover:bg-danger/10 hover:border-danger/40 hover:text-danger transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {unfollowingId === lounge.id
-                  ? <><Loader2 size={13} className="animate-spin" /> Đang xử lý…</>
-                  : <><UserMinus size={13} /> Bỏ theo dõi</>}
-              </button>
-
-              {/* Tắt thông báo: vẫn theo dõi, chỉ không nhận thông báo buổi diễn mới */}
-              <button
-                onClick={(e) => handleToggleMute(e, lounge)}
-                disabled={mutingId === lounge.id}
-                className="mt-2 w-full flex items-center justify-center gap-1.5 py-2 border border-line text-ink-mute text-xs font-bold hover:bg-sunken hover:text-ink-soft transition-colors disabled:opacity-50"
-              >
-                {mutingId === lounge.id
-                  ? <><Loader2 size={13} className="animate-spin" /> Đang xử lý...</>
-                  : mutedIds.includes(lounge.id)
-                    ? <><BellOff size={13} /> Đang tắt thông báo</>
-                    : <><Bell size={13} /> Tắt thông báo</>}
-              </button>
-            </Link>
-          ))}
+      ) : ds.length === 0 ? (
+        <div className="border-2 border-ink p-6">
+          <p>Bạn chưa theo dõi phòng trà nào. Theo dõi một phòng trà để được báo khi họ đăng buổi diễn mới.</p>
+          <Link to="/lounges" className="inline-flex items-center min-h-[44px] mt-2 font-semibold underline underline-offset-4">Xem các phòng trà</Link>
         </div>
       ) : (
-        <div className="text-center py-12">
-          <Building2 size={40} className="mx-auto text-ink-mute mb-4" />
-          <p className="text-ink-soft">Bạn chưa theo dõi phòng trà nào.</p>
-          <Link to="/lounges" className="mt-4 inline-block text-ink font-semibold underline hover:text-ink">Khám phá phòng trà ngay</Link>
-        </div>
+        <ul className="border-y-2 border-ink divide-y divide-ink/20">
+          {ds.map((l) => {
+            const daTat = mutedIds.includes(l.id)
+            return (
+              <li key={l.id} className="flex flex-wrap items-center gap-x-4 gap-y-3 py-4">
+                <img src={l.primaryImageUrl || anhChuCai(l.name)} alt="" width="64" height="64" loading="lazy" className="w-16 h-16 object-cover border border-ink flex-shrink-0" />
+                <div className="min-w-0 flex-1 basis-40">
+                  <Link to={`/lounge/${l.id}`} className="font-display text-2xl leading-tight break-words hover:underline underline-offset-4 decoration-1">{l.name}</Link>
+                  <p className="text-ink-mute">{[l.district, l.city].filter(Boolean).join(', ')}</p>
+                  {daTat && <p className="text-sm text-ink-soft inline-flex items-center gap-1 mt-0.5"><BellOff size={14} aria-hidden="true" /> Không nhận thông báo buổi diễn mới</p>}
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <button type="button" aria-pressed={daTat} onClick={() => doiThongBao(l)} disabled={dangTat === l.id}
+                    aria-label={`Tắt thông báo từ ${l.name}`}
+                    className={`${NUT} ${daTat ? 'border-ink bg-ink text-lamp' : 'border-ink hover:bg-ink hover:text-lamp'}`}>
+                    {daTat ? <BellOff size={16} aria-hidden="true" /> : <Bell size={16} aria-hidden="true" />} Tắt thông báo
+                  </button>
+                  <button type="button" onClick={() => boTheoDoi(l)} disabled={dangBo === l.id}
+                    aria-label={`Bỏ theo dõi ${l.name}`}
+                    className={`${NUT} border-ink/40 text-ink-soft hover:border-danger hover:text-danger`}>
+                    Bỏ theo dõi
+                  </button>
+                </div>
+              </li>
+            )
+          })}
+        </ul>
       )}
-    </div>
+    </section>
   )
 }
 

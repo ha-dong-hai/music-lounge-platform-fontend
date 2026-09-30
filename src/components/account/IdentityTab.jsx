@@ -5,25 +5,53 @@
 //   Xác thực số điện thoại · Định danh CCCD · Hồ sơ thuế.
 // - Ảnh CCCD: tải lên /uploads/images trước, rồi gửi URL. Backend chuyển ảnh sang vùng lưu RIÊNG TƯ
 //   ngay khi nhận, nên URL đó KHÔNG mở trực tiếp được — muốn xem lại phải gọi GET và nhận blob.
-// - Hồ sơ thuế CHỈ dành cho hộ/cá nhân kinh doanh (GTGT 5% + TNCN 2%). Người dùng thường không cần
-//   khai, nên phần này để trong khối riêng có giải thích, không bắt buộc ai cũng điền.
 // - Mã xác thực gửi tới SỐ ĐANG KHAI trong hồ sơ. Muốn đổi số thì sửa hồ sơ trước rồi mới gửi mã.
+//
+// SỬA 30/09/2026 — HỒ SƠ THUẾ CHƯA TỪNG GỬI ĐƯỢC:
+// - Hai lựa chọn cũ "HouseholdBusiness" / "Individual" KHÔNG phải giá trị backend nhận. Enum PayeeBusinessType chỉ có
+//   `HouseholdOrIndividual` và `Enterprise` (SubmitTaxProfileCommandValidator: Enum.TryParse) → mọi lần lưu đều bị từ
+//   chối, và doanh nghiệp không có lựa chọn nào. Cùng lỗi có ở nhánh web đang chạy (mlacp-ui) — đã báo chủ dự án.
+// - GET /me/tax-profile LUÔN trả DTO (không 404 khi chưa khai) → bản cũ coi mọi người là "đã khai" và in hai dòng trống.
+//   "Đã khai" giờ là `businessType != null`.
+// - Tên pháp lý chỉ dùng cho DOANH NGHIỆP (bắt buộc — NĐ 248/2026 Điều 18) và bị bỏ với hộ/cá nhân (handler :54). Bản cũ
+//   hỏi nó với mọi người, kèm gợi ý sai "phải khớp tên chủ tài khoản ngân hàng".
+// - Mức thuế không in cứng nữa ("GTGT 5% và TNCN 2%" — TNCN đang cấu hình 0 theo nghị định): hiện nguyên văn
+//   `explanation` backend soạn từ đúng mức sổ cái đang dùng, cùng trạng thái duyệt và lý do từ chối.
+//
+// LÀM LẠI GIAO DIỆN: ba khối nối nhau bằng đường kẻ (không còn ba thẻ); trạng thái dùng NhanTrangThai; ô nhập qua
+// OTruong (nhãn thấy được, lỗi dưới ô); nút gửi không khoá khi thiếu dữ liệu mà báo đúng ô thiếu.
 import { useState, useEffect, useCallback } from 'react'
-import { Loader2, ShieldCheck, Upload, Phone, CheckCircle2, FileText, ExternalLink, AlertTriangle } from 'lucide-react'
+import { Loader2, Upload, CheckCircle2, ExternalLink } from 'lucide-react'
 import toast from 'react-hot-toast'
 import {
   getMyProfile, uploadImage, submitCitizenCard, getMyCitizenCardImage, getMyCitizenCard,
   getMyTaxProfile, submitTaxProfile, requestPhoneVerificationCode, verifyPhone,
 } from '../../services/userServices'
+import OTruong from '../shared/OTruong'
+import NhanTrangThai from '../shared/NhanTrangThai'
 
-const inputCls = 'mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink focus:outline-none focus:border-ink/50'
+const NUT_VIEN = 'inline-flex items-center justify-center gap-2 min-h-[44px] px-4 border-2 border-ink font-semibold hover:bg-ink hover:text-lamp transition-colors disabled:opacity-60'
+const NUT_DAC = 'inline-flex items-center justify-center gap-2 min-h-[48px] px-5 bg-ink text-lamp font-semibold hover:bg-board transition-colors disabled:opacity-60'
 
-const Card = ({ title, subtitle, children }) => (
-  <div className="bg-card border border-line p-6">
-    <h3 className="text-base font-semibold text-ink">{title}</h3>
-    {subtitle && <p className="text-xs text-ink-mute mt-1 leading-relaxed">{subtitle}</p>}
-    <div className="mt-4">{children}</div>
-  </div>
+const LOAI_HINH = {
+  HouseholdOrIndividual: 'Hộ kinh doanh hoặc cá nhân kinh doanh',
+  Enterprise: 'Doanh nghiệp',
+}
+const DUYET = {
+  Pending: ['cho', 'Đang chờ duyệt'],
+  Approved: ['tot', 'Đã duyệt'],
+  Rejected: ['xau', 'Bị từ chối'],
+}
+
+const Khoi = ({ id, tieuDe, moTa, trangThai, children }) => (
+  <section aria-labelledby={id} className="py-7">
+    <div className="flex flex-wrap items-center gap-3">
+      <h3 id={id} className="text-3xl">{tieuDe}</h3>
+      {trangThai}
+    </div>
+    {moTa && <p className="mt-2 text-ink-soft max-w-[65ch]">{moTa}</p>}
+    <div className="mt-5">{children}</div>
+  </section>
 )
 
 const IdentityTab = () => {
@@ -33,68 +61,48 @@ const IdentityTab = () => {
 
   // Điện thoại
   const [code, setCode] = useState('')
+  const [loiMa, setLoiMa] = useState(null)
   const [busyPhone, setBusyPhone] = useState(null)
 
   // CCCD
   const [cccd, setCccd] = useState({ citizenCardNumber: '', frontImageUrl: '', backImageUrl: '', dateOfBirth: '' })
+  const [loiCccd, setLoiCccd] = useState({})
   const [uploadingSide, setUploadingSide] = useState(null)
   const [busyCccd, setBusyCccd] = useState(false)
 
-  // LỖI ĐÃ SỬA — "gửi xong không thấy lưu, và không có cách xem lại ảnh đã đăng".
-  //
-  // Hai triệu chứng chỉ do MỘT nguyên nhân. Bản trước xác định đã nộp hay chưa bằng
-  // `profile?.citizenCardVerified ?? profile?.hasCitizenCard` — HAI TÊN TRƯỜNG KHÔNG CÓ THẬT.
-  // `UserProfileDto` (Application/Users/DTOs/UserProfileDto.cs) chỉ trả Id, FullName, Email, Phone,
-  // PhoneVerified, AvatarUrl, AiConsent và bốn danh sách sở thích — KHÔNG có trường CCCD nào.
-  // Nên cờ đó LUÔN false: gửi xong, tải lại hồ sơ, giao diện vẫn vẽ form rỗng như chưa từng gửi
-  // (trông y hệt mất dữ liệu — nhưng dữ liệu ĐÃ lưu), và hai nút xem ảnh vốn nằm trong đúng nhánh
-  // không bao giờ chạy tới nên chưa từng hiện ra.
-  //
-  // Backend KHÔNG có đường nào đọc trạng thái CCCD (đã tìm cả Users/Queries: chỉ có
-  // GetMyCitizenCardImage và GetCitizenCardImage, không query nào trả tình trạng). Thứ duy nhất
-  // đọc được là CHÍNH TẤM ẢNH — nên dùng nó làm bằng chứng: lấy được ảnh mặt trước nghĩa là đã nộp
-  // (GetMyCitizenCardImageQueryHandler:36 ném NotFound khi chưa có).
-  //
-  // CẬP NHẬT 30/09: backend đã có GET /me/citizen-card (trạng thái duyệt + lý do từ chối + số che). Màn
-  // này đọc nó để phân biệt "chờ duyệt / đã duyệt / bị từ chối". Máy chủ nào chưa triển khai endpoint
-  // đó (404) thì vẫn rơi về cách dò bằng ảnh bên dưới — nên cờ `daNopCccd` vẫn giữ.
-  //
+  // Trạng thái CCCD — hai nguồn:
+  //  1. GET /me/citizen-card (trạng thái duyệt + lý do từ chối + số che), có từ 30/09.
+  //  2. Dự phòng cho máy chủ chưa có endpoint đó: lấy được ẢNH mặt trước nghĩa là đã nộp
+  //     (GetMyCitizenCardImageQueryHandler ném NotFound khi chưa có). UserProfileDto không có trường CCCD nào —
+  //     bản cũ đọc hai tên trường không tồn tại nên luôn hiện form rỗng như chưa từng nộp.
   // null = đang dò · true/false = kết luận.
   const [daNopCccd, setDaNopCccd] = useState(null)
-  const [trangThaiCccd, setTrangThaiCccd] = useState(null) // CitizenCardStatusDto, null = chưa đọc được
+  const [trangThaiCccd, setTrangThaiCccd] = useState(null)
   const [anhCccd, setAnhCccd] = useState({ front: null, back: null })
   const [nopLai, setNopLai] = useState(false)
 
   // Thuế
   const [tax, setTax] = useState({ businessType: '', taxCode: '', legalName: '' })
+  const [loiThue, setLoiThue] = useState({})
   const [busyTax, setBusyTax] = useState(false)
   const [moFormThue, setMoFormThue] = useState(false)
 
   const load = useCallback(async () => {
     setIsLoading(true)
-    try {
-      const [pRes, tRes] = await Promise.allSettled([getMyProfile(), getMyTaxProfile()])
-      if (pRes.status === 'fulfilled' && pRes.value?.success) setProfile(pRes.value.data)
-      // Chưa khai thuế thì backend trả 404 — đó là trạng thái bình thường, không phải lỗi.
-      if (tRes.status === 'fulfilled' && tRes.value?.success) {
-        setTaxProfile(tRes.value.data)
-        setTax({
-          businessType: tRes.value.data?.businessType ?? '',
-          taxCode: tRes.value.data?.taxCode ?? '',
-          legalName: tRes.value.data?.legalName ?? '',
-        })
-      }
-    } catch (err) {
-      toast.error(err.response?.data?.message || 'Không tải được hồ sơ.')
-    } finally {
-      setIsLoading(false)
+    const [pRes, tRes] = await Promise.allSettled([getMyProfile(), getMyTaxProfile()])
+    if (pRes.status === 'fulfilled' && pRes.value?.success) setProfile(pRes.value.data)
+    if (tRes.status === 'fulfilled' && tRes.value?.success) {
+      const t = tRes.value.data
+      setTaxProfile(t)
+      setTax({ businessType: t?.businessType ?? '', taxCode: t?.taxCode ?? '', legalName: t?.legalName ?? '' })
     }
+    setIsLoading(false)
   }, [])
 
   useEffect(() => { const chay = async () => { await load() }; chay() }, [load])
 
   // Tải ảnh CCCD đã nộp về để (a) biết là đã nộp hay chưa, (b) hiện ngay tại chỗ cho người dùng
-  // đối chiếu xem có chụp nhầm, chụp mờ, chụp ngược mặt không — trước khi Admin duyệt.
+  // đối chiếu xem có chụp nhầm, chụp mờ, chụp ngược mặt không — trước khi quản trị viên duyệt.
   const taiAnhDaNop = useCallback(async () => {
     const [truoc, sau, tt] = await Promise.allSettled([
       getMyCitizenCardImage('front'),
@@ -110,7 +118,6 @@ const IdentityTab = () => {
     }
     const urlTruoc = thanhUrl(truoc)
     const urlSau = thanhUrl(sau)
-    // Mặt trước là căn cứ: chưa nộp thì backend ném NotFound cho cả hai mặt.
     setDaNopCccd(Boolean(urlTruoc))
     setAnhCccd((cu) => {
       // Thu hồi URL của lần tải trước để không rò bộ nhớ khi người dùng nộp lại nhiều lần.
@@ -137,13 +144,14 @@ const IdentityTab = () => {
       await requestPhoneVerificationCode()
       toast.success('Đã gửi mã xác thực tới số điện thoại trong hồ sơ của bạn.')
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Không gửi được mã.')
+      toast.error(err.response?.data?.message || 'Chưa gửi được mã.')
     } finally { setBusyPhone(null) }
   }
 
   const xacThuc = async (e) => {
     e.preventDefault()
-    if (!code.trim()) return
+    if (!code.trim()) { setLoiMa('Nhập mã bạn nhận được qua tin nhắn.'); return }
+    setLoiMa(null)
     setBusyPhone('verify')
     try {
       await verifyPhone(code.trim())
@@ -151,7 +159,7 @@ const IdentityTab = () => {
       setCode('')
       await load()
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Mã không đúng hoặc đã hết hạn.')
+      setLoiMa(err.response?.data?.message || 'Mã không đúng hoặc đã hết hạn.')
     } finally { setBusyPhone(null) }
   }
 
@@ -163,39 +171,38 @@ const IdentityTab = () => {
       if (!up.success) throw new Error(up.message)
       const url = up.data?.url ?? up.data
       setCccd((p) => ({ ...p, [side === 'front' ? 'frontImageUrl' : 'backImageUrl']: url }))
-      toast.success(`Đã tải ảnh mặt ${side === 'front' ? 'trước' : 'sau'}.`)
+      setLoiCccd((l) => ({ ...l, [side]: undefined }))
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Không tải được ảnh.')
+      setLoiCccd((l) => ({ ...l, [side]: err.response?.data?.message || 'Chưa tải được ảnh này. Hãy thử lại.' }))
     } finally { setUploadingSide(null) }
   }
 
   const guiCccd = async (e) => {
     e.preventDefault()
     // Ngày sinh là BẮT BUỘC ở backend (SubmitCitizenCardCommandValidator: "Vui lòng nhập ngày sinh như
-    // trên CCCD/CMND."). Bản trước để ô này như tuỳ chọn và gửi null, nên mọi lần nộp đều bị từ chối
-    // với câu chung "Dữ liệu gửi lên không hợp lệ" — chủ phòng trà không nộp được hồ sơ định danh, tức
-    // là không bao giờ bán được (đo 30/09).
-    if (!cccd.citizenCardNumber.trim() || !cccd.dateOfBirth || !cccd.frontImageUrl || !cccd.backImageUrl) {
-      toast.error('Cần nhập số CCCD, ngày sinh và tải đủ ảnh hai mặt.')
-      return
-    }
+    // trên CCCD/CMND."). Bản trước nữa để ô này như tuỳ chọn và gửi null, nên mọi lần nộp đều bị từ chối.
+    const thieu = {}
+    if (!cccd.citizenCardNumber.trim()) thieu.so = 'Nhập số CCCD.'
+    if (!cccd.dateOfBirth) thieu.ngaySinh = 'Nhập ngày sinh như trên CCCD.'
+    if (!cccd.frontImageUrl) thieu.front = 'Tải ảnh mặt trước.'
+    if (!cccd.backImageUrl) thieu.back = 'Tải ảnh mặt sau.'
+    setLoiCccd(thieu)
+    if (Object.keys(thieu).length) return
     setBusyCccd(true)
     try {
       await submitCitizenCard({
         citizenCardNumber: cccd.citizenCardNumber.trim(),
         frontImageUrl: cccd.frontImageUrl,
         backImageUrl: cccd.backImageUrl,
-        dateOfBirth: cccd.dateOfBirth || null,
+        dateOfBirth: cccd.dateOfBirth,
       })
-      toast.success('Đã gửi hồ sơ định danh. Admin sẽ duyệt.')
+      toast.success('Đã gửi hồ sơ định danh. Quản trị viên sẽ duyệt.')
       setCccd({ citizenCardNumber: '', frontImageUrl: '', backImageUrl: '', dateOfBirth: '' })
       setNopLai(false)
-      // Tải lại ẢNH ĐÃ NỘP, không chỉ `load()`. Đây chính là chỗ bản trước hụt: `load()` chỉ lấy
-      // UserProfileDto — thứ không chứa thông tin CCCD nào — nên sau khi gửi, màn hình quay về
-      // đúng form rỗng ban đầu và người dùng tưởng dữ liệu không được lưu.
+      // Tải lại ẢNH ĐÃ NỘP, không chỉ `load()`: UserProfileDto không chứa thông tin CCCD nào.
       await Promise.all([load(), taiAnhDaNop()])
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Không gửi được hồ sơ định danh.')
+      setLoiCccd({ chung: err.response?.data?.message || 'Chưa gửi được hồ sơ định danh. Hãy thử lại.' })
     } finally { setBusyCccd(false) }
   }
 
@@ -206,129 +213,112 @@ const IdentityTab = () => {
       window.open(url, '_blank', 'noopener')
       setTimeout(() => URL.revokeObjectURL(url), 60_000)
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Không mở được ảnh.')
+      toast.error(err.response?.data?.message || 'Chưa mở được ảnh.')
     }
   }
 
+  const laDoanhNghiep = tax.businessType === 'Enterprise'
+
   const luuThue = async (e) => {
     e.preventDefault()
-    if (!tax.businessType.trim() || !tax.taxCode.trim()) {
-      toast.error('Cần chọn loại hình và nhập mã số thuế.')
-      return
-    }
+    const thieu = {}
+    if (!tax.businessType) thieu.loai = 'Chọn loại hình kinh doanh.'
+    if (!tax.taxCode.trim()) thieu.ma = 'Nhập mã số thuế.'
+    if (laDoanhNghiep && !tax.legalName.trim()) thieu.ten = 'Doanh nghiệp phải khai tên đúng như trên giấy chứng nhận đăng ký kinh doanh.'
+    setLoiThue(thieu)
+    if (Object.keys(thieu).length) return
     setBusyTax(true)
     try {
       await submitTaxProfile({
-        businessType: tax.businessType.trim(),
+        businessType: tax.businessType,
         taxCode: tax.taxCode.trim(),
-        legalName: tax.legalName.trim() || null,
+        legalName: laDoanhNghiep ? tax.legalName.trim() : null,
       })
       toast.success('Đã lưu hồ sơ thuế.')
+      setMoFormThue(false)
       await load()
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Không lưu được hồ sơ thuế.')
+      setLoiThue({ chung: err.response?.data?.message || 'Chưa lưu được hồ sơ thuế. Hãy thử lại.' })
     } finally { setBusyTax(false) }
   }
 
   if (isLoading) {
-    return <div className="py-16 flex justify-center"><Loader2 size={28} className="animate-spin text-ink" /></div>
+    return <div className="h-72 bg-ink/5 animate-pulse" aria-busy="true" aria-label="Đang tải hồ sơ định danh" />
   }
 
-  const daXacThucSdt = profile?.phoneVerified ?? profile?.isPhoneVerified ?? false
-  // `daCoCccd` cũ đã bỏ: nó đọc hai tên trường không tồn tại trong UserProfileDto nên luôn false.
-  // Trạng thái nộp hồ sơ nay lấy từ `daNopCccd` — xem khối giải thích ở phần khai báo state.
+  const daXacThucSdt = profile?.phoneVerified ?? false
+  const daKhaiThue = Boolean(taxProfile?.businessType)
+  const duyetThue = DUYET[taxProfile?.reviewStatus]
+  const duyetCccd = DUYET[trangThaiCccd?.reviewStatus]
 
   return (
-    <div className="space-y-5">
+    <div className="divide-y-2 divide-ink/20 border-y-2 border-ink">
       {/* ĐIỆN THOẠI */}
-      <Card
-        title="Số điện thoại"
-        subtitle="Xác thực số điện thoại để chúng tôi liên hệ được khi có vấn đề về vé hoặc hoàn tiền."
-      >
-        {daXacThucSdt ? (
-          <p className="text-sm text-success flex items-center gap-2">
-            <CheckCircle2 size={16} /> Đã xác thực {profile?.phone && `(${profile.phone})`}
-          </p>
-        ) : (
-          <div className="space-y-3">
-            <p className="text-sm text-ink-soft">
-              Số hiện tại trong hồ sơ: <span className="text-ink">{profile?.phone || 'chưa khai'}</span>
-            </p>
-            <p className="text-xs text-ink-mute">
-              Mã được gửi tới đúng số này. Muốn đổi số thì sửa ở tab Hồ sơ trước rồi quay lại đây.
-            </p>
-            <div className="flex flex-wrap gap-2">
-              <button onClick={guiMa} disabled={busyPhone !== null || !profile?.phone}
-                className="flex items-center gap-2 px-4 py-2 border border-line text-ink-soft text-sm font-bold hover:bg-sunken disabled:opacity-50">
-                {busyPhone === 'send' ? <Loader2 size={15} className="animate-spin" /> : <Phone size={15} />} Gửi mã xác thực
-              </button>
-            </div>
-            <form onSubmit={xacThuc} className="flex gap-2">
-              <input aria-label="Nhập mã nhận được" value={code} onChange={(e) => setCode(e.target.value)} placeholder="Nhập mã nhận được"
-                className="flex-1 px-3 py-2 bg-page border border-line text-sm text-ink focus:outline-none focus:border-ink/50" />
-              <button type="submit" disabled={busyPhone !== null || !code.trim()}
-                className="px-4 py-2 bg-ink text-lamp text-sm font-bold disabled:opacity-50">
-                {busyPhone === 'verify' ? <Loader2 size={15} className="animate-spin" /> : 'Xác thực'}
-              </button>
-            </form>
-          </div>
+      <Khoi id="dd-sdt" tieuDe="Số điện thoại"
+        moTa="Xác thực số điện thoại để chúng tôi liên hệ được khi có vấn đề về vé hoặc hoàn tiền."
+        trangThai={daXacThucSdt ? <NhanTrangThai sacThai="tot">Đã xác thực</NhanTrangThai> : <NhanTrangThai sacThai="cho">Chưa xác thực</NhanTrangThai>}>
+        <p>Số trong hồ sơ: <span className="font-mono">{profile?.phone || 'chưa khai'}</span></p>
+        {!daXacThucSdt && (
+          <>
+            <p className="mt-1 text-sm text-ink-soft">Mã được gửi tới đúng số này. Muốn đổi số thì sửa ở mục Hồ sơ trước rồi quay lại đây.</p>
+            {profile?.phone ? (
+              <>
+                <button type="button" onClick={guiMa} disabled={busyPhone !== null} className={`${NUT_VIEN} mt-4`}>
+                  {busyPhone === 'send' && <Loader2 size={16} className="animate-spin" aria-hidden="true" />} Gửi mã xác thực
+                </button>
+                <form onSubmit={xacThuc} noValidate className="mt-4 flex flex-wrap items-end gap-3">
+                  <OTruong nhan="Mã xác thực" loi={loiMa} className="w-48">
+                    {(p) => <input {...p} value={code} onChange={(e) => setCode(e.target.value)} inputMode="numeric" autoComplete="one-time-code" />}
+                  </OTruong>
+                  <button type="submit" disabled={busyPhone !== null} className={`${NUT_DAC} ${loiMa ? 'mb-7' : ''}`}>
+                    {busyPhone === 'verify' && <Loader2 size={16} className="animate-spin" aria-hidden="true" />} Xác thực
+                  </button>
+                </form>
+              </>
+            ) : (
+              <p className="mt-3 border-l-4 border-warning pl-3">Hãy khai số điện thoại ở mục Hồ sơ trước.</p>
+            )}
+          </>
         )}
-      </Card>
+      </Khoi>
 
       {/* CCCD */}
-      <Card
-        title="Định danh cá nhân (CCCD)"
-        subtitle="Cần thiết khi bạn nhận tiền từ nền tảng. Ảnh được lưu ở vùng riêng tư, chỉ bạn và Admin xem được."
-      >
+      <Khoi id="dd-cccd" tieuDe="Định danh cá nhân (CCCD)"
+        moTa="Cần thiết khi bạn nhận tiền từ nền tảng. Ảnh được lưu ở vùng riêng tư, chỉ bạn và quản trị viên xem được."
+        trangThai={daNopCccd && !nopLai ? (duyetCccd ? <NhanTrangThai sacThai={duyetCccd[0]}>{duyetCccd[1]}</NhanTrangThai> : <NhanTrangThai sacThai="trung">Đã nộp</NhanTrangThai>) : null}>
         {daNopCccd === null ? (
-          <div className="py-6 flex items-center justify-center gap-2 text-sm text-ink-mute">
-            <Loader2 size={16} className="animate-spin" /> Đang kiểm tra hồ sơ đã nộp…
-          </div>
+          <div className="h-32 bg-ink/5 animate-pulse" aria-busy="true" aria-label="Đang kiểm tra hồ sơ đã nộp" />
         ) : daNopCccd && !nopLai ? (
           <div className="space-y-4">
-            {trangThaiCccd?.reviewStatus === 'Approved' ? (
-              <p className="text-sm text-success flex items-center gap-2">
-                <ShieldCheck size={16} /> Đã xác minh danh tính{trangThaiCccd.numberMasked && ` · ${trangThaiCccd.numberMasked}`}
-              </p>
-            ) : trangThaiCccd?.reviewStatus === 'Rejected' ? (
-              <div className="border border-danger/30 bg-danger/5 p-3">
-                <p className="text-sm text-danger flex items-center gap-2"><AlertTriangle size={16} /> Hồ sơ bị từ chối</p>
-                {trangThaiCccd.reviewNote && <p className="text-xs text-ink-soft mt-1">Lý do: {trangThaiCccd.reviewNote}</p>}
-                <p className="text-xs text-ink-mute mt-1">Sửa theo lý do trên rồi bấm "Nộp lại hồ sơ".</p>
+            {trangThaiCccd?.numberMasked && <p>Số CCCD: <span className="font-mono">{trangThaiCccd.numberMasked}</span></p>}
+            {trangThaiCccd?.reviewStatus === 'Rejected' && (
+              <div className="border-l-4 border-danger pl-3">
+                {trangThaiCccd.reviewNote && <p><span className="font-semibold">Lý do từ chối:</span> {trangThaiCccd.reviewNote}</p>}
+                <p className="text-ink-soft mt-1">Sửa theo lý do trên rồi bấm "Nộp lại hồ sơ".</p>
               </div>
-            ) : trangThaiCccd?.reviewStatus === 'Pending' ? (
-              <p className="text-sm text-warning flex items-center gap-2">
-                <ShieldCheck size={16} /> Đã gửi — đang chờ Admin xác minh
-              </p>
-            ) : (
-              <p className="text-sm text-success flex items-center gap-2">
-                <ShieldCheck size={16} /> Đã gửi hồ sơ định danh
-              </p>
             )}
             {trangThaiCccd?.explanation && trangThaiCccd.reviewStatus !== 'Rejected' && (
-              <p className="text-xs text-ink-mute">{trangThaiCccd.explanation}</p>
+              <p className="text-ink-soft max-w-[65ch]">{trangThaiCccd.explanation}</p>
             )}
 
-            {/* Hiện ảnh NGAY TẠI CHỖ. Trước đây chỉ có nút mở tab mới, nghĩa là muốn kiểm tra mình
-                chụp có mờ, có ngược mặt, có nhầm giấy tờ không thì phải rời trang. Giấy tờ tuỳ thân
-                đã gửi đi là thứ người ta cần soát lại ngay, không phải mở ra ở chỗ khác. */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {/* Hiện ảnh NGAY TẠI CHỖ: giấy tờ tuỳ thân đã gửi đi là thứ người ta cần soát lại ngay (mờ, ngược mặt,
+                nhầm giấy tờ), không phải mở ra ở chỗ khác. */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {[['front', 'Mặt trước', anhCccd.front], ['back', 'Mặt sau', anhCccd.back]].map(([side, label, url]) => (
-                <figure key={side} className="border border-line overflow-hidden bg-sunken/40">
+                <figure key={side} className="border-2 border-ink">
                   {url ? (
-                    <img src={url} alt={`Ảnh CCCD ${label.toLowerCase()} bạn đã nộp`}
-                      className="w-full aspect-[8/5] object-cover" />
+                    <img src={url} alt={`Ảnh CCCD ${label.toLowerCase()} bạn đã nộp`} className="w-full aspect-[8/5] object-cover" />
                   ) : (
-                    <div className="w-full aspect-[8/5] flex items-center justify-center text-xs text-ink-mute px-3 text-center">
-                      Không tải được ảnh {label.toLowerCase()}
+                    <div className="w-full aspect-[8/5] flex items-center justify-center text-ink-mute px-3 text-center bg-sunken">
+                      Chưa tải được ảnh {label.toLowerCase()}
                     </div>
                   )}
-                  <figcaption className="flex items-center justify-between gap-2 px-3 py-2 border-t border-line">
-                    <span className="text-xs text-ink-soft">{label}</span>
+                  <figcaption className="flex items-center justify-between gap-2 px-3 border-t-2 border-ink">
+                    <span className="font-semibold">{label}</span>
                     {url && (
-                      <button onClick={() => xemAnhCccd(side)}
-                        className="inline-flex items-center gap-1 min-h-[44px] -my-2 px-1 text-xs font-medium text-ink hover:underline">
-                        <ExternalLink size={12} /> Xem cỡ lớn
+                      <button type="button" onClick={() => xemAnhCccd(side)} aria-label={`Xem cỡ lớn ảnh ${label.toLowerCase()}`}
+                        className="inline-flex items-center gap-1 min-h-[44px] underline underline-offset-4">
+                        <ExternalLink size={14} aria-hidden="true" /> Xem cỡ lớn
                       </button>
                     )}
                   </figcaption>
@@ -336,130 +326,121 @@ const IdentityTab = () => {
               ))}
             </div>
 
-            <div className="flex items-start gap-2 border border-line bg-sunken/40 p-3">
-              <AlertTriangle size={15} className="text-ink-mute flex-shrink-0 mt-0.5" />
-              <p className="text-xs text-ink-soft leading-relaxed">
-                Ảnh bị mờ, chụp thiếu góc hay nhầm mặt thì Admin sẽ từ chối. Bạn nộp lại được bất cứ
-                lúc nào — hồ sơ sẽ quay về trạng thái chờ duyệt.
-              </p>
-            </div>
-
-            <button onClick={() => setNopLai(true)}
-              className="inline-flex items-center gap-1.5 min-h-[44px] px-4 border border-line text-ink-soft text-sm font-bold hover:bg-sunken transition-colors">
-              <Upload size={14} /> Nộp lại hồ sơ
+            <p className="text-ink-soft max-w-[65ch]">
+              Ảnh mờ, thiếu góc hay nhầm mặt thì hồ sơ sẽ bị từ chối. Bạn nộp lại được bất cứ lúc nào — hồ sơ sẽ quay về
+              trạng thái chờ duyệt.
+            </p>
+            <button type="button" onClick={() => setNopLai(true)} className={NUT_VIEN}>
+              <Upload size={16} aria-hidden="true" /> Nộp lại hồ sơ
             </button>
           </div>
         ) : (
-          <form onSubmit={guiCccd} className="space-y-4">
+          <form onSubmit={guiCccd} noValidate className="space-y-5 max-w-2xl">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="text-xs text-ink-mute">Số CCCD <span className="text-danger">*</span></label>
-                <input aria-label="Số CCCD" value={cccd.citizenCardNumber} onChange={(e) => setCccd((p) => ({ ...p, citizenCardNumber: e.target.value }))}
-                  className={inputCls} inputMode="numeric" />
-              </div>
-              <div>
-                <label className="text-xs text-ink-mute">Ngày sinh (như trên CCCD) <span className="text-danger">*</span></label>
-                <input aria-label="Ngày sinh (như trên CCCD)" type="date" value={cccd.dateOfBirth} onChange={(e) => setCccd((p) => ({ ...p, dateOfBirth: e.target.value }))}
-                  className={inputCls} />
-              </div>
+              <OTruong nhan="Số CCCD" batBuoc loi={loiCccd.so}>
+                {(p) => <input {...p} value={cccd.citizenCardNumber} inputMode="numeric" autoComplete="off"
+                  onChange={(e) => setCccd((c) => ({ ...c, citizenCardNumber: e.target.value }))} />}
+              </OTruong>
+              <OTruong nhan="Ngày sinh (như trên CCCD)" batBuoc loi={loiCccd.ngaySinh}>
+                {(p) => <input {...p} type="date" value={cccd.dateOfBirth} autoComplete="bday"
+                  onChange={(e) => setCccd((c) => ({ ...c, dateOfBirth: e.target.value }))} />}
+              </OTruong>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              {[['front', 'Mặt trước', cccd.frontImageUrl], ['back', 'Mặt sau', cccd.backImageUrl]].map(([side, label, url]) => (
-                <label key={side}
-                  className="flex flex-col items-center justify-center gap-2 py-6 border border-dashed border-line text-ink-soft text-xs hover:bg-sunken/50 cursor-pointer">
-                  {uploadingSide === side
-                    ? <Loader2 size={18} className="animate-spin" />
-                    : url ? <CheckCircle2 size={18} className="text-success" /> : <Upload size={18} />}
-                  {url ? `${label} — đã tải` : label}
-                  <input type="file" accept="image/*" className="hidden" disabled={uploadingSide !== null}
-                    onChange={(e) => taiAnh(e.target.files?.[0], side)} />
-                </label>
-              ))}
-            </div>
+            <fieldset>
+              <legend className="font-semibold">Ảnh hai mặt CCCD <span className="text-danger" aria-hidden="true">*</span><span className="sr-only"> (bắt buộc)</span></legend>
+              <p className="text-sm text-ink-soft mt-0.5">Chụp thẳng, đủ bốn góc, đọc rõ chữ.</p>
+              <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {[['front', 'Mặt trước', cccd.frontImageUrl], ['back', 'Mặt sau', cccd.backImageUrl]].map(([side, label, url]) => (
+                  <div key={side}>
+                    <label className={`flex items-center justify-center gap-2 min-h-[72px] border-2 border-dashed cursor-pointer hover:bg-card ${loiCccd[side] ? 'border-danger' : 'border-ink'}`}>
+                      {uploadingSide === side
+                        ? <Loader2 size={18} className="animate-spin" aria-hidden="true" />
+                        : url ? <CheckCircle2 size={18} className="text-success" aria-hidden="true" /> : <Upload size={18} aria-hidden="true" />}
+                      <span className="font-semibold">{url ? `${label}: đã tải` : `Chọn ảnh ${label.toLowerCase()}`}</span>
+                      <input type="file" accept="image/*" className="sr-only" disabled={uploadingSide !== null}
+                        onChange={(e) => taiAnh(e.target.files?.[0], side)} />
+                    </label>
+                    {loiCccd[side] && <p className="mt-1.5 text-sm font-semibold text-danger">{loiCccd[side]}</p>}
+                  </div>
+                ))}
+              </div>
+            </fieldset>
+
+            {loiCccd.chung && <p role="alert" className="border-2 border-danger p-4 font-semibold text-danger">{loiCccd.chung}</p>}
 
             <div className="flex flex-wrap gap-3">
-              <button type="submit" disabled={busyCccd || uploadingSide !== null}
-                className="flex-1 min-w-[200px] py-2.5 bg-ink text-lamp font-bold flex items-center justify-center gap-2 disabled:opacity-50">
-                {busyCccd && <Loader2 size={16} className="animate-spin" />}
+              <button type="submit" disabled={busyCccd || uploadingSide !== null} className={NUT_DAC}>
+                {busyCccd && <Loader2 size={16} className="animate-spin" aria-hidden="true" />}
                 {nopLai ? 'Gửi lại hồ sơ định danh' : 'Gửi hồ sơ định danh'}
               </button>
-              {/* Chỉ hiện khi đang NỘP LẠI: người đã có hồ sơ cần đường lùi, nếu không thì mở form
-                  ra rồi là kẹt, phải tải lại trang mới xem lại được ảnh cũ. */}
+              {/* Chỉ hiện khi đang NỘP LẠI: người đã có hồ sơ cần đường lùi để xem lại ảnh cũ. */}
               {nopLai && (
-                <button type="button" onClick={() => setNopLai(false)} disabled={busyCccd}
-                  className="min-h-[44px] px-4 border border-line text-ink-soft text-sm font-bold hover:bg-sunken disabled:opacity-50 transition-colors">
+                <button type="button" onClick={() => { setNopLai(false); setLoiCccd({}) }} disabled={busyCccd} className={NUT_VIEN}>
                   Huỷ, xem lại hồ sơ đã nộp
                 </button>
               )}
             </div>
           </form>
         )}
-      </Card>
+      </Khoi>
 
       {/* THUẾ */}
-      <Card
-        title="Hồ sơ thuế"
-        subtitle="Chỉ dành cho hộ kinh doanh và cá nhân kinh doanh. Người dùng thường không cần khai phần này."
-      >
-        {taxProfile && !moFormThue ? (
-          <div className="space-y-2">
-            <p className="text-sm text-ink-soft">
-              Loại hình: <span className="text-ink">{taxProfile.businessType}</span>
-            </p>
-            <p className="text-sm text-ink-soft">
-              Mã số thuế: <span className="text-ink tabular-nums">{taxProfile.taxCode}</span>
-            </p>
-            {taxProfile.legalName && (
-              <p className="text-sm text-ink-soft">Tên pháp lý: <span className="text-ink">{taxProfile.legalName}</span></p>
-            )}
-            <button onClick={() => setMoFormThue(true)}
-              className="mt-2 text-sm text-ink hover:underline">Sửa hồ sơ thuế</button>
-          </div>
-        ) : (
-          <>
-            {!taxProfile && (
-              <p className="text-xs text-ink-mute mb-4 flex items-start gap-1.5 leading-relaxed">
-                <AlertTriangle size={13} className="mt-0.5 flex-shrink-0 text-warning" />
-                Khai phần này nếu bạn kinh doanh và cần xuất hoá đơn. Mức thuế áp dụng: GTGT 5% và TNCN 2%.
-              </p>
-            )}
-            <form onSubmit={luuThue} className="space-y-4">
-              <div>
-                <label className="text-xs text-ink-mute">Loại hình <span className="text-danger">*</span></label>
-                <select aria-label="Loại hình" value={tax.businessType} onChange={(e) => setTax((p) => ({ ...p, businessType: e.target.value }))} className={inputCls}>
-                  <option value="">— chọn —</option>
-                  <option value="HouseholdBusiness">Hộ kinh doanh</option>
-                  <option value="Individual">Cá nhân kinh doanh</option>
-                </select>
-              </div>
-              <div>
-                <label className="text-xs text-ink-mute">Mã số thuế <span className="text-danger">*</span></label>
-                <input aria-label="Mã số thuế" value={tax.taxCode} onChange={(e) => setTax((p) => ({ ...p, taxCode: e.target.value }))} className={inputCls} inputMode="numeric" />
-              </div>
-              <div>
-                <label className="text-xs text-ink-mute">Tên pháp lý</label>
-                <input aria-label="Tên pháp lý" value={tax.legalName} onChange={(e) => setTax((p) => ({ ...p, legalName: e.target.value }))} className={inputCls} />
-                <p className="text-xs text-ink-mute mt-1">
-                  Tên này cần khớp với tên chủ tài khoản ngân hàng nhận tiền.
-                </p>
-              </div>
-              <div className="flex gap-3">
-                {taxProfile && (
-                  <button type="button" onClick={() => setMoFormThue(false)}
-                    className="flex-1 py-2.5 border border-line-strong text-ink-soft font-medium hover:bg-sunken">
-                    Huỷ
-                  </button>
-                )}
-                <button type="submit" disabled={busyTax}
-                  className="flex-1 py-2.5 bg-ink text-lamp font-bold flex items-center justify-center gap-2 disabled:opacity-50">
-                  {busyTax ? <Loader2 size={16} className="animate-spin" /> : <FileText size={16} />} Lưu hồ sơ thuế
-                </button>
-              </div>
-            </form>
-          </>
+      <Khoi id="dd-thue" tieuDe="Hồ sơ thuế"
+        moTa="Dành cho người nhận tiền từ nền tảng (chủ phòng trà). Khán giả mua vé không cần khai phần này."
+        trangThai={daKhaiThue && duyetThue ? <NhanTrangThai sacThai={duyetThue[0]}>{duyetThue[1]}</NhanTrangThai> : daKhaiThue ? null : <NhanTrangThai sacThai="tat">Chưa khai</NhanTrangThai>}>
+        {/* Câu backend soạn từ đúng mức khấu trừ sổ cái đang dùng — gồm cả trường hợp đã khai doanh nghiệp nhưng chưa
+            duyệt nên vẫn bị khấu trừ. Hiện nguyên văn, không tự tính lại. */}
+        {taxProfile?.explanation && <p className="max-w-[65ch] border-l-4 border-ink pl-3">{taxProfile.explanation}</p>}
+        {taxProfile?.taxCodeUnreadable && (
+          <p className="mt-3 border-l-4 border-danger pl-3">Mã số thuế đã lưu không còn đọc được. Hãy khai lại hồ sơ thuế.</p>
         )}
-      </Card>
+
+        {daKhaiThue && !moFormThue ? (
+          <>
+            <dl className="mt-5 grid grid-cols-[auto_minmax(0,1fr)] gap-x-6 gap-y-2">
+              <dt className="text-ink-mute">Loại hình</dt><dd>{LOAI_HINH[taxProfile.businessType] ?? taxProfile.businessType}</dd>
+              <dt className="text-ink-mute">Mã số thuế</dt><dd className="font-mono">{taxProfile.taxCode || '—'}</dd>
+              {taxProfile.legalName && <><dt className="text-ink-mute">Tên doanh nghiệp</dt><dd>{taxProfile.legalName}</dd></>}
+            </dl>
+            <button type="button" onClick={() => setMoFormThue(true)} className={`${NUT_VIEN} mt-5`}>Sửa hồ sơ thuế</button>
+          </>
+        ) : (
+          <form onSubmit={luuThue} noValidate className="mt-5 space-y-5 max-w-md">
+            <fieldset aria-describedby={loiThue.loai ? 'loi-loai-hinh' : undefined}>
+              <legend className="font-semibold">Loại hình kinh doanh <span className="text-danger" aria-hidden="true">*</span><span className="sr-only"> (bắt buộc)</span></legend>
+              {loiThue.loai && <p id="loi-loai-hinh" className="mt-1 text-sm font-semibold text-danger">{loiThue.loai}</p>}
+              <div className="mt-2 space-y-2">
+                {Object.entries(LOAI_HINH).map(([gt, nhan]) => (
+                  <label key={gt} className="flex items-center gap-3 min-h-[44px] cursor-pointer">
+                    <input type="radio" name="loai-hinh" value={gt} checked={tax.businessType === gt}
+                      onChange={() => { setTax((t) => ({ ...t, businessType: gt })); setLoiThue((l) => ({ ...l, loai: undefined })) }}
+                      className="w-5 h-5 accent-ink" />
+                    {nhan}
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+            <OTruong nhan="Mã số thuế" batBuoc loi={loiThue.ma} goiY="10 chữ số, hoặc 10 chữ số kèm 3 chữ số đơn vị trực thuộc (ví dụ 0123456789-001).">
+              {(p) => <input {...p} value={tax.taxCode} inputMode="numeric" autoComplete="off" onChange={(e) => setTax((t) => ({ ...t, taxCode: e.target.value }))} />}
+            </OTruong>
+            {laDoanhNghiep && (
+              <OTruong nhan="Tên doanh nghiệp" batBuoc loi={loiThue.ten} goiY="Đúng như trên giấy chứng nhận đăng ký kinh doanh.">
+                {(p) => <input {...p} value={tax.legalName} autoComplete="organization" onChange={(e) => setTax((t) => ({ ...t, legalName: e.target.value }))} />}
+              </OTruong>
+            )}
+            {loiThue.chung && <p role="alert" className="border-2 border-danger p-4 font-semibold text-danger">{loiThue.chung}</p>}
+            <div className="flex flex-wrap gap-3">
+              <button type="submit" disabled={busyTax} className={NUT_DAC}>
+                {busyTax && <Loader2 size={16} className="animate-spin" aria-hidden="true" />} Lưu hồ sơ thuế
+              </button>
+              {daKhaiThue && (
+                <button type="button" onClick={() => { setMoFormThue(false); setLoiThue({}) }} className={NUT_VIEN}>Huỷ</button>
+              )}
+            </div>
+          </form>
+        )}
+      </Khoi>
     </div>
   )
 }

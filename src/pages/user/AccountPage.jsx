@@ -51,7 +51,7 @@ const AccountPage = () => {
               {MUC.map(({ key, nhan, icon: Icon }) => (
                 <li key={key} className="border-t border-ink/20 first:border-t-0">
                   <button type="button" onClick={() => setActiveTab(key)} aria-current={activeTab === key ? 'page' : undefined}
-                    className={`w-full flex items-center gap-3 px-3 min-h-[48px] text-left font-semibold border-l-4 transition-colors ${activeTab === key ? 'bg-ink text-lamp border-ember' : 'text-ink border-transparent hover:bg-sunken'}`}>
+                    className={`w-full flex items-center gap-3 px-3 min-h-[48px] text-left font-semibold border-l-4 transition-colors ${activeTab === key ? 'bg-ink text-lamp border-ink' : 'text-ink border-transparent hover:bg-sunken'}`}>
                     <Icon size={18} aria-hidden="true" /> {nhan}
                   </button>
                 </li>

@@ -10,7 +10,8 @@ const NEN = '#14110F'
 const CHU = '#F2EAE0'
 
 export const chuCaiDau = (ten) => {
-  const tu = String(ten ?? '').trim().split(/\s+/).filter(Boolean)
+  // Bỏ phần chú thích trong ngoặc và mọi từ không bắt đầu bằng chữ/số: "Gia Thịnh (saxophone)" từng ra "G(".
+  const tu = String(ten ?? '').replace(/\([^)]*\)/g, ' ').trim().split(/\s+/).filter((t) => /^[\p{L}\p{N}]/u.test(t))
   if (tu.length === 0) return '?'
   const dau = tu.length === 1 ? tu[0].slice(0, 2) : tu[0][0] + tu[tu.length - 1][0]
   return dau.toLocaleUpperCase('vi')

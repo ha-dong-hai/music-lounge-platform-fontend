@@ -210,10 +210,6 @@ const LivestreamWatchPage = () => {
     localStorage.setItem(`rated_show_${showId}`, 'true')
   }
 
-  const handleEndStreamClick = () => {
-    setShowRatingModal(true)
-  }
-
   const handleSendMessage = async (text) => {
     try {
       await hubSendMessage(text)
@@ -326,16 +322,15 @@ const LivestreamWatchPage = () => {
 
       {/* HEADER */}
       <div className="flex-none flex items-center gap-4 px-4 py-2.5 bg-card border-b border-line z-50">
-        <Link to={`/shows/${showId}`} className="p-1.5 hover:bg-sunken transition-colors flex-shrink-0">
-          <ArrowLeft size={20} />
+        <Link to={`/shows/${showId}`} aria-label="Quay lại trang buổi diễn" className="inline-flex items-center justify-center w-11 h-11 hover:bg-sunken transition-colors flex-shrink-0">
+          <ArrowLeft size={20} aria-hidden="true" />
         </Link>
         <div className="flex-1 min-w-0">
           <h1 className="text-base truncate">{showData?.name}</h1>
           <p className="text-xs text-ink-soft flex items-center gap-2 flex-wrap">
-            <span className="flex items-center gap-1.5">
-              <span className="w-2 h-2 bg-danger animate-pulse inline-block"></span> LIVE
-            </span>
-            <span className="flex items-center gap-1"><Eye size={12} /> {formatCompactNumber(viewerCount)}</span>
+            {/* Vàng thếp (ember) là màu DUY NHẤT của "đang diễn" trong thế giới này; không nhấp nháy. */}
+            <span className="inline-flex items-center px-1.5 bg-ember text-board font-semibold">Đang phát</span>
+            <span className="flex items-center gap-1"><Eye size={12} aria-hidden="true" /> {formatCompactNumber(viewerCount)} <span className="sr-only">người đang xem</span></span>
             {connectionState !== 'connected' && (
               <span className="flex items-center gap-1 text-warning">
                 <WifiOff size={11} /> {connectionState === 'reconnecting' ? 'Đang kết nối lại…' : 'Đang kết nối…'}
@@ -344,14 +339,8 @@ const LivestreamWatchPage = () => {
           </p>
         </div>
 
-        <button
-          onClick={handleEndStreamClick}
-          className="flex-shrink-0 flex items-center gap-1.5 px-3 py-2 bg-danger/10 border border-danger/40 text-danger text-xs font-bold hover:bg-danger/20 transition-colors"
-          title="Kết thúc stream (test modal đánh giá)" aria-label="Kết thúc stream (test modal đánh giá)"
-        >
-          <Square size={12} className="fill-danger" /> Kết thúc
-        </button>
-
+        {/* 30/09/2026: đã bỏ nút đỏ "Kết thúc" — nút thử còn sót, hiện với MỌI khán giả và chỉ mở hộp đánh giá.
+            Hộp đánh giá vẫn tự mở khi buổi diễn kết thúc (effect phía trên). */}
         {/* CẮT SÓNG — chỉ Admin. Khác hẳn "Kết thúc" của người vận hành: đây là can thiệp từ ngoài
             vào buổi đang phát vì vi phạm nội dung, và là trạng thái cuối. */}
         {user?.role === 'Admin' && livestream?.id && (
@@ -366,9 +355,10 @@ const LivestreamWatchPage = () => {
 
       </div>
 
-      {/* BODY: VIDEO + CHAT */}
-      <div className="flex-1 flex overflow-hidden">
-        <div className="flex-1 bg-page relative">
+      {/* BODY: VIDEO + CHAT. Dưới lg xếp DỌC (video 16:9 ở trên, chat chiếm phần còn lại): bản cũ để chat cố định
+          300px bên phải nên trên điện thoại 390px khung video chỉ còn ~90px. */}
+      <div className="flex-1 min-h-0 flex flex-col lg:flex-row overflow-hidden">
+        <div className="flex-none aspect-video lg:aspect-auto lg:flex-1 bg-page relative">
           {/* BA TRẠNG THÁI KẾT THÚC KHÁC NHAU, TRƯỚC ĐÂY CHỈ CÓ MỘT.
               - Bị Admin cắt sóng: `terminatedReason` nói vì sao. Không hiện thì người xem chỉ thấy
                 một khung đen và không biết chuyện gì, còn thông báo tức thời thì đã trôi mất.
@@ -463,7 +453,7 @@ const LivestreamWatchPage = () => {
           )}
         </div>
 
-        <div className="w-[300px] sm:w-[350px] lg:w-[400px] flex-none border-l border-line flex flex-col bg-card">
+        <div className="flex-1 min-h-0 lg:flex-none lg:w-[400px] border-t lg:border-t-0 lg:border-l border-line flex flex-col bg-card">
           <ChatPanel
             messages={messages}
             performers={showData?.performers || []}

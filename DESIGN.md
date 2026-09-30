@@ -348,6 +348,37 @@ Không dùng bảng màu mặc định của Tailwind (`red-500`, `gray-200`…)
 Ô "nhập lại mật khẩu" ở trang đặt lại mật khẩu còn giữ (nguồn mâu thuẫn: GOV.UK bảo bỏ, OWASP bảo giữ). Backend chưa trả
 trạng thái lượt chuyển vé đang chờ nên trang vé chỉ nhớ lượt chuyển trong phiên.
 
+## Trang nghệ sĩ, sao kê tiền ủng hộ, tài khoản (30/09/2026, đợt 2)
+
+**Chữ trên màn hình phải khớp việc backend làm.** Mỗi câu nói về hậu quả ("sẽ mở khiếu nại", "xoá ngay", "quản trị
+viên sẽ nhận cảnh báo") được đối chiếu với handler trước khi viết, và chú thích trong tệp ghi tên handler. Đợt này sửa:
+"xoá dữ liệu" báo là *yêu cầu* trong khi backend xoá **ngay** và đóng tài khoản; trang xác nhận của nghệ sĩ hỏi chung
+một câu cho hai mục đích khác nhau (`BankAccount` và `DonationReceipt`).
+
+**Tên trường và giá trị gửi đi phải lấy từ DTO, không đoán.** Hai lỗi chặn chức năng tìm được khi làm lại giao diện:
+- `PreferencesTab` đọc `preferredGenreIds` (không tồn tại; DTO trả `favouriteGenreIds`) → trang luôn hiện trống và bấm Lưu
+  xoá sạch sở thích (PUT ghi đè). Kiểm bằng `kiem_so_thich.mjs`: đặt qua API → mở trang → Lưu → đọc lại; đột biến tên
+  trường cũ thì đỏ ("MẤT DỮ LIỆU").
+- `IdentityTab` gửi `HouseholdBusiness` / `Individual`; enum chỉ nhận `HouseholdOrIndividual` / `Enterprise` (API trả 400).
+Form ghi đè toàn bộ mà tải dữ liệu cũ hỏng thì **không hiện form** — chỉ báo lỗi và nút thử lại.
+
+**Bảng tiền có dòng tổng thì các dòng chính phải cộng ra tổng.** Sao kê: ba dòng chính (nền tảng giữ · phòng trà giữ ·
+phòng trà báo đã chuyển) chia hết phần của nghệ sĩ; dòng "trong đó" thụt vào, chữ nhỏ hơn, là tập con của dòng ngay trên.
+Số khác đơn vị (tiền khán giả trả, chưa trừ phí) nằm ngoài bảng. Số tiền canh phải, chữ đơn cách.
+
+**Lỗi tải ≠ rỗng ≠ không tồn tại.** Ba trạng thái in ba câu khác nhau; lỗi tải luôn có nút "Thử lại" và `role="alert"`.
+Không `toast` thay cho trạng thái lỗi của trang (toast tự biến mất, trang còn lại nói sai).
+
+**Nút bật/tắt** mang `aria-pressed` và có dấu hiệu ngoài màu (biểu tượng ✓/✕ hoặc nền đặc). **Lựa chọn một trong nhiều**
+là nhóm radio trong `fieldset` + `legend`. **Nút gửi không bị khoá** khi form chưa đủ: bấm thì báo lỗi dưới đúng mục thiếu
+và đưa focus tới đó (GOV.UK: nút khoá không nói vì sao).
+
+**Không lồng phần tử tương tác:** dòng danh sách có nút riêng thì tên là liên kết, nút đứng cạnh — không bọc cả dòng
+bằng `<Link>` rồi chặn `preventDefault`.
+
+**Trang xem trực tuyến:** dưới `lg` xếp dọc (video 16:9 trên, trò chuyện chiếm phần còn lại). Nhãn "Đang phát" dùng ember,
+không nhấp nháy. CHƯA làm lại: ChatPanel, DonateModal, RatingModal, ReportModal, hộp cắt sóng (mới chuyển cơ học).
+
 ## Tiêu chí duyệt giao diện (chốt 30/09/2026)
 
 > Rút từ chính lời chủ dự án trong ngày 30/09 và từ những bản đã bị từ chối. Mục đích: trang nào làm lại cũng được

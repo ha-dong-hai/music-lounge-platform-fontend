@@ -64,7 +64,6 @@ const ProfileTab = () => {
           }
         }
       } catch {
-        console.error('Error loading profile:', err)
         toast.error('Không tải được thông tin tài khoản')
       } finally {
         setIsFetchingProfile(false)

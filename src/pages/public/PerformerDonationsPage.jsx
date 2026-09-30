@@ -16,57 +16,57 @@
 //   chỉ nói là CÓ chứng từ được lưu. Đừng thêm gì vào đây mà backend không công khai.
 // - Nút "Nhật ký bằng chứng" chỉ hiện với Admin và gọi endpoint riêng của Admin. Ẩn nút không phải
 //   là bảo mật — backend vẫn chặn 403 — nhưng hiện nút cho người không bấm được là vô nghĩa.
-import { useState, useEffect, useCallback } from 'react'
+//
+// LÀM LẠI 30/09/2026 (thế giới "tờ chương trình"):
+// - Bảy thẻ số rời thay bằng MỘT BẢNG "tiền đang ở đâu": ba dòng chính cộng ra dòng tổng, dòng "trong đó" thụt vào,
+//   số canh phải — đọc như một tờ sao kê. Số "khán giả đã tặng" (khác đơn vị) tách ra ngoài bảng.
+// - Nhãn chặng dùng NhanTrangThai (biểu tượng + chữ, không chỉ màu — WCAG 2.2 SC 1.4.1).
+// - Tải hỏng cả hai nguồn là một trạng thái riêng có nút thử lại (bản cũ: một toast rồi in "Chưa có khoản nào" — nói sai).
+// - Nhật ký bằng chứng mở trong <dialog> của trình duyệt (giữ focus, Esc đóng) thay cho lớp phủ tự vẽ.
+// - Chữ "donate" đổi thành "tiền ủng hộ": trang cho khán giả Việt, backend chưa có i18n.
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import {
-  Loader2, ArrowLeft, Heart, Landmark, Building2, AlertTriangle, CheckCircle2, XCircle,
-  Clock, FileCheck2, ShieldCheck, X, Link2Off, RefreshCw,
-} from 'lucide-react'
-import dayjs from 'dayjs'
-import toast from 'react-hot-toast'
+import { AlertTriangle, CheckCircle2, XCircle, Clock, FileCheck2, ShieldCheck, Link2Off, RefreshCw, X } from 'lucide-react'
 import { getPerformerPublicDonations, getPerformerDonationSummary } from '../../services/donationServices'
 import { getDonationEvidence } from '../../services/adminServices'
 import { useAuthStore } from '../../store/useAuthStore'
+import NhanTrangThai from '../../components/shared/NhanTrangThai'
+import { ngayDayDu, gioTrongNgay } from '../../utils/ngayVietNam'
 
-const fmtTien = (v) => `${Number(v || 0).toLocaleString('vi-VN')}đ`
+const fmtTien = (v) => `${Number(v || 0).toLocaleString('vi-VN')} đ`
 const fmtPhanTram = (r) => `${(Number(r || 0) * 100).toLocaleString('vi-VN', { maximumFractionDigits: 2 })}%`
+const NUT_VIEN = 'inline-flex items-center justify-center gap-2 min-h-[44px] px-4 border-2 border-ink font-semibold hover:bg-ink hover:text-lamp transition-colors disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-ink'
 
-// Màu theo chặng: xám = còn trên đường, xanh = nghệ sĩ đã xác nhận nhận được, đỏ = nghệ sĩ nói chưa.
-const MAU_CHANG = {
-  PlatformHolding: 'text-ink-soft bg-line/40',
-  VenueHolding: 'text-ink bg-ink/10',
-  VenueReportedPaid: 'text-warning bg-warning/10',
-  PerformerConfirmed: 'text-success bg-success/10',
-  PerformerDisputed: 'text-danger bg-danger/10',
+// Sắc thái theo chặng: còn trên đường = chờ, nghệ sĩ đã xác nhận = tốt, nghệ sĩ nói chưa nhận = xấu.
+const SAC_THAI_CHANG = {
+  PlatformHolding: 'cho',
+  VenueHolding: 'cho',
+  VenueReportedPaid: 'trung',
+  PerformerConfirmed: 'tot',
+  PerformerDisputed: 'xau',
 }
-
-const OCard = ({ title, value, note, icon: Icon, color }) => (
-  <div className="bg-card border border-line p-5">
-    <div className="flex items-start justify-between gap-3">
-      <p className="text-sm text-ink-mute">{title}</p>
-      <Icon size={18} className={`flex-shrink-0 ${color}`} />
-    </div>
-    <p className="text-xl font-bold text-ink mt-1.5 tabular-nums">{value}</p>
-    {note && <p className="text-xs text-ink-mute mt-2 leading-relaxed">{note}</p>}
-  </div>
-)
 
 // ===== NHẬT KÝ BẰNG CHỨNG (CHỈ ADMIN) =====
 // Chuỗi băm nối tiếp: mỗi dòng băm cả dòng trước. `chainIntact = false` nghĩa là có dòng bị sửa,
 // bị xoá hoặc bị chèn sau khi ghi — đây là thứ dùng khi nghệ sĩ và phòng trà nói khác nhau về
 // việc đã chuyển tiền chưa, nên khi chuỗi đứt thì phải nói thẳng và nói rõ đứt từ dòng nào.
-const EvidenceModal = ({ donationId, onClose }) => {
+const HopNhatKy = ({ donationId, onClose }) => {
+  const ref = useRef(null)
   const [data, setData] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [loi, setLoi] = useState(null)
+
+  useEffect(() => { ref.current?.showModal() }, [])
 
   useEffect(() => {
     const chay = async () => {
       setIsLoading(true)
       try {
         const res = await getDonationEvidence(donationId)
-        if (res.success) setData(res.data)
+        if (!res.success) throw new Error('nhat-ky')
+        setData(res.data)
       } catch (err) {
-        toast.error(err.response?.data?.message || 'Không tải được nhật ký bằng chứng.')
+        setLoi(err.response?.data?.message || 'Nhật ký bằng chứng chưa tải được.')
       } finally {
         setIsLoading(false)
       }
@@ -75,94 +75,77 @@ const EvidenceModal = ({ donationId, onClose }) => {
   }, [donationId])
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-ink/80" onClick={onClose} />
-      <div className="relative bg-card border border-line w-full max-w-3xl shadow-soft flex flex-col max-h-[90vh]">
-        <div className="flex-none flex justify-between items-center p-5 border-b border-line">
-          <h2 className="text-3xl text-ink">Nhật ký bằng chứng · khoản #{donationId}</h2>
-          <button onClick={onClose} className="p-2 hover:bg-sunken text-ink-soft" aria-label="Đóng">
-            <X size={20} />
-          </button>
-        </div>
+    <dialog ref={ref} aria-labelledby="nhat-ky-td" onClose={onClose}
+      className="bg-card text-ink border-2 border-ink shadow-lift w-[calc(100vw-2rem)] max-w-3xl max-h-[90vh] p-0 m-auto backdrop:bg-board/80">
+      <div className="sticky top-0 bg-card flex items-start justify-between gap-4 p-5 border-b-2 border-ink">
+        <h2 id="nhat-ky-td" className="text-3xl">Nhật ký bằng chứng · khoản #{donationId}</h2>
+        <button type="button" autoFocus onClick={() => ref.current?.close()} aria-label="Đóng nhật ký"
+          className="inline-flex items-center justify-center w-11 h-11 border-2 border-ink hover:bg-ink hover:text-lamp flex-shrink-0">
+          <X size={20} aria-hidden="true" />
+        </button>
+      </div>
 
-        <div className="p-5 overflow-y-auto">
-          {isLoading ? (
-            <div className="py-14 flex justify-center"><Loader2 size={26} className="animate-spin text-ink" /></div>
-          ) : !data ? (
-            <p className="text-sm text-ink-mute">Không có dữ liệu.</p>
-          ) : (
-            <>
-              {data.chainIntact ? (
-                <div className="flex items-start gap-2 p-4 border border-success/30 bg-success/5">
-                  <ShieldCheck size={18} className="text-success flex-shrink-0 mt-0.5" />
-                  <p className="text-sm text-ink-soft leading-relaxed">
-                    Chuỗi bằng chứng còn nguyên: không dòng nào bị sửa, xoá hay chèn thêm sau khi ghi.
+      <div className="p-5">
+        {isLoading ? (
+          <div className="h-40 bg-ink/5 animate-pulse" aria-busy="true" aria-label="Đang tải nhật ký" />
+        ) : loi ? (
+          <p role="alert">{loi}</p>
+        ) : (
+          <>
+            {data.chainIntact ? (
+              <p className="flex items-start gap-2 p-4 border-2 border-success">
+                <ShieldCheck size={18} className="text-success flex-shrink-0 mt-0.5" aria-hidden="true" />
+                Chuỗi bằng chứng còn nguyên: không dòng nào bị sửa, xoá hay chèn thêm sau khi ghi.
+              </p>
+            ) : (
+              <div className="flex items-start gap-2 p-4 border-2 border-danger">
+                <Link2Off size={18} className="text-danger flex-shrink-0 mt-0.5" aria-hidden="true" />
+                <div>
+                  <p className="font-semibold">Chuỗi bằng chứng bị đứt</p>
+                  <p className="text-ink-soft mt-1">
+                    Có dòng đã bị sửa, bị xoá hoặc bị chèn thêm sau khi ghi
+                    {data.firstBrokenSequence != null && ` — lệch từ dòng #${data.firstBrokenSequence}`}.
+                    Nhật ký này không còn dùng làm bằng chứng được; cần điều tra ở tầng dữ liệu.
                   </p>
                 </div>
-              ) : (
-                <div className="flex items-start gap-2 p-4 border border-danger/30 bg-danger/5">
-                  <Link2Off size={18} className="text-danger flex-shrink-0 mt-0.5" />
-                  <div>
-                    <p className="text-sm text-ink font-medium">Chuỗi bằng chứng bị đứt</p>
-                    <p className="text-xs text-ink-soft mt-1 leading-relaxed">
-                      Có dòng đã bị sửa, bị xoá hoặc bị chèn thêm sau khi ghi
-                      {data.firstBrokenSequence != null && ` — lệch từ dòng #${data.firstBrokenSequence}`}.
-                      Nhật ký này không còn dùng làm bằng chứng được; cần điều tra ở tầng dữ liệu.
-                    </p>
-                  </div>
-                </div>
-              )}
-
-              <div className="mt-4 space-y-2">
-                {(data.events ?? []).map((e) => {
-                  const dongLoi = data.firstBrokenSequence != null && e.sequence >= data.firstBrokenSequence
-                  return (
-                    <div key={e.sequence}
-                      className={`p-4 border ${dongLoi ? 'border-danger/30 bg-danger/5' : 'border-line bg-sunken/70'}`}>
-                      <div className="flex flex-wrap items-center justify-between gap-2">
-                        <div className="flex items-center gap-2 min-w-0">
-                          <span className="text-xs text-ink-mute font-mono flex-shrink-0">#{e.sequence}</span>
-                          <p className="text-sm text-ink font-medium">{e.eventType}</p>
-                        </div>
-                        <p className="text-xs text-ink-mute flex-shrink-0">
-                          {dayjs(e.occurredAt).format('HH:mm:ss DD/MM/YYYY')}
-                        </p>
-                      </div>
-
-                      <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1 text-xs">
-                        {e.amount != null && (
-                          <p className="text-ink-soft">Số tiền: <span className="text-ink tabular-nums">{fmtTien(e.amount)}</span></p>
-                        )}
-                        {e.actorUserId != null && (
-                          <p className="text-ink-soft">Người thực hiện: <span className="text-ink-soft">#{e.actorUserId}</span></p>
-                        )}
-                        {e.reference && (
-                          <p className="text-ink-soft break-all">Mã tham chiếu: <span className="text-ink-soft font-mono">{e.reference}</span></p>
-                        )}
-                        {e.evidenceUrl && (
-                          <a href={e.evidenceUrl} target="_blank" rel="noreferrer"
-                            className="text-ink hover:underline inline-flex items-center gap-1">
-                            <FileCheck2 size={12} /> Xem chứng từ
-                          </a>
-                        )}
-                      </div>
-
-                      {e.detail && <p className="text-xs text-ink-mute mt-2 leading-relaxed">{e.detail}</p>}
-
-                      {/* Băm hiện dạng rút gọn: đủ để đối chiếu mắt thường, không làm ngập giao diện. */}
-                      <p className="text-xs text-ink-mute mt-2 font-mono break-all" title={e.hash}>
-                        hash {String(e.hash).slice(0, 16)}…
-                        {e.previousHash && <> · prev {String(e.previousHash).slice(0, 16)}…</>}
-                      </p>
-                    </div>
-                  )
-                })}
               </div>
-            </>
-          )}
-        </div>
+            )}
+
+            <ol className="mt-4 border-y-2 border-ink divide-y divide-ink/20">
+              {(data.events ?? []).map((e) => {
+                const dongLoi = data.firstBrokenSequence != null && e.sequence >= data.firstBrokenSequence
+                return (
+                  <li key={e.sequence} className={`py-4 ${dongLoi ? 'border-l-4 border-danger pl-3' : ''}`}>
+                    <div className="flex flex-wrap items-baseline justify-between gap-2">
+                      <p className="font-semibold"><span className="font-mono text-sm text-ink-mute mr-2">#{e.sequence}</span>{e.eventType}</p>
+                      <p className="font-mono text-sm text-ink-mute">{gioTrongNgay(e.occurredAt)} · {ngayDayDu(e.occurredAt)}</p>
+                    </div>
+                    <dl className="mt-2 grid grid-cols-[auto_minmax(0,1fr)] gap-x-4 gap-y-1 text-sm">
+                      {e.amount != null && <><dt className="text-ink-mute">Số tiền</dt><dd className="font-mono">{fmtTien(e.amount)}</dd></>}
+                      {e.actorUserId != null && <><dt className="text-ink-mute">Người thực hiện</dt><dd className="font-mono">#{e.actorUserId}</dd></>}
+                      {e.reference && <><dt className="text-ink-mute">Mã tham chiếu</dt><dd className="font-mono break-all">{e.reference}</dd></>}
+                      {e.evidenceUrl && (
+                        <><dt className="text-ink-mute">Chứng từ</dt><dd>
+                          <a href={e.evidenceUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 underline underline-offset-4">
+                            <FileCheck2 size={14} aria-hidden="true" /> Xem chứng từ
+                          </a>
+                        </dd></>
+                      )}
+                    </dl>
+                    {e.detail && <p className="text-sm text-ink-soft mt-2">{e.detail}</p>}
+                    {/* Băm hiện dạng rút gọn: đủ để đối chiếu mắt thường, không làm ngập giao diện. */}
+                    <p className="text-xs text-ink-mute mt-2 font-mono break-all" title={e.hash}>
+                      hash {String(e.hash).slice(0, 16)}…
+                      {e.previousHash && <> · prev {String(e.previousHash).slice(0, 16)}…</>}
+                    </p>
+                  </li>
+                )
+              })}
+            </ol>
+          </>
+        )}
       </div>
-    </div>
+    </dialog>
   )
 }
 
@@ -173,14 +156,15 @@ const PerformerDonationsPage = () => {
 
   const [summary, setSummary] = useState(null)
   const [rows, setRows] = useState([])
+  const [loiDs, setLoiDs] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
   const [evidenceId, setEvidenceId] = useState(null)
   const [capNhatLuc, setCapNhatLuc] = useState(null)
 
-  // `im = true` là làm mới NGẦM: giữ nguyên nội dung đang hiển thị thay vì thay cả trang bằng vòng
-  // quay. Bắt buộc phải tách như vậy, nếu không cứ 45 giây trang lại nháy trắng một lần dưới tay
+  // `im = true` là làm mới NGẦM: giữ nguyên nội dung đang hiển thị thay vì thay cả trang bằng khung
+  // chờ. Bắt buộc phải tách như vậy, nếu không cứ 45 giây trang lại nháy trắng một lần dưới tay
   // người đang đọc — vừa khó chịu vừa làm mất chỗ họ đang cuộn tới.
   const load = useCallback(async (im = false) => {
     if (!im) setIsLoading(true)
@@ -189,20 +173,20 @@ const PerformerDonationsPage = () => {
       getPerformerDonationSummary(performerId),
       getPerformerPublicDonations(performerId, { page, pageSize: 20 }),
     ])
-    setSummary(tong.status === 'fulfilled' && tong.value?.success ? tong.value.data : null)
-    if (ds.status === 'fulfilled' && ds.value?.success) {
+    const tongOk = tong.status === 'fulfilled' && tong.value?.success
+    const dsOk = ds.status === 'fulfilled' && ds.value?.success
+    // Làm mới ngầm mà hỏng thì GIỮ số đang hiện: mốc "Cập nhật lúc" đứng yên là tín hiệu số liệu đang cũ dần.
+    if (tongOk) setSummary(tong.value.data)
+    else if (!im) setSummary(null)
+    if (dsOk) {
       setRows(ds.value.data?.items ?? [])
       setTotalPages(ds.value.data?.totalPages ?? 1)
-    } else {
+      setLoiDs(false)
+    } else if (!im) {
       setRows([])
+      setLoiDs(true)
     }
-    if (tong.status !== 'fulfilled' && ds.status !== 'fulfilled') {
-      // Làm mới ngầm mà lỗi thì im lặng: người dùng không bấm gì cả, bắn toast lên mặt họ là vô cớ.
-      // Mốc "cập nhật lúc" sẽ đứng yên, và đó chính là tín hiệu cho biết số liệu đang cũ dần.
-      if (!im) toast.error('Không tải được sao kê donate.')
-    } else {
-      setCapNhatLuc(new Date())
-    }
+    if (tongOk || dsOk) setCapNhatLuc(new Date())
     if (!im) setIsLoading(false)
   }, [performerId, page])
 
@@ -228,251 +212,234 @@ const PerformerDonationsPage = () => {
   }, [load])
 
   if (isLoading) {
+    return <div className="min-h-[70vh] bg-stock" aria-busy="true" aria-label="Đang tải sao kê"><div className="max-w-5xl mx-auto px-4 sm:px-8 pt-10"><div className="h-80 bg-ink/5 animate-pulse" /></div></div>
+  }
+
+  if (!summary && loiDs) {
     return (
-      <div className="min-h-screen bg-page flex items-center justify-center">
-        <Loader2 size={32} className="animate-spin text-ink" />
+      <div className="min-h-[70vh] bg-stock text-ink flex flex-col items-center justify-center px-4 text-center">
+        <h1 className="text-4xl mb-4">Sao kê chưa tải được.</h1>
+        <button type="button" onClick={() => load()} className={NUT_VIEN}>Thử lại</button>
       </div>
     )
   }
 
-  const chuaToiNgheSi = summary
-    ? Number(summary.heldByPlatform || 0) + Number(summary.heldByVenue || 0)
-    : 0
+  const chuaToiNgheSi = summary ? Number(summary.heldByPlatform || 0) + Number(summary.heldByVenue || 0) : 0
+  const coQuaHan = (summary?.overdueCount ?? 0) > 0
+  const coTranhChap = Number(summary?.disputedByPerformer || 0) > 0
 
   return (
-    <div className="min-h-screen bg-page text-ink pb-20">
-      <div className="max-w-5xl mx-auto px-6 py-8">
-        <Link to="/" className="inline-flex items-center gap-2 text-sm font-medium text-ink-soft hover:text-ink mb-6">
-          <ArrowLeft size={18} /> Về trang chủ
-        </Link>
-
-        <div className="flex items-center gap-3 mb-2">
-          <Heart size={26} className="text-ink" />
-          <h1 className="text-4xl">
-            Sao kê donate {summary?.performerName ? `· ${summary.performerName}` : ''}
-          </h1>
-        </div>
-        <p className="text-sm text-ink-mute leading-relaxed mb-4">
-          Tiền donate đi qua hai chặng: nền tảng thu, chuyển cho phòng trà, rồi phòng trà chuyển cho
-          nghệ sĩ. Trang này cho biết từng khoản đang ở chặng nào. Không hiển thị số tài khoản, mã
-          chuyển khoản hay ảnh chứng từ.{' '}
-          <Link to="/minh-bach" className="text-ink hover:underline">Cách tiền đi qua từng chặng</Link>.
+    <div className="min-h-[70vh] bg-stock text-ink pb-24">
+      <div className="max-w-5xl mx-auto px-4 sm:px-8 pt-10">
+        <p className="text-ink-soft">
+          <Link to={`/performers/${performerId}`} className="inline-flex items-center min-h-[44px] underline underline-offset-4">
+            {summary?.performerName ? `Trang nghệ sĩ ${summary.performerName}` : 'Trang nghệ sĩ'}
+          </Link>
+        </p>
+        <h1 className="text-[clamp(2.5rem,5vw,4rem)] leading-[1.05] mt-2">
+          Sao kê tiền ủng hộ{summary?.performerName ? <><br /><span className="text-ink-soft">{summary.performerName}</span></> : null}
+        </h1>
+        <p className="mt-4 max-w-[65ch] text-lg text-ink-soft leading-relaxed">
+          Tiền ủng hộ đi qua hai chặng: nền tảng thu, chuyển cho phòng trà, rồi phòng trà chuyển cho nghệ sĩ. Trang này
+          cho biết từng khoản đang ở chặng nào. Không hiển thị số tài khoản, mã chuyển khoản hay ảnh chứng từ.{' '}
+          <Link to="/minh-bach" className="text-ink underline underline-offset-4">Cách tiền đi qua từng chặng</Link>.
         </p>
 
-        {/* Mốc cập nhật — nói thẳng số liệu cũ tới đâu thay vì gắn nhãn "thời gian thực" cho một
-            thứ không phải vậy (lý do đầy đủ ở khối tự làm mới phía trên). `aria-live="polite"` để
-            người dùng trình đọc màn hình cũng biết trang vừa tự làm mới. */}
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-2 mb-8">
-          <p className="text-xs text-ink-mute" aria-live="polite">
-            {capNhatLuc
-              ? `Cập nhật lúc ${dayjs(capNhatLuc).format('HH:mm:ss')} · tự làm mới mỗi 45 giây`
-              : 'Đang chờ số liệu…'}
+        {/* Mốc cập nhật — nói thẳng số liệu cũ tới đâu (lý do ở khối tự làm mới phía trên). */}
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-5">
+          <p className="font-mono text-sm text-ink-mute" aria-live="polite">
+            {capNhatLuc ? `Cập nhật lúc ${gioTrongNgay(capNhatLuc)}:${String(capNhatLuc.getSeconds()).padStart(2, '0')} · tự làm mới mỗi 45 giây` : 'Đang chờ số liệu…'}
           </p>
-          <button
-            onClick={() => load(true)}
-            className="inline-flex items-center gap-1.5 min-h-[44px] -my-2 px-2 text-xs font-medium text-ink hover:underline"
-          >
-            <RefreshCw size={13} /> Làm mới ngay
+          <button type="button" onClick={() => load(true)} className="inline-flex items-center gap-1.5 min-h-[44px] px-1 font-semibold underline underline-offset-4">
+            <RefreshCw size={15} aria-hidden="true" /> Làm mới ngay
           </button>
         </div>
 
         {!summary ? (
-          <div className="bg-card border border-warning/30 p-6 flex items-start gap-3 mb-6">
-            <AlertTriangle size={18} className="text-warning flex-shrink-0 mt-0.5" />
-            <p className="text-sm text-ink-soft leading-relaxed">
-              Không tải được phần tổng hợp. Bảng chi tiết bên dưới (nếu có) vẫn đúng.
-            </p>
-          </div>
+          <p role="alert" className="mt-8 flex items-start gap-2 border-2 border-warning p-5">
+            <AlertTriangle size={18} className="text-warning flex-shrink-0 mt-0.5" aria-hidden="true" />
+            Phần tổng hợp chưa tải được. Danh sách từng khoản bên dưới vẫn đúng.
+          </p>
         ) : (
           <>
-            {/* TIỀN ĐANG Ở ĐÂU — thứ người xem cần biết trước tiên */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <OCard title="Nghệ sĩ đã xác nhận nhận được" value={fmtTien(summary.confirmedByPerformer)}
-                icon={CheckCircle2} color="text-success"
-                note="Nghệ sĩ tự bấm xác nhận, không phải phòng trà khai." />
-              <OCard title="Nền tảng còn giữ" value={fmtTien(summary.heldByPlatform)}
-                icon={Landmark} color="text-ink-soft"
-                note="Chưa tới kỳ chuyển cho phòng trà." />
-              <OCard title="Phòng trà còn giữ" value={fmtTien(summary.heldByVenue)}
-                icon={Building2} color="text-ink"
-                note={`Hạn chuyển cho nghệ sĩ: ${summary.policy?.venuePayoutDays ?? '—'} ngày.`} />
-              <OCard title="Quá hạn tại phòng trà" value={fmtTien(summary.overdueAtVenue)}
-                icon={AlertTriangle} color={summary.overdueCount > 0 ? 'text-danger' : 'text-ink-mute'}
-                note={summary.overdueCount > 0
-                  ? `${summary.overdueCount} khoản đã quá hạn mà chưa báo chuyển.`
-                  : 'Không có khoản nào quá hạn.'} />
-            </div>
+            {/* TIỀN ĐANG Ở ĐÂU — cùng một đơn vị (phần của nghệ sĩ), nên đặt chung một bảng có dòng tổng. */}
+            <section aria-labelledby="dang-o-dau-td" className="mt-10">
+              <h2 id="dang-o-dau-td" className="text-4xl">Phần của nghệ sĩ đang ở đâu</h2>
+              <table className="mt-4 w-full border-y-2 border-ink">
+                <caption className="sr-only">Phần tiền của nghệ sĩ, chia theo nơi tiền đang nằm</caption>
+                {/* Ba dòng chính chia HẾT phần của nghệ sĩ theo chặng (PublicDonationStatement.Summarize: PlatformHolding,
+                    VenueHolding, và VenueReportedPaidAt != null gồm cả ba chặng VenueReportedPaid/PerformerConfirmed/
+                    PerformerDisputed) nên cộng lại ra dòng tổng. Dòng "trong đó" thụt vào là TẬP CON của dòng ngay trên:
+                    quá hạn chỉ xảy ra khi phòng trà còn giữ (overdue = !reportedPaid && now > dueAt). Bản cũ đặt năm số
+                    ngang hàng và bỏ sót nhóm "đã báo chuyển, chờ nghệ sĩ xác nhận" — cộng lại không ra tổng. */}
+                <tbody className="divide-y divide-ink/20">
+                  <tr>
+                    <th scope="row" className="py-3 pr-4 text-left font-normal">
+                      Nền tảng còn giữ
+                      <span className="block text-sm text-ink-mute">Chưa tới kỳ chuyển cho phòng trà.</span>
+                    </th>
+                    <td className="py-3 text-right font-mono whitespace-nowrap">{fmtTien(summary.heldByPlatform)}</td>
+                  </tr>
+                  <tr>
+                    <th scope="row" className="py-3 pr-4 text-left font-normal">
+                      Phòng trà còn giữ
+                      <span className="block text-sm text-ink-mute">Hạn chuyển cho nghệ sĩ: {summary.policy?.venuePayoutDays ?? '—'} ngày.</span>
+                    </th>
+                    <td className="py-3 text-right font-mono whitespace-nowrap">{fmtTien(summary.heldByVenue)}</td>
+                  </tr>
+                  <tr className={`text-sm ${coQuaHan ? 'text-danger' : 'text-ink-soft'}`}>
+                    <th scope="row" className="py-2 pl-6 pr-4 text-left font-normal">
+                      <span className="inline-flex items-center gap-1.5">{coQuaHan && <AlertTriangle size={15} aria-hidden="true" />}Trong đó đã quá hạn</span>
+                      <span className="block text-ink-mute">{coQuaHan ? `${summary.overdueCount} khoản đã quá hạn mà phòng trà chưa báo chuyển.` : 'Không có khoản nào quá hạn.'}</span>
+                    </th>
+                    <td className="py-2 text-right font-mono whitespace-nowrap">{fmtTien(summary.overdueAtVenue)}</td>
+                  </tr>
+                  <tr>
+                    <th scope="row" className="py-3 pr-4 text-left font-normal">
+                      Phòng trà báo đã chuyển cho nghệ sĩ
+                      <span className="block text-sm text-ink-mute">Là lời khai của phòng trà. Chỉ nghệ sĩ mới xác nhận được là đã nhận.</span>
+                    </th>
+                    <td className="py-3 text-right font-mono whitespace-nowrap">{fmtTien(summary.reportedPaidToPerformer)}</td>
+                  </tr>
+                  <tr className="text-sm text-ink-soft">
+                    <th scope="row" className="py-2 pl-6 pr-4 text-left font-normal">
+                      Trong đó nghệ sĩ đã xác nhận nhận được
+                      <span className="block text-ink-mute">Nghệ sĩ tự bấm xác nhận.</span>
+                    </th>
+                    <td className="py-2 text-right font-mono whitespace-nowrap">{fmtTien(summary.confirmedByPerformer)}</td>
+                  </tr>
+                  <tr className={`text-sm ${coTranhChap ? 'text-danger' : 'text-ink-soft'}`}>
+                    <th scope="row" className="py-2 pl-6 pr-4 text-left font-normal">
+                      Trong đó nghệ sĩ báo chưa nhận được
+                      <span className="block text-ink-mute">Đã mở khiếu nại.</span>
+                    </th>
+                    <td className="py-2 text-right font-mono whitespace-nowrap">{fmtTien(summary.disputedByPerformer)}</td>
+                  </tr>
+                </tbody>
+                <tfoot className="border-t-2 border-ink">
+                  <tr>
+                    <th scope="row" className="py-3 pr-4 text-left">
+                      Tổng phần của nghệ sĩ
+                      <span className="block text-sm font-normal text-ink-mute">
+                        Chưa tới tay nghệ sĩ: {fmtTien(chuaToiNgheSi)}.{summary.paidLateCount > 0 && ` Có ${summary.paidLateCount} khoản được chuyển sau hạn.`}
+                      </span>
+                    </th>
+                    <td className="py-3 text-right font-mono font-semibold whitespace-nowrap">{fmtTien(summary.totalForPerformer)}</td>
+                  </tr>
+                </tfoot>
+              </table>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4">
-              <div className="bg-card border border-line p-5">
-                <p className="text-sm text-ink-mute">Tổng khán giả đã tặng</p>
-                <p className="text-xl font-bold text-ink mt-1.5 tabular-nums">{fmtTien(summary.totalGross)}</p>
-                <p className="text-xs text-ink-mute mt-2 leading-relaxed">
-                  {summary.donationCount} khoản. Đây là số khán giả trả, chưa trừ phí và thuế — các số
-                  khác trên trang là phần của nghệ sĩ.
-                  {summary.donationsWithHiddenAmount > 0 && (
-                    <> Có {summary.donationsWithHiddenAmount} khoản cũ không công khai số tiền nên không
-                    được cộng vào.</>
-                  )}
-                </p>
-              </div>
-              <div className="bg-card border border-line p-5">
-                <p className="text-sm text-ink-mute">Phần của nghệ sĩ</p>
-                <p className="text-xl font-bold text-ink mt-1.5 tabular-nums">{fmtTien(summary.totalForPerformer)}</p>
-                <p className="text-xs text-ink-mute mt-2 leading-relaxed">
-                  Chưa tới tay nghệ sĩ: {fmtTien(chuaToiNgheSi)}.
-                  {summary.paidLateCount > 0 && ` Có ${summary.paidLateCount} khoản được chuyển sau hạn.`}
-                </p>
-              </div>
-              <div className="bg-card border border-line p-5">
-                <p className="text-sm text-ink-mute">Nghệ sĩ nói chưa nhận được</p>
-                <p className={`text-xl font-bold mt-1.5 tabular-nums ${Number(summary.disputedByPerformer) > 0 ? 'text-danger' : 'text-ink'}`}>
-                  {fmtTien(summary.disputedByPerformer)}
-                </p>
-                <p className="text-xs text-ink-mute mt-2 leading-relaxed">
-                  Phòng trà đã báo đã chuyển nhưng nghệ sĩ phản hồi là chưa nhận được.
-                </p>
-              </div>
-            </div>
+              {/* Khác đơn vị (tiền khán giả trả, chưa trừ phí và thuế) — tách ra ngoài bảng để không ai cộng lẫn. */}
+              <p className="mt-5 max-w-[65ch] text-ink-soft">
+                Khán giả đã tặng tổng cộng <span className="font-mono text-ink">{fmtTien(summary.totalGross)}</span> qua {summary.donationCount} khoản.
+                Đây là số khán giả trả, chưa trừ phí và thuế.
+                {summary.donationsWithHiddenAmount > 0 && <> Có {summary.donationsWithHiddenAmount} khoản cũ không công khai số tiền nên không được cộng vào.</>}
+              </p>
+            </section>
 
             {/* CHÍNH SÁCH — hiện nguyên văn câu backend soạn, không tự tính lại */}
             {summary.policy && (
-              <div className="bg-card border border-line p-6 mt-4">
-                <h2 className="font-sans font-bold text-base text-ink">Chính sách đang áp dụng</h2>
-                <ul className="mt-3 space-y-2">
-                  {(summary.policy.statements ?? []).map((c, i) => (
-                    <li key={i} className="text-sm text-ink-soft leading-relaxed flex items-start gap-2">
-                      <span className="text-ink-mute mt-1.5">•</span>{c}
-                    </li>
-                  ))}
+              <section aria-labelledby="chinh-sach-td" className="mt-10">
+                <h2 id="chinh-sach-td" className="text-4xl">Chính sách đang áp dụng</h2>
+                <ul className="mt-4 max-w-[65ch] list-disc pl-5 space-y-2 text-ink-soft">
+                  {(summary.policy.statements ?? []).map((c, i) => <li key={i}>{c}</li>)}
                 </ul>
-                <div className="mt-4 pt-4 border-t border-line flex flex-wrap gap-x-8 gap-y-2 text-xs text-ink-mute">
-                  <span>Nghệ sĩ nhận: <span className="text-ink-soft">{fmtPhanTram(summary.policy.performerShareRate)}</span></span>
-                  <span>Phí nền tảng: <span className="text-ink-soft">{fmtPhanTram(summary.policy.platformCommissionRate)}</span></span>
-                  <span>Hạn phòng trà chuyển: <span className="text-ink-soft">{summary.policy.venuePayoutDays} ngày</span></span>
-                  <span>Nhắc trước hạn: <span className="text-ink-soft">{summary.policy.venueWarningDays} ngày</span></span>
-                  <span>
-                    Hoàn tiền donate: <span className="text-ink-soft">{summary.policy.refundable ? 'có' : 'không'}</span>
-                  </span>
-                </div>
-              </div>
+                <dl className="mt-5 grid grid-cols-[auto_minmax(0,1fr)] sm:grid-cols-[auto_auto_auto_auto] gap-x-6 gap-y-2 border-t border-ink/20 pt-4 text-sm">
+                  <dt className="text-ink-mute">Nghệ sĩ nhận</dt><dd className="font-mono">{fmtPhanTram(summary.policy.performerShareRate)}</dd>
+                  <dt className="text-ink-mute">Phí nền tảng</dt><dd className="font-mono">{fmtPhanTram(summary.policy.platformCommissionRate)}</dd>
+                  <dt className="text-ink-mute">Hạn phòng trà chuyển</dt><dd className="font-mono">{summary.policy.venuePayoutDays} ngày</dd>
+                  <dt className="text-ink-mute">Nhắc trước hạn</dt><dd className="font-mono">{summary.policy.venueWarningDays} ngày</dd>
+                  <dt className="text-ink-mute">Hoàn tiền ủng hộ</dt><dd>{summary.policy.refundable ? 'Có' : 'Không'}</dd>
+                </dl>
+              </section>
             )}
           </>
         )}
 
         {/* TỪNG KHOẢN */}
-        <h2 className="font-sans font-bold text-base text-ink mt-8 mb-3">Từng khoản donate</h2>
+        <section aria-labelledby="tung-khoan-td" className="mt-12">
+          <h2 id="tung-khoan-td" className="text-4xl mb-4">Từng khoản ủng hộ</h2>
 
-        {rows.length === 0 ? (
-          <div className="bg-card border border-line p-10 text-center">
-            <p className="text-sm text-ink-mute">Chưa có khoản donate nào được công khai.</p>
-          </div>
-        ) : (
-          <div className="bg-card border border-line divide-y divide-line">
-            {rows.map((d) => (
-              <div key={d.id} className="p-5">
-                <div className="flex flex-wrap items-start justify-between gap-4">
-                  <div className="min-w-0">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className={`px-2 py-0.5 rounded-md text-xs font-medium ${MAU_CHANG[d.stage] ?? 'text-ink-soft bg-line/40'}`}>
-                        {d.stageLabel}
-                      </span>
-                      {d.overdue && (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-danger/10 text-danger text-xs font-medium">
-                          <AlertTriangle size={11} /> Quá hạn
-                        </span>
-                      )}
-                      {d.paidLate && (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-warning/10 text-warning text-xs">
-                          <Clock size={11} /> Chuyển sau hạn
-                        </span>
-                      )}
-                      {d.hasTransferReceipt && (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-sunken text-ink-soft text-xs"
-                          title="Có chứng từ được lưu; bản thân chứng từ không công khai">
-                          <FileCheck2 size={11} /> Có chứng từ
-                        </span>
+          {loiDs ? (
+            <div role="alert" className="flex flex-wrap items-center gap-4 border-2 border-ink p-5">
+              <p>Danh sách từng khoản chưa tải được.</p>
+              <button type="button" onClick={() => load()} className={NUT_VIEN}>Thử lại</button>
+            </div>
+          ) : rows.length === 0 ? (
+            <p className="border-2 border-ink p-6">Chưa có khoản ủng hộ nào được công khai.</p>
+          ) : (
+            <ol className="border-y-2 border-ink divide-y divide-ink/20">
+              {rows.map((d) => (
+                <li key={d.id} className="py-5">
+                  <div className="flex flex-wrap items-start justify-between gap-4">
+                    <div className="min-w-0">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <NhanTrangThai sacThai={SAC_THAI_CHANG[d.stage] ?? 'trung'}>{d.stageLabel}</NhanTrangThai>
+                        {d.overdue && <NhanTrangThai sacThai="xau" icon={AlertTriangle}>Quá hạn</NhanTrangThai>}
+                        {d.paidLate && <NhanTrangThai sacThai="cho">Chuyển sau hạn</NhanTrangThai>}
+                        {/* Chỉ nói là CÓ chứng từ được lưu; bản thân chứng từ không công khai. */}
+                        {d.hasTransferReceipt && <NhanTrangThai sacThai="trung" icon={FileCheck2}>Có chứng từ</NhanTrangThai>}
+                      </div>
+                      <p className="font-display text-2xl leading-tight mt-2 break-words">{d.showName}</p>
+                      <p className="text-ink-soft mt-0.5">
+                        {d.venueName} · <span className="font-mono text-sm">{ngayDayDu(d.showDate)}</span> · từ {d.donorDisplayName || 'người tặng ẩn danh'}
+                      </p>
+                      {d.message && (
+                        <blockquote className="mt-2 border-l-2 border-ink pl-3 italic text-ink-soft break-words">“{d.message}”</blockquote>
                       )}
                     </div>
 
-                    <p className="text-sm text-ink mt-2">{d.showName}</p>
-                    <p className="text-xs text-ink-mute mt-0.5">
-                      {d.venueName} · {dayjs(d.showDate).format('DD/MM/YYYY')} · từ{' '}
-                      {d.donorDisplayName || 'người tặng ẩn danh'}
-                    </p>
-                    {d.message && (
-                      <p className="text-sm text-ink-soft mt-2 italic border-l-2 border-line pl-3 leading-relaxed">
-                        “{d.message}”
-                      </p>
-                    )}
+                    <div className="text-right flex-shrink-0">
+                      {/* gross null = khoản cũ không công khai số tiền, nói rõ thay vì hiện 0 đ */}
+                      {d.gross != null
+                        ? <p className="font-mono text-lg">{fmtTien(d.gross)}</p>
+                        : <p className="text-sm text-ink-mute">Không công khai số tiền</p>}
+                      {d.performerAmount != null && (
+                        <p className="text-sm text-ink-mute mt-0.5">nghệ sĩ nhận <span className="font-mono text-ink">{fmtTien(d.performerAmount)}</span></p>
+                      )}
+                      {laAdmin && (
+                        <button type="button" onClick={() => setEvidenceId(d.id)} className={`${NUT_VIEN} mt-2 text-sm`}>
+                          <ShieldCheck size={15} aria-hidden="true" /> Nhật ký bằng chứng
+                        </button>
+                      )}
+                    </div>
                   </div>
 
-                  <div className="text-right flex-shrink-0">
-                    {/* gross null = khoản cũ không công khai số tiền, nói rõ thay vì hiện 0đ */}
-                    <p className="text-lg font-bold text-ink tabular-nums">
-                      {d.gross != null ? fmtTien(d.gross) : <span className="text-sm text-ink-mute font-normal">không công khai số tiền</span>}
-                    </p>
-                    {d.performerAmount != null && (
-                      <p className="text-xs text-ink-mute mt-0.5">
-                        nghệ sĩ nhận <span className="text-ink tabular-nums">{fmtTien(d.performerAmount)}</span>
-                      </p>
+                  {/* DÒNG THỜI GIAN CỦA MỘT KHOẢN — mốc nào chưa có thì không hiện, không hiện "—" */}
+                  <ul className="mt-3 flex flex-wrap gap-x-6 gap-y-1 text-sm text-ink-mute" aria-label={`Các mốc của khoản #${d.id}`}>
+                    {d.paidAt && <li>Thanh toán {ngayDayDu(d.paidAt)}</li>}
+                    {d.platformPaidVenueAt && <li>Nền tảng chuyển phòng trà {ngayDayDu(d.platformPaidVenueAt)}</li>}
+                    {d.venueAcknowledgedAt && <li>Phòng trà xác nhận {ngayDayDu(d.venueAcknowledgedAt)}{d.venueAcknowledgedAutomatically && ' (tự động)'}</li>}
+                    {d.payoutDueAt && <li>Hạn chuyển nghệ sĩ {ngayDayDu(d.payoutDueAt)}</li>}
+                    {d.venueReportedPaidAt && <li>Phòng trà báo đã chuyển {ngayDayDu(d.venueReportedPaidAt)}</li>}
+                    {d.performerRespondedAt && (
+                      <li className="inline-flex items-center gap-1">
+                        {d.performerResponse === 'Confirmed'
+                          ? <CheckCircle2 size={14} className="text-success" aria-hidden="true" />
+                          : <XCircle size={14} className="text-danger" aria-hidden="true" />}
+                        Nghệ sĩ {d.performerResponse === 'Confirmed' ? 'xác nhận đã nhận' : 'báo chưa nhận'} {ngayDayDu(d.performerRespondedAt)}
+                      </li>
                     )}
-                    {laAdmin && (
-                      <button onClick={() => setEvidenceId(d.id)}
-                        className="mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 border border-line text-ink-soft text-xs font-bold hover:bg-sunken">
-                        <ShieldCheck size={13} /> Nhật ký bằng chứng
-                      </button>
+                    {d.performerAskedToConfirm && !d.performerRespondedAt && (
+                      <li className="inline-flex items-center gap-1 text-warning"><Clock size={14} aria-hidden="true" /> Đang chờ nghệ sĩ xác nhận</li>
                     )}
-                  </div>
-                </div>
+                  </ul>
+                </li>
+              ))}
+            </ol>
+          )}
 
-                {/* DÒNG THỜI GIAN CỦA MỘT KHOẢN — mốc nào chưa có thì không hiện, không hiện "—" */}
-                <div className="mt-3 flex flex-wrap gap-x-6 gap-y-1 text-xs text-ink-mute">
-                  {d.paidAt && <span>Thanh toán {dayjs(d.paidAt).format('DD/MM/YYYY')}</span>}
-                  {d.platformPaidVenueAt && <span>Nền tảng chuyển phòng trà {dayjs(d.platformPaidVenueAt).format('DD/MM/YYYY')}</span>}
-                  {d.venueAcknowledgedAt && (
-                    <span>
-                      Phòng trà xác nhận {dayjs(d.venueAcknowledgedAt).format('DD/MM/YYYY')}
-                      {d.venueAcknowledgedAutomatically && ' (tự động)'}
-                    </span>
-                  )}
-                  {d.payoutDueAt && <span>Hạn chuyển nghệ sĩ {dayjs(d.payoutDueAt).format('DD/MM/YYYY')}</span>}
-                  {d.venueReportedPaidAt && <span>Phòng trà báo đã chuyển {dayjs(d.venueReportedPaidAt).format('DD/MM/YYYY')}</span>}
-                  {d.performerRespondedAt && (
-                    <span className="inline-flex items-center gap-1">
-                      {d.performerResponse === 'Confirmed'
-                        ? <CheckCircle2 size={11} className="text-success" />
-                        : <XCircle size={11} className="text-danger" />}
-                      Nghệ sĩ phản hồi {dayjs(d.performerRespondedAt).format('DD/MM/YYYY')}
-                    </span>
-                  )}
-                  {d.performerAskedToConfirm && !d.performerRespondedAt && (
-                    <span className="text-warning/80">Đang chờ nghệ sĩ xác nhận</span>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {totalPages > 1 && (
-          <div className="flex items-center justify-center gap-3 mt-5">
-            <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page <= 1}
-              className="px-4 py-2 border border-line text-sm text-ink-soft hover:bg-sunken disabled:opacity-40">
-              Trước
-            </button>
-            <span className="text-sm text-ink-mute">Trang {page}/{totalPages}</span>
-            <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page >= totalPages}
-              className="px-4 py-2 border border-line text-sm text-ink-soft hover:bg-sunken disabled:opacity-40">
-              Sau
-            </button>
-          </div>
-        )}
+          {totalPages > 1 && (
+            <nav aria-label="Phân trang" className="flex flex-wrap items-center gap-4 mt-6">
+              <button type="button" onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page <= 1} className={NUT_VIEN}>Trang trước</button>
+              <p className="font-mono text-sm">Trang {page} trên {totalPages}</p>
+              <button type="button" onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page >= totalPages} className={NUT_VIEN}>Trang sau</button>
+            </nav>
+          )}
+        </section>
       </div>
 
-      {evidenceId != null && (
-        <EvidenceModal donationId={evidenceId} onClose={() => setEvidenceId(null)} />
-      )}
+      {evidenceId != null && <HopNhatKy donationId={evidenceId} onClose={() => setEvidenceId(null)} />}
     </div>
   )
 }
