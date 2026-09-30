@@ -33,7 +33,10 @@ const ACTIONS = [
     desc: 'HUỶ HẲN buổi diễn và hoàn 100% cho MỌI người đang giữ vé. Không hoàn tác được.' },
 ]
 
-const XAC_NHAN = 'HUY BUOI DIEN'
+// Chữ xác nhận in có dấu; so sánh bỏ dấu, không phân biệt hoa thường (01/10/2026 — bản cũ bắt gõ "HUY BUOI DIEN" không
+// dấu, tức là bắt người Việt tắt bộ gõ).
+const XAC_NHAN = 'HUỶ BUỔI DIỄN'
+const boDau = (x) => x.normalize('NFD').replace(/\p{M}/gu, '').replace(/đ/gi, 'd').toUpperCase().replace(/\s+/g, ' ').trim()
 
 const ResolveComplaintModal = ({ complaint, onClose, onSaved }) => {
   const [status, setStatus] = useState('Investigating')
@@ -45,7 +48,7 @@ const ResolveComplaintModal = ({ complaint, onClose, onSaved }) => {
   const canResolved = status === 'Resolved'
   const hanhDong = ACTIONS.find((a) => a.value === action)
   const canGoXacNhan = canResolved && action === 'TakeDownContent'
-  const chuaGoDung = canGoXacNhan && goXacNhan.trim().toUpperCase() !== XAC_NHAN
+  const chuaGoDung = canGoXacNhan && boDau(goXacNhan) !== boDau(XAC_NHAN)
 
   const submit = async (e) => {
     e.preventDefault()
