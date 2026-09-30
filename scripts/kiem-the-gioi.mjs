@@ -32,6 +32,9 @@ const DA_CHUYEN = [
   // 30/09: trang chi tiet buoi dien (trang mau dau tien tren duong di cua khan gia) + cac tab cua no.
   'src/pages/events/EventDetailPage.jsx',
   'src/components/mshow-detail',
+  // 30/09: trang Ve cua toi va nam tab cua no.
+  'src/pages/user/MyShowsPage.jsx',
+  'src/components/myshows',
 ]
 
 const TIEN_TO = '(?:bg|text|border|ring|outline|from|to|via|decoration|fill|stroke|divide|shadow|caret|accent|placeholder|ring-offset)(?:-[trblxy])?'

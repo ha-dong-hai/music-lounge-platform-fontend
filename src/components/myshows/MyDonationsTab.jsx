@@ -43,12 +43,12 @@ const MyDonationsTab = () => {
   useEffect(() => { const chay = async () => { await load() }; chay() }, [load])
 
   if (isLoading) {
-    return <div className="py-20 flex justify-center"><Loader2 size={30} className="animate-spin text-brand-text" /></div>
+    return <div className="py-20 flex justify-center"><Loader2 size={30} className="animate-spin text-ink" /></div>
   }
 
   if (items.length === 0) {
     return (
-      <div className="bg-card border border-line rounded-2xl p-12 text-center">
+      <div className="bg-card border border-line p-12 text-center">
         <Heart size={32} className="mx-auto mb-3 text-ink-mute" />
         <p className="text-lg font-semibold text-ink mb-1">Bạn chưa donate cho nghệ sĩ nào.</p>
         <p className="text-sm text-ink-mute">Trong buổi phát trực tiếp, bạn có thể tặng tiền cho nghệ sĩ đang biểu diễn.</p>
@@ -58,7 +58,7 @@ const MyDonationsTab = () => {
 
   return (
     <div className="space-y-4">
-      <div className="bg-card border border-line rounded-2xl divide-y divide-line">
+      <div className="bg-card border border-line divide-y divide-line">
         {items.map((d) => {
           const tt = NHAN_TRANG_THAI[d.status]
           const Icon = tt?.icon
@@ -68,7 +68,7 @@ const MyDonationsTab = () => {
                 <div className="flex flex-wrap items-center gap-2">
                   {d.performerId ? (
                     <Link to={`/performers/${d.performerId}/donations`}
-                      className="text-base font-semibold text-ink hover:text-brand-text inline-flex items-center gap-1.5"
+                      className="text-base font-semibold text-ink hover:text-ink inline-flex items-center gap-1.5"
                       title="Xem sao kê donate công khai của nghệ sĩ này">
                       {d.performerName} <ExternalLink size={13} className="text-ink-mute" />
                     </Link>
@@ -94,7 +94,7 @@ const MyDonationsTab = () => {
               </div>
 
               <div className="text-right flex-shrink-0">
-                <p className="text-lg font-bold text-brand-text tabular-nums">{fmtTien(d.gross)}</p>
+                <p className="text-lg font-bold text-ink tabular-nums">{fmtTien(d.gross)}</p>
                 <span className={`mt-1.5 inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium ${tt?.mau ?? 'text-ink-soft bg-line-strong/10'}`}>
                   {Icon && <Icon size={11} />} {tt?.chu ?? d.status}
                 </span>
@@ -107,12 +107,12 @@ const MyDonationsTab = () => {
       {totalPages > 1 && (
         <div className="flex items-center justify-center gap-3">
           <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page <= 1}
-            className="px-4 py-2 rounded-lg border border-line text-sm text-ink-soft hover:bg-sunken disabled:opacity-40">
+            className="px-4 py-2 border border-line text-sm text-ink-soft hover:bg-sunken disabled:opacity-40">
             Trước
           </button>
           <span className="text-sm text-ink-mute">Trang {page}/{totalPages}</span>
           <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page >= totalPages}
-            className="px-4 py-2 rounded-lg border border-line text-sm text-ink-soft hover:bg-sunken disabled:opacity-40">
+            className="px-4 py-2 border border-line text-sm text-ink-soft hover:bg-sunken disabled:opacity-40">
             Sau
           </button>
         </div>

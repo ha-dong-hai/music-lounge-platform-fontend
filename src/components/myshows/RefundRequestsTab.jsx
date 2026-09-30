@@ -17,7 +17,7 @@ import { getMyRefundRequests, provideRefundPayoutAccount } from '../../services/
 const fmtMoney = (v) => `${Number(v || 0).toLocaleString('vi-VN')}đ`
 const soTien = (r) => r.amountApproved ?? r.amountRequested
 const TRANG_THAI = { Pending: 'Đang chờ duyệt', Approved: 'Đã duyệt hoàn tiền', Rejected: 'Bị từ chối' }
-const inputCls = 'mt-1 w-full px-3 py-2 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-brand/50'
+const inputCls = 'mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink focus:outline-none focus:border-ink/50'
 
 const PayoutAccountModal = ({ request, onClose, onSaved }) => {
   const [form, setForm] = useState({ bankName: '', accountNumber: '', accountHolder: '', consent: false })
@@ -51,11 +51,11 @@ const PayoutAccountModal = ({ request, onClose, onSaved }) => {
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-espresso/80 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-card border border-line rounded-2xl w-full max-w-md shadow-2xl">
+      <div className="absolute inset-0 bg-ink/80" onClick={onClose} />
+      <div className="relative bg-card border border-line w-full max-w-md shadow-soft">
         <div className="flex justify-between items-center p-5 border-b border-line">
           <h2 className="text-lg font-bold text-ink">Tài khoản nhận tiền hoàn</h2>
-          <button onClick={onClose} className="p-2 hover:bg-sunken rounded-full text-ink-soft"><X size={20} /></button>
+          <button onClick={onClose} className="p-2 hover:bg-sunken text-ink-soft"><X size={20} /></button>
         </div>
 
         <form onSubmit={submit} className="p-5 space-y-4">
@@ -79,12 +79,12 @@ const PayoutAccountModal = ({ request, onClose, onSaved }) => {
 
           <label className="flex items-start gap-2 text-xs text-ink-soft cursor-pointer leading-relaxed">
             <input type="checkbox" checked={form.consent} onChange={(e) => set('consent', e.target.checked)}
-              className="accent-brand mt-0.5 flex-shrink-0" />
+              className="accent-ink mt-0.5 flex-shrink-0" />
             Tôi đồng ý cho nền tảng dùng thông tin ngân hàng này để hoàn tiền cho tôi.
           </label>
 
           <button type="submit" disabled={isBusy}
-            className="w-full py-2.5 bg-brand text-on-brand rounded-lg font-bold flex items-center justify-center gap-2 disabled:opacity-50">
+            className="w-full py-2.5 bg-ink text-lamp font-bold flex items-center justify-center gap-2 disabled:opacity-50">
             {isBusy && <Loader2 size={16} className="animate-spin" />} Gửi thông tin
           </button>
         </form>
@@ -116,12 +116,12 @@ const RefundRequestsTab = () => {
   useEffect(() => { const chay = async () => { await load() }; chay() }, [load])
 
   if (isLoading) {
-    return <div className="py-16 flex justify-center"><Loader2 size={28} className="animate-spin text-brand-text" /></div>
+    return <div className="py-16 flex justify-center"><Loader2 size={28} className="animate-spin text-ink" /></div>
   }
 
   if (items.length === 0) {
     return (
-      <div className="bg-card border border-line rounded-xl p-10 text-center">
+      <div className="bg-card border border-line p-10 text-center">
         <Receipt size={26} className="mx-auto mb-3 text-ink-mute" />
         <p className="text-sm text-ink-mute">Bạn chưa có yêu cầu hoàn tiền nào.</p>
       </div>
@@ -135,7 +135,7 @@ const RefundRequestsTab = () => {
         const canKhaiTaiKhoan = r.payoutAccountRequired && !r.payoutAccountNumber && r.status !== 'Rejected'
 
         return (
-          <div key={r.id} className="bg-card border border-line rounded-xl p-5">
+          <div key={r.id} className="bg-card border border-line p-5">
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div className="min-w-0">
                 <p className="text-ink font-bold">Yêu cầu hoàn tiền #{r.id}</p>
@@ -145,7 +145,7 @@ const RefundRequestsTab = () => {
                 {r.reason && <p className="text-xs text-ink-mute mt-0.5">Lý do: {r.reason}</p>}
               </div>
               <div className="text-right flex-shrink-0">
-                <p className="text-lg font-bold text-brand-text tabular-nums">{fmtMoney(soTien(r))}</p>
+                <p className="text-lg font-bold text-ink tabular-nums">{fmtMoney(soTien(r))}</p>
                 {r.amountApproved != null && r.amountApproved !== r.amountRequested && (
                   <p className="text-xs text-ink-mute tabular-nums">Yêu cầu {fmtMoney(r.amountRequested)}</p>
                 )}
@@ -160,14 +160,14 @@ const RefundRequestsTab = () => {
             )}
 
             {canKhaiTaiKhoan && (
-              <div className="mt-3 bg-yellow-500/5 border border-yellow-500/30 rounded-lg p-3">
+              <div className="mt-3 bg-yellow-500/5 border border-yellow-500/30 p-3">
                 <p className="text-xs text-warning flex items-start gap-1.5 leading-relaxed">
                   <AlertTriangle size={13} className="mt-px flex-shrink-0" />
                   Giao dịch gốc không hoàn lại được qua cổng thanh toán. Bạn cần khai tài khoản ngân hàng,
                   nếu không thì không ai chuyển được tiền cho bạn.
                 </p>
                 <button onClick={() => setKhaiTaiKhoan(r)}
-                  className="mt-2 flex items-center gap-2 px-3 py-1.5 rounded-lg bg-brand text-on-brand text-xs font-bold hover:bg-brand-hover">
+                  className="mt-2 flex items-center gap-2 px-3 py-1.5 bg-ink text-lamp text-xs font-bold hover:bg-board">
                   <Landmark size={13} /> Khai tài khoản nhận tiền
                 </button>
               </div>

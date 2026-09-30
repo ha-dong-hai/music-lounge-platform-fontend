@@ -1,47 +1,52 @@
+// src/components/myshows/TicketsTab.jsx
+//
+// VÉ CỦA TÔI — mỗi vé in thành một TẤM VÉ CÓ CUỐNG (thủ pháp của thế giới "tờ chương trình", DESIGN.md): cuống tối bên
+// trái ghi ngày và giờ, thân vé bên phải ghi buổi diễn, phòng trà, hạng vé, số tiền đã trả và lối đi tiếp.
+//
+// Làm lại 30/09 (pre-mortem T1: đường đi của khán giả). Khác bản cũ:
+//  - ĐỦ 5 TRẠNG THÁI VÉ của backend (Pending, Confirmed, Used, Cancelled, Refunded). Bản cũ chỉ dịch "Confirmed", bốn
+//    trạng thái còn lại in nguyên chữ tiếng Anh.
+//  - DẤU MỘC cho hai trạng thái TIỀN: đã trả và đã hoàn (luật của thế giới: dấu mộc chỉ nói về tiền).
+//  - Ngày giờ đi qua utils/ngayVietNam; bỏ màu tím/xanh/lục/vàng mặc định của Tailwind.
 import { useState, useEffect, useMemo } from 'react'
 import { Link } from 'react-router-dom'
-import { Ticket, ChevronLeft, ChevronRight, Clock, Search, MapPin, Video, QrCode, X } from 'lucide-react'
-import Skeleton from '../shared/Skeleton'
+import { ChevronLeft, ChevronRight, Search, MapPin, Video, QrCode, X } from 'lucide-react'
 import dayjs from 'dayjs'
+import DauMoc from '../program/DauMoc'
 import { getMyTickets } from '../../services/ticketServices'
+import { thuVietHoa, ngayGon, gioTrongNgay, ngayDayDu } from '../../utils/ngayVietNam'
 
-const ITEMS_PER_PAGE = 10 
+const ITEMS_PER_PAGE = 10
 
 const isOnlineTicket = (accessType) => !!accessType && accessType !== 'Physical'
 
-// ===== BADGE: LOẠI VÉ =====
-const AccessTypeBadge = ({ accessType }) => (
-  isOnlineTicket(accessType)
-    ? <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-purple-500/15 text-purple-700 border border-purple-500/30"><Video size={12} /> Vé Livestream</span>
-    : <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-blue-500/15 text-sky-700 border border-blue-500/30"><MapPin size={12} /> Vé tại chỗ</span>
+// Trạng thái vé → câu cho người giữ vé. `dau` là chữ trên dấu mộc, CHỈ có ở trạng thái tiền.
+const TRANG_THAI_VE = {
+  Pending: { nhan: 'Chờ thanh toán' },
+  Confirmed: { nhan: 'Đã thanh toán', dau: 'ĐÃ TRẢ' },
+  Used: { nhan: 'Đã soát vé', dau: 'ĐÃ TRẢ' },
+  Cancelled: { nhan: 'Đã huỷ' },
+  Refunded: { nhan: 'Đã hoàn tiền', dau: 'ĐÃ HOÀN' },
+}
+
+const nhanThoiGian = (batDau) => {
+  if (!batDau) return null
+  const d = dayjs(batDau)
+  if (d.isSame(dayjs(), 'day')) return 'Hôm nay'
+  return d.isAfter(dayjs()) ? 'Sắp diễn ra' : 'Đã diễn ra'
+}
+
+const NhanNho = ({ children, dam = false }) => (
+  <span className={`inline-flex items-center gap-1 px-2 min-h-[26px] border text-xs font-semibold ${dam ? 'bg-ink text-lamp border-ink' : 'border-ink/40 text-ink-soft'}`}>{children}</span>
 )
-
-// ===== BADGE: THỜI GIAN (Sắp diễn ra / Hôm nay / Đã diễn ra) =====
-const TimeBadge = ({ startDate }) => {
-  if (!startDate) return null
-  const d = dayjs(startDate)
-  if (d.isAfter(dayjs()))
-    return <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-green-500/15 text-success border border-green-500/30">Sắp diễn ra</span>
-  if (d.isSame(dayjs(), 'day'))
-    return <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-yellow-500/15 text-warning border border-yellow-500/30">Hôm nay</span>
-  return <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-line-strong/15 text-ink-mute border border-line-strong/30">Đã diễn ra</span>
-}
-
-// ===== BADGE: THANH TOÁN =====
-const PayStatusBadge = ({ status }) => {
-  const isConfirmed = status === 'Confirmed'
-  return (
-    <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold border ${isConfirmed ? 'bg-green-500/15 text-success border-green-500/30' : 'bg-line-strong/15 text-ink-soft border-line-strong/30'}`}>
-      {isConfirmed ? 'Đã thanh toán' : (status || '—')}
-    </span>
-  )
-}
 
 const TicketsTab = () => {
   const [activeSubTab, setActiveSubTab] = useState('all')        // all | upcoming | ended
   const [typeFilter, setTypeFilter] = useState('all')            // all | offline | online
-  const [searchQuery, setSearchQuery] = useState('')        
+  const [searchQuery, setSearchQuery] = useState('')
   const [isLoading, setIsLoading] = useState(true)
+  const [loi, setLoi] = useState(false)
+  const [lanTai, setLanTai] = useState(0)
   const [tickets, setTickets] = useState([])
   const [pagination, setPagination] = useState({ page: 1, totalPages: 1, totalCount: 0 })
 
@@ -49,6 +54,7 @@ const TicketsTab = () => {
   useEffect(() => {
     const fetchTickets = async () => {
       setIsLoading(true)
+      setLoi(false)
       try {
         const res = await getMyTickets({ page: pagination.page, pageSize: ITEMS_PER_PAGE })
         if (res.success) {
@@ -65,15 +71,19 @@ const TicketsTab = () => {
           }))
           setTickets(mapped)
           setPagination(prev => ({ ...prev, totalPages: res.data.totalPages, totalCount: res.data.totalCount }))
+        } else {
+          setLoi(true)
         }
       } catch (err) {
+        // Trước đây lỗi tải chỉ ghi console rồi hiện "Chưa có vé nào" — người vừa trả tiền tưởng mất vé.
         console.error('Lỗi load tickets:', err)
+        setLoi(true)
       } finally {
         setIsLoading(false)
       }
     }
     fetchTickets()
-  }, [pagination.page])
+  }, [pagination.page, lanTai])
 
   // LỌC KẾT HỢP: thời gian + loại vé + search (client-side trong trang hiện tại)
   const filteredTickets = useMemo(() => {
@@ -100,16 +110,16 @@ const TicketsTab = () => {
   const subTabs = [
     { key: 'all', label: 'Tất cả' },
     { key: 'upcoming', label: 'Sắp diễn ra' },
-    { key: 'ended', label: 'Đã kết thúc' }
+    { key: 'ended', label: 'Đã diễn ra' }
   ]
   const typeTabs = [
-    { key: 'all', label: 'Tất cả' },
+    { key: 'all', label: 'Mọi loại vé' },
     { key: 'offline', label: 'Tại chỗ' },
     { key: 'online', label: 'Trực tuyến' }
   ]
 
-  const pillCls = (active) => `px-4 min-h-[44px] inline-flex items-center rounded-full text-sm font-medium transition-all border ${
-    active ? 'bg-brand text-on-brand border-brand' : 'bg-transparent text-ink-soft border-line hover:border-line-strong hover:text-ink'
+  const nutLoc = (active) => `px-4 min-h-[44px] inline-flex items-center text-sm font-semibold border-2 border-ink transition-colors ${
+    active ? 'bg-ink text-lamp' : 'text-ink hover:bg-ink hover:text-lamp'
   }`
 
   const resetFilters = () => {
@@ -120,182 +130,174 @@ const TicketsTab = () => {
 
   const renderPagination = () => {
     if (pagination.totalPages <= 1) return null
+    const nut = 'w-11 h-11 inline-flex items-center justify-center border-2 border-ink text-sm font-semibold transition-colors'
     return (
-      <div className="flex justify-center items-center gap-2 mt-10">
-        <button onClick={() => setPagination(prev => ({ ...prev, page: prev.page - 1 }))} disabled={pagination.page === 1} className="p-2 rounded-md border border-line text-ink-soft hover:border-brand hover:text-brand-text disabled:opacity-30 disabled:cursor-not-allowed transition-colors">
-          <ChevronLeft size={18} />
+      <nav className="flex justify-center items-center gap-2 mt-10" aria-label="Phân trang vé">
+        <button type="button" aria-label="Trang trước" onClick={() => setPagination(prev => ({ ...prev, page: prev.page - 1 }))} disabled={pagination.page === 1} className={`${nut} text-ink hover:bg-ink hover:text-lamp disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-ink`}>
+          <ChevronLeft size={18} aria-hidden="true" />
         </button>
         {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map(num => (
-          <button key={num} onClick={() => setPagination(prev => ({ ...prev, page: num }))} className={`w-10 h-10 rounded-md border text-sm font-medium transition-colors ${pagination.page === num ? 'bg-brand text-on-brand border-brand' : 'text-ink-soft border-line hover:border-line-strong hover:text-ink'}`}>
+          <button type="button" key={num} aria-current={pagination.page === num ? 'page' : undefined} onClick={() => setPagination(prev => ({ ...prev, page: num }))} className={`${nut} font-mono ${pagination.page === num ? 'bg-ink text-lamp' : 'text-ink hover:bg-ink hover:text-lamp'}`}>
             {num}
           </button>
         ))}
-        <button onClick={() => setPagination(prev => ({ ...prev, page: prev.page + 1 }))} disabled={pagination.page === pagination.totalPages} className="p-2 rounded-md border border-line text-ink-soft hover:border-brand hover:text-brand-text disabled:opacity-30 disabled:cursor-not-allowed transition-colors">
-          <ChevronRight size={18} />
+        <button type="button" aria-label="Trang sau" onClick={() => setPagination(prev => ({ ...prev, page: prev.page + 1 }))} disabled={pagination.page === pagination.totalPages} className={`${nut} text-ink hover:bg-ink hover:text-lamp disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-ink`}>
+          <ChevronRight size={18} aria-hidden="true" />
         </button>
-      </div>
+      </nav>
     )
   }
 
   return (
     <div>
-
-      {/* ===== SEARCH BAR ===== */}
-      <div className="relative mb-4">
-        <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-mute" />
+      {/* ===== TÌM VÉ ===== */}
+      <div className="relative mb-4 max-w-xl">
+        <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-mute" aria-hidden="true" />
         <input
-          type="text"
-          placeholder="Tìm vé (trong trang hiện tại)"
+          type="search"
+          aria-label="Tìm vé trong trang hiện tại"
+          placeholder="Tìm theo tên buổi diễn, phòng trà hoặc mã vé"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full pl-10 pr-10 py-2.5 bg-card border border-line rounded-xl text-sm text-ink placeholder:text-ink-mute focus:outline-none focus:border-brand/50"
+          className="w-full pl-10 pr-11 min-h-[44px] bg-card border-2 border-ink text-sm text-ink placeholder:text-ink-mute focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2 focus:ring-offset-stock"
         />
         {searchQuery && (
-          <button onClick={() => setSearchQuery('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-mute hover:text-ink">
-            <X size={16} />
+          <button type="button" onClick={() => setSearchQuery('')} aria-label="Xoá từ khoá" className="absolute right-0 top-0 w-11 h-11 inline-flex items-center justify-center text-ink-soft hover:text-ink">
+            <X size={16} aria-hidden="true" />
           </button>
         )}
       </div>
 
-      {/* ===== SUB TABS (thời gian) + FILTER LOẠI VÉ ===== */}
-      <div className="flex flex-wrap items-center gap-2 mb-8">
-        {subTabs.map(tab => (
-          <button key={tab.key} onClick={() => setActiveSubTab(tab.key)} className={pillCls(activeSubTab === tab.key)}>
-            {tab.label}
-          </button>
-        ))}
-
-        <div className="h-6 w-px bg-sunken mx-1.5 hidden sm:block" />
-
-        {typeTabs.map(tab => (
-          <button key={tab.key} onClick={() => setTypeFilter(tab.key)} className={pillCls(typeFilter === tab.key)}>
-            {tab.label}
-          </button>
-        ))}
-
+      {/* ===== LỌC: thời gian + loại vé ===== */}
+      <div className="flex flex-wrap items-center gap-x-6 gap-y-3 mb-8">
+        <div className="flex flex-wrap gap-2" role="group" aria-label="Lọc theo thời gian">
+          {subTabs.map(tab => (
+            <button type="button" key={tab.key} aria-pressed={activeSubTab === tab.key} onClick={() => setActiveSubTab(tab.key)} className={nutLoc(activeSubTab === tab.key)}>
+              {tab.label}
+            </button>
+          ))}
+        </div>
+        <div className="flex flex-wrap gap-2" role="group" aria-label="Lọc theo loại vé">
+          {typeTabs.map(tab => (
+            <button type="button" key={tab.key} aria-pressed={typeFilter === tab.key} onClick={() => setTypeFilter(tab.key)} className={nutLoc(typeFilter === tab.key)}>
+              {tab.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* ===== NỘI DUNG ===== */}
       {isLoading ? (
-        <div className="flex flex-col gap-5">
-          {[...Array(4)].map((_, i) => (
-            <div key={i} className="bg-card border border-line rounded-2xl overflow-hidden flex">
-              <div className="w-1/4 sm:w-1/5 bg-sunken/70 p-4 flex flex-col items-center justify-center border-r-2 border-dashed border-line">
-                <Skeleton className="h-8 w-8 mb-2" /><Skeleton className="h-4 w-12" />
+        <ul className="flex flex-col gap-5" aria-busy="true" aria-label="Đang tải vé">
+          {[0, 1, 2].map((i) => (
+            <li key={i} className="flex bg-card border-2 border-ink/20">
+              <div className="w-24 sm:w-32 bg-ink/10 animate-pulse min-h-[150px]" />
+              <div className="flex-1 p-5 space-y-3">
+                <div className="h-4 w-40 bg-ink/10 animate-pulse" /><div className="h-7 w-3/4 bg-ink/10 animate-pulse" /><div className="h-4 w-1/2 bg-ink/10 animate-pulse" />
               </div>
-              <div className="flex-1 p-6 flex flex-col justify-center gap-3">
-                <Skeleton className="h-6 w-3/4" /><Skeleton className="h-4 w-1/2" /><Skeleton className="h-4 w-2/3" />
-              </div>
-            </div>
+            </li>
           ))}
+        </ul>
+      ) : loi ? (
+        <div role="alert" className="flex flex-wrap items-center justify-between gap-4 bg-card border-2 border-ink p-6">
+          <p>Chưa tải được danh sách vé. Vé của bạn vẫn còn nguyên, hãy kiểm tra kết nối rồi thử lại.</p>
+          <button type="button" onClick={() => setLanTai((n) => n + 1)} className="min-h-[44px] px-5 bg-ink text-lamp font-semibold hover:bg-board transition-colors">Thử lại</button>
         </div>
       ) : tickets.length === 0 ? (
         /* CHƯA CÓ VÉ GÌ CẢ */
-        <div className="bg-card border border-line rounded-2xl p-12 text-center min-h-[300px] flex flex-col items-center justify-center">
-          <Ticket size={40} className="text-ink-mute mb-4" />
-          <p className="text-ink-soft text-lg">Chưa có vé nào trong mục này.</p>
-          <Link to="/" className="mt-4 text-brand-text font-semibold underline hover:text-brand-text">Khám phá thêm đêm diễn</Link>
+        <div className="bg-card border-2 border-ink p-8 sm:p-12">
+          <p className="font-display text-3xl text-ink leading-none">Bạn chưa có vé nào.</p>
+          <p className="text-ink-soft mt-3 max-w-prose">Vé mua xong sẽ nằm ở đây, kèm mã QR để vào cửa. Tiền vé được giữ hộ tới khi buổi diễn diễn ra.</p>
+          <Link to="/shows" className="inline-flex items-center min-h-[44px] mt-5 px-5 bg-ink text-lamp font-semibold hover:bg-board transition-colors">Xem các buổi diễn đang mở bán</Link>
         </div>
       ) : filteredTickets.length > 0 ? (
         <>
-          <div className="flex flex-col gap-5">
+          <ul className="flex flex-col gap-5">
             {filteredTickets.map(ev => {
-              const eventDate = dayjs(ev.start_date)
               const online = isOnlineTicket(ev.accessType)
+              const tt = TRANG_THAI_VE[ev.status] ?? { nhan: ev.status || 'Chưa rõ trạng thái' }
+              const hetHieuLuc = ev.status === 'Cancelled' || ev.status === 'Refunded'
+              const thoiGian = nhanThoiGian(ev.start_date)
               return (
-                <div
-                  key={ev.id}
-                  className={`relative bg-card border border-line border-l-4 rounded-2xl overflow-hidden flex shadow-lg hover:border-brand/40 transition-colors group ${
-                    online ? 'border-l-purple-500' : 'border-l-blue-500'
-                  }`}
-                >
-                  {/* KHỐI NGÀY bên trái */}
-                  <div className="w-1/4 sm:w-1/5 bg-sunken/70 p-4 flex flex-col items-center justify-center text-center border-r-2 border-dashed border-line">
-                    <p className="text-3xl sm:text-4xl font-bold text-brand-text">{eventDate.format('DD')}</p>
-                    <p className="text-sm sm:text-base font-semibold text-ink uppercase mt-1">{eventDate.format('MMM')}</p>
-                    <p className="text-sm font-bold text-ink-soft">{eventDate.format('HH:mm')}</p>
+                <li key={ev.id} className="relative flex bg-card border-2 border-ink shadow-soft group">
+                  {/* CUỐNG VÉ: ngày và giờ trên khối sơn then, ngăn với thân vé bằng đường đục lỗ */}
+                  <div className="w-24 sm:w-32 flex-shrink-0 bg-board text-lamp p-3 sm:p-4 flex flex-col items-center justify-center text-center border-r-2 border-dashed border-lamp/50">
+                    {ev.start_date ? (
+                      <>
+                        <p className="text-xs sm:text-sm text-lamp-mute">{thuVietHoa(ev.start_date)}</p>
+                        <p className="font-display text-3xl sm:text-4xl leading-none mt-1">{ngayGon(ev.start_date)}</p>
+                        <p className="font-mono text-sm sm:text-base mt-2">{gioTrongNgay(ev.start_date)}</p>
+                      </>
+                    ) : <p className="text-sm text-lamp-mute">Chưa có giờ diễn</p>}
                   </div>
 
-                  {/* NỘI DUNG */}
-                  <div className="flex-1 p-5 sm:p-6 flex flex-col justify-center gap-2.5 min-w-0">
-                    {/* Hàng badges: loại vé + thời gian + thanh toán */}
+                  {/* THÂN VÉ */}
+                  <div className="flex-1 min-w-0 p-4 sm:p-6 flex flex-col gap-3">
                     <div className="flex flex-wrap items-center gap-2">
-                      <AccessTypeBadge accessType={ev.accessType} />
-                      <TimeBadge startDate={ev.start_date} />
-                      <PayStatusBadge status={ev.status} />
+                      <NhanNho dam={!hetHieuLuc}>{tt.nhan}</NhanNho>
+                      <NhanNho>{online ? <><Video size={12} aria-hidden="true" /> Vé xem trực tuyến</> : <><MapPin size={12} aria-hidden="true" /> Vé tại chỗ</>}</NhanNho>
+                      {thoiGian && <NhanNho>{thoiGian}</NhanNho>}
                     </div>
 
-                    {/* "Stretched link": thẻ <a> này phủ toàn bộ thẻ vé bằng after:inset-0, nên bấm
-                        chỗ nào cũng vào chi tiết vé — mà KHÔNG phải lồng <a> trong <a>, nhờ vậy nút
-                        CTA bên dưới trỏ đi chỗ khác được. */}
-                    <h3 className="text-lg sm:text-2xl font-bold text-ink truncate group-hover:text-brand-text transition-colors">
-                      <Link to={`/my-shows/ticket/${ev.id}`} className="after:absolute after:inset-0 after:content-['']">
+                    {/* "Stretched link": thẻ <a> này phủ toàn bộ tấm vé bằng after:inset-0, nên bấm chỗ nào cũng vào chi
+                        tiết vé — mà KHÔNG phải lồng <a> trong <a>, nhờ vậy các liên kết bên dưới trỏ đi chỗ khác được. */}
+                    <h3 className={`font-display text-2xl sm:text-3xl leading-[1.15] font-normal break-words ${hetHieuLuc ? 'text-ink-mute line-through decoration-1' : 'text-ink'}`}>
+                      <Link to={`/my-shows/ticket/${ev.id}`} className="after:absolute after:inset-0 after:content-[''] group-hover:underline underline-offset-4">
                         {ev.title}
                       </Link>
                     </h3>
 
-                    <div className="flex flex-col gap-1.5 text-sm">
-                      <div className="flex items-center gap-2 text-ink-soft">
-                        <MapPin size={15} className="text-brand-text flex-shrink-0" />
-                        <span className="truncate">{ev.loungeName || '—'}</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-ink-soft">
-                        <Clock size={15} className="text-brand-text flex-shrink-0" />
-                        <span>{eventDate.format('HH:mm, DD/MM/YYYY')}</span>
-                      </div>
-                    </div>
+                    <p className="flex items-center gap-2 text-sm text-ink-soft">
+                      <MapPin size={15} className="flex-shrink-0" aria-hidden="true" />
+                      <span className="truncate">{ev.loungeName || 'Chưa rõ phòng trà'}</span>
+                      {/* Ngày đủ năm chỉ in từ sm: trên điện thoại cuống vé đã có ngày, in thêm ở đây làm tên phòng trà bị cắt. */}
+                      {ev.start_date && <span className="hidden sm:inline font-mono text-ink-mute flex-shrink-0">{ngayDayDu(ev.start_date)}</span>}
+                    </p>
 
-                    {/* Footer: tier + giá + CTA phân theo loại vé */}
-                    <div className="flex items-center justify-between gap-3 pt-2.5 mt-1 border-t border-line/70">
-                      <div className="min-w-0">
-                        <p className="text-sm text-brand-text font-medium truncate">{ev.tierName}</p>
-                        <p className="text-sm font-bold text-ink">{ev.pricePaid?.toLocaleString('vi-VN')}đ</p>
+                    <div className="flex flex-wrap items-end justify-between gap-3 pt-3 mt-auto border-t border-ink/20">
+                      <div className="flex items-center gap-3 min-w-0">
+                        {/* Dấu mộc CHỈ cho trạng thái tiền (đã trả, đã hoàn) — DESIGN.md: Stamp-Is-Money. */}
+                        {tt.dau && <DauMoc vongNgoai="MUSICLOUNGE · TIỀN VÉ · " giua={tt.dau} size={76} xoay={-10} className="flex-shrink-0 hidden sm:block" />}
+                        <div className="min-w-0">
+                          <p className="text-sm text-ink-soft truncate">{ev.tierName}</p>
+                          <p className="font-mono text-lg font-semibold text-ink">{typeof ev.pricePaid === 'number' ? `${ev.pricePaid.toLocaleString('vi-VN')}đ` : 'Chưa rõ số tiền'}</p>
+                        </div>
                       </div>
 
                       {/* KHÁC NHAU THEO LOẠI VÉ.
-                          Nút của vé trực tuyến TRƯỚC ĐÂY LÀ LỜI HỨA SAI: nó ghi "View Livestream"
-                          nhưng cả thẻ chỉ dẫn tới trang mã QR. Người mua vé xem trực tuyến bấm đúng
-                          nút ghi "xem" mà không bao giờ tới được chỗ xem.
-                          Nay nó dẫn thẳng tới trang phát. Chưa tới giờ phát thì trang đó nói rõ là
-                          buổi diễn chưa có phiên livestream, chứ không vỡ — nên dẫn thẳng an toàn
-                          hơn là bắt người dùng tự mò. `z-10` để nằm trên lớp phủ của stretched link. */}
-                      {online ? (
-                        <Link
-                          to={`/livestream/${ev.showId}`}
-                          className="relative z-10 flex-shrink-0 flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-purple-500/10 border border-purple-500/40 text-purple-700 text-xs font-bold hover:bg-purple-500/25 transition-colors"
-                        >
-                          <Video size={14} /> Vào xem trực tuyến
+                          Nút của vé trực tuyến TRƯỚC ĐÂY LÀ LỜI HỨA SAI: nó ghi "View Livestream" nhưng cả thẻ chỉ dẫn tới
+                          trang mã QR. Nay nó dẫn thẳng tới trang phát. Chưa tới giờ phát thì trang đó nói rõ là buổi diễn
+                          chưa có phiên livestream, chứ không vỡ. `z-10` để nằm trên lớp phủ của stretched link.
+                          Vé đã huỷ / đã hoàn không còn lối vào nên không in nút. */}
+                      {!hetHieuLuc && (online ? (
+                        <Link to={`/livestream/${ev.showId}`} className="relative z-10 inline-flex items-center gap-2 min-h-[44px] px-4 bg-ink text-lamp text-sm font-semibold hover:bg-board transition-colors">
+                          <Video size={16} aria-hidden="true" /> Vào xem trực tuyến
                         </Link>
                       ) : (
-                        <span className="flex-shrink-0 flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-brand/10 border border-brand/40 text-brand-text text-xs font-bold group-hover:bg-brand-hover/20 transition-colors">
-                          <QrCode size={14} /> Xem mã QR vào cửa
+                        <span className="inline-flex items-center gap-2 min-h-[44px] px-4 bg-ink text-lamp text-sm font-semibold group-hover:bg-board transition-colors">
+                          <QrCode size={16} aria-hidden="true" /> Xem mã QR vào cửa
                         </span>
-                      )}
+                      ))}
                     </div>
 
-                    {/* Lối sang trang buổi diễn: từ đây mới xem được sơ đồ chỗ, đánh giá sau khi
-                        kết thúc, và các buổi tương tự. Chi tiết VÉ không có đường nào sang đó vì
-                        TicketDetailDto không trả showId — chỉ danh sách vé mới có. */}
-                    <Link
-                      to={`/shows/${ev.showId}`}
-                      className="relative z-10 self-start text-xs text-ink-mute hover:text-brand-text transition-colors"
-                    >
-                      Xem trang buổi diễn →
+                    {/* Lối sang trang buổi diễn: từ đây mới xem được chương trình, đánh giá sau khi kết thúc, và các buổi
+                        tương tự. Chi tiết VÉ không có đường nào sang đó vì TicketDetailDto không trả showId. */}
+                    <Link to={`/shows/${ev.showId}`} className="relative z-10 self-start inline-flex items-center min-h-[44px] -my-2 text-sm font-semibold text-ink underline underline-offset-4">
+                      Xem trang buổi diễn
                     </Link>
                   </div>
-                </div>
+                </li>
               )
             })}
-          </div>
+          </ul>
           {renderPagination()}
         </>
       ) : (
         /* CÓ VÉ NHƯNG BỘ LỌC KHÔNG KHỚP */
-        <div className="bg-card border border-dashed border-line rounded-2xl p-12 text-center">
-          <Search size={36} className="mx-auto text-ink-mute mb-4" />
-          <p className="text-ink-soft mb-1">Không có vé nào khớp bộ lọc.</p>
-          <p className="text-ink-mute text-sm mb-5">Thử đổi từ khoá hoặc bộ lọc</p>
-          <button onClick={resetFilters} className="text-brand-text font-semibold text-sm underline hover:text-brand-text">
+        <div className="bg-card border-2 border-dashed border-ink p-8">
+          <p className="text-ink">Không có vé nào khớp bộ lọc trong trang này.</p>
+          <p className="text-ink-soft text-sm mt-1">Thử đổi từ khoá hoặc bỏ bộ lọc.</p>
+          <button type="button" onClick={resetFilters} className="inline-flex items-center min-h-[44px] mt-3 font-semibold underline underline-offset-4">
             Xoá mọi bộ lọc
           </button>
         </div>

@@ -52,7 +52,7 @@ const WishlistTab = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-5 md:gap-x-6 gap-y-8">
           {[...Array(4)].map((_, i) => (
             <div key={i} className="flex flex-col gap-3">
-              <Skeleton className="w-full aspect-video rounded-xl" />
+              <Skeleton className="w-full aspect-video" />
               <Skeleton className="h-4 w-3/4" />
               <Skeleton className="h-3 w-1/2" />
             </div>
@@ -69,10 +69,10 @@ const WishlistTab = () => {
           ))}
         </div>
       ) : (
-        <div className="bg-card border border-line rounded-2xl p-12 text-center min-h-[300px] flex flex-col items-center justify-center">
+        <div className="bg-card border border-line p-12 text-center min-h-[300px] flex flex-col items-center justify-center">
           <Heart size={40} className="text-ink-mute mb-4" />
           <p className="text-ink-soft text-lg">Danh sách yêu thích đang trống.</p>
-          <Link to="/" className="mt-4 text-brand-text font-semibold underline hover:text-brand-text">Tìm đêm diễn bạn yêu thích</Link>
+          <Link to="/" className="mt-4 text-ink font-semibold underline hover:text-ink">Tìm đêm diễn bạn yêu thích</Link>
         </div>
       )}
     </div>
