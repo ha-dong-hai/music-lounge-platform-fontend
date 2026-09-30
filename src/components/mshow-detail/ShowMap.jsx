@@ -2,7 +2,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { MapPin, Check, Lock, Loader2, Minus, Plus, Ticket, Timer, Info } from 'lucide-react'
-import dayjs from 'dayjs'
+import { gioTrongNgay, ngayDayDu } from '../../utils/ngayVietNam'
 import toast from 'react-hot-toast'
 import { getTicketTiers } from '../../services/showServices'
 import { holdTicket, cancelHold, purchaseTicket } from '../../services/ticketServices'
@@ -159,10 +159,10 @@ const ShowMap = ({ showData }) => {
   if (isLoading) {
     return (
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 bg-card border border-line rounded-2xl p-8 flex items-center justify-center h-[450px]">
-          <Loader2 size={32} className="animate-spin text-brand-text" />
+        <div className="lg:col-span-2 bg-card border border-line p-8 flex items-center justify-center h-[450px]">
+          <Loader2 size={32} className="animate-spin text-ink" />
         </div>
-        <div className="lg:col-span-1"><Skeleton className="h-96 rounded-2xl" /></div>
+        <div className="lg:col-span-1"><Skeleton className="h-96" /></div>
       </div>
     )
   }
@@ -188,8 +188,8 @@ const ShowMap = ({ showData }) => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
         {/* DANH SÁCH HẠNG VÉ */}
-        <div className="lg:col-span-2 bg-card border border-line rounded-2xl p-4 md:p-8">
-          <h3 className="text-xl font-bold text-brand-text mb-6 flex items-center gap-2">
+        <div className="lg:col-span-2 bg-card border border-line p-4 md:p-8">
+          <h3 className="text-xl font-bold text-ink mb-6 flex items-center gap-2">
             <Ticket size={20} /> Hạng vé
           </h3>
 
@@ -198,7 +198,7 @@ const ShowMap = ({ showData }) => {
               <MapPin size={40} className="text-ink-mute mb-4" />
               <p className="text-ink-mute font-medium">Chưa tải được danh sách hạng vé.</p>
               <button onClick={() => setLanTai((n) => n + 1)}
-                className="mt-3 px-4 py-2 rounded-lg border border-line text-ink-soft text-sm font-bold hover:bg-sunken">
+                className="mt-3 px-4 py-2 border border-line text-ink-soft text-sm font-bold hover:bg-sunken">
                 Thử lại
               </button>
             </div>
@@ -222,21 +222,22 @@ const ShowMap = ({ showData }) => {
                     type="button"
                     disabled={isSoldOut || !!hold}
                     onClick={() => handleSelectPrice(price)}
-                    className={`w-full text-left flex items-center justify-between gap-4 p-4 rounded-lg border transition-colors ${
+                    className={`w-full text-left flex items-center justify-between gap-4 p-4 border transition-colors ${
                       isSelected
-                        ? 'border-brand bg-brand/10'
+                        ? 'border-ink bg-ink/10'
                         : 'border-line hover:border-line-strong'
                     } ${isSoldOut ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'} ${hold && !isSelected ? 'opacity-40' : ''}`}
                   >
                     <div className="min-w-0">
-                      <p className="text-ink font-semibold truncate">{price.tierName} — {price.name}</p>
+                      {/* Hạng vé chỉ có một mức giá thì tên hạng và tên mức giá thường trùng nhau ("Vé thường — Vé thường") — in một lần. */}
+                      <p className="text-ink font-semibold truncate">{price.tierName === price.name ? price.name : `${price.tierName} — ${price.name}`}</p>
                       <p className="text-ink-mute text-xs mt-1">
                         {isSoldOut ? 'Hết vé' : price.availableSlots != null ? `Còn ${price.availableSlots}` : 'Còn vé'}
                       </p>
                     </div>
                     <div className="flex items-center gap-3 flex-shrink-0">
-                      <span className="text-brand-text font-bold">{formatVnd(price.price)}</span>
-                      {isSelected && <Check size={18} className="text-brand-text" />}
+                      <span className="text-ink font-bold">{formatVnd(price.price)}</span>
+                      {isSelected && <Check size={18} className="text-ink" />}
                     </div>
                   </button>
                 )
@@ -246,8 +247,8 @@ const ShowMap = ({ showData }) => {
         </div>
 
         {/* THÔNG TIN VÉ ĐÃ CHỌN + THANH TOÁN */}
-        <div className="lg:col-span-1 bg-card border border-line rounded-2xl p-6 flex flex-col">
-          <h3 className="text-xl font-bold text-brand-text mb-6">Đơn của bạn</h3>
+        <div className="lg:col-span-1 bg-card border border-line p-6 flex flex-col">
+          <h3 className="text-xl font-bold text-ink mb-6">Đơn của bạn</h3>
 
           {!selectedPrice ? (
             <div className="flex-1 flex flex-col items-center justify-center text-center">
@@ -259,7 +260,7 @@ const ShowMap = ({ showData }) => {
             <div className="flex-1 flex flex-col gap-5">
               <div>
                 <p className="text-ink font-semibold">{selectedPrice.tierName}</p>
-                <p className="text-ink-mute text-sm">{selectedPrice.name}</p>
+                {selectedPrice.name !== selectedPrice.tierName && <p className="text-ink-mute text-sm">{selectedPrice.name}</p>}
               </div>
 
               <div className="flex items-center justify-between">
@@ -269,25 +270,27 @@ const ShowMap = ({ showData }) => {
                     type="button"
                     disabled={!!hold || quantity <= 1}
                     onClick={() => adjustQuantity(-1)}
-                    className="w-8 h-8 flex items-center justify-center rounded-full border border-line text-ink-soft disabled:opacity-30"
+                    aria-label="Bớt một vé"
+                    className="w-11 h-11 flex items-center justify-center border border-ink text-ink hover:bg-ink hover:text-lamp disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-ink transition-colors"
                   >
-                    <Minus size={14} />
+                    <Minus size={16} aria-hidden="true" />
                   </button>
                   <span className="text-ink font-bold w-6 text-center">{quantity}</span>
                   <button
                     type="button"
                     disabled={!!hold || quantity >= maxQuantity}
                     onClick={() => adjustQuantity(1)}
-                    className="w-8 h-8 flex items-center justify-center rounded-full border border-line text-ink-soft disabled:opacity-30"
+                    aria-label="Thêm một vé"
+                    className="w-11 h-11 flex items-center justify-center border border-ink text-ink hover:bg-ink hover:text-lamp disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-ink transition-colors"
                   >
-                    <Plus size={14} />
+                    <Plus size={16} aria-hidden="true" />
                   </button>
                 </div>
               </div>
 
               <div className="border-t border-line pt-4 flex items-center justify-between">
                 <span className="text-ink-soft text-sm">Tổng cộng</span>
-                <span className="text-brand-text font-bold text-lg">
+                <span className="text-ink font-bold text-lg">
                   {formatVnd(selectedPrice.price * quantity)}
                 </span>
               </div>
@@ -301,10 +304,10 @@ const ShowMap = ({ showData }) => {
                   một điều khoản và để câu chữ không lệch khỏi thứ lệnh huỷ vé thực sự áp dụng.
                   HIỆN NGUYÊN VĂN `summary`, đừng tự diễn đạt lại từ mấy con số bên dưới. */}
               {chinhSach && (
-                <div className={`rounded-lg p-3 border ${
+                <div className={` p-3 border ${
                   chinhSach.cancellationAllowed
                     ? 'bg-sunken/40 border-line'
-                    : 'bg-yellow-500/5 border-yellow-500/30'
+                    : 'bg-sunken border-warning'
                 }`}>
                   <p className="text-xs font-bold text-ink-soft flex items-center gap-1.5">
                     <Info size={12} /> Điều kiện huỷ vé
@@ -312,10 +315,12 @@ const ShowMap = ({ showData }) => {
                   <p className="text-xs text-ink-soft mt-1.5 leading-relaxed">{chinhSach.summary}</p>
                   {chinhSach.cancellationAllowed && chinhSach.cancelBefore && (
                     <p className="text-xs text-ink-mute mt-1.5">
-                      Huỷ được tới {dayjs(chinhSach.cancelBefore).format('HH:mm DD/MM/YYYY')}.
+                      Huỷ được tới {gioTrongNgay(chinhSach.cancelBefore)} ngày {ngayDayDu(chinhSach.cancelBefore)}.
                     </p>
                   )}
-                  {chinhSach.alwaysFullRefundIfVenueCancels && (
+                  {/* Câu `summary` của máy chủ thường đã nói điều này; chỉ in thêm khi summary CHƯA nhắc tới việc phòng trà
+                      huỷ — nếu không khán giả đọc cùng một lời hứa hai lần liền nhau (thấy 30/09). */}
+                  {chinhSach.alwaysFullRefundIfVenueCancels && !/phòng trà h[uủ][ỷy]/i.test(chinhSach.summary ?? '') && (
                     <p className="text-xs text-ink-mute mt-1">
                       Nếu phòng trà huỷ buổi diễn thì bạn được hoàn 100%, bất kể điều kiện trên.
                     </p>
@@ -325,22 +330,22 @@ const ShowMap = ({ showData }) => {
 
               {hold ? (
                 <>
-                  <div className="flex items-center justify-center gap-2 bg-sunken/70 border border-brand/40 rounded-lg py-2.5">
-                    <Timer size={16} className="text-brand-text" />
-                    <span className="text-brand-text font-mono font-bold">{formatCountdown(secondsLeft)}</span>
+                  <div className="flex items-center justify-center gap-2 bg-sunken/70 border border-ink/40 py-2.5">
+                    <Timer size={16} className="text-ink" />
+                    <span className="text-ink font-mono font-bold">{formatCountdown(secondsLeft)}</span>
                     <span className="text-ink-mute text-xs">còn lại để thanh toán</span>
                   </div>
                   <button
                     onClick={handlePurchase}
                     disabled={isProcessing}
-                    className="w-full py-3 bg-brand text-on-brand rounded-lg font-bold hover:bg-brand-hover transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                    className="w-full py-3 bg-ink text-lamp font-bold hover:bg-board transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                   >
                     {isProcessing ? <Loader2 size={18} className="animate-spin" /> : 'Thanh toán'}
                   </button>
                   <button
                     onClick={handleCancelHold}
                     disabled={isProcessing}
-                    className="w-full py-2.5 border border-line text-ink-soft rounded-lg font-medium hover:bg-sunken transition-colors"
+                    className="w-full py-2.5 border border-line text-ink-soft font-medium hover:bg-sunken transition-colors"
                   >
                     Huỷ giữ chỗ
                   </button>
@@ -349,7 +354,7 @@ const ShowMap = ({ showData }) => {
                 <button
                   onClick={handleHold}
                   disabled={isProcessing}
-                  className="w-full py-3 bg-brand text-on-brand rounded-lg font-bold hover:bg-brand-hover transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                  className="w-full py-3 bg-ink text-lamp font-bold hover:bg-board transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                 >
                   {isProcessing ? <Loader2 size={18} className="animate-spin" /> : 'Giữ chỗ để mua'}
                 </button>
@@ -362,18 +367,18 @@ const ShowMap = ({ showData }) => {
       {/* MODAL YÊU CẦU ĐĂNG NHẬP */}
       {isLoginModalOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-espresso/80 backdrop-blur-sm" onClick={() => setIsLoginModalOpen(false)}></div>
-          <div className="relative bg-card border border-line rounded-2xl w-full max-w-md p-6 shadow-2xl text-center">
-            <div className="w-16 h-16 mx-auto bg-brand/10 rounded-full flex items-center justify-center mb-4 border border-brand/30">
-              <Lock size={28} className="text-brand-text" />
+          <div className="absolute inset-0 bg-ink/80" onClick={() => setIsLoginModalOpen(false)}></div>
+          <div className="relative bg-card border border-line w-full max-w-md p-6 shadow-lift text-center">
+            <div className="w-16 h-16 mx-auto bg-ink/10 flex items-center justify-center mb-4 border border-ink/30">
+              <Lock size={28} className="text-ink" />
             </div>
             <h2 className="text-xl font-bold text-ink mb-2">Cần đăng nhập</h2>
             <p className="text-ink-soft mb-6">Vui lòng đăng nhập để mua vé.</p>
             <div className="flex gap-3">
-              <button onClick={() => setIsLoginModalOpen(false)} className="flex-1 py-2.5 border border-line text-ink-soft rounded-lg font-medium hover:bg-sunken transition-colors">
+              <button onClick={() => setIsLoginModalOpen(false)} className="flex-1 py-2.5 border border-line text-ink-soft font-medium hover:bg-sunken transition-colors">
                 Huỷ
               </button>
-              <Link to="/login" className="flex-1 py-2.5 bg-brand text-on-brand rounded-lg font-bold hover:bg-brand-hover transition-colors flex items-center justify-center">
+              <Link to="/login" className="flex-1 py-2.5 bg-ink text-lamp font-bold hover:bg-board transition-colors flex items-center justify-center">
                 Đăng nhập
               </Link>
             </div>

@@ -40,8 +40,8 @@ const SeatingMapView = ({ showId, selectedZoneId, onSelectZone }) => {
 
   if (isLoading) {
     return (
-      <div className="bg-card border border-line rounded-2xl py-16 flex justify-center">
-        <Loader2 size={26} className="animate-spin text-brand-text" />
+      <div className="bg-card border border-line py-16 flex justify-center">
+        <Loader2 size={26} className="animate-spin text-ink" />
       </div>
     )
   }
@@ -53,14 +53,14 @@ const SeatingMapView = ({ showId, selectedZoneId, onSelectZone }) => {
   const chuaCoViTri = zones.filter((z) => z.layout2DX == null || z.layout2DY == null)
 
   return (
-    <div className="bg-card border border-line rounded-2xl p-4 md:p-6">
+    <div className="bg-card border border-line p-4 md:p-6">
       <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
-        <h3 className="text-lg font-bold text-brand-text flex items-center gap-2">
+        <h3 className="text-lg font-bold text-ink flex items-center gap-2">
           <Map size={18} /> Sơ đồ khu vực
         </h3>
         {selectedZoneId != null && (
           <button onClick={() => onSelectZone?.(null)}
-            className="px-3 py-1.5 rounded-lg border border-line text-ink-soft text-xs font-bold hover:bg-sunken">
+            className="px-3 py-1.5 border border-line text-ink-soft text-xs font-bold hover:bg-sunken">
             Xem tất cả khu vực
           </button>
         )}
@@ -68,7 +68,7 @@ const SeatingMapView = ({ showId, selectedZoneId, onSelectZone }) => {
 
       {coViTri.length > 0 && (
         <>
-          <div className="relative w-full rounded-xl overflow-hidden border border-line bg-page"
+          <div className="relative w-full overflow-hidden border border-line bg-page"
             style={{ aspectRatio: '16 / 9' }}>
             {data.areaLayoutImageUrl && (
               <img src={data.areaLayoutImageUrl} alt="Mặt bằng phòng trà"
@@ -84,8 +84,8 @@ const SeatingMapView = ({ showId, selectedZoneId, onSelectZone }) => {
                   type="button"
                   onClick={() => onSelectZone?.(laChon ? null : z.zoneId)}
                   title={`${z.name} — ${nhanConLai(z)}`}
-                  className={`absolute flex flex-col items-center justify-center rounded-lg border-2 px-1 overflow-hidden transition-all ${
-                    laChon ? 'border-brand ring-2 ring-brand/40 z-10' : 'border-white/25 hover:border-white/60'
+                  className={`absolute flex flex-col items-center justify-center border-2 px-1 overflow-hidden transition-all ${
+                    laChon ? 'border-ink ring-2 ring-ink/40 z-10' : 'border-white/25 hover:border-white/60'
                   } ${hetVe ? 'opacity-45' : ''}`}
                   style={{
                     left: `${z.layout2DX}%`,
@@ -123,8 +123,8 @@ const SeatingMapView = ({ showId, selectedZoneId, onSelectZone }) => {
               return (
                 <button key={z.zoneId} type="button"
                   onClick={() => onSelectZone?.(laChon ? null : z.zoneId)}
-                  className={`px-3 py-2 rounded-lg border text-left transition-colors ${
-                    laChon ? 'border-brand bg-brand/10' : 'border-line hover:border-line-strong'
+                  className={`px-3 py-2 border text-left transition-colors ${
+                    laChon ? 'border-ink bg-ink/10' : 'border-line hover:border-line-strong'
                   }`}>
                   <span className="block text-sm text-ink font-medium">{z.name}</span>
                   <span className="block text-xs text-ink-mute mt-0.5">

@@ -12,7 +12,7 @@ const SaoHang = ({ score, size = 14 }) => (
   <span className="inline-flex items-center gap-0.5" aria-label={`${score} trên 5 sao`}>
     {[1, 2, 3, 4, 5].map((i) => (
       <Star key={i} size={size}
-        className={i <= score ? 'text-brand-text fill-brand-text' : 'text-ink-mute'} />
+        className={i <= score ? 'text-ink fill-ink' : 'text-ink-mute'} />
     ))}
   </span>
 )
@@ -38,16 +38,16 @@ const RemoveModal = ({ rating, onClose, onDone }) => {
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-espresso/80 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-card border border-line rounded-2xl w-full max-w-md shadow-2xl">
+      <div className="absolute inset-0 bg-ink/80" onClick={onClose} />
+      <div className="relative bg-card border border-line w-full max-w-md shadow-lift">
         <div className="flex justify-between items-center p-5 border-b border-line">
           <h2 className="text-lg font-bold text-ink">Gỡ đánh giá này?</h2>
-          <button onClick={onClose} disabled={isBusy} className="p-2 hover:bg-sunken rounded-full text-ink-soft disabled:opacity-30">
+          <button onClick={onClose} disabled={isBusy} className="p-2 hover:bg-sunken text-ink-soft disabled:opacity-30">
             <X size={20} />
           </button>
         </div>
         <form onSubmit={submit} className="p-5 space-y-4">
-          <div className="p-3 rounded-lg bg-sunken/80 border border-line">
+          <div className="p-3 bg-sunken/80 border border-line">
             <SaoHang score={rating.score} />
             {rating.comment && <p className="text-sm text-ink-soft mt-1.5 leading-relaxed">{rating.comment}</p>}
           </div>
@@ -55,18 +55,18 @@ const RemoveModal = ({ rating, onClose, onDone }) => {
             <label className="text-xs text-ink-mute">Lý do gỡ <span className="text-danger">*</span></label>
             <textarea rows={3} value={reason} onChange={(e) => setReason(e.target.value)}
               placeholder="VD: nội dung xúc phạm, không liên quan tới buổi diễn"
-              className="mt-1 w-full px-3 py-2 bg-page border border-line rounded-lg text-sm text-ink resize-none focus:outline-none focus:border-brand/50" />
+              className="mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink resize-none focus:outline-none focus:border-ink/50" />
             <p className="text-xs text-ink-mute mt-1 leading-relaxed">
               Gỡ xong đánh giá không còn tính vào điểm trung bình. Lý do được lưu lại.
             </p>
           </div>
           <div className="flex gap-3">
             <button type="button" onClick={onClose} disabled={isBusy}
-              className="flex-1 py-2.5 border border-line-strong text-ink-soft rounded-lg font-medium hover:bg-sunken disabled:opacity-50">
+              className="flex-1 py-2.5 border border-line-strong text-ink-soft font-medium hover:bg-sunken disabled:opacity-50">
               Huỷ
             </button>
             <button type="submit" disabled={isBusy}
-              className="flex-1 py-2.5 bg-red-500 text-white rounded-lg font-bold hover:bg-red-600 flex items-center justify-center gap-2 disabled:opacity-50">
+              className="flex-1 py-2.5 bg-red-500 text-white font-bold hover:bg-red-600 flex items-center justify-center gap-2 disabled:opacity-50">
               {isBusy && <Loader2 size={16} className="animate-spin" />} Gỡ đánh giá
             </button>
           </div>
@@ -100,12 +100,12 @@ const ShowRatings = ({ showId }) => {
   useEffect(() => { const chay = async () => { await load() }; chay() }, [load])
 
   if (isLoading) {
-    return <div className="py-16 flex justify-center"><Loader2 size={28} className="animate-spin text-brand-text" /></div>
+    return <div className="py-16 flex justify-center"><Loader2 size={28} className="animate-spin text-ink" /></div>
   }
 
   if (!data || data.totalCount === 0) {
     return (
-      <div className="bg-card border border-line rounded-2xl p-12 text-center">
+      <div className="bg-card border border-line p-12 text-center">
         <MessageSquare size={30} className="mx-auto mb-3 text-ink-mute" />
         <p className="text-base font-semibold text-ink mb-1">Chưa có đánh giá nào</p>
         <p className="text-sm text-ink-mute">Đánh giá xuất hiện sau khi buổi diễn kết thúc.</p>
@@ -120,7 +120,7 @@ const ShowRatings = ({ showId }) => {
   return (
     <div className="space-y-5">
       {/* TỔNG QUAN — số của backend tính trên toàn bộ đánh giá, không phải trang đang xem */}
-      <div className="bg-card border border-line rounded-2xl p-6 flex flex-col sm:flex-row gap-8">
+      <div className="bg-card border border-line p-6 flex flex-col sm:flex-row gap-8">
         <div className="text-center sm:text-left flex-shrink-0">
           <p className="text-4xl font-bold text-ink tabular-nums">
             {data.averageScore != null
@@ -141,8 +141,8 @@ const ShowRatings = ({ showId }) => {
             return (
               <div key={sao} className="flex items-center gap-3">
                 <span className="text-xs text-ink-mute w-8 flex-shrink-0 tabular-nums">{sao} ★</span>
-                <div className="flex-1 h-2 bg-sunken rounded-full overflow-hidden">
-                  <div className="h-full bg-brand rounded-full" style={{ width: `${tiLe}%` }} />
+                <div className="flex-1 h-2 bg-sunken overflow-hidden">
+                  <div className="h-full bg-ink" style={{ width: `${tiLe}%` }} />
                 </div>
                 <span className="text-xs text-ink-mute w-10 text-right flex-shrink-0 tabular-nums">{soLuong}</span>
               </div>
@@ -152,7 +152,7 @@ const ShowRatings = ({ showId }) => {
       </div>
 
       {/* NHẬN XÉT */}
-      <div className="bg-card border border-line rounded-2xl divide-y divide-line">
+      <div className="bg-card border border-line divide-y divide-line">
         {items.map((r) => (
           <div key={r.id} className="p-5 flex items-start justify-between gap-4">
             <div className="min-w-0">
@@ -165,7 +165,7 @@ const ShowRatings = ({ showId }) => {
             </div>
             {laAdmin && (
               <button onClick={() => setRemoving(r)} title="Gỡ đánh giá"
-                className="p-2 rounded-lg text-ink-mute hover:bg-red-500/10 hover:text-danger flex-shrink-0">
+                className="p-2 text-ink-mute hover:bg-red-500/10 hover:text-danger flex-shrink-0">
                 <Trash2 size={15} />
               </button>
             )}
@@ -176,12 +176,12 @@ const ShowRatings = ({ showId }) => {
       {totalPages > 1 && (
         <div className="flex items-center justify-center gap-3">
           <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page <= 1}
-            className="px-4 py-2 rounded-lg border border-line text-sm text-ink-soft hover:bg-sunken disabled:opacity-40">
+            className="px-4 py-2 border border-line text-sm text-ink-soft hover:bg-sunken disabled:opacity-40">
             Trước
           </button>
           <span className="text-sm text-ink-mute">Trang {page}/{totalPages}</span>
           <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page >= totalPages}
-            className="px-4 py-2 rounded-lg border border-line text-sm text-ink-soft hover:bg-sunken disabled:opacity-40">
+            className="px-4 py-2 border border-line text-sm text-ink-soft hover:bg-sunken disabled:opacity-40">
             Sau
           </button>
         </div>

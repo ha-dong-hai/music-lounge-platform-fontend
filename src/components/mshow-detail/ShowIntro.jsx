@@ -1,94 +1,104 @@
-// src/components/mshow-detail/EventIntro.jsx
-import { Plus, Link as LinkIcon, Check, Star } from 'lucide-react'
+// src/components/mshow-detail/ShowIntro.jsx
+//
+// TỜ CHƯƠNG TRÌNH CỦA MỘT ĐÊM — tab "Chi tiết" của trang buổi diễn (và của trang duyệt buổi diễn phía Admin).
+//
+// Làm lại 30/09 theo thế giới "tờ chương trình ca nhạc" (DESIGN.md). Khác bản cũ ở ba điểm có lý do:
+//  1. LINE-UP CÓ GIỜ: dữ liệu có sẵn setTime + orderIndex + role của từng tiết mục, bản cũ chỉ in tên. Khán giả của
+//     phòng trà hỏi "mấy giờ ca sĩ tôi thích lên" — đó là nội dung chính của một tờ chương trình.
+//  2. CHÍNH SÁCH HOÀN VÉ in ngay ở đây, dùng NGUYÊN VĂN câu `refundPolicy.summary` của backend — frontend không tự
+//     diễn đạt lại lời hứa về tiền (diễn đạt lại là có thể hứa khác đi).
+//  3. BỎ ảnh đại diện lấy từ api.dicebear.com: gọi sang dịch vụ ngoài mỗi lần mở trang, và vòng tròn chữ cái nền xanh
+//     lục không thuộc thế giới này. Nghệ sĩ có ảnh thật thì in ảnh vuông; không có thì chỉ in tên.
+//
+// Dùng chung cho hai trang nên mọi trường mới đều có dự phòng: `data.tags ?? data.moodTags`, nút Theo dõi chỉ hiện khi
+// trang truyền `onToggleFollow` (trang Admin không truyền).
 import { Link } from 'react-router-dom'
+import { Check, Plus } from 'lucide-react'
+import DauMoc from '../program/DauMoc'
 
-const ShowIntro  = ({ data, isFollowing, onToggleFollow }) => {
+const VAI = { Main: 'Hát chính', Guest: 'Khách mời', Host: 'Dẫn chương trình' }
+const gioTietMuc = (setTime) => (typeof setTime === 'string' && setTime.length >= 5 ? setTime.slice(0, 5) : null)
+
+const Muc = ({ nhan, children }) => (
+  <div className="py-4 border-b border-ink/20 last:border-b-0">
+    <dt className="text-sm text-ink-mute">{nhan}</dt>
+    <dd className="mt-1 text-ink">{children}</dd>
+  </div>
+)
+
+const ShowIntro = ({ data, isFollowing, onToggleFollow }) => {
   if (!data) return null
 
+  const lineUp = [...(data.performers ?? [])].sort((a, b) => (a.orderIndex ?? 0) - (b.orderIndex ?? 0))
+  const tags = data.tags ?? data.moodTags ?? []
+  const hoanVe = data.refundPolicy?.summary
+
   return (
-    <div className="rounded-2xl md:p-10">
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
-        
-        {/* CỘT TRÁI: Mô tả và Tag cảm xúc */}
-        <div className="lg:col-span-7 flex flex-col h-full bg-card border border-line rounded-2xl p-6 md:p-8">
-          <h2 className="text-3xl font-bold text-brand-text mb-6">Thông tin chi tiết</h2>
-          <div className="prose max-w-none text-ink-soft text-lg leading-relaxed whitespace-pre-line flex-1 mb-8">
-            {data.description}
-          </div>
-          <div className="flex items-center gap-3 mt-auto pt-4 border-t border-line">
-            <span className="text-sm font-bold text-ink-mute">Không khí:</span>
-            {data.moodTags.map(tag => (
-              <span key={tag} className="bg-brand/15 text-brand-text px-4 py-1.5 rounded-md text-sm font-medium border border-brand/30">
-                {tag}
-              </span>
+    <div className="grid gap-10 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]">
+      <div>
+        <h2 className="text-3xl sm:text-4xl text-ink border-b-2 border-ink pb-3">Chương trình</h2>
+        {lineUp.length > 0 ? (
+          <ol>
+            {lineUp.map((p) => (
+              <li key={p.performanceId ?? p.id} className="grid grid-cols-[4.5rem_minmax(0,1fr)] gap-4 items-start py-4 border-b border-ink/20">
+                {/* Giờ lên sân khấu — dữ liệu, nên chữ mono. Chưa có giờ thì in gạch, không bịa giờ. */}
+                <span className="font-mono text-lg text-ink pt-1">{gioTietMuc(p.setTime) ?? '—'}</span>
+                <div className="flex items-start gap-3 min-w-0">
+                  {p.avatarUrl && <img src={p.avatarUrl} alt="" loading="lazy" className="w-12 h-12 object-cover border border-ink flex-shrink-0" />}
+                  <div className="min-w-0">
+                    {/* Mỗi nghệ sĩ dẫn sang trang riêng: lịch diễn của họ + sao kê tiền ủng hộ công khai. */}
+                    <Link to={`/performers/${p.id}`} className="font-display text-2xl leading-none text-ink hover:underline underline-offset-4 break-words">{p.name}</Link>
+                    <p className="text-sm text-ink-soft mt-1.5">
+                      {VAI[p.role] ?? 'Biểu diễn'}
+                      {p.acceptsDonation && ', nhận ủng hộ có sao kê công khai'}
+                    </p>
+                  </div>
+                </div>
+              </li>
             ))}
-          </div>
-        </div>
+          </ol>
+        ) : (
+          <p className="py-4 text-ink-soft border-b border-ink/20">Phòng trà chưa công bố line-up cho buổi này.</p>
+        )}
 
-        {/* CỘT GIỮA: thông tin */}
-        <div className="lg:col-span-3 space-y-6">
-          <div className="p-5">
-            <h3 className="text-sm font-bold text-brand-text mb-1">Phòng trà</h3>
-            <Link to={`/lounge/${data.loungeId}`} className="text-ink hover:text-brand-text transition-colors flex items-center gap-1.5 group">
-              {data.loungeName}
-              <LinkIcon size={14} className="opacity-0 group-hover:opacity-100 transition-opacity" />
-            </Link>
-          </div>
-          <div className="p-5">
-            <h3 className="text-sm font-bold text-brand-text mb-1">Thể loại</h3>
-            <p className="text-ink">{data.genre}</p>
-          </div>
-          <div className="p-5">
-            <h3 className="text-sm font-bold text-brand-text mb-3">Nghệ sĩ</h3>
-            {data.performers && data.performers.length > 0 ? (
-              <div className="space-y-3">
-                {/* Mỗi nghệ sĩ dẫn sang trang riêng: lịch diễn của họ + sao kê donate công khai. */}
-                {data.performers.map(p => (
-                  <Link key={p.id} to={`/performers/${p.id}`} className="flex items-center gap-3 group">
-                    <img 
-                      src={p.avatarUrl || `https://api.dicebear.com/7.x/initials/svg?seed=${p.name}&backgroundColor=1f2937`} 
-                      alt={p.name} 
-                      className="w-10 h-10 rounded-full object-cover border border-line flex-shrink-0"
-                    />
-                    <div className="min-w-0">
-                      <p className="text-ink text-sm font-medium truncate group-hover:text-brand-text transition-colors">{p.name}</p>
-                      {p.acceptsDonation && (
-                        <span className="inline-flex items-center gap-1 text-xs text-brand-text mt-0.5">
-                          <Star size={10} className="fill-brand-text" /> Nhận donate
-                        </span>
-                      )}
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            ) : (
-              <p className="text-ink text-sm">Đang cập nhật</p>
-            )}
-          </div>
-        </div>
-
-        {/* CỘT PHẢI: logo + follow */}
-        <div className="lg:col-span-2 flex flex-col items-center justify-start pt-2">
-          <div className="w-24 h-24 rounded-full bg-card overflow-hidden shadow-md mb-4 border-2 border-brand">
-            <img src={data.loungeLogo} alt="Logo phòng trà" className="w-full h-full object-cover" />
-          </div>
-
-          <button
-            onClick={onToggleFollow}
-            className={`flex items-center gap-1.5 px-5 py-2 rounded-lg font-bold text-sm transition-colors w-full justify-center ${
-              isFollowing 
-                ? "bg-brand/10 text-brand-text border border-brand/30 hover:bg-red-500/10 hover:text-danger hover:border-red-500/30" 
-                : "border-2 border-brand text-brand-text hover:bg-brand-hover hover:text-on-brand"
-            }`}
-          >
-            {isFollowing ? (
-              <><Check size={16} strokeWidth={3}/> Đang theo dõi</>
-            ) : (
-              <><Plus size={16} strokeWidth={3}/> Theo dõi</>
-            )}
-          </button>
-        </div>
+        <h2 className="text-3xl sm:text-4xl text-ink border-b-2 border-ink pb-3 mt-12">Về buổi diễn</h2>
+        <p className="mt-5 text-lg leading-relaxed text-ink-soft whitespace-pre-line max-w-prose">{data.description}</p>
+        {tags.length > 0 && (
+          <ul className="flex flex-wrap gap-2 mt-6" aria-label="Thể loại và không khí">
+            {tags.map((tag) => (
+              <li key={tag} className="inline-flex items-center min-h-[36px] px-3 border border-ink text-sm font-medium text-ink">{tag}</li>
+            ))}
+          </ul>
+        )}
       </div>
+
+      <aside className="self-start bg-card border-2 border-ink px-6 pt-2 pb-6" aria-label="Thông tin buổi diễn">
+        <dl>
+          <Muc nhan="Phòng trà">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <Link to={`/lounge/${data.loungeId}`} className="font-display text-2xl leading-none hover:underline underline-offset-4">{data.loungeName}</Link>
+              {onToggleFollow && (
+                <button
+                  type="button"
+                  onClick={onToggleFollow}
+                  aria-pressed={Boolean(isFollowing)}
+                  className={`inline-flex items-center gap-1.5 min-h-[44px] px-4 border-2 border-ink text-sm font-semibold transition-colors ${isFollowing ? 'bg-ink text-lamp' : 'text-ink hover:bg-ink hover:text-lamp'}`}
+                >
+                  {isFollowing ? <><Check size={16} aria-hidden="true" /> Đang theo dõi</> : <><Plus size={16} aria-hidden="true" /> Theo dõi</>}
+                </button>
+              )}
+            </div>
+          </Muc>
+          {data.address && <Muc nhan="Địa chỉ">{data.address}</Muc>}
+          {data.genre && <Muc nhan="Thể loại">{data.genre}</Muc>}
+          {hoanVe && <Muc nhan="Huỷ vé và hoàn tiền">{hoanVe}</Muc>}
+        </dl>
+        {/* Dấu mộc chỉ nói về tiền, và chỉ đóng trên giấy sáng (DESIGN.md: Stamp-Is-Money, No-Stamp-On-Navy). */}
+        <div className="flex items-center gap-4 pt-5 mt-1 border-t-2 border-ink">
+          <DauMoc vongNgoai="MUSICLOUNGE · TIỀN VÉ GIỮ HỘ · " giua={'GIỮ HỘ\nTỚI KHI DIỄN'} size={84} xoay={-10} className="flex-shrink-0" />
+          <p className="text-sm text-ink-soft">Tiền vé trả online được nền tảng giữ hộ, chỉ chuyển cho phòng trà sau khi buổi diễn diễn ra.</p>
+        </div>
+      </aside>
     </div>
   )
 }

@@ -29,6 +29,9 @@ const DA_CHUYEN = [
   'src/components/shared/CoverFallback.jsx',
   'src/layouts/Header.jsx',
   'src/layouts/Footer.jsx',
+  // 30/09: trang chi tiet buoi dien (trang mau dau tien tren duong di cua khan gia) + cac tab cua no.
+  'src/pages/events/EventDetailPage.jsx',
+  'src/components/mshow-detail',
 ]
 
 const TIEN_TO = '(?:bg|text|border|ring|outline|from|to|via|decoration|fill|stroke|divide|shadow|caret|accent|placeholder|ring-offset)(?:-[trblxy])?'
