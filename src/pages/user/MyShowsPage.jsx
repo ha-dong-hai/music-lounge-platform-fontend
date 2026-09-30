@@ -4,7 +4,10 @@
 // Làm lại 30/09 theo thế giới "tờ chương trình" (DESIGN.md). Tiêu đề đổi từ "Danh sách của tôi" thành "Vé của tôi" cho
 // khớp với nút "Vé của tôi" ở đầu trang dẫn tới đây (tên ở nút và tên ở trang phải là một).
 // Hàng tab cuộn ngang trên màn hẹp: năm tab không vừa 390px, bản cũ căn phải nên tab đầu bị đẩy ra ngoài màn hình.
-import { useState } from 'react'
+// Tab đang mở nằm trên URL (?muc=refunds, 01/10/2026): danh sách trong tab có phân trang trên URL (vd. hoanTrang), nên
+// tải lại hay Quay lại phải mở đúng tab chứa trang đó; và nơi khác dẫn thẳng vào một tab được (PaymentResultPage →
+// ?muc=donations sau khi ủng hộ — trước đây rơi về tab Vé).
+import { parseAsStringLiteral, useQueryState } from 'nuqs'
 import { Link, useLocation } from 'react-router-dom'
 import { useAuthStore } from '../../store/useAuthStore'
 import TicketsTab from '../../components/myshows/TicketsTab'
@@ -21,10 +24,12 @@ const TAB = [
   ['donations', 'Ủng hộ'],
 ]
 
+const MUC = parseAsStringLiteral(TAB.map(([khoa]) => khoa)).withDefault('shows')
+
 const MyShowsPage = () => {
   const { user } = useAuthStore()
   const location = useLocation()
-  const [activeMainTab, setActiveMainTab] = useState('shows')
+  const [activeMainTab, setActiveMainTab] = useQueryState('muc', MUC.withOptions({ history: 'push' }))
 
   return (
     <div className="min-h-[60vh] bg-stock text-ink pb-20">
@@ -44,7 +49,7 @@ const MyShowsPage = () => {
               <div className="flex gap-6 sm:gap-10 overflow-x-auto hide-scrollbar" role="tablist" aria-label="Các mục của tôi">
                 {TAB.map(([khoa, nhan]) => (
                   <button key={khoa} type="button" role="tab" id={`tab-cua-toi-${khoa}`} aria-selected={activeMainTab === khoa} aria-controls="noi-dung-cua-toi"
-                    onClick={() => setActiveMainTab(khoa)}
+                    onClick={() => setActiveMainTab(khoa === 'shows' ? null : khoa)}
                     className={`min-h-[48px] pb-3 text-lg font-semibold whitespace-nowrap border-b-4 -mb-[2px] transition-colors ${activeMainTab === khoa ? 'border-ink text-ink' : 'border-transparent text-ink-mute hover:text-ink'}`}>
                     {nhan}
                   </button>

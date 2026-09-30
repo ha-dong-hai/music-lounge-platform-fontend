@@ -8,7 +8,9 @@
 // phòng trà xác nhận đã trả tiền (MLACP-345), khán giả gọi sẽ nhận 403; và vé tiền mặt tại quầy không có
 // người mua gắn tài khoản nên không bao giờ xuất hiện trong danh sách này. Đã bỏ.
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState } from 'react'
+import { useDanhSachMayChu } from '../../hooks/useDanhSachMayChu'
+import PhanTrang from '../bang/PhanTrang'
 import { Loader2, Receipt, Landmark, AlertTriangle, CheckCircle2, Clock, X, XCircle } from 'lucide-react'
 import dayjs from 'dayjs'
 import toast from 'react-hot-toast'
@@ -94,29 +96,26 @@ const PayoutAccountModal = ({ request, onClose, onSaved }) => {
 }
 
 const RefundRequestsTab = () => {
-  const [items, setItems] = useState([])
-  const [isLoading, setIsLoading] = useState(true)
   const [khaiTaiKhoan, setKhaiTaiKhoan] = useState(null)
+  // PHÂN TRANG (01/10/2026): bản cũ xin cố định pageSize 50, không có trang tiếp — yêu cầu thứ 51 trở đi (có thể đang
+  // chờ khai tài khoản nhận tiền) không bao giờ hiện. Tiền tố URL 'hoan' (hoanTrang/hoanCo) vì trang Vé của tôi còn
+  // các tab khác có danh sách riêng.
+  const ds = useDanhSachMayChu({ khoa: ['hoan-tien-cua-toi'], goi: getMyRefundRequests, tien: 'hoan' })
+  const items = ds.items
+  const load = () => ds.taiLai()
 
-  const load = useCallback(async () => {
-    setIsLoading(true)
-    try {
-      const res = await getMyRefundRequests({ pageSize: 50 })
-      if (res.success) {
-        const ds = res.data
-        setItems((Array.isArray(ds) ? ds : ds?.items) ?? [])
-      }
-    } catch (err) {
-      toast.error(err.response?.data?.message || 'Không tải được yêu cầu hoàn tiền.')
-    } finally {
-      setIsLoading(false)
-    }
-  }, [])
 
-  useEffect(() => { const chay = async () => { await load() }; chay() }, [load])
-
-  if (isLoading) {
+  if (ds.dangTai) {
     return <div className="py-16 flex justify-center"><Loader2 size={28} className="animate-spin text-ink" /></div>
+  }
+
+  if (ds.loi) {
+    return (
+      <div role="alert" className="bg-card border border-line p-6 flex flex-wrap items-center gap-4">
+        <p className="text-sm">Chưa tải được yêu cầu hoàn tiền.</p>
+        <button type="button" onClick={load} className="min-h-[44px] px-4 border-2 border-ink font-semibold hover:bg-ink hover:text-lamp">Thử lại</button>
+      </div>
+    )
   }
 
   if (items.length === 0) {
@@ -130,6 +129,8 @@ const RefundRequestsTab = () => {
 
   return (
     <div className="space-y-3">
+      <PhanTrang ds={ds} tenDonVi="yêu cầu" idDanhSach="ds-hoan-tien" />
+      <div id="ds-hoan-tien" tabIndex={-1} className={`space-y-3 focus:outline-none ${ds.laDuLieuCu ? 'opacity-60' : ''}`}>
       {items.map((r) => {
         // Chỉ cần khai khi hệ thống đòi VÀ chưa khai; đã bị từ chối thì khai cũng vô nghĩa.
         const canKhaiTaiKhoan = r.payoutAccountRequired && !r.payoutAccountNumber && r.status !== 'Rejected'
@@ -187,6 +188,8 @@ const RefundRequestsTab = () => {
           </div>
         )
       })}
+      </div>
+      <PhanTrang ds={ds} tenDonVi="yêu cầu" idDanhSach="ds-hoan-tien" />
 
       {khaiTaiKhoan && (
         <PayoutAccountModal request={khaiTaiKhoan} onClose={() => setKhaiTaiKhoan(null)} onSaved={load} />

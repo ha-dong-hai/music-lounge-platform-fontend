@@ -96,13 +96,13 @@ const THEO_LOAI = {
       title: 'Cảm ơn bạn đã ủng hộ',
       message:
         'Khoản ủng hộ đã được ghi nhận và sẽ chuyển tới nghệ sĩ. Bạn xem lại trong mục Vé & danh sách của tôi.',
-      primary: { to: '/my-shows', label: 'Xem lịch sử ủng hộ' },
+      primary: { to: '/my-shows?muc=donations', label: 'Xem lịch sử ủng hộ' },
     },
     processing: {
       title: 'Đã nhận thanh toán, đang chờ xác nhận',
       message:
         'Khoản ủng hộ đã thanh toán thành công nhưng chưa ghi nhận xong. Vui lòng kiểm tra lại sau ít phút, hoặc liên hệ hỗ trợ nếu sau 24 giờ vẫn chưa thấy.',
-      primary: { to: '/my-shows', label: 'Xem lịch sử ủng hộ' },
+      primary: { to: '/my-shows?muc=donations', label: 'Xem lịch sử ủng hộ' },
     },
   },
   [LOAI_THANH_TOAN.GOI_MON]: {
