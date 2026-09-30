@@ -9,11 +9,13 @@
 //   lại nút gửi.
 // - Trạng thái: Active (đang hiệu lực) · Appealed (đã khiếu nại, chờ Admin) · Overturned (đã được
 //   huỷ) · Upheld (Admin giữ nguyên án phạt) · Expired (đã hết hiệu lực).
-import { useState, useEffect, useCallback } from 'react'
+import { useState } from 'react'
 import { Loader2, ShieldAlert, AlertTriangle, Ban, CheckCircle2, Clock, X, Gavel } from 'lucide-react'
 import dayjs from 'dayjs'
 import toast from 'react-hot-toast'
 import { getMyPenalties, submitPenaltyAppeal } from '../../services/penaltyServices'
+import { useDanhSachMayChu } from '../../hooks/useDanhSachMayChu'
+import PhanTrang from '../../components/bang/PhanTrang'
 
 const TYPE_VIEW = {
   Warning: { label: 'Cảnh cáo', cls: 'bg-warning/10 text-warning border-warning/30', icon: AlertTriangle,
@@ -88,25 +90,16 @@ const AppealModal = ({ penalty, onClose, onSaved }) => {
 }
 
 const OwnerPenaltiesPage = () => {
-  const [items, setItems] = useState([])
-  const [isLoading, setIsLoading] = useState(true)
   const [khieuNai, setKhieuNai] = useState(null)
+  // PHÂN TRANG (01/10/2026): bản cũ xin cố định pageSize 50, không có trang tiếp — án phạt thứ 51 trở đi (kèm HẠN
+  // KHIẾU NẠI của nó) không bao giờ hiện. Nay dùng hooks/useDanhSachMayChu; GET /venue-penalties/mine chỉ nhận
+  // page/pageSize (VenuePenaltiesController.GetMine), nên chưa có bộ lọc trạng thái.
+  const ds = useDanhSachMayChu({ khoa: ['an-phat'], goi: getMyPenalties })
+  const items = ds.items
+  const load = () => ds.taiLai()
 
-  const load = useCallback(async () => {
-    setIsLoading(true)
-    try {
-      const res = await getMyPenalties({ pageSize: 50 })
-      if (res.success) setItems(res.data.items ?? [])
-    } catch (err) {
-      toast.error(err.response?.data?.message || 'Không tải được danh sách án phạt.')
-    } finally {
-      setIsLoading(false)
-    }
-  }, [])
 
-  useEffect(() => { const chay = async () => { await load() }; chay() }, [load])
-
-  if (isLoading) {
+  if (ds.dangTai) {
     return <div className="py-20 flex justify-center"><Loader2 size={32} className="animate-spin text-ink" /></div>
   }
 
@@ -117,13 +110,20 @@ const OwnerPenaltiesPage = () => {
         <p className="text-ink-soft text-sm">Các án phạt đã áp lên phòng trà của bạn, và kết quả khiếu nại.</p>
       </div>
 
-      {items.length === 0 ? (
+      {ds.loi ? (
+        <div role="alert" className="bg-card border border-line p-6 flex flex-wrap items-center gap-4">
+          <p className="text-sm">Chưa tải được danh sách án phạt.</p>
+          <button type="button" onClick={load} className="min-h-[44px] px-4 border-2 border-ink font-semibold hover:bg-ink hover:text-lamp">Thử lại</button>
+        </div>
+      ) : items.length === 0 ? (
         <div className="bg-card border border-line p-10 text-center">
           <CheckCircle2 size={28} className="mx-auto mb-3 text-success/40" />
           <p className="text-sm text-ink-mute">Phòng trà của bạn chưa có án phạt nào.</p>
         </div>
       ) : (
-        <ul className="space-y-4">
+        <>
+        <PhanTrang ds={ds} tenDonVi="án phạt" idDanhSach="ds-an-phat" />
+        <ul id="ds-an-phat" tabIndex={-1} className={`space-y-4 focus:outline-none ${ds.laDuLieuCu ? 'opacity-60' : ''}`}>
           {items.map((p) => {
             const loai = TYPE_VIEW[p.penaltyType] ?? { label: p.penaltyType, cls: 'bg-line-strong/10 text-ink-soft border-line-strong/30', icon: ShieldAlert, hint: '' }
             const tt = STATUS_VIEW[p.status] ?? { label: p.status, cls: 'text-ink-soft' }
@@ -194,6 +194,8 @@ const OwnerPenaltiesPage = () => {
             )
           })}
         </ul>
+        <PhanTrang ds={ds} tenDonVi="án phạt" idDanhSach="ds-an-phat" />
+        </>
       )}
 
       {khieuNai && (
