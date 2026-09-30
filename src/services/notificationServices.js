@@ -18,3 +18,13 @@ export const markNotificationRead = async (id) => {
 export const markAllNotificationsRead = async () => {
   return axiosClient.post('/notifications/read-all');
 };
+
+// ===== THÔNG BÁO ĐẨY TRÊN THIẾT BỊ =====
+
+export const registerDevice = async (token, platform) => {
+  return axiosClient.post('/notifications/devices', { token, platform });
+};
+
+export const unregisterDevice = async (token) => {
+  return axiosClient.delete('/notifications/devices', { data: { token } });
+};
