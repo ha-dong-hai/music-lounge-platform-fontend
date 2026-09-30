@@ -11,32 +11,51 @@
 //   verdict='Measured': có diễn nhưng ngắn hơn dự kiến, so ratio với threshold.
 // - Quyết định ở đây KHÔNG tự tạo hoàn tiền cho người mua — hoàn tiền là luồng riêng ở trang
 //   "Yêu cầu hoàn tiền". hasPendingRefund cảnh báo khoản này còn yêu cầu hoàn tiền chưa xử lý.
+//
+// LÀM LẠI 01/10/2026 (đối chiếu ReviewSettlementCommandHandler):
+// - "Giữ lại" = Status Cancelled VĨNH VIỄN — phòng trà không bao giờ được trả đợt này, và lý do được GỬI NGUYÊN VĂN cho
+//   chủ phòng trà. Bản cũ không hỏi lại và không nói hai điều đó → nay qua HopXacNhan, nói rõ.
+// - "Nhả tiền" bị backend chặn khi còn yêu cầu hoàn tiền chờ (hasPendingRefund) → nút không hiện, thay bằng lời dẫn sang
+//   trang hoàn tiền. Chốt "chưa có tài khoản nhận tiền" không có trong DTO → để backend báo, in nguyên văn.
+// - releaseType in thô ("Partial70", "Final30", "Full") → đổi sang chữ; tỉ lệ đợt là cấu hình nên không in số 70/30.
+// - Lý do là ô có nhãn thật; lỗi thiếu lý do in dưới ô thay vì toast.
 import { useState, useEffect, useCallback } from 'react'
-import { Loader2, Check, Lock, AlertTriangle, ChevronLeft, ChevronRight } from 'lucide-react'
-import dayjs from 'dayjs'
+import { Link } from 'react-router-dom'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { getSettlementsPendingReview, reviewSettlement } from '../../services/moneyServices'
+import HopXacNhan from '../../components/shared/HopXacNhan'
+import NhanTrangThai from '../../components/shared/NhanTrangThai'
+import { ngayDayDu, gioTrongNgay } from '../../utils/ngayVietNam'
 
-const fmtMoney = (v) => `${Number(v || 0).toLocaleString('vi-VN')}đ`
-const fmtTime = (v) => (v ? dayjs(v).format('HH:mm DD/MM/YYYY') : '—')
+const tien = (v) => `${Number(v || 0).toLocaleString('vi-VN')} đ`
+const moc = (v) => (v ? `${gioTrongNgay(v)} ${ngayDayDu(v)}` : '—')
+const phanTram = (r) => `${(Number(r) * 100).toLocaleString('vi-VN', { maximumFractionDigits: 0 })}%`
+// SettlementReleaseType: Partial70 (đợt đầu), Final30 (đợt cuối), Full (một đợt — đơn F&B). Tỉ lệ đợt đọc từ cấu hình
+// nên không in con số 70/30 ở đây.
+const DOT = { Partial70: 'Đợt chi trả đầu', Final30: 'Đợt chi trả cuối', Full: 'Chi trả một lần (đơn món)' }
+const PHAN_XET = { NeverStarted: ['xau', 'Chưa từng bắt đầu'], Measured: ['cho', 'Diễn ngắn hơn dự kiến'], Unknown: ['tat', 'Chưa đủ dữ liệu'] }
 
 const AdminSettlementsPage = () => {
   const [items, setItems] = useState([])
   const [isLoading, setIsLoading] = useState(true)
+  const [loiTai, setLoiTai] = useState(false)
   const [busyId, setBusyId] = useState(null)
   const [notes, setNotes] = useState({})
+  const [loiLyDo, setLoiLyDo] = useState({})
+  const [hoi, setHoi] = useState(null) // { s, decision }
   const [pagination, setPagination] = useState({ page: 1, totalPages: 1, totalCount: 0 })
 
   const fetchQueue = useCallback(async (page) => {
     setIsLoading(true)
+    setLoiTai(false)
     try {
       const res = await getSettlementsPendingReview({ page, pageSize: 20 })
-      if (res.success) {
-        setItems(res.data.items)
-        setPagination((p) => ({ ...p, totalPages: res.data.totalPages, totalCount: res.data.totalCount }))
-      }
+      if (!res.success) throw new Error('quyet-toan')
+      setItems(res.data.items)
+      setPagination((p) => ({ ...p, totalPages: res.data.totalPages, totalCount: res.data.totalCount }))
     } catch {
-      toast.error('Không tải được danh sách quyết toán.')
+      setLoiTai(true)
     } finally {
       setIsLoading(false)
     }
@@ -47,19 +66,26 @@ const AdminSettlementsPage = () => {
     run()
   }, [fetchQueue, pagination.page])
 
-  const handle = async (item, decision) => {
-    const note = (notes[item.settlementId] || '').trim()
-    if (!note) {
-      toast.error('Phải ghi lý do quyết định.')
+  const moHoi = (s, decision) => {
+    if (!(notes[s.settlementId] || '').trim()) {
+      setLoiLyDo((l) => ({ ...l, [s.settlementId]: 'Ghi lý do trước khi quyết định.' }))
+      document.getElementById(`ly-do-${s.settlementId}`)?.focus()
       return
     }
-    setBusyId(item.settlementId)
+    setHoi({ s, decision })
+  }
+
+  const xuLy = async () => {
+    const { s, decision } = hoi
+    setBusyId(s.settlementId)
     try {
-      await reviewSettlement(item.settlementId, { decision, note })
+      await reviewSettlement(s.settlementId, { decision, note: notes[s.settlementId].trim() })
       toast.success(decision === 'Release' ? 'Đã nhả tiền cho phòng trà.' : 'Đã giữ lại khoản này.')
+      setHoi(null)
       await fetchQueue(pagination.page)
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Xử lý thất bại.', { duration: 7000 })
+      setHoi(null)
+      toast.error(err.response?.data?.message || 'Xử lý thất bại.', { duration: 10000 })
     } finally {
       setBusyId(null)
     }
@@ -67,112 +93,110 @@ const AdminSettlementsPage = () => {
 
   return (
     <div>
-      <div className="mb-6">
-        <h1 className="text-4xl text-ink mb-1">Quyết toán chờ xử lý</h1>
-        <p className="text-ink-soft text-sm">
-          Tiền của phòng trà đang bị giữ vì nghi buổi diễn không chạy đủ như đã hứa với người mua vé.
-        </p>
-      </div>
+      <h1 className="text-4xl text-ink">Quyết toán chờ xử lý</h1>
+      <p className="mt-2 max-w-[70ch] text-ink-soft">
+        Tiền của phòng trà đang bị giữ vì nghi buổi diễn không chạy đủ như đã hứa với người mua vé. Quyết định ở đây không tự
+        hoàn tiền cho người mua — việc đó đi qua trang Yêu cầu hoàn tiền.
+      </p>
 
-      {isLoading ? (
-        <div className="py-16 flex justify-center"><Loader2 size={28} className="animate-spin text-ink" /></div>
-      ) : items.length === 0 ? (
-        <div className="bg-card border border-line p-12 text-center text-ink-mute">
-          <Check size={32} className="mx-auto mb-3 text-success/50" />
-          Không có khoản quyết toán nào đang bị giữ.
-        </div>
-      ) : (
-        <div className="space-y-3">
-          {items.map((s) => {
-            const isBusy = busyId === s.settlementId
-            const neverStarted = s.verdict === 'NeverStarted'
-            return (
-              <div key={s.settlementId} className="bg-card border border-line p-5">
-                <div className="flex items-start justify-between gap-4 flex-wrap">
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-ink font-bold">#{s.settlementId}</span>
-                      <span className="text-ink font-bold">{fmtMoney(s.netAmount)}</span>
-                      <span className="text-xs text-ink-mute">(gộp {fmtMoney(s.grossAmount)})</span>
-                      <span className={`px-2 py-0.5 text-xs font-bold border ${neverStarted
-                        ? 'bg-danger/10 text-danger border-danger/30'
-                        : 'bg-warning/10 text-warning border-warning/30'}`}>
-                        {neverStarted ? 'Chưa từng bắt đầu' : 'Diễn ngắn hơn dự kiến'}
-                      </span>
-                      {s.hasPendingRefund && (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-warning/10 text-warning border border-warning/30 text-xs font-bold">
-                          <AlertTriangle size={11} /> còn yêu cầu hoàn tiền chưa xử lý
-                        </span>
-                      )}
+      <div className="mt-6">
+        {isLoading ? (
+          <div className="h-48 bg-ink/5 animate-pulse" aria-busy="true" aria-label="Đang tải danh sách quyết toán" />
+        ) : loiTai ? (
+          <div role="alert" className="flex flex-wrap items-center gap-4 border-2 border-ink p-5">
+            <p>Danh sách quyết toán chưa tải được.</p>
+            <button type="button" onClick={() => fetchQueue(pagination.page)} className="min-h-[44px] px-4 border-2 border-ink font-semibold hover:bg-ink hover:text-lamp">Thử lại</button>
+          </div>
+        ) : items.length === 0 ? (
+          <p className="border-2 border-ink p-6">Không có khoản quyết toán nào đang bị giữ.</p>
+        ) : (
+          <ol className="border-y-2 border-ink divide-y divide-ink/20">
+            {items.map((s) => {
+              const dangXuLy = busyId === s.settlementId
+              const [sacThai, nhanPX] = PHAN_XET[s.verdict] ?? ['trung', s.verdict]
+              return (
+                <li key={s.settlementId} className="py-5 grid gap-5 lg:grid-cols-[minmax(0,1fr)_22rem]">
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="font-mono text-2xl">{tien(s.netAmount)}</p>
+                      <span className="text-sm text-ink-soft">phòng trà nhận · gộp <span className="font-mono">{tien(s.grossAmount)}</span></span>
+                      <NhanTrangThai sacThai={sacThai}>{nhanPX}</NhanTrangThai>
+                      {s.hasPendingRefund && <NhanTrangThai sacThai="cho">Còn yêu cầu hoàn tiền chờ xử lý</NhanTrangThai>}
                     </div>
-
-                    <p className="text-sm text-ink mt-2">{s.showName || `Buổi diễn #${s.showId ?? '—'}`}</p>
+                    <p className="mt-2 font-display text-2xl leading-tight break-words">{s.showName || `Buổi diễn #${s.showId ?? '—'}`}</p>
+                    <p className="text-sm text-ink-mute">
+                      Quyết toán #{s.settlementId} · {DOT[s.releaseType] ?? s.releaseType} · lên lịch <span className="font-mono">{moc(s.scheduledAt)}</span>
+                    </p>
 
                     {/* Bằng chứng do backend trả — không tự tính lại ở FE */}
-                    <div className="mt-3 grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
-                      <div>
-                        <p className="text-ink-mute">Dự kiến</p>
-                        <p className="text-ink-soft mt-0.5">{fmtTime(s.scheduledStart)}</p>
-                        <p className="text-ink-mute">đến {fmtTime(s.scheduledEnd)}</p>
-                      </div>
-                      <div>
-                        <p className="text-ink-mute">Thực tế</p>
-                        <p className="text-ink-soft mt-0.5">{fmtTime(s.actualStart)}</p>
-                        <p className="text-ink-mute">đến {fmtTime(s.actualEnd)}</p>
-                      </div>
-                      <div>
-                        <p className="text-ink-mute">Tỉ lệ đạt</p>
-                        <p className="text-ink font-bold mt-0.5">
-                          {s.ratio != null ? `${(Number(s.ratio) * 100).toFixed(0)}%` : '—'}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-ink-mute">Ngưỡng yêu cầu</p>
-                        <p className="text-ink font-bold mt-0.5">{(Number(s.threshold) * 100).toFixed(0)}%</p>
-                      </div>
-                    </div>
-
-                    <p className="text-xs text-ink-mute mt-2">
-                      Loại giải ngân: {s.releaseType} · lên lịch {fmtTime(s.scheduledAt)}
+                    <table className="mt-3 w-full max-w-xl text-sm">
+                      <caption className="sr-only">Bằng chứng thời lượng buổi diễn</caption>
+                      <thead><tr className="text-left text-ink-mute"><th scope="col" className="font-normal py-1"></th><th scope="col" className="font-normal py-1">Bắt đầu</th><th scope="col" className="font-normal py-1">Kết thúc</th></tr></thead>
+                      <tbody className="font-mono">
+                        <tr className="border-t border-ink/20"><th scope="row" className="font-sans font-normal text-left py-1.5 pr-4 text-ink-mute">Dự kiến</th><td>{moc(s.scheduledStart)}</td><td>{moc(s.scheduledEnd)}</td></tr>
+                        <tr className="border-t border-ink/20"><th scope="row" className="font-sans font-normal text-left py-1.5 pr-4 text-ink-mute">Thực tế</th><td>{moc(s.actualStart)}</td><td>{moc(s.actualEnd)}</td></tr>
+                      </tbody>
+                    </table>
+                    <p className="mt-2 text-sm">
+                      Tỉ lệ đạt <span className="font-mono font-semibold">{s.ratio != null ? phanTram(s.ratio) : '—'}</span>
+                      <span className="text-ink-mute"> · ngưỡng yêu cầu </span><span className="font-mono">{phanTram(s.threshold)}</span>
                     </p>
                   </div>
 
-                  <div className="flex flex-col gap-2 w-full sm:w-72">
-                    <input aria-label="Lý do quyết định (bắt buộc)"
-                      value={notes[s.settlementId] || ''}
-                      onChange={(e) => setNotes((p) => ({ ...p, [s.settlementId]: e.target.value }))}
-                      placeholder="Lý do quyết định (bắt buộc)"
-                      className="px-3 py-2 bg-page border border-line text-sm text-ink placeholder:text-ink-mute"
-                    />
+                  <div className="space-y-3">
+                    <div>
+                      <label htmlFor={`ly-do-${s.settlementId}`} className="block text-sm font-semibold">Lý do quyết định <span className="text-danger" aria-hidden="true">*</span><span className="sr-only"> (bắt buộc)</span></label>
+                      <p id={`ly-do-goi-y-${s.settlementId}`} className="text-xs text-ink-soft">Gửi nguyên văn cho chủ phòng trà.</p>
+                      <input id={`ly-do-${s.settlementId}`} value={notes[s.settlementId] || ''} maxLength={500}
+                        onChange={(e) => { setNotes((p) => ({ ...p, [s.settlementId]: e.target.value })); setLoiLyDo((l) => ({ ...l, [s.settlementId]: undefined })) }}
+                        aria-invalid={loiLyDo[s.settlementId] ? 'true' : undefined}
+                        aria-describedby={`ly-do-goi-y-${s.settlementId}${loiLyDo[s.settlementId] ? ` ly-do-loi-${s.settlementId}` : ''}`}
+                        className={`mt-1 w-full min-h-[44px] px-3 bg-card border-2 text-ink focus:outline-none focus:ring-2 focus:ring-ink ${loiLyDo[s.settlementId] ? 'border-danger' : 'border-ink'}`} />
+                      {loiLyDo[s.settlementId] && <p id={`ly-do-loi-${s.settlementId}`} className="mt-1 text-sm font-semibold text-danger">{loiLyDo[s.settlementId]}</p>}
+                    </div>
+                    {s.hasPendingRefund && (
+                      <p className="text-sm border-l-4 border-warning pl-3">
+                        Chưa nhả tiền được: <Link to="/admin/refunds" className="underline underline-offset-4 font-semibold">xử lý yêu cầu hoàn tiền</Link> trước, nếu không phòng trà nhận đủ tiền cho phần sắp phải trả lại khách.
+                      </p>
+                    )}
                     <div className="flex gap-2">
-                      <button onClick={() => handle(s, 'Release')} disabled={isBusy}
-                        className="flex-1 inline-flex items-center justify-center gap-1.5 bg-success/10 border border-success/40 text-success px-3 py-2 text-xs font-bold hover:bg-success/20 disabled:opacity-50">
-                        <Check size={14} /> Nhả tiền
-                      </button>
-                      <button onClick={() => handle(s, 'Withhold')} disabled={isBusy}
-                        className="flex-1 inline-flex items-center justify-center gap-1.5 bg-danger/10 border border-danger/40 text-danger px-3 py-2 text-xs font-bold hover:bg-danger/20 disabled:opacity-50">
-                        <Lock size={14} /> Giữ lại
-                      </button>
+                      {!s.hasPendingRefund && (
+                        <button type="button" onClick={() => moHoi(s, 'Release')} disabled={dangXuLy}
+                          className="flex-1 min-h-[44px] px-3 bg-ink text-lamp font-semibold hover:bg-board disabled:opacity-60">Nhả tiền</button>
+                      )}
+                      <button type="button" onClick={() => moHoi(s, 'Withhold')} disabled={dangXuLy}
+                        className="flex-1 min-h-[44px] px-3 border-2 border-danger text-danger font-semibold hover:bg-danger hover:text-lamp disabled:opacity-60">Giữ lại</button>
                     </div>
                   </div>
-                </div>
-              </div>
-            )
-          })}
-        </div>
+                </li>
+              )
+            })}
+          </ol>
+        )}
+      </div>
+
+      {!isLoading && !loiTai && pagination.totalPages > 1 && (
+        <nav aria-label="Phân trang" className="flex items-center justify-between mt-4">
+          <p className="font-mono text-sm">Trang {pagination.page} trên {pagination.totalPages} · {pagination.totalCount} khoản</p>
+          <div className="flex gap-2">
+            <button type="button" onClick={() => setPagination((p) => ({ ...p, page: p.page - 1 }))} disabled={pagination.page === 1}
+              className="inline-flex items-center justify-center w-11 h-11 border-2 border-ink hover:bg-ink hover:text-lamp disabled:opacity-30" aria-label="Trang trước"><ChevronLeft size={18} aria-hidden="true" /></button>
+            <button type="button" onClick={() => setPagination((p) => ({ ...p, page: p.page + 1 }))} disabled={pagination.page === pagination.totalPages}
+              className="inline-flex items-center justify-center w-11 h-11 border-2 border-ink hover:bg-ink hover:text-lamp disabled:opacity-30" aria-label="Trang sau"><ChevronRight size={18} aria-hidden="true" /></button>
+          </div>
+        </nav>
       )}
 
-      {!isLoading && pagination.totalPages > 1 && (
-        <div className="flex items-center justify-between mt-4">
-          <p className="text-sm text-ink-mute">Trang {pagination.page} / {pagination.totalPages} · {pagination.totalCount} khoản</p>
-          <div className="flex gap-2">
-            <button onClick={() => setPagination((p) => ({ ...p, page: p.page - 1 }))} disabled={pagination.page === 1}
-              className="p-2 rounded-md border border-line text-ink-soft hover:border-ink disabled:opacity-30" aria-label="Trang trước"><ChevronLeft size={18} /></button>
-            <button onClick={() => setPagination((p) => ({ ...p, page: p.page + 1 }))} disabled={pagination.page === pagination.totalPages}
-              className="p-2 rounded-md border border-line text-ink-soft hover:border-ink disabled:opacity-30" aria-label="Trang sau"><ChevronRight size={18} /></button>
-          </div>
-        </div>
-      )}
+      <HopXacNhan mo={!!hoi} dangXuLy={busyId != null} nhanGiu="Không, quay lại" nguyHiem={hoi?.decision === 'Withhold'}
+        tieuDe={!hoi ? '' : hoi.decision === 'Withhold' ? `Giữ lại ${tien(hoi.s.netAmount)}?` : `Nhả ${tien(hoi.s.netAmount)} cho phòng trà?`}
+        nhanXacNhan={hoi?.decision === 'Withhold' ? 'Giữ lại vĩnh viễn' : 'Nhả tiền'}
+        onDong={() => setHoi(null)} onXacNhan={xuLy}>
+        {hoi && (hoi.decision === 'Withhold' ? (
+          <p>Phòng trà sẽ <strong className="text-danger">không bao giờ</strong> được trả đợt này, và nhận thông báo kèm lý do của bạn. Việc hoàn tiền cho người mua vé không tự xảy ra — xử lý ở trang Yêu cầu hoàn tiền. Không hoàn tác được.</p>
+        ) : (
+          <p>Hệ thống ghi bút toán chi trả và báo cho phòng trà. Chỉ nhả khi bạn đã chắc buổi diễn diễn ra đủ. Không hoàn tác được.</p>
+        ))}
+      </HopXacNhan>
     </div>
   )
 }
