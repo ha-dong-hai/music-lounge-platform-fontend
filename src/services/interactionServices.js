@@ -23,3 +23,17 @@ export const toggleFollowLounge = async (loungeId, isCurrentlyFollowing) => {
   }
   return axiosClient.post(`/follows/lounges/${loungeId}`);
 };
+
+// ===== TẮT THÔNG BÁO TỪ PHÒNG TRÀ =====
+
+export const getMutedLounges = async () => {
+  return axiosClient.get('/mutes/lounges');
+};
+
+export const muteLounge = async (loungeId) => {
+  return axiosClient.post(`/mutes/lounges/${loungeId}`);
+};
+
+export const unmuteLounge = async (loungeId) => {
+  return axiosClient.delete(`/mutes/lounges/${loungeId}`);
+};
