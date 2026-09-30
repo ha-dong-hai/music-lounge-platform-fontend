@@ -148,8 +148,11 @@ const DongBang = ({ dong, mo, onMo, onRoi, chiSo, daDangNhap }) => {
                     {cacBuoi.map((b) => (
                       <li key={b.id} className="flex flex-wrap items-center gap-x-4 gap-y-1 py-2">
                         <span className="font-mono text-stock w-14">{gioTrongNgay(b.start_date)}</span>
-                        <span className="flex-1 min-w-0 truncate text-lamp">{b.title}</span>
-                        <span className="font-mono text-sm text-lamp-mute">{b.price}</span>
+                        {/* Điện thoại: tên buổi xuống dòng riêng (order-last + basis-full) — ép chung hàng với giờ, giá, liên
+                            kết thì tên bị cắt còn "[…" (đo 30/09). Từ sm trở lên giữ một hàng như cũ — PHẢI là sm:basis-0, không phải
+                            basis-auto: basis-auto ghi đè basis 0 của flex-1, tên dài đòi đủ chỗ và đẩy "Xem và đặt" xuống dòng. */}
+                        <span className="order-last basis-full sm:order-none sm:basis-0 flex-1 min-w-0 sm:truncate text-lamp">{b.title}</span>
+                        <span className="font-mono text-sm text-lamp-mute ml-auto sm:ml-0">{b.price}</span>
                         {b.id === buoi.id
                           ? <span className="inline-flex items-center min-h-[44px] px-3 text-sm text-lamp-mute">Buổi sớm nhất</span>
                           : <Link to={`/shows/${b.id}`} className="inline-flex items-center min-h-[44px] px-3 font-semibold text-lamp underline underline-offset-4">Xem và đặt</Link>}
