@@ -238,6 +238,22 @@ Mọi đường cong dùng ease-out-soft; không nảy. `prefers-reduced-motion`
 - Dấu mộc cho trạng thái tiền trong sổ cái/quyết toán/hoàn tiền (giữ hộ, đã hoàn, đã quyết toán); ember cho buổi đang diễn ở màn nhân viên.
 - Lỗi/cảnh báo dùng danger / danger-soft / warning, không mượn stamp.
 
+## Danh sách lựa chọn dài: thu gọn, không in hết (30/09/2026)
+
+> Chủ dự án: khối "Tìm theo gu" in hết mọi lựa chọn, "nếu có quá nhiều option thì sao". Căn cứ: `reports/Thu gọn danh
+> sách lựa chọn dài.md` (repo backend). Mẫu chuẩn: `src/components/program/NhomGu.jsx` + `src/utils/nhomGu.js`.
+
+- Từ 8 mục trở xuống: in hết. Nhiều hơn: hiện 6 mục đáng thấy nhất (xếp theo độ phổ biến), phần còn lại ẩn.
+- Mở bằng một dòng chữ gạch chân có dấu cộng, ghi SỐ mục ẩn và tên nhóm ("Xem thêm 24 tâm trạng"). Không làm nó thành một
+  ô nhãn: người dùng nhầm nút mở rộng với một lựa chọn.
+- Mở tại chỗ, không chuyển động, không tự cuộn trang. Các mục hiện sẵn không đổi chỗ; phần mở thêm xếp theo bảng chữ cái.
+- Trên 20 mục: khi đã mở có ô "Tìm trong danh sách", tìm được khi gõ không dấu.
+- KHÔNG dùng hàng cuộn ngang, vùng cuộn lồng hay dropdown cho việc này.
+- Trợ năng: `<button aria-expanded aria-controls>`; mục ẩn không dựng ra DOM; nút ở yên một chỗ để focus không rơi khi thu gọn.
+- Giới hạn đã biết: các ngưỡng 6 / 8 / 20 suy từ nghiên cứu bộ lọc thương mại điện tử, chưa có số đo của chính trang này.
+  "Độ phổ biến" hiện là số buổi diễn sắp tới (dòng nhạc) hoặc thứ tự danh mục của backend (tâm trạng, không gian) vì
+  chưa có dữ liệu lượt bấm.
+
 ## Tiêu chí duyệt giao diện (chốt 30/09/2026)
 
 > Rút từ chính lời chủ dự án trong ngày 30/09 và từ những bản đã bị từ chối. Mục đích: trang nào làm lại cũng được

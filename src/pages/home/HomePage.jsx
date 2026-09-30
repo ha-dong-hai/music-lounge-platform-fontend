@@ -18,6 +18,7 @@ import BangGioDien from '../../components/program/BangGioDien'
 import { gomTheoPhongTra } from '../../utils/bangGioDien'
 import PhongTraTrenSan from '../../components/program/PhongTraTrenSan'
 import LichTuanNay from '../../components/program/LichTuanNay'
+import NhomGu from '../../components/program/NhomGu'
 import DauMoc from '../../components/program/DauMoc'
 import CuongVeCamKet from '../../components/program/CuongVeCamKet'
 import { getShows, getFilterOptions } from '../../services/showServices'
@@ -190,19 +191,8 @@ const HomePage = () => {
                 ['Tâm trạng', gu.moods.map((m) => ({ key: m.id, ten: m.name, to: '/shows/search', state: { appliedFilters: { ...BO_LOC_TRONG, selectedMoods: [m.name] } } }))],
                 ['Không gian', gu.atmospheres.map((a) => ({ key: a.id, ten: a.name, to: '/shows/search', state: { appliedFilters: { ...BO_LOC_TRONG, selectedSpaces: [a.name] } } }))],
               ].filter(([, ds]) => ds.length > 0).map(([tieuDe, ds]) => (
-                <div key={tieuDe}>
-                  <h3 className="text-lg mb-3">{tieuDe}</h3>
-                  <ul className="flex flex-wrap gap-2">
-                    {ds.map((x) => (
-                      <li key={x.key}>
-                        <Link to={x.to} state={x.state} className="inline-flex items-center gap-2 min-h-[40px] px-3 border-2 border-ink bg-card text-sm font-medium hover:bg-ink hover:text-lamp transition-colors">
-                          {x.ten}
-                          {x.so != null && <span className="font-mono text-xs">{x.so}</span>}
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+                // Mỗi nhóm tự thu gọn khi dài (NhomGu): chỉ hiện các mục đáng thấy nhất, "Xem thêm N" mở phần còn lại.
+                <NhomGu key={tieuDe} tieuDe={tieuDe} ds={ds} />
               ))}
             </div>
           </section>
