@@ -72,7 +72,7 @@ const DongBang = ({ dong, mo, onMo, onRoi, chiSo, daDangNhap }) => {
           className="order-3 md:order-none col-span-2 md:col-span-1 text-left min-w-0 focus-visible:outline-lamp"
         >
           {/* Dòng đang mở thì tên phòng trà "lên đèn": quầng sáng màu ánh đèn quanh chữ — thứ phân biệt hộp đèn bật/tắt. */}
-          <span className={`block font-display text-3xl text-lamp leading-none md:truncate ${mo ? '[text-shadow:0_0_18px_rgb(255_233_168/0.55)]' : ''}`}>{dong.tenPhongTra}</span>
+          <span className={`block font-display text-3xl text-lamp leading-none md:truncate ${mo ? '[text-shadow:0_0_18px_rgb(201_164_92/0.45)]' : ''}`}>{dong.tenPhongTra}</span>
           {dong.soBuoiThem > 0 && (
             <span className="block text-xs text-lamp-mute mt-1">+{dong.soBuoiThem} buổi nữa đêm nay</span>
           )}
@@ -131,7 +131,7 @@ const DongBang = ({ dong, mo, onMo, onRoi, chiSo, daDangNhap }) => {
                   </ol>
                 </div>
                 <div>
-                  <p className="font-display text-3xl text-lamp leading-none [text-shadow:0_0_18px_rgb(255_233_168/0.45)]">{buoi.price}</p>
+                  <p className="font-display text-3xl text-lamp leading-none [text-shadow:0_0_18px_rgb(201_164_92/0.40)]">{buoi.price}</p>
                   <p className="text-sm text-lamp-mute mt-1.5 max-w-prose">{CAU_GIA}</p>
                 </div>
                 {/* ĐÃ BỎ (30/09) dấu mộc đỏ trong hộp đèn: đỏ mộc trên nền tím than chỉ đạt ~2:1, không đọc được. Lời hứa giữ

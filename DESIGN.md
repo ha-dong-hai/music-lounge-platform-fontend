@@ -2,28 +2,28 @@
 name: MusicLounge
 description: Sàn đặt vé phòng trà Sài Gòn, in như một tờ chương trình ca nhạc.
 colors:
-  stock: "#F4C542"
-  ink: "#26215A"
-  ink-soft: "#433D80"
-  ink-mute: "#4D4889"
-  board: "#1B1745"
-  espresso: "#26215A"
-  espresso-soft: "#332C73"
-  lamp: "#FFE9A8"
-  cream: "#FFE9A8"
-  cream-mute: "#CFC9EE"
-  brand-on-dark: "#F4C542"
-  stamp: "#C8252C"
-  ember: "#F2682A"
-  page: "#FFFFFF"
-  card: "#FFFFFF"
-  sunken: "#F5F3FA"
-  line: "#D6D3E8"
-  line-strong: "#26215A"
-  brand: "#26215A"
-  brand-hover: "#1B1745"
-  brand-text: "#26215A"
-  on-brand: "#FFE9A8"
+  stock: "#F3EEE6"
+  ink: "#231A15"
+  ink-soft: "#4A3E35"
+  ink-mute: "#65584D"
+  board: "#14110F"
+  espresso: "#231A15"
+  espresso-soft: "#1F1A16"
+  lamp: "#F2EAE0"
+  cream: "#F2EAE0"
+  cream-mute: "#B3A899"
+  brand-on-dark: "#F3EEE6"
+  stamp: "#9B2A23"
+  ember: "#C9A45C"
+  page: "#FBF8F3"
+  card: "#FBF8F3"
+  sunken: "#EDE6DB"
+  line: "#DAD0C2"
+  line-strong: "#231A15"
+  brand: "#231A15"
+  brand-hover: "#14110F"
+  brand-text: "#231A15"
+  on-brand: "#F2EAE0"
   danger: "#B3261E"
   success: "#2F7A4F"
   warning: "#8A5A00"
@@ -54,16 +54,20 @@ components:
   ticket-stub: { backgroundColor: "{colors.card}", textColor: "{colors.ink}", padding: "32px 24px" }
 ---
 
+> **Bảng màu "Sơn then và lụa ngà" — chủ dự án chọn 30/09/2026** trong 5 bảng dựng thử trên trang thật, thay bản vàng hoa
+> cúc #F4C542 + tím than #26215A (bị nhận xét sặc sỡ, chối mắt). Căn cứ: `reports/Bảng màu sang trọng phòng trà.md`
+> (repo backend). Nền lụa ngà gần cụm "kem + serif + đất nung" mà máy hay sinh ra — KHÔNG kèm chữ serif và đất nung.
+
 # Design System: MusicLounge
 
 ## Overview
 
 **Creative North Star: "Tờ chương trình ca nhạc"**
 
-Mỗi đêm của Sài Gòn in thành một tờ chương trình: giấy tờ bướm vàng hoa cúc phủ trang, mực ronéo tím than cho chữ,
+Mỗi đêm của Sài Gòn in thành một tờ chương trình: nền lụa ngà phủ trang, mực nâu đen cho chữ, bảng giờ diễn đen nâu ấm của sơn then,
 đường kẻ và giờ diễn; một "bảng giờ diễn" mặt mực đậm kiểu bảng khởi hành, giờ bằng ô chữ lật, mỗi dòng là một phòng
 trà xếp theo giờ lên sân khấu; dòng nào được chọn thì mở ra thành hộp đèn mica sáng ấm. Dấu mộc cao su đỏ chỉ đóng lên
-lời hứa về tiền; cuống vé răng cưa chở các cam kết; góc giấy cắt vuông. Màu than hồng chỉ nói một điều: đang diễn.
+lời hứa về tiền; cuống vé răng cưa chở các cam kết; góc giấy cắt vuông. Màu vàng thếp chỉ nói một điều: đang diễn.
 Hai lời hứa ngang nhau (khám phá theo phòng trà, tiền minh bạch) cùng in trên một tờ giấy, không lời hứa nào là trang trí.
 
 Hệ này thay hệ "Sáng ấm" cũ (nền kem + serif) nhưng **giữ nguyên tên token** để 61 trang đổi thế giới cùng lúc: các
@@ -71,10 +75,10 @@ tên cũ `brand`, `espresso`, `cream` giờ trỏ vào mực và ánh đèn. M�
 đạt WCAG 2.2 AA (22/22 cặp, 30/09).
 
 **Key Characteristics:**
-- Giấy vàng (Persuade) hoặc giấy trắng (Operate) + mực tím than; không đen thuần, không xám trung tính.
+- Lụa ngà (Persuade) hoặc lụa trắng ngà (Operate) + mực nâu đen; không đen thuần, không xám trung tính. Giao diện gần như không màu — ẢNH sân khấu mang màu.
 - Phân cấp bằng CỠ chữ khối, không bằng đậm nhạt; số liệu thẳng cột (tabular-nums mặc định).
 - Góc gần như vuông; viền mực 2px thay cho bóng; bóng chỉ là tờ giấy nằm trên bàn.
-- Ba màu có luật dùng hẹp: than hồng = đang diễn, đỏ mộc = tiền, quầng sáng = có diễn đêm nay.
+- Ba màu có luật dùng hẹp: vàng thếp = đang diễn, đỏ son = tiền, quầng sáng = có diễn đêm nay. Nhấn + ánh kim cộng lại dưới ~10% diện tích.
 - Mọi chữ và số truy được về dữ liệu thật; khối nào cũng có đủ trạng thái tải / lỗi / trống / có dữ liệu.
 
 ## Colors
@@ -82,19 +86,19 @@ tên cũ `brand`, `espresso`, `cream` giờ trỏ vào mực và ánh đèn. M�
 Hai vật liệu (giấy và mực) cộng ba tín hiệu có chủ quyền riêng.
 
 ### Primary
-- **Giấy tờ bướm vàng hoa cúc** (stock): phủ trang ở màn công khai (trang chủ, thẻ phòng trà tắt đèn, nút Đặt chỗ trên bảng).
-- **Mực ronéo tím than** (ink, cũng là brand / espresso / line-strong / brand-text): chữ, viền in 2px, nút chính, khối đậm có chủ đích (thead bảng tuần, chân trang, thanh bên).
+- **Lụa ngà** (stock): phủ trang ở màn công khai (trang chủ, thẻ phòng trà tắt đèn, nút Đặt chỗ trên bảng).
+- **Mực nâu đen** (ink, cũng là brand / espresso / line-strong / brand-text): chữ, viền in 2px, nút chính, khối đậm có chủ đích (thead bảng tuần, chân trang, thanh bên).
 - **Mặt bảng giờ** (board, cũng là brand-hover): nền khung bảng giờ diễn, ô chữ lật, ô ảnh trống — đậm hơn mực một nấc.
 - **Ánh đèn mica** (lamp / cream / on-brand): chữ "sáng đèn" trên khối mực, mặt ô chữ lật, nền nút Đặt chỗ khi rê.
 
 ### Secondary
 - **Chữ phụ trên mực** (cream-mute): nhãn cột, chú thích, liên kết chân trang trên nền mực.
-- **Vàng giấy làm chữ** (brand-on-dark): số thứ tự line-up, giờ trong danh sách buổi ở hộp đèn.
+- **Lụa ngà làm chữ** (brand-on-dark): số thứ tự line-up, giờ trong danh sách buổi ở hộp đèn.
 - **Mực nhạt** (ink-soft, ink-mute): chữ phụ, quận/huyện, placeholder trên giấy.
 
 ### Tertiary (tín hiệu)
 - **Dấu mộc đỏ** (stamp): chỉ trạng thái và lời hứa về tiền — giữ hộ, đã hoàn, đã quyết toán, sao kê.
-- **Than hồng** (ember): chỉ buổi đang diễn — nhãn "Đang diễn", viền dòng bảng, ô chữ lật của dòng đó.
+- **Vàng thếp** (ember): chỉ buổi đang diễn — nhãn "Đang diễn", viền dòng bảng, ô chữ lật của dòng đó.
 
 ### Neutral
 - **Giấy trắng** (page, card): nền mặc định của màn vận hành; tờ giấy nổi (cuống vé, chip, ô tìm kiếm, menu thả).
@@ -102,11 +106,11 @@ Hai vật liệu (giấy và mực) cộng ba tín hiệu có chủ quyền riê
 - **Trạng thái hệ thống** (danger, success, warning; `danger-soft` = color-mix 12% danger trên card): lỗi, thành công, cảnh báo — không thay cho stamp/ember.
 
 ### Named Rules
-**The Ember-Is-Live Rule.** Than hồng chỉ xuất hiện khi buổi diễn có status `Ongoing`. Không dùng cho khuyến mãi, nút, hover hay "sắp diễn".
+**The Ember-Is-Live Rule.** Vàng thếp chỉ xuất hiện khi buổi diễn có status `Ongoing`. Không dùng cho khuyến mãi, nút, hover hay "sắp diễn".
 
 **The Stamp-Is-Money Rule.** Đỏ mộc chỉ nói về tiền. Câu không phải về tiền thì không được đóng dấu, tô đỏ hay rê chuột ra đỏ.
 
-**The No-Stamp-On-Navy Rule.** Dấu mộc không bao giờ đặt trên khối mực (đỏ trên tím than ~2:1). Trên nền mực, lời hứa về tiền in bằng chữ mono màu cream-mute.
+**The No-Stamp-On-Navy Rule.** Dấu mộc không bao giờ đặt trên khối mực (đỏ son trên sơn then ~2:1). Trên nền mực, lời hứa về tiền in bằng chữ mono màu cream-mute.
 
 ## Typography
 
@@ -145,7 +149,7 @@ cố định để tiêu đề không lệch dữ liệu). Điện thoại: gi�
 
 ## Elevation & Depth
 
-Phẳng như giấy in; chiều sâu chủ yếu đến từ viền mực và đổi nền (giấy vàng ↔ khối mực). Ba bóng, tông mực, không đen thuần:
+Phẳng như giấy in; chiều sâu chủ yếu đến từ viền mực và đổi nền (lụa ngà ↔ khối sơn then). Ba bóng, tông mực, không đen thuần:
 
 - **shadow-soft**: tờ giấy nằm sát bàn — dự trữ cho thẻ/khung nhỏ.
 - **shadow-lift**: tờ giấy nhấc lên — khung bảng giờ diễn, cuống vé cam kết, menu thả của đầu trang.

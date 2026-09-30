@@ -1,54 +1,59 @@
 @import "tailwindcss";
 
 /* ===== DESIGN TOKENS — nguồn màu/chữ duy nhất của giao diện =====
-   Thế giới "TỜ CHƯƠNG TRÌNH CA NHẠC" (chủ dự án chốt 30/09, hợp đồng hướng ở .impeccable/surfaces): giấy tờ bướm
-   vàng hoa cúc + mực ronéo tím than; dấu mộc đỏ CHỈ cho trạng thái tiền; hộp đèn mica (khối mực, chữ sáng) CHỈ cho
-   phòng trà có diễn đêm nay; than hồng CHỈ cho buổi đang diễn. Thay hệ "Sáng ấm" (nền kem + serif) cũ — đó là cụm
-   giao diện mặc định mà máy hay sinh ra.
+   Thế giới "TỜ CHƯƠNG TRÌNH CA NHẠC" (chủ dự án chốt 30/09, hợp đồng hướng ở .impeccable/surfaces), BẢNG MÀU
+   "SƠN THEN VÀ LỤA NGÀ" (chủ dự án chọn 30/09 trong 5 bảng dựng thử trên trang thật): nền lụa ngà, mực nâu đen,
+   bảng giờ diễn đen nâu ấm của sơn then (cùng họ với gỗ tối trong ảnh sân khấu), đỏ son trầm CHỈ cho trạng thái
+   tiền, vàng thếp CHỈ cho buổi đang diễn. Hộp đèn (khối tối, chữ sáng) CHỈ cho phòng trà có diễn đêm nay.
+   VÌ SAO ĐỔI: bản vàng hoa cúc #F4C542 + tím than #26215A bị nhận xét "sặc sỡ, chối mắt". Đo: vàng đó có chroma
+   0.151 (vàng đồng của khách sạn cao cấp chỉ 0.08–0.12), phủ kín trang, đứng cạnh màu gần như đối nó. Nguyên tắc rút
+   từ nghiên cứu (reports/Bảng màu sang trọng phòng trà.md ở repo backend): giao diện hạ độ rực gần 0, để ẢNH sân
+   khấu đèn vàng mang màu; màu nhấn + ánh kim cộng lại dưới ~10% diện tích.
+   Nền lụa ngà gần cụm "kem + serif + đất nung" mà máy hay sinh ra — nên KHÔNG kèm chữ serif và đất nung.
    HAI BỘ TỪ VỰNG, KHÔNG TRỘN (chủ dự án 30/09: "thiết kế cũ đừng để bị trộn lẫn hay ảnh hưởng"):
    - TỪ VỰNG MỚI (dưới "Thế giới tờ chương trình"): stock, ink*, board*, lamp*, stamp, ember + nền cấu trúc page/card/
      sunken/line + trạng thái danger/success/warning. Mọi file ĐÃ CHUYỂN chỉ được dùng bộ này.
    - TỪ VỰNG CŨ (brand*, on-brand, espresso*, cream*): chỉ còn để các trang CHƯA làm lại không vỡ màu trong lúc chuyển.
      File đã chuyển mà dùng tên cũ thì `npm run kiem:the-gioi` báo ĐỎ. Trần giới hạn: tồn tại tới khi danh sách nợ
      của máy kiểm về 0 — khi đó XOÁ cả khối này (đường nâng cấp đã định, không phải tuỳ chọn).
-   Mọi cặp chữ/nền dưới đây đã tính bằng máy đạt WCAG 2.2 AA (chữ thường >= 4.5:1, 22/22 cặp — 30/09).
+   Mọi cặp chữ/nền dưới đây đã tính bằng máy đạt WCAG 2.2 AA (chữ thường >= 4.5:1, 31/31 cặp — đo lại 30/09 với bảng màu Sơn then và lụa ngà).
    KHÔNG viết mã màu hex hay lớp bg-gray, bg-black trong component — dùng token này. */
 @theme {
   --color-danger-soft: color-mix(in srgb, var(--color-danger) 12%, var(--color-card));  /* nen nhat cho canh bao; suy tu token, khong bia hex */
-  --color-page: #FFFFFF;          /* giấy trắng — nền mặc định của màn vận hành (Operate) */
-  --color-card: #FFFFFF;          /* tờ giấy nổi */
-  --color-sunken: #F5F3FA;        /* ô nhập, vùng lõm: giấy ánh mực rất nhạt */
-  --color-line: #D6D3E8;          /* đường kẻ mực nhạt */
-  --color-line-strong: #26215A;   /* đường kẻ mực đậm — viền in */
+  --color-page: #FBF8F3;          /* lụa trắng ngà — nền mặc định của màn vận hành (Operate) */
+  --color-card: #FBF8F3;          /* tờ giấy nổi */
+  --color-sunken: #EDE6DB;        /* ô nhập, vùng lõm */
+  --color-line: #DAD0C2;          /* đường kẻ nhạt (trang trí; viền ô nhập cần đậm hơn — dùng ink/40 trở lên) */
+  --color-line-strong: #231A15;   /* đường kẻ mực đậm — viền in */
 
-  --color-ink: #26215A;           /* mực ronéo tím than: 14.5:1 trên giấy trắng, 8.9:1 trên giấy vàng */
-  --color-ink-soft: #433D80;      /* 9.5:1 / 5.8:1 */
-  --color-ink-mute: #4D4889;      /* 8.1:1 / 5.0:1 */
+  --color-ink: #231A15;           /* mực nâu đen (không phải #000) */
+  --color-ink-soft: #4A3E35;
+  --color-ink-mute: #65584D;
 
-  /* ── TỪ VỰNG CŨ — chỉ cho trang chưa chuyển; CẤM trong file đã chuyển (scripts/kiem-the-gioi-moi.mjs) ── */
-  --color-brand: #26215A;         /* nền nút chính: khối mực (chữ on-brand sáng đèn trên đó 12:1) */
-  --color-brand-hover: #1B1745;
-  --color-brand-text: #26215A;    /* chữ/icon nhấn trên nền sáng */
-  --color-on-brand: #FFE9A8;
+  /* ── TỪ VỰNG CŨ — chỉ cho trang chưa chuyển; CẤM trong file đã chuyển (scripts/kiem-the-gioi.mjs) ── */
+  --color-brand: #231A15;         /* nền nút chính: khối mực */
+  --color-brand-hover: #14110F;
+  --color-brand-text: #231A15;    /* chữ/icon nhấn trên nền sáng */
+  --color-on-brand: #F2EAE0;
 
-  --color-espresso: #26215A;      /* khối đậm có chủ đích: bảng giờ, chân trang, thanh bên */
-  --color-espresso-soft: #332C73;
-  --color-cream: #FFE9A8;         /* chữ "sáng đèn" trên khối mực, 12:1 */
-  --color-cream-mute: #CFC9EE;    /* chữ phụ trên khối mực, 9.2:1 */
-  --color-brand-on-dark: #F4C542; /* vàng giấy dùng làm chữ trên khối mực, 8.9:1 */
+  --color-espresso: #231A15;      /* khối đậm có chủ đích: chân trang, thanh bên */
+  --color-espresso-soft: #1F1A16;
+  --color-cream: #F2EAE0;         /* chữ sáng trên khối mực */
+  --color-cream-mute: #B3A899;    /* chữ phụ trên khối mực */
+  --color-brand-on-dark: #F3EEE6; /* chữ lụa ngà trên khối mực */
 
   --color-danger: #B3261E;
   --color-success: #2F7A4F;
   --color-warning: #8A5A00;
 
-  /* ── TỪ VỰNG MỚI — thế giới tờ chương trình ── */
-  --color-stock: #F4C542;         /* giấy tờ bướm vàng hoa cúc — phủ trang ở màn công khai (Persuade); chữ vàng trên khối mực 8.9:1 */
-  --color-board: #1B1745;         /* mặt bảng giờ diễn, đậm hơn mực một nấc; cũng là màu rê chuột của nút mực */
-  --color-board-soft: #332C73;    /* mặt bảng sáng hơn một nấc (dòng rê chuột) */
-  --color-lamp: #FFE9A8;          /* ánh đèn mica / ô chữ lật / chữ sáng trên khối mực 12:1 */
-  --color-lamp-mute: #CFC9EE;     /* chữ phụ trên khối mực 9.2:1 */
-  --color-stamp: #C8252C;         /* dấu mộc — CHỈ trạng thái tiền: giữ hộ, đã hoàn, đã quyết toán */
-  --color-ember: #F2682A;         /* than hồng — CHỈ buổi đang diễn */
+  /* ── TỪ VỰNG MỚI — thế giới tờ chương trình, bảng màu Sơn then và lụa ngà ── */
+  --color-stock: #F3EEE6;         /* lụa ngà — phủ trang ở màn công khai (Persuade) */
+  --color-board: #14110F;         /* sơn then: mặt bảng giờ diễn, đen nâu ấm; cũng là màu rê chuột của nút mực */
+  --color-board-soft: #1F1A16;    /* mặt bảng sáng hơn một nấc (dòng đang mở) */
+  --color-lamp: #F2EAE0;          /* chữ sáng trên khối tối */
+  --color-lamp-mute: #B3A899;     /* chữ phụ trên khối tối */
+  --color-stamp: #9B2A23;         /* đỏ son trầm, dấu mộc — CHỈ trạng thái tiền: giữ hộ, đã hoàn, đã quyết toán */
+  --color-ember: #C9A45C;         /* vàng thếp — CHỈ buổi đang diễn; ánh kim chỉ dùng cho chi tiết nhỏ, không làm mảng lớn */
 
   --font-sans: 'Be Vietnam Pro', ui-sans-serif, system-ui, sans-serif;
   --font-display: 'Anton', 'Be Vietnam Pro', sans-serif;
@@ -65,10 +70,10 @@
   --radius-3xl: 4px;
 
   /* Bóng của tờ giấy nằm trên mặt bàn: có độ lệch và độ nhoè, tông mực chứ không đen thuần. */
-  --shadow-soft: 0 1px 1px rgb(38 33 90 / 0.06), 0 3px 10px -2px rgb(38 33 90 / 0.10);
-  --shadow-lift: 0 2px 3px rgb(38 33 90 / 0.08), 0 14px 30px -10px rgb(38 33 90 / 0.28);
-  /* Quầng sáng TRONG hộp đèn mica — chỉ dùng cho phòng trà có diễn đêm nay. */
-  --shadow-glow: inset 0 0 0 1px rgb(255 233 168 / 0.30), inset 0 0 60px rgb(255 233 168 / 0.16), 0 10px 30px -12px rgb(27 23 69 / 0.6);
+  --shadow-soft: 0 1px 1px rgb(35 26 21 / 0.06), 0 3px 10px -2px rgb(35 26 21 / 0.10);
+  --shadow-lift: 0 2px 3px rgb(35 26 21 / 0.08), 0 14px 30px -10px rgb(35 26 21 / 0.28);
+  /* Quầng sáng TRONG hộp đèn — chỉ dùng cho phòng trà có diễn đêm nay: viền vàng thếp mảnh + ánh vàng rất nhẹ. */
+  --shadow-glow: inset 0 0 0 1px rgb(201 164 92 / 0.35), inset 0 0 60px rgb(201 164 92 / 0.10), 0 10px 30px -12px rgb(20 17 15 / 0.6);
 
   /* Đường cong chuyển động dùng xuyên suốt thay cho ease/linear mặc định — "expo-out" bằng CSS thuần.
      ĐÃ BỎ (30/09) --ease-spring (cubic-bezier nảy quá đích): không nơi nào dùng, và giấy in không nảy. */
@@ -108,20 +113,20 @@
 .chat-scrollbar {
   /* Firefox */
   scrollbar-width: thin;
-  scrollbar-color: rgb(38 33 90 / 0.45) rgb(38 33 90 / 0.06);
+  scrollbar-color: rgb(35 26 21 / 0.45) rgb(35 26 21 / 0.06);
 }
 /* Chrome / Edge / Safari */
 .chat-scrollbar::-webkit-scrollbar {
   width: 8px;
 }
 .chat-scrollbar::-webkit-scrollbar-track {
-  background: rgb(38 33 90 / 0.05);
+  background: rgb(35 26 21 / 0.05);
 }
 .chat-scrollbar::-webkit-scrollbar-thumb {
-  background: rgb(38 33 90 / 0.35);
+  background: rgb(35 26 21 / 0.35);
 }
 .chat-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: rgb(38 33 90 / 0.65);
+  background: rgb(35 26 21 / 0.65);
 }
 
 /* ===== ẨN MŨI TÊN LÊN/XUỐNG CỦA INPUT NUMBER ===== */
