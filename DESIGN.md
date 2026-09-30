@@ -228,15 +228,25 @@ Mọi đường cong dùng ease-out-soft; không nảy. `prefers-reduced-motion`
 - **Don't** bịa kênh liên hệ (số điện thoại, email) hay liên kết `href="#"`.
 - **Don't** dùng ember ngoài buổi đang diễn, stamp ngoài tiền, dấu mộc trên nền mực, shadow-glow ngoài thứ sáng đèn.
 
-## Mở rộng sang màn vận hành (Chủ phòng trà / Nhân viên / Admin) — CHƯA DỰNG
+## Màn vận hành (Chủ phòng trà / Nhân viên / Admin) — ĐÃ CHUYỂN CƠ HỌC, CHƯA LÀM LẠI TỪNG TRANG (30/09/2026)
 
-> Chưa có màn Operate nào được dựng trong thế giới này. Mục này là hướng suy ra từ token, không phải hệ đã kiểm chứng; viết lại sau khi màn đầu tiên xong.
+> 35 trang vận hành đã được đưa vào thế giới mới bằng chuyển đổi CƠ HỌC, không phải thiết kế lại từng trang như lối đi
+> của khán giả. Nói rõ để không ai tưởng chúng đã qua cùng một quy trình.
 
-- Nền `page` giấy trắng thay giấy stock; mực, viền 2px, góc vuông, tabular-nums giữ nguyên.
-- Khối mực (espresso) cho thanh bên theo đúng ghi chú token; wordmark tone lamp trên đó.
-- Bảng dữ liệu theo mẫu Lịch tuần (thead mực, số mono thẳng cột), không theo bảng giờ diễn — bảng lật và hộp đèn là của Persuade.
-- Dấu mộc cho trạng thái tiền trong sổ cái/quyết toán/hoàn tiền (giữ hộ, đã hoàn, đã quyết toán); ember cho buổi đang diễn ở màn nhân viên.
-- Lỗi/cảnh báo dùng danger / danger-soft / warning, không mượn stamp.
+**Đã làm (máy + mắt):** đổi tên màu cũ sang token mới, bỏ bo tròn / kính mờ / bóng mặc định / chuyển sắc / nhãn chữ hoa
+giãn cách, đổi màu mặc định Tailwind và mã hex cứng sang token, thay hộp xác nhận tự dựng bằng `HopXacNhan` (qua
+`ConfirmModal`, giữ nguyên cách gọi), thay 15 ảnh chữ cái của api.dicebear.com bằng `utils/anhChuCai.js` (không gửi tên
+người dùng ra dịch vụ ngoài). Sửa tay: đầu trang buổi diễn của Admin, thẻ gói dịch vụ (chữ tiếng Anh). Toàn bộ `src/`
+nay nằm dưới cổng `kiem:the-gioi`, nợ = 0, khối tên màu cũ trong `index.css` đã xoá.
+
+**Chưa làm (việc tiếp theo, theo quy trình 7 bước — mỗi loại trang một mẫu, chủ dự án duyệt rồi mới nhân rộng):**
+- Bảng dữ liệu: theo `reports/Form lọc vé và màn vận hành.md` — cột đầu là tên người đọc được, số và tiền căn phải, đơn vị ở
+  đầu cột, `<th scope>` + `<caption>`, `aria-sort` chỉ trên cột đang xếp, phân trang (không cuộn vô hạn), 1–2 thao tác
+  hiện trên dòng.
+- Nhãn trạng thái: chữ + biểu tượng, tối đa ~5–6 kiểu, không bấm được.
+- Thao tác tiền / xoá: `HopXacNhan` nói rõ đối tượng và hệ quả (hiện nhiều chỗ còn truyền câu chung chung).
+- Chữ tiếng Anh còn sót trong màn Admin (tiêu đề cột, nhãn) — chưa quét hết.
+- Dấu mộc cho trạng thái tiền ở sổ cái / quyết toán / hoàn tiền; ember cho buổi đang diễn ở màn nhân viên.
 
 ## Danh sách lựa chọn dài: thu gọn, không in hết (30/09/2026)
 

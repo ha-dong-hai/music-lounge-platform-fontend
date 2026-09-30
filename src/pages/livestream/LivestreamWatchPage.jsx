@@ -295,7 +295,7 @@ const LivestreamWatchPage = () => {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-page flex items-center justify-center">
-        <Loader2 size={40} className="animate-spin text-brand-text" />
+        <Loader2 size={40} className="animate-spin text-ink" />
       </div>
     )
   }
@@ -305,7 +305,7 @@ const LivestreamWatchPage = () => {
       <div className="min-h-screen bg-page flex flex-col items-center justify-center text-ink">
         <AlertCircle size={40} className="text-danger mb-4" />
         <p className="text-xl mb-4">{error}</p>
-        <Link to="/" className="text-brand-text underline flex items-center gap-2"><ArrowLeft size={16} /> Về trang chủ</Link>
+        <Link to="/" className="text-ink underline flex items-center gap-2"><ArrowLeft size={16} /> Về trang chủ</Link>
       </div>
     )
   }
@@ -313,10 +313,10 @@ const LivestreamWatchPage = () => {
   if (livestream && !livestream.userHasAccess) {
     return (
       <div className="min-h-screen bg-page flex flex-col items-center justify-center text-ink px-4 text-center">
-        <Lock size={40} className="text-brand-text mb-4" />
+        <Lock size={40} className="text-ink mb-4" />
         <p className="text-xl mb-2 font-bold">Bạn cần vé xem trực tuyến để vào buổi phát này</p>
         <p className="text-ink-soft mb-6">Hãy mua vé xem trực tuyến của buổi diễn này để mở khoá.</p>
-        <Link to={`/shows/${showId}`} className="text-brand-text underline flex items-center gap-2"><ArrowLeft size={16} /> Quay lại buổi diễn</Link>
+        <Link to={`/shows/${showId}`} className="text-ink underline flex items-center gap-2"><ArrowLeft size={16} /> Quay lại buổi diễn</Link>
       </div>
     )
   }
@@ -326,14 +326,14 @@ const LivestreamWatchPage = () => {
 
       {/* HEADER */}
       <div className="flex-none flex items-center gap-4 px-4 py-2.5 bg-card border-b border-line z-50">
-        <Link to={`/shows/${showId}`} className="p-1.5 hover:bg-sunken rounded-full transition-colors flex-shrink-0">
+        <Link to={`/shows/${showId}`} className="p-1.5 hover:bg-sunken transition-colors flex-shrink-0">
           <ArrowLeft size={20} />
         </Link>
         <div className="flex-1 min-w-0">
           <h1 className="text-base font-bold truncate">{showData?.name}</h1>
           <p className="text-xs text-ink-soft flex items-center gap-2 flex-wrap">
             <span className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse inline-block"></span> LIVE
+              <span className="w-2 h-2 bg-danger animate-pulse inline-block"></span> LIVE
             </span>
             <span className="flex items-center gap-1"><Eye size={12} /> {formatCompactNumber(viewerCount)}</span>
             {connectionState !== 'connected' && (
@@ -346,10 +346,10 @@ const LivestreamWatchPage = () => {
 
         <button
           onClick={handleEndStreamClick}
-          className="flex-shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-lg bg-red-500/10 border border-red-500/40 text-danger text-xs font-bold hover:bg-red-500/20 transition-colors"
+          className="flex-shrink-0 flex items-center gap-1.5 px-3 py-2 bg-danger/10 border border-danger/40 text-danger text-xs font-bold hover:bg-danger/20 transition-colors"
           title="Kết thúc stream (test modal đánh giá)"
         >
-          <Square size={12} className="fill-red-400" /> Kết thúc
+          <Square size={12} className="fill-danger" /> Kết thúc
         </button>
 
         {/* CẮT SÓNG — chỉ Admin. Khác hẳn "Kết thúc" của người vận hành: đây là can thiệp từ ngoài
@@ -357,7 +357,7 @@ const LivestreamWatchPage = () => {
         {user?.role === 'Admin' && livestream?.id && (
           <button
             onClick={() => setMoCatSong(true)}
-            className="flex-shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-lg bg-red-600/20 border border-red-600 text-danger text-xs font-bold hover:bg-red-600/30 transition-colors"
+            className="flex-shrink-0 flex items-center gap-1.5 px-3 py-2 bg-danger/20 border border-danger text-danger text-xs font-bold hover:bg-danger/30 transition-colors"
             title="Admin dừng buổi phát vì vi phạm nội dung"
           >
             <ShieldOff size={12} /> Cắt sóng
@@ -404,7 +404,7 @@ const LivestreamWatchPage = () => {
                       href={livestream.recordingUrl}
                       target="_blank"
                       rel="noreferrer"
-                      className="mt-4 inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-brand text-on-brand text-sm font-bold hover:bg-brand-hover"
+                      className="mt-4 inline-flex items-center gap-2 px-5 py-2.5 bg-ink text-lamp text-sm font-bold hover:bg-board"
                     >
                       <Eye size={16} /> Xem lại bản ghi
                     </a>
@@ -417,7 +417,7 @@ const LivestreamWatchPage = () => {
               </div>
             </div>
           ) : (
-          <div className="absolute inset-0 bg-espresso">
+          <div className="absolute inset-0 bg-ink">
             <StreamPlayer
               streamUrl={livestream?.hlsUrl}
               donationAlerts={donationAlerts}
@@ -427,7 +427,7 @@ const LivestreamWatchPage = () => {
             />
 
             {immersive && videoEl && (
-              <Suspense fallback={<div className="absolute inset-0 flex items-center justify-center text-cream-mute"><Loader2 className="animate-spin" size={28} /></div>}>
+              <Suspense fallback={<div className="absolute inset-0 flex items-center justify-center text-lamp-mute"><Loader2 className="animate-spin" size={28} /></div>}>
                 {/* Bọc ngoài để định vị: gốc PanoramaViewer đã là `relative`, truyền `absolute` vào className
                     sẽ xung đột và làm khung co về chiều cao 0 (canvas vô hình). */}
                 <div className="absolute inset-0 z-10">
@@ -454,7 +454,7 @@ const LivestreamWatchPage = () => {
                 type="button"
                 onClick={() => setImmersive((v) => !v)}
                 aria-pressed={immersive}
-                className="absolute left-1/2 -translate-x-1/2 top-4 z-30 inline-flex items-center gap-2 px-4 h-10 rounded-full bg-espresso/75 backdrop-blur-sm border border-cream/20 text-cream text-xs font-semibold hover:bg-brand hover:text-on-brand hover:border-brand transition-colors"
+                className="absolute left-1/2 -translate-x-1/2 top-4 z-30 inline-flex items-center gap-2 px-4 h-10 bg-ink/75 border border-lamp/20 text-lamp text-xs font-semibold hover:bg-ink hover:text-lamp hover:border-ink transition-colors"
               >
                 {immersive ? <><Theater size={15} /> Xem chế độ rạp</> : <><Sofa size={15} /> Ngồi tại phòng trà</>}
               </button>
@@ -476,14 +476,14 @@ const LivestreamWatchPage = () => {
 
       {moCatSong && (
         <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-espresso/85 backdrop-blur-sm" onClick={() => !dangCatSong && setMoCatSong(false)} />
-          <div className="relative bg-card border border-red-500/40 rounded-2xl w-full max-w-md shadow-2xl">
+          <div className="absolute inset-0 bg-ink/85" onClick={() => !dangCatSong && setMoCatSong(false)} />
+          <div className="relative bg-card border border-danger/40 w-full max-w-md shadow-soft">
             <div className="flex justify-between items-center p-5 border-b border-line">
               <h2 className="text-lg font-bold text-danger flex items-center gap-2">
                 <ShieldOff size={19} /> Cắt sóng buổi phát này?
               </h2>
               <button onClick={() => setMoCatSong(false)} disabled={dangCatSong}
-                className="p-2 hover:bg-sunken rounded-full text-ink-soft disabled:opacity-30">
+                className="p-2 hover:bg-sunken text-ink-soft disabled:opacity-30">
                 <X size={20} />
               </button>
             </div>
@@ -498,16 +498,16 @@ const LivestreamWatchPage = () => {
                 <textarea rows={3} value={lyDoCatSong} maxLength={500}
                   onChange={(e) => setLyDoCatSong(e.target.value)}
                   placeholder="Nội dung vi phạm cụ thể là gì"
-                  className="mt-1 w-full px-3 py-2 bg-page border border-line rounded-lg text-sm text-ink resize-none focus:outline-none focus:border-red-500/50" />
+                  className="mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink resize-none focus:outline-none focus:border-danger/50" />
                 <p className="text-xs text-ink-mute mt-1">Lý do được lưu lại cùng tên người cắt.</p>
               </div>
               <div className="flex gap-3">
                 <button onClick={() => setMoCatSong(false)} disabled={dangCatSong}
-                  className="flex-1 py-2.5 border border-line-strong text-ink-soft rounded-lg font-medium hover:bg-sunken disabled:opacity-50">
+                  className="flex-1 py-2.5 border border-line-strong text-ink-soft font-medium hover:bg-sunken disabled:opacity-50">
                   Huỷ
                 </button>
                 <button onClick={handleCatSong} disabled={dangCatSong || !lyDoCatSong.trim()}
-                  className="flex-1 py-2.5 bg-red-600 text-white rounded-lg font-bold hover:bg-red-700 flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed">
+                  className="flex-1 py-2.5 bg-danger text-lamp font-bold hover:bg-danger flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed">
                   {dangCatSong && <Loader2 size={16} className="animate-spin" />} Cắt sóng
                 </button>
               </div>

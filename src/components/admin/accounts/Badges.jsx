@@ -1,14 +1,14 @@
 export const RoleBadge = ({ role }) => {
   const styles = {
-    admin: 'bg-purple-500/15 text-purple-700 border-purple-500/30',
-    owner: 'bg-blue-500/15 text-sky-700 border-blue-500/30',
-    staff: 'bg-orange-500/15 text-orange-700 border-orange-500/30',
+    admin: 'bg-ink/15 text-ink border-ink/30',
+    owner: 'bg-ink/15 text-ink border-ink/30',
+    staff: 'bg-warning/15 text-warning border-warning/30',
     audience: 'bg-line-strong/15 text-ink-soft border-line-strong/30',
   }
   const labels = { admin: 'Admin', owner: 'Owner', staff: 'Staff', audience: 'Audience' }
   const key = role ? role.toLowerCase() : 'audience'
   return (
-    <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border ${styles[key]}`}>
+    <span className={`inline-flex items-center px-2.5 py-1 text-xs font-medium border ${styles[key]}`}>
       {labels[key]}
     </span>
   )
@@ -16,11 +16,11 @@ export const RoleBadge = ({ role }) => {
 
 export const StatusBadge = ({ isActive }) => {
   const styles = isActive
-    ? 'bg-green-500/15 text-success border-green-500/30'
-    : 'bg-red-500/15 text-danger border-red-500/30'
+    ? 'bg-success/15 text-success border-success/30'
+    : 'bg-danger/15 text-danger border-danger/30'
   return (
-    <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold border ${styles}`}>
-      <span className={`w-1.5 h-1.5 rounded-full ${isActive ? 'bg-green-400' : 'bg-red-400'}`}></span>
+    <span className={`inline-flex items-center gap-1 px-2.5 py-1 text-xs font-bold border ${styles}`}>
+      <span className={`w-1.5 h-1.5 ${isActive ? 'bg-success' : 'bg-danger'}`}></span>
       {isActive ? 'Active' : 'Banned'}
     </span>
   )

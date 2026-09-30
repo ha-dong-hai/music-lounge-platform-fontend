@@ -25,7 +25,7 @@ import { Loader2, Plus, X, ListFilter, Pencil, Eye, EyeOff, Save } from 'lucide-
 import toast from 'react-hot-toast'
 import { getLoungeCustomCriteria, createCustomCriteria, updateCustomCriteria } from '../../services/customCriteriaServices'
 
-const inputCls = 'mt-1 w-full px-3 py-2 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-brand/50'
+const inputCls = 'mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink focus:outline-none focus:border-ink/50'
 
 const DATA_TYPES = [
   { value: 'Select', label: 'Chọn một trong danh sách', optionsHint: 'Danh sách lựa chọn, ví dụ: ["Nhẹ","Vừa","Ồn"]' },
@@ -119,7 +119,7 @@ const CustomCriteriaSection = ({ loungeId }) => {
   const loaiHienTai = DATA_TYPES.find((d) => d.value === form.dataType)
 
   return (
-    <div className="bg-card border border-line rounded-xl p-6">
+    <div className="bg-card border border-line p-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h3 className="text-base font-semibold text-ink flex items-center gap-2">
@@ -134,15 +134,15 @@ const CustomCriteriaSection = ({ loungeId }) => {
         </div>
         <div className="flex flex-wrap gap-2 flex-shrink-0">
           <button onClick={() => setXemCaDaTat((v) => !v)}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-bold ${
-              xemCaDaTat ? 'border-brand/40 bg-brand/10 text-brand-text' : 'border-line text-ink-soft hover:bg-sunken'
+            className={`flex items-center gap-1.5 px-3 py-1.5 border text-xs font-bold ${
+              xemCaDaTat ? 'border-ink/40 bg-ink/10 text-ink' : 'border-line text-ink-soft hover:bg-sunken'
             }`}>
             {xemCaDaTat ? <Eye size={14} /> : <EyeOff size={14} />}
             {xemCaDaTat ? 'Đang xem cả đã tắt' : 'Xem cả đã tắt'}
           </button>
           {!moForm && (
             <button onClick={() => setMoForm(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-line text-ink-soft text-xs font-bold hover:bg-sunken">
+              className="flex items-center gap-1.5 px-3 py-1.5 border border-line text-ink-soft text-xs font-bold hover:bg-sunken">
               <Plus size={14} /> Thêm tiêu chí
             </button>
           )}
@@ -150,7 +150,7 @@ const CustomCriteriaSection = ({ loungeId }) => {
       </div>
 
       {isLoading ? (
-        <div className="py-8 flex justify-center"><Loader2 size={22} className="animate-spin text-brand-text" /></div>
+        <div className="py-8 flex justify-center"><Loader2 size={22} className="animate-spin text-ink" /></div>
       ) : items.length === 0 && !moForm ? (
         <p className="mt-4 text-sm text-ink-mute">Chưa có tiêu chí riêng nào.</p>
       ) : (
@@ -161,7 +161,7 @@ const CustomCriteriaSection = ({ loungeId }) => {
               const dangSua = suaTen?.id === c.id
               return (
                 <li key={c.id}
-                  className={`bg-sunken/70 border border-line rounded-lg p-3 ${daTat ? 'opacity-60' : ''}`}>
+                  className={`bg-sunken/70 border border-line p-3 ${daTat ? 'opacity-60' : ''}`}>
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0 flex-1">
                       {dangSua ? (
@@ -169,13 +169,13 @@ const CustomCriteriaSection = ({ loungeId }) => {
                         <div className="flex flex-wrap items-center gap-2">
                           <input value={suaTen.name}
                             onChange={(e) => setSuaTen((v) => ({ ...v, name: e.target.value }))}
-                            className="flex-1 min-w-[10rem] px-2 py-1.5 bg-page border border-line rounded-md text-sm text-ink focus:outline-none focus:border-brand/50" />
+                            className="flex-1 min-w-[10rem] px-2 py-1.5 bg-page border border-line rounded-md text-sm text-ink focus:outline-none focus:border-ink/50" />
                           <button onClick={() => luuTen(c)} disabled={busyId === c.id}
-                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand text-on-brand text-xs font-bold disabled:opacity-50">
+                            className="flex items-center gap-1.5 px-3 py-1.5 bg-ink text-lamp text-xs font-bold disabled:opacity-50">
                             {busyId === c.id ? <Loader2 size={13} className="animate-spin" /> : <Save size={13} />} Lưu
                           </button>
                           <button onClick={() => setSuaTen(null)} disabled={busyId === c.id}
-                            className="px-3 py-1.5 rounded-lg border border-line text-ink-soft text-xs font-bold hover:bg-sunken">
+                            className="px-3 py-1.5 border border-line text-ink-soft text-xs font-bold hover:bg-sunken">
                             Huỷ
                           </button>
                         </div>
@@ -199,12 +199,12 @@ const CustomCriteriaSection = ({ loungeId }) => {
                         <>
                           <button onClick={() => setSuaTen({ id: c.id, name: c.name })}
                             disabled={busyId === c.id} title="Đổi tên hiển thị"
-                            className="p-1.5 rounded-lg text-ink-mute hover:text-brand-text disabled:opacity-40">
+                            className="p-1.5 text-ink-mute hover:text-ink disabled:opacity-40">
                             <Pencil size={14} />
                           </button>
                           <button onClick={() => doiBatTat(c, daTat)} disabled={busyId === c.id}
                             title={daTat ? 'Bật lại' : 'Tắt (ẩn khỏi danh sách chọn khi tạo buổi diễn)'}
-                            className={`p-1.5 rounded-lg text-ink-mute disabled:opacity-40 ${daTat ? 'hover:text-success' : 'hover:text-warning'}`}>
+                            className={`p-1.5 text-ink-mute disabled:opacity-40 ${daTat ? 'hover:text-success' : 'hover:text-warning'}`}>
                             {daTat ? <Eye size={14} /> : <EyeOff size={14} />}
                           </button>
                         </>
@@ -258,7 +258,7 @@ const CustomCriteriaSection = ({ loungeId }) => {
           )}
 
           <button type="submit" disabled={isBusy}
-            className="w-full py-2.5 bg-brand text-on-brand rounded-lg font-bold flex items-center justify-center gap-2 disabled:opacity-50">
+            className="w-full py-2.5 bg-ink text-lamp font-bold flex items-center justify-center gap-2 disabled:opacity-50">
             {isBusy && <Loader2 size={16} className="animate-spin" />} Thêm tiêu chí
           </button>
         </form>

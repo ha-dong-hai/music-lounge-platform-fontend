@@ -49,7 +49,7 @@ const Khung = ({ children }) => (
   <div className="min-h-screen bg-page text-ink">
     <div className="max-w-xl mx-auto px-4 sm:px-6 py-12">
       <div className="flex items-center gap-2 mb-8">
-        <Music2 size={22} className="text-brand-text" />
+        <Music2 size={22} className="text-ink" />
         <span className="text-2xl"><Wordmark /></span>
       </div>
       {children}
@@ -110,7 +110,7 @@ const PerformerConfirmationPage = () => {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-page flex items-center justify-center">
-        <Loader2 size={32} className="animate-spin text-brand-text" />
+        <Loader2 size={32} className="animate-spin text-ink" />
       </div>
     )
   }
@@ -118,7 +118,7 @@ const PerformerConfirmationPage = () => {
   if (loi || !info) {
     return (
       <Khung>
-        <div className="bg-card border border-danger/30 rounded-2xl p-6">
+        <div className="bg-card border border-danger/30 p-6">
           <AlertTriangle size={22} className="text-danger mb-3" />
           <h1 className="text-xl font-bold mb-2">Không mở được liên kết</h1>
           <p className="text-sm text-ink-soft leading-relaxed">{loi}</p>
@@ -130,7 +130,7 @@ const PerformerConfirmationPage = () => {
   if (daTraLoi) {
     return (
       <Khung>
-        <div className="bg-card border border-success/30 rounded-2xl p-6">
+        <div className="bg-card border border-success/30 p-6">
           <CheckCircle2 size={22} className="text-success mb-3" />
           <h1 className="text-xl font-bold mb-2">Đã ghi nhận</h1>
           <p className="text-sm text-ink-soft leading-relaxed">
@@ -147,7 +147,7 @@ const PerformerConfirmationPage = () => {
   if (v) {
     return (
       <Khung>
-        <div className={`bg-card border rounded-2xl p-6 ${v.cls}`}>
+        <div className={`bg-card border p-6 ${v.cls}`}>
           <v.icon size={22} className={`${v.mauIcon} mb-3`} />
           <h1 className="text-xl font-bold mb-2">{v.tieuDe}</h1>
           <p className="text-sm text-ink-soft leading-relaxed">{v.mo}</p>
@@ -169,7 +169,7 @@ const PerformerConfirmationPage = () => {
         hết hạn lúc {dayjs(info.expiresAt).format('HH:mm DD/MM/YYYY')}.
       </p>
 
-      <div className="bg-card border border-line rounded-2xl p-6 space-y-4">
+      <div className="bg-card border border-line p-6 space-y-4">
         {(info.showName || info.venueName) && (
           <div>
             <p className="text-xs text-ink-mute">Buổi diễn</p>
@@ -182,7 +182,7 @@ const PerformerConfirmationPage = () => {
         {info.amount != null && (
           <div>
             <p className="text-xs text-ink-mute">Số tiền phòng trà báo đã chuyển cho bạn</p>
-            <p className="text-2xl font-bold text-brand-text mt-0.5 tabular-nums">{fmtMoney(info.amount)}</p>
+            <p className="text-2xl font-bold text-ink mt-0.5 tabular-nums">{fmtMoney(info.amount)}</p>
             {info.paymentRef && (
               <p className="text-xs text-ink-mute mt-1">Mã giao dịch: <span className="text-ink-soft">{info.paymentRef}</span></p>
             )}
@@ -208,7 +208,7 @@ const PerformerConfirmationPage = () => {
         <p className="text-sm font-medium text-ink">Thông tin trên có đúng không?</p>
 
         <button onClick={() => setDecision('Confirm')}
-          className={`w-full text-left p-4 rounded-xl border transition-colors ${decision === 'Confirm'
+          className={`w-full text-left p-4 border transition-colors ${decision === 'Confirm'
             ? 'bg-success/10 border-success/40' : 'bg-card border-line hover:border-line'}`}>
           <span className="flex items-center gap-2 text-sm font-medium text-ink">
             <CheckCircle2 size={16} className="text-success" /> Đúng, tôi đã nhận
@@ -219,7 +219,7 @@ const PerformerConfirmationPage = () => {
         </button>
 
         <button onClick={() => setDecision('Dispute')}
-          className={`w-full text-left p-4 rounded-xl border transition-colors ${decision === 'Dispute'
+          className={`w-full text-left p-4 border transition-colors ${decision === 'Dispute'
             ? 'bg-danger/10 border-danger/40' : 'bg-card border-line hover:border-line'}`}>
           <span className="flex items-center gap-2 text-sm font-medium text-ink">
             <XCircle size={16} className="text-danger" /> Không đúng, hoặc tôi chưa nhận
@@ -232,19 +232,19 @@ const PerformerConfirmationPage = () => {
         <div>
           <label className="text-xs text-ink-mute">Ghi chú thêm (không bắt buộc)</label>
           <textarea value={note} onChange={(e) => setNote(e.target.value)} rows={3} maxLength={500}
-            className="mt-1 w-full px-3 py-2 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-brand/50 resize-none"
+            className="mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink focus:outline-none focus:border-ink/50 resize-none"
             placeholder="Nếu có gì cần nói rõ thêm, hãy ghi ở đây." />
         </div>
 
         <label className="flex items-start gap-2 text-xs text-ink-soft cursor-pointer leading-relaxed">
           <input type="checkbox" checked={dongY} onChange={(e) => setDongY(e.target.checked)}
-            className="accent-brand mt-0.5 flex-shrink-0" />
+            className="accent-ink mt-0.5 flex-shrink-0" />
           Tôi đồng ý cho MusicLounge xử lý email và thông tin tài khoản nhận tiền của tôi cho mục đích
           xác nhận khoản chi này.
         </label>
 
         <button onClick={guiTraLoi} disabled={isSending || !decision || !dongY}
-          className="w-full py-3 bg-brand text-on-brand rounded-lg font-bold flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed">
+          className="w-full py-3 bg-ink text-lamp font-bold flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed">
           {isSending && <Loader2 size={16} className="animate-spin" />} Gửi câu trả lời
         </button>
       </div>

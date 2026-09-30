@@ -39,7 +39,7 @@ const VcpmcRoyaltyCard = ({ showId, declared, reference, onSaved }) => {
   return (
     <div className="space-y-3">
       {declared ? (
-        <div className="p-3 rounded-lg bg-sunken/70 border border-line">
+        <div className="p-3 bg-sunken/70 border border-line">
           <p className="text-xs text-ink-mute">Đã khai mã tác quyền VCPMC</p>
           <p className="text-sm text-ink mt-0.5 break-all">{reference || '(đã khai, không đọc lại được mã)'}</p>
           <p className="text-[11px] text-ink-mute mt-1">Khai lại sẽ ghi đè mã trên.</p>
@@ -54,12 +54,12 @@ const VcpmcRoyaltyCard = ({ showId, declared, reference, onSaved }) => {
           value={ma}
           onChange={(e) => setMa(e.target.value)}
           placeholder={declared ? 'Nhập mã mới để thay mã đang khai' : 'Mã tham chiếu đã thanh toán tác quyền VCPMC'}
-          className="flex-1 px-3 py-2 bg-page border border-line rounded-lg text-sm text-ink placeholder:text-ink-mute"
+          className="flex-1 px-3 py-2 bg-page border border-line text-sm text-ink placeholder:text-ink-mute"
         />
         <button
           onClick={luu}
           disabled={dangLuu || !ma.trim()}
-          className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-line text-ink-soft text-xs font-bold hover:bg-sunken disabled:opacity-50"
+          className="flex items-center gap-1.5 px-3 py-2 border border-line text-ink-soft text-xs font-bold hover:bg-sunken disabled:opacity-50"
         >
           {dangLuu ? <Loader2 size={14} className="animate-spin" /> : <ShieldCheck size={14} />}
           {declared ? 'Thay mã' : 'Lưu VCPMC'}

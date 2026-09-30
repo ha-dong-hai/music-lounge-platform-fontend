@@ -56,17 +56,17 @@ const PackageFormModal = ({ isOpen, editingPkg, isSaving, onClose, onSubmit }) =
     onSubmit(formData)
   }
 
-  const inputCls = "w-full px-4 py-2.5 bg-page border border-line rounded-lg text-ink text-sm focus:outline-none focus:border-brand/50"
+  const inputCls = "w-full px-4 py-2.5 bg-page border border-line text-ink text-sm focus:outline-none focus:border-ink/50"
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 chat-scrollbar">
-      <div className="absolute inset-0 bg-espresso/80 backdrop-blur-sm" onClick={() => !isSaving && onClose()}></div>
+      <div className="absolute inset-0 bg-ink/80" onClick={() => !isSaving && onClose()}></div>
 
-      <div className="relative bg-card border border-line rounded-2xl w-full max-w-lg shadow-2xl flex flex-col max-h-[90vh]">
+      <div className="relative bg-card border border-line w-full max-w-lg shadow-soft flex flex-col max-h-[90vh]">
         {/* HEADER */}
         <div className="flex justify-between items-center p-6 border-b border-line">
           <h2 className="text-xl font-bold text-ink">{isEditing ? 'Sửa gói' : 'Tạo gói mới'}</h2>
-          <button onClick={onClose} disabled={isSaving} className="p-2 hover:bg-sunken rounded-full text-ink-soft disabled:opacity-30">
+          <button onClick={onClose} disabled={isSaving} className="p-2 hover:bg-sunken text-ink-soft disabled:opacity-30">
             <X size={20} />
           </button>
         </div>
@@ -130,7 +130,7 @@ const PackageFormModal = ({ isOpen, editingPkg, isSaving, onClose, onSubmit }) =
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-ink-soft mb-2 flex items-center gap-1.5">
-                <Sparkles size={14} className="text-brand-text" /> Poster AI / tháng
+                <Sparkles size={14} className="text-ink" /> Poster AI / tháng
               </label>
               <input
                 type="number" min="0"
@@ -143,7 +143,7 @@ const PackageFormModal = ({ isOpen, editingPkg, isSaving, onClose, onSubmit }) =
             </div>
             <div>
               <label className="block text-sm font-medium text-ink-soft mb-2 flex items-center gap-1.5">
-                <Box size={14} className="text-brand-text" /> Tour 360°
+                <Box size={14} className="text-ink" /> Tour 360°
               </label>
               <input
                 type="number" min="0"
@@ -174,9 +174,9 @@ const PackageFormModal = ({ isOpen, editingPkg, isSaving, onClose, onSubmit }) =
                 type="checkbox"
                 checked={formData.hasAiPoster}
                 onChange={e => handleToggleAiPoster(e.target.checked)}
-                className="w-4 h-4 rounded border-line-strong bg-sunken text-brand-text focus:ring-brand focus:ring-offset-0"
+                className="w-4 h-4 rounded border-line-strong bg-sunken text-ink focus:ring-ink focus:ring-offset-0"
               />
-              <span className="text-sm text-ink flex items-center gap-1.5"><Sparkles size={14} className="text-brand-text" /> Hỗ trợ tạo poster bằng AI</span>
+              <span className="text-sm text-ink flex items-center gap-1.5"><Sparkles size={14} className="text-ink" /> Hỗ trợ tạo poster bằng AI</span>
             </label>
 
             {/* Chỉ hiện khi Edit, vì Create BE tự mặc định true */}
@@ -186,7 +186,7 @@ const PackageFormModal = ({ isOpen, editingPkg, isSaving, onClose, onSubmit }) =
                   type="checkbox"
                   checked={formData.isActive}
                   onChange={e => setFormData({...formData, isActive: e.target.checked})}
-                  className="w-4 h-4 rounded border-line-strong bg-sunken text-brand-text focus:ring-brand focus:ring-offset-0"
+                  className="w-4 h-4 rounded border-line-strong bg-sunken text-ink focus:ring-ink focus:ring-offset-0"
                 />
                 <span className="text-sm text-ink">Hiển thị gói này cho người mua.</span>
               </label>
@@ -200,7 +200,7 @@ const PackageFormModal = ({ isOpen, editingPkg, isSaving, onClose, onSubmit }) =
             type="button"
             onClick={onClose}
             disabled={isSaving}
-            className="flex-1 py-2.5 border border-line-strong text-ink-soft rounded-lg font-medium hover:bg-sunken transition-colors disabled:opacity-50"
+            className="flex-1 py-2.5 border border-line-strong text-ink-soft font-medium hover:bg-sunken transition-colors disabled:opacity-50"
           >
             Huỷ
           </button>
@@ -208,7 +208,7 @@ const PackageFormModal = ({ isOpen, editingPkg, isSaving, onClose, onSubmit }) =
             type="submit"
             form="package-form"
             disabled={isSaving}
-            className="flex-1 py-2.5 bg-brand text-on-brand rounded-lg font-bold hover:bg-brand-hover transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+            className="flex-1 py-2.5 bg-ink text-lamp font-bold hover:bg-board transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
           >
             {isSaving ? <><Loader2 size={16} className="animate-spin" /> Đang lưu…</> : (isEditing ? 'Lưu' : 'Tạo')}
           </button>

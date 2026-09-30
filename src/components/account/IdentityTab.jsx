@@ -16,10 +16,10 @@ import {
   getMyTaxProfile, submitTaxProfile, requestPhoneVerificationCode, verifyPhone,
 } from '../../services/userServices'
 
-const inputCls = 'mt-1 w-full px-3 py-2 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-brand/50'
+const inputCls = 'mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink focus:outline-none focus:border-ink/50'
 
 const Card = ({ title, subtitle, children }) => (
-  <div className="bg-card border border-line rounded-xl p-6">
+  <div className="bg-card border border-line p-6">
     <h3 className="text-base font-semibold text-ink">{title}</h3>
     {subtitle && <p className="text-xs text-ink-mute mt-1 leading-relaxed">{subtitle}</p>}
     <div className="mt-4">{children}</div>
@@ -231,7 +231,7 @@ const IdentityTab = () => {
   }
 
   if (isLoading) {
-    return <div className="py-16 flex justify-center"><Loader2 size={28} className="animate-spin text-brand-text" /></div>
+    return <div className="py-16 flex justify-center"><Loader2 size={28} className="animate-spin text-ink" /></div>
   }
 
   const daXacThucSdt = profile?.phoneVerified ?? profile?.isPhoneVerified ?? false
@@ -259,15 +259,15 @@ const IdentityTab = () => {
             </p>
             <div className="flex flex-wrap gap-2">
               <button onClick={guiMa} disabled={busyPhone !== null || !profile?.phone}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg border border-line text-ink-soft text-sm font-bold hover:bg-sunken disabled:opacity-50">
+                className="flex items-center gap-2 px-4 py-2 border border-line text-ink-soft text-sm font-bold hover:bg-sunken disabled:opacity-50">
                 {busyPhone === 'send' ? <Loader2 size={15} className="animate-spin" /> : <Phone size={15} />} Gửi mã xác thực
               </button>
             </div>
             <form onSubmit={xacThuc} className="flex gap-2">
               <input value={code} onChange={(e) => setCode(e.target.value)} placeholder="Nhập mã nhận được"
-                className="flex-1 px-3 py-2 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-brand/50" />
+                className="flex-1 px-3 py-2 bg-page border border-line text-sm text-ink focus:outline-none focus:border-ink/50" />
               <button type="submit" disabled={busyPhone !== null || !code.trim()}
-                className="px-4 py-2 rounded-lg bg-brand text-on-brand text-sm font-bold disabled:opacity-50">
+                className="px-4 py-2 bg-ink text-lamp text-sm font-bold disabled:opacity-50">
                 {busyPhone === 'verify' ? <Loader2 size={15} className="animate-spin" /> : 'Xác thực'}
               </button>
             </form>
@@ -291,7 +291,7 @@ const IdentityTab = () => {
                 <ShieldCheck size={16} /> Đã xác minh danh tính{trangThaiCccd.numberMasked && ` · ${trangThaiCccd.numberMasked}`}
               </p>
             ) : trangThaiCccd?.reviewStatus === 'Rejected' ? (
-              <div className="rounded-lg border border-red-500/30 bg-red-500/5 p-3">
+              <div className="border border-danger/30 bg-danger/5 p-3">
                 <p className="text-sm text-danger flex items-center gap-2"><AlertTriangle size={16} /> Hồ sơ bị từ chối</p>
                 {trangThaiCccd.reviewNote && <p className="text-xs text-ink-soft mt-1">Lý do: {trangThaiCccd.reviewNote}</p>}
                 <p className="text-xs text-ink-mute mt-1">Sửa theo lý do trên rồi bấm "Nộp lại hồ sơ".</p>
@@ -314,7 +314,7 @@ const IdentityTab = () => {
                 đã gửi đi là thứ người ta cần soát lại ngay, không phải mở ra ở chỗ khác. */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {[['front', 'Mặt trước', anhCccd.front], ['back', 'Mặt sau', anhCccd.back]].map(([side, label, url]) => (
-                <figure key={side} className="rounded-lg border border-line overflow-hidden bg-sunken/40">
+                <figure key={side} className="border border-line overflow-hidden bg-sunken/40">
                   {url ? (
                     <img src={url} alt={`Ảnh CCCD ${label.toLowerCase()} bạn đã nộp`}
                       className="w-full aspect-[8/5] object-cover" />
@@ -327,7 +327,7 @@ const IdentityTab = () => {
                     <span className="text-xs text-ink-soft">{label}</span>
                     {url && (
                       <button onClick={() => xemAnhCccd(side)}
-                        className="inline-flex items-center gap-1 min-h-[44px] -my-2 px-1 text-xs font-medium text-brand-text hover:underline">
+                        className="inline-flex items-center gap-1 min-h-[44px] -my-2 px-1 text-xs font-medium text-ink hover:underline">
                         <ExternalLink size={12} /> Xem cỡ lớn
                       </button>
                     )}
@@ -336,7 +336,7 @@ const IdentityTab = () => {
               ))}
             </div>
 
-            <div className="flex items-start gap-2 rounded-lg border border-line bg-sunken/40 p-3">
+            <div className="flex items-start gap-2 border border-line bg-sunken/40 p-3">
               <AlertTriangle size={15} className="text-ink-mute flex-shrink-0 mt-0.5" />
               <p className="text-xs text-ink-soft leading-relaxed">
                 Ảnh bị mờ, chụp thiếu góc hay nhầm mặt thì Admin sẽ từ chối. Bạn nộp lại được bất cứ
@@ -345,7 +345,7 @@ const IdentityTab = () => {
             </div>
 
             <button onClick={() => setNopLai(true)}
-              className="inline-flex items-center gap-1.5 min-h-[44px] px-4 rounded-lg border border-line text-ink-soft text-sm font-bold hover:bg-sunken transition-colors">
+              className="inline-flex items-center gap-1.5 min-h-[44px] px-4 border border-line text-ink-soft text-sm font-bold hover:bg-sunken transition-colors">
               <Upload size={14} /> Nộp lại hồ sơ
             </button>
           </div>
@@ -367,7 +367,7 @@ const IdentityTab = () => {
             <div className="grid grid-cols-2 gap-3">
               {[['front', 'Mặt trước', cccd.frontImageUrl], ['back', 'Mặt sau', cccd.backImageUrl]].map(([side, label, url]) => (
                 <label key={side}
-                  className="flex flex-col items-center justify-center gap-2 py-6 rounded-lg border border-dashed border-line text-ink-soft text-xs hover:bg-sunken/50 cursor-pointer">
+                  className="flex flex-col items-center justify-center gap-2 py-6 border border-dashed border-line text-ink-soft text-xs hover:bg-sunken/50 cursor-pointer">
                   {uploadingSide === side
                     ? <Loader2 size={18} className="animate-spin" />
                     : url ? <CheckCircle2 size={18} className="text-success" /> : <Upload size={18} />}
@@ -380,7 +380,7 @@ const IdentityTab = () => {
 
             <div className="flex flex-wrap gap-3">
               <button type="submit" disabled={busyCccd || uploadingSide !== null}
-                className="flex-1 min-w-[200px] py-2.5 bg-brand text-on-brand rounded-lg font-bold flex items-center justify-center gap-2 disabled:opacity-50">
+                className="flex-1 min-w-[200px] py-2.5 bg-ink text-lamp font-bold flex items-center justify-center gap-2 disabled:opacity-50">
                 {busyCccd && <Loader2 size={16} className="animate-spin" />}
                 {nopLai ? 'Gửi lại hồ sơ định danh' : 'Gửi hồ sơ định danh'}
               </button>
@@ -388,7 +388,7 @@ const IdentityTab = () => {
                   ra rồi là kẹt, phải tải lại trang mới xem lại được ảnh cũ. */}
               {nopLai && (
                 <button type="button" onClick={() => setNopLai(false)} disabled={busyCccd}
-                  className="min-h-[44px] px-4 rounded-lg border border-line text-ink-soft text-sm font-bold hover:bg-sunken disabled:opacity-50 transition-colors">
+                  className="min-h-[44px] px-4 border border-line text-ink-soft text-sm font-bold hover:bg-sunken disabled:opacity-50 transition-colors">
                   Huỷ, xem lại hồ sơ đã nộp
                 </button>
               )}
@@ -414,7 +414,7 @@ const IdentityTab = () => {
               <p className="text-sm text-ink-soft">Tên pháp lý: <span className="text-ink">{taxProfile.legalName}</span></p>
             )}
             <button onClick={() => setMoFormThue(true)}
-              className="mt-2 text-sm text-brand-text hover:underline">Sửa hồ sơ thuế</button>
+              className="mt-2 text-sm text-ink hover:underline">Sửa hồ sơ thuế</button>
           </div>
         ) : (
           <>
@@ -447,12 +447,12 @@ const IdentityTab = () => {
               <div className="flex gap-3">
                 {taxProfile && (
                   <button type="button" onClick={() => setMoFormThue(false)}
-                    className="flex-1 py-2.5 border border-line-strong text-ink-soft rounded-lg font-medium hover:bg-sunken">
+                    className="flex-1 py-2.5 border border-line-strong text-ink-soft font-medium hover:bg-sunken">
                     Huỷ
                   </button>
                 )}
                 <button type="submit" disabled={busyTax}
-                  className="flex-1 py-2.5 bg-brand text-on-brand rounded-lg font-bold flex items-center justify-center gap-2 disabled:opacity-50">
+                  className="flex-1 py-2.5 bg-ink text-lamp font-bold flex items-center justify-center gap-2 disabled:opacity-50">
                   {busyTax ? <Loader2 size={16} className="animate-spin" /> : <FileText size={16} />} Lưu hồ sơ thuế
                 </button>
               </div>

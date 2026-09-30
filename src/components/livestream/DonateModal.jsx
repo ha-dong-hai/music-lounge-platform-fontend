@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { X, Heart, Loader2 } from 'lucide-react'
 import toast from 'react-hot-toast'
+import { anhChuCai } from '../../utils/anhChuCai'
 
 const DONATE_OPTIONS = [10000, 20000, 50000, 100000, 200000, 500000]
 
@@ -31,8 +32,8 @@ const DonateModal = ({ performers, onClose, onSendDonation }) => {
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4" onClick={onClose}>
-      <div className="absolute inset-0 bg-espresso/80 backdrop-blur-sm"></div>
-      <div className="relative bg-card border border-line rounded-2xl w-full max-w-md shadow-2xl flex flex-col" onClick={e => e.stopPropagation()}>
+      <div className="absolute inset-0 bg-ink/80"></div>
+      <div className="relative bg-card border border-line w-full max-w-md shadow-soft flex flex-col" onClick={e => e.stopPropagation()}>
         
         <div className="p-5 border-b border-line flex justify-between items-center">
           <h2 className="text-lg font-bold text-ink flex items-center gap-2"><Heart className="text-danger" size={20}/> Ủng hộ</h2>
@@ -48,11 +49,11 @@ const DonateModal = ({ performers, onClose, onSendDonation }) => {
                 <button
                   key={p.id}
                   onClick={() => setSelectedPerformer(p)}
-                  className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-sm font-medium transition-all ${
-                    selectedPerformer?.id === p.id ? 'border-brand bg-brand/10 text-brand-text' : 'border-line text-ink-soft hover:border-line-strong'
+                  className={`flex items-center gap-2 px-3 py-2 border text-sm font-medium transition-all ${
+                    selectedPerformer?.id === p.id ? 'border-ink bg-ink/10 text-ink' : 'border-line text-ink-soft hover:border-line-strong'
                   }`}
                 >
-                  <img src={p.avatarUrl || `https://api.dicebear.com/7.x/initials/svg?seed=${p.name}`} className="w-6 h-6 rounded-full" />
+                  <img src={p.avatarUrl || anhChuCai(p.name)} className="w-6 h-6" />
                   {p.name}
                 </button>
               ))}
@@ -67,8 +68,8 @@ const DonateModal = ({ performers, onClose, onSendDonation }) => {
                 <button
                   key={val}
                   onClick={() => { setAmount(val); setCustomAmount('') }}
-                  className={`py-2.5 rounded-lg border text-sm font-bold transition-all ${
-                    amount === val && !customAmount ? 'border-brand bg-brand/10 text-brand-text' : 'border-line text-ink-soft hover:border-line-strong'
+                  className={`py-2.5 border text-sm font-bold transition-all ${
+                    amount === val && !customAmount ? 'border-ink bg-ink/10 text-ink' : 'border-line text-ink-soft hover:border-line-strong'
                   }`}
                 >
                   {val.toLocaleString('vi-VN')}đ
@@ -80,7 +81,7 @@ const DonateModal = ({ performers, onClose, onSendDonation }) => {
               placeholder="Chọn số tiền khác…"
               value={customAmount}
               onChange={e => setCustomAmount(e.target.value)}
-              className="mt-2 w-full bg-page border border-line rounded-lg px-3 py-2 text-sm text-ink focus:outline-none focus:border-brand"
+              className="mt-2 w-full bg-page border border-line px-3 py-2 text-sm text-ink focus:outline-none focus:border-ink"
             />
           </div>
 
@@ -91,7 +92,7 @@ const DonateModal = ({ performers, onClose, onSendDonation }) => {
               rows={2}
               value={message}
               onChange={e => setMessage(e.target.value)}
-              className="w-full bg-page border border-line rounded-lg px-3 py-2 text-sm text-ink focus:outline-none focus:border-brand resize-none"
+              className="w-full bg-page border border-line px-3 py-2 text-sm text-ink focus:outline-none focus:border-ink resize-none"
               placeholder="Gửi lời chúc tới nghệ sĩ…"
             />
           </div>
@@ -101,9 +102,9 @@ const DonateModal = ({ performers, onClose, onSendDonation }) => {
           <button
             onClick={handleSubmit}
             disabled={isProcessing}
-            className="w-full py-3 rounded-xl bg-brand text-on-brand font-bold hover:bg-brand-hover transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+            className="w-full py-3 bg-ink text-lamp font-bold hover:bg-board transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
           >
-            {isProcessing ? <Loader2 size={16} className="animate-spin"/> : <Heart size={16} className="fill-red-500 text-danger"/>}
+            {isProcessing ? <Loader2 size={16} className="animate-spin"/> : <Heart size={16} className="fill-danger text-danger"/>}
             Ủng hộ {finalAmount.toLocaleString('vi-VN')}đ
           </button>
         </div>

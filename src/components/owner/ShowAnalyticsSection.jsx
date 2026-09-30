@@ -25,7 +25,7 @@ const fmtTien = (v) => `${Number(v || 0).toLocaleString('vi-VN')}đ`
 const fmtPhanTram = (v) => `${Number(v || 0).toLocaleString('vi-VN', { maximumFractionDigits: 1 })}%`
 
 const O = ({ title, value, note, icon: Icon }) => (
-  <div className="bg-sunken/70 border border-line rounded-lg p-4">
+  <div className="bg-sunken/70 border border-line p-4">
     <div className="flex items-start justify-between gap-2">
       <p className="text-xs text-ink-mute">{title}</p>
       <Icon size={15} className="text-ink-mute flex-shrink-0" />
@@ -59,17 +59,17 @@ const ShowAnalyticsSection = ({ showId }) => {
 
   if (isLoading) {
     return (
-      <div className="bg-card border border-line rounded-xl py-14 flex justify-center">
-        <Loader2 size={24} className="animate-spin text-brand-text" />
+      <div className="bg-card border border-line py-14 flex justify-center">
+        <Loader2 size={24} className="animate-spin text-ink" />
       </div>
     )
   }
 
   if (!perf && !trend && !forecast) {
     return (
-      <div className="bg-card border border-line rounded-xl p-6">
+      <div className="bg-card border border-line p-6">
         <h2 className="text-lg font-semibold text-ink flex items-center gap-2">
-          <TrendingUp size={18} className="text-brand-text" /> Thống kê
+          <TrendingUp size={18} className="text-ink" /> Thống kê
         </h2>
         <p className="text-sm text-ink-mute mt-2">Chưa có số liệu cho buổi diễn này.</p>
       </div>
@@ -83,9 +83,9 @@ const ShowAnalyticsSection = ({ showId }) => {
     <div className="space-y-4">
       {/* LƯỢT XEM & CHUYỂN ĐỔI */}
       {perf && (
-        <div className="bg-card border border-line rounded-xl p-6">
+        <div className="bg-card border border-line p-6">
           <h2 className="text-lg font-semibold text-ink flex items-center gap-2 mb-4">
-            <TrendingUp size={18} className="text-brand-text" /> Lượt xem &amp; chuyển đổi
+            <TrendingUp size={18} className="text-ink" /> Lượt xem &amp; chuyển đổi
           </h2>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
             <O title="Lượt xem trang" value={fmtSo(perf.totalPageViews)} icon={Eye}
@@ -107,13 +107,13 @@ const ShowAnalyticsSection = ({ showId }) => {
 
       {/* BÁN VÉ THEO NGÀY + THEO HẠNG VÉ */}
       {trend && (
-        <div className="bg-card border border-line rounded-xl p-6">
+        <div className="bg-card border border-line p-6">
           <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
             <h2 className="text-lg font-semibold text-ink flex items-center gap-2">
-              <LineChart size={18} className="text-brand-text" /> Tiến độ bán vé
+              <LineChart size={18} className="text-ink" /> Tiến độ bán vé
             </h2>
             <div className="text-right">
-              <p className="text-lg font-bold text-brand-text tabular-nums">{fmtTien(trend.totalRevenue)}</p>
+              <p className="text-lg font-bold text-ink tabular-nums">{fmtTien(trend.totalRevenue)}</p>
               <p className="text-xs text-ink-mute">{fmtSo(trend.totalTicketsSold)} vé</p>
             </div>
           </div>
@@ -124,7 +124,7 @@ const ShowAnalyticsSection = ({ showId }) => {
             <div className="flex items-end gap-1 h-32">
               {trend.dailySales.map((d) => (
                 <div key={d.date} className="flex-1 flex flex-col items-center justify-end h-full group relative">
-                  <div className="w-full bg-brand/70 hover:bg-brand-hover rounded-t transition-colors"
+                  <div className="w-full bg-ink/70 hover:bg-board rounded-t transition-colors"
                     style={{ height: `${((d.ticketsSold || 0) / dinh) * 100}%`, minHeight: d.ticketsSold > 0 ? 3 : 0 }} />
                   {/* Nhãn đặt trong tooltip vì có thể có mấy chục ngày, in hết ra sẽ chồng nhau */}
                   <div className="absolute bottom-full mb-1 hidden group-hover:block bg-page border border-line rounded-md px-2 py-1 whitespace-nowrap z-10">
@@ -156,7 +156,7 @@ const ShowAnalyticsSection = ({ showId }) => {
 
       {/* DỰ BÁO — KHỐI RIÊNG, ghi nhãn rõ để không lẫn với số đã bán */}
       {forecast && (
-        <div className="bg-card border border-dashed border-line rounded-xl p-6">
+        <div className="bg-card border border-dashed border-line p-6">
           <h2 className="text-lg font-semibold text-ink flex items-center gap-2">
             <Sparkles size={18} className="text-ink-soft" /> Dự báo nhu cầu
           </h2>
@@ -169,7 +169,7 @@ const ShowAnalyticsSection = ({ showId }) => {
           {forecast.status === 'Forecast' && forecast.projectedFinalSales != null ? (
             <>
               <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div className="bg-sunken/70 border border-line rounded-lg p-4">
+                <div className="bg-sunken/70 border border-line p-4">
                   <p className="text-xs text-ink-mute">Dự kiến bán được (cả buổi)</p>
                   <p className="text-xl font-bold text-ink mt-1 tabular-nums">
                     {fmtSo(forecast.projectedFinalSales)} vé
@@ -180,7 +180,7 @@ const ShowAnalyticsSection = ({ showId }) => {
                     </p>
                   )}
                 </div>
-                <div className="bg-sunken/70 border border-line rounded-lg p-4">
+                <div className="bg-sunken/70 border border-line p-4">
                   <p className="text-xs text-ink-mute">Còn lại</p>
                   <p className="text-xl font-bold text-ink mt-1 tabular-nums">{forecast.daysUntilShow} ngày</p>
                   {forecast.expectedPaceFraction != null && (
@@ -189,7 +189,7 @@ const ShowAnalyticsSection = ({ showId }) => {
                     </p>
                   )}
                 </div>
-                <div className="bg-sunken/70 border border-line rounded-lg p-4">
+                <div className="bg-sunken/70 border border-line p-4">
                   <p className="text-xs text-ink-mute">Dự kiến bán hết</p>
                   <p className="text-xl font-bold text-ink mt-1 tabular-nums">
                     {forecast.projectedSellThroughRate != null

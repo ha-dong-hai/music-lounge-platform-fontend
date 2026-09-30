@@ -105,7 +105,7 @@ const PrivacyTab = () => {
   return (
     <div className="space-y-5">
       {/* THÔNG BÁO ĐẨY — theo từng thiết bị, không phải theo tài khoản: bật ở máy này không bật ở máy khác */}
-      <div className="bg-card border border-line rounded-xl p-6">
+      <div className="bg-card border border-line p-6">
         <h3 className="text-base font-semibold text-ink">Thông báo trên thiết bị này</h3>
         <p className="text-xs text-ink-mute mt-1 leading-relaxed">
           Nhận thông báo về vé, buổi diễn và hoàn tiền ngay trên trình duyệt, kể cả khi không mở trang.
@@ -120,13 +120,13 @@ const PrivacyTab = () => {
         ) : (
           <div className="mt-4 flex flex-wrap gap-2">
             <button onClick={batThongBao} disabled={busy !== null || !!maThietBi}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg border border-line text-ink-soft text-sm font-bold hover:bg-sunken disabled:opacity-40 disabled:cursor-not-allowed">
+              className="flex items-center gap-2 px-4 py-2 border border-line text-ink-soft text-sm font-bold hover:bg-sunken disabled:opacity-40 disabled:cursor-not-allowed">
               {busy === 'push-on' ? <Loader2 size={15} className="animate-spin" /> : <Bell size={15} />}
               {maThietBi ? 'Đang bật' : 'Bật thông báo'}
             </button>
             {maThietBi && (
               <button onClick={tatThongBao} disabled={busy !== null}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg border border-line text-ink-soft text-sm font-bold hover:bg-sunken disabled:opacity-50">
+                className="flex items-center gap-2 px-4 py-2 border border-line text-ink-soft text-sm font-bold hover:bg-sunken disabled:opacity-50">
                 {busy === 'push-off' ? <Loader2 size={15} className="animate-spin" /> : <BellOff size={15} />}
                 Tắt thông báo
               </button>
@@ -135,30 +135,30 @@ const PrivacyTab = () => {
         )}
       </div>
 
-      <div className="bg-card border border-line rounded-xl p-6">
+      <div className="bg-card border border-line p-6">
         <h3 className="text-base font-semibold text-ink">Tải dữ liệu cá nhân</h3>
         <p className="text-xs text-ink-mute mt-1 leading-relaxed">
           Tải về toàn bộ dữ liệu chúng tôi đang lưu về bạn: hồ sơ, vé đã mua, khiếu nại, lịch sử giao dịch.
         </p>
         <button onClick={taiDuLieu} disabled={busy !== null}
-          className="mt-4 flex items-center gap-2 px-4 py-2 rounded-lg border border-line text-ink-soft text-sm font-bold hover:bg-sunken disabled:opacity-50">
+          className="mt-4 flex items-center gap-2 px-4 py-2 border border-line text-ink-soft text-sm font-bold hover:bg-sunken disabled:opacity-50">
           {busy === 'export' ? <Loader2 size={15} className="animate-spin" /> : <Download size={15} />} Tải xuống
         </button>
       </div>
 
-      <div className="bg-card border border-line rounded-xl p-6">
+      <div className="bg-card border border-line p-6">
         <h3 className="text-base font-semibold text-ink">Vô hiệu hoá tài khoản</h3>
         <p className="text-xs text-ink-mute mt-1 leading-relaxed">
           Bạn sẽ bị đăng xuất và không dùng tài khoản này nữa. Dữ liệu vẫn được giữ lại — đây KHÔNG phải
           là xoá dữ liệu. Vé đã mua và lịch sử giao dịch không mất đi.
         </p>
         <button onClick={voHieuHoa} disabled={busy !== null}
-          className="mt-4 flex items-center gap-2 px-4 py-2 rounded-lg border border-line text-ink-soft text-sm font-bold hover:bg-sunken disabled:opacity-50">
+          className="mt-4 flex items-center gap-2 px-4 py-2 border border-line text-ink-soft text-sm font-bold hover:bg-sunken disabled:opacity-50">
           {busy === 'deactivate' ? <Loader2 size={15} className="animate-spin" /> : <UserX size={15} />} Vô hiệu hoá tài khoản
         </button>
       </div>
 
-      <div className="bg-card border border-red-500/30 rounded-xl p-6">
+      <div className="bg-card border border-danger/30 p-6">
         <h3 className="text-base font-semibold text-danger flex items-center gap-2">
           <AlertTriangle size={17} /> Yêu cầu xoá dữ liệu
         </h3>
@@ -170,7 +170,7 @@ const PrivacyTab = () => {
 
         {!moXoa ? (
           <button onClick={() => setMoXoa(true)}
-            className="mt-4 flex items-center gap-2 px-4 py-2 rounded-lg border border-red-500/40 text-danger text-sm font-bold hover:bg-red-500/10">
+            className="mt-4 flex items-center gap-2 px-4 py-2 border border-danger/40 text-danger text-sm font-bold hover:bg-danger/10">
             <Trash2 size={15} /> Tôi muốn xoá dữ liệu
           </button>
         ) : (
@@ -178,21 +178,21 @@ const PrivacyTab = () => {
             <div>
               <label className="text-xs text-ink-mute">Mật khẩu hiện tại</label>
               <input type="password" value={matKhau} onChange={(e) => setMatKhau(e.target.value)}
-                className="mt-1 w-full px-3 py-2 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-red-500/50" />
+                className="mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink focus:outline-none focus:border-danger/50" />
               <p className="text-xs text-ink-mute mt-1">Dùng để xác minh đúng là bạn. Đăng nhập bằng Google thì bỏ trống.</p>
             </div>
             <div>
               <label className="text-xs text-ink-mute">Gõ <strong className="text-danger">{XAC_NHAN}</strong> để xác nhận</label>
               <input value={goXacNhan} onChange={(e) => setGoXacNhan(e.target.value)}
-                className="mt-1 w-full px-3 py-2 bg-page border border-red-500/40 rounded-lg text-sm text-ink focus:outline-none focus:border-red-500" />
+                className="mt-1 w-full px-3 py-2 bg-page border border-danger/40 text-sm text-ink focus:outline-none focus:border-danger" />
             </div>
             <div className="flex gap-3">
               <button onClick={() => { setMoXoa(false); setGoXacNhan(''); setMatKhau('') }} disabled={busy !== null}
-                className="flex-1 py-2.5 border border-line-strong text-ink-soft rounded-lg font-medium hover:bg-sunken disabled:opacity-50">
+                className="flex-1 py-2.5 border border-line-strong text-ink-soft font-medium hover:bg-sunken disabled:opacity-50">
                 Huỷ
               </button>
               <button onClick={xoaDuLieu} disabled={busy !== null || goXacNhan.trim().toUpperCase() !== XAC_NHAN}
-                className="flex-1 py-2.5 bg-red-500 text-white rounded-lg font-bold hover:bg-red-600 flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed">
+                className="flex-1 py-2.5 bg-danger text-lamp font-bold hover:bg-danger flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed">
                 {busy === 'erase' && <Loader2 size={16} className="animate-spin" />} Gửi yêu cầu xoá
               </button>
             </div>

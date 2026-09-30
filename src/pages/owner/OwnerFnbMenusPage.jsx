@@ -19,15 +19,15 @@ import {
 import ConfirmModal from '../../components/shared/ConfirmModal'
 
 const fmtMoney = (v) => `${Number(v || 0).toLocaleString('vi-VN')}đ`
-const inputCls = 'mt-1 w-full px-3 py-2 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-brand/50'
+const inputCls = 'mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink focus:outline-none focus:border-ink/50'
 
 const Modal = ({ title, onClose, children }) => (
   <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-    <div className="absolute inset-0 bg-espresso/80 backdrop-blur-sm" onClick={onClose} />
-    <div className="relative bg-card border border-line rounded-2xl w-full max-w-md shadow-2xl max-h-[90vh] flex flex-col">
+    <div className="absolute inset-0 bg-ink/80" onClick={onClose} />
+    <div className="relative bg-card border border-line w-full max-w-md shadow-soft max-h-[90vh] flex flex-col">
       <div className="flex justify-between items-center p-5 border-b border-line">
         <h2 className="text-lg font-bold text-ink">{title}</h2>
-        <button onClick={onClose} className="p-2 hover:bg-sunken rounded-full text-ink-soft"><X size={20} /></button>
+        <button onClick={onClose} className="p-2 hover:bg-sunken text-ink-soft"><X size={20} /></button>
       </div>
       <div className="p-5 overflow-y-auto">{children}</div>
     </div>
@@ -87,12 +87,12 @@ const MenuFormModal = ({ initial, loungeId, onClose, onSaved }) => {
         </div>
         {isEdit && (
           <label className="flex items-center gap-2 text-sm text-ink-soft cursor-pointer">
-            <input type="checkbox" checked={form.isActive} onChange={(e) => set('isActive', e.target.checked)} className="accent-brand" />
+            <input type="checkbox" checked={form.isActive} onChange={(e) => set('isActive', e.target.checked)} className="accent-ink" />
             Đang mở cho khách đặt
           </label>
         )}
         <button type="submit" disabled={isBusy}
-          className="w-full py-2.5 bg-brand text-on-brand rounded-lg font-bold flex items-center justify-center gap-2 disabled:opacity-50">
+          className="w-full py-2.5 bg-ink text-lamp font-bold flex items-center justify-center gap-2 disabled:opacity-50">
           {isBusy && <Loader2 size={16} className="animate-spin" />} Lưu
         </button>
       </form>
@@ -174,12 +174,12 @@ const ItemFormModal = ({ initial, menuId, onClose, onSaved }) => {
         </div>
         {isEdit && (
           <label className="flex items-center gap-2 text-sm text-ink-soft cursor-pointer">
-            <input type="checkbox" checked={form.isAvailable} onChange={(e) => set('isAvailable', e.target.checked)} className="accent-brand" />
+            <input type="checkbox" checked={form.isAvailable} onChange={(e) => set('isAvailable', e.target.checked)} className="accent-ink" />
             Còn bán
           </label>
         )}
         <button type="submit" disabled={isBusy}
-          className="w-full py-2.5 bg-brand text-on-brand rounded-lg font-bold flex items-center justify-center gap-2 disabled:opacity-50">
+          className="w-full py-2.5 bg-ink text-lamp font-bold flex items-center justify-center gap-2 disabled:opacity-50">
           {isBusy && <Loader2 size={16} className="animate-spin" />} Lưu
         </button>
       </form>
@@ -262,14 +262,14 @@ const OwnerFnbMenusPage = () => {
   }
 
   if (isLoading && !menus.length) {
-    return <div className="py-20 flex justify-center"><Loader2 size={32} className="animate-spin text-brand-text" /></div>
+    return <div className="py-20 flex justify-center"><Loader2 size={32} className="animate-spin text-ink" /></div>
   }
 
   if (!lounge) {
     return (
       <div className="max-w-2xl">
         <h1 className="text-2xl font-bold text-ink mb-1">Thực đơn</h1>
-        <div className="mt-4 bg-card border border-line rounded-xl p-6">
+        <div className="mt-4 bg-card border border-line p-6">
           <p className="text-sm text-ink-soft">Hãy tạo hồ sơ phòng trà trước — thực đơn gắn với phòng trà.</p>
         </div>
       </div>
@@ -284,13 +284,13 @@ const OwnerFnbMenusPage = () => {
           <p className="text-ink-soft text-sm">Đây là thứ khách nhìn thấy khi đặt món tại bàn.</p>
         </div>
         <button onClick={() => setEditingMenu(null)}
-          className="flex items-center gap-1.5 px-3 py-1.5 bg-brand text-on-brand rounded-lg text-xs font-bold hover:bg-brand-hover">
+          className="flex items-center gap-1.5 px-3 py-1.5 bg-ink text-lamp text-xs font-bold hover:bg-board">
           <Plus size={14} /> Thêm thực đơn
         </button>
       </div>
 
       {menus.length === 0 ? (
-        <div className="bg-card border border-line rounded-xl p-10 text-center">
+        <div className="bg-card border border-line p-10 text-center">
           <UtensilsCrossed size={28} className="mx-auto mb-3 text-ink-mute" />
           <p className="text-sm text-ink-mute">Chưa có thực đơn nào. Tạo một thực đơn để bắt đầu thêm món.</p>
         </div>
@@ -299,8 +299,8 @@ const OwnerFnbMenusPage = () => {
           <div className="flex flex-wrap gap-2">
             {menus.map((m) => (
               <button key={m.id} onClick={() => setMenuId(m.id)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${menuId === m.id
-                  ? 'bg-sunken border-brand/40 text-brand-text'
+                className={`px-3 py-1.5 text-xs font-medium border transition-colors ${menuId === m.id
+                  ? 'bg-sunken border-ink/40 text-ink'
                   : 'bg-page border-line text-ink-soft hover:text-ink'}`}>
                 {m.name}
                 {!m.isActive && <span className="ml-1.5 text-ink-mute">(đang tắt)</span>}
@@ -309,38 +309,38 @@ const OwnerFnbMenusPage = () => {
           </div>
 
           {menuId && (
-            <div className="bg-card border border-line rounded-xl p-6">
+            <div className="bg-card border border-line p-6">
               <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
                 <h2 className="text-base font-semibold text-ink">
                   {menus.find((m) => m.id === menuId)?.name}
                 </h2>
                 <div className="flex gap-2">
                   <button onClick={() => setEditingItem(null)}
-                    className="flex items-center gap-1.5 px-3 py-1.5 bg-brand text-on-brand rounded-lg text-xs font-bold hover:bg-brand-hover">
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-ink text-lamp text-xs font-bold hover:bg-board">
                     <Plus size={14} /> Thêm món
                   </button>
                   <button onClick={() => setEditingMenu(menus.find((m) => m.id === menuId))}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-line text-ink-soft text-xs font-bold hover:bg-sunken">
+                    className="flex items-center gap-1.5 px-3 py-1.5 border border-line text-ink-soft text-xs font-bold hover:bg-sunken">
                     <Pencil size={14} /> Sửa thực đơn
                   </button>
                   <button onClick={() => setXoaTarget({ loai: 'menu', doiTuong: menus.find((m) => m.id === menuId) })}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-line text-danger text-xs font-bold hover:bg-red-500/10">
+                    className="flex items-center gap-1.5 px-3 py-1.5 border border-line text-danger text-xs font-bold hover:bg-danger/10">
                     <Trash2 size={14} /> Xoá
                   </button>
                 </div>
               </div>
 
               {isLoadingItems ? (
-                <div className="py-10 flex justify-center"><Loader2 size={24} className="animate-spin text-brand-text" /></div>
+                <div className="py-10 flex justify-center"><Loader2 size={24} className="animate-spin text-ink" /></div>
               ) : items.length === 0 ? (
                 <p className="py-10 text-center text-sm text-ink-mute">Thực đơn này chưa có món nào.</p>
               ) : (
                 <ul className="space-y-2">
                   {[...items].sort((a, b) => a.displayOrder - b.displayOrder).map((it) => (
-                    <li key={it.id} className="flex items-start justify-between gap-3 bg-sunken/70 border border-line rounded-lg p-3">
+                    <li key={it.id} className="flex items-start justify-between gap-3 bg-sunken/70 border border-line p-3">
                       <div className="flex items-start gap-3 min-w-0">
                         <GripVertical size={14} className="text-ink-mute mt-1 flex-shrink-0" />
-                        {it.imageUrl && <img src={it.imageUrl} alt="" className="w-12 h-12 rounded-lg object-cover flex-shrink-0" />}
+                        {it.imageUrl && <img src={it.imageUrl} alt="" className="w-12 h-12 object-cover flex-shrink-0" />}
                         <div className="min-w-0">
                           <div className="flex items-center gap-2 flex-wrap">
                             <span className="text-ink font-medium">{it.name}</span>
@@ -352,14 +352,14 @@ const OwnerFnbMenusPage = () => {
                             )}
                           </div>
                           {it.description && <p className="text-xs text-ink-mute mt-0.5 line-clamp-2">{it.description}</p>}
-                          <p className="text-sm text-brand-text font-medium mt-1 tabular-nums">{fmtMoney(it.price)}</p>
+                          <p className="text-sm text-ink font-medium mt-1 tabular-nums">{fmtMoney(it.price)}</p>
                         </div>
                       </div>
                       <div className="flex gap-1 flex-shrink-0">
-                        <button onClick={() => setEditingItem(it)} className="p-2 rounded-lg text-ink-soft hover:bg-sunken" title="Sửa">
+                        <button onClick={() => setEditingItem(it)} className="p-2 text-ink-soft hover:bg-sunken" title="Sửa">
                           <Pencil size={14} />
                         </button>
-                        <button onClick={() => setXoaTarget({ loai: 'item', doiTuong: it })} className="p-2 rounded-lg text-danger hover:bg-red-500/10" title="Xoá">
+                        <button onClick={() => setXoaTarget({ loai: 'item', doiTuong: it })} className="p-2 text-danger hover:bg-danger/10" title="Xoá">
                           <Trash2 size={14} />
                         </button>
                       </div>

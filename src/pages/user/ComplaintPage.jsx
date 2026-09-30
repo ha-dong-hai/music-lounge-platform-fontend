@@ -11,7 +11,7 @@ import { createComplaint, lookupComplaint, getMyComplaints } from '../../service
 import { uploadImage } from '../../services/userServices'
 import { useAuthStore } from '../../store/useAuthStore'
 
-const inputCls = 'mt-1 w-full px-3 py-2.5 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-brand/50'
+const inputCls = 'mt-1 w-full px-3 py-2.5 bg-page border border-line text-sm text-ink focus:outline-none focus:border-ink/50'
 
 // Đúng 6 giá trị targetType backend nhận.
 const TARGET_TYPES = [
@@ -179,8 +179,8 @@ const ComplaintPage = () => {
         <div className="flex flex-wrap gap-2 mb-6">
           {TABS.map((t) => (
             <button key={t.key} onClick={() => setTab(t.key)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${tab === t.key
-                ? 'bg-sunken border-brand/40 text-brand-text'
+              className={`px-3 py-1.5 text-xs font-medium border transition-colors ${tab === t.key
+                ? 'bg-sunken border-ink/40 text-ink'
                 : 'bg-page border-line text-ink-soft hover:text-ink'}`}>
               {t.label}
             </button>
@@ -189,7 +189,7 @@ const ComplaintPage = () => {
 
         {/* ===== GỬI MỚI ===== */}
         {tab === 'new' && (ketQua ? (
-          <div className="bg-card border border-green-500/30 rounded-xl p-6">
+          <div className="bg-card border border-success/30 p-6">
             <div className="flex items-start gap-3">
               <CheckCircle2 size={20} className="text-success mt-0.5 flex-shrink-0" />
               <div>
@@ -201,12 +201,12 @@ const ComplaintPage = () => {
             </div>
 
             {ketQua.lookupReference && (
-              <div className="mt-5 bg-sunken border border-line rounded-lg p-4">
+              <div className="mt-5 bg-sunken border border-line p-4">
                 <p className="text-xs text-ink-mute">Mã tra cứu của bạn</p>
                 <div className="flex items-center gap-3 mt-1.5 flex-wrap">
-                  <code className="text-lg font-bold text-brand-text tracking-wide break-all">{ketQua.lookupReference}</code>
+                  <code className="text-lg font-bold text-ink tracking-wide break-all">{ketQua.lookupReference}</code>
                   <button onClick={saoChepMa}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-line text-ink-soft text-xs font-bold hover:bg-sunken">
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-line text-ink-soft text-xs font-bold hover:bg-sunken">
                     <Copy size={13} /> Sao chép
                   </button>
                 </div>
@@ -223,7 +223,7 @@ const ComplaintPage = () => {
             </button>
           </div>
         ) : (
-          <form onSubmit={guiKhieuNai} className="bg-card border border-line rounded-xl p-6 space-y-4">
+          <form onSubmit={guiKhieuNai} className="bg-card border border-line p-6 space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="text-xs text-ink-mute">Khiếu nại về</label>
@@ -256,13 +256,13 @@ const ComplaintPage = () => {
               <label className="text-xs text-ink-mute">Ảnh bằng chứng</label>
               <div className="mt-1.5 flex flex-wrap items-center gap-2">
                 {evidences.map((url, i) => (
-                  <span key={url} className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-page border border-line text-xs text-ink-soft">
+                  <span key={url} className="inline-flex items-center gap-1.5 px-2.5 py-1.5 bg-page border border-line text-xs text-ink-soft">
                     Ảnh {i + 1}
                     <button type="button" onClick={() => setEvidences((p) => p.filter((u) => u !== url))}
                       className="text-ink-mute hover:text-danger"><X size={12} /></button>
                   </span>
                 ))}
-                <label className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-line text-ink-soft text-xs font-medium hover:bg-sunken cursor-pointer">
+                <label className="inline-flex items-center gap-2 px-3 py-1.5 border border-line text-ink-soft text-xs font-medium hover:bg-sunken cursor-pointer">
                   {isUploading ? <Loader2 size={13} className="animate-spin" /> : <Upload size={13} />}
                   Thêm ảnh
                   <input type="file" accept="image/*" className="hidden" disabled={isUploading}
@@ -285,7 +285,7 @@ const ComplaintPage = () => {
             </div>
 
             <button type="submit" disabled={isSending || isUploading}
-              className="w-full py-3 bg-brand text-on-brand rounded-lg font-bold flex items-center justify-center gap-2 disabled:opacity-50">
+              className="w-full py-3 bg-ink text-lamp font-bold flex items-center justify-center gap-2 disabled:opacity-50">
               {isSending ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />} Gửi khiếu nại
             </button>
           </form>
@@ -294,13 +294,13 @@ const ComplaintPage = () => {
         {/* ===== TRA CỨU ===== */}
         {tab === 'lookup' && (
           <div className="space-y-4">
-            <form onSubmit={traCuu} className="bg-card border border-line rounded-xl p-6">
+            <form onSubmit={traCuu} className="bg-card border border-line p-6">
               <label className="text-xs text-ink-mute">Mã tra cứu nhận được lúc gửi</label>
               <div className="mt-1.5 flex gap-2">
                 <input value={maTraCuu} onChange={(e) => setMaTraCuu(e.target.value)}
-                  className="flex-1 px-3 py-2.5 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-brand/50" />
+                  className="flex-1 px-3 py-2.5 bg-page border border-line text-sm text-ink focus:outline-none focus:border-ink/50" />
                 <button type="submit" disabled={isLookingUp || !maTraCuu.trim()}
-                  className="flex items-center gap-1.5 px-4 rounded-lg bg-brand text-on-brand text-sm font-bold disabled:opacity-50">
+                  className="flex items-center gap-1.5 px-4 bg-ink text-lamp text-sm font-bold disabled:opacity-50">
                   {isLookingUp ? <Loader2 size={16} className="animate-spin" /> : <Search size={16} />} Tra cứu
                 </button>
               </div>
@@ -310,7 +310,7 @@ const ComplaintPage = () => {
             </form>
 
             {ketQuaTraCuu && (
-              <div className="bg-card border border-line rounded-xl p-6">
+              <div className="bg-card border border-line p-6">
                 <p className="text-ink font-semibold">Khiếu nại #{ketQuaTraCuu.id}</p>
                 <p className="text-sm text-ink-soft mt-1">
                   {STATUS_LABELS[ketQuaTraCuu.status] ?? ketQuaTraCuu.status}
@@ -325,7 +325,7 @@ const ComplaintPage = () => {
                   {ketQuaTraCuu.resolvedAt && <p>Đã xử lý {dayjs(ketQuaTraCuu.resolvedAt).format('DD/MM/YYYY')}</p>}
                 </div>
                 {ketQuaTraCuu.resolution && (
-                  <div className="mt-3 bg-sunken/70 border border-line rounded-lg p-3">
+                  <div className="mt-3 bg-sunken/70 border border-line p-3">
                     <p className="text-xs text-ink-mute mb-1">Phản hồi của chúng tôi</p>
                     <p className="text-sm text-ink-soft leading-relaxed">{ketQuaTraCuu.resolution}</p>
                   </div>
@@ -338,23 +338,23 @@ const ComplaintPage = () => {
         {/* ===== CỦA TÔI ===== */}
         {tab === 'mine' && (
           !user ? (
-            <div className="bg-card border border-line rounded-xl p-6">
+            <div className="bg-card border border-line p-6">
               <p className="text-sm text-ink-soft">
-                Bạn cần <Link to="/login" className="text-brand-text underline">đăng nhập</Link> để xem khiếu nại của mình.
+                Bạn cần <Link to="/login" className="text-ink underline">đăng nhập</Link> để xem khiếu nại của mình.
                 Nếu đã gửi khi chưa đăng nhập, hãy dùng tab “Tra cứu bằng mã”.
               </p>
             </div>
           ) : isLoadingMine ? (
-            <div className="py-16 flex justify-center"><Loader2 size={28} className="animate-spin text-brand-text" /></div>
+            <div className="py-16 flex justify-center"><Loader2 size={28} className="animate-spin text-ink" /></div>
           ) : mine.length === 0 ? (
-            <div className="bg-card border border-line rounded-xl p-10 text-center">
+            <div className="bg-card border border-line p-10 text-center">
               <MessageSquareWarning size={26} className="mx-auto mb-3 text-ink-mute" />
               <p className="text-sm text-ink-mute">Bạn chưa gửi khiếu nại nào.</p>
             </div>
           ) : (
             <ul className="space-y-3">
               {mine.map((c) => (
-                <li key={c.id} className="bg-card border border-line rounded-xl p-5">
+                <li key={c.id} className="bg-card border border-line p-5">
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="min-w-0">
                       <p className="text-ink font-semibold">#{c.id} · {CATEGORIES.find((x) => x.value === c.category)?.label ?? c.category}</p>
@@ -367,7 +367,7 @@ const ComplaintPage = () => {
                   </div>
                   <p className="text-sm text-ink-soft mt-2 line-clamp-3">{c.description}</p>
                   {c.resolution && (
-                    <div className="mt-3 bg-sunken/70 border border-line rounded-lg p-3">
+                    <div className="mt-3 bg-sunken/70 border border-line p-3">
                       <p className="text-xs text-ink-mute mb-1">Phản hồi</p>
                       <p className="text-sm text-ink-soft leading-relaxed">{c.resolution}</p>
                     </div>

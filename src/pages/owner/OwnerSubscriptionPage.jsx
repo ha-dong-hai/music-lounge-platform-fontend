@@ -86,7 +86,7 @@ const OwnerSubscriptionPage = () => {
   if (isLoading) {
     return (
       <div className="py-20 flex justify-center">
-        <Loader2 size={32} className="animate-spin text-brand-text" />
+        <Loader2 size={32} className="animate-spin text-ink" />
       </div>
     )
   }
@@ -102,14 +102,14 @@ const OwnerSubscriptionPage = () => {
 
       {/* === GÓI ĐANG DÙNG === */}
       {current ? (
-        <div className="bg-card border border-line rounded-xl p-6">
+        <div className="bg-card border border-line p-6">
           <div className="flex items-start justify-between gap-4 flex-wrap">
             <div>
               <div className="flex items-center gap-2 mb-1">
-                <Package size={18} className="text-brand-text" />
+                <Package size={18} className="text-ink" />
                 <h2 className="text-lg font-bold text-ink">{current.packageName}</h2>
-                <span className={`px-2 py-0.5 rounded-full text-xs font-bold border ${current.status === 'Active'
-                  ? 'bg-green-500/10 text-success border-green-500/30'
+                <span className={`px-2 py-0.5 text-xs font-bold border ${current.status === 'Active'
+                  ? 'bg-success/10 text-success border-success/30'
                   : 'bg-line-strong/10 text-ink-soft border-line-strong/30'
                   }`}>
                   {{ Active: 'Đang hoạt động', Expired: 'Đã hết hạn', Cancelled: 'Đã huỷ' }[current.status] ?? current.status}
@@ -130,7 +130,7 @@ const OwnerSubscriptionPage = () => {
               <button
                 onClick={() => goToPayment('renew', renewSubscription)}
                 disabled={!!busy}
-                className="px-4 py-2 rounded-lg bg-brand text-on-brand text-sm font-bold hover:bg-brand-hover disabled:opacity-50"
+                className="px-4 py-2 bg-ink text-lamp text-sm font-bold hover:bg-board disabled:opacity-50"
               >
                 {busy === 'renew' ? 'Đang chuyển...' : 'Gia hạn'}
               </button>
@@ -138,7 +138,7 @@ const OwnerSubscriptionPage = () => {
                 <button
                   onClick={handleCancel}
                   disabled={!!busy}
-                  className="px-4 py-2 rounded-lg border border-line text-ink-soft text-sm font-bold hover:bg-sunken disabled:opacity-50"
+                  className="px-4 py-2 border border-line text-ink-soft text-sm font-bold hover:bg-sunken disabled:opacity-50"
                 >
                   Huỷ gia hạn
                 </button>
@@ -185,7 +185,7 @@ const OwnerSubscriptionPage = () => {
           </div>
 
           {isExpiringSoon && (
-            <div className="mt-4 flex items-start gap-2 bg-yellow-500/5 border border-yellow-500/20 rounded-lg p-3">
+            <div className="mt-4 flex items-start gap-2 bg-warning/5 border border-warning/20 p-3">
               <AlertTriangle size={16} className="text-warning flex-shrink-0 mt-0.5" />
               <p className="text-xs text-warning">
                 Gói sắp hết hạn. Hết hạn mà chưa gia hạn thì các hạn mức trên sẽ không còn áp dụng.
@@ -194,7 +194,7 @@ const OwnerSubscriptionPage = () => {
           )}
         </div>
       ) : (
-        <div className="bg-card border border-line rounded-xl p-6 text-center">
+        <div className="bg-card border border-line p-6 text-center">
           <Package size={28} className="mx-auto text-ink-mute mb-2" />
           <p className="text-ink-soft text-sm">Bạn chưa đăng ký gói nào. Chọn một gói bên dưới để bắt đầu.</p>
         </div>
@@ -209,15 +209,15 @@ const OwnerSubscriptionPage = () => {
             return (
               <div
                 key={p.id}
-                className={`bg-card border rounded-xl p-5 flex flex-col ${isCurrent ? 'border-brand' : 'border-line'}`}
+                className={`bg-card border p-5 flex flex-col ${isCurrent ? 'border-ink' : 'border-line'}`}
               >
                 <div className="flex items-center justify-between mb-1">
                   <h3 className="text-ink font-bold">{p.name}</h3>
                   {isCurrent && (
-                    <span className="px-2 py-0.5 rounded-full bg-brand/15 text-brand-text text-xs font-bold">Đang dùng</span>
+                    <span className="px-2 py-0.5 bg-ink/15 text-ink text-xs font-bold">Đang dùng</span>
                   )}
                 </div>
-                <p className="text-2xl font-bold text-brand-text">{fmtMoney(p.price)}</p>
+                <p className="text-2xl font-bold text-ink">{fmtMoney(p.price)}</p>
                 <p className="text-xs text-ink-mute mb-4">
                   {p.billingCycle === 'Monthly' ? 'mỗi tháng' : p.billingCycle === 'Yearly' ? 'mỗi năm' : p.billingCycle}
                 </p>
@@ -238,14 +238,14 @@ const OwnerSubscriptionPage = () => {
 
                 <div className="mt-auto">
                   {isCurrent ? (
-                    <button disabled className="w-full py-2 rounded-lg bg-sunken text-ink-mute text-sm font-bold cursor-default">
+                    <button disabled className="w-full py-2 bg-sunken text-ink-mute text-sm font-bold cursor-default">
                       Gói hiện tại
                     </button>
                   ) : current ? (
                     <button
                       onClick={() => goToPayment(`change-${p.id}`, () => changePackage(p.id))}
                       disabled={!!busy}
-                      className="w-full py-2 rounded-lg border border-brand text-brand-text text-sm font-bold hover:bg-brand-hover hover:text-on-brand transition-colors disabled:opacity-50"
+                      className="w-full py-2 border border-ink text-ink text-sm font-bold hover:bg-board hover:text-lamp transition-colors disabled:opacity-50"
                     >
                       {busy === `change-${p.id}` ? 'Đang chuyển...' : 'Đổi sang gói này'}
                     </button>
@@ -253,7 +253,7 @@ const OwnerSubscriptionPage = () => {
                     <button
                       onClick={() => goToPayment(`sub-${p.id}`, () => subscribeToPackage(p.id))}
                       disabled={!!busy}
-                      className="w-full py-2 rounded-lg bg-brand text-on-brand text-sm font-bold hover:bg-brand-hover disabled:opacity-50"
+                      className="w-full py-2 bg-ink text-lamp text-sm font-bold hover:bg-board disabled:opacity-50"
                     >
                       {busy === `sub-${p.id}` ? 'Đang chuyển...' : 'Đăng ký'}
                     </button>

@@ -14,7 +14,7 @@ import { Loader2, X, AlertTriangle } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { resolveComplaint } from '../../../services/complaintServices'
 
-const inputCls = 'mt-1 w-full px-3 py-2 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-brand/50'
+const inputCls = 'mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink focus:outline-none focus:border-ink/50'
 
 const STATUSES = [
   { value: 'Investigating', label: 'Đang xem xét', hint: 'Ghi nhận là đang điều tra, chưa kết luận. Không tạo hậu quả nào.' },
@@ -72,20 +72,20 @@ const ResolveComplaintModal = ({ complaint, onClose, onSaved }) => {
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-espresso/80 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-card border border-line rounded-2xl w-full max-w-lg shadow-2xl max-h-[90vh] flex flex-col">
+      <div className="absolute inset-0 bg-ink/80" onClick={onClose} />
+      <div className="relative bg-card border border-line w-full max-w-lg shadow-soft max-h-[90vh] flex flex-col">
         <div className="flex justify-between items-center p-5 border-b border-line">
           <div>
             <h2 className="text-lg font-bold text-ink">Xử lý khiếu nại #{complaint.id}</h2>
             <p className="text-xs text-ink-mute mt-0.5">{complaint.targetType} #{complaint.targetId}</p>
           </div>
-          <button onClick={onClose} disabled={isBusy} className="p-2 hover:bg-sunken rounded-full text-ink-soft disabled:opacity-30">
+          <button onClick={onClose} disabled={isBusy} className="p-2 hover:bg-sunken text-ink-soft disabled:opacity-30">
             <X size={20} />
           </button>
         </div>
 
         <form onSubmit={submit} className="p-5 space-y-4 overflow-y-auto">
-          <div className="bg-sunken/70 border border-line rounded-lg p-3">
+          <div className="bg-sunken/70 border border-line p-3">
             <p className="text-xs text-ink-mute mb-1">Nội dung khiếu nại</p>
             <p className="text-sm text-ink-soft leading-relaxed">{complaint.description}</p>
             {complaint.contactPhone && (
@@ -122,23 +122,23 @@ const ResolveComplaintModal = ({ complaint, onClose, onSaved }) => {
           </div>
 
           {canGoXacNhan && (
-            <div className="bg-red-500/5 border border-red-500/30 rounded-lg p-4">
+            <div className="bg-danger/5 border border-danger/30 p-4">
               <p className="text-xs text-danger leading-relaxed">
                 Hành động này huỷ buổi diễn và hoàn tiền cho tất cả người đang giữ vé. Gõ <strong>{XAC_NHAN}</strong> để xác nhận.
               </p>
               <input value={goXacNhan} onChange={(e) => setGoXacNhan(e.target.value)}
-                className="mt-2 w-full px-3 py-2 bg-page border border-red-500/40 rounded-lg text-sm text-ink focus:outline-none focus:border-red-500" />
+                className="mt-2 w-full px-3 py-2 bg-page border border-danger/40 text-sm text-ink focus:outline-none focus:border-danger" />
             </div>
           )}
 
           <div className="flex gap-3 pt-1">
             <button type="button" onClick={onClose} disabled={isBusy}
-              className="flex-1 py-2.5 border border-line-strong text-ink-soft rounded-lg font-medium hover:bg-sunken disabled:opacity-50">
+              className="flex-1 py-2.5 border border-line-strong text-ink-soft font-medium hover:bg-sunken disabled:opacity-50">
               Huỷ
             </button>
             <button type="submit" disabled={isBusy || chuaGoDung}
-              className={`flex-1 py-2.5 rounded-lg font-bold flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed ${
-                canGoXacNhan ? 'bg-red-500 text-white hover:bg-red-600' : 'bg-brand text-on-brand hover:bg-brand-hover'}`}>
+              className={`flex-1 py-2.5 font-bold flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed ${
+                canGoXacNhan ? 'bg-danger text-lamp hover:bg-danger' : 'bg-ink text-lamp hover:bg-board'}`}>
               {isBusy && <Loader2 size={16} className="animate-spin" />}
               {isBusy ? 'Đang xử lý...' : 'Xác nhận'}
             </button>

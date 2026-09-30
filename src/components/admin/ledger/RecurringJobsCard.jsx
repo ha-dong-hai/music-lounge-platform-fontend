@@ -22,15 +22,15 @@ const RecurringJobsCard = ({ jobs, isLoading, isTriggering, onTrigger }) => (
     </p>
 
     {isLoading ? (
-      <div className="bg-card border border-line rounded-xl py-12 flex justify-center">
-        <Loader2 size={22} className="animate-spin text-brand-text" />
+      <div className="bg-card border border-line py-12 flex justify-center">
+        <Loader2 size={22} className="animate-spin text-ink" />
       </div>
     ) : jobs.length === 0 ? (
-      <div className="bg-card border border-line rounded-xl p-6">
+      <div className="bg-card border border-line p-6">
         <p className="text-sm text-ink-mute">Không có tác vụ định kỳ nào đang đăng ký.</p>
       </div>
     ) : (
-      <div className="bg-card border border-line rounded-xl divide-y divide-line">
+      <div className="bg-card border border-line divide-y divide-line">
         {jobs.map((jobId) => (
           <div key={jobId} className="p-4 flex flex-wrap items-center justify-between gap-3">
             <div className="min-w-0">
@@ -38,7 +38,7 @@ const RecurringJobsCard = ({ jobs, isLoading, isTriggering, onTrigger }) => (
               <p className="text-xs text-ink-mute mt-0.5 font-mono break-all">{jobId}</p>
             </div>
             <button onClick={() => onTrigger(jobId)} disabled={isTriggering}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-line text-ink-soft text-xs font-bold hover:bg-sunken disabled:opacity-50 flex-shrink-0">
+              className="flex items-center gap-1.5 px-3 py-1.5 border border-line text-ink-soft text-xs font-bold hover:bg-sunken disabled:opacity-50 flex-shrink-0">
               <Play size={13} /> Chạy ngay
             </button>
           </div>

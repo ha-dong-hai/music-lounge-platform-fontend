@@ -74,7 +74,7 @@ const NotificationsPage = () => {
       <div className="min-h-[60vh] bg-page text-ink flex flex-col items-center justify-center px-6">
         <Bell size={34} className="text-ink-mute mb-4" />
         <p className="text-lg font-semibold mb-2">Cần đăng nhập để xem thông báo</p>
-        <Link to="/login" className="mt-2 px-6 py-2.5 bg-brand text-on-brand rounded-lg font-bold hover:bg-brand-hover">
+        <Link to="/login" className="mt-2 px-6 py-2.5 bg-ink text-lamp font-bold hover:bg-board">
           Đăng nhập
         </Link>
       </div>
@@ -84,13 +84,13 @@ const NotificationsPage = () => {
   return (
     <div className="min-h-[60vh] bg-page text-ink pb-20">
       <div className="max-w-3xl mx-auto px-6 py-8">
-        <Link to="/" className="inline-flex items-center gap-2 text-sm font-medium text-ink-soft hover:text-brand-text mb-6">
+        <Link to="/" className="inline-flex items-center gap-2 text-sm font-medium text-ink-soft hover:text-ink mb-6">
           <ArrowLeft size={18} /> Về trang chủ
         </Link>
 
         <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
           <div className="flex items-center gap-3">
-            <Bell size={26} className="text-brand-text" />
+            <Bell size={26} className="text-ink" />
             <div>
               <h1 className="text-2xl font-bold">Thông báo</h1>
               {totalCount > 0 && (
@@ -101,7 +101,7 @@ const NotificationsPage = () => {
 
           {soChuaDoc > 0 && (
             <button onClick={danhDauTatCa} disabled={isBusy}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg border border-line text-ink-soft text-sm font-bold hover:bg-sunken disabled:opacity-50">
+              className="flex items-center gap-2 px-4 py-2 border border-line text-ink-soft text-sm font-bold hover:bg-sunken disabled:opacity-50">
               {isBusy ? <Loader2 size={15} className="animate-spin" /> : <CheckCheck size={15} />}
               Đánh dấu tất cả đã đọc
             </button>
@@ -109,9 +109,9 @@ const NotificationsPage = () => {
         </div>
 
         {isLoading ? (
-          <div className="py-24 flex justify-center"><Loader2 size={30} className="animate-spin text-brand-text" /></div>
+          <div className="py-24 flex justify-center"><Loader2 size={30} className="animate-spin text-ink" /></div>
         ) : items.length === 0 ? (
-          <div className="bg-card border border-line rounded-2xl p-16 text-center">
+          <div className="bg-card border border-line p-16 text-center">
             <Inbox size={34} className="mx-auto mb-4 text-ink-mute" />
             <p className="text-lg font-semibold mb-1">Chưa có thông báo nào</p>
             <p className="text-sm text-ink-mute">
@@ -119,15 +119,15 @@ const NotificationsPage = () => {
             </p>
           </div>
         ) : (
-          <div className="bg-card border border-line rounded-2xl divide-y divide-line overflow-hidden">
+          <div className="bg-card border border-line divide-y divide-line overflow-hidden">
             {items.map((n) => {
               const link = buildLink(n, role)
               const ruot = (
-                <div className={`px-5 py-4 transition-colors hover:bg-sunken/50 ${n.isRead ? '' : 'bg-brand/5'}`}>
+                <div className={`px-5 py-4 transition-colors hover:bg-sunken/50 ${n.isRead ? '' : 'bg-ink/5'}`}>
                   <div className="flex items-start gap-3">
                     {n.isRead
                       ? <span className="mt-1.5 w-2 h-2 flex-shrink-0" />
-                      : <span className="mt-1.5 w-2 h-2 rounded-full bg-brand flex-shrink-0" />}
+                      : <span className="mt-1.5 w-2 h-2 bg-ink flex-shrink-0" />}
                     <div className="min-w-0">
                       <p className={`text-sm ${n.isRead ? 'text-ink-soft' : 'text-ink font-semibold'}`}>{n.title}</p>
                       {n.body && <p className="text-sm text-ink-mute mt-1 leading-relaxed">{n.body}</p>}
@@ -157,12 +157,12 @@ const NotificationsPage = () => {
         {totalPages > 1 && (
           <div className="flex items-center justify-center gap-3 mt-6">
             <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page <= 1}
-              className="px-4 py-2 rounded-lg border border-line text-sm text-ink-soft hover:bg-sunken disabled:opacity-40">
+              className="px-4 py-2 border border-line text-sm text-ink-soft hover:bg-sunken disabled:opacity-40">
               Trước
             </button>
             <span className="text-sm text-ink-mute">Trang {page}/{totalPages}</span>
             <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page >= totalPages}
-              className="px-4 py-2 rounded-lg border border-line text-sm text-ink-soft hover:bg-sunken disabled:opacity-40">
+              className="px-4 py-2 border border-line text-sm text-ink-soft hover:bg-sunken disabled:opacity-40">
               Sau
             </button>
           </div>

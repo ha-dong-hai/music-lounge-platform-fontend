@@ -57,7 +57,7 @@ const ZoneSketchLayer = ({ enabled, frameRef, onRecognized, onRejected }) => {
         <polyline
           points={points.map((p) => `${p.x},${p.y}`).join(' ')}
           fill="none"
-          stroke="var(--color-brand-text)"
+          stroke="var(--color-ink)"
           strokeWidth="3"
           strokeLinecap="round"
           strokeLinejoin="round"

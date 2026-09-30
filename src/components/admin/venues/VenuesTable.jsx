@@ -1,31 +1,32 @@
 import { Loader2, ChevronLeft, ChevronRight, Building2, FileText, ShieldAlert } from 'lucide-react'
 import dayjs from 'dayjs'
 import { VenueStatusBadge, LicenseBadge } from './VenueBadges'
+import { anhChuCai } from '../../../utils/anhChuCai'
 
 // Component thuần UI: nhận data đã lọc + callbacks từ cha.
 // `onViewDossier` mở HỒ SƠ ĐÃ NỘP. Bản trước nút này là <Link to={`/lounge/{id}`}> mở thẳng trang
 // giới thiệu công khai — xem mục "VÌ SAO CÓ FILE NÀY" trong VenueDossierModal.jsx.
 const VenuesTable = ({ venues, isLoading, pagination, onPageChange, onViewDossier, onReview, onPenalize }) => {
   return (
-    <div className="bg-card border border-line rounded-xl overflow-hidden">
+    <div className="bg-card border border-line overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full text-left whitespace-nowrap">
           <thead className="bg-sunken/70 border-b border-line">
             <tr>
-              <th className="p-4 text-xs font-semibold text-ink-soft uppercase tracking-wider">Phòng trà</th>
-              <th className="p-4 text-xs font-semibold text-ink-soft uppercase tracking-wider">Chủ phòng trà</th>
-              <th className="p-4 text-xs font-semibold text-ink-soft uppercase tracking-wider">Địa chỉ</th>
-              <th className="p-4 text-xs font-semibold text-ink-soft uppercase tracking-wider">Giấy phép</th>
-              <th className="p-4 text-xs font-semibold text-ink-soft uppercase tracking-wider">Trạng thái</th>
-              <th className="p-4 text-xs font-semibold text-ink-soft uppercase tracking-wider">Ngày</th>
-              <th className="p-4 text-xs font-semibold text-ink-soft uppercase tracking-wider text-right">Thao tác</th>
+              <th className="p-4 text-sm font-semibold text-ink-softr">Phòng trà</th>
+              <th className="p-4 text-sm font-semibold text-ink-softr">Chủ phòng trà</th>
+              <th className="p-4 text-sm font-semibold text-ink-softr">Địa chỉ</th>
+              <th className="p-4 text-sm font-semibold text-ink-softr">Giấy phép</th>
+              <th className="p-4 text-sm font-semibold text-ink-softr">Trạng thái</th>
+              <th className="p-4 text-sm font-semibold text-ink-softr">Ngày</th>
+              <th className="p-4 text-sm font-semibold text-ink-softr text-right">Thao tác</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-line">
             {isLoading ? (
               <tr>
                 <td colSpan="7" className="p-10 text-center text-ink-mute">
-                  <Loader2 size={24} className="mx-auto animate-spin text-brand-text" />
+                  <Loader2 size={24} className="mx-auto animate-spin text-ink" />
                 </td>
               </tr>
             ) : venues.length > 0 ? (
@@ -34,9 +35,9 @@ const VenuesTable = ({ venues, isLoading, pagination, onPageChange, onViewDossie
                   <td className="p-4">
                     <div className="flex items-center gap-3">
                       <img
-                        src={v.primaryImageUrl || `https://api.dicebear.com/7.x/initials/svg?seed=${v.name || 'V'}&backgroundColor=1f2937`}
+                        src={v.primaryImageUrl || anhChuCai(v.name || 'V')}
                         alt={v.name}
-                        className="w-10 h-10 rounded-lg object-cover border border-line flex-shrink-0"
+                        className="w-10 h-10 object-cover border border-line flex-shrink-0"
                       />
                       <div className="min-w-0">
                         <p className="text-sm text-ink font-medium truncate">{v.name}</p>
@@ -61,7 +62,7 @@ const VenuesTable = ({ venues, isLoading, pagination, onPageChange, onViewDossie
                         nhưng nằm bên trong hồ sơ như việc phụ. */}
                     <button
                       onClick={() => onViewDossier?.(v)}
-                      className="inline-flex items-center gap-1.5 text-brand-text border border-brand/30 hover:bg-brand-hover/10 px-3 py-1.5 rounded-md text-xs font-bold transition-colors"
+                      className="inline-flex items-center gap-1.5 text-ink border border-ink/30 hover:bg-board/10 px-3 py-1.5 rounded-md text-xs font-bold transition-colors"
                     >
                       <FileText size={12} /> Xem hồ sơ
                     </button>
@@ -71,13 +72,13 @@ const VenuesTable = ({ venues, isLoading, pagination, onPageChange, onViewDossie
                       <>
                         <button
                           onClick={() => onReview(v, 'Approved')}
-                          className="ml-2 inline-flex items-center gap-1.5 text-success border border-green-500/40 hover:bg-green-500/10 px-3 py-1.5 rounded-md text-xs font-bold transition-colors"
+                          className="ml-2 inline-flex items-center gap-1.5 text-success border border-success/40 hover:bg-success/10 px-3 py-1.5 rounded-md text-xs font-bold transition-colors"
                         >
                           Duyệt
                         </button>
                         <button
                           onClick={() => onReview(v, 'Rejected')}
-                          className="ml-2 inline-flex items-center gap-1.5 text-danger border border-red-500/40 hover:bg-red-500/10 px-3 py-1.5 rounded-md text-xs font-bold transition-colors"
+                          className="ml-2 inline-flex items-center gap-1.5 text-danger border border-danger/40 hover:bg-danger/10 px-3 py-1.5 rounded-md text-xs font-bold transition-colors"
                         >
                           Từ chối
                         </button>
@@ -88,7 +89,7 @@ const VenuesTable = ({ venues, isLoading, pagination, onPageChange, onViewDossie
                     {onPenalize && !['Pending', 'Rejected'].includes(v.status) && (
                       <button
                         onClick={() => onPenalize(v)}
-                        className="ml-2 inline-flex items-center gap-1.5 text-orange-700 border border-orange-500/40 hover:bg-orange-500/10 px-3 py-1.5 rounded-md text-xs font-bold transition-colors"
+                        className="ml-2 inline-flex items-center gap-1.5 text-warning border border-warning/40 hover:bg-warning/10 px-3 py-1.5 rounded-md text-xs font-bold transition-colors"
                       >
                         <ShieldAlert size={12} /> Án phạt
                       </button>
@@ -118,14 +119,14 @@ const VenuesTable = ({ venues, isLoading, pagination, onPageChange, onViewDossie
             <button
               onClick={() => onPageChange(pagination.page - 1)}
               disabled={pagination.page === 1}
-              className="p-2 rounded-md border border-line text-ink-soft hover:border-brand hover:text-brand-text disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              className="p-2 rounded-md border border-line text-ink-soft hover:border-ink hover:text-ink disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
             >
               <ChevronLeft size={18} />
             </button>
             <button
               onClick={() => onPageChange(pagination.page + 1)}
               disabled={pagination.page === pagination.totalPages}
-              className="p-2 rounded-md border border-line text-ink-soft hover:border-brand hover:text-brand-text disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              className="p-2 rounded-md border border-line text-ink-soft hover:border-ink hover:text-ink disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
             >
               <ChevronRight size={18} />
             </button>

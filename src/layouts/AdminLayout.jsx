@@ -10,8 +10,8 @@ import PortalShell from '../components/portal/PortalShell'
 
 // min-h-[44px] thay cho py-3: vùng chạm đủ lớn cho ngón tay khi mở bằng ngăn kéo trên điện thoại.
 const linkClasses = ({ isActive }) =>
-  `flex items-center gap-3 px-4 min-h-[44px] rounded-lg text-sm font-medium transition-colors ${isActive
-    ? 'bg-sunken text-brand-text'
+  `flex items-center gap-3 px-4 min-h-[44px] text-sm font-medium transition-colors ${isActive
+    ? 'bg-sunken text-ink'
     : 'text-ink-soft hover:text-ink hover:bg-sunken/50'
   }`
 
@@ -94,7 +94,7 @@ const AdminLayout = () => {
   const footer = (
     <button
       onClick={handleLogout}
-      className="flex items-center gap-3 px-4 min-h-[44px] w-full rounded-lg text-sm font-medium text-danger hover:bg-red-500/10 transition-colors"
+      className="flex items-center gap-3 px-4 min-h-[44px] w-full text-sm font-medium text-danger hover:bg-danger/10 transition-colors"
     >
       <LogOut size={18} /> Đăng xuất
     </button>
@@ -107,7 +107,7 @@ const AdminLayout = () => {
       nav={nav}
       footer={footer}
       headerRight={
-        <span className="w-9 h-9 bg-brand rounded-full flex items-center justify-center text-on-brand text-xs font-bold" aria-hidden="true">
+        <span className="w-9 h-9 bg-ink flex items-center justify-center text-lamp text-xs font-bold" aria-hidden="true">
           AD
         </span>
       }

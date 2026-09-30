@@ -9,30 +9,31 @@ import { X, Loader2, Ban, Unlock, ShieldCheck } from 'lucide-react'
 import dayjs from 'dayjs'
 import { mocUtc } from '../../../utils/format'
 import { RoleBadge, StatusBadge } from './Badges'
+import { anhChuCai } from '../../../utils/anhChuCai'
 
 const AccountDetailModal = ({ selectedAcc, isModalLoading, isUpdating, onClose, onToggleBan }) => {
   if (!selectedAcc) return null
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4" onClick={() => !isModalLoading && onClose()}>
-      <div className="absolute inset-0 bg-espresso/80 backdrop-blur-sm"></div>
-      <div className="relative bg-card border border-line rounded-2xl w-full max-w-lg p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+      <div className="absolute inset-0 bg-ink/80"></div>
+      <div className="relative bg-card border border-line w-full max-w-lg p-6 shadow-soft" onClick={(e) => e.stopPropagation()}>
         {isModalLoading ? (
           <div className="flex flex-col items-center justify-center py-10">
-            <Loader2 size={32} className="animate-spin text-brand-text mb-3" />
+            <Loader2 size={32} className="animate-spin text-ink mb-3" />
             <p className="text-ink-soft">Đang tải thông tin…</p>
           </div>
         ) : (
           <>
             <div className="flex justify-between items-start mb-6">
               <div className="flex items-center gap-4">
-                <img src={selectedAcc.avatarUrl || `https://api.dicebear.com/7.x/initials/svg?seed=${selectedAcc.fullName}&backgroundColor=1f2937`} alt="avatar" className="w-16 h-16 rounded-full border-2 border-brand/30 object-cover" />
+                <img src={selectedAcc.avatarUrl || anhChuCai(selectedAcc.fullName)} alt="avatar" className="w-16 h-16 border-2 border-ink/30 object-cover" />
                 <div>
                   <h2 className="text-xl font-bold text-ink">{selectedAcc.fullName}</h2>
                   <p className="text-sm text-ink-mute">{selectedAcc.email}</p>
                 </div>
               </div>
-              <button onClick={onClose} className="p-2 hover:bg-sunken rounded-full text-ink-soft"><X size={20} /></button>
+              <button onClick={onClose} className="p-2 hover:bg-sunken text-ink-soft"><X size={20} /></button>
             </div>
 
             <div className="space-y-4 border-t border-line pt-4">
@@ -56,15 +57,15 @@ const AccountDetailModal = ({ selectedAcc, isModalLoading, isUpdating, onClose, 
                 <div>
                   <p className="text-xs text-ink-mute mb-1">Xác thực email</p>
                   <p className={`text-sm font-medium ${selectedAcc.isEmailVerified ? 'text-success' : 'text-danger'}`}>
-                    {selectedAcc.isEmailVerified ? 'Verified' : 'Unverified '}
+                    {selectedAcc.isEmailVerified ? 'Đã xác thực' : 'Chưa xác thực'}
                   </p>
                 </div>
               </div>
 
               {selectedAcc.role === 'Admin' && (
-                <div className="bg-purple-500/5 border border-purple-500/20 rounded-lg p-4 flex items-center gap-2">
-                  <ShieldCheck size={18} className="text-purple-700" />
-                  <p className="text-sm text-purple-700">Hệ thống quản trị</p>
+                <div className="bg-ink/5 border border-ink/20 p-4 flex items-center gap-2">
+                  <ShieldCheck size={18} className="text-ink" />
+                  <p className="text-sm text-ink">Hệ thống quản trị</p>
                 </div>
               )}
             </div>
@@ -74,16 +75,16 @@ const AccountDetailModal = ({ selectedAcc, isModalLoading, isUpdating, onClose, 
                 <button
                   onClick={() => onToggleBan(selectedAcc.id, selectedAcc.isActive)}
                   disabled={isUpdating}
-                  className={`flex-1 py-2.5 rounded-lg font-bold transition-colors flex items-center justify-center gap-2 disabled:opacity-50 ${
+                  className={`flex-1 py-2.5 font-bold transition-colors flex items-center justify-center gap-2 disabled:opacity-50 ${
                     selectedAcc.isActive
-                      ? 'bg-red-500/10 text-danger border border-red-500/30 hover:bg-red-500/20'
-                      : 'bg-green-500 text-white hover:bg-green-600'
+                      ? 'bg-danger/10 text-danger border border-danger/30 hover:bg-danger/20'
+                      : 'bg-success text-lamp hover:bg-success'
                   }`}
                 >
                   {selectedAcc.isActive ? <><Ban size={18} /> Khoá tài khoản</> : <><Unlock size={18} /> Mở khoá tài khoản</>}
                 </button>
               )}
-              <button onClick={onClose} className={`py-2.5 border border-line-strong text-ink-soft rounded-lg font-medium hover:bg-sunken transition-colors ${selectedAcc.role === 'Admin' ? 'flex-1' : 'px-6'}`}>
+              <button onClick={onClose} className={`py-2.5 border border-line-strong text-ink-soft font-medium hover:bg-sunken transition-colors ${selectedAcc.role === 'Admin' ? 'flex-1' : 'px-6'}`}>
                 Đóng
               </button>
             </div>

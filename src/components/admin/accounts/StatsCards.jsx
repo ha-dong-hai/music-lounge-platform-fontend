@@ -4,8 +4,8 @@ const StatsCards = ({ stats, roleFilter, statusFilter, onSelectFilter }) => {
   const cards = [
     {
       key: 'total', label: 'Tổng', value: stats.total,
-      icon: <UsersIcon size={24} className="text-brand-text" />, iconBg: 'bg-brand/10',
-      active: roleFilter === 'all' && statusFilter === 'all', activeStyle: 'border-brand ring-1 ring-brand',
+      icon: <UsersIcon size={24} className="text-ink" />, iconBg: 'bg-ink/10',
+      active: roleFilter === 'all' && statusFilter === 'all', activeStyle: 'border-ink ring-1 ring-ink',
       onClick: () => onSelectFilter('all', 'all'),
     },
     {
@@ -16,20 +16,20 @@ const StatsCards = ({ stats, roleFilter, statusFilter, onSelectFilter }) => {
     },
     {
       key: 'owners', label: 'Chủ phòng trà', value: stats.owners,
-      icon: <Building2 size={24} className="text-sky-700" />, iconBg: 'bg-blue-500/10',
-      active: roleFilter === 'Owner', activeStyle: 'border-blue-500 ring-1 ring-blue-500',
+      icon: <Building2 size={24} className="text-ink" />, iconBg: 'bg-ink/10',
+      active: roleFilter === 'Owner', activeStyle: 'border-ink ring-1 ring-ink',
       onClick: () => onSelectFilter('Owner', 'all'),
     },
     {
       key: 'staff', label: 'Nhân viên', value: stats.staff,
-      icon: <UserCog size={24} className="text-orange-700" />, iconBg: 'bg-orange-500/10',
-      active: roleFilter === 'Staff', activeStyle: 'border-orange-500 ring-1 ring-orange-500',
+      icon: <UserCog size={24} className="text-warning" />, iconBg: 'bg-warning/10',
+      active: roleFilter === 'Staff', activeStyle: 'border-warning ring-1 ring-warning',
       onClick: () => onSelectFilter('Staff', 'all'),
     },
     {
       key: 'banned', label: 'Đã bị khoá', value: stats.banned,
-      icon: <Ban size={24} className="text-danger" />, iconBg: 'bg-red-500/10',
-      active: statusFilter === 'banned', activeStyle: 'border-red-500 ring-1 ring-red-500',
+      icon: <Ban size={24} className="text-danger" />, iconBg: 'bg-danger/10',
+      active: statusFilter === 'banned', activeStyle: 'border-danger ring-1 ring-danger',
       onClick: () => onSelectFilter('all', 'banned'),
     },
   ]
@@ -40,11 +40,11 @@ const StatsCards = ({ stats, roleFilter, statusFilter, onSelectFilter }) => {
         <button
           key={card.key}
           onClick={card.onClick}
-          className={`bg-card border rounded-xl p-5 flex items-center gap-4 text-left transition-all ${
+          className={`bg-card border p-5 flex items-center gap-4 text-left transition-all ${
             card.active ? card.activeStyle : 'border-line hover:border-line'
           }`}
         >
-          <div className={`p-3 ${card.iconBg} rounded-lg`}>{card.icon}</div>
+          <div className={`p-3 ${card.iconBg}`}>{card.icon}</div>
           <div>
             <p className="text-sm text-ink-mute mb-1">{card.label}</p>
             <p className="text-2xl font-bold text-ink">{card.value}</p>

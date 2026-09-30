@@ -27,7 +27,7 @@ import {
 import { uploadImage, uploadModel } from '../../services/userServices'
 import ConfirmModal from '../../components/shared/ConfirmModal'
 
-const inputCls = 'mt-1 w-full px-3 py-2 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-brand/50'
+const inputCls = 'mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink focus:outline-none focus:border-ink/50'
 
 // HOTSPOT CÓ HAI LOẠI, và `type` là TRƯỜNG BẮT BUỘC:
 //   Navigate — dẫn sang scene khác, phải có targetSceneId, và KHÔNG được trỏ về chính scene đó.
@@ -77,11 +77,11 @@ const HotspotModal = ({ loungeId, scene, scenes, onClose, onSaved }) => {
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-espresso/80 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-card border border-line rounded-2xl w-full max-w-md shadow-2xl">
+      <div className="absolute inset-0 bg-ink/80" onClick={onClose} />
+      <div className="relative bg-card border border-line w-full max-w-md shadow-soft">
         <div className="flex justify-between items-center p-5 border-b border-line">
           <h2 className="text-lg font-bold text-ink truncate">Hotspot của {scene.name || `scene #${scene.id}`}</h2>
-          <button onClick={onClose} className="p-2 hover:bg-sunken rounded-full text-ink-soft flex-shrink-0"><X size={20} /></button>
+          <button onClick={onClose} className="p-2 hover:bg-sunken text-ink-soft flex-shrink-0"><X size={20} /></button>
         </div>
 
         <div className="p-5 space-y-4">
@@ -90,7 +90,7 @@ const HotspotModal = ({ loungeId, scene, scenes, onClose, onSaved }) => {
               {scene.hotspots.map((h) => {
                 const dich = scenes.find((x) => x.id === h.targetSceneId)
                 return (
-                  <li key={h.id} className="flex items-center justify-between gap-3 bg-sunken/70 border border-line rounded-lg p-3">
+                  <li key={h.id} className="flex items-center justify-between gap-3 bg-sunken/70 border border-line p-3">
                     <div className="min-w-0">
                       <p className="text-sm text-ink truncate">{h.label || 'Không nhãn'}</p>
                       {/* Hai loại hotspot hiện khác nhau: loại chú thích không dẫn đi đâu nên hiện
@@ -112,7 +112,7 @@ const HotspotModal = ({ loungeId, scene, scenes, onClose, onSaved }) => {
                         toast.error(err.response?.data?.message || 'Không xoá được hotspot.')
                       }
                     }}
-                      className="p-2 rounded-lg text-danger hover:bg-red-500/10 flex-shrink-0" title="Xoá">
+                      className="p-2 text-danger hover:bg-danger/10 flex-shrink-0" title="Xoá">
                       <Trash2 size={14} />
                     </button>
                   </li>
@@ -129,7 +129,7 @@ const HotspotModal = ({ loungeId, scene, scenes, onClose, onSaved }) => {
                 Cần ít nhất hai scene mới tạo được hotspot dẫn đường.
               </p>
               <button type="button" onClick={() => set('type', 'Info')}
-                className="text-xs font-bold text-brand-text hover:underline">
+                className="text-xs font-bold text-ink hover:underline">
                 Tạo hotspot chú thích thay vì dẫn đường →
               </button>
             </div>
@@ -144,8 +144,8 @@ const HotspotModal = ({ loungeId, scene, scenes, onClose, onSaved }) => {
                 <div className="mt-1 grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {LOAI_HOTSPOT.map((l) => (
                     <button key={l.value} type="button" onClick={() => set('type', l.value)}
-                      className={`text-left p-2.5 rounded-lg border transition-colors ${
-                        form.type === l.value ? 'border-brand bg-brand/10' : 'border-line hover:border-line-strong'
+                      className={`text-left p-2.5 border transition-colors ${
+                        form.type === l.value ? 'border-ink bg-ink/10' : 'border-line hover:border-line-strong'
                       }`}>
                       <span className="block text-sm text-ink font-medium">{l.ten}</span>
                       <span className="block text-xs text-ink-mute mt-0.5 leading-relaxed">{l.mo}</span>
@@ -194,7 +194,7 @@ const HotspotModal = ({ loungeId, scene, scenes, onClose, onSaved }) => {
                 </div>
               </div>
               <button type="submit" disabled={isBusy}
-                className="w-full py-2 rounded-lg border border-line text-ink-soft text-sm font-bold hover:bg-sunken flex items-center justify-center gap-2 disabled:opacity-50">
+                className="w-full py-2 border border-line text-ink-soft text-sm font-bold hover:bg-sunken flex items-center justify-center gap-2 disabled:opacity-50">
                 {isBusy ? <Loader2 size={15} className="animate-spin" /> : <Plus size={15} />} Thêm hotspot
               </button>
             </form>
@@ -363,14 +363,14 @@ const OwnerTourPage = () => {
   }
 
   if (isLoading) {
-    return <div className="py-20 flex justify-center"><Loader2 size={32} className="animate-spin text-brand-text" /></div>
+    return <div className="py-20 flex justify-center"><Loader2 size={32} className="animate-spin text-ink" /></div>
   }
 
   if (!lounge) {
     return (
       <div className="max-w-2xl">
         <h1 className="text-2xl font-bold text-ink mb-1">Tour 360°</h1>
-        <div className="mt-4 bg-card border border-line rounded-xl p-6">
+        <div className="mt-4 bg-card border border-line p-6">
           <p className="text-sm text-ink-soft">Hãy tạo hồ sơ phòng trà trước.</p>
         </div>
       </div>
@@ -389,13 +389,13 @@ const OwnerTourPage = () => {
       </div>
 
       {/* === SCENE === */}
-      <div className="bg-card border border-line rounded-xl p-6">
+      <div className="bg-card border border-line p-6">
         <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
           <div>
             <h2 className="text-base font-semibold text-ink">Các điểm đứng (scene)</h2>
             <p className="text-xs text-ink-mute mt-0.5">Mỗi scene là một ảnh 360° tại một vị trí trong phòng trà.</p>
           </div>
-          <label className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-brand text-on-brand text-xs font-bold hover:bg-brand-hover cursor-pointer flex-shrink-0">
+          <label className="inline-flex items-center gap-2 px-3 py-1.5 bg-ink text-lamp text-xs font-bold hover:bg-board cursor-pointer flex-shrink-0">
             {busy === 'scene' ? <Loader2 size={13} className="animate-spin" /> : <Plus size={13} />}
             Thêm ảnh 360° có sẵn
             <input type="file" accept="image/*" className="hidden" disabled={busy !== null}
@@ -416,7 +416,7 @@ const OwnerTourPage = () => {
               </p>
               {sceneDangDat && (
                 <button onClick={() => setSceneDangDat(null)}
-                  className="px-2.5 py-1 rounded-lg border border-line text-ink-soft text-xs font-bold hover:bg-sunken">
+                  className="px-2.5 py-1 border border-line text-ink-soft text-xs font-bold hover:bg-sunken">
                   Thôi đặt
                 </button>
               )}
@@ -433,7 +433,7 @@ const OwnerTourPage = () => {
                 doiViTri(sceneDangDat, 'x', String(x))
                 doiViTri(sceneDangDat, 'y', String(y))
               }}
-              className={`relative w-full rounded-xl overflow-hidden border ${sceneDangDat ? 'border-brand cursor-crosshair' : 'border-line'}`}
+              className={`relative w-full overflow-hidden border ${sceneDangDat ? 'border-ink cursor-crosshair' : 'border-line'}`}
               style={{ aspectRatio: '16 / 9' }}
             >
               <img src={tour.floorPlanImageUrl} alt="Mặt bằng phòng trà"
@@ -447,7 +447,7 @@ const OwnerTourPage = () => {
                   <span key={sc.id}
                     title={sc.name || `Scene #${sc.id}`}
                     className={`absolute -translate-x-1/2 -translate-y-1/2 px-1.5 py-0.5 rounded-md text-[10px] font-bold whitespace-nowrap ${
-                      dangNham ? 'bg-brand text-on-brand ring-2 ring-line-strong/50' : 'bg-espresso/80 text-brand-on-dark border border-brand/50'
+                      dangNham ? 'bg-ink text-lamp ring-2 ring-line-strong/50' : 'bg-ink/80 text-stock border border-ink/50'
                     }`}
                     style={{ left: `${o.x}%`, top: `${o.y}%` }}>
                     {sc.name || `#${sc.id}`}
@@ -469,7 +469,7 @@ const OwnerTourPage = () => {
         ) : (
           <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {scenes.map((sc) => (
-              <li key={sc.id} className="bg-sunken/70 border border-line rounded-lg overflow-hidden">
+              <li key={sc.id} className="bg-sunken/70 border border-line overflow-hidden">
                 {sc.imageUrl && <img src={sc.imageUrl} alt="" className="w-full h-32 object-cover" />}
                 <div className="p-3">
                   <p className="text-sm text-ink font-medium truncate">{sc.name || `Scene #${sc.id}`}</p>
@@ -478,11 +478,11 @@ const OwnerTourPage = () => {
                   </p>
                   <div className="mt-2 flex gap-2">
                     <button onClick={() => setHotspotOf(sc)}
-                      className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-line text-ink-soft text-xs font-bold hover:bg-sunken">
+                      className="flex items-center gap-1.5 px-2.5 py-1.5 border border-line text-ink-soft text-xs font-bold hover:bg-sunken">
                       <Link2 size={12} /> Hotspot
                     </button>
                     <button onClick={() => setXoaScene(sc)}
-                      className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-line text-danger text-xs font-bold hover:bg-red-500/10">
+                      className="flex items-center gap-1.5 px-2.5 py-1.5 border border-line text-danger text-xs font-bold hover:bg-danger/10">
                       <Trash2 size={12} /> Xoá
                     </button>
                   </div>
@@ -499,24 +499,24 @@ const OwnerTourPage = () => {
                           <input type="number" step="any" min="0" max="100"
                             value={(viTri[sc.id] ?? {})[truc] ?? ''}
                             onChange={(e) => doiViTri(sc.id, truc, e.target.value)}
-                            className="mt-1 w-full px-2 py-1.5 bg-page border border-line rounded-md text-xs text-ink focus:outline-none focus:border-brand/50 tabular-nums" />
+                            className="mt-1 w-full px-2 py-1.5 bg-page border border-line rounded-md text-xs text-ink focus:outline-none focus:border-ink/50 tabular-nums" />
                         </div>
                       ))}
                       <button onClick={() => luuViTri(sc.id)} disabled={busyViTri === sc.id}
-                        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-line text-ink-soft text-xs font-bold hover:bg-sunken disabled:opacity-50">
+                        className="flex items-center gap-1.5 px-2.5 py-1.5 border border-line text-ink-soft text-xs font-bold hover:bg-sunken disabled:opacity-50">
                         {busyViTri === sc.id ? <Loader2 size={12} className="animate-spin" /> : <Save size={12} />} Lưu
                       </button>
                       <button onClick={() => { doiViTri(sc.id, 'x', ''); doiViTri(sc.id, 'y', '') }}
                         disabled={busyViTri === sc.id}
                         title="Xoá trống cả hai ô rồi bấm Lưu để xoá chấm định vị"
-                        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-line text-ink-mute text-xs font-bold hover:bg-sunken disabled:opacity-50">
+                        className="flex items-center gap-1.5 px-2.5 py-1.5 border border-line text-ink-mute text-xs font-bold hover:bg-sunken disabled:opacity-50">
                         <Eraser size={12} />
                       </button>
                       {tour?.floorPlanImageUrl && (
                         <button onClick={() => setSceneDangDat(sceneDangDat === sc.id ? null : sc.id)}
-                          className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-xs font-bold ${
+                          className={`flex items-center gap-1.5 px-2.5 py-1.5 border text-xs font-bold ${
                             sceneDangDat === sc.id
-                              ? 'border-brand bg-brand/10 text-brand-text'
+                              ? 'border-ink bg-ink/10 text-ink'
                               : 'border-line text-ink-soft hover:bg-sunken'
                           }`}>
                           <MapPin size={12} /> {sceneDangDat === sc.id ? 'Đang nhắm' : 'Đặt trên bản đồ'}
@@ -532,7 +532,7 @@ const OwnerTourPage = () => {
       </div>
 
       {/* === GHÉP ẢNH THÀNH 360° === */}
-      <div className="bg-card border border-line rounded-xl p-6">
+      <div className="bg-card border border-line p-6">
         <h2 className="text-base font-semibold text-ink flex items-center gap-2">
           <Layers size={16} /> Ghép ảnh thường thành ảnh 360°
         </h2>
@@ -542,13 +542,13 @@ const OwnerTourPage = () => {
         </p>
 
         {donGhep ? (
-          <div className="mt-4 bg-sunken/70 border border-line rounded-lg p-4">
+          <div className="mt-4 bg-sunken/70 border border-line p-4">
             <p className="text-sm text-ink flex items-center gap-2">
               <Clock size={14} className="text-warning" /> Đơn ghép #{donGhep.id} — {donGhep.status}
             </p>
             {donGhep.errorMessage && <p className="text-xs text-danger mt-1">{donGhep.errorMessage}</p>}
             <button onClick={kiemTraDonGhep} disabled={busy !== null}
-              className="mt-3 flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-line text-ink-soft text-xs font-bold hover:bg-sunken disabled:opacity-50">
+              className="mt-3 flex items-center gap-1.5 px-3 py-1.5 border border-line text-ink-soft text-xs font-bold hover:bg-sunken disabled:opacity-50">
               {busy === 'check' ? <Loader2 size={13} className="animate-spin" /> : <RefreshCw size={13} />} Kiểm tra
             </button>
           </div>
@@ -557,7 +557,7 @@ const OwnerTourPage = () => {
             {anhGhep.length > 0 && (
               <div className="flex flex-wrap gap-2">
                 {anhGhep.map((url, i) => (
-                  <span key={url} className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-page border border-line text-xs text-ink-soft">
+                  <span key={url} className="inline-flex items-center gap-1.5 px-2.5 py-1.5 bg-page border border-line text-xs text-ink-soft">
                     Ảnh {i + 1}
                     <button onClick={() => setAnhGhep((p) => p.filter((u) => u !== url))}
                       className="text-ink-mute hover:text-danger"><X size={12} /></button>
@@ -566,14 +566,14 @@ const OwnerTourPage = () => {
               </div>
             )}
             <div className="flex flex-wrap gap-2">
-              <label className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-line text-ink-soft text-xs font-bold hover:bg-sunken cursor-pointer">
+              <label className="inline-flex items-center gap-2 px-3 py-1.5 border border-line text-ink-soft text-xs font-bold hover:bg-sunken cursor-pointer">
                 {busy === 'upload-ghep' ? <Loader2 size={13} className="animate-spin" /> : <Upload size={13} />}
                 Thêm ảnh nguồn
                 <input type="file" accept="image/*" className="hidden" disabled={busy !== null}
                   onChange={(e) => themAnhGhep(e.target.files?.[0])} />
               </label>
               <button onClick={ghepScene} disabled={busy !== null || anhGhep.length < 2}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand text-on-brand text-xs font-bold hover:bg-brand-hover disabled:opacity-40 disabled:cursor-not-allowed">
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-ink text-lamp text-xs font-bold hover:bg-board disabled:opacity-40 disabled:cursor-not-allowed">
                 {busy === 'ghep' ? <Loader2 size={13} className="animate-spin" /> : <Layers size={13} />}
                 Ghép thành scene ({anhGhep.length} ảnh)
               </button>
@@ -588,7 +588,7 @@ const OwnerTourPage = () => {
       </div>
 
       {/* === MÔ HÌNH 3D === */}
-      <div className="bg-card border border-line rounded-xl p-6">
+      <div className="bg-card border border-line p-6">
         <h2 className="text-base font-semibold text-ink flex items-center gap-2">
           <Box size={16} /> Mô hình 3D không gian
         </h2>
@@ -598,7 +598,7 @@ const OwnerTourPage = () => {
         {lounge.model3DUrl && (
           <p className="text-xs text-success mt-2">Đã có mô hình 3D.</p>
         )}
-        <label className="mt-3 inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-line text-ink-soft text-sm font-medium hover:bg-sunken cursor-pointer">
+        <label className="mt-3 inline-flex items-center gap-2 px-4 py-2 border border-line text-ink-soft text-sm font-medium hover:bg-sunken cursor-pointer">
           {busy === 'model' ? <Loader2 size={16} className="animate-spin" /> : <Upload size={16} />}
           {lounge.model3DUrl ? 'Đổi mô hình' : 'Tải mô hình lên'}
           <input type="file" accept=".glb,.gltf" className="hidden" disabled={busy !== null}

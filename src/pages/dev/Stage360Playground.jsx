@@ -69,7 +69,7 @@ const Stage360Playground = () => {
           scenes={scenes}
           autoRotate={false}
           videoScreen={{ video, yaw: stageHotspot?.yaw ?? 0, pitch: stageHotspot?.pitch ?? 0, widthDeg: 40, placeholder: 'Buổi diễn sắp bắt đầu' }}
-          className="w-full aspect-video rounded-2xl border border-line"
+          className="w-full aspect-video border border-line"
         />
       )}
     </div>

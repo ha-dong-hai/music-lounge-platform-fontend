@@ -13,9 +13,8 @@
    HAI BỘ TỪ VỰNG, KHÔNG TRỘN (chủ dự án 30/09: "thiết kế cũ đừng để bị trộn lẫn hay ảnh hưởng"):
    - TỪ VỰNG MỚI (dưới "Thế giới tờ chương trình"): stock, ink*, board*, lamp*, stamp, ember + nền cấu trúc page/card/
      sunken/line + trạng thái danger/success/warning. Mọi file ĐÃ CHUYỂN chỉ được dùng bộ này.
-   - TỪ VỰNG CŨ (brand*, on-brand, espresso*, cream*): chỉ còn để các trang CHƯA làm lại không vỡ màu trong lúc chuyển.
-     File đã chuyển mà dùng tên cũ thì `npm run kiem:the-gioi` báo ĐỎ. Trần giới hạn: tồn tại tới khi danh sách nợ
-     của máy kiểm về 0 — khi đó XOÁ cả khối này (đường nâng cấp đã định, không phải tuỳ chọn).
+   - TỪ VỰNG CŨ (brand*, on-brand, espresso*, cream*): ĐÃ XOÁ 30/09/2026 khi nợ của `npm run kiem:the-gioi` về 0 (cổng
+     nay quét toàn bộ src/). Dùng lại một tên cũ thì lớp Tailwind không sinh ra và cổng báo ĐỎ.
    Mọi cặp chữ/nền dưới đây đã tính bằng máy đạt WCAG 2.2 AA (chữ thường >= 4.5:1, 31/31 cặp — đo lại 30/09 với bảng màu Sơn then và lụa ngà).
    KHÔNG viết mã màu hex hay lớp bg-gray, bg-black trong component — dùng token này. */
 @theme {
@@ -30,17 +29,6 @@
   --color-ink-soft: #4A3E35;
   --color-ink-mute: #65584D;
 
-  /* ── TỪ VỰNG CŨ — chỉ cho trang chưa chuyển; CẤM trong file đã chuyển (scripts/kiem-the-gioi.mjs) ── */
-  --color-brand: #231A15;         /* nền nút chính: khối mực */
-  --color-brand-hover: #14110F;
-  --color-brand-text: #231A15;    /* chữ/icon nhấn trên nền sáng */
-  --color-on-brand: #F2EAE0;
-
-  --color-espresso: #231A15;      /* khối đậm có chủ đích: chân trang, thanh bên */
-  --color-espresso-soft: #1F1A16;
-  --color-cream: #F2EAE0;         /* chữ sáng trên khối mực */
-  --color-cream-mute: #B3A899;    /* chữ phụ trên khối mực */
-  --color-brand-on-dark: #F3EEE6; /* chữ lụa ngà trên khối mực */
 
   --color-danger: #B3261E;
   --color-success: #2F7A4F;

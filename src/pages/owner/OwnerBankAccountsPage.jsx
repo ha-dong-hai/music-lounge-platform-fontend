@@ -20,7 +20,7 @@ import { getBankAccounts, createBankAccount, updateBankAccount } from '../../ser
 import { getLounges } from '../../services/loungeServices'
 import { getMyPerformers } from '../../services/performerServices'
 
-const inputCls = 'mt-1 w-full px-3 py-2 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-brand/50'
+const inputCls = 'mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink focus:outline-none focus:border-ink/50'
 
 const AccountFormModal = ({ initial, chuSoHuu, onClose, onSaved }) => {
   const isEdit = !!initial
@@ -67,11 +67,11 @@ const AccountFormModal = ({ initial, chuSoHuu, onClose, onSaved }) => {
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-espresso/80 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-card border border-line rounded-2xl w-full max-w-md shadow-2xl">
+      <div className="absolute inset-0 bg-ink/80" onClick={onClose} />
+      <div className="relative bg-card border border-line w-full max-w-md shadow-soft">
         <div className="flex justify-between items-center p-5 border-b border-line">
           <h2 className="text-lg font-bold text-ink">{isEdit ? 'Sửa tài khoản' : 'Thêm tài khoản nhận tiền'}</h2>
-          <button onClick={onClose} disabled={isBusy} className="p-2 hover:bg-sunken rounded-full text-ink-soft disabled:opacity-30">
+          <button onClick={onClose} disabled={isBusy} className="p-2 hover:bg-sunken text-ink-soft disabled:opacity-30">
             <X size={20} />
           </button>
         </div>
@@ -93,17 +93,17 @@ const AccountFormModal = ({ initial, chuSoHuu, onClose, onSaved }) => {
             </p>
           </div>
           <label className="flex items-center gap-2 text-sm text-ink-soft cursor-pointer">
-            <input type="checkbox" checked={form.isDefault} onChange={(e) => set('isDefault', e.target.checked)} className="accent-brand" />
+            <input type="checkbox" checked={form.isDefault} onChange={(e) => set('isDefault', e.target.checked)} className="accent-ink" />
             Dùng làm tài khoản mặc định
           </label>
 
           <div className="flex gap-3 pt-2">
             <button type="button" onClick={onClose} disabled={isBusy}
-              className="flex-1 py-2.5 border border-line-strong text-ink-soft rounded-lg font-medium hover:bg-sunken disabled:opacity-50">
+              className="flex-1 py-2.5 border border-line-strong text-ink-soft font-medium hover:bg-sunken disabled:opacity-50">
               Huỷ
             </button>
             <button type="submit" disabled={isBusy}
-              className="flex-1 py-2.5 bg-brand text-on-brand rounded-lg font-bold hover:bg-brand-hover flex items-center justify-center gap-2 disabled:opacity-50">
+              className="flex-1 py-2.5 bg-ink text-lamp font-bold hover:bg-board flex items-center justify-center gap-2 disabled:opacity-50">
               {isBusy && <Loader2 size={16} className="animate-spin" />}
               {isBusy ? 'Đang lưu...' : 'Lưu'}
             </button>
@@ -167,14 +167,14 @@ const OwnerBankAccountsPage = () => {
   useEffect(() => { const chay = async () => { await loadAccounts() }; chay() }, [loadAccounts])
 
   if (isLoading) {
-    return <div className="py-20 flex justify-center"><Loader2 size={32} className="animate-spin text-brand-text" /></div>
+    return <div className="py-20 flex justify-center"><Loader2 size={32} className="animate-spin text-ink" /></div>
   }
 
   if (!lounge) {
     return (
       <div className="max-w-2xl">
         <h1 className="text-2xl font-bold text-ink mb-1">Tài khoản nhận tiền</h1>
-        <div className="mt-4 bg-card border border-line rounded-xl p-6">
+        <div className="mt-4 bg-card border border-line p-6">
           <p className="text-sm text-ink-soft">
             Bạn chưa có phòng trà. Hãy tạo hồ sơ phòng trà trước — tài khoản nhận tiền gắn với phòng trà,
             không gắn với tài khoản đăng nhập.
@@ -205,8 +205,8 @@ const OwnerBankAccountsPage = () => {
           const dangChon = chuSoHuu?.type === o.type && chuSoHuu?.id === o.id
           return (
             <button key={`${o.type}-${o.id}`} onClick={() => setChuSoHuu(o)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${dangChon
-                ? 'bg-sunken border-brand/40 text-brand-text'
+              className={`px-3 py-1.5 text-xs font-medium border transition-colors ${dangChon
+                ? 'bg-sunken border-ink/40 text-ink'
                 : 'bg-page border-line text-ink-soft hover:text-ink'}`}>
               {o.label}
             </button>
@@ -214,38 +214,38 @@ const OwnerBankAccountsPage = () => {
         })}
       </div>
 
-      <div className="bg-card border border-line rounded-xl p-6">
+      <div className="bg-card border border-line p-6">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-base font-semibold text-ink">{chuSoHuu?.label}</h2>
           <button onClick={() => setEditing(null)}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-brand text-on-brand rounded-lg text-xs font-bold hover:bg-brand-hover">
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-ink text-lamp text-xs font-bold hover:bg-board">
             <Plus size={14} /> Thêm tài khoản
           </button>
         </div>
 
         {isLoadingList ? (
-          <div className="py-10 flex justify-center"><Loader2 size={24} className="animate-spin text-brand-text" /></div>
+          <div className="py-10 flex justify-center"><Loader2 size={24} className="animate-spin text-ink" /></div>
         ) : accounts.length === 0 ? (
           <p className="py-10 text-center text-sm text-ink-mute">Chưa có tài khoản nào cho mục này.</p>
         ) : (
           <ul className="space-y-3">
             {accounts.map((a) => (
-              <li key={a.id} className="flex items-start justify-between gap-4 bg-sunken/70 border border-line rounded-lg p-4">
+              <li key={a.id} className="flex items-start justify-between gap-4 bg-sunken/70 border border-line p-4">
                 <div className="min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
                     <Landmark size={16} className="text-ink-mute flex-shrink-0" />
                     <span className="text-ink font-medium">{a.bankName}</span>
                     {a.isDefault && (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-brand/10 text-brand-text text-xs font-medium">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-ink/10 text-ink text-xs font-medium">
                         <Star size={11} /> Mặc định
                       </span>
                     )}
                     {a.isVerified ? (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-green-500/10 text-success text-xs font-medium">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-success/10 text-success text-xs font-medium">
                         <ShieldCheck size={11} /> Đã duyệt
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-yellow-500/10 text-warning text-xs font-medium">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-warning/10 text-warning text-xs font-medium">
                         <ShieldAlert size={11} /> Chờ Admin duyệt
                       </span>
                     )}
@@ -263,7 +263,7 @@ const OwnerBankAccountsPage = () => {
                 </div>
 
                 <button onClick={() => setEditing(a)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-line text-ink-soft text-xs font-bold hover:bg-sunken flex-shrink-0">
+                  className="flex items-center gap-1.5 px-3 py-1.5 border border-line text-ink-soft text-xs font-bold hover:bg-sunken flex-shrink-0">
                   <Pencil size={14} /> Sửa
                 </button>
               </li>

@@ -47,6 +47,9 @@ const DA_CHUYEN = [
   'src/pages/user/TicketDetailPage.jsx',
   'src/pages/payment',
   'src/components/shared/HopXacNhan.jsx',
+  // 30/09 (dem): toan bo phan con lai — man van hanh (chu phong tra, nhan vien, Admin), tai khoan, livestream, trang
+  // cong khai. Chuyen co hoc (doi_ten_token, bo_hinh_cu, doi_mau_mac_dinh) + sua tay, roi chup lai de xem.
+  'src',
 ]
 
 const TIEN_TO = '(?:bg|text|border|ring|outline|from|to|via|decoration|fill|stroke|divide|shadow|caret|accent|placeholder|ring-offset)(?:-[trblxy])?'

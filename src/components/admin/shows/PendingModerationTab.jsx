@@ -10,9 +10,9 @@ import { FormatBadge } from './ShowBadges'
 const AIScoreCircle = ({ score }) => {
   if (score === null || score === undefined) return <div className="text-ink-mute text-sm">N/A</div>
   const numScore = Math.round(score * 100)
-  const colorClass = numScore >= 70 ? 'border-green-500 text-success' : numScore >= 40 ? 'border-yellow-500 text-warning' : 'border-red-500 text-danger'
+  const colorClass = numScore >= 70 ? 'border-success text-success' : numScore >= 40 ? 'border-warning text-warning' : 'border-danger text-danger'
   return (
-    <div className={`w-10 h-10 flex items-center justify-center rounded-full border-2 font-bold text-sm ${colorClass}`}>
+    <div className={`w-10 h-10 flex items-center justify-center border-2 font-bold text-sm ${colorClass}`}>
       {numScore}
     </div>
   )
@@ -20,15 +20,15 @@ const AIScoreCircle = ({ score }) => {
 
 const RiskLevelBadge = ({ level }) => {
   const styles = {
-    Low: 'bg-green-500/10 text-success border-green-500/20',
-    Medium: 'bg-yellow-500/10 text-warning border-yellow-500/20',
-    High: 'bg-orange-500/10 text-orange-700 border-orange-500/20',
-    Critical: 'bg-red-500/10 text-danger border-red-500/20',
+    Low: 'bg-success/10 text-success border-success/20',
+    Medium: 'bg-warning/10 text-warning border-warning/20',
+    High: 'bg-warning/10 text-warning border-warning/20',
+    Critical: 'bg-danger/10 text-danger border-danger/20',
   }
   const labels = { Low: 'Low', Medium: 'Medium', High: 'High', Critical: 'Critical' }
   if (!level) return <span className="text-xs text-ink-mute">Chưa chấm</span>
   return (
-    <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border ${styles[level]}`}>
+    <span className={`inline-flex items-center px-2.5 py-1 text-xs font-medium border ${styles[level]}`}>
       {labels[level] || level}
     </span>
   )
@@ -99,42 +99,42 @@ const PendingModerationTab = () => {
       <div className="flex gap-2 mb-4">
         <button
           onClick={() => handleTabChange('Show')}
-          className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors ${targetType === 'Show' ? 'bg-brand text-on-brand' : 'bg-card text-ink-soft hover:text-ink'}`}
+          className={`px-4 py-2 text-sm font-bold transition-colors ${targetType === 'Show' ? 'bg-ink text-lamp' : 'bg-card text-ink-soft hover:text-ink'}`}
         >
           Show
         </button>
         <button
           onClick={() => handleTabChange('Livestream')}
-          className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors ${targetType === 'Livestream' ? 'bg-brand text-on-brand' : 'bg-card text-ink-soft hover:text-ink'}`}
+          className={`px-4 py-2 text-sm font-bold transition-colors ${targetType === 'Livestream' ? 'bg-ink text-lamp' : 'bg-card text-ink-soft hover:text-ink'}`}
         >
           Livestream
         </button>
         <button
           onClick={() => handleTabChange('TicketTier')}
-          className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors ${targetType === 'TicketTier' ? 'bg-brand text-on-brand' : 'bg-card text-ink-soft hover:text-ink'}`}
+          className={`px-4 py-2 text-sm font-bold transition-colors ${targetType === 'TicketTier' ? 'bg-ink text-lamp' : 'bg-card text-ink-soft hover:text-ink'}`}
         >
           Hạng vé
         </button>
       </div>
 
-      <div className="bg-card border border-line rounded-xl overflow-hidden">
+      <div className="bg-card border border-line overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left whitespace-nowrap">
             <thead className="bg-sunken/80 border-b border-line">
               <tr>
-                <th className="p-4 text-brand-text font-semibold text-sm">{targetType} ({targetType} ID)</th>
-                <th className="p-4 text-brand-text font-semibold text-sm">Mức rủi ro</th>
-                <th className="p-4 text-brand-text font-semibold text-sm">Lý do gắn cờ</th>
-                <th className="p-4 text-brand-text font-semibold text-sm">Điểm AI</th>
-                <th className="p-4 text-brand-text font-semibold text-sm">Hạn duyệt</th>
-                <th className="p-4 text-brand-text font-semibold text-sm text-right">Thao tác</th>
+                <th className="p-4 text-ink font-semibold text-sm">{targetType} ({targetType} ID)</th>
+                <th className="p-4 text-ink font-semibold text-sm">Mức rủi ro</th>
+                <th className="p-4 text-ink font-semibold text-sm">Lý do gắn cờ</th>
+                <th className="p-4 text-ink font-semibold text-sm">Điểm AI</th>
+                <th className="p-4 text-ink font-semibold text-sm">Hạn duyệt</th>
+                <th className="p-4 text-ink font-semibold text-sm text-right">Thao tác</th>
               </tr>
             </thead>
             <tbody>
               {isLoading ? (
                 <tr>
                   <td colSpan="6" className="p-10 text-center text-ink-mute">
-                    <Loader2 size={24} className="mx-auto animate-spin text-brand-text" />
+                    <Loader2 size={24} className="mx-auto animate-spin text-ink" />
                   </td>
                 </tr>
               ) : items.length > 0 ? (
@@ -165,14 +165,14 @@ const PendingModerationTab = () => {
                           <button
                             onClick={() => handleReviewTier(item.targetId, 'Approved')}
                             disabled={busyId === item.targetId}
-                            className="inline-flex items-center gap-1.5 bg-green-500/10 border border-green-500/40 text-success px-3 py-1.5 rounded-md text-xs font-bold hover:bg-green-500/20 disabled:opacity-50"
+                            className="inline-flex items-center gap-1.5 bg-success/10 border border-success/40 text-success px-3 py-1.5 rounded-md text-xs font-bold hover:bg-success/20 disabled:opacity-50"
                           >
                             <Check size={14} /> Duyệt
                           </button>
                           <button
                             onClick={() => handleReviewTier(item.targetId, 'Rejected')}
                             disabled={busyId === item.targetId}
-                            className="inline-flex items-center gap-1.5 bg-red-500/10 border border-red-500/40 text-danger px-3 py-1.5 rounded-md text-xs font-bold hover:bg-red-500/20 disabled:opacity-50"
+                            className="inline-flex items-center gap-1.5 bg-danger/10 border border-danger/40 text-danger px-3 py-1.5 rounded-md text-xs font-bold hover:bg-danger/20 disabled:opacity-50"
                           >
                             <X size={14} /> Từ chối
                           </button>
@@ -180,7 +180,7 @@ const PendingModerationTab = () => {
                       ) : targetType === 'Show' ? (
                         <Link
                           to={`/admin/shows/${item.targetId}`}
-                          className="inline-flex items-center gap-1.5 bg-brand text-on-brand px-3 py-1.5 rounded-md text-xs font-bold hover:bg-brand-hover transition-colors"
+                          className="inline-flex items-center gap-1.5 bg-ink text-lamp px-3 py-1.5 rounded-md text-xs font-bold hover:bg-board transition-colors"
                         >
                           <Eye size={14} /> Review
                         </Link>
@@ -189,14 +189,14 @@ const PendingModerationTab = () => {
                           <button
                             onClick={() => handleReviewLivestream(item.targetId, 'Approved')}
                             disabled={busyId === item.targetId}
-                            className="inline-flex items-center gap-1.5 bg-green-500/10 border border-green-500/40 text-success px-3 py-1.5 rounded-md text-xs font-bold hover:bg-green-500/20 disabled:opacity-50"
+                            className="inline-flex items-center gap-1.5 bg-success/10 border border-success/40 text-success px-3 py-1.5 rounded-md text-xs font-bold hover:bg-success/20 disabled:opacity-50"
                           >
                             <Check size={14} /> Approve
                           </button>
                           <button
                             onClick={() => handleReviewLivestream(item.targetId, 'Rejected')}
                             disabled={busyId === item.targetId}
-                            className="inline-flex items-center gap-1.5 bg-red-500/10 border border-red-500/40 text-danger px-3 py-1.5 rounded-md text-xs font-bold hover:bg-red-500/20 disabled:opacity-50"
+                            className="inline-flex items-center gap-1.5 bg-danger/10 border border-danger/40 text-danger px-3 py-1.5 rounded-md text-xs font-bold hover:bg-danger/20 disabled:opacity-50"
                           >
                             <X size={14} /> Reject
                           </button>
@@ -225,14 +225,14 @@ const PendingModerationTab = () => {
               <button
                 onClick={() => setPagination(prev => ({ ...prev, page: prev.page - 1 }))}
                 disabled={pagination.page === 1}
-                className="p-2 rounded-md border border-line text-ink-soft hover:border-brand hover:text-brand-text disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                className="p-2 rounded-md border border-line text-ink-soft hover:border-ink hover:text-ink disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
               >
                 <ChevronLeft size={18} />
               </button>
               <button
                 onClick={() => setPagination(prev => ({ ...prev, page: prev.page + 1 }))}
                 disabled={pagination.page === pagination.totalPages}
-                className="p-2 rounded-md border border-line text-ink-soft hover:border-brand hover:text-brand-text disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                className="p-2 rounded-md border border-line text-ink-soft hover:border-ink hover:text-ink disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
               >
                 <ChevronRight size={18} />
               </button>

@@ -4,15 +4,15 @@ import { Building, Radio, Cast } from 'lucide-react'
 export const FormatBadge = ({ format }) => {
   const styles = {
     offline: 'bg-line-strong/10 text-ink-soft border-line-strong/20',
-    livestream: 'bg-purple-500/10 text-purple-700 border-purple-500/20',
-    hybrid: 'bg-blue-500/10 text-sky-700 border-blue-500/20',
+    livestream: 'bg-ink/10 text-ink border-ink/20',
+    hybrid: 'bg-ink/10 text-ink border-ink/20',
   }
   const icons = { offline: <Building size={12} />, livestream: <Radio size={12} />, hybrid: <Cast size={12} /> }
   const labels = { offline: 'Tại chỗ', livestream: 'Livestream', hybrid: 'Kết hợp' }
   const key = format ? format.toLowerCase() : 'offline'
   if (!labels[key]) return null
   return (
-    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs border ${styles[key]}`}>
+    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-xs border ${styles[key]}`}>
       {icons[key]}{labels[key]}
     </span>
   )
@@ -20,12 +20,12 @@ export const FormatBadge = ({ format }) => {
 
 export const StatusBadge = ({ status }) => {
   const styles = {
-    published: 'bg-green-500/10 text-success border-green-500/20',
-    ongoing: 'bg-blue-500/10 text-sky-700 border-blue-500/20',
+    published: 'bg-success/10 text-success border-success/20',
+    ongoing: 'bg-ink/10 text-ink border-ink/20',
     draft: 'bg-line-strong/10 text-ink-soft border-line-strong/20',
-    pending: 'bg-yellow-500/10 text-warning border-yellow-500/30',
-    ended: 'bg-red-500/10 text-danger border-red-500/20',
-    cancelled: 'bg-red-500/10 text-danger border-red-500/20',
+    pending: 'bg-warning/10 text-warning border-warning/30',
+    ended: 'bg-danger/10 text-danger border-danger/20',
+    cancelled: 'bg-danger/10 text-danger border-danger/20',
   }
   // Đủ 6 giá trị LoungeShowStatus của backend (Draft, Pending, Published, Ongoing, Ended, Cancelled).
   // Badge DÙNG CHUNG cho mọi màn hiện trạng thái buổi diễn — đừng viết lại một bảng nhãn khác
@@ -33,7 +33,7 @@ export const StatusBadge = ({ status }) => {
   const labels = { published: 'Đã xuất bản', ongoing: 'Đang diễn ra', draft: 'Bản nháp', pending: 'Chờ duyệt', ended: 'Đã kết thúc', cancelled: 'Đã huỷ' }
   const key = status ? status.toLowerCase() : 'draft'
   return (
-    <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border ${styles[key] || styles.draft}`}>
+    <span className={`inline-flex items-center px-2.5 py-1 text-xs font-medium border ${styles[key] || styles.draft}`}>
       {labels[key] || status}
     </span>
   )
@@ -57,9 +57,9 @@ export const AIScoreCircle = ({ score }) => {
     )
   }
   const numScore = Math.round(score * 100)
-  const colorClass = numScore >= 70 ? 'border-green-500 text-success' : numScore >= 40 ? 'border-yellow-500 text-warning' : 'border-red-500 text-danger'
+  const colorClass = numScore >= 70 ? 'border-success text-success' : numScore >= 40 ? 'border-warning text-warning' : 'border-danger text-danger'
   return (
-    <div className={`w-10 h-10 flex items-center justify-center rounded-full border-2 font-bold text-sm ${colorClass}`}>
+    <div className={`w-10 h-10 flex items-center justify-center border-2 font-bold text-sm ${colorClass}`}>
       {numScore}
     </div>
   )
@@ -67,15 +67,15 @@ export const AIScoreCircle = ({ score }) => {
 
 export const RiskLevelBadge = ({ level }) => {
   const styles = {
-    Low: 'bg-green-500/10 text-success border-green-500/20',
-    Medium: 'bg-yellow-500/10 text-warning border-yellow-500/20',
-    High: 'bg-orange-500/10 text-orange-700 border-orange-500/20',
-    Critical: 'bg-red-500/10 text-danger border-red-500/20',
+    Low: 'bg-success/10 text-success border-success/20',
+    Medium: 'bg-warning/10 text-warning border-warning/20',
+    High: 'bg-warning/10 text-warning border-warning/20',
+    Critical: 'bg-danger/10 text-danger border-danger/20',
   }
   const labels = { Low: 'Thấp', Medium: 'Trung bình', High: 'Cao', Critical: 'Nghiêm trọng' }
   if (!level) return <span className="text-xs text-ink-mute">Chưa chấm</span>
   return (
-    <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border ${styles[level]}`}>
+    <span className={`inline-flex items-center px-2.5 py-1 text-xs font-medium border ${styles[level]}`}>
       {labels[level] || level}
     </span>
   )
@@ -83,9 +83,9 @@ export const RiskLevelBadge = ({ level }) => {
 
 export const AiRecommendationBadge = ({ recommendation }) => {
   const styles = {
-    SuggestApprove: 'bg-green-500/10 text-success border-green-500/20',
-    SuggestReject: 'bg-red-500/10 text-danger border-red-500/20',
-    SuggestManualReview: 'bg-yellow-500/10 text-warning border-yellow-500/20',
+    SuggestApprove: 'bg-success/10 text-success border-success/20',
+    SuggestReject: 'bg-danger/10 text-danger border-danger/20',
+    SuggestManualReview: 'bg-warning/10 text-warning border-warning/20',
   }
   const labels = {
     SuggestApprove: 'Nên duyệt',
@@ -94,7 +94,7 @@ export const AiRecommendationBadge = ({ recommendation }) => {
   }
   if (!recommendation) return <span className="text-xs text-ink-mute">—</span>
   return (
-    <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border ${styles[recommendation] || 'bg-line-strong/10 text-ink-soft border-line-strong/20'}`}>
+    <span className={`inline-flex items-center px-2.5 py-1 text-xs font-medium border ${styles[recommendation] || 'bg-line-strong/10 text-ink-soft border-line-strong/20'}`}>
       {labels[recommendation] || recommendation}
     </span>
   )

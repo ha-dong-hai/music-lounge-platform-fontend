@@ -46,11 +46,11 @@ const EditModal = ({ config, onClose, onSaved }) => {
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-espresso/80 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-card border border-line rounded-2xl w-full max-w-md shadow-2xl">
+      <div className="absolute inset-0 bg-ink/80" onClick={onClose} />
+      <div className="relative bg-card border border-line w-full max-w-md shadow-soft">
         <div className="flex justify-between items-center p-5 border-b border-line">
           <h2 className="text-lg font-bold text-ink truncate">{config.configKey}</h2>
-          <button onClick={onClose} disabled={isBusy} className="p-2 hover:bg-sunken rounded-full text-ink-soft disabled:opacity-30 flex-shrink-0">
+          <button onClick={onClose} disabled={isBusy} className="p-2 hover:bg-sunken text-ink-soft disabled:opacity-30 flex-shrink-0">
             <X size={20} />
           </button>
         </div>
@@ -61,7 +61,7 @@ const EditModal = ({ config, onClose, onSaved }) => {
           )}
 
           {config.isMoneyRate && (
-            <p className="text-xs text-warning flex items-start gap-1.5 leading-relaxed bg-yellow-500/5 border border-yellow-500/30 rounded-lg p-3">
+            <p className="text-xs text-warning flex items-start gap-1.5 leading-relaxed bg-warning/5 border border-warning/30 p-3">
               <AlertTriangle size={13} className="mt-px flex-shrink-0" />
               Tham số này thuộc nhóm tỉ lệ tiền và có ràng buộc chéo với các tỉ lệ khác. Backend có thể từ chối
               nếu tổng vượt ngưỡng cho phép.
@@ -70,7 +70,7 @@ const EditModal = ({ config, onClose, onSaved }) => {
 
           <div>
             <label className="text-xs text-ink-mute">Giá trị hiện tại</label>
-            <p className="mt-1 px-3 py-2 bg-sunken border border-line rounded-lg text-sm text-ink-soft tabular-nums">
+            <p className="mt-1 px-3 py-2 bg-sunken border border-line text-sm text-ink-soft tabular-nums">
               {config.configValue}
             </p>
           </div>
@@ -81,23 +81,23 @@ const EditModal = ({ config, onClose, onSaved }) => {
               <span className="text-ink-mute"> · kiểu {config.dataType}</span>
             </label>
             <input value={configValue} onChange={(e) => setConfigValue(e.target.value)}
-              className="mt-1 w-full px-3 py-2 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-brand/50 tabular-nums" />
+              className="mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink focus:outline-none focus:border-ink/50 tabular-nums" />
           </div>
 
           <div>
             <label className="text-xs text-ink-mute">Lý do thay đổi <span className="text-danger">*</span></label>
             <textarea value={note} onChange={(e) => setNote(e.target.value)} rows={3}
-              className="mt-1 w-full px-3 py-2 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-brand/50 resize-none"
+              className="mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink focus:outline-none focus:border-ink/50 resize-none"
               placeholder="Vì sao đổi, theo quyết định nào. Nội dung này lưu vĩnh viễn trong lịch sử." />
           </div>
 
           <div className="flex gap-3">
             <button type="button" onClick={onClose} disabled={isBusy}
-              className="flex-1 py-2.5 border border-line-strong text-ink-soft rounded-lg font-medium hover:bg-sunken disabled:opacity-50">
+              className="flex-1 py-2.5 border border-line-strong text-ink-soft font-medium hover:bg-sunken disabled:opacity-50">
               Huỷ
             </button>
             <button type="submit" disabled={isBusy}
-              className="flex-1 py-2.5 bg-brand text-on-brand rounded-lg font-bold flex items-center justify-center gap-2 disabled:opacity-50">
+              className="flex-1 py-2.5 bg-ink text-lamp font-bold flex items-center justify-center gap-2 disabled:opacity-50">
               {isBusy ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />} Lưu
             </button>
           </div>
@@ -128,22 +128,22 @@ const HistoryModal = ({ configKey, onClose }) => {
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-espresso/80 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-card border border-line rounded-2xl w-full max-w-lg shadow-2xl max-h-[90vh] flex flex-col">
+      <div className="absolute inset-0 bg-ink/80" onClick={onClose} />
+      <div className="relative bg-card border border-line w-full max-w-lg shadow-soft max-h-[90vh] flex flex-col">
         <div className="flex justify-between items-center p-5 border-b border-line">
           <h2 className="text-lg font-bold text-ink truncate">Lịch sử: {configKey}</h2>
-          <button onClick={onClose} className="p-2 hover:bg-sunken rounded-full text-ink-soft flex-shrink-0"><X size={20} /></button>
+          <button onClick={onClose} className="p-2 hover:bg-sunken text-ink-soft flex-shrink-0"><X size={20} /></button>
         </div>
 
         <div className="p-5 overflow-y-auto">
           {isLoading ? (
-            <div className="py-10 flex justify-center"><Loader2 size={24} className="animate-spin text-brand-text" /></div>
+            <div className="py-10 flex justify-center"><Loader2 size={24} className="animate-spin text-ink" /></div>
           ) : rows.length === 0 ? (
             <p className="text-sm text-ink-mute text-center py-8">Tham số này chưa từng bị đổi.</p>
           ) : (
             <ul className="space-y-3">
               {rows.map((h) => (
-                <li key={h.id} className="bg-sunken/70 border border-line rounded-lg p-3">
+                <li key={h.id} className="bg-sunken/70 border border-line p-3">
                   <div className="flex items-center gap-2 text-sm tabular-nums">
                     <span className="text-ink-mute line-through">{h.oldValue ?? '—'}</span>
                     <span className="text-ink-mute">→</span>
@@ -169,9 +169,9 @@ const HistoryModal = ({ configKey, onClose }) => {
 const GapRow = ({ gap }) => {
   const vo = gap.severity === 'Broken'
   return (
-    <div className={`p-4 rounded-lg border ${vo ? 'border-red-500/30 bg-red-500/5' : 'border-yellow-500/25 bg-yellow-500/5'}`}>
+    <div className={`p-4 border ${vo ? 'border-danger/30 bg-danger/5' : 'border-warning/25 bg-warning/5'}`}>
       <div className="flex flex-wrap items-center gap-2">
-        <span className={`px-2 py-0.5 rounded-md text-xs font-bold ${vo ? 'bg-red-500/15 text-danger' : 'bg-yellow-500/15 text-warning'}`}>
+        <span className={`px-2 py-0.5 rounded-md text-xs font-bold ${vo ? 'bg-danger/15 text-danger' : 'bg-warning/15 text-warning'}`}>
           {vo ? 'Không dùng được' : 'Chạy thiếu lớp'}
         </span>
         <p className="text-sm text-ink font-medium">{gap.feature}</p>
@@ -207,7 +207,7 @@ const AdminSystemConfigPage = () => {
   useEffect(() => { const chay = async () => { await load() }; chay() }, [load])
 
   if (isLoading) {
-    return <div className="py-20 flex justify-center"><Loader2 size={32} className="animate-spin text-brand-text" /></div>
+    return <div className="py-20 flex justify-center"><Loader2 size={32} className="animate-spin text-ink" /></div>
   }
 
   const tienTe = configs.filter((c) => c.isMoneyRate)
@@ -239,11 +239,11 @@ const AdminSystemConfigPage = () => {
               <td className="py-3 align-top">
                 <div className="flex gap-1 justify-end">
                   <button onClick={() => setHistoryKey(c.configKey)} title="Lịch sử thay đổi"
-                    className="p-2 rounded-lg text-ink-soft hover:bg-sunken">
+                    className="p-2 text-ink-soft hover:bg-sunken">
                     <History size={14} />
                   </button>
                   <button onClick={() => setEditing(c)} title="Sửa"
-                    className="px-3 py-1.5 rounded-lg border border-line text-ink-soft text-xs font-bold hover:bg-sunken">
+                    className="px-3 py-1.5 border border-line text-ink-soft text-xs font-bold hover:bg-sunken">
                     Sửa
                   </button>
                 </div>
@@ -266,7 +266,7 @@ const AdminSystemConfigPage = () => {
       </div>
 
       {/* CẤU HÌNH HẠ TẦNG CÒN THIẾU — chỉ đọc, sửa ở biến môi trường của server chứ không ở đây */}
-      <div className="bg-card border border-line rounded-xl p-6">
+      <div className="bg-card border border-line p-6">
         <h2 className="text-base font-semibold text-ink flex items-center gap-2">
           <PlugZap size={16} /> Cấu hình hạ tầng
         </h2>
@@ -295,7 +295,7 @@ const AdminSystemConfigPage = () => {
       </div>
 
       {tienTe.length > 0 && (
-        <div className="bg-card border border-line rounded-xl p-6">
+        <div className="bg-card border border-line p-6">
           <h2 className="text-base font-semibold text-ink flex items-center gap-2">
             <Coins size={16} className="text-warning" /> Tỉ lệ tiền
           </h2>
@@ -307,7 +307,7 @@ const AdminSystemConfigPage = () => {
       )}
 
       {conLai.length > 0 && (
-        <div className="bg-card border border-line rounded-xl p-6">
+        <div className="bg-card border border-line p-6">
           <h2 className="text-base font-semibold text-ink flex items-center gap-2">
             <SlidersHorizontal size={16} /> Tham số khác
           </h2>
@@ -316,7 +316,7 @@ const AdminSystemConfigPage = () => {
       )}
 
       {configs.length === 0 && (
-        <div className="bg-card border border-line rounded-xl p-10 text-center">
+        <div className="bg-card border border-line p-10 text-center">
           <p className="text-sm text-ink-mute">Không có tham số nào.</p>
         </div>
       )}

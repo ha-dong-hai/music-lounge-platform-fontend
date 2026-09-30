@@ -23,16 +23,16 @@ const ComplaintDetailModal = ({ complaint, onClose, onResolve }) => {
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4" onClick={onClose}>
-      <div className="absolute inset-0 bg-espresso/80 backdrop-blur-sm"></div>
+      <div className="absolute inset-0 bg-ink/80"></div>
 
-      <div className="relative bg-card border border-line rounded-2xl w-full max-w-lg max-h-[90vh] flex flex-col shadow-2xl" onClick={(e) => e.stopPropagation()}>
+      <div className="relative bg-card border border-line w-full max-w-lg max-h-[90vh] flex flex-col shadow-soft" onClick={(e) => e.stopPropagation()}>
         {/* HEADER */}
         <div className="flex-none flex justify-between items-start p-6 border-b border-line">
           <div>
             <p className="text-sm text-ink-mute mb-1">Chi tiết khiếu nại</p>
             <h2 className="text-xl font-bold text-ink font-mono">#{c.id}</h2>
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-sunken rounded-full text-ink-soft">
+          <button onClick={onClose} className="p-2 hover:bg-sunken text-ink-soft">
             <X size={20} />
           </button>
         </div>
@@ -91,7 +91,7 @@ const ComplaintDetailModal = ({ complaint, onClose, onResolve }) => {
               <div className="space-y-1.5">
                 {evidences.map((url, i) => (
                   <a key={i} href={url} target="_blank" rel="noreferrer"
-                     className="block text-sm text-brand-text underline truncate hover:text-brand-text">
+                     className="block text-sm text-ink underline truncate hover:text-ink">
                     {url}
                   </a>
                 ))}
@@ -101,7 +101,7 @@ const ComplaintDetailModal = ({ complaint, onClose, onResolve }) => {
 
           {/* KẾT QUẢ XỬ LÝ */}
           {isResolved ? (
-            <div className="bg-green-500/5 border border-green-500/20 rounded-lg p-4 space-y-2">
+            <div className="bg-success/5 border border-success/20 p-4 space-y-2">
               <p className="text-xs font-bold text-success flex items-center gap-1.5">
                 <ShieldCheck size={14} /> RESULT
               </p>
@@ -121,7 +121,7 @@ const ComplaintDetailModal = ({ complaint, onClose, onResolve }) => {
               )}
             </div>
           ) : (
-            <div className="bg-yellow-500/5 border border-yellow-500/20 rounded-lg p-4">
+            <div className="bg-warning/5 border border-warning/20 p-4">
               <p className="text-sm text-warning/80 font-medium">⏳ This complaint has not yet been processed.</p>
             </div>
           )}
@@ -129,13 +129,13 @@ const ComplaintDetailModal = ({ complaint, onClose, onResolve }) => {
 
         {/* FOOTER */}
         <div className="flex-none p-6 pt-4 border-t border-line flex gap-3">
-          <button onClick={onClose} className="flex-1 py-2.5 border border-line-strong text-ink-soft rounded-lg font-medium hover:bg-sunken transition-colors">
+          <button onClick={onClose} className="flex-1 py-2.5 border border-line-strong text-ink-soft font-medium hover:bg-sunken transition-colors">
             Đóng
           </button>
           {/* Chưa xử lý xong thì mới có việc để làm — đã Resolved/Rejected rồi thì chỉ còn xem kết quả. */}
           {!isResolved && onResolve && (
             <button onClick={() => onResolve(c)}
-              className="flex-1 py-2.5 bg-brand text-on-brand rounded-lg font-bold hover:bg-brand-hover transition-colors">
+              className="flex-1 py-2.5 bg-ink text-lamp font-bold hover:bg-board transition-colors">
               Xử lý khiếu nại
             </button>
           )}

@@ -78,7 +78,7 @@ const AdminLedgerPage = () => {
     <div className="space-y-6">
       {/* HEADER */}
       <div className="flex items-center gap-3">
-        <Receipt size={28} className="text-brand-text" />
+        <Receipt size={28} className="text-ink" />
         <div>
           <h1 className="text-2xl font-bold text-ink">Sổ cái</h1>
           <p className="text-ink-soft text-sm">

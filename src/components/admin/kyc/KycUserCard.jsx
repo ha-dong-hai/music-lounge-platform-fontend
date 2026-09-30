@@ -4,7 +4,7 @@ import { IdCard, FileText, ExternalLink, AlertTriangle, ShieldAlert } from 'luci
 import KycDocBlock from './KycDocBlock'
 
 const KycUserCard = ({ item, onViewImage, onReview }) => (
-  <li className="bg-card border border-line rounded-xl p-5">
+  <li className="bg-card border border-line p-5">
     <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
       <div className="min-w-0">
         <p className="text-ink font-bold">{item.fullName}</p>
@@ -46,11 +46,11 @@ const KycUserCard = ({ item, onViewImage, onReview }) => (
             </p>
             <div className="flex gap-2 pt-1">
               <button onClick={() => onViewImage(item.userId, 'front')}
-                className="inline-flex items-center gap-1 text-xs text-brand-text hover:underline">
+                className="inline-flex items-center gap-1 text-xs text-ink hover:underline">
                 <ExternalLink size={11} /> Mặt trước
               </button>
               <button onClick={() => onViewImage(item.userId, 'back')}
-                className="inline-flex items-center gap-1 text-xs text-brand-text hover:underline">
+                className="inline-flex items-center gap-1 text-xs text-ink hover:underline">
                 <ExternalLink size={11} /> Mặt sau
               </button>
             </div>

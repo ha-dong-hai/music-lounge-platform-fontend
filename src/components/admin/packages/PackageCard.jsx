@@ -1,16 +1,22 @@
 import { Pencil, EyeOff, Ticket, Sparkles, Box, X } from 'lucide-react'
 import { formatCurrency } from '../../../utils/format'
 
+// 30/09/2026: chữ trên thẻ về tiếng Việt (bản cũ in "Monthly", "Ticket / Show", "Do not suport Poster AI", "Unhide");
+// bỏ quầng sáng mờ trang trí và đổ bóng phát sáng khi rê chuột; nút sửa/ẩn LUÔN hiện (bản cũ chỉ hiện khi rê chuột —
+// trên màn cảm ứng không bấm được) và có nhãn cho trình đọc màn hình.
+const CHU_KY = { Monthly: 'tháng', Yearly: 'năm' }
+const chuKy = (c) => CHU_KY[c] ?? 'tháng'
+
 // Kiểu hiển thị 1 feature
 const Feature = ({ icon: Icon, label, enabled }) => (
   <div className="flex items-center gap-3">
-    <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 border ${
+    <div className={`w-8 h-8 flex items-center justify-center flex-shrink-0 border ${
       enabled
-        ? 'bg-brand/10 border-brand/25'
-        : 'bg-red-500/5 border-red-500/15'
+        ? 'bg-ink/10 border-ink/25'
+        : 'bg-danger/5 border-danger/15'
     }`}>
       {enabled
-        ? <Icon size={15} className="text-brand-text" />
+        ? <Icon size={15} className="text-ink" />
         : <X size={15} className="text-danger" strokeWidth={3} />}
     </div>
     <span className={`text-sm ${enabled ? 'text-ink-soft' : 'text-ink-mute'}`}>{label}</span>
@@ -20,30 +26,27 @@ const Feature = ({ icon: Icon, label, enabled }) => (
 // ============ CARD FULL — dành cho gói ĐANG HIỂN THỊ ============
 export const PackageCard = ({ pkg, onEdit, onToggleStatus }) => {
   const features = [
-    { icon: Ticket, label: `${pkg.maxTicketsPerEvent?.toLocaleString('vi-VN')} Ticket / Show`, enabled: true },
-    { icon: Sparkles, label: pkg.hasAiPoster ? `${pkg.maxAiPostersPerMonth} poster AI / Month` : 'Do not suport Poster AI', enabled: pkg.hasAiPoster },
-    { icon: Box, label: pkg.maxTourScenes > 0 ? `${pkg.maxTourScenes} tour digital 360°` : 'Do not support Tour digital 360°', enabled: pkg.maxTourScenes > 0 },
+    { icon: Ticket, label: `${pkg.maxTicketsPerEvent?.toLocaleString('vi-VN')} vé mỗi buổi diễn`, enabled: true },
+    { icon: Sparkles, label: pkg.hasAiPoster ? `${pkg.maxAiPostersPerMonth} áp phích AI mỗi tháng` : 'Không có áp phích AI', enabled: pkg.hasAiPoster },
+    { icon: Box, label: pkg.maxTourScenes > 0 ? `${pkg.maxTourScenes} cảnh tham quan 360°` : 'Không có tham quan 360°', enabled: pkg.maxTourScenes > 0 },
   ]
 
   return (
-    <div className="relative bg-card rounded-2xl border border-line p-6 flex flex-col overflow-hidden transition-all duration-300 group hover:border-brand/60 hover:-translate-y-1.5 hover:shadow-[0_12px_45px_rgba(195,182,101,0.13)]">
-
-      {/* Ánh vàng trang trí */}
-      <div className="absolute -top-12 -right-12 w-44 h-44 bg-brand/8 rounded-full blur-3xl pointer-events-none" />
+    <div className="relative bg-card border border-line p-6 flex flex-col overflow-hidden border-ink">
 
       {/* ===== ACTIONS — hiện khi hover góc phải (giữ nguyên) ===== */}
-      <div className="absolute top-4 right-4 z-10 flex gap-1.5 opacity-0 group-hover:opacity-100 translate-y-1 group-hover:translate-y-0 transition-all duration-200">
+      <div className="absolute top-4 right-4 z-10 flex gap-1.5">
         <button
           onClick={() => onEdit(pkg)}
-          className="p-2 bg-espresso/70 backdrop-blur-md border border-white/10 text-ink-soft hover:text-brand-text hover:border-brand/50 rounded-lg transition-colors"
-          title="Sửa gói"
+          className="w-10 h-10 inline-flex items-center justify-center border border-ink text-ink hover:bg-ink hover:text-lamp transition-colors"
+          title="Sửa gói" aria-label={`Sửa gói ${pkg.name}`}
         >
           <Pencil size={13} />
         </button>
         <button
           onClick={() => onToggleStatus(pkg)}
-          className="p-2 bg-espresso/70 backdrop-blur-md border border-white/10 text-ink-soft hover:text-brand-text hover:border-brand/50 rounded-lg transition-colors"
-          title="Ẩn gói"
+          className="w-10 h-10 inline-flex items-center justify-center border border-ink text-ink hover:bg-ink hover:text-lamp transition-colors"
+          title="Ẩn gói" aria-label={`Ẩn gói ${pkg.name}`}
         >
           <EyeOff size={13} />
         </button>
@@ -54,8 +57,8 @@ export const PackageCard = ({ pkg, onEdit, onToggleStatus }) => {
         <div className="flex items-center gap-2.5 mb-2 pr-14">
           <h3 className="text-xl font-bold text-ink truncate">{pkg.name}</h3>
         </div>
-        <span className="inline-flex px-2.5 py-1 rounded-full text-[11px] font-bold bg-brand/10 text-brand-text border border-brand/25 uppercase tracking-wide">
-          {pkg.billingCycle === 'Yearly' ? 'Yearly' : 'Monthly'}
+        <span className="inline-flex px-2.5 py-1 text-xs font-semibold border border-ink">
+          Trả theo {chuKy(pkg.billingCycle)}
         </span>
         <p 
         title={pkg.description || ''}
@@ -68,21 +71,21 @@ export const PackageCard = ({ pkg, onEdit, onToggleStatus }) => {
       <div className="relative z-[1] flex items-end gap-1.5 mb-5 mt-3">
         {pkg.price > 0 ? (
           <>
-            <span className="text-[38px] leading-none font-bold bg-gradient-to-r from-brand to-brand-hover bg-clip-text text-transparent">
+            <span className="font-display text-5xl leading-none text-ink">
               {formatCurrency(pkg.price)}
             </span>
-            <span className="text-lg font-bold text-brand-text mb-0.5">đ</span>
-            <span className="text-ink-mute text-xs mb-1">/ {pkg.billingCycle === 'Yearly' ? 'Yearly' : 'Monthly'}</span>
+            <span className="text-lg font-bold text-ink mb-0.5">đ</span>
+            <span className="text-ink-mute text-sm mb-1">/ {chuKy(pkg.billingCycle)}</span>
           </>
         ) : (
-          <span className="text-[34px] leading-none font-bold bg-gradient-to-r from-brand to-brand-hover bg-clip-text text-transparent">
-            Free
+          <span className="text-[34px] leading-none font-bold text-ink">
+            Miễn phí
           </span>
         )}
       </div>
 
       {/* Divider */}
-      <div className="relative z-[1] h-px bg-gradient-to-r from-transparent via-gray-700/70 to-transparent mb-5" />
+      <div className="relative z-[1] h-px bg-ink/20 mb-5" />
 
       {/* ===== FEATURE LIST ===== */}
       <div className="relative z-[1] space-y-3.5 flex-1">
@@ -102,23 +105,23 @@ export const PackageCard = ({ pkg, onEdit, onToggleStatus }) => {
 // ============ CARD MINI — dành cho gói ĐANG ẨN (1 hàng ngang, mờ nhẹ) ============
 export const HiddenPackageCard = ({ pkg, onEdit, onRestore }) => {
   const miniFeatures = [
-    { label: `${pkg.maxTicketsPerEvent?.toLocaleString('vi-VN')} Ticket`, enabled: true },
+    { label: `${pkg.maxTicketsPerEvent?.toLocaleString('vi-VN')} vé`, enabled: true },
     { label: 'Poster AI', enabled: pkg.hasAiPoster },
     { label: 'Cảnh tham quan 360°', enabled: pkg.maxTourScenes > 0 },
   ]
 
   return (
-    <div className="bg-card/60 border border-line/70 rounded-xl p-4 flex flex-col lg:flex-row lg:items-center gap-3 opacity-60 hover:opacity-100 transition-all duration-300 hover:border-line">
+    <div className="bg-card/60 border border-line/70 p-4 flex flex-col lg:flex-row lg:items-center gap-3 opacity-60 hover:opacity-100 transition-all duration-300 hover:border-line">
 
       {/* Tên + giá */}
       <div className="flex items-center gap-3 flex-1 min-w-0">
-        <div className="w-10 h-10 rounded-lg bg-sunken/60 border border-line/50 flex items-center justify-center flex-shrink-0">
+        <div className="w-10 h-10 bg-sunken/60 border border-line/50 flex items-center justify-center flex-shrink-0">
           <Box size={18} className="text-ink-mute" />
         </div>
         <div className="min-w-0">
           <h4 className="text-base font-bold text-ink-soft truncate">{pkg.name}</h4>
           <p className="text-xs text-ink-mute">
-            {pkg.price > 0 ? `${formatCurrency(pkg.price)}đ / ${pkg.billingCycle === 'Yearly' ? 'Yearly' : 'Monthly'}` : 'Free'} · #{pkg.id}
+            {pkg.price > 0 ? `${formatCurrency(pkg.price)}đ / ${chuKy(pkg.billingCycle)}` : 'Miễn phí'} · #{pkg.id}
           </p>
         </div>
       </div>
@@ -126,13 +129,13 @@ export const HiddenPackageCard = ({ pkg, onEdit, onRestore }) => {
       {/* Feature mini pills */}
       <div className="flex items-center gap-2 flex-wrap">
         {miniFeatures.map(f => (
-          <span key={f.label} className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs border ${
+          <span key={f.label} className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-xs border ${
             f.enabled
-              ? 'bg-brand/10 text-brand-text/80 border-brand/20'
-              : 'bg-red-500/5 text-ink-mute border-red-500/15'
+              ? 'bg-ink/10 text-ink/80 border-ink/20'
+              : 'bg-danger/5 text-ink-mute border-danger/15'
           }`}>
             {f.enabled
-              ? <span className="w-1.5 h-1.5 rounded-full bg-brand/70" />
+              ? <span className="w-1.5 h-1.5 bg-ink/70" />
               : <X size={11} className="text-danger/80" strokeWidth={3} />}
             {f.label}
           </span>
@@ -143,16 +146,16 @@ export const HiddenPackageCard = ({ pkg, onEdit, onRestore }) => {
       <div className="flex items-center gap-2 flex-shrink-0">
         <button
           onClick={() => onEdit(pkg)}
-          className="p-2 rounded-lg border border-line/60 text-ink-mute hover:text-brand-text hover:border-brand/50 transition-colors"
+          className="p-2 border border-line/60 text-ink-mute hover:text-ink hover:border-ink/50 transition-colors"
           title="Sửa gói"
         >
           <Pencil size={14} />
         </button>
         <button
           onClick={() => onRestore(pkg)}
-          className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-brand text-on-brand text-xs font-bold hover:bg-brand-hover transition-colors"
+          className="flex items-center gap-1.5 px-3.5 py-2 bg-ink text-lamp text-xs font-bold hover:bg-board transition-colors"
         >
-          <EyeOff size={13} className="rotate-180" /> Unhide
+          <EyeOff size={13} className="rotate-180" aria-hidden="true" /> Hiện lại
         </button>
       </div>
     </div>

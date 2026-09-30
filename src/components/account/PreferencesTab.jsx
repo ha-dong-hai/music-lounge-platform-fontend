@@ -23,10 +23,10 @@ const ChipGroup = ({ label, hint, options, selected, onToggle, accent = false })
         const chon = selected.includes(o.id)
         return (
           <button key={o.id} type="button" onClick={() => onToggle(o.id)}
-            className={`px-3 py-1.5 rounded-lg border text-xs font-medium transition-colors ${chon
+            className={`px-3 py-1.5 border text-xs font-medium transition-colors ${chon
               ? accent
-                ? 'bg-red-500/10 border-red-500/40 text-danger'
-                : 'bg-sunken border-brand/40 text-brand-text'
+                ? 'bg-danger/10 border-danger/40 text-danger'
+                : 'bg-sunken border-ink/40 text-ink'
               : 'bg-page border-line text-ink-soft hover:text-ink'}`}>
             {o.name}
           </button>
@@ -91,14 +91,14 @@ const PreferencesTab = () => {
   }
 
   if (isLoading) {
-    return <div className="py-16 flex justify-center"><Loader2 size={28} className="animate-spin text-brand-text" /></div>
+    return <div className="py-16 flex justify-center"><Loader2 size={28} className="animate-spin text-ink" /></div>
   }
 
   return (
     <form onSubmit={luu} className="space-y-5">
-      <div className="bg-card border border-line rounded-xl p-6">
+      <div className="bg-card border border-line p-6">
         <div className="flex items-start gap-3">
-          <Sparkles size={18} className="text-brand-text mt-0.5 flex-shrink-0" />
+          <Sparkles size={18} className="text-ink mt-0.5 flex-shrink-0" />
           <div className="flex-1">
             <p className="text-sm font-medium text-ink">Cho phép gợi ý dựa trên lịch sử của tôi</p>
             <p className="text-xs text-ink-mute mt-1 leading-relaxed">
@@ -109,12 +109,12 @@ const PreferencesTab = () => {
           <label className="flex-shrink-0">
             <input type="checkbox" checked={form.enableAiConsent}
               onChange={(e) => setForm((p) => ({ ...p, enableAiConsent: e.target.checked }))}
-              className="accent-brand w-4 h-4" />
+              className="accent-ink w-4 h-4" />
           </label>
         </div>
       </div>
 
-      <div className="bg-card border border-line rounded-xl p-6 space-y-6">
+      <div className="bg-card border border-line p-6 space-y-6">
         <ChipGroup label="Thể loại yêu thích" options={catalog.genres}
           selected={form.genreIds} onToggle={(id) => toggle('genreIds', id)} />
         <ChipGroup label="Tâm trạng" options={catalog.moods}
@@ -128,7 +128,7 @@ const PreferencesTab = () => {
       </div>
 
       <button type="submit" disabled={isSaving}
-        className="flex items-center gap-2 px-5 py-2.5 bg-brand text-on-brand rounded-lg font-bold hover:bg-brand-hover disabled:opacity-50">
+        className="flex items-center gap-2 px-5 py-2.5 bg-ink text-lamp font-bold hover:bg-board disabled:opacity-50">
         {isSaving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />} Lưu sở thích
       </button>
     </form>

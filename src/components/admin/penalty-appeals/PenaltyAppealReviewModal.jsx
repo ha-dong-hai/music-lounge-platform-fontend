@@ -32,20 +32,20 @@ const PenaltyAppealReviewModal = ({ target, isProcessing, onClose, onSubmit }) =
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-espresso/80 backdrop-blur-sm" onClick={() => !isProcessing && onClose()} />
-      <div className="relative bg-card border border-line rounded-2xl w-full max-w-lg shadow-2xl flex flex-col max-h-[90vh]" onClick={(e) => e.stopPropagation()}>
+      <div className="absolute inset-0 bg-ink/80" onClick={() => !isProcessing && onClose()} />
+      <div className="relative bg-card border border-line w-full max-w-lg shadow-soft flex flex-col max-h-[90vh]" onClick={(e) => e.stopPropagation()}>
         <div className="flex-none flex justify-between items-center p-5 border-b border-line">
           <h2 className="text-lg font-bold text-ink">
             {laHuy ? 'Huỷ án phạt này?' : 'Giữ nguyên án phạt?'}
           </h2>
           <button onClick={onClose} disabled={isProcessing}
-            className="p-2 hover:bg-sunken rounded-full text-ink-soft disabled:opacity-30">
+            className="p-2 hover:bg-sunken text-ink-soft disabled:opacity-30">
             <X size={20} />
           </button>
         </div>
 
         <form onSubmit={submit} className="p-5 space-y-4 overflow-y-auto">
-          <div className="p-3 rounded-lg bg-sunken/80 border border-line space-y-1.5">
+          <div className="p-3 bg-sunken/80 border border-line space-y-1.5">
             <p className="text-sm text-ink">{item.loungeName}</p>
             <p className="text-xs text-ink-soft">
               {PENALTY_TYPE_VIEW[item.penaltyType]?.label ?? item.penaltyType}
@@ -59,8 +59,8 @@ const PenaltyAppealReviewModal = ({ target, isProcessing, onClose, onSubmit }) =
             )}
           </div>
 
-          <p className={`text-xs flex items-start gap-1.5 leading-relaxed rounded-lg p-3 border ${
-            laHuy ? 'text-success bg-green-500/5 border-green-500/30' : 'text-ink-soft bg-sunken/40 border-line'
+          <p className={`text-xs flex items-start gap-1.5 leading-relaxed p-3 border ${
+            laHuy ? 'text-success bg-success/5 border-success/30' : 'text-ink-soft bg-sunken/40 border-line'
           }`}>
             <AlertTriangle size={13} className="mt-px flex-shrink-0" />
             {laHuy
@@ -74,17 +74,17 @@ const PenaltyAppealReviewModal = ({ target, isProcessing, onClose, onSubmit }) =
               placeholder={laHuy
                 ? 'VD: đã xem lại bằng chứng, sự việc do lỗi hệ thống chứ không do phòng trà'
                 : 'VD: bằng chứng chủ phòng trà đưa ra không bác được sự việc đã ghi nhận ngày 12/09'}
-              className="mt-1 w-full px-3 py-2 bg-page border border-line rounded-lg text-sm text-ink resize-none focus:outline-none focus:border-brand/50 disabled:opacity-50" />
+              className="mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink resize-none focus:outline-none focus:border-ink/50 disabled:opacity-50" />
           </div>
 
           <div className="flex gap-3">
             <button type="button" onClick={onClose} disabled={isProcessing}
-              className="flex-1 py-2.5 border border-line-strong text-ink-soft rounded-lg font-medium hover:bg-sunken disabled:opacity-50">
+              className="flex-1 py-2.5 border border-line-strong text-ink-soft font-medium hover:bg-sunken disabled:opacity-50">
               Huỷ bỏ
             </button>
             <button type="submit" disabled={isProcessing}
-              className={`flex-1 py-2.5 rounded-lg font-bold flex items-center justify-center gap-2 disabled:opacity-50 ${
-                laHuy ? 'bg-green-500 text-on-brand hover:bg-green-400' : 'bg-line text-white hover:bg-line-strong'
+              className={`flex-1 py-2.5 font-bold flex items-center justify-center gap-2 disabled:opacity-50 ${
+                laHuy ? 'bg-success text-lamp hover:bg-success' : 'bg-line text-lamp hover:bg-line-strong'
               }`}>
               {isProcessing && <Loader2 size={16} className="animate-spin" />}
               {laHuy ? 'Huỷ án phạt' : 'Giữ nguyên'}

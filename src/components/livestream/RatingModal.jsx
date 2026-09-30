@@ -41,9 +41,9 @@ const RatingModal = ({ showName, onClose, onSubmit }) => {
   if (submitted) {
     return (
       <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
-        <div className="absolute inset-0 bg-espresso/80 backdrop-blur-sm"></div>
-        <div className="relative bg-card border border-brand/40 rounded-2xl w-full max-w-sm p-8 text-center shadow-2xl animate-in fade-in zoom-in-95 duration-300">
-          <PartyPopper size={44} className="mx-auto text-brand-text mb-4" />
+        <div className="absolute inset-0 bg-ink/80"></div>
+        <div className="relative bg-card border border-ink/40 w-full max-w-sm p-8 text-center shadow-soft animate-in fade-in zoom-in-95 duration-300">
+          <PartyPopper size={44} className="mx-auto text-ink mb-4" />
           <h2 className="text-xl font-bold text-ink mb-2">Cảm ơn bạn!</h2>
           <p className="text-sm text-ink-soft">Đánh giá của bạn đã được ghi nhận.</p>
         </div>
@@ -53,22 +53,22 @@ const RatingModal = ({ showName, onClose, onSubmit }) => {
 
   return (
     <div className="fixed inset-0 z-[110] flex items-center justify-center p-4" onClick={() => !isSubmitting && onClose()}>
-      <div className="absolute inset-0 bg-espresso/80 backdrop-blur-sm"></div>
+      <div className="absolute inset-0 bg-ink/80"></div>
 
-      <div className="relative bg-card border border-line rounded-2xl w-full max-w-md max-h-[90vh] flex flex-col shadow-2xl animate-in fade-in zoom-in-95 duration-300" onClick={(e) => e.stopPropagation()}>
+      <div className="relative bg-card border border-line w-full max-w-md max-h-[90vh] flex flex-col shadow-soft animate-in fade-in zoom-in-95 duration-300" onClick={(e) => e.stopPropagation()}>
 
         {/* HEADER */}
         <div className="flex-none flex items-start justify-between p-5 border-b border-line">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-brand/10 border border-brand/30 flex items-center justify-center flex-shrink-0">
-              <Star size={18} className="text-brand-text" />
+            <div className="w-10 h-10 bg-ink/10 border border-ink/30 flex items-center justify-center flex-shrink-0">
+              <Star size={18} className="text-ink" />
             </div>
             <div className="min-w-0">
               <h2 className="text-lg font-bold text-ink">Đánh giá buổi phát trực tiếp</h2>
               <p className="text-xs text-ink-mute truncate">{showName}</p>
             </div>
           </div>
-          <button onClick={onClose} disabled={isSubmitting} className="p-2 hover:bg-sunken rounded-full text-ink-soft disabled:opacity-30">
+          <button onClick={onClose} disabled={isSubmitting} className="p-2 hover:bg-sunken text-ink-soft disabled:opacity-30">
             <X size={20} />
           </button>
         </div>
@@ -93,12 +93,12 @@ const RatingModal = ({ showName, onClose, onSubmit }) => {
               >
                 <Star
                   size={38}
-                  className={`transition-colors ${i <= (hover || rating) ? 'fill-brand-text text-brand-text' : 'text-ink-mute'}`}
+                  className={`transition-colors ${i <= (hover || rating) ? 'fill-ink text-ink' : 'text-ink-mute'}`}
                 />
               </button>
             ))}
           </div>
-          <p className="text-center text-sm font-semibold text-brand-text min-h-[20px] mb-6">
+          <p className="text-center text-sm font-semibold text-ink min-h-[20px] mb-6">
             {RATING_LABELS[hover || rating] || 'Chọn số sao'}
           </p>
 
@@ -113,7 +113,7 @@ const RatingModal = ({ showName, onClose, onSubmit }) => {
               onChange={(e) => setComment(e.target.value)}
               disabled={isSubmitting}
               placeholder="Bạn thích điều gì, hoặc muốn cải thiện điều gì ở buổi phát này…"
-              className="w-full px-4 py-3 bg-page border border-line rounded-xl text-ink text-sm focus:outline-none focus:border-brand/50 resize-none disabled:opacity-50 placeholder:text-ink-mute"
+              className="w-full px-4 py-3 bg-page border border-line text-ink text-sm focus:outline-none focus:border-ink/50 resize-none disabled:opacity-50 placeholder:text-ink-mute"
             />
           </div>
         </div>
@@ -123,14 +123,14 @@ const RatingModal = ({ showName, onClose, onSubmit }) => {
           <button
             onClick={onClose}
             disabled={isSubmitting}
-            className="flex-1 py-2.5 border border-line-strong text-ink-soft rounded-lg font-medium hover:bg-sunken transition-colors disabled:opacity-50"
+            className="flex-1 py-2.5 border border-line-strong text-ink-soft font-medium hover:bg-sunken transition-colors disabled:opacity-50"
           >
             Để sau
           </button>
           <button
             onClick={handleSubmit}
             disabled={isSubmitting || rating === 0}
-            className="flex-1 py-2.5 rounded-lg font-bold transition-colors flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed bg-brand text-on-brand hover:bg-brand-hover"
+            className="flex-1 py-2.5 font-bold transition-colors flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed bg-ink text-lamp hover:bg-board"
           >
             {isSubmitting ? <><Loader2 size={16} className="animate-spin" /> Đang gửi…</> : <> Gửi đánh giá</>}
           </button>

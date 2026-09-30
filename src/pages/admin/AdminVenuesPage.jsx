@@ -105,7 +105,7 @@ const AdminVenuesPage = () => {
     <div className="space-y-6">
       {/* HEADER */}
       <div className="flex items-center gap-3">
-        <Building2 size={28} className="text-brand-text" />
+        <Building2 size={28} className="text-ink" />
         <div>
           <h1 className="text-2xl font-bold text-ink">Quản lý phòng trà</h1>
           <p className="text-ink-soft text-sm">Quản lý trạng thái các phòng trà trên hệ thống.</p>

@@ -32,13 +32,13 @@ const fmtAxis = (v) => {
 }
 
 const StatCard = ({ title, value, note, icon: Icon, color, bg }) => (
-  <div className="bg-card border border-line rounded-xl p-5 flex items-start justify-between">
+  <div className="bg-card border border-line p-5 flex items-start justify-between">
     <div>
       <p className="text-sm text-ink-mute mb-1">{title}</p>
       <p className="text-2xl font-bold text-ink">{value}</p>
       {note && <p className="text-xs mt-2 text-ink-mute">{note}</p>}
     </div>
-    <div className={`p-3 rounded-lg ${bg}`}>
+    <div className={`p-3 ${bg}`}>
       <Icon size={24} className={color} />
     </div>
   </div>
@@ -47,11 +47,11 @@ const StatCard = ({ title, value, note, icon: Icon, color, bg }) => (
 const ChartTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null
   return (
-    <div className="bg-card border border-line p-3 rounded-lg shadow-xl text-xs">
+    <div className="bg-card border border-line p-3 shadow-soft text-xs">
       <p className="text-ink font-bold mb-2">{label}</p>
       {payload.map((e, i) => (
         <div key={i} className="flex items-center gap-2 text-ink-soft">
-          <span className="w-2 h-2 rounded-full" style={{ backgroundColor: e.color }} />
+          <span className="w-2 h-2" style={{ backgroundColor: e.color }} />
           <span>{e.name}:</span>
           <span className="font-medium text-ink">{fmtMoney(e.value)}</span>
         </div>
@@ -127,14 +127,14 @@ const OwnerAnalyticsPage = () => {
   if (isLoading) {
     return (
       <div className="py-20 flex justify-center">
-        <Loader2 size={32} className="animate-spin text-brand-text" />
+        <Loader2 size={32} className="animate-spin text-ink" />
       </div>
     )
   }
 
   if (!lounge) {
     return (
-      <div className="bg-card border border-line rounded-xl p-8 text-center text-ink-mute">
+      <div className="bg-card border border-line p-8 text-center text-ink-mute">
         Tài khoản này chưa sở hữu phòng trà nào.
       </div>
     )
@@ -160,25 +160,25 @@ const OwnerAnalyticsPage = () => {
           title="Doanh thu gộp"
           value={fmtMoney(stats?.totalRevenue)}
           note={`Vé ${fmtMoney(stats?.ticketRevenue)} · F&B ${fmtMoney(stats?.fnbRevenue)}`}
-          icon={DollarSign} color="text-success" bg="bg-green-500/10"
+          icon={DollarSign} color="text-success" bg="bg-success/10"
         />
         <StatCard
           title="Vé đã bán"
           value={stats?.totalTicketsSold ?? 0}
           note={`Tại chỗ ${stats?.offlineTicketsSold ?? 0} · Online ${stats?.onlineTicketsSold ?? 0}`}
-          icon={Ticket} color="text-sky-700" bg="bg-blue-500/10"
+          icon={Ticket} color="text-ink" bg="bg-ink/10"
         />
         <StatCard
           title="Buổi diễn"
           value={stats?.totalShows ?? 0}
           note={`Sắp diễn ${stats?.upcomingShows ?? 0} · Đã diễn ${stats?.pastShows ?? 0}`}
-          icon={Music2} color="text-purple-700" bg="bg-purple-500/10"
+          icon={Music2} color="text-ink" bg="bg-ink/10"
         />
         <StatCard
           title="Điểm đánh giá"
           value={stats?.averageRating != null ? Number(stats.averageRating).toFixed(1) : 'Chưa có'}
           note={`${stats?.totalRatings ?? 0} lượt đánh giá`}
-          icon={Star} color="text-warning" bg="bg-yellow-500/10"
+          icon={Star} color="text-warning" bg="bg-warning/10"
         />
       </div>
 
@@ -188,19 +188,19 @@ const OwnerAnalyticsPage = () => {
           title="Đã nhận về tài khoản"
           value={fmtMoney(revenue?.totalSettlementReceived)}
           note="Giải ngân theo đợt sau buổi diễn, nên chậm hơn doanh thu gộp"
-          icon={Wallet} color="text-success" bg="bg-green-500/10"
+          icon={Wallet} color="text-success" bg="bg-success/10"
         />
         <StatCard
           title="Phí nền tảng đã trả"
           value={fmtMoney(revenue?.totalPlatformFeePaid)}
           note="Hoa hồng + thuế đã khấu trừ khi giải ngân"
-          icon={DollarSign} color="text-danger" bg="bg-red-500/10"
+          icon={DollarSign} color="text-danger" bg="bg-danger/10"
         />
         <StatCard
           title="Thu hộ nghệ sĩ"
           value={fmtMoney(revenue?.totalDonationCollectedForPerformers)}
           note="Tiền donate giữ hộ, phải chuyển cho nghệ sĩ — không phải doanh thu"
-          icon={HandCoins} color="text-pink-700" bg="bg-pink-500/10"
+          icon={HandCoins} color="text-danger" bg="bg-danger/10"
         />
       </div>
 
@@ -210,7 +210,7 @@ const OwnerAnalyticsPage = () => {
           Chỉ hiện số tổng thì chủ phòng trà không biết mình đang nợ bao nhiêu và có sắp quá hạn
           hay không. Hai trường này backend trả sẵn nhưng trước giờ không ai đọc. */}
       {(stats?.pendingArtistPayoutCount ?? 0) > 0 && (
-        <div className="bg-card border border-yellow-500/40 rounded-xl p-5 flex flex-wrap items-center justify-between gap-4">
+        <div className="bg-card border border-warning/40 p-5 flex flex-wrap items-center justify-between gap-4">
           <div className="min-w-0">
             <p className="text-sm font-semibold text-warning flex items-center gap-2">
               <HandCoins size={16} /> Đang chờ bạn chuyển cho nghệ sĩ
@@ -224,7 +224,7 @@ const OwnerAnalyticsPage = () => {
             </p>
           </div>
           <Link to="/owner/donations"
-            className="flex-shrink-0 px-4 py-2 rounded-lg bg-brand text-on-brand text-sm font-bold hover:bg-brand-hover">
+            className="flex-shrink-0 px-4 py-2 bg-ink text-lamp text-sm font-bold hover:bg-board">
             Xử lý ngay
           </Link>
         </div>
@@ -232,7 +232,7 @@ const OwnerAnalyticsPage = () => {
 
       {/* === XU HƯỚNG DOANH THU === */}
       {trend.length > 0 && (
-        <div className="bg-card border border-line rounded-xl p-6">
+        <div className="bg-card border border-line p-6">
           <h3 className="text-lg font-semibold text-ink mb-1">Doanh thu theo tháng</h3>
           <p className="text-ink-mute text-xs mb-6">Tách theo vé tại chỗ, vé online và F&amp;B.</p>
           <div className="h-[320px] w-full">
@@ -243,9 +243,9 @@ const OwnerAnalyticsPage = () => {
                 <YAxis tick={{ fill: '#888', fontSize: 12 }} axisLine={{ stroke: '#333' }} tickLine={false} tickFormatter={fmtAxis} />
                 <Tooltip content={<ChartTooltip />} cursor={{ fill: 'rgba(255,255,255,0.05)' }} />
                 <Legend wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }} />
-                <Bar dataKey="Vé tại chỗ" stackId="a" fill="#C3B665" />
-                <Bar dataKey="Vé online" stackId="a" fill="#3b82f6" />
-                <Bar dataKey="F&B" stackId="a" fill="#a855f7" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="Vé tại chỗ" stackId="a" fill="var(--color-ink)" />
+                <Bar dataKey="Vé online" stackId="a" fill="var(--color-ember)" />
+                <Bar dataKey="F&B" stackId="a" fill="var(--color-ink-mute)" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -254,7 +254,7 @@ const OwnerAnalyticsPage = () => {
 
       {/* === TOP BUỔI DIỄN === */}
       {stats?.topShows?.length > 0 && (
-        <div className="bg-card border border-line rounded-xl overflow-hidden">
+        <div className="bg-card border border-line overflow-hidden">
           <div className="p-6 pb-4">
             <h3 className="text-lg font-semibold text-ink">Buổi diễn theo doanh thu</h3>
           </div>
@@ -262,9 +262,9 @@ const OwnerAnalyticsPage = () => {
             <table className="w-full text-left whitespace-nowrap">
               <thead className="bg-sunken/70 border-y border-line">
                 <tr>
-                  <th className="p-4 text-xs font-semibold text-ink-soft uppercase">Buổi diễn</th>
-                  <th className="p-4 text-xs font-semibold text-ink-soft uppercase">Vé bán / sức chứa</th>
-                  <th className="p-4 text-xs font-semibold text-ink-soft uppercase text-right">Doanh thu</th>
+                  <th className="p-4 text-sm font-semibold text-ink-soft uppercase">Buổi diễn</th>
+                  <th className="p-4 text-sm font-semibold text-ink-soft uppercase">Vé bán / sức chứa</th>
+                  <th className="p-4 text-sm font-semibold text-ink-soft uppercase text-right">Doanh thu</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-line">
@@ -282,7 +282,7 @@ const OwnerAnalyticsPage = () => {
                         {s.ticketsSold}{s.totalCapacity != null ? ` / ${s.totalCapacity}` : ''}
                       </span>
                     </td>
-                    <td className="p-4 text-right text-sm font-bold text-brand-text">{fmtMoney(s.revenue)}</td>
+                    <td className="p-4 text-right text-sm font-bold text-ink">{fmtMoney(s.revenue)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -294,7 +294,7 @@ const OwnerAnalyticsPage = () => {
       {/* XUẤT BÁO CÁO — endpoint trả về FILE, không phải JSON */}
       {lounge && (
         <button onClick={xuatBaoCao} disabled={isExporting}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg border border-line text-ink-soft text-sm font-bold hover:bg-sunken disabled:opacity-50">
+          className="flex items-center gap-2 px-4 py-2 border border-line text-ink-soft text-sm font-bold hover:bg-sunken disabled:opacity-50">
           {isExporting ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />}
           Tải báo cáo doanh thu
         </button>
@@ -302,7 +302,7 @@ const OwnerAnalyticsPage = () => {
 
       {/* TIỀN DONATE THEO NGHỆ SĨ — tiền THU HỘ, không phải doanh thu của phòng trà */}
       {artistDonations && (artistDonations.byArtist?.length ?? 0) > 0 && (
-        <div className="bg-card border border-line rounded-xl p-6">
+        <div className="bg-card border border-line p-6">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
               <h2 className="text-base font-semibold text-ink">Tiền donate theo nghệ sĩ</h2>
@@ -311,7 +311,7 @@ const OwnerAnalyticsPage = () => {
               </p>
             </div>
             <div className="text-right flex-shrink-0">
-              <p className="text-lg font-bold text-brand-text tabular-nums">{fmtMoney(artistDonations.grandTotalDonated)}</p>
+              <p className="text-lg font-bold text-ink tabular-nums">{fmtMoney(artistDonations.grandTotalDonated)}</p>
               <p className="text-xs text-ink-mute">tổng thu hộ</p>
             </div>
           </div>
@@ -332,7 +332,7 @@ const OwnerAnalyticsPage = () => {
                     <td className="py-2.5 pr-3 text-ink">
                       {a.performerName}
                       {a.performerId === artistDonations.topPerformerId && (
-                        <span className="ml-2 px-2 py-0.5 rounded-md bg-brand/10 text-brand-text text-xs">Cao nhất</span>
+                        <span className="ml-2 px-2 py-0.5 rounded-md bg-ink/10 text-ink text-xs">Cao nhất</span>
                       )}
                     </td>
                     <td className="py-2.5 pr-3 text-right text-ink-soft tabular-nums">{a.donationCount}</td>
@@ -348,7 +348,7 @@ const OwnerAnalyticsPage = () => {
 
       {/* LỊCH SỬ PHÁT TRỰC TIẾP */}
       {livestreamHistory.length > 0 && (
-        <div className="bg-card border border-line rounded-xl p-6">
+        <div className="bg-card border border-line p-6">
           <h2 className="text-base font-semibold text-ink flex items-center gap-2">
             <Radio size={16} /> Lịch sử phát trực tiếp
           </h2>
@@ -360,7 +360,7 @@ const OwnerAnalyticsPage = () => {
                   <th className="text-right py-2 pr-3 font-medium">Xem cao nhất</th>
                   <th className="text-right py-2 pr-3 font-medium">Tổng lượt xem</th>
                   <th className="text-right py-2 pr-3 font-medium">Doanh thu vé xem</th>
-                  <th className="text-right py-2 font-medium">Donate</th>
+                  <th className="text-right py-2 font-medium">Tiền ủng hộ</th>
                 </tr>
               </thead>
               <tbody>

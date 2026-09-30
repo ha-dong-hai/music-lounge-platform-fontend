@@ -15,10 +15,10 @@ const VenuesStatsCards = ({ counts, statusFilter, onSelectStatus }) => {
       key: 'all',
       label: 'Tổng phòng trà',
       value: counts.total,
-      icon: <Building2 size={24} className="text-brand-text" />,
-      iconBg: 'bg-brand/10',
+      icon: <Building2 size={24} className="text-ink" />,
+      iconBg: 'bg-ink/10',
       active: statusFilter === 'all',
-      activeStyle: 'border-brand ring-1 ring-brand',
+      activeStyle: 'border-ink ring-1 ring-ink',
       onClick: () => onSelectStatus('all'),
     },
     {
@@ -26,9 +26,9 @@ const VenuesStatsCards = ({ counts, statusFilter, onSelectStatus }) => {
       label: 'Chờ duyệt',
       value: counts.Pending || 0,
       icon: <Clock size={24} className="text-warning" />,
-      iconBg: 'bg-yellow-500/10',
+      iconBg: 'bg-warning/10',
       active: statusFilter === 'Pending',
-      activeStyle: 'border-yellow-500 ring-1 ring-yellow-500',
+      activeStyle: 'border-warning ring-1 ring-warning',
       onClick: () => onSelectStatus(statusFilter === 'Pending' ? 'all' : 'Pending'),
     },
     {
@@ -36,9 +36,9 @@ const VenuesStatsCards = ({ counts, statusFilter, onSelectStatus }) => {
       label: 'Đã duyệt',
       value: counts.Approved || 0,
       icon: <CheckCircle2 size={24} className="text-success" />,
-      iconBg: 'bg-green-500/10',
+      iconBg: 'bg-success/10',
       active: statusFilter === 'Approved',
-      activeStyle: 'border-green-500 ring-1 ring-green-500',
+      activeStyle: 'border-success ring-1 ring-success',
       onClick: () => onSelectStatus(statusFilter === 'Approved' ? 'all' : 'Approved'),
     },
     {
@@ -46,9 +46,9 @@ const VenuesStatsCards = ({ counts, statusFilter, onSelectStatus }) => {
       label: 'Có vấn đề',
       value: problemCount,
       icon: <ShieldAlert size={24} className="text-danger" />,
-      iconBg: 'bg-red-500/10',
+      iconBg: 'bg-danger/10',
       active: isProblemActive,
-      activeStyle: 'border-red-500 ring-1 ring-red-500',
+      activeStyle: 'border-danger ring-1 ring-danger',
       // Bấm → chọn status vấn đề đầu tiên có data (hoặc Warned mặc định)
       onClick: () => onSelectStatus(
         isProblemActive ? 'all'
@@ -63,11 +63,11 @@ const VenuesStatsCards = ({ counts, statusFilter, onSelectStatus }) => {
         <button
           key={card.key}
           onClick={card.onClick}
-          className={`bg-card border rounded-xl p-5 flex items-center gap-4 text-left transition-all ${
+          className={`bg-card border p-5 flex items-center gap-4 text-left transition-all ${
             card.active ? card.activeStyle : 'border-line hover:border-line'
           }`}
         >
-          <div className={`p-3 ${card.iconBg} rounded-lg flex-shrink-0`}>{card.icon}</div>
+          <div className={`p-3 ${card.iconBg} flex-shrink-0`}>{card.icon}</div>
           <div className="min-w-0">
             <p className="text-sm text-ink-mute mb-1 truncate">{card.label}</p>
             <p className="text-2xl font-bold text-ink">{card.value}</p>

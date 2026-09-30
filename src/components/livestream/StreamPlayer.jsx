@@ -39,32 +39,32 @@ const DonateAlert = ({ alert, onEnd, duration = 5000 }) => {
 
   return (
     <div className={`
-      animate-slideInLeft flex flex-col bg-espresso/80 backdrop-blur-md
-      border border-brand/50 rounded-lg shadow-2xl mb-2 w-[260px] overflow-hidden
+      animate-slideInLeft flex flex-col bg-ink/80
+      border border-ink/50 shadow-soft mb-2 w-[260px] overflow-hidden
       transition-all duration-300
       ${isExiting ? 'opacity-0 -translate-x-4' : 'opacity-100'}
     `}>
       
       {/* ===== NỘI DUNG ===== */}
       <div className="flex items-center gap-3 px-4 py-2.5">
-        <div className="w-8 h-8 rounded-full bg-brand/20 flex items-center justify-center flex-shrink-0">
-          <Heart size={16} className="text-brand-on-dark fill-brand-on-dark" />
+        <div className="w-8 h-8 bg-ink/20 flex items-center justify-center flex-shrink-0">
+          <Heart size={16} className="text-stock fill-stock" />
         </div>
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-bold text-cream truncate">{alert.user?.name || 'Một khán giả'}</p>
-          <p className="text-xs text-brand-on-dark font-semibold truncate">
+          <p className="text-sm font-bold text-lamp truncate">{alert.user?.name || 'Một khán giả'}</p>
+          <p className="text-xs text-stock font-semibold truncate">
             đã ủng hộ {alert.amount?.toLocaleString('vi-VN')}đ cho {alert.performerName}
           </p>
           {alert.message && (
-            <p className="text-[11px] text-cream-mute italic truncate">"{alert.message}"</p>
+            <p className="text-[11px] text-lamp-mute italic truncate">"{alert.message}"</p>
           )}
         </div>
       </div>
 
       {/* ===== PROGRESS BAR ===== */}
-      <div className="h-1 w-full bg-white/10">
+      <div className="h-1 w-full bg-card/10">
         <div
-          className="h-full bg-gradient-to-r from-brand to-brand-hover"
+          className="h-full bg-ember"
           style={{ width: `${progress}%` }}
         />
       </div>
@@ -100,7 +100,7 @@ const StreamPlayer = ({ streamUrl, donationAlerts, onAlertEnd, hidden = false, o
   }, [streamUrl])
 
   return (
-    <div className="w-full h-full relative bg-espresso flex items-center justify-center">
+    <div className="w-full h-full relative bg-ink flex items-center justify-center">
       
       <video 
         ref={videoRef} 
@@ -119,10 +119,10 @@ const StreamPlayer = ({ streamUrl, donationAlerts, onAlertEnd, hidden = false, o
 
       {/* PLACEHOLDER KHI CHƯA CÓ STREAM URL */}
       {!streamUrl && !hidden && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center text-cream-mute z-10">
-          <DollarSign size={40} className="mb-3 text-brand-on-dark" />
-          <p className="font-bold text-lg text-cream">Chưa có tín hiệu phát</p>
-          <p className="text-sm text-cream-mute">Đang chờ phòng trà bắt đầu phát…</p>
+        <div className="absolute inset-0 flex flex-col items-center justify-center text-lamp-mute z-10">
+          <DollarSign size={40} className="mb-3 text-stock" />
+          <p className="font-bold text-lg text-lamp">Chưa có tín hiệu phát</p>
+          <p className="text-sm text-lamp-mute">Đang chờ phòng trà bắt đầu phát…</p>
         </div>
       )}
     </div>

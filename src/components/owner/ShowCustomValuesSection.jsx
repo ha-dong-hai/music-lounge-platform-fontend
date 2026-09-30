@@ -60,7 +60,7 @@ import { Loader2, ListFilter, Save, EyeOff } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { getShowCustomValues, setShowCustomValues } from '../../services/customCriteriaServices'
 
-const inputCls = 'mt-1 w-full px-3 py-2 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-brand/50'
+const inputCls = 'mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink focus:outline-none focus:border-ink/50'
 
 // BẢN SAO CHÍNH XÁC luật chuẩn hoá của máy chủ (CustomCriteriaValue.GoMotLopNhayKep + Trim).
 // Hai bên PHẢI khớp từng bước, nếu không thì màn này gắn nhãn "không có trong danh sách" lên một
@@ -294,8 +294,8 @@ const ShowCustomValuesSection = ({ showId }) => {
 
   if (isLoading) {
     return (
-      <div className="bg-card border border-line rounded-xl py-12 flex justify-center">
-        <Loader2 size={22} className="animate-spin text-brand-text" />
+      <div className="bg-card border border-line py-12 flex justify-center">
+        <Loader2 size={22} className="animate-spin text-ink" />
       </div>
     )
   }
@@ -303,7 +303,7 @@ const ShowCustomValuesSection = ({ showId }) => {
   // Chưa định nghĩa tiêu chí nào thì không bày một khối trống ra — nói chỗ để tạo.
   if (criteria.length === 0) {
     return (
-      <div className="bg-card border border-line rounded-xl p-6">
+      <div className="bg-card border border-line p-6">
         <h3 className="text-base font-semibold text-ink flex items-center gap-2">
           <ListFilter size={16} /> Tiêu chí riêng
         </h3>
@@ -316,7 +316,7 @@ const ShowCustomValuesSection = ({ showId }) => {
   }
 
   return (
-    <div className="bg-card border border-line rounded-xl p-6">
+    <div className="bg-card border border-line p-6">
       <h3 className="text-base font-semibold text-ink flex items-center gap-2">
         <ListFilter size={16} /> Tiêu chí riêng của buổi diễn
       </h3>
@@ -406,7 +406,7 @@ const ShowCustomValuesSection = ({ showId }) => {
       </div>
 
       <button onClick={luu} disabled={isBusy}
-        className="mt-5 flex items-center gap-2 px-4 py-2 rounded-lg bg-brand text-on-brand text-sm font-bold hover:bg-brand-hover disabled:opacity-50">
+        className="mt-5 flex items-center gap-2 px-4 py-2 bg-ink text-lamp text-sm font-bold hover:bg-board disabled:opacity-50">
         {isBusy ? <Loader2 size={15} className="animate-spin" /> : <Save size={15} />} Lưu tiêu chí
       </button>
     </div>

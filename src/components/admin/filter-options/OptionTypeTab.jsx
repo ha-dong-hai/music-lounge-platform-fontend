@@ -117,30 +117,30 @@ const OptionTypeTab = ({ typeKey, typeLabel, hasNameEn, hasDescription, hasIsAct
         </p>
         <button
           onClick={openCreate}
-          className="flex items-center gap-2 bg-brand text-on-brand px-4 py-2.5 rounded-lg font-bold text-sm hover:bg-brand-hover transition-colors"
+          className="flex items-center gap-2 bg-ink text-lamp px-4 py-2.5 font-bold text-sm hover:bg-board transition-colors"
         >
           <Plus size={16} /> Add {typeLabel}
         </button>
       </div>
 
       {/* TABLE */}
-      <div className="bg-card border border-line rounded-xl overflow-hidden">
+      <div className="bg-card border border-line overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left whitespace-nowrap">
             <thead className="bg-sunken/70 border-b border-line">
               <tr>
-                <th className="p-4 text-xs font-semibold text-ink-soft uppercase tracking-wider w-24">ID</th>
-                <th className="p-4 text-xs font-semibold text-ink-soft uppercase tracking-wider">Tên</th>
+                <th className="p-4 text-sm font-semibold text-ink-softr w-24">ID</th>
+                <th className="p-4 text-sm font-semibold text-ink-softr">Tên</th>
                 {hasNameEn && (
-                  <th className="p-4 text-xs font-semibold text-ink-soft uppercase tracking-wider">Name (EN)</th>
+                  <th className="p-4 text-sm font-semibold text-ink-softr">Name (EN)</th>
                 )}
                 {hasDescription && (
-                  <th className="p-4 text-xs font-semibold text-ink-soft uppercase tracking-wider">Mô tả</th>
+                  <th className="p-4 text-sm font-semibold text-ink-softr">Mô tả</th>
                 )}
                 {coTat && (
-                  <th className="p-4 text-xs font-semibold text-ink-soft uppercase tracking-wider">Trạng thái</th>
+                  <th className="p-4 text-sm font-semibold text-ink-softr">Trạng thái</th>
                 )}
-                <th className="p-4 text-xs font-semibold text-ink-soft uppercase tracking-wider text-right">Thao tác</th>
+                <th className="p-4 text-sm font-semibold text-ink-softr text-right">Thao tác</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-line">
@@ -162,7 +162,7 @@ const OptionTypeTab = ({ typeKey, typeLabel, hasNameEn, hasDescription, hasIsAct
                         {opt.isActive === false ? (
                           <span className="px-2 py-0.5 rounded-md bg-sunken text-ink-mute text-xs">Đã tắt</span>
                         ) : (
-                          <span className="px-2 py-0.5 rounded-md bg-green-500/10 text-success text-xs">Đang bật</span>
+                          <span className="px-2 py-0.5 rounded-md bg-success/10 text-success text-xs">Đang bật</span>
                         )}
                       </td>
                     )}
@@ -170,7 +170,7 @@ const OptionTypeTab = ({ typeKey, typeLabel, hasNameEn, hasDescription, hasIsAct
                       <div className="flex items-center justify-end gap-2">
                         <button
                           onClick={() => openEdit(opt)}
-                          className="p-2 rounded-lg bg-line/30 text-ink-soft hover:bg-line/50 hover:text-brand-text transition-colors"
+                          className="p-2 bg-line/30 text-ink-soft hover:bg-line/50 hover:text-ink transition-colors"
                           title="Sửa"
                         >
                           <Pencil size={14} />
@@ -180,7 +180,7 @@ const OptionTypeTab = ({ typeKey, typeLabel, hasNameEn, hasDescription, hasIsAct
                             <button
                               onClick={() => doiTrangThai(opt, true)}
                               disabled={isHiding}
-                              className="p-2 rounded-lg bg-line/30 text-ink-soft hover:bg-line/50 hover:text-success transition-colors disabled:opacity-40"
+                              className="p-2 bg-line/30 text-ink-soft hover:bg-line/50 hover:text-success transition-colors disabled:opacity-40"
                               title="Bật lại (hiện trong danh sách chọn)"
                             >
                               <Eye size={14} />
@@ -188,7 +188,7 @@ const OptionTypeTab = ({ typeKey, typeLabel, hasNameEn, hasDescription, hasIsAct
                           ) : (
                             <button
                               onClick={() => setHideTarget(opt)}
-                              className="p-2 rounded-lg bg-line/30 text-ink-soft hover:bg-line/50 hover:text-warning transition-colors"
+                              className="p-2 bg-line/30 text-ink-soft hover:bg-line/50 hover:text-warning transition-colors"
                               title="Tắt (ẩn khỏi danh sách chọn)"
                             >
                               <EyeOff size={14} />
@@ -197,7 +197,7 @@ const OptionTypeTab = ({ typeKey, typeLabel, hasNameEn, hasDescription, hasIsAct
                         )}
                         <button
                           onClick={() => setDeleteTarget(opt)}
-                          className="p-2 rounded-lg bg-line/30 text-ink-soft hover:bg-red-500/15 hover:text-danger transition-colors"
+                          className="p-2 bg-line/30 text-ink-soft hover:bg-danger/15 hover:text-danger transition-colors"
                           title="Xoá"
                         >
                           <Trash2 size={14} />

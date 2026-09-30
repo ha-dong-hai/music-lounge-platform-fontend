@@ -14,6 +14,7 @@ import { Loader2, ArrowLeft, Mic2, CalendarDays, MapPin, Heart, History, Calenda
 import dayjs from 'dayjs'
 import toast from 'react-hot-toast'
 import { getShowsByPerformer } from '../../services/showServices'
+import { anhChuCai } from '../../utils/anhChuCai'
 
 const fmtGia = (show) => (
   show.minPrice === 0 && show.maxPrice === 0
@@ -49,7 +50,7 @@ const PerformerPage = () => {
   if (isLoading && !data) {
     return (
       <div className="min-h-screen bg-page flex items-center justify-center">
-        <Loader2 size={32} className="animate-spin text-brand-text" />
+        <Loader2 size={32} className="animate-spin text-ink" />
       </div>
     )
   }
@@ -58,7 +59,7 @@ const PerformerPage = () => {
     return (
       <div className="min-h-screen bg-page flex flex-col items-center justify-center text-ink">
         <h1 className="text-2xl font-bold mb-4">Không tìm thấy nghệ sĩ</h1>
-        <Link to="/" className="text-brand-text flex items-center gap-2">
+        <Link to="/" className="text-ink flex items-center gap-2">
           <ArrowLeft size={18} /> Về trang chủ
         </Link>
       </div>
@@ -71,27 +72,27 @@ const PerformerPage = () => {
   return (
     <div className="min-h-screen bg-page text-ink pb-20">
       <div className="max-w-[1200px] mx-auto px-6 py-8">
-        <Link to="/" className="inline-flex items-center gap-2 text-sm font-medium text-ink-soft hover:text-brand-text mb-6">
+        <Link to="/" className="inline-flex items-center gap-2 text-sm font-medium text-ink-soft hover:text-ink mb-6">
           <ArrowLeft size={18} /> Về trang chủ
         </Link>
 
         {/* HỒ SƠ NGHỆ SĨ */}
-        <div className="bg-card border border-line rounded-2xl p-6 sm:p-8 flex flex-col sm:flex-row gap-6">
+        <div className="bg-card border border-line p-6 sm:p-8 flex flex-col sm:flex-row gap-6">
           <img
-            src={data.avatarUrl || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(data.name)}&backgroundColor=1f2937`}
+            src={data.avatarUrl || anhChuCai(data.name)}
             alt={data.name}
-            className="w-24 h-24 rounded-full object-cover border border-line flex-shrink-0 mx-auto sm:mx-0"
+            className="w-24 h-24 object-cover border border-line flex-shrink-0 mx-auto sm:mx-0"
           />
           <div className="min-w-0 flex-1 text-center sm:text-left">
             <div className="flex items-center gap-2 justify-center sm:justify-start">
-              <Mic2 size={18} className="text-brand-text" />
+              <Mic2 size={18} className="text-ink" />
               <h1 className="text-2xl font-bold">{data.name}</h1>
             </div>
 
             {(data.genres?.length ?? 0) > 0 && (
               <div className="mt-3 flex flex-wrap gap-2 justify-center sm:justify-start">
                 {data.genres.map((g) => (
-                  <span key={g.id} className="px-2.5 py-1 rounded-md bg-brand/10 text-brand-text text-xs font-medium">
+                  <span key={g.id} className="px-2.5 py-1 rounded-md bg-ink/10 text-ink text-xs font-medium">
                     {g.name}
                   </span>
                 ))}
@@ -104,9 +105,9 @@ const PerformerPage = () => {
 
             <Link
               to={`/performers/${performerId}/donations`}
-              className="mt-5 inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-line text-ink-soft text-sm font-bold hover:bg-sunken"
+              className="mt-5 inline-flex items-center gap-2 px-4 py-2 border border-line text-ink-soft text-sm font-bold hover:bg-sunken"
             >
-              <Heart size={15} className="text-brand-text" /> Xem sao kê donate
+              <Heart size={15} className="text-ink" /> Xem sao kê donate
             </Link>
           </div>
         </div>
@@ -120,16 +121,16 @@ const PerformerPage = () => {
               sĩ chưa có lịch mới sẽ trông như chưa từng diễn ở đâu. */}
           <button
             onClick={() => { setXemDaDien((v) => !v); setPage(1) }}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-line text-ink-soft text-xs font-bold hover:bg-sunken"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-line text-ink-soft text-xs font-bold hover:bg-sunken"
           >
             {xemDaDien ? <><CalendarClock size={14} /> Chỉ xem buổi sắp tới</> : <><History size={14} /> Xem cả buổi đã diễn</>}
           </button>
         </div>
 
         {isLoading ? (
-          <div className="py-16 flex justify-center"><Loader2 size={26} className="animate-spin text-brand-text" /></div>
+          <div className="py-16 flex justify-center"><Loader2 size={26} className="animate-spin text-ink" /></div>
         ) : shows.length === 0 ? (
-          <div className="bg-card border border-line rounded-2xl p-10 text-center">
+          <div className="bg-card border border-line p-10 text-center">
             <p className="text-sm text-ink-mute">
               {xemDaDien
                 ? 'Nghệ sĩ này chưa có buổi diễn nào trên hệ thống.'
@@ -140,7 +141,7 @@ const PerformerPage = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {shows.map((s) => (
               <Link key={s.id} to={`/shows/${s.id}`}
-                className="bg-card border border-line rounded-xl overflow-hidden hover:border-brand/40 transition-colors group">
+                className="bg-card border border-line overflow-hidden hover:border-ink/40 transition-colors group">
                 <div className="aspect-video bg-sunken overflow-hidden">
                   {s.coverImageUrl && (
                     <img src={s.coverImageUrl} alt={s.name}
@@ -158,7 +159,7 @@ const PerformerPage = () => {
                       <MapPin size={12} className="flex-shrink-0" /> {s.loungeName}
                     </p>
                   )}
-                  <p className="text-sm text-brand-text font-bold mt-2.5">{fmtGia(s)}</p>
+                  <p className="text-sm text-ink font-bold mt-2.5">{fmtGia(s)}</p>
                 </div>
               </Link>
             ))}
@@ -168,12 +169,12 @@ const PerformerPage = () => {
         {totalPages > 1 && (
           <div className="flex items-center justify-center gap-3 mt-6">
             <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page <= 1}
-              className="px-4 py-2 rounded-lg border border-line text-sm text-ink-soft hover:bg-sunken disabled:opacity-40">
+              className="px-4 py-2 border border-line text-sm text-ink-soft hover:bg-sunken disabled:opacity-40">
               Trước
             </button>
             <span className="text-sm text-ink-mute">Trang {page}/{totalPages}</span>
             <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page >= totalPages}
-              className="px-4 py-2 rounded-lg border border-line text-sm text-ink-soft hover:bg-sunken disabled:opacity-40">
+              className="px-4 py-2 border border-line text-sm text-ink-soft hover:bg-sunken disabled:opacity-40">
               Sau
             </button>
           </div>

@@ -37,19 +37,19 @@ const ReviewVenueModal = ({ venue, decision, onClose, onSaved }) => {
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-espresso/80 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-card border border-line rounded-2xl w-full max-w-md shadow-2xl">
+      <div className="absolute inset-0 bg-ink/80" onClick={onClose} />
+      <div className="relative bg-card border border-line w-full max-w-md shadow-soft">
         <div className="flex justify-between items-center p-5 border-b border-line">
           <h2 className="text-lg font-bold text-ink">
             {laTuChoi ? 'Từ chối hồ sơ phòng trà' : 'Duyệt phòng trà'}
           </h2>
-          <button onClick={onClose} disabled={isBusy} className="p-2 hover:bg-sunken rounded-full text-ink-soft disabled:opacity-30">
+          <button onClick={onClose} disabled={isBusy} className="p-2 hover:bg-sunken text-ink-soft disabled:opacity-30">
             <X size={20} />
           </button>
         </div>
 
         <form onSubmit={submit} className="p-5 space-y-4">
-          <div className="bg-sunken/70 border border-line rounded-lg p-3">
+          <div className="bg-sunken/70 border border-line p-3">
             <p className="text-sm text-ink font-medium">{venue.name ?? venue.loungeName}</p>
             {venue.ownerName && <p className="text-xs text-ink-mute mt-0.5">Chủ: {venue.ownerName}</p>}
             {venue.hasBusinessLicense === false && (
@@ -72,7 +72,7 @@ const ReviewVenueModal = ({ venue, decision, onClose, onSaved }) => {
               Ghi chú {laTuChoi && <span className="text-danger">* (bắt buộc khi từ chối)</span>}
             </label>
             <textarea value={reviewNote} onChange={(e) => setReviewNote(e.target.value)} rows={4}
-              className="mt-1 w-full px-3 py-2 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-brand/50 resize-none"
+              className="mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink focus:outline-none focus:border-ink/50 resize-none"
               placeholder={laTuChoi
                 ? 'Ví dụ: ảnh giấy phép kinh doanh không đọc được; địa chỉ không khớp giấy phép.'
                 : 'Không bắt buộc.'} />
@@ -80,12 +80,12 @@ const ReviewVenueModal = ({ venue, decision, onClose, onSaved }) => {
 
           <div className="flex gap-3">
             <button type="button" onClick={onClose} disabled={isBusy}
-              className="flex-1 py-2.5 border border-line-strong text-ink-soft rounded-lg font-medium hover:bg-sunken disabled:opacity-50">
+              className="flex-1 py-2.5 border border-line-strong text-ink-soft font-medium hover:bg-sunken disabled:opacity-50">
               Huỷ
             </button>
             <button type="submit" disabled={isBusy}
-              className={`flex-1 py-2.5 rounded-lg font-bold flex items-center justify-center gap-2 disabled:opacity-50 ${
-                laTuChoi ? 'bg-red-500 text-white hover:bg-red-600' : 'bg-green-500 text-white hover:bg-green-600'}`}>
+              className={`flex-1 py-2.5 font-bold flex items-center justify-center gap-2 disabled:opacity-50 ${
+                laTuChoi ? 'bg-danger text-lamp hover:bg-danger' : 'bg-success text-lamp hover:bg-success'}`}>
               {isBusy ? <Loader2 size={16} className="animate-spin" /> : laTuChoi ? <XCircle size={16} /> : <CheckCircle2 size={16} />}
               {laTuChoi ? 'Từ chối' : 'Duyệt'}
             </button>

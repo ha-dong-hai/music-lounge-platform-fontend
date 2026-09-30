@@ -27,11 +27,11 @@ import { getLoungeFnbOrders, updateFnbOrderStatus } from '../../services/fnbServ
 const fmtMoney = (v) => `${Number(v || 0).toLocaleString('vi-VN')}đ`
 
 const STATUS_VIEW = {
-  Pending: { label: 'Chờ làm', cls: 'bg-yellow-500/10 text-warning border-yellow-500/30' },
-  Preparing: { label: 'Đang làm', cls: 'bg-blue-500/10 text-sky-700 border-blue-500/30' },
-  Served: { label: 'Đã phục vụ', cls: 'bg-green-500/10 text-success border-green-500/30' },
+  Pending: { label: 'Chờ làm', cls: 'bg-warning/10 text-warning border-warning/30' },
+  Preparing: { label: 'Đang làm', cls: 'bg-ink/10 text-ink border-ink/30' },
+  Served: { label: 'Đã phục vụ', cls: 'bg-success/10 text-success border-success/30' },
   Paid: { label: 'Đã thanh toán', cls: 'bg-line-strong/10 text-ink-soft border-line-strong/30' },
-  Cancelled: { label: 'Đã huỷ', cls: 'bg-red-500/10 text-danger border-red-500/30' },
+  Cancelled: { label: 'Đã huỷ', cls: 'bg-danger/10 text-danger border-danger/30' },
 }
 
 // Bước tiếp theo hợp lệ của bếp. Không có đường lùi — backend cũng không cho.
@@ -107,14 +107,14 @@ const OwnerFnbOrdersPage = () => {
   }
 
   if (isLoading && !orders.length) {
-    return <div className="py-20 flex justify-center"><Loader2 size={32} className="animate-spin text-brand-text" /></div>
+    return <div className="py-20 flex justify-center"><Loader2 size={32} className="animate-spin text-ink" /></div>
   }
 
   if (!lounge) {
     return (
       <div className="max-w-2xl">
         <h1 className="text-2xl font-bold text-ink mb-1">Đơn gọi món</h1>
-        <div className="mt-4 bg-card border border-line rounded-xl p-6">
+        <div className="mt-4 bg-card border border-line p-6">
           <p className="text-sm text-ink-soft">Chưa có phòng trà nào để nhận đơn.</p>
         </div>
       </div>
@@ -132,7 +132,7 @@ const OwnerFnbOrdersPage = () => {
           <p className="text-ink-soft text-sm">Đơn khách đặt tại bàn. Trạng thái bếp và việc thu tiền là hai việc tách nhau.</p>
         </div>
         <button onClick={loadOrders} disabled={isLoading}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-line text-ink-soft text-xs font-bold hover:bg-sunken disabled:opacity-50">
+          className="flex items-center gap-1.5 px-3 py-1.5 border border-line text-ink-soft text-xs font-bold hover:bg-sunken disabled:opacity-50">
           <RefreshCw size={14} className={isLoading ? 'animate-spin' : ''} /> Tải lại
         </button>
       </div>
@@ -140,8 +140,8 @@ const OwnerFnbOrdersPage = () => {
       <div className="flex gap-2">
         {LOC.map((l) => (
           <button key={l.key} onClick={() => setLoc(l.key)}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${loc === l.key
-              ? 'bg-sunken border-brand/40 text-brand-text'
+            className={`px-3 py-1.5 text-xs font-medium border transition-colors ${loc === l.key
+              ? 'bg-sunken border-ink/40 text-ink'
               : 'bg-page border-line text-ink-soft hover:text-ink'}`}>
             {l.label}
           </button>
@@ -149,7 +149,7 @@ const OwnerFnbOrdersPage = () => {
       </div>
 
       {hienThi.length === 0 ? (
-        <div className="bg-card border border-line rounded-xl p-10 text-center">
+        <div className="bg-card border border-line p-10 text-center">
           <UtensilsCrossed size={28} className="mx-auto mb-3 text-ink-mute" />
           <p className="text-sm text-ink-mute">Không có đơn nào trong mục này.</p>
         </div>
@@ -163,7 +163,7 @@ const OwnerFnbOrdersPage = () => {
             const dangBan = busyId === o.id
 
             return (
-              <div key={o.id} className="bg-card border border-line rounded-xl p-5 flex flex-col">
+              <div key={o.id} className="bg-card border border-line p-5 flex flex-col">
                 <div className="flex items-start justify-between gap-2">
                   <div>
                     <p className="text-ink font-bold">#{o.id}</p>
@@ -207,7 +207,7 @@ const OwnerFnbOrdersPage = () => {
                 </div>
 
                 {conLinkOnline && (
-                  <p className="mt-2 text-xs text-sky-700/90 flex items-start gap-1.5 leading-relaxed">
+                  <p className="mt-2 text-xs text-ink/90 flex items-start gap-1.5 leading-relaxed">
                     <CreditCard size={13} className="mt-px flex-shrink-0" />
                     Khách đang giữ liên kết thanh toán online (còn hạn tới {dayjs(o.onlinePaymentLiveUntil).format('HH:mm')}).
                     Trong lúc này hệ thống không cho thu tiền mặt và không cho huỷ đơn.
@@ -221,7 +221,7 @@ const OwnerFnbOrdersPage = () => {
                     return (
                       <button onClick={() => doiTrangThai(o, buocTiep)} disabled={dangBan || khoaThuTien}
                         title={khoaThuTien ? 'Khách đang có liên kết thanh toán online còn hạn' : undefined}
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand text-on-brand text-xs font-bold hover:bg-brand-hover disabled:opacity-40 disabled:cursor-not-allowed">
+                        className="flex items-center gap-1.5 px-3 py-1.5 bg-ink text-lamp text-xs font-bold hover:bg-board disabled:opacity-40 disabled:cursor-not-allowed">
                         {dangBan ? <Loader2 size={13} className="animate-spin" />
                           : buocTiep === 'Paid' ? <Banknote size={13} /> : <UtensilsCrossed size={13} />}
                         {nhanBuocTiep(buocTiep, o.isPaid)}
@@ -231,7 +231,7 @@ const OwnerFnbOrdersPage = () => {
                   {o.status !== 'Cancelled' && o.status !== 'Paid' && (
                     <button onClick={() => doiTrangThai(o, 'Cancelled')} disabled={dangBan || conLinkOnline}
                       title={conLinkOnline ? 'Không huỷ được khi khách còn liên kết thanh toán online' : undefined}
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-line text-ink-soft text-xs font-bold hover:bg-sunken disabled:opacity-40 disabled:cursor-not-allowed">
+                      className="flex items-center gap-1.5 px-3 py-1.5 border border-line text-ink-soft text-xs font-bold hover:bg-sunken disabled:opacity-40 disabled:cursor-not-allowed">
                       <XCircle size={13} /> Huỷ đơn
                     </button>
                   )}

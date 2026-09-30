@@ -16,11 +16,11 @@ import toast from 'react-hot-toast'
 import { getMyPenalties, submitPenaltyAppeal } from '../../services/penaltyServices'
 
 const TYPE_VIEW = {
-  Warning: { label: 'Cảnh cáo', cls: 'bg-yellow-500/10 text-warning border-yellow-500/30', icon: AlertTriangle,
+  Warning: { label: 'Cảnh cáo', cls: 'bg-warning/10 text-warning border-warning/30', icon: AlertTriangle,
     hint: 'Ghi lại để theo dõi. Phòng trà vẫn hoạt động bình thường.' },
-  Suspension: { label: 'Tạm đình chỉ', cls: 'bg-orange-500/10 text-orange-700 border-orange-500/30', icon: ShieldAlert,
+  Suspension: { label: 'Tạm đình chỉ', cls: 'bg-warning/10 text-warning border-warning/30', icon: ShieldAlert,
     hint: 'Trong thời gian đình chỉ, phòng trà không mở buổi diễn mới và không bán vé được.' },
-  Ban: { label: 'Cấm hoạt động', cls: 'bg-red-500/10 text-danger border-red-500/30', icon: Ban,
+  Ban: { label: 'Cấm hoạt động', cls: 'bg-danger/10 text-danger border-danger/30', icon: Ban,
     hint: 'Phòng trà bị cấm hoạt động trên nền tảng.' },
 }
 
@@ -54,15 +54,15 @@ const AppealModal = ({ penalty, onClose, onSaved }) => {
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-espresso/80 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-card border border-line rounded-2xl w-full max-w-md shadow-2xl">
+      <div className="absolute inset-0 bg-ink/80" onClick={onClose} />
+      <div className="relative bg-card border border-line w-full max-w-md shadow-soft">
         <div className="flex justify-between items-center p-5 border-b border-line">
           <h2 className="text-lg font-bold text-ink">Khiếu nại án phạt</h2>
-          <button onClick={onClose} className="p-2 hover:bg-sunken rounded-full text-ink-soft"><X size={20} /></button>
+          <button onClick={onClose} className="p-2 hover:bg-sunken text-ink-soft"><X size={20} /></button>
         </div>
 
         <form onSubmit={submit} className="p-5 space-y-4">
-          <div className="bg-sunken/70 border border-line rounded-lg p-4">
+          <div className="bg-sunken/70 border border-line p-4">
             <p className="text-sm text-ink font-medium">{TYPE_VIEW[penalty.penaltyType]?.label ?? penalty.penaltyType}</p>
             <p className="text-xs text-ink-mute mt-1 leading-relaxed">{penalty.reason}</p>
           </div>
@@ -70,7 +70,7 @@ const AppealModal = ({ penalty, onClose, onSaved }) => {
           <div>
             <label className="text-xs text-ink-mute">Lý do khiếu nại</label>
             <textarea value={reason} onChange={(e) => setReason(e.target.value)} rows={5}
-              className="mt-1 w-full px-3 py-2 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-brand/50 resize-none"
+              className="mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink focus:outline-none focus:border-ink/50 resize-none"
               placeholder="Trình bày vì sao bạn cho rằng án phạt này không đúng, kèm thông tin đối chiếu nếu có." />
             <p className="text-xs text-ink-mute mt-1">
               Mỗi án phạt chỉ khiếu nại được một lần, nên hãy trình bày đầy đủ ngay lần này.
@@ -78,7 +78,7 @@ const AppealModal = ({ penalty, onClose, onSaved }) => {
           </div>
 
           <button type="submit" disabled={isBusy}
-            className="w-full py-2.5 bg-brand text-on-brand rounded-lg font-bold flex items-center justify-center gap-2 disabled:opacity-50">
+            className="w-full py-2.5 bg-ink text-lamp font-bold flex items-center justify-center gap-2 disabled:opacity-50">
             {isBusy && <Loader2 size={16} className="animate-spin" />} Gửi khiếu nại
           </button>
         </form>
@@ -107,7 +107,7 @@ const OwnerPenaltiesPage = () => {
   useEffect(() => { const chay = async () => { await load() }; chay() }, [load])
 
   if (isLoading) {
-    return <div className="py-20 flex justify-center"><Loader2 size={32} className="animate-spin text-brand-text" /></div>
+    return <div className="py-20 flex justify-center"><Loader2 size={32} className="animate-spin text-ink" /></div>
   }
 
   return (
@@ -118,7 +118,7 @@ const OwnerPenaltiesPage = () => {
       </div>
 
       {items.length === 0 ? (
-        <div className="bg-card border border-line rounded-xl p-10 text-center">
+        <div className="bg-card border border-line p-10 text-center">
           <CheckCircle2 size={28} className="mx-auto mb-3 text-success/40" />
           <p className="text-sm text-ink-mute">Phòng trà của bạn chưa có án phạt nào.</p>
         </div>
@@ -132,10 +132,10 @@ const OwnerPenaltiesPage = () => {
             const khieuNaiDuoc = !daKhieuNai && conHanKhieuNai && ['Active'].includes(p.status)
 
             return (
-              <li key={p.id} className="bg-card border border-line rounded-xl p-5">
+              <li key={p.id} className="bg-card border border-line p-5">
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div className="flex items-start gap-3 min-w-0">
-                    <span className={`p-2 rounded-lg border flex-shrink-0 ${loai.cls}`}>
+                    <span className={`p-2 border flex-shrink-0 ${loai.cls}`}>
                       <loai.icon size={16} />
                     </span>
                     <div className="min-w-0">
@@ -186,7 +186,7 @@ const OwnerPenaltiesPage = () => {
 
                 {khieuNaiDuoc && (
                   <button onClick={() => setKhieuNai(p)}
-                    className="mt-4 flex items-center gap-2 px-4 py-2 rounded-lg border border-line text-ink-soft text-sm font-bold hover:bg-sunken">
+                    className="mt-4 flex items-center gap-2 px-4 py-2 border border-line text-ink-soft text-sm font-bold hover:bg-sunken">
                     <Gavel size={15} /> Khiếu nại án phạt này
                   </button>
                 )}

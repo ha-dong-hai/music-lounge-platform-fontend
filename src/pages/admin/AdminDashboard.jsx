@@ -34,13 +34,13 @@ const MEASURES = [
 ]
 
 const StatCard = ({ title, value, note, icon: Icon, color, bg }) => (
-  <div className="bg-card border border-line rounded-xl p-5 flex items-start justify-between">
+  <div className="bg-card border border-line p-5 flex items-start justify-between">
     <div className="min-w-0">
       <p className="text-sm text-ink-mute mb-1">{title}</p>
       <p className="text-2xl font-bold text-ink">{value}</p>
       {note && <p className="text-xs mt-2 font-medium text-ink-mute">{note}</p>}
     </div>
-    <div className={`p-3 rounded-lg ${bg} flex-shrink-0`}>
+    <div className={`p-3 ${bg} flex-shrink-0`}>
       <Icon size={24} className={color} />
     </div>
   </div>
@@ -89,7 +89,7 @@ const AdminDashboard = () => {
   if (isLoading) {
     return (
       <div className="py-20 flex justify-center">
-        <Loader2 size={32} className="animate-spin text-brand-text" />
+        <Loader2 size={32} className="animate-spin text-ink" />
       </div>
     )
   }
@@ -116,23 +116,23 @@ const AdminDashboard = () => {
           <StatCard
             title="Doanh thu nền tảng"
             value={fmtMoney(overview?.platformRevenueInPeriod)}
-            icon={DollarSign} color="text-success" bg="bg-green-500/10"
+            icon={DollarSign} color="text-success" bg="bg-success/10"
           />
           <StatCard
             title="Buổi diễn trong kỳ"
             value={overview?.eventsInPeriodCount ?? 0}
-            icon={Music2} color="text-sky-400" bg="bg-blue-500/10"
+            icon={Music2} color="text-ink" bg="bg-ink/10"
           />
           <StatCard
             title="Khán giả đăng ký mới"
             value={overview?.newAudienceSignupsInPeriod ?? 0}
-            icon={Users} color="text-purple-400" bg="bg-purple-500/10"
+            icon={Users} color="text-ink" bg="bg-ink/10"
           />
           <StatCard
             title="Phòng trà đang hoạt động"
             value={platform?.operatingVenues ?? overview?.activeVenuesCount ?? 0}
             note="Tính tại thời điểm hiện tại, không theo kỳ"
-            icon={Store} color="text-brand-text" bg="bg-brand/10"
+            icon={Store} color="text-ink" bg="bg-ink/10"
           />
         </div>
       </div>
@@ -144,23 +144,23 @@ const AdminDashboard = () => {
           <StatCard
             title="Tổng giá trị giao dịch"
             value={fmtMoney(platform?.totalGrossMerchandiseValue)}
-            icon={DollarSign} color="text-success" bg="bg-green-500/10"
+            icon={DollarSign} color="text-success" bg="bg-success/10"
           />
           <StatCard
             title="Vé đã bán"
             value={(platform?.totalTicketsSold ?? 0).toLocaleString('vi-VN')}
-            icon={Ticket} color="text-sky-400" bg="bg-blue-500/10"
+            icon={Ticket} color="text-ink" bg="bg-ink/10"
           />
           <StatCard
             title="Tổng donate"
             value={fmtMoney(platform?.totalDonationVolume)}
-            icon={HeartHandshake} color="text-pink-400" bg="bg-pink-500/10"
+            icon={HeartHandshake} color="text-danger" bg="bg-danger/10"
           />
           <StatCard
             title="Chờ duyệt thủ công"
             value={platform?.pendingModerationsCount ?? 0}
             note={platform?.pendingModerationsCount > 0 ? 'Cần xử lý' : 'Đã xử lý hết'}
-            icon={AlertCircle} color="text-warning" bg="bg-yellow-500/10"
+            icon={AlertCircle} color="text-warning" bg="bg-warning/10"
           />
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
@@ -168,17 +168,17 @@ const AdminDashboard = () => {
             title="Phòng trà đã đăng ký"
             value={platform?.totalVenues ?? 0}
             note={venueBreakdown(platform?.venuesByStatus) || 'Mọi trạng thái, kể cả chờ duyệt'}
-            icon={Store} color="text-brand-text" bg="bg-brand/10"
+            icon={Store} color="text-ink" bg="bg-ink/10"
           />
           <StatCard
             title="Buổi diễn đã xuất bản"
             value={platform?.totalPublishedShows ?? 0}
-            icon={Music2} color="text-brand-text" bg="bg-brand/10"
+            icon={Music2} color="text-ink" bg="bg-ink/10"
           />
           <StatCard
             title="Tổng người dùng"
             value={(platform?.totalUsers ?? 0).toLocaleString('vi-VN')}
-            icon={Users} color="text-purple-400" bg="bg-purple-500/10"
+            icon={Users} color="text-ink" bg="bg-ink/10"
           />
         </div>
       </div>
@@ -189,11 +189,11 @@ const AdminDashboard = () => {
           <div className="flex flex-wrap items-center justify-between gap-3">
             <h3 className="text-lg font-semibold text-ink">Doanh thu 6 tháng gần nhất</h3>
             {/* ⭐ SEGMENTED CONTROL từ bản mới */}
-            <div className="inline-flex rounded-lg border border-line p-0.5 bg-sunken/70" role="group" aria-label="Đại lượng doanh thu">
+            <div className="inline-flex border border-line p-0.5 bg-sunken/70" role="group" aria-label="Đại lượng doanh thu">
               {MEASURES.map((m) => (
                 <button key={m.key} onClick={() => setMeasure(m.key)} aria-pressed={measure === m.key}
                   className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
-                    measure === m.key ? 'bg-card text-brand-text' : 'text-ink-soft hover:text-ink'
+                    measure === m.key ? 'bg-card text-ink' : 'text-ink-soft hover:text-ink'
                   }`}>
                   {m.label}
                 </button>
@@ -210,12 +210,12 @@ const AdminDashboard = () => {
 
           {/* Layout 2/3 + 1/3 — kiểu cũ */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2 bg-card border border-line rounded-xl p-6">
+            <div className="lg:col-span-2 bg-card border border-line p-6">
               <h3 className="text-base font-semibold text-ink">Theo tháng, tách theo nguồn</h3>
               <p className="text-xs text-ink-mute mt-0.5 mb-4">Cột chồng theo nguồn doanh thu.</p>
               <RevenueByMonthChart months={dashboard.months} measure={measure} />
             </div>
-            <div className="lg:col-span-1 bg-card border border-line rounded-xl p-6 flex flex-col">
+            <div className="lg:col-span-1 bg-card border border-line p-6 flex flex-col">
               <h3 className="text-base font-semibold text-ink">Doanh thu tháng này</h3>
               <p className="text-xs text-ink-mute mt-0.5 mb-2">
                 Tháng {dayjs(`${dashboard.months.at(-1)?.month}-01`).format('MM/YYYY')}, chưa trọn tháng
@@ -226,16 +226,16 @@ const AdminDashboard = () => {
 
           {/* Top shows + Trending genres — layout kiểu cũ */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2 bg-card border border-line rounded-xl overflow-hidden">
+            <div className="lg:col-span-2 bg-card border border-line overflow-hidden">
               <div className="p-6 pb-4">
-                <h3 className="text-lg font-semibold text-ink">Top shows</h3>
+                <h3 className="text-lg font-semibold text-ink">Buổi diễn nổi bật</h3>
                 <p className="text-ink-mute text-xs">
                   Theo doanh thu vé · {dayjs(dashboard.periodFrom).format('DD/MM/YYYY')} – {dayjs(dashboard.periodTo).format('DD/MM/YYYY')}
                 </p>
               </div>
               <TopShowsTable shows={dashboard.topShows} />
             </div>
-            <div className="lg:col-span-1 bg-card border border-line rounded-xl p-6">
+            <div className="lg:col-span-1 bg-card border border-line p-6">
               <h3 className="text-lg font-semibold text-ink mb-1">Thể loại đang được quan tâm</h3>
               <p className="text-ink-mute text-xs mb-6">Xếp theo số vé bán trong kỳ</p>
               <GenreTrendingList genres={dashboard.genres} />
@@ -243,7 +243,7 @@ const AdminDashboard = () => {
           </div>
         </div>
       ) : (
-        <div className="bg-card border border-line rounded-xl p-6">
+        <div className="bg-card border border-line p-6">
           <p className="text-sm text-ink-soft">Chưa tải được biểu đồ doanh thu và xếp hạng.</p>
           <p className="text-xs text-ink-mute mt-1">Các số liệu tổng quan phía trên không bị ảnh hưởng.</p>
         </div>
@@ -251,10 +251,10 @@ const AdminDashboard = () => {
 
       {/* ===== CHẤT LƯỢNG MÔ HÌNH GỢI Ý (giữ từ bản mới) ===== */}
       {recommender && (
-        <div className="bg-card border border-line rounded-xl p-6">
+        <div className="bg-card border border-line p-6">
           <div className="flex items-start gap-3 mb-4">
-            <div className="p-2.5 rounded-lg bg-brand/10">
-              <Brain size={20} className="text-brand-text" />
+            <div className="p-2.5 bg-ink/10">
+              <Brain size={20} className="text-ink" />
             </div>
             <div>
               <h3 className="text-lg font-semibold text-ink">Chất lượng mô hình gợi ý</h3>
@@ -265,7 +265,7 @@ const AdminDashboard = () => {
           {/* BE cố tình KHÔNG trả con số khi chưa đủ dữ liệu — hiển thị đúng như vậy,
               không quy về 0% kẻo người đọc tưởng mô hình đo được và đang sai */}
           {recommender.status === 'NotEnoughHistory' ? (
-            <div className="bg-yellow-500/5 border border-yellow-500/20 rounded-lg p-4">
+            <div className="bg-warning/5 border border-warning/20 p-4">
               <p className="text-warning text-sm font-medium mb-1">Chưa đủ dữ liệu để đo</p>
               <p className="text-ink-soft text-xs leading-relaxed">{recommender.caveat}</p>
               <div className="flex flex-wrap gap-6 mt-3 text-xs">
@@ -280,9 +280,9 @@ const AdminDashboard = () => {
           ) : (
             <div className="space-y-3">
               {(recommender.models || []).map((m, i) => (
-                <div key={m.name ?? i} className="flex items-center justify-between bg-sunken/70 border border-line rounded-lg px-4 py-3">
+                <div key={m.name ?? i} className="flex items-center justify-between bg-sunken/70 border border-line px-4 py-3">
                   <span className="text-sm text-ink font-medium">{m.name}</span>
-                  <span className="text-sm text-brand-text font-bold">
+                  <span className="text-sm text-ink font-bold">
                     HR@{recommender.k}: {((m.hitRate ?? 0) * 100).toFixed(1)}%
                   </span>
                 </div>

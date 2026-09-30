@@ -50,12 +50,12 @@ const PortalShell = ({ portalName, pageTitle, nav, footer, headerRight, children
   const sidebar = (
     <>
       <div className="h-16 flex items-center justify-between gap-2 pl-6 pr-3 border-b border-line flex-shrink-0">
-        <h1 className="font-display text-lg font-semibold text-brand-text truncate">{portalName}</h1>
+        <h1 className="font-display text-lg font-semibold text-ink truncate">{portalName}</h1>
         <button
           type="button"
           onClick={closeDrawer}
           aria-label="Đóng menu"
-          className="lg:hidden w-11 h-11 -mr-1 inline-flex items-center justify-center rounded-full text-ink-soft hover:text-ink hover:bg-sunken transition-colors flex-shrink-0"
+          className="lg:hidden w-11 h-11 -mr-1 inline-flex items-center justify-center text-ink-soft hover:text-ink hover:bg-sunken transition-colors flex-shrink-0"
         >
           <X size={20} />
         </button>
@@ -80,7 +80,7 @@ const PortalShell = ({ portalName, pageTitle, nav, footer, headerRight, children
       >
         <div
           onClick={closeDrawer}
-          className={`absolute inset-0 bg-espresso/50 backdrop-blur-sm transition-opacity duration-300 ${isDrawerOpen ? 'opacity-100' : 'opacity-0'}`}
+          className={`absolute inset-0 bg-ink/50 transition-opacity duration-300 ${isDrawerOpen ? 'opacity-100' : 'opacity-0'}`}
         />
         <div
           ref={drawerRef}
@@ -101,7 +101,7 @@ const PortalShell = ({ portalName, pageTitle, nav, footer, headerRight, children
             onClick={() => setOpenAt(location.key)}
             aria-label={`Mở menu ${portalName}`}
             aria-expanded={isDrawerOpen}
-            className="lg:hidden w-11 h-11 inline-flex items-center justify-center rounded-full text-ink-soft hover:text-ink hover:bg-sunken transition-colors flex-shrink-0"
+            className="lg:hidden w-11 h-11 inline-flex items-center justify-center text-ink-soft hover:text-ink hover:bg-sunken transition-colors flex-shrink-0"
           >
             <Menu size={22} />
           </button>

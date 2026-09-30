@@ -26,7 +26,7 @@ import { uploadImage } from '../../services/userServices'
 import ConfirmModal from '../../components/shared/ConfirmModal'
 import ZoneSketchLayer from '../../components/owner/ZoneSketchLayer'
 
-const inputCls = 'mt-1 w-full px-3 py-2 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-brand/50'
+const inputCls = 'mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink focus:outline-none focus:border-ink/50'
 
 // Màu mặc định cho khu vực mới — lấy từ bảng màu đã kiểm của biểu đồ, vẫn thấy rõ cả khi tô mờ trên nền sáng.
 const MAU_MAC_DINH = ['#3987e5', '#d95926', '#199e70', '#c98500', '#9085e9', '#d55181']
@@ -65,11 +65,11 @@ const ZoneFormModal = ({ initial, loungeId, onClose, onSaved }) => {
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-espresso/80 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-card border border-line rounded-2xl w-full max-w-md shadow-2xl">
+      <div className="absolute inset-0 bg-ink/80" onClick={onClose} />
+      <div className="relative bg-card border border-line w-full max-w-md shadow-soft">
         <div className="flex justify-between items-center p-5 border-b border-line">
           <h2 className="text-lg font-bold text-ink">{isEdit ? 'Sửa khu vực' : 'Thêm khu vực'}</h2>
-          <button onClick={onClose} className="p-2 hover:bg-sunken rounded-full text-ink-soft"><X size={20} /></button>
+          <button onClick={onClose} className="p-2 hover:bg-sunken text-ink-soft"><X size={20} /></button>
         </div>
         <form onSubmit={submit} className="p-5 space-y-4">
           <div>
@@ -86,7 +86,7 @@ const ZoneFormModal = ({ initial, loungeId, onClose, onSaved }) => {
             <p className="text-xs text-ink-mute mt-1">Số chỗ tối đa của khu vực này.</p>
           </div>
           <button type="submit" disabled={isBusy}
-            className="w-full py-2.5 bg-brand text-on-brand rounded-lg font-bold flex items-center justify-center gap-2 disabled:opacity-50">
+            className="w-full py-2.5 bg-ink text-lamp font-bold flex items-center justify-center gap-2 disabled:opacity-50">
             {isBusy && <Loader2 size={16} className="animate-spin" />} Lưu
           </button>
         </form>
@@ -341,14 +341,14 @@ const OwnerZonesPage = () => {
   }
 
   if (isLoading) {
-    return <div className="py-20 flex justify-center"><Loader2 size={32} className="animate-spin text-brand-text" /></div>
+    return <div className="py-20 flex justify-center"><Loader2 size={32} className="animate-spin text-ink" /></div>
   }
 
   if (!lounge) {
     return (
       <div className="max-w-2xl">
         <h1 className="text-2xl font-bold text-ink mb-1">Khu vực chỗ ngồi</h1>
-        <div className="mt-4 bg-card border border-line rounded-xl p-6">
+        <div className="mt-4 bg-card border border-line p-6">
           <p className="text-sm text-ink-soft">Hãy tạo hồ sơ phòng trà trước — khu vực thuộc về phòng trà.</p>
         </div>
       </div>
@@ -368,20 +368,20 @@ const OwnerZonesPage = () => {
           </p>
         </div>
         <button onClick={() => setEditing(null)}
-          className="flex items-center gap-1.5 px-3 py-1.5 bg-brand text-on-brand rounded-lg text-xs font-bold hover:bg-brand-hover">
+          className="flex items-center gap-1.5 px-3 py-1.5 bg-ink text-lamp text-xs font-bold hover:bg-board">
           <Plus size={14} /> Thêm khu vực
         </button>
       </div>
 
       {dangHoatDong.length === 0 ? (
-        <div className="bg-card border border-line rounded-xl p-10 text-center">
+        <div className="bg-card border border-line p-10 text-center">
           <LayoutGrid size={28} className="mx-auto mb-3 text-ink-mute" />
           <p className="text-sm text-ink-mute">Chưa có khu vực nào. Thêm khu vực để bắt đầu bán vé theo chỗ.</p>
         </div>
       ) : (
         <>
           {/* === SƠ ĐỒ 2D === */}
-          <div className="bg-card border border-line rounded-xl p-6">
+          <div className="bg-card border border-line p-6">
             <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
               <div>
                 <h2 className="text-base font-semibold text-ink">Sơ đồ 2D</h2>
@@ -390,7 +390,7 @@ const OwnerZonesPage = () => {
                 </p>
               </div>
               <div className="flex flex-wrap gap-2">
-                <label className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-line text-ink-soft text-xs font-bold hover:bg-sunken cursor-pointer">
+                <label className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-line text-ink-soft text-xs font-bold hover:bg-sunken cursor-pointer">
                   {isUploadingBg ? <Loader2 size={13} className="animate-spin" /> : <ImageIcon size={13} />}
                   {lounge.areaLayoutImageUrl ? 'Đổi ảnh nền' : 'Ảnh mặt bằng'}
                   <input type="file" accept="image/*" className="hidden" disabled={isUploadingBg}
@@ -398,23 +398,23 @@ const OwnerZonesPage = () => {
                 </label>
                 {lounge.areaLayoutImageUrl && (
                   <button onClick={boAnhNen} disabled={isUploadingBg}
-                    className="px-3 py-1.5 rounded-lg border border-line text-ink-soft text-xs font-bold hover:bg-sunken disabled:opacity-50">
+                    className="px-3 py-1.5 border border-line text-ink-soft text-xs font-bold hover:bg-sunken disabled:opacity-50">
                     Bỏ ảnh nền
                   </button>
                 )}
                 <button onClick={batTatVe} aria-pressed={veMode}
-                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-bold transition-colors ${veMode ? 'bg-espresso text-cream border-espresso' : 'border-line text-ink-soft hover:bg-sunken'}`}>
+                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 border text-xs font-bold transition-colors ${veMode ? 'bg-ink text-lamp border-ink' : 'border-line text-ink-soft hover:bg-sunken'}`}>
                   <PenTool size={13} /> {veMode ? 'Đang vẽ phác' : 'Vẽ phác'}
                 </button>
                 <button onClick={luuSoDo} disabled={isSavingLayout}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand text-on-brand text-xs font-bold hover:bg-brand-hover disabled:opacity-50">
+                  className="flex items-center gap-1.5 px-3 py-1.5 bg-ink text-lamp text-xs font-bold hover:bg-board disabled:opacity-50">
                   {isSavingLayout ? <Loader2 size={13} className="animate-spin" /> : <Save size={13} />} Lưu sơ đồ
                 </button>
               </div>
             </div>
 
             {veMode && (
-              <div className="flex flex-wrap items-center gap-3 mb-3 px-3 py-2.5 rounded-lg bg-sunken/70 border border-line text-xs text-ink-soft">
+              <div className="flex flex-wrap items-center gap-3 mb-3 px-3 py-2.5 bg-sunken/70 border border-line text-xs text-ink-soft">
                 <label className="flex items-center gap-2">
                   <span className="font-semibold text-ink">Vẽ cho khu vực</span>
                   <select value={veZoneId} onChange={(e) => setVeZoneId(e.target.value)}
@@ -441,7 +441,7 @@ const OwnerZonesPage = () => {
               onMouseMove={dangKeo}
               onMouseUp={ketThucKeo}
               onMouseLeave={ketThucKeo}
-              className="relative w-full aspect-[16/9] rounded-lg border border-line bg-page overflow-hidden select-none"
+              className="relative w-full aspect-[16/9] border border-line bg-page overflow-hidden select-none"
               style={lounge.areaLayoutImageUrl
                 ? { backgroundImage: `url(${lounge.areaLayoutImageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' }
                 : undefined}
@@ -477,13 +477,13 @@ const OwnerZonesPage = () => {
           </div>
 
           {/* === DANH SÁCH KHU VỰC === */}
-          <div className="bg-card border border-line rounded-xl p-6">
+          <div className="bg-card border border-line p-6">
             <h2 className="text-base font-semibold text-ink mb-4">Danh sách khu vực</h2>
             <ul className="space-y-3">
               {dangHoatDong.map((z) => {
                 const o = layout[z.id] ?? {}
                 return (
-                  <li key={z.id} className="bg-sunken/70 border border-line rounded-lg p-4">
+                  <li key={z.id} className="bg-sunken/70 border border-line p-4">
                     <div className="flex flex-wrap items-start justify-between gap-3">
                       <div className="flex items-start gap-3 min-w-0">
                         <span className="w-4 h-4 rounded-sm mt-0.5 flex-shrink-0" style={{ backgroundColor: o.color }} />
@@ -495,11 +495,11 @@ const OwnerZonesPage = () => {
                       </div>
                       <div className="flex gap-2 flex-shrink-0">
                         <button onClick={() => setEditing(z)}
-                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-line text-ink-soft text-xs font-bold hover:bg-sunken">
+                          className="flex items-center gap-1.5 px-3 py-1.5 border border-line text-ink-soft text-xs font-bold hover:bg-sunken">
                           <Pencil size={13} /> Sửa
                         </button>
                         <button onClick={() => setNgungTarget(z)}
-                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-line text-danger text-xs font-bold hover:bg-red-500/10">
+                          className="flex items-center gap-1.5 px-3 py-1.5 border border-line text-danger text-xs font-bold hover:bg-danger/10">
                           <Ban size={13} /> Ngừng
                         </button>
                       </div>
@@ -512,7 +512,7 @@ const OwnerZonesPage = () => {
                           <label className="text-xs text-ink-mute">{label}</label>
                           <input type="number" value={o[key] ?? 0}
                             onChange={(e) => doiKichThuoc(z.id, key, e.target.value)}
-                            className="mt-1 w-full px-2 py-1.5 bg-page border border-line rounded-md text-xs text-ink focus:outline-none focus:border-brand/50 tabular-nums" />
+                            className="mt-1 w-full px-2 py-1.5 bg-page border border-line rounded-md text-xs text-ink focus:outline-none focus:border-ink/50 tabular-nums" />
                         </div>
                       ))}
                       <div>
@@ -536,18 +536,18 @@ const OwnerZonesPage = () => {
                             <input type="number" step="any"
                               value={(layout3D[z.id] ?? {})[truc] ?? ''}
                               onChange={(e) => doiToaDo3D(z.id, truc, e.target.value)}
-                              className="mt-1 w-full px-2 py-1.5 bg-page border border-line rounded-md text-xs text-ink focus:outline-none focus:border-brand/50 tabular-nums" />
+                              className="mt-1 w-full px-2 py-1.5 bg-page border border-line rounded-md text-xs text-ink focus:outline-none focus:border-ink/50 tabular-nums" />
                           </div>
                         ))}
                         <button onClick={() => luuToaDo3D(z.id)} disabled={busy3D === z.id}
-                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-line text-ink-soft text-xs font-bold hover:bg-sunken disabled:opacity-50">
+                          className="flex items-center gap-1.5 px-3 py-1.5 border border-line text-ink-soft text-xs font-bold hover:bg-sunken disabled:opacity-50">
                           {busy3D === z.id ? <Loader2 size={13} className="animate-spin" /> : <Save size={13} />} Lưu 3D
                         </button>
                         <button
                           onClick={() => { doiToaDo3D(z.id, 'x', ''); doiToaDo3D(z.id, 'y', ''); doiToaDo3D(z.id, 'z', '') }}
                           disabled={busy3D === z.id}
                           title="Xoá trống cả ba ô rồi bấm Lưu 3D để xoá vị trí"
-                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-line text-ink-mute text-xs font-bold hover:bg-sunken disabled:opacity-50">
+                          className="flex items-center gap-1.5 px-3 py-1.5 border border-line text-ink-mute text-xs font-bold hover:bg-sunken disabled:opacity-50">
                           <Eraser size={13} /> Xoá trống
                         </button>
                       </div>
@@ -564,12 +564,12 @@ const OwnerZonesPage = () => {
       )}
 
       {daNgung.length > 0 && (
-        <div className="bg-card border border-line rounded-xl p-6">
+        <div className="bg-card border border-line p-6">
           <h2 className="text-base font-semibold text-ink mb-1">Đã ngừng hoạt động ({daNgung.length})</h2>
           <p className="text-xs text-ink-mute mb-3">Giữ lại vì vé đã bán còn tham chiếu tới những khu vực này.</p>
           <ul className="space-y-2">
             {daNgung.map((z) => (
-              <li key={z.id} className="flex items-center justify-between gap-3 bg-sunken/40 border border-line/60 rounded-lg p-3 opacity-70">
+              <li key={z.id} className="flex items-center justify-between gap-3 bg-sunken/40 border border-line/60 p-3 opacity-70">
                 <span className="text-sm text-ink-soft">{z.name}</span>
                 <span className="text-xs text-ink-mute">{z.capacity} chỗ</span>
               </li>

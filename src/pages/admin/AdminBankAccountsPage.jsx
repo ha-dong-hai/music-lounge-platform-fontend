@@ -85,20 +85,20 @@ const ReviewModal = ({ item, approve, onClose, onSaved }) => {
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-espresso/80 backdrop-blur-sm" onClick={() => !isBusy && onClose()} />
-      <div className="relative bg-card border border-line rounded-2xl w-full max-w-md shadow-2xl">
+      <div className="absolute inset-0 bg-ink/80" onClick={() => !isBusy && onClose()} />
+      <div className="relative bg-card border border-line w-full max-w-md shadow-soft">
         <div className="flex justify-between items-center p-5 border-b border-line">
           <h2 className="text-lg font-bold text-ink">
             {approve ? 'Duyệt tài khoản nhận tiền?' : 'Từ chối tài khoản?'}
           </h2>
           <button onClick={onClose} disabled={isBusy}
-            className="p-2 hover:bg-sunken rounded-full text-ink-soft disabled:opacity-30">
+            className="p-2 hover:bg-sunken text-ink-soft disabled:opacity-30">
             <X size={20} />
           </button>
         </div>
 
         <form onSubmit={submit} className="p-5 space-y-4">
-          <div className="p-3 rounded-lg bg-sunken/80 border border-line space-y-1">
+          <div className="p-3 bg-sunken/80 border border-line space-y-1">
             <p className="text-sm text-ink">{item.loungeName}</p>
             <p className="text-xs text-ink-soft">{item.bankName} · {item.accountNumberMasked}</p>
             <p className="text-xs text-ink-soft">
@@ -110,7 +110,7 @@ const ReviewModal = ({ item, approve, onClose, onSaved }) => {
           </div>
 
           {approve && (
-            <p className="text-xs text-warning flex items-start gap-1.5 leading-relaxed bg-yellow-500/5 border border-yellow-500/30 rounded-lg p-3">
+            <p className="text-xs text-warning flex items-start gap-1.5 leading-relaxed bg-warning/5 border border-warning/30 p-3">
               <AlertTriangle size={13} className="mt-px flex-shrink-0" />
               Duyệt xong, doanh thu của phòng trà này sẽ được chuyển vào số tài khoản trên. Hãy đối
               chiếu TÊN chủ tài khoản với tên định danh — số tài khoản cố ý chỉ hiện dạng che.
@@ -123,17 +123,17 @@ const ReviewModal = ({ item, approve, onClose, onSaved }) => {
             </label>
             <textarea rows={3} value={note} onChange={(e) => setNote(e.target.value)}
               placeholder={approve ? 'Ghi chú nội bộ nếu cần' : 'VD: tên chủ tài khoản không khớp tên trên CCCD đã duyệt'}
-              className="mt-1 w-full px-3 py-2 bg-page border border-line rounded-lg text-sm text-ink resize-none focus:outline-none focus:border-brand/50" />
+              className="mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink resize-none focus:outline-none focus:border-ink/50" />
           </div>
 
           <div className="flex gap-3">
             <button type="button" onClick={onClose} disabled={isBusy}
-              className="flex-1 py-2.5 border border-line-strong text-ink-soft rounded-lg font-medium hover:bg-sunken disabled:opacity-50">
+              className="flex-1 py-2.5 border border-line-strong text-ink-soft font-medium hover:bg-sunken disabled:opacity-50">
               Huỷ
             </button>
             <button type="submit" disabled={isBusy}
-              className={`flex-1 py-2.5 rounded-lg font-bold flex items-center justify-center gap-2 disabled:opacity-50 ${
-                approve ? 'bg-brand text-on-brand hover:bg-brand-hover' : 'bg-red-500 text-white hover:bg-red-600'
+              className={`flex-1 py-2.5 font-bold flex items-center justify-center gap-2 disabled:opacity-50 ${
+                approve ? 'bg-ink text-lamp hover:bg-board' : 'bg-danger text-lamp hover:bg-danger'
               }`}>
               {isBusy && <Loader2 size={16} className="animate-spin" />}
               {approve ? 'Duyệt' : 'Từ chối'}
@@ -179,7 +179,7 @@ const AdminBankAccountsPage = () => {
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex items-center gap-3">
-          <Landmark size={28} className="text-brand-text" />
+          <Landmark size={28} className="text-ink" />
           <div>
             <h1 className="text-2xl font-bold text-ink">Tài khoản nhận tiền</h1>
             <p className="text-ink-soft text-sm leading-relaxed">
@@ -189,30 +189,30 @@ const AdminBankAccountsPage = () => {
           </div>
         </div>
         <button onClick={load} disabled={isLoading}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg border border-line text-ink-soft text-sm font-bold hover:bg-sunken disabled:opacity-50">
+          className="flex items-center gap-2 px-4 py-2 border border-line text-ink-soft text-sm font-bold hover:bg-sunken disabled:opacity-50">
           <RefreshCw size={16} className={isLoading ? 'animate-spin' : ''} /> Tải lại
         </button>
       </div>
 
       <div className="flex flex-wrap gap-2">
         <button onClick={() => doiTab(false)}
-          className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${
-            !daDuyet ? 'bg-sunken border-brand/40 text-brand-text' : 'bg-page border-line text-ink-soft hover:text-ink'
+          className={`px-3 py-1.5 text-xs font-medium border transition-colors ${
+            !daDuyet ? 'bg-sunken border-ink/40 text-ink' : 'bg-page border-line text-ink-soft hover:text-ink'
           }`}>
           Chờ duyệt{!daDuyet && totalCount > 0 ? ` (${totalCount})` : ''}
         </button>
         <button onClick={() => doiTab(true)}
-          className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${
-            daDuyet ? 'bg-sunken border-brand/40 text-brand-text' : 'bg-page border-line text-ink-soft hover:text-ink'
+          className={`px-3 py-1.5 text-xs font-medium border transition-colors ${
+            daDuyet ? 'bg-sunken border-ink/40 text-ink' : 'bg-page border-line text-ink-soft hover:text-ink'
           }`}>
           Đã duyệt
         </button>
       </div>
 
       {isLoading ? (
-        <div className="py-20 flex justify-center"><Loader2 size={30} className="animate-spin text-brand-text" /></div>
+        <div className="py-20 flex justify-center"><Loader2 size={30} className="animate-spin text-ink" /></div>
       ) : items.length === 0 ? (
-        <div className="bg-card border border-line rounded-xl p-12 text-center">
+        <div className="bg-card border border-line p-12 text-center">
           <Landmark size={30} className="mx-auto mb-3 text-ink-mute" />
           <p className="text-sm text-ink-mute">
             {daDuyet ? 'Chưa có tài khoản nào được duyệt.' : 'Không có tài khoản nào đang chờ duyệt.'}
@@ -225,19 +225,19 @@ const AdminBankAccountsPage = () => {
             // Ba điều kiện này backend cũng kiểm lại, đây chỉ là chặn sớm cho người dùng.
             const duDieuKien = it.holderNameMatches && it.ownerIdentityApproved && !it.accountNumberUnreadable
             return (
-              <li key={it.id} className={`bg-card border rounded-xl p-5 ${duDieuKien ? 'border-line' : 'border-yellow-500/30'}`}>
+              <li key={it.id} className={`bg-card border p-5 ${duDieuKien ? 'border-line' : 'border-warning/30'}`}>
                 <div className="flex flex-wrap items-start justify-between gap-4">
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
                       <Link to={`/lounge/${it.loungeId}`} target="_blank"
-                        className="text-ink font-bold hover:text-brand-text">
+                        className="text-ink font-bold hover:text-ink">
                         {it.loungeName}
                       </Link>
                       {it.isDefault && (
-                        <span className="px-2 py-0.5 rounded-md bg-brand/10 text-brand-text text-xs">Mặc định</span>
+                        <span className="px-2 py-0.5 rounded-md bg-ink/10 text-ink text-xs">Mặc định</span>
                       )}
                       {it.isVerified && (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-green-500/10 text-success text-xs">
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-success/10 text-success text-xs">
                           <ShieldCheck size={11} /> Đã duyệt
                         </span>
                       )}
@@ -276,11 +276,11 @@ const AdminBankAccountsPage = () => {
                       <button onClick={() => setTarget({ item: it, approve: true })}
                         disabled={!duDieuKien}
                         title={duDieuKien ? undefined : 'Chưa đủ điều kiện — xem các dòng cảnh báo bên trái'}
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-green-500/40 text-success text-xs font-bold hover:bg-green-500/10 disabled:opacity-30 disabled:cursor-not-allowed">
+                        className="flex items-center gap-1.5 px-3 py-1.5 border border-success/40 text-success text-xs font-bold hover:bg-success/10 disabled:opacity-30 disabled:cursor-not-allowed">
                         <CheckCircle2 size={13} /> Duyệt
                       </button>
                       <button onClick={() => setTarget({ item: it, approve: false })}
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-red-500/40 text-danger text-xs font-bold hover:bg-red-500/10">
+                        className="flex items-center gap-1.5 px-3 py-1.5 border border-danger/40 text-danger text-xs font-bold hover:bg-danger/10">
                         <Ban size={13} /> Từ chối
                       </button>
                     </div>
@@ -309,12 +309,12 @@ const AdminBankAccountsPage = () => {
       {totalPages > 1 && (
         <div className="flex items-center justify-center gap-3">
           <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page <= 1}
-            className="px-4 py-2 rounded-lg border border-line text-sm text-ink-soft hover:bg-sunken disabled:opacity-40">
+            className="px-4 py-2 border border-line text-sm text-ink-soft hover:bg-sunken disabled:opacity-40">
             Trước
           </button>
           <span className="text-sm text-ink-mute">Trang {page}/{totalPages}</span>
           <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page >= totalPages}
-            className="px-4 py-2 rounded-lg border border-line text-sm text-ink-soft hover:bg-sunken disabled:opacity-40">
+            className="px-4 py-2 border border-line text-sm text-ink-soft hover:bg-sunken disabled:opacity-40">
             Sau
           </button>
         </div>

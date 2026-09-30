@@ -74,9 +74,9 @@ const AdminRefundsPage = () => {
       </div>
 
       {isLoading ? (
-        <div className="py-16 flex justify-center"><Loader2 size={28} className="animate-spin text-brand-text" /></div>
+        <div className="py-16 flex justify-center"><Loader2 size={28} className="animate-spin text-ink" /></div>
       ) : items.length === 0 ? (
-        <div className="bg-card border border-line rounded-xl p-12 text-center text-ink-mute">
+        <div className="bg-card border border-line p-12 text-center text-ink-mute">
           <Check size={32} className="mx-auto mb-3 text-success/50" />
           Không có yêu cầu hoàn tiền nào đang chờ.
         </div>
@@ -86,12 +86,12 @@ const AdminRefundsPage = () => {
             const overdue = r.expectedResolutionBy && dayjs(r.expectedResolutionBy).isBefore(dayjs())
             const isBusy = busyId === r.id
             return (
-              <div key={r.id} className="bg-card border border-line rounded-xl p-5">
+              <div key={r.id} className="bg-card border border-line p-5">
                 <div className="flex items-start justify-between gap-4 flex-wrap">
                   <div className="min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className="text-ink font-bold">#{r.id}</span>
-                      <span className="text-brand-text font-bold">{fmtMoney(r.amountRequested)}</span>
+                      <span className="text-ink font-bold">{fmtMoney(r.amountRequested)}</span>
                       {r.refundPercentage != null && (
                         <span className="px-2 py-0.5 rounded-md bg-sunken text-ink-soft text-xs">
                           hoàn {Number(r.refundPercentage)}%
@@ -109,7 +109,7 @@ const AdminRefundsPage = () => {
                     </p>
 
                     {r.payoutAccountRequired && (
-                      <div className="mt-3 flex items-start gap-2 bg-yellow-500/5 border border-yellow-500/20 rounded-lg p-3">
+                      <div className="mt-3 flex items-start gap-2 bg-warning/5 border border-warning/20 p-3">
                         <Banknote size={16} className="text-warning flex-shrink-0 mt-0.5" />
                         <div className="text-xs">
                           <p className="text-warning font-medium">Phải chuyển khoản tay — VNPay không hoàn được giao dịch gốc</p>
@@ -127,15 +127,15 @@ const AdminRefundsPage = () => {
                       value={notes[r.id] || ''}
                       onChange={(e) => setNotes((p) => ({ ...p, [r.id]: e.target.value }))}
                       placeholder={r.payoutAccountRequired ? 'Mã giao dịch chuyển khoản' : 'Ghi chú xử lý (không bắt buộc)'}
-                      className="px-3 py-2 bg-page border border-line rounded-lg text-sm text-ink placeholder:text-ink-mute"
+                      className="px-3 py-2 bg-page border border-line text-sm text-ink placeholder:text-ink-mute"
                     />
                     <div className="flex gap-2">
                       <button onClick={() => handle(r, 'Approved')} disabled={isBusy}
-                        className="flex-1 inline-flex items-center justify-center gap-1.5 bg-green-500/10 border border-green-500/40 text-success px-3 py-2 rounded-lg text-xs font-bold hover:bg-green-500/20 disabled:opacity-50">
+                        className="flex-1 inline-flex items-center justify-center gap-1.5 bg-success/10 border border-success/40 text-success px-3 py-2 text-xs font-bold hover:bg-success/20 disabled:opacity-50">
                         <Check size={14} /> {isBusy ? 'Đang xử lý...' : 'Duyệt hoàn'}
                       </button>
                       <button onClick={() => handle(r, 'Rejected')} disabled={isBusy}
-                        className="flex-1 inline-flex items-center justify-center gap-1.5 bg-red-500/10 border border-red-500/40 text-danger px-3 py-2 rounded-lg text-xs font-bold hover:bg-red-500/20 disabled:opacity-50">
+                        className="flex-1 inline-flex items-center justify-center gap-1.5 bg-danger/10 border border-danger/40 text-danger px-3 py-2 text-xs font-bold hover:bg-danger/20 disabled:opacity-50">
                         <X size={14} /> Từ chối
                       </button>
                     </div>
@@ -152,9 +152,9 @@ const AdminRefundsPage = () => {
           <p className="text-sm text-ink-mute">Trang {pagination.page} / {pagination.totalPages} · {pagination.totalCount} yêu cầu</p>
           <div className="flex gap-2">
             <button onClick={() => setPagination((p) => ({ ...p, page: p.page - 1 }))} disabled={pagination.page === 1}
-              className="p-2 rounded-md border border-line text-ink-soft hover:border-brand disabled:opacity-30"><ChevronLeft size={18} /></button>
+              className="p-2 rounded-md border border-line text-ink-soft hover:border-ink disabled:opacity-30"><ChevronLeft size={18} /></button>
             <button onClick={() => setPagination((p) => ({ ...p, page: p.page + 1 }))} disabled={pagination.page === pagination.totalPages}
-              className="p-2 rounded-md border border-line text-ink-soft hover:border-brand disabled:opacity-30"><ChevronRight size={18} /></button>
+              className="p-2 rounded-md border border-line text-ink-soft hover:border-ink disabled:opacity-30"><ChevronRight size={18} /></button>
           </div>
         </div>
       )}

@@ -27,13 +27,13 @@ import {
 
 const StatusBadge = ({ status }) => {
   const styles = {
-    Scheduled: 'bg-yellow-500/10 text-warning border-yellow-500/30',
-    Live: 'bg-red-500/10 text-danger border-red-500/30 animate-pulse',
+    Scheduled: 'bg-warning/10 text-warning border-warning/30',
+    Live: 'bg-danger/10 text-danger border-danger/30 animate-pulse',
     Ended: 'bg-line-strong/10 text-ink-soft border-line-strong/30',
-    Terminated: 'bg-red-900/20 text-danger border-red-900/40',
+    Terminated: 'bg-danger/20 text-danger border-danger/40',
   }
   return (
-    <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold border ${styles[status] || styles.Ended}`}>
+    <span className={`inline-flex items-center px-2.5 py-1 text-xs font-bold border ${styles[status] || styles.Ended}`}>
       {status}
     </span>
   )
@@ -147,7 +147,7 @@ const ShowLivestreamRow = ({ show, onChanged }) => {
   }
 
   return (
-    <div className="bg-card border border-line rounded-xl p-5">
+    <div className="bg-card border border-line p-5">
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <div>
           <p className="text-ink font-bold">{show.name}</p>
@@ -159,7 +159,7 @@ const ShowLivestreamRow = ({ show, onChanged }) => {
           <button
             onClick={handleCreate}
             disabled={isBusy}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-brand text-on-brand text-xs font-bold hover:bg-brand-hover disabled:opacity-50"
+            className="flex items-center gap-1.5 px-3 py-2 bg-ink text-lamp text-xs font-bold hover:bg-board disabled:opacity-50"
           >
             <Radio size={14} /> Tạo livestream
           </button>
@@ -180,7 +180,7 @@ const ShowLivestreamRow = ({ show, onChanged }) => {
           <button
             onClick={handleStart}
             disabled={isBusy}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-red-500/10 border border-red-500/40 text-danger text-xs font-bold hover:bg-red-500/20 disabled:opacity-50"
+            className="flex items-center gap-1.5 px-3 py-2 bg-danger/10 border border-danger/40 text-danger text-xs font-bold hover:bg-danger/20 disabled:opacity-50"
           >
             <Play size={14} /> Bắt đầu phát
           </button>
@@ -192,14 +192,14 @@ const ShowLivestreamRow = ({ show, onChanged }) => {
           <button
             onClick={handleEnd}
             disabled={isBusy}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-red-500/10 border border-red-500/40 text-danger text-xs font-bold hover:bg-red-500/20 disabled:opacity-50"
+            className="flex items-center gap-1.5 px-3 py-2 bg-danger/10 border border-danger/40 text-danger text-xs font-bold hover:bg-danger/20 disabled:opacity-50"
           >
-            <Square size={14} className="fill-red-400" /> Kết thúc phát
+            <Square size={14} className="fill-danger" /> Kết thúc phát
           </button>
           <button
             onClick={() => handleToggleChat(!(livestream.chatEnabled ?? true))}
             disabled={isBusy}
-            className="ml-2 inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-line text-ink-soft text-xs font-bold hover:bg-sunken disabled:opacity-50"
+            className="ml-2 inline-flex items-center gap-1.5 px-3 py-2 border border-line text-ink-soft text-xs font-bold hover:bg-sunken disabled:opacity-50"
           >
             {(livestream.chatEnabled ?? true)
               ? <><MessageSquareOff size={14} /> Tắt khung chat</>
@@ -218,7 +218,7 @@ const ShowLivestreamRow = ({ show, onChanged }) => {
       )}
 
       {credentials && (
-        <div className="mt-4 p-3 bg-page border border-yellow-700/40 rounded-lg">
+        <div className="mt-4 p-3 bg-page border border-warning/40">
           <p className="text-warning text-xs font-bold mb-2">⚠ Không chia sẻ Stream Key cho ai khác</p>
           <div className="space-y-1.5 text-xs font-mono">
             <div className="flex items-center justify-between gap-2">
@@ -265,7 +265,7 @@ const OwnerLivestreamsPage = () => {
       {isLoading ? (
         <Loader2 size={24} className="animate-spin text-ink-mute" />
       ) : shows.length === 0 ? (
-        <div className="bg-card border border-line rounded-xl p-8 text-center text-ink-mute">
+        <div className="bg-card border border-line p-8 text-center text-ink-mute">
           Bạn chưa có buổi diễn nào ở định dạng Online (chỉ show Online mới có livestream).
         </div>
       ) : (

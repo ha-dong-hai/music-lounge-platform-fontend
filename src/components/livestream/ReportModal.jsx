@@ -36,14 +36,14 @@ const ReportModal = ({ onClose, onSubmit }) => {
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4" onClick={() => !isSubmitting && onClose()}>
-      <div className="absolute inset-0 bg-espresso/80 backdrop-blur-sm"></div>
+      <div className="absolute inset-0 bg-ink/80"></div>
 
-      <div className="relative bg-card border border-line rounded-2xl w-full max-w-md max-h-[90vh] flex flex-col shadow-2xl" onClick={(e) => e.stopPropagation()}>
+      <div className="relative bg-card border border-line w-full max-w-md max-h-[90vh] flex flex-col shadow-soft" onClick={(e) => e.stopPropagation()}>
 
         {/* HEADER */}
         <div className="flex-none flex items-center justify-between p-5 border-b border-line">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-red-500/10 border border-red-500/30 flex items-center justify-center flex-shrink-0">
+            <div className="w-10 h-10 bg-danger/10 border border-danger/30 flex items-center justify-center flex-shrink-0">
               <Flag size={18} className="text-danger" />
             </div>
             <div>
@@ -51,7 +51,7 @@ const ReportModal = ({ onClose, onSubmit }) => {
               <p className="text-xs text-ink-mute">Báo cáo nội dung của buổi phát này.</p>
             </div>
           </div>
-          <button onClick={onClose} disabled={isSubmitting} className="p-2 hover:bg-sunken rounded-full text-ink-soft disabled:opacity-30">
+          <button onClick={onClose} disabled={isSubmitting} className="p-2 hover:bg-sunken text-ink-soft disabled:opacity-30">
             <X size={20} />
           </button>
         </div>
@@ -69,17 +69,17 @@ const ReportModal = ({ onClose, onSubmit }) => {
                   key={r.value}
                   type="button"
                   onClick={() => setSelectedReason(r.value)}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl border text-sm text-left transition-all ${
+                  className={`w-full flex items-center gap-3 px-4 py-3 border text-sm text-left transition-all ${
                     selectedReason === r.value
-                      ? 'border-brand bg-brand/10 text-brand-text font-semibold'
+                      ? 'border-ink bg-ink/10 text-ink font-semibold'
                       : 'border-line text-ink-soft hover:border-line-strong'
                   }`}
                 >
                   {/* Radio */}
-                  <span className={`w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
-                    selectedReason === r.value ? 'border-brand' : 'border-line-strong'
+                  <span className={`w-4 h-4 border-2 flex items-center justify-center flex-shrink-0 ${
+                    selectedReason === r.value ? 'border-ink' : 'border-line-strong'
                   }`}>
-                    {selectedReason === r.value && <span className="w-2 h-2 rounded-full bg-brand" />}
+                    {selectedReason === r.value && <span className="w-2 h-2 bg-ink" />}
                   </span>
                   {r.label}
                 </button>
@@ -98,7 +98,7 @@ const ReportModal = ({ onClose, onSubmit }) => {
               onChange={(e) => setDescription(e.target.value)}
               disabled={isSubmitting}
               placeholder="Mô tả vấn đề…"
-              className="w-full px-4 py-3 bg-page border border-line rounded-xl text-ink text-sm focus:outline-none focus:border-brand/50 resize-none disabled:opacity-50 placeholder:text-ink-mute"
+              className="w-full px-4 py-3 bg-page border border-line text-ink text-sm focus:outline-none focus:border-ink/50 resize-none disabled:opacity-50 placeholder:text-ink-mute"
             />
             <p className={`text-xs mt-1.5 ${description.trim().length > 0 && description.trim().length < 10 ? 'text-warning' : 'text-ink-mute'}`}>
               Minimum of 10 characters ({description.trim().length}/10)
@@ -112,7 +112,7 @@ const ReportModal = ({ onClose, onSubmit }) => {
             type="button"
             onClick={onClose}
             disabled={isSubmitting}
-            className="flex-1 py-2.5 border border-line-strong text-ink-soft rounded-lg font-medium hover:bg-sunken transition-colors disabled:opacity-50"
+            className="flex-1 py-2.5 border border-line-strong text-ink-soft font-medium hover:bg-sunken transition-colors disabled:opacity-50"
           >
             Hủy
           </button>
@@ -120,7 +120,7 @@ const ReportModal = ({ onClose, onSubmit }) => {
             type="submit"
             form="report-form"
             disabled={!canSubmit || isSubmitting}
-            className="flex-1 py-2.5 rounded-lg font-bold transition-colors flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed bg-red-500 text-white hover:bg-red-600"
+            className="flex-1 py-2.5 font-bold transition-colors flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed bg-danger text-lamp hover:bg-danger"
           >
             {isSubmitting
               ? <><Loader2 size={16} className="animate-spin" /> đang gửi…</>

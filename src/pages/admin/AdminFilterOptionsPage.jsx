@@ -76,7 +76,7 @@ const AdminFilterOptionsPage = () => {
     <div>
       {/* HEADER */}
       <div className="flex items-center gap-3 mb-6">
-        <SlidersHorizontal size={28} className="text-brand-text" />
+        <SlidersHorizontal size={28} className="text-ink" />
         <div>
           <h1 className="text-2xl font-bold text-ink">Bộ lọc & phân loại</h1>
           <p className="text-ink-soft text-sm">
@@ -94,12 +94,12 @@ const AdminFilterOptionsPage = () => {
               onClick={() => setActiveTab(tab.key)}
               className={`pb-4 text-base font-bold border-b-2 transition-colors ${
                 activeTab === tab.key
-                  ? 'border-brand text-brand-text'
+                  ? 'border-ink text-ink'
                   : 'border-transparent text-ink-mute hover:text-ink'
               }`}
             >
               {tab.label}
-              <span className={`ml-2 text-xs font-medium ${activeTab === tab.key ? 'text-brand-text' : 'text-ink-mute'}`}>
+              <span className={`ml-2 text-xs font-medium ${activeTab === tab.key ? 'text-ink' : 'text-ink-mute'}`}>
                 {options[tab.key]?.length || 0}
               </span>
             </button>
@@ -110,7 +110,7 @@ const AdminFilterOptionsPage = () => {
       {/* NỘI DUNG TAB */}
       {isLoading ? (
         <div className="flex items-center justify-center py-20">
-          <Loader2 size={28} className="animate-spin text-brand-text" />
+          <Loader2 size={28} className="animate-spin text-ink" />
         </div>
       ) : (
         TABS.filter(tab => tab.key === activeTab).map(tab => (

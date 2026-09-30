@@ -6,6 +6,7 @@ import toast from 'react-hot-toast'
 import { getShows } from '../../../services/showServices'
 // Badge dùng chung — bản sao riêng trước đây ở file này in trạng thái bằng tiếng Anh (Published/Ongoing…).
 import { FormatBadge, StatusBadge } from './ShowBadges'
+import { anhChuCai } from '../../../utils/anhChuCai'
 
 const AllShowsTab = () => {
   const [shows, setShows] = useState([])
@@ -50,14 +51,14 @@ const AllShowsTab = () => {
           <button 
             onClick={() => setPagination(prev => ({ ...prev, page: prev.page - 1 }))} 
             disabled={pagination.page === 1} 
-            className="p-2 rounded-md border border-line text-ink-soft hover:border-brand hover:text-brand-text disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+            className="p-2 rounded-md border border-line text-ink-soft hover:border-ink hover:text-ink disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
           >
             <ChevronLeft size={18} />
           </button>
           <button 
             onClick={() => setPagination(prev => ({ ...prev, page: prev.page + 1 }))} 
             disabled={pagination.page === pagination.totalPages} 
-            className="p-2 rounded-md border border-line text-ink-soft hover:border-brand hover:text-brand-text disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+            className="p-2 rounded-md border border-line text-ink-soft hover:border-ink hover:text-ink disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
           >
             <ChevronRight size={18} />
           </button>
@@ -69,7 +70,7 @@ const AllShowsTab = () => {
   return (
     <div>
       {/* Ô search (lọc client-side tạm thời trong trang hiện tại) */}
-      <div className="bg-card border border-line rounded-xl p-4 mb-6 flex flex-col md:flex-row gap-4 items-center">
+      <div className="bg-card border border-line p-4 mb-6 flex flex-col md:flex-row gap-4 items-center">
         <div className="relative flex-1 w-full">
           <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-mute" />
           <input
@@ -77,30 +78,30 @@ const AllShowsTab = () => {
             placeholder="Tìm trong trang hiện tại…"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-brand/50"
+            className="w-full pl-10 pr-4 py-2.5 bg-page border border-line text-sm text-ink focus:outline-none focus:border-ink/50"
           />
         </div>
         <p className="text-sm text-ink-mute whitespace-nowrap">Tổng: {pagination.totalCount} buổi diễn</p>
       </div>
 
-      <div className="bg-card border border-line rounded-xl overflow-hidden">
+      <div className="bg-card border border-line overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left whitespace-nowrap">
             <thead className="bg-sunken/80 border-b border-line">
               <tr>
-                <th className="p-4 text-brand-text font-semibold text-sm">Tên buổi diễn</th>
-                <th className="p-4 text-brand-text font-semibold text-sm">Phòng trà</th>
-                <th className="p-4 text-brand-text font-semibold text-sm">Hình thức</th>
-                <th className="p-4 text-brand-text font-semibold text-sm">Lịch diễn</th>
-                <th className="p-4 text-brand-text font-semibold text-sm">Trạng thái</th>
-                <th className="p-4 text-brand-text font-semibold text-sm text-right">Thao tác</th>
+                <th className="p-4 text-ink font-semibold text-sm">Tên buổi diễn</th>
+                <th className="p-4 text-ink font-semibold text-sm">Phòng trà</th>
+                <th className="p-4 text-ink font-semibold text-sm">Hình thức</th>
+                <th className="p-4 text-ink font-semibold text-sm">Lịch diễn</th>
+                <th className="p-4 text-ink font-semibold text-sm">Trạng thái</th>
+                <th className="p-4 text-ink font-semibold text-sm text-right">Thao tác</th>
               </tr>
             </thead>
             <tbody>
               {isLoading ? (
                 <tr>
                   <td colSpan="6" className="p-10 text-center text-ink-mute">
-                    <Loader2 size={24} className="mx-auto animate-spin text-brand-text" />
+                    <Loader2 size={24} className="mx-auto animate-spin text-ink" />
                   </td>
                 </tr>
               ) : shows.filter(s => 
@@ -119,9 +120,9 @@ const AllShowsTab = () => {
                     <td className="p-4">
                       <div className="flex items-center gap-3">
                         <img 
-                          src={show.coverImageUrl || `https://api.dicebear.com/7.x/initials/svg?seed=${show.name || 'Show'}&backgroundColor=1f2937`} 
+                          src={show.coverImageUrl || anhChuCai(show.name || 'Show')} 
                           alt={show.name} 
-                          className="w-10 h-10 rounded-lg object-cover border border-line"
+                          className="w-10 h-10 object-cover border border-line"
                         />
                         <p className="text-sm text-ink font-medium">{show.name}</p>
                       </div>
@@ -133,7 +134,7 @@ const AllShowsTab = () => {
                     <td className="p-4 text-right">
                       <Link 
                         to={`/admin/shows/${show.id}`} 
-                        className="inline-flex items-center gap-1.5 min-h-[40px] text-brand-text border border-brand/30 hover:bg-brand-hover/10 px-3 rounded-md text-xs font-bold transition-colors"
+                        className="inline-flex items-center gap-1.5 min-h-[40px] text-ink border border-ink/30 hover:bg-board/10 px-3 rounded-md text-xs font-bold transition-colors"
                       >
                         Xem chi tiết
                       </Link>

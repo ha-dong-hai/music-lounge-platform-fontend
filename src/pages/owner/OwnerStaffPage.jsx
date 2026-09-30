@@ -19,7 +19,7 @@ import toast from 'react-hot-toast'
 import { getLounges, getLoungeStaff, lookupUserByEmail, assignStaff, deactivateStaff } from '../../services/loungeServices'
 import ConfirmModal from '../../components/shared/ConfirmModal'
 
-const inputCls = 'px-3 py-2 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-brand/50'
+const inputCls = 'px-3 py-2 bg-page border border-line text-sm text-ink focus:outline-none focus:border-ink/50'
 
 const AddStaffModal = ({ loungeId, onClose, onSaved }) => {
   const [email, setEmail] = useState('')
@@ -53,11 +53,11 @@ const AddStaffModal = ({ loungeId, onClose, onSaved }) => {
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-espresso/80 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-card border border-line rounded-2xl w-full max-w-md shadow-2xl">
+      <div className="absolute inset-0 bg-ink/80" onClick={onClose} />
+      <div className="relative bg-card border border-line w-full max-w-md shadow-soft">
         <div className="flex justify-between items-center p-5 border-b border-line">
           <h2 className="text-lg font-bold text-ink">Thêm nhân viên</h2>
-          <button onClick={onClose} className="p-2 hover:bg-sunken rounded-full text-ink-soft"><X size={20} /></button>
+          <button onClick={onClose} className="p-2 hover:bg-sunken text-ink-soft"><X size={20} /></button>
         </div>
 
         <div className="p-5 space-y-4">
@@ -69,17 +69,17 @@ const AddStaffModal = ({ loungeId, onClose, onSaved }) => {
             <input value={email} onChange={(e) => { setEmail(e.target.value); setNguoiTim(null) }}
               type="email" placeholder="email@example.com" autoFocus className={`flex-1 ${inputCls}`} />
             <button type="submit" disabled={busy !== null || !email.trim()}
-              className="flex items-center gap-1.5 px-4 py-2 rounded-lg border border-line text-ink-soft text-sm font-bold hover:bg-sunken disabled:opacity-50">
+              className="flex items-center gap-1.5 px-4 py-2 border border-line text-ink-soft text-sm font-bold hover:bg-sunken disabled:opacity-50">
               {busy === 'lookup' ? <Loader2 size={16} className="animate-spin" /> : <Search size={16} />} Tìm
             </button>
           </form>
 
           {nguoiTim && (
-            <div className="bg-sunken/70 border border-line rounded-lg p-4">
+            <div className="bg-sunken/70 border border-line p-4">
               <p className="text-ink font-medium">{nguoiTim.fullName}</p>
               <p className="text-xs text-ink-mute mt-0.5">{nguoiTim.email}</p>
               <button onClick={gan} disabled={busy !== null}
-                className="mt-3 w-full flex items-center justify-center gap-2 py-2.5 rounded-lg bg-brand text-on-brand font-bold text-sm hover:bg-brand-hover disabled:opacity-50">
+                className="mt-3 w-full flex items-center justify-center gap-2 py-2.5 bg-ink text-lamp font-bold text-sm hover:bg-board disabled:opacity-50">
                 {busy === 'assign' ? <Loader2 size={16} className="animate-spin" /> : <CheckCircle2 size={16} />}
                 Gán làm nhân viên phòng trà
               </button>
@@ -134,14 +134,14 @@ const OwnerStaffPage = () => {
   }
 
   if (isLoading) {
-    return <div className="py-20 flex justify-center"><Loader2 size={32} className="animate-spin text-brand-text" /></div>
+    return <div className="py-20 flex justify-center"><Loader2 size={32} className="animate-spin text-ink" /></div>
   }
 
   if (!lounge) {
     return (
       <div className="max-w-2xl">
         <h1 className="text-2xl font-bold text-ink mb-1">Nhân viên</h1>
-        <div className="mt-4 bg-card border border-line rounded-xl p-6">
+        <div className="mt-4 bg-card border border-line p-6">
           <p className="text-sm text-ink-soft">Hãy tạo hồ sơ phòng trà trước — nhân viên được gán vào phòng trà.</p>
         </div>
       </div>
@@ -162,12 +162,12 @@ const OwnerStaffPage = () => {
           </p>
         </div>
         <button onClick={() => setDangThem(true)}
-          className="flex items-center gap-1.5 px-3 py-1.5 bg-brand text-on-brand rounded-lg text-xs font-bold hover:bg-brand-hover">
+          className="flex items-center gap-1.5 px-3 py-1.5 bg-ink text-lamp text-xs font-bold hover:bg-board">
           <UserPlus size={14} /> Thêm nhân viên
         </button>
       </div>
 
-      <div className="bg-card border border-line rounded-xl p-6">
+      <div className="bg-card border border-line p-6">
         <h2 className="text-base font-semibold text-ink mb-4">Đang làm việc ({dangLam.length})</h2>
         {dangLam.length === 0 ? (
           <div className="py-8 text-center">
@@ -177,7 +177,7 @@ const OwnerStaffPage = () => {
         ) : (
           <ul className="space-y-2">
             {dangLam.map((s) => (
-              <li key={s.id} className="flex items-center justify-between gap-3 bg-sunken/70 border border-line rounded-lg p-4">
+              <li key={s.id} className="flex items-center justify-between gap-3 bg-sunken/70 border border-line p-4">
                 <div className="min-w-0">
                   <p className="text-ink font-medium truncate">{s.fullName}</p>
                   <p className="text-xs text-ink-mute mt-0.5 truncate">{s.email}</p>
@@ -186,7 +186,7 @@ const OwnerStaffPage = () => {
                   </p>
                 </div>
                 <button onClick={() => setGoTarget(s)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-line text-danger text-xs font-bold hover:bg-red-500/10 flex-shrink-0">
+                  className="flex items-center gap-1.5 px-3 py-1.5 border border-line text-danger text-xs font-bold hover:bg-danger/10 flex-shrink-0">
                   <UserX size={14} /> Ngừng phân công
                 </button>
               </li>
@@ -196,12 +196,12 @@ const OwnerStaffPage = () => {
       </div>
 
       {daNgung.length > 0 && (
-        <div className="bg-card border border-line rounded-xl p-6">
+        <div className="bg-card border border-line p-6">
           <h2 className="text-base font-semibold text-ink mb-1">Đã ngừng ({daNgung.length})</h2>
           <p className="text-xs text-ink-mute mb-4">Giữ lại để tra được ai từng làm việc trong đêm diễn nào.</p>
           <ul className="space-y-2">
             {daNgung.map((s) => (
-              <li key={s.id} className="flex items-center justify-between gap-3 bg-sunken/40 border border-line/60 rounded-lg p-3 opacity-70">
+              <li key={s.id} className="flex items-center justify-between gap-3 bg-sunken/40 border border-line/60 p-3 opacity-70">
                 <div className="min-w-0">
                   <p className="text-ink-soft text-sm truncate">{s.fullName}</p>
                   <p className="text-xs text-ink-mute truncate">{s.email}</p>

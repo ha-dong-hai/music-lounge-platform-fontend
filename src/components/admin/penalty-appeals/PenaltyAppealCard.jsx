@@ -13,13 +13,13 @@ import { PenaltyTypeBadge, penaltyStatusLabel, penaltyStatusCls } from './Penalt
  * @param {function} onDecide - (item, 'Overturned'|'Upheld') → page mở modal
  */
 const PenaltyAppealCard = ({ p, choXuLy, onDecide }) => (
-  <li className="bg-card border border-line rounded-xl p-5">
+  <li className="bg-card border border-line p-5">
     <div className="flex flex-wrap items-start justify-between gap-4">
       <div className="min-w-0">
         <div className="flex flex-wrap items-center gap-2">
           <PenaltyTypeBadge type={p.penaltyType} />
           <Link to={`/lounge/${p.loungeId}`} target="_blank"
-            className="text-ink font-bold hover:text-brand-text">
+            className="text-ink font-bold hover:text-ink">
             {p.loungeName}
           </Link>
           <span className={`text-xs ${penaltyStatusCls(p.status)}`}>· {penaltyStatusLabel(p.status)}</span>
@@ -39,7 +39,7 @@ const PenaltyAppealCard = ({ p, choXuLy, onDecide }) => (
         )}
 
         {p.appealReason && (
-          <div className="mt-3 pl-3 border-l-2 border-yellow-500/40">
+          <div className="mt-3 pl-3 border-l-2 border-warning/40">
             <p className="text-xs text-ink-mute">
               Khiếu nại {p.appealedAt ? dayjs(p.appealedAt).format('DD/MM/YYYY') : ''}
             </p>
@@ -61,11 +61,11 @@ const PenaltyAppealCard = ({ p, choXuLy, onDecide }) => (
       {choXuLy && (
         <div className="flex flex-col gap-2 flex-shrink-0">
           <button onClick={() => onDecide(p, 'Overturned')}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-green-500/40 text-success text-xs font-bold hover:bg-green-500/10">
+            className="flex items-center gap-1.5 px-3 py-1.5 border border-success/40 text-success text-xs font-bold hover:bg-success/10">
             <CheckCircle2 size={13} /> Huỷ án phạt
           </button>
           <button onClick={() => onDecide(p, 'Upheld')}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-line text-ink-soft text-xs font-bold hover:bg-sunken">
+            className="flex items-center gap-1.5 px-3 py-1.5 border border-line text-ink-soft text-xs font-bold hover:bg-sunken">
             <XCircle size={13} /> Giữ nguyên
           </button>
         </div>

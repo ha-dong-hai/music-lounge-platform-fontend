@@ -84,25 +84,25 @@ const NotificationBell = () => {
     <div className="relative">
       <button
         onClick={openAndLoad}
-        className="relative flex items-center justify-center w-11 h-11 rounded-full border border-line hover:border-brand text-ink-soft hover:text-brand-text transition-colors"
+        className="relative flex items-center justify-center w-11 h-11 border border-line hover:border-ink text-ink-soft hover:text-ink transition-colors"
         aria-label={unread > 0 ? `Thông báo, ${unread} chưa đọc` : 'Thông báo'}
       >
         <Bell size={18} />
         {unread > 0 && (
-          <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 flex items-center justify-center rounded-full bg-red-500 text-white text-[10px] font-bold">
+          <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 flex items-center justify-center bg-danger text-lamp text-[10px] font-bold">
             {unread > 99 ? '99+' : unread}
           </span>
         )}
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 top-full mt-3 w-80 sm:w-96 bg-card rounded-xl shadow-lift border border-line py-2 z-50 animate-in fade-in slide-in-from-top-2">
+        <div className="absolute right-0 top-full mt-3 w-80 sm:w-96 bg-card shadow-lift border border-line py-2 z-50 animate-in fade-in slide-in-from-top-2">
           <div className="flex items-center justify-between px-4 py-2 border-b border-line mb-1">
             <p className="text-sm font-semibold text-ink">Thông báo</p>
             {unread > 0 && (
               <button
                 onClick={handleMarkAll}
-                className="flex items-center gap-1.5 text-xs text-brand-text hover:text-ink transition-colors"
+                className="flex items-center gap-1.5 text-xs text-ink hover:text-ink transition-colors"
               >
                 <CheckCheck size={14} /> Đánh dấu đã đọc hết
               </button>
@@ -112,7 +112,7 @@ const NotificationBell = () => {
           <div className="max-h-96 overflow-y-auto">
             {isLoading ? (
               <div className="py-8 flex justify-center">
-                <Loader2 size={20} className="animate-spin text-brand-text" />
+                <Loader2 size={20} className="animate-spin text-ink" />
               </div>
             ) : items.length === 0 ? (
               <p className="px-4 py-8 text-center text-sm text-ink-mute">Chưa có thông báo nào.</p>
@@ -121,11 +121,11 @@ const NotificationBell = () => {
                 const link = buildLink(n, role)
                 const inner = (
                   <div
-                    className={`px-4 py-3 border-b border-line/60 transition-colors hover:bg-sunken/60 ${n.isRead ? '' : 'bg-brand/5'
+                    className={`px-4 py-3 border-b border-line/60 transition-colors hover:bg-sunken/60 ${n.isRead ? '' : 'bg-ink/5'
                       }`}
                   >
                     <div className="flex items-start gap-2">
-                      {!n.isRead && <span className="mt-1.5 w-2 h-2 rounded-full bg-brand flex-shrink-0" />}
+                      {!n.isRead && <span className="mt-1.5 w-2 h-2 bg-ink flex-shrink-0" />}
                       <div className={n.isRead ? 'pl-4' : ''}>
                         <p className={`text-sm ${n.isRead ? 'text-ink-soft' : 'text-ink font-medium'}`}>{n.title}</p>
                         <p className="text-xs text-ink-mute mt-0.5 line-clamp-2">{n.body}</p>
@@ -150,7 +150,7 @@ const NotificationBell = () => {
           {/* Chuông chỉ lấy 15 cái mới nhất. Không có lối này thì thông báo thứ 16 trở đi không có
               đường nào xem được — mà đó đúng là chỗ nằm của thứ người dùng cần tra lại về sau. */}
           <Link to="/notifications" onClick={() => setIsOpen(false)}
-            className="block px-4 py-2.5 text-center text-xs font-bold text-brand-text hover:bg-sunken/60 border-t border-line">
+            className="block px-4 py-2.5 text-center text-xs font-bold text-ink hover:bg-sunken/60 border-t border-line">
             Xem tất cả thông báo
           </Link>
         </div>

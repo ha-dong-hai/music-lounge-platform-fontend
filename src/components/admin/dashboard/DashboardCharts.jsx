@@ -18,7 +18,7 @@ const RevenueTooltip = ({ active, payload }) => {
   if (!active || !payload?.length) return null
   const row = payload[0].payload
   return (
-    <div className="bg-card border border-line-strong p-3 rounded-lg shadow-xl text-xs">
+    <div className="bg-card border border-line-strong p-3 shadow-soft text-xs">
       <p className="text-ink font-bold mb-2">Tháng {row.label}{row.partial && ' (chưa trọn tháng)'}</p>
       {SOURCES.map((s) => (
         <div key={s.key} className="flex items-center justify-between gap-6 py-0.5">
@@ -162,10 +162,10 @@ export const TopShowsTable = ({ shows }) => {
       <table className="w-full text-left whitespace-nowrap">
         <thead className="bg-page/60 border-y border-line">
           <tr>
-            <th className="p-4 text-xs font-semibold text-ink-mute uppercase tracking-wider w-10">#</th>
-            <th className="p-4 text-xs font-semibold text-ink-mute uppercase tracking-wider">Buổi diễn</th>
-            <th className="p-4 text-xs font-semibold text-ink-mute uppercase tracking-wider">Vé bán</th>
-            <th className="p-4 text-xs font-semibold text-ink-mute uppercase tracking-wider text-right">Doanh thu vé</th>
+            <th className="p-4 text-sm font-semibold text-ink-muter w-10">#</th>
+            <th className="p-4 text-sm font-semibold text-ink-muter">Buổi diễn</th>
+            <th className="p-4 text-sm font-semibold text-ink-muter">Vé bán</th>
+            <th className="p-4 text-sm font-semibold text-ink-muter text-right">Doanh thu vé</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-line">
@@ -173,7 +173,7 @@ export const TopShowsTable = ({ shows }) => {
             <tr key={s.showId} className="hover:bg-sunken/40 transition-colors">
               <td className="p-4 text-ink-mute tabular-nums text-sm">{i + 1}</td>
               <td className="p-4">
-                <Link to={`/shows/${s.showId}`} className="text-sm text-ink font-medium hover:text-brand-text transition-colors">
+                <Link to={`/shows/${s.showId}`} className="text-sm text-ink font-medium hover:text-ink transition-colors">
                   {s.title}
                 </Link>
                 <p className="text-xs text-ink-mute mt-0.5">{s.loungeName} · {dayjs(s.startTime).format('DD/MM/YYYY')}</p>
@@ -183,7 +183,7 @@ export const TopShowsTable = ({ shows }) => {
                   {s.ticketsSold.toLocaleString('vi-VN')}
                 </span>
               </td>
-              <td className="p-4 text-right text-sm font-bold text-brand-text tabular-nums">{fmtMoney(s.ticketRevenue)}</td>
+              <td className="p-4 text-right text-sm font-bold text-ink tabular-nums">{fmtMoney(s.ticketRevenue)}</td>
             </tr>
           ))}
         </tbody>
@@ -206,7 +206,7 @@ export const GenreTrendingList = ({ genres }) => {
         <div key={g.genreName}>
           <div className="flex items-center justify-between mb-1.5">
             <div className="flex items-center gap-2">
-              <span className={`text-xs font-bold ${index === 0 ? 'text-brand-text' : 'text-ink-mute'}`}>#{index + 1}</span>
+              <span className={`text-xs font-bold ${index === 0 ? 'text-ink' : 'text-ink-mute'}`}>#{index + 1}</span>
               <span className="text-sm font-medium text-ink flex items-center gap-1.5">
                 <Music2 size={14} className="text-ink-mute" /> {g.genreName}
               </span>
@@ -216,9 +216,9 @@ export const GenreTrendingList = ({ genres }) => {
               {g.ticketsSold.toLocaleString('vi-VN')} vé · {g.showCount} show
             </div>
           </div>
-          <div className="w-full h-1.5 bg-sunken rounded-full overflow-hidden">
+          <div className="w-full h-1.5 bg-sunken overflow-hidden">
             <div
-              className={`h-full rounded-full ${index === 0 ? 'bg-gradient-to-r from-brand to-[#d4c87f]' : 'bg-brand/60'}`}
+              className={`h-full ${index === 0 ? 'bg-ink' : 'bg-ink/60'}`}
               style={{ width: `${(g.ticketsSold / max) * 100}%` }}
             />
           </div>

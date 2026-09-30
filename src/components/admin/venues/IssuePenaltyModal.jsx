@@ -20,19 +20,19 @@ const MUC = [
     value: 'Warning',
     label: 'Cảnh cáo',
     hieuLuc: 'Phòng trà vẫn hoạt động bình thường. Đây là lần nhắc chính thức, được lưu vào hồ sơ.',
-    mau: 'border-yellow-500/40 bg-yellow-500/5 text-warning',
+    mau: 'border-warning/40 bg-warning/5 text-warning',
   },
   {
     value: 'Suspension',
     label: 'Đình chỉ có thời hạn',
     hieuLuc: 'Trong thời gian đình chỉ: KHÔNG mở buổi diễn mới và KHÔNG bán vé. Buổi đã bán vé vẫn phải xử lý theo chính sách hoàn tiền.',
-    mau: 'border-orange-500/40 bg-orange-500/5 text-orange-700',
+    mau: 'border-warning/40 bg-warning/5 text-warning',
   },
   {
     value: 'Ban',
     label: 'Cấm',
     hieuLuc: 'Chặn vô thời hạn. Đây là mức nặng nhất và không có ngày tự hết hiệu lực.',
-    mau: 'border-red-500/40 bg-red-500/5 text-danger',
+    mau: 'border-danger/40 bg-danger/5 text-danger',
   },
 ]
 
@@ -77,15 +77,15 @@ const IssuePenaltyModal = ({ venue, onClose, onSaved }) => {
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-espresso/80 backdrop-blur-sm" onClick={() => !isBusy && onClose()} />
-      <div className="relative bg-card border border-line rounded-2xl w-full max-w-lg shadow-2xl flex flex-col max-h-[90vh]">
+      <div className="absolute inset-0 bg-ink/80" onClick={() => !isBusy && onClose()} />
+      <div className="relative bg-card border border-line w-full max-w-lg shadow-soft flex flex-col max-h-[90vh]">
         <div className="flex-none flex justify-between items-center p-5 border-b border-line">
           <h2 className="text-lg font-bold text-ink flex items-center gap-2 min-w-0">
             <ShieldAlert size={19} className="text-danger flex-shrink-0" />
             <span className="truncate">Ra án phạt · {venue.name}</span>
           </h2>
           <button onClick={onClose} disabled={isBusy}
-            className="p-2 hover:bg-sunken rounded-full text-ink-soft disabled:opacity-30 flex-shrink-0">
+            className="p-2 hover:bg-sunken text-ink-soft disabled:opacity-30 flex-shrink-0">
             <X size={20} />
           </button>
         </div>
@@ -96,7 +96,7 @@ const IssuePenaltyModal = ({ venue, onClose, onSaved }) => {
             <div className="mt-2 space-y-2">
               {MUC.map((m) => (
                 <button key={m.value} type="button" onClick={() => setPenaltyType(m.value)}
-                  className={`w-full text-left p-3 rounded-lg border transition-colors ${
+                  className={`w-full text-left p-3 border transition-colors ${
                     penaltyType === m.value ? m.mau : 'border-line hover:border-line-strong text-ink-soft'
                   }`}>
                   <p className="text-sm font-bold">{m.label}</p>
@@ -111,7 +111,7 @@ const IssuePenaltyModal = ({ venue, onClose, onSaved }) => {
               <label className="text-xs text-ink-mute">Số ngày đình chỉ <span className="text-danger">*</span></label>
               <input type="number" min="1" value={suspensionDays}
                 onChange={(e) => setSuspensionDays(e.target.value)}
-                className="mt-1 w-full px-3 py-2 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-brand/50 tabular-nums" />
+                className="mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink focus:outline-none focus:border-ink/50 tabular-nums" />
             </div>
           )}
 
@@ -120,7 +120,7 @@ const IssuePenaltyModal = ({ venue, onClose, onSaved }) => {
             <textarea rows={4} value={reason} maxLength={1000}
               onChange={(e) => setReason(e.target.value)}
               placeholder="Nêu cụ thể việc đã xảy ra, ngày nào, buổi diễn nào — chủ phòng trà dùng đúng câu này để sửa hoặc để khiếu nại."
-              className="mt-1 w-full px-3 py-2 bg-page border border-line rounded-lg text-sm text-ink resize-none focus:outline-none focus:border-brand/50" />
+              className="mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink resize-none focus:outline-none focus:border-ink/50" />
             <p className="text-xs text-ink-mute mt-1">{reason.length}/1000 ký tự</p>
           </div>
 
@@ -129,10 +129,10 @@ const IssuePenaltyModal = ({ venue, onClose, onSaved }) => {
             <input value={evidenceRef} maxLength={500}
               onChange={(e) => setEvidenceRef(e.target.value)}
               placeholder="Mã báo cáo vi phạm, liên kết ảnh chụp, số biên bản..."
-              className="mt-1 w-full px-3 py-2 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-brand/50" />
+              className="mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink focus:outline-none focus:border-ink/50" />
           </div>
 
-          <p className="text-xs text-danger/90 flex items-start gap-1.5 leading-relaxed bg-red-500/5 border border-red-500/30 rounded-lg p-3">
+          <p className="text-xs text-danger/90 flex items-start gap-1.5 leading-relaxed bg-danger/5 border border-danger/30 p-3">
             <AlertTriangle size={13} className="mt-px flex-shrink-0" />
             Không có đường gỡ án phạt. Sau khi ra án, chủ phòng trà chỉ còn cách khiếu nại trong thời
             hạn quy định.
@@ -140,11 +140,11 @@ const IssuePenaltyModal = ({ venue, onClose, onSaved }) => {
 
           <div className="flex gap-3 pt-1">
             <button type="button" onClick={onClose} disabled={isBusy}
-              className="flex-1 py-2.5 border border-line-strong text-ink-soft rounded-lg font-medium hover:bg-sunken disabled:opacity-50">
+              className="flex-1 py-2.5 border border-line-strong text-ink-soft font-medium hover:bg-sunken disabled:opacity-50">
               Huỷ
             </button>
             <button type="submit" disabled={isBusy}
-              className="flex-1 py-2.5 bg-red-500 text-white rounded-lg font-bold hover:bg-red-600 flex items-center justify-center gap-2 disabled:opacity-50">
+              className="flex-1 py-2.5 bg-danger text-lamp font-bold hover:bg-danger flex items-center justify-center gap-2 disabled:opacity-50">
               {isBusy && <Loader2 size={16} className="animate-spin" />} Ra án phạt
             </button>
           </div>

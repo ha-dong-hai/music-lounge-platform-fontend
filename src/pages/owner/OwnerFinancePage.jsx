@@ -41,9 +41,9 @@ const iconTheoLoai = (type) => {
 }
 
 const TRANG_THAI_QUYET_TOAN = {
-  Released: { chu: 'Đã chuyển', mau: 'text-success bg-green-500/10' },
-  Scheduled: { chu: 'Đã lên lịch', mau: 'text-warning bg-yellow-500/10' },
-  PendingReview: { chu: 'Chờ xét', mau: 'text-warning bg-yellow-500/10' },
+  Released: { chu: 'Đã chuyển', mau: 'text-success bg-success/10' },
+  Scheduled: { chu: 'Đã lên lịch', mau: 'text-warning bg-warning/10' },
+  PendingReview: { chu: 'Chờ xét', mau: 'text-warning bg-warning/10' },
   Cancelled: { chu: 'Đã huỷ', mau: 'text-ink-soft bg-line-strong/10' },
 }
 
@@ -92,14 +92,14 @@ const OwnerFinancePage = () => {
   const doiLoc = (fn) => { fn(); setPage(1) }
 
   if (isLoading && !earnings && rows.length === 0) {
-    return <div className="py-20 flex justify-center"><Loader2 size={32} className="animate-spin text-brand-text" /></div>
+    return <div className="py-20 flex justify-center"><Loader2 size={32} className="animate-spin text-ink" /></div>
   }
 
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-ink mb-1 flex items-center gap-2">
-          <Wallet size={24} className="text-brand-text" /> Tiền &amp; quyết toán
+          <Wallet size={24} className="text-ink" /> Tiền &amp; quyết toán
         </h1>
         <p className="text-ink-soft text-sm leading-relaxed">
           Tổng quan tiền bạn được nhận, và lịch sử từng giao dịch đã đi qua phòng trà.
@@ -109,21 +109,21 @@ const OwnerFinancePage = () => {
       {/* TỔNG QUAN */}
       {earnings ? (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="bg-card border border-line rounded-xl p-5">
+          <div className="bg-card border border-line p-5">
             <div className="flex items-start justify-between gap-2">
               <p className="text-sm text-ink-mute">Tổng đã ghi nhận</p>
-              <Wallet size={17} className="text-brand-text flex-shrink-0" />
+              <Wallet size={17} className="text-ink flex-shrink-0" />
             </div>
             <p className="text-2xl font-bold text-ink mt-1.5 tabular-nums">{fmtTien(earnings.totalEarned)}</p>
           </div>
-          <div className="bg-card border border-line rounded-xl p-5">
+          <div className="bg-card border border-line p-5">
             <div className="flex items-start justify-between gap-2">
               <p className="text-sm text-ink-mute">Đã chuyển cho bạn</p>
               <CheckCircle2 size={17} className="text-success flex-shrink-0" />
             </div>
             <p className="text-2xl font-bold text-ink mt-1.5 tabular-nums">{fmtTien(earnings.completedSettlement)}</p>
           </div>
-          <div className="bg-card border border-line rounded-xl p-5">
+          <div className="bg-card border border-line p-5">
             <div className="flex items-start justify-between gap-2">
               <p className="text-sm text-ink-mute">Chờ chuyển</p>
               <Clock size={17} className="text-warning flex-shrink-0" />
@@ -135,14 +135,14 @@ const OwnerFinancePage = () => {
           </div>
         </div>
       ) : (
-        <div className="bg-card border border-yellow-500/30 rounded-xl p-5">
+        <div className="bg-card border border-warning/30 p-5">
           <p className="text-sm text-ink-soft">Không tải được phần tổng quan. Danh sách giao dịch bên dưới vẫn đúng.</p>
         </div>
       )}
 
       {/* QUYẾT TOÁN GẦN ĐÂY */}
       {(earnings?.recentSettlements?.length ?? 0) > 0 && (
-        <div className="bg-card border border-line rounded-xl p-6">
+        <div className="bg-card border border-line p-6">
           <h2 className="text-base font-semibold text-ink flex items-center gap-2">
             <Landmark size={16} /> Các đợt quyết toán gần đây
           </h2>
@@ -153,7 +153,7 @@ const OwnerFinancePage = () => {
             {earnings.recentSettlements.map((s) => {
               const tt = TRANG_THAI_QUYET_TOAN[s.status]
               return (
-                <div key={s.id} className="flex flex-wrap items-center justify-between gap-3 bg-sunken/70 border border-line rounded-lg px-4 py-3">
+                <div key={s.id} className="flex flex-wrap items-center justify-between gap-3 bg-sunken/70 border border-line px-4 py-3">
                   <div>
                     <p className="text-sm text-ink tabular-nums">{fmtTien(s.amount)}</p>
                     <p className="text-xs text-ink-mute mt-0.5">
@@ -172,7 +172,7 @@ const OwnerFinancePage = () => {
       )}
 
       {/* LỊCH SỬ GIAO DỊCH */}
-      <div className="bg-card border border-line rounded-xl p-6">
+      <div className="bg-card border border-line p-6">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <h2 className="text-base font-semibold text-ink flex items-center gap-2">
             <ArrowRightLeft size={16} /> Lịch sử giao dịch
@@ -190,8 +190,8 @@ const OwnerFinancePage = () => {
           <div className="flex flex-wrap gap-2">
             {LOAI.map((l) => (
               <button key={l.value} onClick={() => doiLoc(() => setLoai(l.value))}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${
-                  loai === l.value ? 'border-brand bg-brand/10 text-brand-text' : 'border-line text-ink-soft hover:bg-sunken'
+                className={`px-3 py-1.5 text-xs font-medium border transition-colors ${
+                  loai === l.value ? 'border-ink bg-ink/10 text-ink' : 'border-line text-ink-soft hover:bg-sunken'
                 }`}>
                 {l.label}
               </button>
@@ -200,23 +200,23 @@ const OwnerFinancePage = () => {
           <div>
             <label className="text-xs text-ink-mute block">Từ ngày</label>
             <input type="date" value={tuNgay} onChange={(e) => doiLoc(() => setTuNgay(e.target.value))}
-              className="mt-1 px-3 py-1.5 bg-page border border-line rounded-lg text-sm text-ink" />
+              className="mt-1 px-3 py-1.5 bg-page border border-line text-sm text-ink" />
           </div>
           <div>
             <label className="text-xs text-ink-mute block">Đến ngày</label>
             <input type="date" value={denNgay} onChange={(e) => doiLoc(() => setDenNgay(e.target.value))}
-              className="mt-1 px-3 py-1.5 bg-page border border-line rounded-lg text-sm text-ink" />
+              className="mt-1 px-3 py-1.5 bg-page border border-line text-sm text-ink" />
           </div>
           {(tuNgay || denNgay || loai) && (
             <button onClick={() => doiLoc(() => { setLoai(''); setTuNgay(''); setDenNgay('') })}
-              className="px-3 py-1.5 rounded-lg border border-line text-ink-soft text-xs font-medium hover:bg-sunken">
+              className="px-3 py-1.5 border border-line text-ink-soft text-xs font-medium hover:bg-sunken">
               Xoá lọc
             </button>
           )}
         </div>
 
         {isLoading ? (
-          <div className="py-12 flex justify-center"><Loader2 size={22} className="animate-spin text-brand-text" /></div>
+          <div className="py-12 flex justify-center"><Loader2 size={22} className="animate-spin text-ink" /></div>
         ) : rows.length === 0 ? (
           <p className="mt-5 text-sm text-ink-mute">Không có giao dịch nào khớp bộ lọc.</p>
         ) : (
@@ -245,12 +245,12 @@ const OwnerFinancePage = () => {
         {totalPages > 1 && (
           <div className="flex items-center justify-center gap-3 mt-5">
             <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page <= 1}
-              className="px-4 py-2 rounded-lg border border-line text-sm text-ink-soft hover:bg-sunken disabled:opacity-40">
+              className="px-4 py-2 border border-line text-sm text-ink-soft hover:bg-sunken disabled:opacity-40">
               Trước
             </button>
             <span className="text-sm text-ink-mute">Trang {page}/{totalPages}</span>
             <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page >= totalPages}
-              className="px-4 py-2 rounded-lg border border-line text-sm text-ink-soft hover:bg-sunken disabled:opacity-40">
+              className="px-4 py-2 border border-line text-sm text-ink-soft hover:bg-sunken disabled:opacity-40">
               Sau
             </button>
           </div>
@@ -260,7 +260,7 @@ const OwnerFinancePage = () => {
       <p className="text-xs text-ink-mute leading-relaxed">
         Tiền donate hiện ở đây là tiền <strong className="text-ink-soft">thu hộ nghệ sĩ</strong>, không phải
         doanh thu của bạn. Việc chuyển tiếp cho nghệ sĩ làm ở{' '}
-        <Link to="/owner/donations" className="text-brand-text hover:underline">màn Donate</Link>.
+        <Link to="/owner/donations" className="text-ink hover:underline">màn Donate</Link>.
       </p>
     </div>
   )

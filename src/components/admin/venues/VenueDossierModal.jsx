@@ -61,15 +61,15 @@ const VenueDossierModal = ({ venue, onClose, onReview }) => {
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-espresso/80 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-card border border-line rounded-2xl w-full max-w-2xl shadow-2xl flex flex-col max-h-[90vh]">
+      <div className="absolute inset-0 bg-ink/80" onClick={onClose} />
+      <div className="relative bg-card border border-line w-full max-w-2xl shadow-soft flex flex-col max-h-[90vh]">
 
         <div className="flex-none flex justify-between items-start gap-4 p-5 border-b border-line">
           <div className="min-w-0">
             <h2 className="text-lg font-bold text-ink truncate">Hồ sơ phòng trà đã nộp</h2>
             <p className="text-xs text-ink-mute mt-0.5">#{venue.loungeId} · {venue.name}</p>
           </div>
-          <button onClick={onClose} aria-label="Đóng hồ sơ" className="p-2 hover:bg-sunken rounded-full text-ink-soft flex-shrink-0">
+          <button onClick={onClose} aria-label="Đóng hồ sơ" className="p-2 hover:bg-sunken text-ink-soft flex-shrink-0">
             <X size={20} />
           </button>
         </div>
@@ -80,7 +80,7 @@ const VenueDossierModal = ({ venue, onClose, onReview }) => {
             <LicenseBadge hasLicense={venue.hasBusinessLicense} />
           </div>
 
-          <div className="rounded-xl border border-line bg-sunken/40 px-4">
+          <div className="border border-line bg-sunken/40 px-4">
             <Dong icon={Building2} nhan="Tên phòng trà">{venue.name}</Dong>
             <Dong icon={User} nhan="Chủ phòng trà">
               <p className="font-medium">{venue.ownerName}</p>
@@ -94,7 +94,7 @@ const VenueDossierModal = ({ venue, onClose, onReview }) => {
           </div>
 
           {/* GIẤY PHÉP KINH DOANH — phần quan trọng nhất của việc duyệt */}
-          <div className="mt-4 rounded-xl border border-line p-4">
+          <div className="mt-4 border border-line p-4">
             <p className="text-sm font-semibold text-ink mb-1">Giấy phép kinh doanh</p>
             {venue.hasBusinessLicense ? (
               <>
@@ -105,7 +105,7 @@ const VenueDossierModal = ({ venue, onClose, onReview }) => {
                 <button
                   onClick={moGiayPhep}
                   disabled={dangMo}
-                  className="inline-flex items-center gap-2 min-h-[44px] px-4 rounded-lg bg-brand text-on-brand text-sm font-bold hover:bg-brand-hover disabled:opacity-60 transition-colors"
+                  className="inline-flex items-center gap-2 min-h-[44px] px-4 bg-ink text-lamp text-sm font-bold hover:bg-board disabled:opacity-60 transition-colors"
                 >
                   {dangMo ? <Loader2 size={15} className="animate-spin" /> : <FileText size={15} />}
                   Mở giấy phép kinh doanh
@@ -126,7 +126,7 @@ const VenueDossierModal = ({ venue, onClose, onReview }) => {
           <Link
             to={`/lounge/${venue.loungeId}`}
             target="_blank"
-            className="inline-flex items-center gap-2 min-h-[44px] mt-4 text-sm text-ink-soft hover:text-brand-text transition-colors"
+            className="inline-flex items-center gap-2 min-h-[44px] mt-4 text-sm text-ink-soft hover:text-ink transition-colors"
           >
             <ExternalLink size={14} /> Xem trang công khai của phòng trà này
           </Link>
@@ -138,13 +138,13 @@ const VenueDossierModal = ({ venue, onClose, onReview }) => {
           <div className="flex-none flex flex-wrap justify-end gap-3 p-5 border-t border-line">
             <button
               onClick={() => onReview(venue, 'Rejected')}
-              className="min-h-[44px] px-5 rounded-lg border border-danger/40 text-danger text-sm font-bold hover:bg-danger/10 transition-colors"
+              className="min-h-[44px] px-5 border border-danger/40 text-danger text-sm font-bold hover:bg-danger/10 transition-colors"
             >
               Từ chối
             </button>
             <button
               onClick={() => onReview(venue, 'Approved')}
-              className="min-h-[44px] px-5 rounded-lg border border-success/40 text-success text-sm font-bold hover:bg-success/10 transition-colors"
+              className="min-h-[44px] px-5 border border-success/40 text-success text-sm font-bold hover:bg-success/10 transition-colors"
             >
               Duyệt
             </button>

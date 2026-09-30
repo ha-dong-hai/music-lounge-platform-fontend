@@ -44,20 +44,20 @@ const OptionFormModal = ({ isOpen, typeLabel, hasNameEn, hasDescription, editing
         })
     }
 
-    const inputCls = "w-full px-4 py-2.5 bg-page border border-line rounded-lg text-ink text-sm focus:outline-none focus:border-brand/50"
+    const inputCls = "w-full px-4 py-2.5 bg-page border border-line text-ink text-sm focus:outline-none focus:border-ink/50"
 
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-            <div className="absolute inset-0 bg-espresso/80 backdrop-blur-sm" onClick={() => !isSaving && onClose()}></div>
+            <div className="absolute inset-0 bg-ink/80" onClick={() => !isSaving && onClose()}></div>
 
-            <div className="relative bg-card border border-line rounded-2xl w-full max-w-md shadow-2xl flex flex-col max-h-[90vh]" onClick={(e) => e.stopPropagation()}>
+            <div className="relative bg-card border border-line w-full max-w-md shadow-soft flex flex-col max-h-[90vh]" onClick={(e) => e.stopPropagation()}>
 
                 {/* HEADER */}
                 <div className="flex-none flex justify-between items-center p-5 border-b border-line">
                     <h2 className="text-lg font-bold text-ink">
                         {isEditing ? `Edit ${typeLabel}` : `Add New ${typeLabel}`}
                     </h2>
-                    <button onClick={onClose} disabled={isSaving} className="p-2 hover:bg-sunken rounded-full text-ink-soft disabled:opacity-30">
+                    <button onClick={onClose} disabled={isSaving} className="p-2 hover:bg-sunken text-ink-soft disabled:opacity-30">
                         <X size={20} />
                     </button>
                 </div>
@@ -112,7 +112,7 @@ const OptionFormModal = ({ isOpen, typeLabel, hasNameEn, hasDescription, editing
                     {/* Mục đang tắt vẫn sửa được, nhưng phải nói rõ trạng thái để người dùng không
                         tưởng mình đang sửa một mục đang dùng. Bật lại là nút riêng ngoài danh sách. */}
                     {isEditing && hasDescription && editingOption?.isActive === false && (
-                        <p className="text-xs text-ink-soft flex items-start gap-1.5 leading-relaxed bg-sunken/40 border border-line rounded-lg p-3">
+                        <p className="text-xs text-ink-soft flex items-start gap-1.5 leading-relaxed bg-sunken/40 border border-line p-3">
                             <AlertTriangle size={13} className="mt-px flex-shrink-0 text-warning" />
                             Mục này đang TẮT — sửa ở đây không bật nó lên. Bật lại bằng nút trong danh sách.
                         </p>
@@ -125,7 +125,7 @@ const OptionFormModal = ({ isOpen, typeLabel, hasNameEn, hasDescription, editing
                         type="button"
                         onClick={onClose}
                         disabled={isSaving}
-                        className="flex-1 py-2.5 border border-line-strong text-ink-soft rounded-lg font-medium hover:bg-sunken transition-colors disabled:opacity-50"
+                        className="flex-1 py-2.5 border border-line-strong text-ink-soft font-medium hover:bg-sunken transition-colors disabled:opacity-50"
                     >
                         Huỷ
                     </button>
@@ -133,7 +133,7 @@ const OptionFormModal = ({ isOpen, typeLabel, hasNameEn, hasDescription, editing
                         type="submit"
                         form="option-form"
                         disabled={isSaving}
-                        className="flex-1 py-2.5 bg-brand text-on-brand rounded-lg font-bold hover:bg-brand-hover transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                        className="flex-1 py-2.5 bg-ink text-lamp font-bold hover:bg-board transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
                     >
                         {isSaving
                             ? <><Loader2 size={16} className="animate-spin" /> Đang lưu…</>

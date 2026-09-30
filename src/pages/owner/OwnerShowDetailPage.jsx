@@ -56,7 +56,7 @@ const ROLES = [
 
 const ChecklistRow = ({ ok, label, hint }) => (
   <div className="flex items-start gap-2.5">
-    <span className={`mt-0.5 w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 ${ok ? 'bg-green-500/15 text-success' : 'bg-sunken text-ink-mute'}`}>
+    <span className={`mt-0.5 w-5 h-5 flex items-center justify-center flex-shrink-0 ${ok ? 'bg-success/15 text-success' : 'bg-sunken text-ink-mute'}`}>
       {ok ? <Check size={13} /> : <X size={13} />}
     </span>
     <div>
@@ -326,7 +326,7 @@ const OwnerShowDetailPage = () => {
   }
 
   if (isLoading) {
-    return <div className="py-20 flex justify-center"><Loader2 size={32} className="animate-spin text-brand-text" /></div>
+    return <div className="py-20 flex justify-center"><Loader2 size={32} className="animate-spin text-ink" /></div>
   }
   if (!show) {
     return <div className="text-ink-mute">Không tìm thấy buổi diễn.</div>
@@ -373,7 +373,7 @@ const OwnerShowDetailPage = () => {
           Backend làm riêng khối `moderation` đúng để chữa chuyện đó; trước đây FE không đọc nó. */}
       {duyet && (
         duyet.decision === 'Rejected' ? (
-          <div className="bg-red-500/5 border border-red-500/40 rounded-xl p-5">
+          <div className="bg-danger/5 border border-danger/40 p-5">
             <h2 className="text-base font-semibold text-danger flex items-center gap-2">
               <XCircle size={17} /> Admin đã từ chối buổi diễn này
             </h2>
@@ -391,7 +391,7 @@ const OwnerShowDetailPage = () => {
             </p>
           </div>
         ) : duyet.decision === 'Approved' ? (
-          <div className="bg-green-500/5 border border-green-500/30 rounded-xl p-5">
+          <div className="bg-success/5 border border-success/30 p-5">
             <h2 className="text-base font-semibold text-success flex items-center gap-2">
               <Check size={17} /> Admin đã duyệt
             </h2>
@@ -401,7 +401,7 @@ const OwnerShowDetailPage = () => {
             </p>
           </div>
         ) : (
-          <div className="bg-yellow-500/5 border border-yellow-500/30 rounded-xl p-5">
+          <div className="bg-warning/5 border border-warning/30 p-5">
             <h2 className="text-base font-semibold text-warning flex items-center gap-2">
               <Clock size={17} /> Đang chờ Admin duyệt
             </h2>
@@ -419,13 +419,13 @@ const OwnerShowDetailPage = () => {
       )}
 
       {!isDraft && (
-        <div className="bg-yellow-500/5 border border-yellow-500/20 rounded-xl p-4 text-sm text-warning">
+        <div className="bg-warning/5 border border-warning/20 p-4 text-sm text-warning">
           Buổi diễn không còn ở trạng thái Nháp nên không sửa được nữa. Trang này chỉ còn để xem.
         </div>
       )}
 
       {/* === CHECKLIST GỬI DUYỆT === */}
-      <div className="bg-card border border-line rounded-xl p-6">
+      <div className="bg-card border border-line p-6">
         <h2 className="text-lg font-semibold text-ink mb-4">Điều kiện gửi duyệt</h2>
         <div className="space-y-3">
           <ChecklistRow ok={hasTiers} label="Có ít nhất 1 hạng vé" hint="Thêm ở mục Hạng vé bên dưới" />
@@ -441,7 +441,7 @@ const OwnerShowDetailPage = () => {
               hint="Theo NĐ 144/2020 Điều 10. Khai ở mục Văn bản chấp thuận bên dưới" />
           ) : (
             <div className="flex items-start gap-2.5">
-              <span className="mt-0.5 w-5 h-5 rounded-full bg-sunken text-ink-mute flex items-center justify-center flex-shrink-0 text-[10px]">?</span>
+              <span className="mt-0.5 w-5 h-5 bg-sunken text-ink-mute flex items-center justify-center flex-shrink-0 text-[10px]">?</span>
               <div>
                 <p className="text-sm text-ink-soft">Đã khai văn bản chấp thuận tổ chức biểu diễn</p>
                 <p className="text-xs text-ink-mute mt-0.5">
@@ -452,7 +452,7 @@ const OwnerShowDetailPage = () => {
             </div>
           )}
           <div className="flex items-start gap-2.5">
-            <span className="mt-0.5 w-5 h-5 rounded-full bg-sunken text-ink-mute flex items-center justify-center flex-shrink-0 text-[10px]">?</span>
+            <span className="mt-0.5 w-5 h-5 bg-sunken text-ink-mute flex items-center justify-center flex-shrink-0 text-[10px]">?</span>
             <p className="text-sm text-ink-mute">
               Nộp trước tối thiểu số ngày làm việc quy định — cũng được kiểm khi bấm gửi.
             </p>
@@ -461,16 +461,16 @@ const OwnerShowDetailPage = () => {
 
         {isDraft && (
           <button onClick={handleSubmit} disabled={!readyToSubmit || !!busy}
-            className="mt-5 flex items-center gap-2 px-4 py-2 rounded-lg bg-brand text-on-brand text-sm font-bold hover:bg-brand-hover disabled:opacity-40 disabled:cursor-not-allowed">
+            className="mt-5 flex items-center gap-2 px-4 py-2 bg-ink text-lamp text-sm font-bold hover:bg-board disabled:opacity-40 disabled:cursor-not-allowed">
             <Send size={16} /> {busy === 'submit' ? 'Đang gửi...' : 'Gửi duyệt'}
           </button>
         )}
       </div>
 
       {/* === VĂN BẢN CHẤP THUẬN === */}
-      <div className="bg-card border border-line rounded-xl p-6">
+      <div className="bg-card border border-line p-6">
         <h2 className="text-lg font-semibold text-ink mb-1 flex items-center gap-2">
-          <FileCheck size={18} className="text-brand-text" /> Văn bản chấp thuận biểu diễn
+          <FileCheck size={18} className="text-ink" /> Văn bản chấp thuận biểu diễn
         </h2>
         <p className="text-ink-mute text-xs mb-4">
           Số văn bản hoặc liên kết tới văn bản chấp thuận của cơ quan quản lý. Khai lại sẽ ghi đè
@@ -481,7 +481,7 @@ const OwnerShowDetailPage = () => {
             dung đã khai" — câu đó đúng vào lúc viết, nhưng backend đã trả về qua operatorInfo.
             Không đọc thì chủ phòng trà khai xong không còn chỗ nào xem lại để đối chiếu hay sửa. */}
         {daKhaiVanBan && (
-          <div className="mb-4 p-3 rounded-lg bg-sunken/70 border border-line">
+          <div className="mb-4 p-3 bg-sunken/70 border border-line">
             <p className="text-xs text-ink-mute">Đã khai</p>
             <p className="text-sm text-ink mt-0.5 break-all">{vanHanh.legalApprovalReference}</p>
             <p className="text-xs mt-1.5">
@@ -500,9 +500,9 @@ const OwnerShowDetailPage = () => {
           <div className="flex gap-2">
             <input value={legalRef} onChange={(e) => setLegalRef(e.target.value)}
               placeholder={daKhaiVanBan ? 'Nhập số mới để thay giá trị đang khai' : 'VD: 1234/SVHTT-QLVH hoặc đường dẫn tới văn bản'}
-              className="flex-1 px-3 py-2 bg-page border border-line rounded-lg text-sm text-ink placeholder:text-ink-mute" />
+              className="flex-1 px-3 py-2 bg-page border border-line text-sm text-ink placeholder:text-ink-mute" />
             <button onClick={handleSaveLegal} disabled={!legalRef.trim() || !!busy}
-              className="px-4 py-2 rounded-lg border border-line text-ink-soft text-sm font-bold hover:bg-sunken disabled:opacity-50">
+              className="px-4 py-2 border border-line text-ink-soft text-sm font-bold hover:bg-sunken disabled:opacity-50">
               {daKhaiVanBan ? 'Thay' : 'Lưu'}
             </button>
           </div>
@@ -510,15 +510,15 @@ const OwnerShowDetailPage = () => {
       </div>
 
       {/* === LINE-UP === */}
-      <div className="bg-card border border-line rounded-xl p-6">
+      <div className="bg-card border border-line p-6">
         <h2 className="text-lg font-semibold text-ink mb-4 flex items-center gap-2">
-          <Users size={18} className="text-brand-text" /> Line-up nghệ sĩ
+          <Users size={18} className="text-ink" /> Line-up nghệ sĩ
         </h2>
 
         {show.performers?.length > 0 ? (
           <div className="space-y-2 mb-4">
             {show.performers.map((p, i, arr) => (
-              <div key={p.performanceId} className="border border-line rounded-lg px-4 py-3">
+              <div key={p.performanceId} className="border border-line px-4 py-3">
                 <div className="flex items-center justify-between gap-3">
                   <div className="min-w-0">
                     <p className="text-ink text-sm font-medium">
@@ -534,12 +534,12 @@ const OwnerShowDetailPage = () => {
                     <div className="flex items-center gap-1 flex-shrink-0">
                       <button onClick={() => handleDoiThuTu(p.performanceId, -1)} disabled={!!busy || i === 0}
                         title="Diễn sớm hơn"
-                        className="p-1.5 rounded-lg text-ink-mute hover:text-ink disabled:opacity-30">
+                        className="p-1.5 text-ink-mute hover:text-ink disabled:opacity-30">
                         <ArrowUp size={14} />
                       </button>
                       <button onClick={() => handleDoiThuTu(p.performanceId, 1)} disabled={!!busy || i === arr.length - 1}
                         title="Diễn muộn hơn"
-                        className="p-1.5 rounded-lg text-ink-mute hover:text-ink disabled:opacity-30">
+                        className="p-1.5 text-ink-mute hover:text-ink disabled:opacity-30">
                         <ArrowDown size={14} />
                       </button>
                       <button
@@ -551,12 +551,12 @@ const OwnerShowDetailPage = () => {
                           acceptsDonation: !!p.acceptsDonation,
                         })}
                         disabled={!!busy} title="Sửa tiết mục"
-                        className="p-1.5 rounded-lg text-ink-mute hover:text-brand-text disabled:opacity-50">
+                        className="p-1.5 text-ink-mute hover:text-ink disabled:opacity-50">
                         <Pencil size={14} />
                       </button>
                       <button onClick={() => handleRemovePerformer(p.performanceId)} disabled={!!busy}
                         title="Gỡ khỏi line-up"
-                        className="p-1.5 rounded-lg text-ink-mute hover:text-danger disabled:opacity-50">
+                        className="p-1.5 text-ink-mute hover:text-danger disabled:opacity-50">
                         <Trash2 size={14} />
                       </button>
                     </div>
@@ -570,7 +570,7 @@ const OwnerShowDetailPage = () => {
                       <label className="text-xs text-ink-mute">Vai trò</label>
                       <select value={suaTietMuc.role}
                         onChange={(e) => setSuaTietMuc((v) => ({ ...v, role: e.target.value }))}
-                        className="mt-1 w-full px-3 py-2 bg-page border border-line rounded-lg text-sm text-ink">
+                        className="mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink">
                         {ROLES.map((r) => <option key={r.value} value={r.value}>{r.label}</option>)}
                       </select>
                     </div>
@@ -578,23 +578,23 @@ const OwnerShowDetailPage = () => {
                       <label className="text-xs text-ink-mute">Giờ diễn</label>
                       <input type="time" value={suaTietMuc.setTime}
                         onChange={(e) => setSuaTietMuc((v) => ({ ...v, setTime: e.target.value }))}
-                        className="mt-1 w-full px-3 py-2 bg-page border border-line rounded-lg text-sm text-ink" />
+                        className="mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink" />
                       <p className="text-[11px] text-ink-mute mt-1">Để trống nếu chưa chốt giờ.</p>
                     </div>
                     <div className="flex flex-col justify-between">
                       <label className="flex items-center gap-2 text-sm text-ink-soft mt-1">
                         <input type="checkbox" checked={suaTietMuc.acceptsDonation}
                           onChange={(e) => setSuaTietMuc((v) => ({ ...v, acceptsDonation: e.target.checked }))}
-                          className="accent-brand" />
+                          className="accent-ink" />
                         Nhận donate
                       </label>
                       <div className="flex gap-2 mt-2">
                         <button onClick={handleLuuTietMuc} disabled={!!busy}
-                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand text-on-brand text-xs font-bold disabled:opacity-50">
+                          className="flex items-center gap-1.5 px-3 py-1.5 bg-ink text-lamp text-xs font-bold disabled:opacity-50">
                           {busy === `perf-${p.performanceId}` ? <Loader2 size={13} className="animate-spin" /> : <Save size={13} />} Lưu
                         </button>
                         <button onClick={() => setSuaTietMuc(null)} disabled={!!busy}
-                          className="px-3 py-1.5 rounded-lg border border-line text-ink-soft text-xs font-bold hover:bg-sunken">
+                          className="px-3 py-1.5 border border-line text-ink-soft text-xs font-bold hover:bg-sunken">
                           Huỷ
                         </button>
                       </div>
@@ -610,9 +610,9 @@ const OwnerShowDetailPage = () => {
           <div className="relative">
             <input value={performerQuery} onChange={(e) => handleSearchPerformer(e.target.value)}
               placeholder="Gõ tên nghệ sĩ để tìm (từ 2 ký tự)"
-              className="w-full px-3 py-2 bg-page border border-line rounded-lg text-sm text-ink placeholder:text-ink-mute" />
+              className="w-full px-3 py-2 bg-page border border-line text-sm text-ink placeholder:text-ink-mute" />
             {performerResults.length > 0 && (
-              <div className="absolute left-0 right-0 mt-1 bg-card border border-line rounded-lg shadow-lift z-10 overflow-hidden">
+              <div className="absolute left-0 right-0 mt-1 bg-card border border-line shadow-lift z-10 overflow-hidden">
                 {performerResults.map((p) => (
                   <button key={p.id} onClick={() => handleAddPerformer(p)} disabled={!!busy}
                     className="w-full text-left px-4 py-2.5 text-sm text-ink-soft hover:bg-sunken disabled:opacity-50">
@@ -627,14 +627,14 @@ const OwnerShowDetailPage = () => {
       </div>
 
       {/* === HẠNG VÉ === */}
-      <div className="bg-card border border-line rounded-xl p-6">
+      <div className="bg-card border border-line p-6">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold text-ink flex items-center gap-2">
-            <Ticket size={18} className="text-brand-text" /> Hạng vé
+            <Ticket size={18} className="text-ink" /> Hạng vé
           </h2>
           {isDraft && !showTierForm && (
             <button onClick={() => setShowTierForm(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-line text-ink-soft text-xs font-bold hover:bg-sunken">
+              className="flex items-center gap-1.5 px-3 py-1.5 border border-line text-ink-soft text-xs font-bold hover:bg-sunken">
               <Plus size={14} /> Thêm hạng vé
             </button>
           )}
@@ -643,7 +643,7 @@ const OwnerShowDetailPage = () => {
         {tiers.length > 0 ? (
           <div className="space-y-2 mb-4">
             {tiers.map((t) => (
-              <div key={t.id} className="border border-line rounded-lg px-4 py-3">
+              <div key={t.id} className="border border-line px-4 py-3">
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <p className="text-ink text-sm font-medium">
@@ -655,7 +655,7 @@ const OwnerShowDetailPage = () => {
                     <div className="mt-1.5 space-y-0.5">
                       {t.prices?.map((pr) => (
                         <p key={pr.id} className="text-xs text-ink-soft">
-                          {pr.name}: <span className="text-brand-text font-medium">{fmtMoney(pr.price)}</span>
+                          {pr.name}: <span className="text-ink font-medium">{fmtMoney(pr.price)}</span>
                           {pr.quota != null && ` · ${pr.availableSlots}/${pr.quota} còn lại`}
                           {` · ${pr.purchaseChannel === 'Both' ? 'online + tại quầy' : pr.purchaseChannel === 'Online' ? 'chỉ online' : 'chỉ tại quầy'}`}
                         </p>
@@ -672,12 +672,12 @@ const OwnerShowDetailPage = () => {
                           totalCapacity: t.totalCapacity ?? '',
                         })}
                         disabled={!!busy} title="Sửa hạng vé"
-                        className="p-1.5 rounded-lg text-ink-mute hover:text-brand-text disabled:opacity-50">
+                        className="p-1.5 text-ink-mute hover:text-ink disabled:opacity-50">
                         <Pencil size={14} />
                       </button>
                       <button onClick={() => handleDeleteTier(t.id)} disabled={!!busy}
                         title="Xoá hạng vé"
-                        className="p-1.5 rounded-lg text-ink-mute hover:text-danger disabled:opacity-50">
+                        className="p-1.5 text-ink-mute hover:text-danger disabled:opacity-50">
                         <Trash2 size={14} />
                       </button>
                     </div>
@@ -692,13 +692,13 @@ const OwnerShowDetailPage = () => {
                         <label className="text-xs text-ink-mute">Tên hạng vé *</label>
                         <input value={suaHangVe.name}
                           onChange={(e) => setSuaHangVe((v) => ({ ...v, name: e.target.value }))}
-                          className="mt-1 w-full px-3 py-2 bg-page border border-line rounded-lg text-sm text-ink" />
+                          className="mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink" />
                       </div>
                       <div>
                         <label className="text-xs text-ink-mute">Sức chứa</label>
                         <input type="number" min="1" value={suaHangVe.totalCapacity}
                           onChange={(e) => setSuaHangVe((v) => ({ ...v, totalCapacity: e.target.value }))}
-                          className="mt-1 w-full px-3 py-2 bg-page border border-line rounded-lg text-sm text-ink" />
+                          className="mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink" />
                         <p className="text-[11px] text-ink-mute mt-1">Để trống = không giới hạn.</p>
                       </div>
                     </div>
@@ -707,18 +707,18 @@ const OwnerShowDetailPage = () => {
                       <input value={suaHangVe.description}
                         onChange={(e) => setSuaHangVe((v) => ({ ...v, description: e.target.value }))}
                         placeholder="VD: Ghế sát sân khấu, có nước uống"
-                        className="mt-1 w-full px-3 py-2 bg-page border border-line rounded-lg text-sm text-ink" />
+                        className="mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink" />
                     </div>
                     <p className="text-[11px] text-ink-mute">
                       Giá vé không sửa ở đây — giá thuộc đợt giá riêng của hạng vé.
                     </p>
                     <div className="flex gap-2">
                       <button onClick={handleLuuHangVe} disabled={!!busy}
-                        className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-brand text-on-brand text-sm font-bold disabled:opacity-50">
+                        className="flex items-center gap-1.5 px-4 py-2 bg-ink text-lamp text-sm font-bold disabled:opacity-50">
                         {busy === `tier-${t.id}` ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />} Lưu
                       </button>
                       <button onClick={() => setSuaHangVe(null)} disabled={!!busy}
-                        className="px-4 py-2 rounded-lg border border-line text-ink-soft text-sm font-bold hover:bg-sunken">
+                        className="px-4 py-2 border border-line text-ink-soft text-sm font-bold hover:bg-sunken">
                         Huỷ
                       </button>
                     </div>
@@ -736,12 +736,12 @@ const OwnerShowDetailPage = () => {
                 <label className="text-xs text-ink-mute">Tên hạng vé *</label>
                 <input value={tierForm.name} onChange={(e) => setTierForm((p) => ({ ...p, name: e.target.value }))}
                   placeholder="VD: Ghế thường"
-                  className="mt-1 w-full px-3 py-2 bg-page border border-line rounded-lg text-sm text-ink" />
+                  className="mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink" />
               </div>
               <div>
                 <label className="text-xs text-ink-mute">Loại</label>
                 <select value={tierForm.accessType} onChange={(e) => setTierForm((p) => ({ ...p, accessType: e.target.value }))}
-                  className="mt-1 w-full px-3 py-2 bg-page border border-line rounded-lg text-sm text-ink">
+                  className="mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink">
                   <option value="Physical">Vào xem tại chỗ</option>
                   <option value="Livestream">Xem trực tuyến</option>
                 </select>
@@ -760,7 +760,7 @@ const OwnerShowDetailPage = () => {
                 <label className="text-xs text-ink-mute">Khu vực chỗ ngồi</label>
                 <select value={tierForm.zoneId}
                   onChange={(e) => setTierForm((p) => ({ ...p, zoneId: e.target.value }))}
-                  className="mt-1 w-full px-3 py-2 bg-page border border-line rounded-lg text-sm text-ink">
+                  className="mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink">
                   <option value="">— Không gắn khu vực nào —</option>
                   {zones.map((z) => (
                     <option key={z.id} value={z.id}>
@@ -781,18 +781,18 @@ const OwnerShowDetailPage = () => {
                 <label className="text-xs text-ink-mute">Giá (đồng) *</label>
                 <input type="number" min="1" step="1" value={tierForm.price}
                   onChange={(e) => setTierForm((p) => ({ ...p, price: e.target.value }))}
-                  className="mt-1 w-full px-3 py-2 bg-page border border-line rounded-lg text-sm text-ink" />
+                  className="mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink" />
               </div>
               <div>
                 <label className="text-xs text-ink-mute">Số lượng</label>
                 <input type="number" min="1" value={tierForm.quota}
                   onChange={(e) => setTierForm((p) => ({ ...p, quota: e.target.value }))}
-                  className="mt-1 w-full px-3 py-2 bg-page border border-line rounded-lg text-sm text-ink" />
+                  className="mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink" />
               </div>
               <div>
                 <label className="text-xs text-ink-mute">Kênh bán</label>
                 <select value={tierForm.purchaseChannel} onChange={(e) => setTierForm((p) => ({ ...p, purchaseChannel: e.target.value }))}
-                  className="mt-1 w-full px-3 py-2 bg-page border border-line rounded-lg text-sm text-ink">
+                  className="mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink">
                   <option value="Both">Online + tại quầy</option>
                   <option value="Online">Chỉ online</option>
                   <option value="Offline">Chỉ tại quầy</option>
@@ -806,11 +806,11 @@ const OwnerShowDetailPage = () => {
 
             <div className="flex gap-2">
               <button type="submit" disabled={!!busy}
-                className="px-4 py-2 rounded-lg bg-brand text-on-brand text-sm font-bold hover:bg-brand-hover disabled:opacity-50">
+                className="px-4 py-2 bg-ink text-lamp text-sm font-bold hover:bg-board disabled:opacity-50">
                 {busy === 'tier' ? 'Đang tạo...' : 'Tạo hạng vé'}
               </button>
               <button type="button" onClick={() => setShowTierForm(false)}
-                className="px-4 py-2 rounded-lg border border-line text-ink-soft text-sm font-bold hover:bg-sunken">
+                className="px-4 py-2 border border-line text-ink-soft text-sm font-bold hover:bg-sunken">
                 Huỷ
               </button>
             </div>

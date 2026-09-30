@@ -80,8 +80,8 @@ const TransparencyHubPage = () => {
       <div className="max-w-5xl mx-auto px-4 sm:px-6 py-10 sm:py-14">
 
         <div className="flex items-center gap-3 mb-3">
-          <span className="h-px w-8 flex-shrink-0 bg-brand-text/70" aria-hidden="true" />
-          <p className="text-[11px] sm:text-xs font-semibold uppercase tracking-[0.22em] text-brand-text">
+          <span className="h-px w-8 flex-shrink-0 bg-ink/70" aria-hidden="true" />
+          <p className="text-[11px] sm:text-xs font-semibold text-ink">
             Công khai · không cần đăng nhập
           </p>
         </div>
@@ -100,9 +100,9 @@ const TransparencyHubPage = () => {
             { icon: Building2, ten: 'Chuyển cho phòng trà', mo: 'Tới kỳ chi trả, nền tảng chuyển phần của nghệ sĩ về phòng trà nơi họ biểu diễn.' },
             { icon: Heart, ten: 'Phòng trà trả nghệ sĩ', mo: 'Phòng trà chuyển cho nghệ sĩ và báo lại. Chính nghệ sĩ là người bấm xác nhận đã nhận được.' },
           ].map((b, i) => (
-            <li key={b.ten} className="bg-card border border-line rounded-xl p-5">
+            <li key={b.ten} className="bg-card border border-line p-5">
               <div className="flex items-center gap-2.5 mb-2">
-                <b.icon size={18} className="text-brand-text flex-shrink-0" strokeWidth={1.5} />
+                <b.icon size={18} className="text-ink flex-shrink-0" strokeWidth={1.5} />
                 <span className="text-xs font-semibold text-ink-mute tabular-nums">Chặng {i + 1}</span>
               </div>
               <p className="font-semibold text-ink mb-1.5">{b.ten}</p>
@@ -111,8 +111,8 @@ const TransparencyHubPage = () => {
           ))}
         </ol>
 
-        <div className="flex items-start gap-3 rounded-xl border border-line bg-card px-5 py-4 mb-12">
-          <ShieldCheck size={18} className="text-brand-text flex-shrink-0 mt-0.5" strokeWidth={1.5} />
+        <div className="flex items-start gap-3 border border-line bg-card px-5 py-4 mb-12">
+          <ShieldCheck size={18} className="text-ink flex-shrink-0 mt-0.5" strokeWidth={1.5} />
           <p className="text-sm text-ink-soft leading-relaxed">
             Sao kê công khai <strong className="text-ink font-semibold">không bao giờ</strong> hiển thị số tài
             khoản, mã chuyển khoản hay ảnh chứng từ. Bạn chỉ thấy tiền đang ở chặng nào, khoản nào
@@ -127,7 +127,7 @@ const TransparencyHubPage = () => {
           </div>
           <button
             onClick={gom}
-            className="inline-flex items-center gap-2 min-h-[44px] px-4 rounded-full border border-line bg-card text-sm font-medium text-ink-soft hover:border-brand hover:text-ink transition-colors flex-shrink-0"
+            className="inline-flex items-center gap-2 min-h-[44px] px-4 border border-line bg-card text-sm font-medium text-ink-soft hover:border-ink hover:text-ink transition-colors flex-shrink-0"
           >
             <RefreshCw size={15} /> Tải lại
           </button>
@@ -136,8 +136,8 @@ const TransparencyHubPage = () => {
         {ngheSi === null ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {[...Array(6)].map((_, i) => (
-              <div key={i} className="bg-card border border-line rounded-xl p-5 flex items-center gap-3">
-                <Skeleton className="w-12 h-12 rounded-full flex-shrink-0" />
+              <div key={i} className="bg-card border border-line p-5 flex items-center gap-3">
+                <Skeleton className="w-12 h-12 flex-shrink-0" />
                 <div className="flex-1 space-y-2">
                   <Skeleton className="h-4 w-3/4" />
                   <Skeleton className="h-3 w-1/2" />
@@ -146,7 +146,7 @@ const TransparencyHubPage = () => {
             ))}
           </div>
         ) : ngheSi.length === 0 ? (
-          <div className="bg-card border border-line rounded-xl p-8 text-center">
+          <div className="bg-card border border-line p-8 text-center">
             <p className="text-ink font-medium mb-1">
               {loi ? 'Chưa tải được danh sách nghệ sĩ.' : 'Chưa có nghệ sĩ nào nhận ủng hộ trong các đêm diễn gần đây.'}
             </p>
@@ -155,7 +155,7 @@ const TransparencyHubPage = () => {
                 ? 'Bạn thử bấm Tải lại. Nếu vẫn không được, sao kê của từng nghệ sĩ vẫn xem được từ trang nghệ sĩ trong mỗi đêm diễn.'
                 : 'Bạn vẫn mở được sao kê của bất kỳ nghệ sĩ nào từ phần Nghệ sĩ trong trang chi tiết đêm diễn.'}
             </p>
-            <Link to="/shows" className="inline-flex items-center gap-2 min-h-[44px] mt-4 text-sm font-semibold text-brand-text hover:underline">
+            <Link to="/shows" className="inline-flex items-center gap-2 min-h-[44px] mt-4 text-sm font-semibold text-ink hover:underline">
               Xem các đêm diễn <ArrowRight size={15} />
             </Link>
           </div>
@@ -165,24 +165,24 @@ const TransparencyHubPage = () => {
               <Reveal as="li" key={p.id} delay={Math.min(i, 5) * 60}>
                 <Link
                   to={`/performers/${p.id}/donations`}
-                  className="group flex items-center gap-3 bg-card border border-line rounded-xl p-5 hover:border-line-strong transition-colors h-full"
+                  className="group flex items-center gap-3 bg-card border border-line p-5 hover:border-line-strong transition-colors h-full"
                 >
                   {p.avatarUrl ? (
                     <img src={p.avatarUrl} alt="" loading="lazy"
-                      className="w-12 h-12 rounded-full object-cover border border-line flex-shrink-0" />
+                      className="w-12 h-12 object-cover border border-line flex-shrink-0" />
                   ) : (
-                    <span className="w-12 h-12 rounded-full bg-sunken border border-line flex items-center justify-center flex-shrink-0">
+                    <span className="w-12 h-12 bg-sunken border border-line flex items-center justify-center flex-shrink-0">
                       <Heart size={18} className="text-ink-mute" />
                     </span>
                   )}
                   <span className="min-w-0">
-                    <span className="block font-semibold text-ink truncate group-hover:text-brand-text transition-colors">
+                    <span className="block font-semibold text-ink truncate group-hover:text-ink transition-colors">
                       {p.name}
                     </span>
                     {p.buoiGanNhat && (
                       <span className="block text-xs text-ink-mute truncate mt-0.5">{p.buoiGanNhat}</span>
                     )}
-                    <span className="inline-flex items-center gap-1 text-xs font-medium text-brand-text mt-1.5">
+                    <span className="inline-flex items-center gap-1 text-xs font-medium text-ink mt-1.5">
                       Xem sao kê <ArrowRight size={12} />
                     </span>
                   </span>

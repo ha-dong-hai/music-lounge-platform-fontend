@@ -4,9 +4,9 @@
 import { AlertTriangle, ShieldAlert, Ban } from 'lucide-react'
 
 export const PENALTY_TYPE_VIEW = {
-  Warning: { label: 'Cảnh cáo', cls: 'bg-yellow-500/10 text-warning border-yellow-500/30', icon: AlertTriangle },
-  Suspension: { label: 'Tạm đình chỉ', cls: 'bg-orange-500/10 text-orange-400 border-orange-500/30', icon: ShieldAlert },
-  Ban: { label: 'Cấm hoạt động', cls: 'bg-red-500/10 text-danger border-red-500/30', icon: Ban },
+  Warning: { label: 'Cảnh cáo', cls: 'bg-warning/10 text-warning border-warning/30', icon: AlertTriangle },
+  Suspension: { label: 'Tạm đình chỉ', cls: 'bg-warning/10 text-warning border-warning/30', icon: ShieldAlert },
+  Ban: { label: 'Cấm hoạt động', cls: 'bg-danger/10 text-danger border-danger/30', icon: Ban },
 }
 
 // MÁY TRẠNG THÁI THẬT: Active → (chủ khiếu nại) → Appealed → (Admin quyết) → Overturned | Upheld

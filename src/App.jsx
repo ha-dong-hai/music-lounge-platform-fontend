@@ -14,14 +14,14 @@ function App() {
           // Thông báo là một mảng espresso nhỏ trên nền ngà — cùng bảng token với cả giao diện
           // (src/index.css), không dùng màu xám-xanh mặc định của thư viện.
           style: {
-            background: 'var(--color-espresso)',
-            color: 'var(--color-cream)',
-            border: '1px solid var(--color-espresso-soft)',
+            background: 'var(--color-ink)',
+            color: 'var(--color-lamp)',
+            border: '1px solid var(--color-board-soft)',
             borderRadius: '12px',
             fontSize: '14px',
           },
-          success: { iconTheme: { primary: 'var(--color-brand-on-dark)', secondary: 'var(--color-espresso)' } },
-          error: { iconTheme: { primary: '#E27A6E', secondary: 'var(--color-espresso)' } }
+          success: { iconTheme: { primary: 'var(--color-stock)', secondary: 'var(--color-ink)' } },
+          error: { iconTheme: { primary: 'var(--color-danger)', secondary: 'var(--color-card)' } }
         }}
       />
     </>

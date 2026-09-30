@@ -19,7 +19,7 @@ import {
 } from '../../services/performerServices'
 import { getGenres } from '../../services/catalogServices'
 
-const inputCls = 'mt-1 w-full px-3 py-2 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-brand/50'
+const inputCls = 'mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink focus:outline-none focus:border-ink/50'
 
 // `type` là chuỗi tự do ở phía backend; giới hạn sẵn mấy giá trị hay dùng để dữ liệu không loạn.
 const PERFORMER_TYPES = ['Solo', 'Band', 'DJ', 'Group']
@@ -72,11 +72,11 @@ const PerformerFormModal = ({ initial, genres, onClose, onSaved }) => {
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-espresso/80 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-card border border-line rounded-2xl w-full max-w-lg shadow-2xl max-h-[90vh] flex flex-col">
+      <div className="absolute inset-0 bg-ink/80" onClick={onClose} />
+      <div className="relative bg-card border border-line w-full max-w-lg shadow-soft max-h-[90vh] flex flex-col">
         <div className="flex justify-between items-center p-5 border-b border-line">
           <h2 className="text-lg font-bold text-ink">{isEdit ? 'Sửa nghệ sĩ' : 'Thêm nghệ sĩ'}</h2>
-          <button onClick={onClose} className="p-2 hover:bg-sunken rounded-full text-ink-soft"><X size={20} /></button>
+          <button onClick={onClose} className="p-2 hover:bg-sunken text-ink-soft"><X size={20} /></button>
         </div>
 
         <form onSubmit={submit} className="p-5 space-y-4 overflow-y-auto">
@@ -119,8 +119,8 @@ const PerformerFormModal = ({ initial, genres, onClose, onSaved }) => {
                 const chon = form.genreIds.includes(g.id)
                 return (
                   <button key={g.id} type="button" onClick={() => toggleGenre(g.id)}
-                    className={`px-3 py-1.5 rounded-lg border text-xs font-medium transition-colors ${chon
-                      ? 'bg-sunken border-brand/40 text-brand-text'
+                    className={`px-3 py-1.5 border text-xs font-medium transition-colors ${chon
+                      ? 'bg-sunken border-ink/40 text-ink'
                       : 'bg-page border-line text-ink-soft hover:text-ink'}`}>
                     {g.name}
                   </button>
@@ -130,7 +130,7 @@ const PerformerFormModal = ({ initial, genres, onClose, onSaved }) => {
           </div>
 
           <button type="submit" disabled={isBusy}
-            className="w-full py-2.5 bg-brand text-on-brand rounded-lg font-bold flex items-center justify-center gap-2 disabled:opacity-50">
+            className="w-full py-2.5 bg-ink text-lamp font-bold flex items-center justify-center gap-2 disabled:opacity-50">
             {isBusy && <Loader2 size={16} className="animate-spin" />} Lưu
           </button>
         </form>
@@ -182,11 +182,11 @@ const SocialLinksModal = ({ performer, onClose, onSaved }) => {
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-espresso/80 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-card border border-line rounded-2xl w-full max-w-md shadow-2xl max-h-[90vh] flex flex-col">
+      <div className="absolute inset-0 bg-ink/80" onClick={onClose} />
+      <div className="relative bg-card border border-line w-full max-w-md shadow-soft max-h-[90vh] flex flex-col">
         <div className="flex justify-between items-center p-5 border-b border-line">
           <h2 className="text-lg font-bold text-ink truncate">Liên kết của {performer.name}</h2>
-          <button onClick={onClose} className="p-2 hover:bg-sunken rounded-full text-ink-soft flex-shrink-0"><X size={20} /></button>
+          <button onClick={onClose} className="p-2 hover:bg-sunken text-ink-soft flex-shrink-0"><X size={20} /></button>
         </div>
 
         <div className="p-5 space-y-4 overflow-y-auto">
@@ -195,14 +195,14 @@ const SocialLinksModal = ({ performer, onClose, onSaved }) => {
           ) : (
             <ul className="space-y-2">
               {links.map((l) => (
-                <li key={l.id} className="flex items-center justify-between gap-3 bg-sunken/70 border border-line rounded-lg p-3">
+                <li key={l.id} className="flex items-center justify-between gap-3 bg-sunken/70 border border-line p-3">
                   <div className="min-w-0">
                     <p className="text-ink text-sm font-medium">{l.platform}</p>
                     <a href={l.url} target="_blank" rel="noopener noreferrer"
-                      className="text-xs text-brand-text hover:underline truncate block">{l.displayName || l.url}</a>
+                      className="text-xs text-ink hover:underline truncate block">{l.displayName || l.url}</a>
                   </div>
                   <button onClick={() => xoa(l.id)} disabled={isBusy}
-                    className="p-2 rounded-lg text-danger hover:bg-red-500/10 disabled:opacity-40 flex-shrink-0" title="Xoá">
+                    className="p-2 text-danger hover:bg-danger/10 disabled:opacity-40 flex-shrink-0" title="Xoá">
                     <Trash2 size={14} />
                   </button>
                 </li>
@@ -222,7 +222,7 @@ const SocialLinksModal = ({ performer, onClose, onSaved }) => {
             <input value={form.url} onChange={(e) => set('url', e.target.value)}
               placeholder="https://..." className={`${inputCls} mt-0`} />
             <button type="submit" disabled={isBusy}
-              className="w-full py-2 rounded-lg border border-line text-ink-soft text-sm font-bold hover:bg-sunken flex items-center justify-center gap-2 disabled:opacity-50">
+              className="w-full py-2 border border-line text-ink-soft text-sm font-bold hover:bg-sunken flex items-center justify-center gap-2 disabled:opacity-50">
               {isBusy ? <Loader2 size={15} className="animate-spin" /> : <Plus size={15} />} Thêm liên kết
             </button>
           </form>
@@ -274,7 +274,7 @@ const OwnerPerformersPage = () => {
   }
 
   if (isLoading) {
-    return <div className="py-20 flex justify-center"><Loader2 size={32} className="animate-spin text-brand-text" /></div>
+    return <div className="py-20 flex justify-center"><Loader2 size={32} className="animate-spin text-ink" /></div>
   }
 
   return (
@@ -287,24 +287,24 @@ const OwnerPerformersPage = () => {
           </p>
         </div>
         <button onClick={() => setEditing(null)}
-          className="flex items-center gap-1.5 px-3 py-1.5 bg-brand text-on-brand rounded-lg text-xs font-bold hover:bg-brand-hover">
+          className="flex items-center gap-1.5 px-3 py-1.5 bg-ink text-lamp text-xs font-bold hover:bg-board">
           <Plus size={14} /> Thêm nghệ sĩ
         </button>
       </div>
 
       {performers.length === 0 ? (
-        <div className="bg-card border border-line rounded-xl p-10 text-center">
+        <div className="bg-card border border-line p-10 text-center">
           <Music2 size={28} className="mx-auto mb-3 text-ink-mute" />
           <p className="text-sm text-ink-mute">Chưa có nghệ sĩ nào. Thêm nghệ sĩ để dựng line-up cho buổi diễn.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {performers.map((p) => (
-            <div key={p.id} className="bg-card border border-line rounded-xl p-5">
+            <div key={p.id} className="bg-card border border-line p-5">
               <div className="flex items-start gap-3">
                 {p.avatarUrl
-                  ? <img src={p.avatarUrl} alt="" className="w-12 h-12 rounded-full object-cover flex-shrink-0" />
-                  : <div className="w-12 h-12 rounded-full bg-sunken flex items-center justify-center flex-shrink-0">
+                  ? <img src={p.avatarUrl} alt="" className="w-12 h-12 object-cover flex-shrink-0" />
+                  : <div className="w-12 h-12 bg-sunken flex items-center justify-center flex-shrink-0">
                       <Music2 size={18} className="text-ink-mute" />
                     </div>}
                 <div className="min-w-0">
@@ -337,11 +337,11 @@ const OwnerPerformersPage = () => {
 
               <div className="mt-4 flex gap-2">
                 <button onClick={() => moSua(p)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-line text-ink-soft text-xs font-bold hover:bg-sunken">
+                  className="flex items-center gap-1.5 px-3 py-1.5 border border-line text-ink-soft text-xs font-bold hover:bg-sunken">
                   <Pencil size={13} /> Sửa
                 </button>
                 <button onClick={() => setLinksOf(p)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-line text-ink-soft text-xs font-bold hover:bg-sunken">
+                  className="flex items-center gap-1.5 px-3 py-1.5 border border-line text-ink-soft text-xs font-bold hover:bg-sunken">
                   <Link2 size={13} /> Liên kết
                   {p.socialLinks?.length > 0 && <span className="text-ink-mute">({p.socialLinks.length})</span>}
                 </button>

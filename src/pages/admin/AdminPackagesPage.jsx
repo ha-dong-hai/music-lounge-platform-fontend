@@ -141,7 +141,7 @@ const AdminPackagesPage = () => {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <Loader2 size={32} className="animate-spin text-brand-text" />
+        <Loader2 size={32} className="animate-spin text-ink" />
       </div>
     )
   }
@@ -155,17 +155,17 @@ const AdminPackagesPage = () => {
             <h1 className="text-2xl font-bold text-ink mb-1">Quản lý gói dịch vụ</h1>
             <p className="text-ink-soft text-sm">Thiết lập các gói dịch vụ cho chủ phòng trà.</p>
           </div>
-          <button onClick={openCreateModal} className="flex items-center gap-2 bg-brand text-on-brand px-4 py-2.5 rounded-lg font-bold text-sm hover:bg-brand-hover transition-colors">
+          <button onClick={openCreateModal} className="flex items-center gap-2 bg-ink text-lamp px-4 py-2.5 font-bold text-sm hover:bg-board transition-colors">
             <Plus size={18} /> Tạo gói
           </button>
         </div>
-        <div className="bg-card/50 border border-dashed border-line rounded-2xl py-20 flex flex-col items-center justify-center text-center">
-          <div className="w-16 h-16 rounded-2xl bg-brand/10 border border-brand/25 flex items-center justify-center mb-4">
-            <Box size={28} className="text-brand-text" />
+        <div className="bg-card/50 border border-dashed border-line py-20 flex flex-col items-center justify-center text-center">
+          <div className="w-16 h-16 bg-ink/10 border border-ink/25 flex items-center justify-center mb-4">
+            <Box size={28} className="text-ink" />
           </div>
           <p className="text-ink-soft font-semibold mb-1">Chưa có gói dịch vụ nào.</p>
           <p className="text-ink-mute text-sm mb-5">Tạo gói đầu tiên để chủ phòng trà đăng ký.</p>
-          <button onClick={openCreateModal} className="flex items-center gap-2 bg-brand text-on-brand px-4 py-2.5 rounded-lg font-bold text-sm hover:bg-brand-hover transition-colors">
+          <button onClick={openCreateModal} className="flex items-center gap-2 bg-ink text-lamp px-4 py-2.5 font-bold text-sm hover:bg-board transition-colors">
             <Plus size={16} /> Tạo gói đầu tiên
           </button>
         </div>
@@ -191,7 +191,7 @@ const AdminPackagesPage = () => {
         </div>
         <button
           onClick={openCreateModal}
-          className="flex items-center gap-2 bg-brand text-on-brand px-4 py-2.5 rounded-lg font-bold text-sm hover:bg-brand-hover transition-all shadow-lg shadow-brand/20 hover:shadow-brand/30 hover:-translate-y-0.5 flex-shrink-0"
+          className="flex items-center gap-2 bg-ink text-lamp px-4 py-2.5 font-bold text-sm hover:bg-board transition-all shadow-soft shadow-ink/20 hover:shadow-ink/30 hover:-translate-y-0.5 flex-shrink-0"
         >
           <Plus size={18} /> Tạo gói
         </button>
@@ -200,9 +200,9 @@ const AdminPackagesPage = () => {
       {/* ===== SECTION 1: ĐANG HIỂN THỊ ===== */}
       <section className="space-y-4">
         <div className="flex items-center gap-2.5">
-          <span className="w-2 h-2 rounded-full bg-green-400" />
-          <h2 className="text-sm font-bold text-ink-soft uppercase tracking-wide">Đang hiển thị</h2>
-          <span className="px-2 py-0.5 rounded-full bg-green-500/10 border border-green-500/25 text-success text-xs font-bold">
+          <span className="w-2 h-2 bg-success" />
+          <h2 className="text-sm font-bold text-ink-soft">Đang hiển thị</h2>
+          <span className="px-2 py-0.5 bg-success/10 border border-success/25 text-success text-xs font-bold">
             {activePkgs.length}
           </span>
         </div>
@@ -214,7 +214,7 @@ const AdminPackagesPage = () => {
             ))}
           </div>
         ) : (
-          <div className="bg-card/40 border border-dashed border-line rounded-xl p-8 text-center text-ink-mute text-sm">
+          <div className="bg-card/40 border border-dashed border-line p-8 text-center text-ink-mute text-sm">
             Chưa có gói nào đang hiển thị. 
           </div>
         )}
@@ -224,9 +224,9 @@ const AdminPackagesPage = () => {
       {hiddenPkgs.length > 0 && (
         <section className="space-y-4">
           <div className="flex items-center gap-2.5">
-            <span className="w-2 h-2 rounded-full bg-red-400" />
-            <h2 className="text-sm font-bold text-ink-soft uppercase tracking-wide">Đang ẩn</h2>
-            <span className="px-2 py-0.5 rounded-full bg-red-500/10 border border-red-500/25 text-danger text-xs font-bold">
+            <span className="w-2 h-2 bg-danger" />
+            <h2 className="text-sm font-bold text-ink-soft">Đang ẩn</h2>
+            <span className="px-2 py-0.5 bg-danger/10 border border-danger/25 text-danger text-xs font-bold">
               {hiddenPkgs.length}
             </span>
             <span className="text-xs text-ink-mute ml-1">— Không hiện ở trang đăng ký</span>

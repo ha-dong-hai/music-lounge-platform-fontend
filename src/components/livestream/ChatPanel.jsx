@@ -4,6 +4,7 @@ import EmojiPicker from 'emoji-picker-react'
 import DonateModal from './DonateModal'
 import ReportModal from './ReportModal'
 import TopDonorsBar from './TopDonorsBar'
+import { anhChuCai } from '../../utils/anhChuCai'
 
 const ChatPanel = ({ messages, performers, onSendMessage, onSendDonation, onReport }) => {
   const [text, setText] = useState('')
@@ -88,14 +89,14 @@ const ChatPanel = ({ messages, performers, onSendMessage, onSendDonation, onRepo
         <div className="relative" ref={actionMenuRef}>
           <button
             onClick={() => setShowActionMenu(!showActionMenu)}
-            className={`p-2 rounded-lg transition-colors ${showActionMenu ? 'text-brand-text bg-sunken' : 'text-ink-soft hover:text-ink hover:bg-sunken'}`}
+            className={`p-2 transition-colors ${showActionMenu ? 'text-ink bg-sunken' : 'text-ink-soft hover:text-ink hover:bg-sunken'}`}
             aria-label="Tuỳ chọn trò chuyện"
           >
             <MoreVertical size={18} />
           </button>
 
           {showActionMenu && (
-            <div className="absolute right-0 top-full mt-2 w-44 bg-[#1a1a1a] rounded-xl shadow-lg border border-line py-1.5 z-50 animate-in fade-in slide-in-from-top-2 duration-100">
+            <div className="absolute right-0 top-full mt-2 w-44 bg-card shadow-soft border border-line py-1.5 z-50 animate-in fade-in slide-in-from-top-2 duration-100">
               <button
                 onClick={() => {
                   setShowActionMenu(false)
@@ -124,10 +125,10 @@ const ChatPanel = ({ messages, performers, onSendMessage, onSendDonation, onRepo
         >
           {messages.map((msg, idx) => (
             msg.type === 'donate' ? (
-              <div key={idx} className="flex items-start gap-2 bg-brand/10 border border-brand/20 p-2 rounded-lg">
-                <img src={msg.user?.avatarUrl || `https://api.dicebear.com/7.x/initials/svg?seed=${msg.user?.name}`} className="w-6 h-6 rounded-full flex-shrink-0" alt="" />
+              <div key={idx} className="flex items-start gap-2 bg-ink/10 border border-ink/20 p-2">
+                <img src={msg.user?.avatarUrl || anhChuCai(msg.user?.name)} className="w-6 h-6 flex-shrink-0" alt="" />
                 <div className="min-w-0">
-                  <p className="text-xs font-bold text-brand-text truncate">
+                  <p className="text-xs font-bold text-ink truncate">
                     {msg.user?.name} <span className="text-ink font-normal">donated {msg.amount?.toLocaleString('vi-VN')}đ</span>
                   </p>
                   <p className="text-xs text-ink-soft truncate">to {msg.performerName}: "{msg.message}"</p>
@@ -135,9 +136,9 @@ const ChatPanel = ({ messages, performers, onSendMessage, onSendDonation, onRepo
               </div>
             ) : (
               <div key={idx} className="flex items-start gap-2">
-                <img src={msg.user?.avatarUrl || `https://api.dicebear.com/7.x/initials/svg?seed=${msg.user?.name}`} className="w-6 h-6 rounded-full flex-shrink-0 border border-line" alt="" />
+                <img src={msg.user?.avatarUrl || anhChuCai(msg.user?.name)} className="w-6 h-6 flex-shrink-0 border border-line" alt="" />
                 <div className="min-w-0">
-                  <p className={`text-xs font-semibold truncate ${msg.isMine ? 'text-brand-text' : 'text-ink-soft'}`}>
+                  <p className={`text-xs font-semibold truncate ${msg.isMine ? 'text-ink' : 'text-ink-soft'}`}>
                     {msg.user?.name}{msg.isMine && ' (You)'}
                   </p>
                   <p className="text-sm text-ink break-words">{msg.content}</p>
@@ -151,7 +152,7 @@ const ChatPanel = ({ messages, performers, onSendMessage, onSendDonation, onRepo
         {unreadCount > 0 && (
           <button
             onClick={scrollToBottom}
-            className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-brand text-on-brand text-xs font-bold shadow-lg shadow-black/50 hover:bg-brand-hover transition-colors z-10"
+            className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-3.5 py-1.5 bg-ink text-lamp text-xs font-bold shadow-soft shadow-black/50 hover:bg-board transition-colors z-10"
           >
             <ChevronDown size={14} />
             {unreadCount} new message
@@ -176,7 +177,7 @@ const ChatPanel = ({ messages, performers, onSendMessage, onSendDonation, onRepo
         )}
 
         <form onSubmit={handleSubmit} className="flex items-center gap-2">
-          <button type="button" onClick={() => setShowEmoji(!showEmoji)} className={`p-2 rounded-lg transition-colors flex-shrink-0 ${showEmoji ? 'text-brand-text bg-sunken' : 'text-ink-soft hover:text-ink'}`}>
+          <button type="button" onClick={() => setShowEmoji(!showEmoji)} className={`p-2 transition-colors flex-shrink-0 ${showEmoji ? 'text-ink bg-sunken' : 'text-ink-soft hover:text-ink'}`}>
             <Smile size={20} />
           </button>
           <input
@@ -185,17 +186,17 @@ const ChatPanel = ({ messages, performers, onSendMessage, onSendDonation, onRepo
             value={text}
             onChange={e => setText(e.target.value)}
             placeholder="Nhắn gì đó…"
-            className="flex-1 min-w-0 bg-sunken text-ink text-sm rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-brand placeholder:text-ink-mute"
+            className="flex-1 min-w-0 bg-sunken text-ink text-sm px-3 py-2 focus:outline-none focus:ring-1 focus:ring-ink placeholder:text-ink-mute"
           />
           {/* NÚT SEND — donate chuyển sang phải của nó */}
-          <button type="submit" className="p-2 text-brand-text hover:text-brand-text transition-colors disabled:opacity-30 flex-shrink-0" disabled={!text.trim()}>
+          <button type="submit" className="p-2 text-ink hover:text-ink transition-colors disabled:opacity-30 flex-shrink-0" disabled={!text.trim()}>
             <Send size={20} />
           </button>
           {/* NÚT DONATE — vị trí mới */}
           <button
             type="button"
             onClick={() => setShowDonate(true)}
-            className="flex-shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-lg bg-brand text-on-brand text-xs font-bold hover:bg-brand-hover transition-colors"
+            className="flex-shrink-0 flex items-center gap-1.5 px-3 py-2 bg-ink text-lamp text-xs font-bold hover:bg-board transition-colors"
             aria-label="Ủng hộ"
           >
             <DollarSign size={16} />

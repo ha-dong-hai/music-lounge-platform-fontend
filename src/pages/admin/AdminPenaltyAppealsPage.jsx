@@ -56,15 +56,15 @@ const AdminPenaltyAppealsPage = () => {
     }
   }
 
-  const tabBtn = (active) => `px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${
-    active ? 'bg-sunken border-brand/40 text-brand-text' : 'bg-page border-line text-ink-soft hover:text-ink'
+  const tabBtn = (active) => `px-3 py-1.5 text-xs font-medium border transition-colors ${
+    active ? 'bg-sunken border-ink/40 text-ink' : 'bg-page border-line text-ink-soft hover:text-ink'
   }`
 
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex items-center gap-3">
-          <Gavel size={28} className="text-brand-text" />
+          <Gavel size={28} className="text-ink" />
           <div>
             <h1 className="text-2xl font-bold text-ink">Khiếu nại án phạt</h1>
             <p className="text-ink-soft text-sm leading-relaxed">
@@ -74,7 +74,7 @@ const AdminPenaltyAppealsPage = () => {
           </div>
         </div>
         <button onClick={load} disabled={isLoading}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg border border-line text-ink-soft text-sm font-bold hover:bg-sunken disabled:opacity-50">
+          className="flex items-center gap-2 px-4 py-2 border border-line text-ink-soft text-sm font-bold hover:bg-sunken disabled:opacity-50">
           <RefreshCw size={16} className={isLoading ? 'animate-spin' : ''} /> Tải lại
         </button>
       </div>
@@ -90,9 +90,9 @@ const AdminPenaltyAppealsPage = () => {
       </div>
 
       {isLoading ? (
-        <div className="py-20 flex justify-center"><Loader2 size={30} className="animate-spin text-brand-text" /></div>
+        <div className="py-20 flex justify-center"><Loader2 size={30} className="animate-spin text-ink" /></div>
       ) : items.length === 0 ? (
-        <div className="bg-card border border-line rounded-xl p-12 text-center">
+        <div className="bg-card border border-line p-12 text-center">
           <MessageSquareWarning size={30} className="mx-auto mb-3 text-ink-mute" />
           <p className="text-sm text-ink-mute">
             {daXuLy ? 'Chưa có khiếu nại nào được xử lý.' : 'Không có khiếu nại nào đang chờ.'}
@@ -114,12 +114,12 @@ const AdminPenaltyAppealsPage = () => {
       {totalPages > 1 && (
         <div className="flex items-center justify-center gap-3">
           <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page <= 1}
-            className="px-4 py-2 rounded-lg border border-line text-sm text-ink-soft hover:bg-sunken disabled:opacity-40">
+            className="px-4 py-2 border border-line text-sm text-ink-soft hover:bg-sunken disabled:opacity-40">
             Trước
           </button>
           <span className="text-sm text-ink-mute">Trang {page}/{totalPages}</span>
           <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page >= totalPages}
-            className="px-4 py-2 rounded-lg border border-line text-sm text-ink-soft hover:bg-sunken disabled:opacity-40">
+            className="px-4 py-2 border border-line text-sm text-ink-soft hover:bg-sunken disabled:opacity-40">
             Sau
           </button>
         </div>

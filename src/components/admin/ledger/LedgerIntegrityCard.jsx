@@ -16,7 +16,7 @@ const LedgerIntegrityCard = ({ issues, isChecking, lastCheckedAt, onRefresh }) =
     <div className="flex items-start justify-between gap-3 mb-1">
       <h2 className="text-sm font-semibold text-ink-soft">Toàn vẹn bút toán</h2>
       <button onClick={onRefresh} disabled={isChecking}
-        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-line text-ink-soft text-xs font-bold hover:bg-sunken disabled:opacity-50 flex-shrink-0">
+        className="flex items-center gap-1.5 px-3 py-1.5 border border-line text-ink-soft text-xs font-bold hover:bg-sunken disabled:opacity-50 flex-shrink-0">
         {isChecking ? <Loader2 size={13} className="animate-spin" /> : <RefreshCw size={13} />}
         Kiểm tra lại
       </button>
@@ -26,11 +26,11 @@ const LedgerIntegrityCard = ({ issues, isChecking, lastCheckedAt, onRefresh }) =
     </p>
 
     {isChecking ? (
-      <div className="bg-card border border-line rounded-xl py-16 flex justify-center">
-        <Loader2 size={26} className="animate-spin text-brand-text" />
+      <div className="bg-card border border-line py-16 flex justify-center">
+        <Loader2 size={26} className="animate-spin text-ink" />
       </div>
     ) : issues === null ? (
-      <div className="bg-card border border-yellow-500/30 rounded-xl p-6 flex items-start gap-3">
+      <div className="bg-card border border-warning/30 p-6 flex items-start gap-3">
         <AlertTriangle size={20} className="text-warning flex-shrink-0 mt-0.5" />
         <div>
           <p className="text-sm text-ink font-medium">Chưa kiểm tra được</p>
@@ -40,7 +40,7 @@ const LedgerIntegrityCard = ({ issues, isChecking, lastCheckedAt, onRefresh }) =
         </div>
       </div>
     ) : issues.length === 0 ? (
-      <div className="bg-card border border-green-500/25 rounded-xl p-6 flex items-start gap-3">
+      <div className="bg-card border border-success/25 p-6 flex items-start gap-3">
         <CheckCircle2 size={20} className="text-success flex-shrink-0 mt-0.5" />
         <div>
           <p className="text-sm text-ink font-medium">Sổ cái cân</p>
@@ -51,7 +51,7 @@ const LedgerIntegrityCard = ({ issues, isChecking, lastCheckedAt, onRefresh }) =
         </div>
       </div>
     ) : (
-      <div className="bg-card border border-red-500/30 rounded-xl overflow-hidden">
+      <div className="bg-card border border-danger/30 overflow-hidden">
         <div className="p-4 border-b border-line flex items-center gap-2">
           <AlertTriangle size={18} className="text-danger flex-shrink-0" />
           <p className="text-sm text-ink font-medium">
@@ -62,12 +62,12 @@ const LedgerIntegrityCard = ({ issues, isChecking, lastCheckedAt, onRefresh }) =
           <table className="w-full text-left whitespace-nowrap">
             <thead className="bg-sunken/70 border-b border-line">
               <tr>
-                <th className="p-4 text-xs font-semibold text-ink-soft uppercase tracking-wider">Loại lệch</th>
-                <th className="p-4 text-xs font-semibold text-ink-soft uppercase tracking-wider">Mã bút toán</th>
-                <th className="p-4 text-xs font-semibold text-ink-soft uppercase tracking-wider text-right">Tổng Nợ</th>
-                <th className="p-4 text-xs font-semibold text-ink-soft uppercase tracking-wider text-right">Tổng Có</th>
-                <th className="p-4 text-xs font-semibold text-ink-soft uppercase tracking-wider text-right">Chênh lệch</th>
-                <th className="p-4 text-xs font-semibold text-ink-soft uppercase tracking-wider">Chi tiết</th>
+                <th className="p-4 text-sm font-semibold text-ink-softr">Loại lệch</th>
+                <th className="p-4 text-sm font-semibold text-ink-softr">Mã bút toán</th>
+                <th className="p-4 text-sm font-semibold text-ink-softr text-right">Tổng Nợ</th>
+                <th className="p-4 text-sm font-semibold text-ink-softr text-right">Tổng Có</th>
+                <th className="p-4 text-sm font-semibold text-ink-softr text-right">Chênh lệch</th>
+                <th className="p-4 text-sm font-semibold text-ink-softr">Chi tiết</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-line">

@@ -8,9 +8,9 @@ export const KYC_TABS = [
 ]
 
 export const KYC_STATUS_CHIP = {
-  Pending: 'bg-yellow-500/10 text-warning border-yellow-500/30',
-  Approved: 'bg-green-500/10 text-success border-green-500/30',
-  Rejected: 'bg-red-500/10 text-danger border-red-500/30',
+  Pending: 'bg-warning/10 text-warning border-warning/30',
+  Approved: 'bg-success/10 text-success border-success/30',
+  Rejected: 'bg-danger/10 text-danger border-danger/30',
 }
 
 export const KycStatusChip = ({ status }) => (

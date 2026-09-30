@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useMemo } from 'react'
 import { ChevronLeft, ChevronRight, Trophy, Crown } from 'lucide-react'
 import DonorLeaderboardModal from './DonorLeaderboardModal'
+import { anhChuCai } from '../../utils/anhChuCai'
 
 const STRIP_LIMIT = 10 //  Số donor tối đa hiển thị trên thanh ngang
 
@@ -62,16 +63,16 @@ const TopDonorsBar = ({ messages }) => {
 
   return (
     <>
-      <div className="flex-none border-b border-line bg-espresso/30">
+      <div className="flex-none border-b border-line bg-ink/30">
 
         {/* ===== LABEL + XEM TẤT CẢ ===== */}
         <div className="flex items-center justify-between px-4 pt-2.5 pb-1.5">
-          <span className="text-[11px] font-bold text-ink-soft uppercase tracking-wide flex items-center gap-1.5">
-            <Trophy size={12} className="text-brand-text" /> Top donate
+          <span className="text-[11px] font-bold text-ink-soft flex items-center gap-1.5">
+            <Trophy size={12} className="text-ink" /> Top donate
           </span>
           <button
             onClick={() => setShowLeaderboard(true)}
-            className="text-[11px] font-semibold text-brand-text hover:text-brand-text transition-colors"
+            className="text-[11px] font-semibold text-ink hover:text-ink transition-colors"
           >
             Xem tất cả
           </button>
@@ -81,11 +82,11 @@ const TopDonorsBar = ({ messages }) => {
         <div className="relative group/strip">
 
           {/* Gradient + mũi tên trái */}
-          <div className={`absolute inset-y-0 left-0 w-8 bg-gradient-to-r from-gray-950 to-transparent z-10 pointer-events-none transition-opacity ${canScrollLeft ? 'opacity-100' : 'opacity-0'}`} />
+          <div className={`absolute inset-y-0 left-0 w-1 bg-lamp/40 z-10 pointer-events-none transition-opacity ${canScrollLeft ? 'opacity-100' : 'opacity-0'}`} />
           {canScrollLeft && (
             <button
               onClick={() => scroll('left')}
-              className="absolute left-1 top-1/2 -translate-y-1/2 z-20 w-6 h-6 rounded-full bg-espresso/80 border border-white/10 text-white flex items-center justify-center opacity-0 group-hover/strip:opacity-100 hover:bg-brand-hover hover:text-on-brand transition-all"
+              className="absolute left-1 top-1/2 -translate-y-1/2 z-20 w-6 h-6 bg-ink/80 border border-lamp/10 text-lamp flex items-center justify-center opacity-0 group-hover/strip:opacity-100 hover:bg-board hover:text-lamp transition-all"
             >
               <ChevronLeft size={14} />
             </button>
@@ -99,33 +100,33 @@ const TopDonorsBar = ({ messages }) => {
             {topDonors.map((d, i) => (
               <div
                 key={d.key}
-                className="snap-start flex-shrink-0 flex items-center gap-2 py-1 pl-1 pr-3 rounded-full bg-sunken/70 border border-line hover:border-brand/40 transition-colors cursor-default"
+                className="snap-start flex-shrink-0 flex items-center gap-2 py-1 pl-1 pr-3 bg-sunken/70 border border-line hover:border-ink/40 transition-colors cursor-default"
               >
                 {/* Avatar (+ vương miện cho top 1) */}
                 <div className="relative flex-shrink-0">
                   <img
-                    src={d.avatarUrl || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(d.name)}&backgroundColor=C3B665`}
+                    src={d.avatarUrl || anhChuCai(d.name)}
                     alt={d.name}
-                    className="w-7 h-7 rounded-full object-cover border border-line-strong"
+                    className="w-7 h-7 object-cover border border-line-strong"
                   />
                   {i === 0 && (
-                    <Crown size={11} className="absolute -top-1.5 -right-1.5 text-brand-text fill-brand-text" />
+                    <Crown size={11} className="absolute -top-1.5 -right-1.5 text-ink fill-ink" />
                   )}
                 </div>
                 <div className="leading-tight">
                   <p className="text-[11px] font-medium text-ink max-w-[72px] truncate">{d.name}</p>
-                  <p className="text-[10px] font-bold text-brand-text">{fmt(d.total)}</p>
+                  <p className="text-[10px] font-bold text-ink">{fmt(d.total)}</p>
                 </div>
               </div>
             ))}
           </div>
 
           {/* Gradient + mũi tên phải */}
-          <div className={`absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-gray-950 to-transparent z-10 pointer-events-none transition-opacity ${canScrollRight ? 'opacity-100' : 'opacity-0'}`} />
+          <div className={`absolute inset-y-0 right-0 w-1 bg-lamp/40 z-10 pointer-events-none transition-opacity ${canScrollRight ? 'opacity-100' : 'opacity-0'}`} />
           {canScrollRight && (
             <button
               onClick={() => scroll('right')}
-              className="absolute right-1 top-1/2 -translate-y-1/2 z-20 w-6 h-6 rounded-full bg-espresso/80 border border-white/10 text-white flex items-center justify-center opacity-0 group-hover/strip:opacity-100 hover:bg-brand-hover hover:text-on-brand transition-all"
+              className="absolute right-1 top-1/2 -translate-y-1/2 z-20 w-6 h-6 bg-ink/80 border border-lamp/10 text-lamp flex items-center justify-center opacity-0 group-hover/strip:opacity-100 hover:bg-board hover:text-lamp transition-all"
             >
               <ChevronRight size={14} />
             </button>

@@ -142,7 +142,7 @@ const FnbOrderPage = () => {
   if (isLoading) {
     return (
       <div className="min-h-[60vh] bg-page flex items-center justify-center">
-        <Loader2 size={32} className="animate-spin text-brand-text" />
+        <Loader2 size={32} className="animate-spin text-ink" />
       </div>
     )
   }
@@ -157,7 +157,7 @@ const FnbOrderPage = () => {
       <p className="text-ink-soft text-sm mb-8">{lounge?.name}</p>
 
       {!user && (
-        <div className="bg-yellow-500/5 border border-yellow-500/20 rounded-xl p-4 mb-6">
+        <div className="bg-warning/5 border border-warning/20 p-4 mb-6">
           <p className="text-warning text-sm">
             Bạn cần <Link to="/login" className="underline font-medium">đăng nhập</Link> để gửi đơn.
           </p>
@@ -165,7 +165,7 @@ const FnbOrderPage = () => {
       )}
 
       {items.length === 0 ? (
-        <div className="bg-card border border-line rounded-xl p-8 text-center text-ink-mute">
+        <div className="bg-card border border-line p-8 text-center text-ink-mute">
           Phòng trà này chưa có thực đơn.
         </div>
       ) : (
@@ -174,25 +174,25 @@ const FnbOrderPage = () => {
           <div className="lg:col-span-2 space-y-6">
             {Object.entries(grouped).map(([category, list]) => (
               <div key={category}>
-                <h2 className="text-sm font-semibold text-brand-text mb-3 uppercase tracking-wide">{category}</h2>
+                <h2 className="text-sm font-semibold text-ink mb-3">{category}</h2>
                 <div className="space-y-2">
                   {list.map((item) => (
-                    <div key={item.id} className="bg-card border border-line rounded-xl p-4 flex items-center justify-between gap-4">
+                    <div key={item.id} className="bg-card border border-line p-4 flex items-center justify-between gap-4">
                       <div className="min-w-0">
                         <p className="text-ink font-medium">{item.name}</p>
                         {item.description && <p className="text-xs text-ink-mute mt-0.5">{item.description}</p>}
-                        <p className="text-brand-text text-sm font-bold mt-1">{fmtMoney(item.price)}</p>
+                        <p className="text-ink text-sm font-bold mt-1">{fmtMoney(item.price)}</p>
                       </div>
                       <div className="flex items-center gap-2 flex-shrink-0">
                         {cart[item.id] ? (
                           <>
-                            <button onClick={() => changeQty(item.id, -1)} className="w-8 h-8 rounded-lg border border-line flex items-center justify-center hover:border-brand hover:text-brand-text">
+                            <button onClick={() => changeQty(item.id, -1)} className="w-8 h-8 border border-line flex items-center justify-center hover:border-ink hover:text-ink">
                               <Minus size={14} />
                             </button>
                             <span className="w-6 text-center font-bold">{cart[item.id]}</span>
                           </>
                         ) : null}
-                        <button onClick={() => changeQty(item.id, 1)} className="w-8 h-8 rounded-lg bg-brand text-on-brand flex items-center justify-center hover:bg-brand-hover">
+                        <button onClick={() => changeQty(item.id, 1)} className="w-8 h-8 bg-ink text-lamp flex items-center justify-center hover:bg-board">
                           <Plus size={14} />
                         </button>
                       </div>
@@ -205,9 +205,9 @@ const FnbOrderPage = () => {
 
           {/* GIỎ + ĐƠN CỦA TÔI */}
           <div className="space-y-4">
-            <div className="bg-card border border-line rounded-xl p-5 sticky top-24">
+            <div className="bg-card border border-line p-5 sticky top-24">
               <h2 className="font-bold flex items-center gap-2 mb-4">
-                <ShoppingCart size={18} className="text-brand-text" /> Đơn của bạn
+                <ShoppingCart size={18} className="text-ink" /> Đơn của bạn
               </h2>
 
               {cartCount === 0 ? (
@@ -231,18 +231,18 @@ const FnbOrderPage = () => {
                     value={tableNote}
                     onChange={(e) => setTableNote(e.target.value)}
                     placeholder="Số bàn / vị trí (không bắt buộc)"
-                    className="w-full px-3 py-2 bg-page border border-line rounded-lg text-sm placeholder:text-ink-mute mb-3"
+                    className="w-full px-3 py-2 bg-page border border-line text-sm placeholder:text-ink-mute mb-3"
                   />
 
                   <div className="flex justify-between font-bold border-t border-line pt-3 mb-4">
                     <span>Tổng cộng</span>
-                    <span className="text-brand-text">{fmtMoney(cartTotal)}</span>
+                    <span className="text-ink">{fmtMoney(cartTotal)}</span>
                   </div>
 
                   <button
                     onClick={handleSubmit}
                     disabled={!user || !!busy}
-                    className="w-full py-2.5 rounded-lg bg-brand text-on-brand font-bold text-sm hover:bg-brand-hover disabled:opacity-50"
+                    className="w-full py-2.5 bg-ink text-lamp font-bold text-sm hover:bg-board disabled:opacity-50"
                   >
                     {busy === 'submit' ? 'Đang gửi...' : 'Gửi đơn tới quầy'}
                   </button>
@@ -255,21 +255,21 @@ const FnbOrderPage = () => {
 
             {/* ĐƠN GẦN ĐÂY */}
             {orders.length > 0 && (
-              <div className="bg-card border border-line rounded-xl p-5">
+              <div className="bg-card border border-line p-5">
                 <h2 className="font-bold flex items-center gap-2 mb-4">
-                  <Receipt size={18} className="text-brand-text" /> Đơn gần đây
+                  <Receipt size={18} className="text-ink" /> Đơn gần đây
                 </h2>
                 <div className="space-y-3">
                   {orders.map((o) => (
-                    <div key={o.id} className="border border-line rounded-lg p-3">
+                    <div key={o.id} className="border border-line p-3">
                       <div className="flex items-center justify-between mb-1">
                         <span className="text-sm font-medium">#{o.id}</span>
-                        <span className="text-xs px-2 py-0.5 rounded-full bg-sunken text-ink-soft">
+                        <span className="text-xs px-2 py-0.5 bg-sunken text-ink-soft">
                           {STATUS_LABELS[o.status] || o.status}
                         </span>
                       </div>
                       <p className="text-xs text-ink-mute">{dayjs(o.createdAt).format('HH:mm DD/MM/YYYY')}</p>
-                      <p className="text-sm text-brand-text font-bold mt-1">{fmtMoney(o.totalAmount)}</p>
+                      <p className="text-sm text-ink font-bold mt-1">{fmtMoney(o.totalAmount)}</p>
                       <p className="text-xs mt-1">
                         {o.isPaid
                           ? <span className="text-success">Đã thanh toán</span>
@@ -281,7 +281,7 @@ const FnbOrderPage = () => {
                         <button
                           onClick={() => handlePayOnline(o.id)}
                           disabled={!!busy}
-                          className="mt-2 w-full inline-flex items-center justify-center gap-1.5 py-2 rounded-lg border border-brand text-brand-text text-xs font-bold hover:bg-brand-hover hover:text-on-brand transition-colors disabled:opacity-50"
+                          className="mt-2 w-full inline-flex items-center justify-center gap-1.5 py-2 border border-ink text-ink text-xs font-bold hover:bg-board hover:text-lamp transition-colors disabled:opacity-50"
                         >
                           <CreditCard size={14} />
                           {busy === `pay-${o.id}` ? 'Đang chuyển...' : 'Trả online'}

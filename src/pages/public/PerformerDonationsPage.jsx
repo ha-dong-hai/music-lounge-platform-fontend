@@ -34,14 +34,14 @@ const fmtPhanTram = (r) => `${(Number(r || 0) * 100).toLocaleString('vi-VN', { m
 // Màu theo chặng: xám = còn trên đường, xanh = nghệ sĩ đã xác nhận nhận được, đỏ = nghệ sĩ nói chưa.
 const MAU_CHANG = {
   PlatformHolding: 'text-ink-soft bg-line/40',
-  VenueHolding: 'text-brand-text bg-brand/10',
+  VenueHolding: 'text-ink bg-ink/10',
   VenueReportedPaid: 'text-warning bg-warning/10',
   PerformerConfirmed: 'text-success bg-success/10',
   PerformerDisputed: 'text-danger bg-danger/10',
 }
 
 const OCard = ({ title, value, note, icon: Icon, color }) => (
-  <div className="bg-card border border-line rounded-xl p-5">
+  <div className="bg-card border border-line p-5">
     <div className="flex items-start justify-between gap-3">
       <p className="text-sm text-ink-mute">{title}</p>
       <Icon size={18} className={`flex-shrink-0 ${color}`} />
@@ -76,31 +76,31 @@ const EvidenceModal = ({ donationId, onClose }) => {
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-espresso/80 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-card border border-line rounded-2xl w-full max-w-3xl shadow-2xl flex flex-col max-h-[90vh]">
+      <div className="absolute inset-0 bg-ink/80" onClick={onClose} />
+      <div className="relative bg-card border border-line w-full max-w-3xl shadow-soft flex flex-col max-h-[90vh]">
         <div className="flex-none flex justify-between items-center p-5 border-b border-line">
           <h2 className="text-lg font-bold text-ink">Nhật ký bằng chứng · khoản #{donationId}</h2>
-          <button onClick={onClose} className="p-2 hover:bg-sunken rounded-full text-ink-soft">
+          <button onClick={onClose} className="p-2 hover:bg-sunken text-ink-soft">
             <X size={20} />
           </button>
         </div>
 
         <div className="p-5 overflow-y-auto">
           {isLoading ? (
-            <div className="py-14 flex justify-center"><Loader2 size={26} className="animate-spin text-brand-text" /></div>
+            <div className="py-14 flex justify-center"><Loader2 size={26} className="animate-spin text-ink" /></div>
           ) : !data ? (
             <p className="text-sm text-ink-mute">Không có dữ liệu.</p>
           ) : (
             <>
               {data.chainIntact ? (
-                <div className="flex items-start gap-2 p-4 rounded-lg border border-success/30 bg-success/5">
+                <div className="flex items-start gap-2 p-4 border border-success/30 bg-success/5">
                   <ShieldCheck size={18} className="text-success flex-shrink-0 mt-0.5" />
                   <p className="text-sm text-ink-soft leading-relaxed">
                     Chuỗi bằng chứng còn nguyên: không dòng nào bị sửa, xoá hay chèn thêm sau khi ghi.
                   </p>
                 </div>
               ) : (
-                <div className="flex items-start gap-2 p-4 rounded-lg border border-danger/30 bg-danger/5">
+                <div className="flex items-start gap-2 p-4 border border-danger/30 bg-danger/5">
                   <Link2Off size={18} className="text-danger flex-shrink-0 mt-0.5" />
                   <div>
                     <p className="text-sm text-ink font-medium">Chuỗi bằng chứng bị đứt</p>
@@ -118,7 +118,7 @@ const EvidenceModal = ({ donationId, onClose }) => {
                   const dongLoi = data.firstBrokenSequence != null && e.sequence >= data.firstBrokenSequence
                   return (
                     <div key={e.sequence}
-                      className={`p-4 rounded-lg border ${dongLoi ? 'border-danger/30 bg-danger/5' : 'border-line bg-sunken/70'}`}>
+                      className={`p-4 border ${dongLoi ? 'border-danger/30 bg-danger/5' : 'border-line bg-sunken/70'}`}>
                       <div className="flex flex-wrap items-center justify-between gap-2">
                         <div className="flex items-center gap-2 min-w-0">
                           <span className="text-xs text-ink-mute font-mono flex-shrink-0">#{e.sequence}</span>
@@ -141,7 +141,7 @@ const EvidenceModal = ({ donationId, onClose }) => {
                         )}
                         {e.evidenceUrl && (
                           <a href={e.evidenceUrl} target="_blank" rel="noreferrer"
-                            className="text-brand-text hover:underline inline-flex items-center gap-1">
+                            className="text-ink hover:underline inline-flex items-center gap-1">
                             <FileCheck2 size={12} /> Xem chứng từ
                           </a>
                         )}
@@ -230,7 +230,7 @@ const PerformerDonationsPage = () => {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-page flex items-center justify-center">
-        <Loader2 size={32} className="animate-spin text-brand-text" />
+        <Loader2 size={32} className="animate-spin text-ink" />
       </div>
     )
   }
@@ -242,12 +242,12 @@ const PerformerDonationsPage = () => {
   return (
     <div className="min-h-screen bg-page text-ink pb-20">
       <div className="max-w-5xl mx-auto px-6 py-8">
-        <Link to="/" className="inline-flex items-center gap-2 text-sm font-medium text-ink-soft hover:text-brand-text mb-6">
+        <Link to="/" className="inline-flex items-center gap-2 text-sm font-medium text-ink-soft hover:text-ink mb-6">
           <ArrowLeft size={18} /> Về trang chủ
         </Link>
 
         <div className="flex items-center gap-3 mb-2">
-          <Heart size={26} className="text-brand-text" />
+          <Heart size={26} className="text-ink" />
           <h1 className="text-2xl font-bold">
             Sao kê donate {summary?.performerName ? `· ${summary.performerName}` : ''}
           </h1>
@@ -256,7 +256,7 @@ const PerformerDonationsPage = () => {
           Tiền donate đi qua hai chặng: nền tảng thu, chuyển cho phòng trà, rồi phòng trà chuyển cho
           nghệ sĩ. Trang này cho biết từng khoản đang ở chặng nào. Không hiển thị số tài khoản, mã
           chuyển khoản hay ảnh chứng từ.{' '}
-          <Link to="/minh-bach" className="text-brand-text hover:underline">Cách tiền đi qua từng chặng</Link>.
+          <Link to="/minh-bach" className="text-ink hover:underline">Cách tiền đi qua từng chặng</Link>.
         </p>
 
         {/* Mốc cập nhật — nói thẳng số liệu cũ tới đâu thay vì gắn nhãn "thời gian thực" cho một
@@ -270,14 +270,14 @@ const PerformerDonationsPage = () => {
           </p>
           <button
             onClick={() => load(true)}
-            className="inline-flex items-center gap-1.5 min-h-[44px] -my-2 px-2 text-xs font-medium text-brand-text hover:underline"
+            className="inline-flex items-center gap-1.5 min-h-[44px] -my-2 px-2 text-xs font-medium text-ink hover:underline"
           >
             <RefreshCw size={13} /> Làm mới ngay
           </button>
         </div>
 
         {!summary ? (
-          <div className="bg-card border border-warning/30 rounded-xl p-6 flex items-start gap-3 mb-6">
+          <div className="bg-card border border-warning/30 p-6 flex items-start gap-3 mb-6">
             <AlertTriangle size={18} className="text-warning flex-shrink-0 mt-0.5" />
             <p className="text-sm text-ink-soft leading-relaxed">
               Không tải được phần tổng hợp. Bảng chi tiết bên dưới (nếu có) vẫn đúng.
@@ -294,7 +294,7 @@ const PerformerDonationsPage = () => {
                 icon={Landmark} color="text-ink-soft"
                 note="Chưa tới kỳ chuyển cho phòng trà." />
               <OCard title="Phòng trà còn giữ" value={fmtTien(summary.heldByVenue)}
-                icon={Building2} color="text-brand-text"
+                icon={Building2} color="text-ink"
                 note={`Hạn chuyển cho nghệ sĩ: ${summary.policy?.venuePayoutDays ?? '—'} ngày.`} />
               <OCard title="Quá hạn tại phòng trà" value={fmtTien(summary.overdueAtVenue)}
                 icon={AlertTriangle} color={summary.overdueCount > 0 ? 'text-danger' : 'text-ink-mute'}
@@ -304,7 +304,7 @@ const PerformerDonationsPage = () => {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4">
-              <div className="bg-card border border-line rounded-xl p-5">
+              <div className="bg-card border border-line p-5">
                 <p className="text-sm text-ink-mute">Tổng khán giả đã tặng</p>
                 <p className="text-xl font-bold text-ink mt-1.5 tabular-nums">{fmtTien(summary.totalGross)}</p>
                 <p className="text-xs text-ink-mute mt-2 leading-relaxed">
@@ -316,15 +316,15 @@ const PerformerDonationsPage = () => {
                   )}
                 </p>
               </div>
-              <div className="bg-card border border-line rounded-xl p-5">
+              <div className="bg-card border border-line p-5">
                 <p className="text-sm text-ink-mute">Phần của nghệ sĩ</p>
-                <p className="text-xl font-bold text-brand-text mt-1.5 tabular-nums">{fmtTien(summary.totalForPerformer)}</p>
+                <p className="text-xl font-bold text-ink mt-1.5 tabular-nums">{fmtTien(summary.totalForPerformer)}</p>
                 <p className="text-xs text-ink-mute mt-2 leading-relaxed">
                   Chưa tới tay nghệ sĩ: {fmtTien(chuaToiNgheSi)}.
                   {summary.paidLateCount > 0 && ` Có ${summary.paidLateCount} khoản được chuyển sau hạn.`}
                 </p>
               </div>
-              <div className="bg-card border border-line rounded-xl p-5">
+              <div className="bg-card border border-line p-5">
                 <p className="text-sm text-ink-mute">Nghệ sĩ nói chưa nhận được</p>
                 <p className={`text-xl font-bold mt-1.5 tabular-nums ${Number(summary.disputedByPerformer) > 0 ? 'text-danger' : 'text-ink'}`}>
                   {fmtTien(summary.disputedByPerformer)}
@@ -337,7 +337,7 @@ const PerformerDonationsPage = () => {
 
             {/* CHÍNH SÁCH — hiện nguyên văn câu backend soạn, không tự tính lại */}
             {summary.policy && (
-              <div className="bg-card border border-line rounded-xl p-6 mt-4">
+              <div className="bg-card border border-line p-6 mt-4">
                 <h2 className="text-base font-semibold text-ink">Chính sách đang áp dụng</h2>
                 <ul className="mt-3 space-y-2">
                   {(summary.policy.statements ?? []).map((c, i) => (
@@ -364,11 +364,11 @@ const PerformerDonationsPage = () => {
         <h2 className="text-base font-semibold text-ink mt-8 mb-3">Từng khoản donate</h2>
 
         {rows.length === 0 ? (
-          <div className="bg-card border border-line rounded-xl p-10 text-center">
+          <div className="bg-card border border-line p-10 text-center">
             <p className="text-sm text-ink-mute">Chưa có khoản donate nào được công khai.</p>
           </div>
         ) : (
-          <div className="bg-card border border-line rounded-xl divide-y divide-line">
+          <div className="bg-card border border-line divide-y divide-line">
             {rows.map((d) => (
               <div key={d.id} className="p-5">
                 <div className="flex flex-wrap items-start justify-between gap-4">
@@ -414,12 +414,12 @@ const PerformerDonationsPage = () => {
                     </p>
                     {d.performerAmount != null && (
                       <p className="text-xs text-ink-mute mt-0.5">
-                        nghệ sĩ nhận <span className="text-brand-text tabular-nums">{fmtTien(d.performerAmount)}</span>
+                        nghệ sĩ nhận <span className="text-ink tabular-nums">{fmtTien(d.performerAmount)}</span>
                       </p>
                     )}
                     {laAdmin && (
                       <button onClick={() => setEvidenceId(d.id)}
-                        className="mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-line text-ink-soft text-xs font-bold hover:bg-sunken">
+                        className="mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 border border-line text-ink-soft text-xs font-bold hover:bg-sunken">
                         <ShieldCheck size={13} /> Nhật ký bằng chứng
                       </button>
                     )}
@@ -458,12 +458,12 @@ const PerformerDonationsPage = () => {
         {totalPages > 1 && (
           <div className="flex items-center justify-center gap-3 mt-5">
             <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page <= 1}
-              className="px-4 py-2 rounded-lg border border-line text-sm text-ink-soft hover:bg-sunken disabled:opacity-40">
+              className="px-4 py-2 border border-line text-sm text-ink-soft hover:bg-sunken disabled:opacity-40">
               Trước
             </button>
             <span className="text-sm text-ink-mute">Trang {page}/{totalPages}</span>
             <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page >= totalPages}
-              className="px-4 py-2 rounded-lg border border-line text-sm text-ink-soft hover:bg-sunken disabled:opacity-40">
+              className="px-4 py-2 border border-line text-sm text-ink-soft hover:bg-sunken disabled:opacity-40">
               Sau
             </button>
           </div>

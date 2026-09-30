@@ -91,23 +91,23 @@ const AdminContentReportsPage = () => {
         </p>
       </div>
 
-      <div className="bg-card border border-line rounded-xl overflow-hidden">
+      <div className="bg-card border border-line overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left whitespace-nowrap">
             <thead className="bg-sunken/80 border-b border-line">
               <tr>
-                <th className="p-4 text-brand-text font-semibold text-sm">Nội dung bị báo cáo</th>
-                <th className="p-4 text-brand-text font-semibold text-sm">Số lượt báo</th>
-                <th className="p-4 text-brand-text font-semibold text-sm">Lý do gần nhất</th>
-                <th className="p-4 text-brand-text font-semibold text-sm">Hạn xử lý</th>
-                <th className="p-4 text-brand-text font-semibold text-sm text-right">Xử lý</th>
+                <th className="p-4 text-ink font-semibold text-sm">Nội dung bị báo cáo</th>
+                <th className="p-4 text-ink font-semibold text-sm">Số lượt báo</th>
+                <th className="p-4 text-ink font-semibold text-sm">Lý do gần nhất</th>
+                <th className="p-4 text-ink font-semibold text-sm">Hạn xử lý</th>
+                <th className="p-4 text-ink font-semibold text-sm text-right">Xử lý</th>
               </tr>
             </thead>
             <tbody>
               {isLoading ? (
                 <tr>
                   <td colSpan="5" className="p-10 text-center">
-                    <Loader2 size={24} className="mx-auto animate-spin text-brand-text" />
+                    <Loader2 size={24} className="mx-auto animate-spin text-ink" />
                   </td>
                 </tr>
               ) : items.length === 0 ? (
@@ -130,7 +130,7 @@ const AdminContentReportsPage = () => {
                             {TARGET_LABELS[item.targetType] || item.targetType}
                           </span>
                           {contentLink(item) ? (
-                            <Link to={contentLink(item)} className="text-ink font-medium hover:text-brand-text transition-colors">
+                            <Link to={contentLink(item)} className="text-ink font-medium hover:text-ink transition-colors">
                               {item.targetSummary}
                             </Link>
                           ) : (
@@ -142,7 +142,7 @@ const AdminContentReportsPage = () => {
                         </p>
                       </td>
                       <td className="p-4">
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-red-500/10 text-danger border border-red-500/20 text-xs font-bold">
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-danger/10 text-danger border border-danger/20 text-xs font-bold">
                           <ShieldAlert size={12} /> {item.reportCount}
                         </span>
                       </td>
@@ -161,7 +161,7 @@ const AdminContentReportsPage = () => {
                           <button
                             onClick={() => handleResolve(item, 'Removed')}
                             disabled={isBusy}
-                            className="inline-flex items-center gap-1.5 bg-red-500/10 border border-red-500/40 text-danger px-3 py-1.5 rounded-md text-xs font-bold hover:bg-red-500/20 disabled:opacity-50"
+                            className="inline-flex items-center gap-1.5 bg-danger/10 border border-danger/40 text-danger px-3 py-1.5 rounded-md text-xs font-bold hover:bg-danger/20 disabled:opacity-50"
                           >
                             <Trash2 size={14} /> Gỡ nội dung
                           </button>
@@ -189,14 +189,14 @@ const AdminContentReportsPage = () => {
               <button
                 onClick={() => setPagination((prev) => ({ ...prev, page: prev.page - 1 }))}
                 disabled={pagination.page === 1}
-                className="p-2 rounded-md border border-line text-ink-soft hover:border-brand hover:text-brand-text disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                className="p-2 rounded-md border border-line text-ink-soft hover:border-ink hover:text-ink disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
               >
                 <ChevronLeft size={18} />
               </button>
               <button
                 onClick={() => setPagination((prev) => ({ ...prev, page: prev.page + 1 }))}
                 disabled={pagination.page === pagination.totalPages}
-                className="p-2 rounded-md border border-line text-ink-soft hover:border-brand hover:text-brand-text disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                className="p-2 rounded-md border border-line text-ink-soft hover:border-ink hover:text-ink disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
               >
                 <ChevronRight size={18} />
               </button>

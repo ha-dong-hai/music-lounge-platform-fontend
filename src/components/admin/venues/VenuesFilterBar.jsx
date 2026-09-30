@@ -3,13 +3,13 @@ import { VENUE_STATUS_CONFIG } from './VenueBadges'
 // Bỏ search (tạm ẩn) — chỉ còn dropdown status để đi sâu từng loại
 const VenuesFilterBar = ({ statusFilter, setStatusFilter }) => {
   return (
-    <div className="bg-card border border-line rounded-xl p-4 flex flex-col md:flex-row gap-4 items-center justify-between">
+    <div className="bg-card border border-line p-4 flex flex-col md:flex-row gap-4 items-center justify-between">
       <div className="flex items-center gap-3">
         <p className="text-sm text-ink-soft">Lọc theo trạng thái:</p>
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className="px-4 py-2.5 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-brand/50 cursor-pointer"
+          className="px-4 py-2.5 bg-page border border-line text-sm text-ink focus:outline-none focus:border-ink/50 cursor-pointer"
         >
           <option value="all">Tất cả</option>
           {Object.keys(VENUE_STATUS_CONFIG).map(key => (

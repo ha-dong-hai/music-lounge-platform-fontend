@@ -71,8 +71,8 @@ const AdminKycReviewsPage = () => {
       <div className="flex flex-wrap gap-2">
         {KYC_TABS.map((t) => (
           <button key={t.key} onClick={() => setTab(t.key)}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${tab === t.key
-              ? 'bg-sunken border-brand/40 text-brand-text'
+            className={`px-3 py-1.5 text-xs font-medium border transition-colors ${tab === t.key
+              ? 'bg-sunken border-ink/40 text-ink'
               : 'bg-page border-line text-ink-soft hover:text-ink'}`}>
             {t.label}
           </button>
@@ -80,9 +80,9 @@ const AdminKycReviewsPage = () => {
       </div>
 
       {isLoading ? (
-        <div className="py-20 flex justify-center"><Loader2 size={32} className="animate-spin text-brand-text" /></div>
+        <div className="py-20 flex justify-center"><Loader2 size={32} className="animate-spin text-ink" /></div>
       ) : items.length === 0 ? (
-        <div className="bg-card border border-line rounded-xl p-10 text-center">
+        <div className="bg-card border border-line p-10 text-center">
           <ShieldCheck size={28} className="mx-auto mb-3 text-ink-mute" />
           <p className="text-sm text-ink-mute">Không có hồ sơ nào trong mục này.</p>
         </div>

@@ -51,7 +51,6 @@ const AdminShowDetailPage = () => {
             performers: beData.performers || [],
             moodTags: [beData.format, beData.genres?.[0]?.name].filter(Boolean),
             description: beData.description || "Chưa có mô tả cho buổi diễn này.",
-            loungeLogo: `https://api.dicebear.com/7.x/initials/svg?seed=${beData.lounge?.name || 'ML'}&backgroundColor=10b981`
           })
 
           if (pendingRes?.success) {
@@ -118,7 +117,7 @@ const AdminShowDetailPage = () => {
         <div className="w-full h-[500px] md:h-[600px] bg-card flex items-end md:items-center">
           <div className="w-full max-w-[1600px] mx-auto px-6 pb-20 md:pb-0">
             <div className="flex flex-col items-start max-w-2xl gap-4">
-              <Skeleton className="h-5 w-48" /><Skeleton className="w-20 h-20 rounded-full" /><Skeleton className="h-12 w-3/4" /><Skeleton className="h-6 w-1/2" /><Skeleton className="h-12 w-40" />
+              <Skeleton className="h-5 w-48" /><Skeleton className="w-20 h-20" /><Skeleton className="h-12 w-3/4" /><Skeleton className="h-6 w-1/2" /><Skeleton className="h-12 w-40" />
             </div>
           </div>
         </div>
@@ -127,9 +126,9 @@ const AdminShowDetailPage = () => {
         </div>
         <div className="max-w-[1600px] mx-auto px-6">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
-            <div className="lg:col-span-7 bg-card border border-line rounded-2xl p-8 space-y-4"><Skeleton className="h-8 w-40 mb-6" /><Skeleton className="h-4 w-full" /><Skeleton className="h-4 w-full" /><Skeleton className="h-4 w-2/3" /></div>
-            <div className="lg:col-span-3 space-y-6">{[...Array(4)].map((_, i) => (<div key={i} className="bg-card border border-line rounded-xl p-5"><Skeleton className="h-3 w-16 mb-2" /><Skeleton className="h-4 w-24" /></div>))}</div>
-            <div className="lg:col-span-2 flex flex-col items-center pt-2"><Skeleton className="w-24 h-24 rounded-full mb-4" /><Skeleton className="h-8 w-24 rounded-lg" /></div>
+            <div className="lg:col-span-7 bg-card border border-line p-8 space-y-4"><Skeleton className="h-8 w-40 mb-6" /><Skeleton className="h-4 w-full" /><Skeleton className="h-4 w-full" /><Skeleton className="h-4 w-2/3" /></div>
+            <div className="lg:col-span-3 space-y-6">{[...Array(4)].map((_, i) => (<div key={i} className="bg-card border border-line p-5"><Skeleton className="h-3 w-16 mb-2" /><Skeleton className="h-4 w-24" /></div>))}</div>
+            <div className="lg:col-span-2 flex flex-col items-center pt-2"><Skeleton className="w-24 h-24 mb-4" /><Skeleton className="h-8 w-24" /></div>
           </div>
         </div>
       </div>
@@ -141,7 +140,7 @@ const AdminShowDetailPage = () => {
     return (
       <div className="min-h-screen bg-page flex flex-col items-center justify-center text-ink">
         <h1 className="text-2xl font-bold text-ink mb-4">{apiError || 'Không tìm thấy buổi diễn'}</h1>
-        <Link to="/admin/shows" className="text-brand-text hover:text-brand-text flex items-center gap-2 font-medium"><ArrowLeft size={18} /> Quay lại danh sách</Link>
+        <Link to="/admin/shows" className="text-ink hover:text-ink flex items-center gap-2 font-medium"><ArrowLeft size={18} /> Quay lại danh sách</Link>
       </div>
     )
   }
@@ -160,8 +159,8 @@ const AdminShowDetailPage = () => {
       {/* TABS */}
       <div className="max-w-[1600px] mx-auto px-6 mt-8 mb-6 border-b border-line">
         <div className="flex gap-8">
-          <button onClick={() => setActiveTab('intro')} className={`pb-4 text-lg font-bold border-b-2 transition-colors ${activeTab === 'intro' ? 'border-brand text-brand-text' : 'border-transparent text-ink-mute hover:text-ink'}`}>Chi tiết</button>
-          <button onClick={() => setActiveTab('map')} className={`pb-4 text-lg font-bold border-b-2 transition-colors ${activeTab === 'map' ? 'border-brand text-brand-text' : 'border-transparent text-ink-mute hover:text-ink'}`}>Khu vực chỗ ngồi</button>
+          <button onClick={() => setActiveTab('intro')} className={`pb-4 text-lg font-bold border-b-2 transition-colors ${activeTab === 'intro' ? 'border-ink text-ink' : 'border-transparent text-ink-mute hover:text-ink'}`}>Chi tiết</button>
+          <button onClick={() => setActiveTab('map')} className={`pb-4 text-lg font-bold border-b-2 transition-colors ${activeTab === 'map' ? 'border-ink text-ink' : 'border-transparent text-ink-mute hover:text-ink'}`}>Khu vực chỗ ngồi</button>
         </div>
       </div>
 
