@@ -1,15 +1,25 @@
 // src/pages/auth/LoginPage.jsx
-
+//
+// ĐĂNG NHẬP. Logic (useAuth.handleLogin, schema, đăng nhập Google qua Firebase) giữ nguyên; làm lại 30/09/2026 trong
+// thế giới "tờ chương trình".
+// - Thông báo lỗi đăng nhập lấy NGUYÊN câu của backend: backend cố ý trả cùng một câu cho "sai mật khẩu" và "không có
+//   tài khoản" (chống dò tài khoản) — giao diện không được tự đoán và nói rõ hơn.
+// - Nút Google CHỈ hiện khi đã cấu hình. Bản cũ in nút "Tiếp tục với Google (chưa cấu hình)": một nút bấm vào không
+//   làm được gì.
+// - Ô email mang autocomplete="username": đó là giá trị trình quản lý mật khẩu dùng để ghép với current-password.
+//   Không chặn dán, không giới hạn ký tự ở ô mật khẩu (WCAG 2.2 SC 3.3.8, NIST SP 800-63B).
+// - Sau khi báo lỗi, focus về ô email để người dùng bàn phím sửa ngay, không phải dò lại từ đầu trang.
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Mail, Lock, ArrowRight, Loader2 } from 'lucide-react'
+import { Loader2 } from 'lucide-react'
 import { useAuth } from '../../hooks/useAuth'
 import { loginSchema } from '../../schemas/authSchema'
 import AuthShell from '../../components/auth/AuthShell'
 import AuthField from '../../components/auth/AuthField'
 import AuthAlert from '../../components/auth/AuthAlert'
+import { NUT_CHINH, NUT_PHU, LIEN_KET } from '../../components/auth/kieuNut'
 
 const GoogleIcon = () => (
   <svg className="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" aria-hidden="true">
@@ -24,8 +34,9 @@ const LoginPage = () => {
   const { handleLogin, handleGoogleSignIn, isSubmitting, isGoogleLoginAvailable } = useAuth()
   const [apiError, setApiError] = useState(null)
 
-  const { register, handleSubmit, formState: { errors } } = useForm({
+  const { register, handleSubmit, setFocus, resetField, formState: { errors } } = useForm({
     resolver: zodResolver(loginSchema),
+    mode: 'onTouched', // kiểm khi RỜI ô, và gỡ lỗi ngay khi gõ lại cho đúng — không báo lỗi giữa lúc đang gõ (NN/g, Baymard)
   })
 
   const onSubmit = async ({ email, password }) => {
@@ -34,79 +45,61 @@ const LoginPage = () => {
       await handleLogin(email, password)
     } catch (err) {
       setApiError(err.response?.data?.message || 'Email hoặc mật khẩu không đúng.')
+      // Sai thì xoá ô mật khẩu (GOV.UK: không giữ lại mật khẩu sai), email giữ nguyên; focus về email để sửa ngay.
+      resetField('password')
+      setFocus('email')
     }
   }
 
   return (
     <AuthShell withAside>
-      <div className="mb-7">
-        <h1 className="font-display text-3xl sm:text-4xl font-semibold text-ink mb-2">Đăng nhập</h1>
-        <p className="text-ink-soft text-sm sm:text-base">Chào bạn quay lại. Vé, chỗ ngồi và phòng trà đã theo dõi vẫn ở đó.</p>
-      </div>
+      <h1 className="text-5xl text-ink mb-2">Đăng nhập</h1>
+      <p className="text-ink-soft mb-7">Vé, chỗ ngồi và phòng trà bạn theo dõi vẫn ở đó.</p>
 
       {apiError && (
-        <AuthAlert tone="danger" title="Đăng nhập không thành công" className="mb-6">
-          {apiError}
-        </AuthAlert>
+        <AuthAlert tone="danger" title="Đăng nhập không thành công" className="mb-6">{apiError}</AuthAlert>
       )}
 
       <form className="space-y-5" onSubmit={handleSubmit(onSubmit)} noValidate>
         <AuthField
           id="email"
           label="Email"
-          icon={Mail}
           type="email"
-          autoComplete="email"
-          placeholder="ban@example.com"
+          autoComplete="username"
+          inputMode="email"
+          autoCapitalize="none"
+          spellCheck={false}
           inputProps={register('email')}
           error={errors.email?.message}
         />
         <AuthField
           id="password"
           label="Mật khẩu"
-          icon={Lock}
           secret
           autoComplete="current-password"
-          placeholder="Nhập mật khẩu của bạn"
           inputProps={register('password')}
           error={errors.password?.message}
-          action={
-            <Link to="/forgot-password" className="inline-flex items-center min-h-[44px] -my-3 text-sm text-brand-text hover:underline">
-              Quên mật khẩu?
-            </Link>
-          }
         />
+        <p className="-mt-2"><Link to="/forgot-password" className={LIEN_KET}>Quên mật khẩu?</Link></p>
 
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className="w-full min-h-[52px] rounded-full bg-brand hover:bg-brand-hover text-on-brand font-bold text-base flex items-center justify-center gap-2 active:scale-[0.99] transition-all disabled:opacity-60 disabled:cursor-not-allowed"
-        >
-          {isSubmitting ? <Loader2 size={20} className="animate-spin" /> : <><span>Đăng nhập</span><ArrowRight size={18} /></>}
+        <button type="submit" disabled={isSubmitting} className={NUT_CHINH}>
+          {isSubmitting ? <><Loader2 size={20} className="animate-spin" aria-hidden="true" /> Đang đăng nhập…</> : 'Đăng nhập'}
         </button>
       </form>
 
-      <div className="flex items-center gap-3 my-6" role="separator">
-        <span className="flex-1 border-t border-line" />
-        <span className="text-xs text-ink-mute">hoặc</span>
-        <span className="flex-1 border-t border-line" />
-      </div>
+      {isGoogleLoginAvailable && (
+        <>
+          <p className="flex items-center gap-3 my-6 text-sm text-ink-mute" aria-hidden="true">
+            <span className="flex-1 border-t border-ink/20" />hoặc<span className="flex-1 border-t border-ink/20" />
+          </p>
+          <button type="button" onClick={() => handleGoogleSignIn(false)} disabled={isSubmitting} className={NUT_PHU}>
+            <GoogleIcon /> Tiếp tục với Google
+          </button>
+        </>
+      )}
 
-      <button
-        type="button"
-        onClick={() => handleGoogleSignIn(false)}
-        disabled={isSubmitting}
-        className="w-full min-h-[48px] px-4 rounded-full bg-card hover:bg-sunken border border-line-strong text-ink font-medium text-sm flex items-center justify-center gap-3 transition-colors disabled:opacity-50"
-      >
-        <GoogleIcon />
-        <span>{isGoogleLoginAvailable ? 'Tiếp tục với Google' : 'Tiếp tục với Google (chưa cấu hình)'}</span>
-      </button>
-
-      <p className="mt-7 pt-5 border-t border-line text-center text-sm text-ink-soft">
-        Chưa có tài khoản?{' '}
-        <Link to="/register" className="inline-flex items-center min-h-[44px] text-brand-text font-semibold hover:underline underline-offset-4">
-          Đăng ký
-        </Link>
+      <p className="mt-7 pt-5 border-t border-ink/20 text-ink-soft">
+        Chưa có tài khoản? <Link to="/register" className={LIEN_KET}>Tạo tài khoản</Link>
       </p>
     </AuthShell>
   )

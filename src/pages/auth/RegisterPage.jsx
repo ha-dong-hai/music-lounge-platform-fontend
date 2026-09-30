@@ -21,6 +21,10 @@
 // - Chọn vai trò là radio thật (bàn phím: mũi tên; trình đọc màn hình đọc "nhóm 2 lựa chọn"), không còn hai nút giả radio.
 // - Ô nhập/hộp lỗi dùng chung components/auth.
 //
+// 30/09/2026 — chuyển sang thế giới "tờ chương trình": góc vuông, viền mực, ô chọn vai trò là hai ô giấy có dấu chọn
+// bằng CHỮ ("Đã chọn") chứ không chỉ đổi màu viền; luật mật khẩu in TRƯỚC ô và luôn hiện; bỏ chữ mẫu trong ô (chữ mẫu
+// biến mất khi gõ và hay bị tưởng là ô đã điền).
+//
 // TỒN ĐỌNG (không thuộc FE quyết): liên kết "Điều khoản dịch vụ" (/terms) và "Chính sách bảo mật" (/privacy) HIỆN CHƯA
 // CÓ TRANG — AppRouter không khai báo route nên bấm vào rơi về trang 404. Nội dung pháp lý phải do bên vận hành cung cấp;
 // FE không tự bịa. Backend lại bắt buộc acceptTerms, nên đừng gỡ ô này.
@@ -28,23 +32,22 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { User, Mail, Phone, Lock, ArrowRight, Loader2, Store, Ticket } from 'lucide-react'
+import { Loader2 } from 'lucide-react'
 import { useAuth } from '../../hooks/useAuth'
 import { registerSchema } from '../../schemas/authSchema'
 import AuthShell from '../../components/auth/AuthShell'
 import AuthField from '../../components/auth/AuthField'
 import AuthAlert from '../../components/auth/AuthAlert'
+import { NUT_CHINH, LIEN_KET } from '../../components/auth/kieuNut'
 
 const ROLES = [
   {
     value: 'Audience',
-    icon: Ticket,
     ten: 'Khán giả',
     mo: 'Mua vé, xem buổi diễn, tặng tiền nghệ sĩ.',
   },
   {
     value: 'Owner',
-    icon: Store,
     ten: 'Chủ phòng trà',
     mo: 'Mở phòng trà, tổ chức buổi diễn, bán vé. Sau khi đăng ký còn hai bước nữa: hồ sơ phòng trà phải được duyệt, và bạn phải xác minh danh tính.',
   },
@@ -59,6 +62,7 @@ const RegisterPage = () => {
 
   const { register, handleSubmit, formState: { errors } } = useForm({
     resolver: zodResolver(registerSchema),
+    mode: 'onTouched',
     defaultValues: { acceptTerms: false },
   })
 
@@ -73,15 +77,11 @@ const RegisterPage = () => {
 
   return (
     <AuthShell withAside>
-      <div className="mb-7">
-        <h1 className="font-display text-3xl sm:text-4xl font-semibold text-ink mb-2">Tạo tài khoản</h1>
-        <p className="text-ink-soft text-sm sm:text-base">Mất chưa đến một phút. Bạn sẽ nhận mã xác thực qua email.</p>
-      </div>
+      <h1 className="text-5xl text-ink mb-2">Tạo tài khoản</h1>
+      <p className="text-ink-soft mb-7">Mất chưa đến một phút. Bạn sẽ nhận mã xác thực qua email.</p>
 
       {apiError && (
-        <AuthAlert tone="danger" title="Không tạo được tài khoản" className="mb-6">
-          {apiError}
-        </AuthAlert>
+        <AuthAlert tone="danger" title="Không tạo được tài khoản" className="mb-6">{apiError}</AuthAlert>
       )}
 
       <form className="space-y-5" onSubmit={handleSubmit(onSubmit)} noValidate>
@@ -91,74 +91,40 @@ const RegisterPage = () => {
             đưa margin fieldset về 0, còn `space-y-5` của form đặt khoảng cách bằng margin-bottom — m-0 sẽ xoá mất khoảng
             cách đó (lỗi đã gặp: chú thích dính sát nhãn "Họ và tên"). */}
         <fieldset className="min-w-0">
-          <legend className="text-sm font-medium text-ink mb-1.5">Bạn đăng ký với tư cách</legend>
+          <legend className="font-semibold text-ink mb-1.5">Bạn đăng ký với tư cách</legend>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {ROLES.map(({ value, icon: Icon, ten, mo }) => (
+            {ROLES.map(({ value, ten, mo }) => (
               <label
                 key={value}
-                className={`relative block cursor-pointer rounded-xl border p-4 transition-colors has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-brand/50 ${
-                  role === value ? 'border-brand-text bg-brand/10' : 'border-line-strong hover:border-brand-text/60 bg-card'
+                className={`relative block cursor-pointer border-2 border-ink p-4 transition-colors has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ink has-[:focus-visible]:ring-offset-2 ${
+                  role === value ? 'bg-ink text-lamp' : 'bg-card text-ink hover:bg-sunken'
                 }`}
               >
-                <input
-                  type="radio"
-                  name="role"
-                  value={value}
-                  checked={role === value}
-                  onChange={() => setRole(value)}
-                  className="sr-only"
-                />
-                <span className="flex items-center gap-2 text-sm font-bold text-ink">
-                  <Icon size={17} className={role === value ? 'text-brand-text' : 'text-ink-mute'} />
-                  {ten}
+                <input type="radio" name="role" value={value} checked={role === value} onChange={() => setRole(value)} className="sr-only" />
+                <span className="flex items-baseline justify-between gap-2">
+                  <span className="font-display text-2xl leading-none">{ten}</span>
+                  {role === value && <span className="font-mono text-xs">Đã chọn</span>}
                 </span>
-                <span className="block text-xs text-ink-soft mt-1.5 leading-relaxed">{mo}</span>
+                <span className={`block text-sm mt-2 leading-relaxed ${role === value ? 'text-lamp-mute' : 'text-ink-soft'}`}>{mo}</span>
               </label>
             ))}
           </div>
-          <p className="text-xs text-ink-soft leading-relaxed mt-2">
+          <p className="text-sm text-ink-soft leading-relaxed mt-2">
             Chọn xong không đổi lại được. Cần cả hai thì đăng ký hai tài khoản với hai email khác nhau.
           </p>
         </fieldset>
 
-        <AuthField
-          id="fullName"
-          label="Họ và tên"
-          icon={User}
-          autoComplete="name"
-          placeholder="Ví dụ: Trịnh Thái An"
-          inputProps={register('fullName')}
-          error={errors.fullName?.message}
-        />
-        <AuthField
-          id="email"
-          label="Email"
-          icon={Mail}
-          type="email"
-          autoComplete="email"
-          placeholder="ban@example.com"
-          inputProps={register('email')}
-          error={errors.email?.message}
-        />
-        <AuthField
-          id="phone"
-          label="Số điện thoại"
-          optional
-          icon={Phone}
-          type="tel"
-          autoComplete="tel"
-          placeholder="0901 234 567"
-          inputProps={register('phone')}
-          error={errors.phone?.message}
-        />
+        <AuthField id="fullName" label="Họ và tên" autoComplete="name" inputProps={register('fullName')} error={errors.fullName?.message} />
+        <AuthField id="email" label="Email" type="email" inputMode="email" autoCapitalize="none" spellCheck={false} autoComplete="email"
+          inputProps={register('email')} error={errors.email?.message} />
+        <AuthField id="phone" label="Số điện thoại" optional type="tel" inputMode="tel" autoComplete="tel"
+          inputProps={register('phone')} error={errors.phone?.message} />
         <AuthField
           id="password"
           label="Mật khẩu"
-          icon={Lock}
           secret
           autoComplete="new-password"
-          placeholder="Ít nhất 15 ký tự"
-          hint="Ít nhất 15 ký tự — một cụm từ dễ nhớ thường an toàn hơn chuỗi ký tự ngắn phức tạp."
+          hint="Từ 15 đến 64 ký tự. Không bắt buộc chữ hoa, số hay ký tự đặc biệt: một cụm từ dễ nhớ là đủ."
           inputProps={register('password')}
           error={errors.password?.message}
         />
@@ -169,32 +135,27 @@ const RegisterPage = () => {
             <input
               {...register('acceptTerms')}
               type="checkbox"
-              className="mt-0.5 w-5 h-5 rounded border-line-strong accent-brand-text flex-shrink-0"
+              aria-invalid={errors.acceptTerms ? 'true' : undefined}
+              aria-describedby={errors.acceptTerms ? 'acceptTerms-error' : undefined}
+              className="mt-0.5 w-5 h-5 border-2 border-ink accent-ink flex-shrink-0"
             />
-            <span className="text-sm text-ink-soft leading-relaxed">
+            <span className="text-ink-soft leading-relaxed">
               Tôi đồng ý với{' '}
-              <a className="text-brand-text hover:underline font-medium" href="/terms" target="_blank" rel="noreferrer">Điều khoản dịch vụ</a>{' '}
+              <a className="text-ink font-semibold underline underline-offset-4" href="/terms" target="_blank" rel="noreferrer">Điều khoản dịch vụ</a>{' '}
               và{' '}
-              <a className="text-brand-text hover:underline font-medium" href="/privacy" target="_blank" rel="noreferrer">Chính sách bảo mật</a>
+              <a className="text-ink font-semibold underline underline-offset-4" href="/privacy" target="_blank" rel="noreferrer">Chính sách bảo mật</a>
             </span>
           </label>
-          {errors.acceptTerms && <p className="text-sm text-danger mt-1.5">{errors.acceptTerms.message}</p>}
+          {errors.acceptTerms && <p id="acceptTerms-error" className="text-sm font-semibold text-danger mt-1.5">{errors.acceptTerms.message}</p>}
         </div>
 
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className="w-full min-h-[52px] rounded-full bg-brand hover:bg-brand-hover text-on-brand font-bold text-base flex items-center justify-center gap-2 active:scale-[0.99] transition-all disabled:opacity-60 disabled:cursor-not-allowed"
-        >
-          {isSubmitting ? <Loader2 size={20} className="animate-spin" /> : <><span>Tạo tài khoản</span><ArrowRight size={18} /></>}
+        <button type="submit" disabled={isSubmitting} className={NUT_CHINH}>
+          {isSubmitting ? <><Loader2 size={20} className="animate-spin" aria-hidden="true" /> Đang tạo tài khoản…</> : 'Tạo tài khoản'}
         </button>
       </form>
 
-      <p className="mt-7 pt-5 border-t border-line text-center text-sm text-ink-soft">
-        Đã có tài khoản?{' '}
-        <Link to="/login" className="inline-flex items-center min-h-[44px] text-brand-text font-semibold hover:underline underline-offset-4">
-          Đăng nhập
-        </Link>
+      <p className="mt-7 pt-5 border-t border-ink/20 text-ink-soft">
+        Đã có tài khoản? <Link to="/login" className={LIEN_KET}>Đăng nhập</Link>
       </p>
     </AuthShell>
   )

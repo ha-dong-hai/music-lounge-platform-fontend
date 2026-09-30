@@ -39,6 +39,9 @@ const DA_CHUYEN = [
   'src/pages/lounge',
   'src/components/lounge',
   'src/components/shared/DoanVanDai.jsx',
+  // 30/09: nam trang tai khoan (dang nhap, dang ky, xac thuc email, quen va dat lai mat khau).
+  'src/pages/auth',
+  'src/components/auth',
 ]
 
 const TIEN_TO = '(?:bg|text|border|ring|outline|from|to|via|decoration|fill|stroke|divide|shadow|caret|accent|placeholder|ring-offset)(?:-[trblxy])?'

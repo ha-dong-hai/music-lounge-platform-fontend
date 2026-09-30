@@ -16,12 +16,13 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Mail, ArrowLeft, ArrowRight, Loader2, Clock } from 'lucide-react'
+import { ArrowLeft, Loader2 } from 'lucide-react'
 import { forgotPassword } from '../../services/aServices'
 import { forgotPasswordSchema } from '../../schemas/authSchema'
 import AuthShell from '../../components/auth/AuthShell'
 import AuthField from '../../components/auth/AuthField'
 import AuthAlert from '../../components/auth/AuthAlert'
+import { NUT_CHINH, NUT_PHU, LIEN_KET_NHE } from '../../components/auth/kieuNut'
 
 const ForgotPasswordPage = () => {
   const [apiError, setApiError] = useState(null)
@@ -30,6 +31,7 @@ const ForgotPasswordPage = () => {
 
   const { register, handleSubmit, getValues, formState: { errors } } = useForm({
     resolver: zodResolver(forgotPasswordSchema),
+    mode: 'onTouched',
   })
 
   const onSubmit = async ({ email }) => {
@@ -49,74 +51,56 @@ const ForgotPasswordPage = () => {
 
   return (
     <AuthShell>
-      <div className="mb-6">
-        <h1 className="font-display text-3xl font-semibold text-ink mb-2">Quên mật khẩu</h1>
-        <p className="text-sm sm:text-base text-ink-soft leading-relaxed">
-          Nhập email đã đăng ký. Chúng tôi gửi cho bạn một đường dẫn để đặt lại mật khẩu.
-        </p>
-      </div>
+      <h1 className="text-4xl text-ink mb-3">Quên mật khẩu</h1>
+      <p className="text-ink-soft leading-relaxed mb-6">
+        Nhập email đã đăng ký. Chúng tôi gửi cho bạn một đường dẫn để đặt lại mật khẩu.
+      </p>
 
       {daGui ? (
         <>
           {/* Câu này trung tính có chủ đích: không tiết lộ email có tồn tại hay không. */}
           <AuthAlert tone="success" title="Đã gửi yêu cầu">
-            Nếu <span className="font-medium text-ink break-all">{getValues('email')}</span> là email đã đăng ký, bạn sẽ nhận
+            Nếu <span className="font-semibold text-ink break-all">{getValues('email')}</span> là email đã đăng ký, bạn sẽ nhận
             được đường dẫn đặt lại mật khẩu trong vài phút. Nhớ xem cả hộp thư rác.
           </AuthAlert>
 
-          <p className="mt-4 rounded-xl border border-line bg-sunken/60 p-4 text-xs text-ink-soft flex items-start gap-2 leading-relaxed">
-            <Clock size={15} className="text-brand-text flex-shrink-0 mt-px" />
-            <span>
-              Đường dẫn chỉ dùng được <strong className="text-ink">một lần</strong> và hết hạn sau{' '}
-              <strong className="text-ink">30 phút</strong>. Quá hạn thì quay lại đây xin đường dẫn mới.
-            </span>
+          <p className="mt-4 border-l-4 border-ink bg-sunken p-4 text-ink-soft leading-relaxed">
+            Đường dẫn chỉ dùng được <strong className="text-ink">một lần</strong> và hết hạn sau{' '}
+            <strong className="text-ink">30 phút</strong>. Quá hạn thì quay lại đây xin đường dẫn mới.
           </p>
 
-          <button
-            type="button"
-            onClick={() => setDaGui(false)}
-            className="mt-6 w-full min-h-[48px] px-4 rounded-full bg-card hover:bg-sunken border border-line-strong text-ink font-medium text-sm transition-colors"
-          >
-            Gửi lại cho email khác
-          </button>
+          <button type="button" onClick={() => setDaGui(false)} className={`${NUT_PHU} mt-6`}>Gửi cho email khác</button>
         </>
       ) : (
         <>
           {apiError && (
-            <AuthAlert tone="danger" title="Không gửi được" className="mb-6">
-              {apiError}
-            </AuthAlert>
+            <AuthAlert tone="danger" title="Không gửi được" className="mb-6">{apiError}</AuthAlert>
           )}
 
           <form className="space-y-5" onSubmit={handleSubmit(onSubmit)} noValidate>
             <AuthField
               id="email"
               label="Email"
-              icon={Mail}
               type="email"
+              inputMode="email"
+              autoCapitalize="none"
+              spellCheck={false}
               autoComplete="email"
               autoFocus
-              placeholder="ban@example.com"
               inputProps={register('email')}
               error={errors.email?.message}
             />
 
-            <button
-              type="submit"
-              disabled={isBusy}
-              className="w-full min-h-[52px] rounded-full bg-brand hover:bg-brand-hover text-on-brand font-bold text-base flex items-center justify-center gap-2 active:scale-[0.99] transition-all disabled:opacity-60 disabled:cursor-not-allowed"
-            >
-              {isBusy ? <><Loader2 size={20} className="animate-spin" /> Đang gửi…</> : <>Gửi đường dẫn đặt lại <ArrowRight size={18} /></>}
+            <button type="submit" disabled={isBusy} className={NUT_CHINH}>
+              {isBusy ? <><Loader2 size={20} className="animate-spin" aria-hidden="true" /> Đang gửi…</> : 'Gửi đường dẫn đặt lại'}
             </button>
           </form>
         </>
       )}
 
-      <div className="mt-7 pt-5 border-t border-line text-center">
-        <Link to="/login" className="inline-flex items-center gap-1.5 min-h-[44px] text-sm text-ink-soft hover:text-brand-text transition-colors">
-          <ArrowLeft size={16} /> Về trang đăng nhập
-        </Link>
-      </div>
+      <p className="mt-7 pt-5 border-t border-ink/20">
+        <Link to="/login" className={LIEN_KET_NHE}><ArrowLeft size={16} aria-hidden="true" /> Về trang đăng nhập</Link>
+      </p>
     </AuthShell>
   )
 }
