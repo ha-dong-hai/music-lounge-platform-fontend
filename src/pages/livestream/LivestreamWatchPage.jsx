@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useMemo, lazy, Suspense } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { ArrowLeft, Loader2, AlertCircle, WifiOff, Eye, Square, Lock, ShieldOff, X, Sofa, Theater } from 'lucide-react'
+import { ArrowLeft, Loader2, AlertCircle, WifiOff, Eye, Square, Lock, ShieldOff, Sofa, Theater } from 'lucide-react'
 import toast from 'react-hot-toast'
 import StreamPlayer from '../../components/livestream/StreamPlayer'
 import ChatPanel from '../../components/livestream/ChatPanel'
@@ -12,6 +12,7 @@ import { useAuthStore } from '../../store/useAuthStore'
 import { useLivestreamHub } from '../../hooks/useLivestreamHub'
 
 import RatingModal from '../../components/livestream/RatingModal'
+import HopXacNhan from '../../components/shared/HopXacNhan'
 import { formatCompactNumber } from '../../utils/format'
 import { getLoungeTour } from '../../services/loungeServices'
 import { ghiNhoThanhToan, LOAI_THANH_TOAN } from '../../utils/paymentContext'
@@ -53,6 +54,7 @@ const LivestreamWatchPage = () => {
   const [moCatSong, setMoCatSong] = useState(false)
   const [lyDoCatSong, setLyDoCatSong] = useState('')
   const [dangCatSong, setDangCatSong] = useState(false)
+  const [loiCatSong, setLoiCatSong] = useState(null)
 
   const heartbeatRef = useRef(null)
 
@@ -194,14 +196,14 @@ const LivestreamWatchPage = () => {
   }, [showData, showId, user])
 
   const handleRateSubmit = async (rating, comment) => {
+    // Ném lỗi có câu tiếng Việt để RatingModal in trong hộp (409 = đã đánh giá rồi). Bản cũ toast rồi trả về êm,
+    // nên hộp vẫn hiện "Cảm ơn" như vừa ghi nhận.
     try {
       await rateShow(showId, { score: rating, comment })
     } catch (err) {
-      if (err.response?.status === 409) {
-        toast.error('Bạn đã đánh giá buổi diễn này rồi.')
-        return
-      }
-      throw err
+      throw new Error(err.response?.status === 409
+        ? 'Bạn đã đánh giá buổi diễn này rồi.'
+        : err.response?.data?.message || 'Chưa gửi được đánh giá. Hãy thử lại.', { cause: err })
     }
   }
 
@@ -220,25 +222,24 @@ const LivestreamWatchPage = () => {
 
   // Donate đi qua VNPay thật — không thêm alert cục bộ, chờ sự kiện DonationAlert dội về cho mọi người.
   const handleSendDonation = async (performerId, amount, message) => {
+    // NÉM lỗi lên cho DonateModal in ngay trong hộp (01/10/2026). Bản cũ tự toast rồi nuốt lỗi, nên hộp vẫn báo
+    // "Ủng hộ thành công!" dù khoản ủng hộ chưa được tạo.
     const performance = showData?.performers?.find((p) => p.id === performerId)
-    if (!performance?.performanceId) {
-      toast.error('Không xác định được buổi trình diễn của nghệ sĩ này.')
-      return
-    }
+    if (!performance?.performanceId) throw new Error('Không xác định được phần trình diễn của nghệ sĩ này.')
+    let res
     try {
-      const res = await createDonation({
+      res = await createDonation({
         performanceId: performance.performanceId,
         amount,
         message: message || null,
         isMessagePublic: true,
       })
-      if (res.success && res.data?.paymentUrl) {
-        ghiNhoThanhToan(LOAI_THANH_TOAN.UNG_HO)
-        window.location.href = res.data.paymentUrl
-      }
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Không thể khởi tạo donate.')
+      throw new Error(err.response?.data?.message || 'Chưa tạo được khoản ủng hộ. Hãy thử lại.', { cause: err })
     }
+    if (!res.success || !res.data?.paymentUrl) throw new Error(res.message || 'Chưa nhận được đường dẫn thanh toán. Hãy thử lại.')
+    ghiNhoThanhToan(LOAI_THANH_TOAN.UNG_HO)
+    window.location.href = res.data.paymentUrl
   }
 
   // CẮT SÓNG — W22. Trạng thái Terminated là TRẠNG THÁI CUỐI: sau khi cắt, stream không thể phát
@@ -246,7 +247,7 @@ const LivestreamWatchPage = () => {
   // người đang xem qua SignalR để client ngừng gọi HLS. Vì vậy không có nút "bật lại".
   const handleCatSong = async () => {
     if (!lyDoCatSong.trim()) {
-      toast.error('Phải ghi lý do cắt sóng — lý do được lưu lại cùng tên người cắt.')
+      setLoiCatSong('Phải ghi lý do cắt sóng — lý do được lưu lại cùng tên người cắt.')
       return
     }
     setDangCatSong(true)
@@ -256,32 +257,25 @@ const LivestreamWatchPage = () => {
       setMoCatSong(false)
       setLyDoCatSong('')
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Không cắt được sóng.')
+      setLoiCatSong(err.response?.data?.message || 'Chưa cắt được sóng. Hãy thử lại.')
     } finally {
       setDangCatSong(false)
     }
   }
 
   const handleReport = async (reason, description) => {
-    if (!livestream?.id) {
-      toast.error('Chưa xác định được buổi livestream để báo cáo.')
-      return
-    }
+    if (!livestream?.id) throw new Error('Chưa xác định được buổi phát để báo cáo.')
     // Backend chỉ nhận 3 mức đối tượng: Show / Livestream / Rating — KHÔNG báo cáo được từng tin
     // nhắn chat riêng lẻ, nên quy về cả buổi livestream và ghi lý do người dùng chọn vào nội dung.
     // reason tối đa 500 ký tự nên phải cắt trước khi gửi, tránh bị 400 vì lỗi độ dài.
     const fullReason = `${reason}: ${description}`.slice(0, 500)
-    try {
-      await submitContentReport({
-        targetType: 'Livestream',
-        targetId: livestream.id,
-        reason: fullReason,
-      })
-    } catch (err) {
-      // 409 = chính người này đã báo cáo buổi này và báo cáo cũ còn đang chờ Admin xử lý.
-      toast.error(err.response?.data?.message || 'Không gửi được báo cáo.')
-      throw err
-    }
+    // Lỗi (vd. 409 = đã báo cáo buổi này và báo cáo cũ còn chờ xử lý) để nguyên cho ReportModal in câu backend trong
+    // hộp — không toast ở đây nữa (bản cũ báo hai lần).
+    await submitContentReport({
+      targetType: 'Livestream',
+      targetId: livestream.id,
+      reason: fullReason,
+    })
   }
 
   const handleRemoveAlert = (id) => {
@@ -464,47 +458,20 @@ const LivestreamWatchPage = () => {
         </div>
       </div>
 
-      {moCatSong && (
-        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-ink/85" onClick={() => !dangCatSong && setMoCatSong(false)} />
-          <div className="relative bg-card border border-danger/40 w-full max-w-md shadow-soft">
-            <div className="flex justify-between items-center p-5 border-b border-line">
-              <h2 className="text-3xl text-danger flex items-center gap-2">
-                <ShieldOff size={19} /> Cắt sóng buổi phát này?
-              </h2>
-              <button onClick={() => setMoCatSong(false)} disabled={dangCatSong}
-                className="p-2 hover:bg-sunken text-ink-soft disabled:opacity-30" aria-label="Đóng">
-                <X size={20} />
-              </button>
-            </div>
-            <div className="p-5 space-y-4">
-              <p className="text-sm text-ink-soft leading-relaxed">
-                Buổi phát sẽ dừng NGAY và <strong className="text-danger">không phát lại được</strong> —
-                đây là trạng thái cuối. Buổi diễn cũng bị chuyển sang đã kết thúc, và mọi người đang
-                xem bị ngắt.
-              </p>
-              <div>
-                <label className="text-xs text-ink-mute">Lý do <span className="text-danger">*</span></label>
-                <textarea aria-label="Lý do" rows={3} value={lyDoCatSong} maxLength={500}
-                  onChange={(e) => setLyDoCatSong(e.target.value)}
-                  placeholder="Nội dung vi phạm cụ thể là gì"
-                  className="mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink resize-none focus:outline-none focus:border-danger/50" />
-                <p className="text-xs text-ink-mute mt-1">Lý do được lưu lại cùng tên người cắt.</p>
-              </div>
-              <div className="flex gap-3">
-                <button onClick={() => setMoCatSong(false)} disabled={dangCatSong}
-                  className="flex-1 py-2.5 border border-line-strong text-ink-soft font-medium hover:bg-sunken disabled:opacity-50">
-                  Huỷ
-                </button>
-                <button onClick={handleCatSong} disabled={dangCatSong || !lyDoCatSong.trim()}
-                  className="flex-1 py-2.5 bg-danger text-lamp font-bold hover:bg-danger flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed">
-                  {dangCatSong && <Loader2 size={16} className="animate-spin" />} Cắt sóng
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* CẮT SÓNG dùng HopXacNhan chung (01/10/2026): <dialog> giữ focus, Esc đóng, focus đầu ở nút "Không, quay lại". */}
+      <HopXacNhan mo={moCatSong} tieuDe="Cắt sóng buổi phát này?" nhanXacNhan="Cắt sóng" nhanGiu="Không, quay lại"
+        dangXuLy={dangCatSong} onDong={() => { setMoCatSong(false); setLoiCatSong(null) }} onXacNhan={handleCatSong}>
+        <p>
+          Buổi phát sẽ dừng NGAY và <strong className="text-danger">không phát lại được</strong> — đây là trạng thái cuối.
+          Buổi diễn cũng chuyển sang đã kết thúc, và mọi người đang xem bị ngắt.
+        </p>
+        <label htmlFor="ly-do-cat-song" className="block mt-4 font-semibold text-ink">Lý do <span className="text-danger" aria-hidden="true">*</span><span className="sr-only"> (bắt buộc)</span></label>
+        <p id="ly-do-cat-song-goi-y" className="text-sm">Nội dung vi phạm cụ thể là gì. Lý do được lưu cùng tên người cắt.</p>
+        <textarea id="ly-do-cat-song" rows={3} maxLength={500} value={lyDoCatSong} onChange={(e) => { setLyDoCatSong(e.target.value); setLoiCatSong(null) }}
+          aria-describedby={`ly-do-cat-song-goi-y${loiCatSong ? ' ly-do-cat-song-loi' : ''}`} aria-invalid={loiCatSong ? 'true' : undefined}
+          className={`mt-1 w-full px-3 py-2 bg-card border-2 text-ink resize-none focus:outline-none focus:ring-2 focus:ring-ink ${loiCatSong ? 'border-danger' : 'border-ink'}`} />
+        {loiCatSong && <p id="ly-do-cat-song-loi" className="mt-1 text-sm font-semibold text-danger">{loiCatSong}</p>}
+      </HopXacNhan>
 
       {showRatingModal && (
         <RatingModal

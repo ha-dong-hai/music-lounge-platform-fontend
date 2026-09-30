@@ -1,6 +1,9 @@
 import { useRef, useEffect, useState } from 'react'
 import Hls from 'hls.js'
-import { Heart, DollarSign } from 'lucide-react'
+import { Heart, Radio } from 'lucide-react'
+
+// 01/10/2026: DonationAlertDto KHÔNG có tên nghệ sĩ (xem LivestreamWatchPage, onDonationAlert) — bản cũ in
+// "cho {alert.performerName}" nên mọi thông báo ra "cho undefined". Chỗ "chưa có tín hiệu" từng dùng biểu tượng đô-la.
 
 // Component hiển thị Alert Donate (Animation)
 const DonateAlert = ({ alert, onEnd, duration = 5000 }) => {
@@ -8,7 +11,8 @@ const DonateAlert = ({ alert, onEnd, duration = 5000 }) => {
   const [isExiting, setIsExiting] = useState(false)
 
   const onEndRef = useRef(onEnd)
-  onEndRef.current = onEnd
+  // Ghi ref trong effect, không ghi lúc render (react-hooks/refs).
+  useEffect(() => { onEndRef.current = onEnd })
 
   useEffect(() => {
     const TOTAL_STEPS = 100
@@ -53,7 +57,7 @@ const DonateAlert = ({ alert, onEnd, duration = 5000 }) => {
         <div className="min-w-0 flex-1">
           <p className="text-sm font-bold text-lamp truncate">{alert.user?.name || 'Một khán giả'}</p>
           <p className="text-xs text-stock font-semibold truncate">
-            đã ủng hộ {alert.amount?.toLocaleString('vi-VN')}đ cho {alert.performerName}
+            đã ủng hộ {alert.amount?.toLocaleString('vi-VN')} đ
           </p>
           {alert.message && (
             <p className="text-[11px] text-lamp-mute italic truncate">"{alert.message}"</p>
@@ -88,14 +92,14 @@ const StreamPlayer = ({ streamUrl, donationAlerts, onAlertEnd, hidden = false, o
       hls.loadSource(streamUrl)
       hls.attachMedia(video)
       hls.on(Hls.Events.MANIFEST_PARSED, () => {
-        video.play().catch(e => console.log("Autoplay blocked"))
+        video.play().catch(() => {}) // trình duyệt chặn tự phát: người xem bấm nút phát
       })
       return () => hls.destroy()
     } 
     // Fallback cho Safari native HLS
     else if (video.canPlayType('application/vnd.apple.mpegurl')) {
       video.src = streamUrl
-      video.addEventListener('loadedmetadata', () => video.play().catch(e => {}))
+      video.addEventListener('loadedmetadata', () => video.play().catch(() => {}))
     }
   }, [streamUrl])
 
@@ -111,7 +115,7 @@ const StreamPlayer = ({ streamUrl, donationAlerts, onAlertEnd, hidden = false, o
       />
 
       {/* OVERLAY DONATE ALERTS (Góc dưới trái kiểu Twitch) */}
-      <div className="absolute bottom-4 left-4 z-20 flex flex-col-reverse gap-2">
+      <div className="absolute bottom-4 left-4 z-20 flex flex-col-reverse gap-2" role="status" aria-live="polite">
         {donationAlerts.map(alert => (
           <DonateAlert key={alert.id} alert={alert} onEnd={onAlertEnd} />
         ))}
@@ -120,7 +124,7 @@ const StreamPlayer = ({ streamUrl, donationAlerts, onAlertEnd, hidden = false, o
       {/* PLACEHOLDER KHI CHƯA CÓ STREAM URL */}
       {!streamUrl && !hidden && (
         <div className="absolute inset-0 flex flex-col items-center justify-center text-lamp-mute z-10">
-          <DollarSign size={40} className="mb-3 text-stock" />
+          <Radio size={40} className="mb-3 text-lamp-mute" aria-hidden="true" />
           <p className="font-bold text-lg text-lamp">Chưa có tín hiệu phát</p>
           <p className="text-sm text-lamp-mute">Đang chờ phòng trà bắt đầu phát…</p>
         </div>

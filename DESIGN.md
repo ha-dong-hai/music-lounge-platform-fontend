@@ -377,7 +377,11 @@ và đưa focus tới đó (GOV.UK: nút khoá không nói vì sao).
 bằng `<Link>` rồi chặn `preventDefault`.
 
 **Trang xem trực tuyến:** dưới `lg` xếp dọc (video 16:9 trên, trò chuyện chiếm phần còn lại). Nhãn "Đang phát" dùng ember,
-không nhấp nháy. CHƯA làm lại: ChatPanel, DonateModal, RatingModal, ReportModal, hộp cắt sóng (mới chuyển cơ học).
+không nhấp nháy. Các hộp (ủng hộ, đánh giá, báo cáo, cắt sóng) là `<dialog>`; hàm xử lý ở trang cha NÉM lỗi để hộp in
+câu backend ngay trong hộp — không toast rồi nuốt lỗi (hộp ủng hộ cũ báo "thành công" khi chưa tạo được khoản nào, và
+trước khi người xem trả tiền ở VNPay). Nút gửi của hộp ủng hộ nói đúng việc sắp xảy ra: "Thanh toán X đ qua VNPay".
+Không dùng ký hiệu đô-la cho sản phẩm tính tiền đồng. Kiểm: `kiem_hop_truc_tuyen.mjs` (giả lập mạng; đột biến "nuốt lỗi"
+thì đỏ). CHƯA kiểm được: phát HLS thật, trò chuyện SignalR thật, hộp đánh giá (cần buổi đã kết thúc + đăng nhập).
 
 ## Tiêu chí duyệt giao diện (chốt 30/09/2026)
 

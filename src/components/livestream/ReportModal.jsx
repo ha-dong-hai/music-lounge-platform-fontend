@@ -1,134 +1,105 @@
-import { useState } from 'react'
-import { X, Flag, Loader2 } from 'lucide-react'
+// src/components/livestream/ReportModal.jsx
+//
+// HỘP BÁO CÁO NỘI DUNG của buổi phát. Backend chỉ nhận ba loại đối tượng (Show / Livestream / Rating) — KHÔNG báo cáo được
+// từng tin nhắn — nên trang cha quy về cả buổi phát và ghép "<lý do>: <mô tả>" vào một trường `reason` (tối đa 500 ký tự,
+// SubmitContentReportCommandValidator).
+//
+// LÀM LẠI 01/10/2026: gửi NHÃN TIẾNG VIỆT của lý do (bản cũ gửi mã "Spam", "Harassment"… nên quản trị viên đọc thấy chữ
+// tiếng Anh); nhóm radio thật thay cho nút giả radio; "Description" / "Minimum of 10 characters" → tiếng Việt; ô mô tả
+// giới hạn theo phần còn lại của 500 ký tự; lỗi in trong hộp; <dialog> của trình duyệt. Mức tối thiểu 10 ký tự là quy ước
+// của giao diện (backend chỉ cần không rỗng).
+import { useState, useEffect, useRef } from 'react'
+import { X, Loader2 } from 'lucide-react'
 import toast from 'react-hot-toast'
 
-// Tạm dùng các lý do UI — khi BE có enum complaint thật thì thay
-const REPORT_REASONS = [
-  { value: 'Spam', label: 'Tin nhắn rác / quảng cáo' },
-  { value: 'Harassment', label: 'Quấy rối và công kích cá nhân' },
-  { value: 'Inappropriate', label: 'Ngôn từ không phù hợp' },
-  { value: 'Scam', label: 'Lừa đảo' },
-  { value: 'Other', label: 'Khác' },
-]
+const LY_DO = ['Tin nhắn rác hoặc quảng cáo', 'Quấy rối, công kích cá nhân', 'Ngôn từ không phù hợp', 'Lừa đảo', 'Lý do khác']
+const TOI_DA = 500
+const TOI_THIEU = 10
 
 const ReportModal = ({ onClose, onSubmit }) => {
-  const [selectedReason, setSelectedReason] = useState(null)
-  const [description, setDescription] = useState('')
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const ref = useRef(null)
+  const [lyDo, setLyDo] = useState(null)
+  const [moTa, setMoTa] = useState('')
+  const [loi, setLoi] = useState({})
+  const [dangGui, setDangGui] = useState(false)
 
-  const canSubmit = selectedReason && description.trim().length >= 10
+  useEffect(() => { ref.current?.showModal() }, [])
 
-  const handleSubmit = async (e) => {
+  const toiDaMoTa = TOI_DA - (lyDo?.length ?? 0) - 2
+
+  const gui = async (e) => {
     e.preventDefault()
-    if (!canSubmit || isSubmitting) return
-
-    setIsSubmitting(true)
+    const thieu = {}
+    if (!lyDo) thieu.lyDo = 'Chọn một lý do.'
+    if (moTa.trim().length < TOI_THIEU) thieu.moTa = `Mô tả cần ít nhất ${TOI_THIEU} ký tự để quản trị viên xử lý được.`
+    setLoi(thieu)
+    if (Object.keys(thieu).length) return
+    setDangGui(true)
     try {
-      await onSubmit(selectedReason, description.trim())
-      toast.success('Đã gửi báo cáo. Quản trị viên sẽ xem xét sớm.')
-      onClose()
+      await onSubmit(lyDo, moTa.trim().slice(0, toiDaMoTa))
+      toast.success('Đã gửi báo cáo. Quản trị viên sẽ xem xét.')
+      ref.current?.close()
     } catch (err) {
-      toast.error('Gửi báo cáo không thành công. Vui lòng thử lại.')
-    } finally {
-      setIsSubmitting(false)
+      // 409 = chính người này đã báo cáo buổi này và báo cáo cũ còn chờ xử lý — backend trả câu tiếng Việt.
+      setLoi({ chung: err.response?.data?.message || err.message || 'Chưa gửi được báo cáo. Hãy thử lại.' })
+      setDangGui(false)
     }
   }
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4" onClick={() => !isSubmitting && onClose()}>
-      <div className="absolute inset-0 bg-ink/80"></div>
-
-      <div className="relative bg-card border border-line w-full max-w-md max-h-[90vh] flex flex-col shadow-soft" onClick={(e) => e.stopPropagation()}>
-
-        {/* HEADER */}
-        <div className="flex-none flex items-center justify-between p-5 border-b border-line">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-danger/10 border border-danger/30 flex items-center justify-center flex-shrink-0">
-              <Flag size={18} className="text-danger" />
-            </div>
-            <div>
-              <h2 className="text-3xl text-ink">Báo cáo</h2>
-              <p className="text-xs text-ink-mute">Báo cáo nội dung của buổi phát này.</p>
-            </div>
+    <dialog ref={ref} aria-labelledby="bao-cao-td" onClose={onClose}
+      onCancel={(e) => { if (dangGui) e.preventDefault() }}
+      className="bg-card text-ink border-2 border-ink shadow-lift w-[calc(100vw-2rem)] max-w-md max-h-[90vh] p-0 m-auto backdrop:bg-board/80">
+      <form onSubmit={gui} noValidate>
+        <div className="flex items-start justify-between gap-4 px-5 py-4 border-b-2 border-ink">
+          <div>
+            <h2 id="bao-cao-td" className="text-3xl">Báo cáo buổi phát</h2>
+            <p className="text-sm text-ink-soft">Báo cáo được gửi cho quản trị viên, không hiện với người khác.</p>
           </div>
-          <button onClick={onClose} disabled={isSubmitting} className="p-2 hover:bg-sunken text-ink-soft disabled:opacity-30" aria-label="Đóng">
-            <X size={20} />
+          <button type="button" autoFocus onClick={() => ref.current?.close()} disabled={dangGui} aria-label="Đóng hộp báo cáo"
+            className="inline-flex items-center justify-center w-11 h-11 border-2 border-ink hover:bg-ink hover:text-lamp flex-shrink-0 disabled:opacity-60">
+            <X size={20} aria-hidden="true" />
           </button>
         </div>
 
-        {/* BODY */}
-        <form id="report-form" onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-5 space-y-5">
-          {/* CHỌN LÝ DO */}
-          <div>
-            <label className="block text-sm font-medium text-ink-soft mb-2.5">
-              Lý do báo cáo <span className="text-danger">*</span>
-            </label>
-            <div className="space-y-2">
-              {REPORT_REASONS.map(r => (
-                <button
-                  key={r.value}
-                  type="button"
-                  onClick={() => setSelectedReason(r.value)}
-                  className={`w-full flex items-center gap-3 px-4 py-3 border text-sm text-left transition-all ${
-                    selectedReason === r.value
-                      ? 'border-ink bg-ink/10 text-ink font-semibold'
-                      : 'border-line text-ink-soft hover:border-line-strong'
-                  }`}
-                >
-                  {/* Radio */}
-                  <span className={`w-4 h-4 border-2 flex items-center justify-center flex-shrink-0 ${
-                    selectedReason === r.value ? 'border-ink' : 'border-line-strong'
-                  }`}>
-                    {selectedReason === r.value && <span className="w-2 h-2 bg-ink" />}
-                  </span>
-                  {r.label}
-                </button>
+        <div className="p-5 space-y-5">
+          <fieldset aria-describedby={loi.lyDo ? 'loi-ly-do' : undefined}>
+            <legend className="font-semibold">Lý do <span className="text-danger" aria-hidden="true">*</span><span className="sr-only"> (bắt buộc)</span></legend>
+            {loi.lyDo && <p id="loi-ly-do" className="mt-1 text-sm font-semibold text-danger">{loi.lyDo}</p>}
+            <div className="mt-2 space-y-1">
+              {LY_DO.map((l) => (
+                <label key={l} className="flex items-center gap-3 min-h-[44px] cursor-pointer">
+                  <input type="radio" name="ly-do" checked={lyDo === l} onChange={() => { setLyDo(l); setLoi((x) => ({ ...x, lyDo: undefined })) }} className="w-5 h-5 accent-ink" />
+                  {l}
+                </label>
               ))}
             </div>
-          </div>
+          </fieldset>
 
-          {/* MÔ TẢ */}
           <div>
-            <label className="block text-sm font-medium text-ink-soft mb-2.5">
-              Description <span className="text-danger">*</span>
-            </label>
-            <textarea aria-label="Description"
-              rows={4}
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              disabled={isSubmitting}
-              placeholder="Mô tả vấn đề…"
-              className="w-full px-4 py-3 bg-page border border-line text-ink text-sm focus:outline-none focus:border-ink/50 resize-none disabled:opacity-50 placeholder:text-ink-mute"
-            />
-            <p className={`text-xs mt-1.5 ${description.trim().length > 0 && description.trim().length < 10 ? 'text-warning' : 'text-ink-mute'}`}>
-              Minimum of 10 characters ({description.trim().length}/10)
-            </p>
+            <label htmlFor="mo-ta-bao-cao" className="block font-semibold">Mô tả <span className="text-danger" aria-hidden="true">*</span><span className="sr-only"> (bắt buộc)</span></label>
+            <p id="mo-ta-goi-y" className="text-sm text-ink-soft">Điều gì đã xảy ra, vào khoảng lúc nào trong buổi phát. Ít nhất {TOI_THIEU} ký tự.</p>
+            <textarea id="mo-ta-bao-cao" rows={4} maxLength={toiDaMoTa} value={moTa} disabled={dangGui}
+              onChange={(e) => { setMoTa(e.target.value); setLoi((x) => ({ ...x, moTa: undefined })) }}
+              aria-invalid={loi.moTa ? 'true' : undefined} aria-describedby={`mo-ta-goi-y mo-ta-dem${loi.moTa ? ' loi-mo-ta' : ''}`}
+              className={`mt-1 w-full px-3 py-2 bg-card border-2 focus:outline-none focus:ring-2 focus:ring-ink resize-none ${loi.moTa ? 'border-danger' : 'border-ink'}`} />
+            <p id="mo-ta-dem" className="text-right text-xs font-mono text-ink-mute">{moTa.length}/{toiDaMoTa}</p>
+            {loi.moTa && <p id="loi-mo-ta" className="text-sm font-semibold text-danger">{loi.moTa}</p>}
           </div>
-        </form>
 
-        {/* FOOTER */}
-        <div className="flex-none p-5 border-t border-line flex gap-3">
-          <button
-            type="button"
-            onClick={onClose}
-            disabled={isSubmitting}
-            className="flex-1 py-2.5 border border-line-strong text-ink-soft font-medium hover:bg-sunken transition-colors disabled:opacity-50"
-          >
-            Hủy
-          </button>
-          <button
-            type="submit"
-            form="report-form"
-            disabled={!canSubmit || isSubmitting}
-            className="flex-1 py-2.5 font-bold transition-colors flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed bg-danger text-lamp hover:bg-danger"
-          >
-            {isSubmitting
-              ? <><Loader2 size={16} className="animate-spin" /> đang gửi…</>
-              : <><Flag size={15} /> Gửi báo cáo</>}
+          {loi.chung && <p role="alert" className="border-2 border-danger p-3 font-semibold text-danger">{loi.chung}</p>}
+        </div>
+
+        <div className="flex flex-col-reverse sm:flex-row gap-3 px-5 py-4 border-t-2 border-ink">
+          <button type="button" onClick={() => ref.current?.close()} disabled={dangGui}
+            className="flex-1 min-h-[48px] border-2 border-ink font-semibold hover:bg-ink hover:text-lamp disabled:opacity-60">Không gửi</button>
+          <button type="submit" disabled={dangGui}
+            className="flex-1 min-h-[48px] bg-danger text-lamp font-semibold inline-flex items-center justify-center gap-2 hover:bg-ink disabled:opacity-60">
+            {dangGui && <Loader2 size={18} className="animate-spin" aria-hidden="true" />} Gửi báo cáo
           </button>
         </div>
-      </div>
-    </div>
+      </form>
+    </dialog>
   )
 }
 

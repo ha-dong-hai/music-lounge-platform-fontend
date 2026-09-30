@@ -1,5 +1,8 @@
 import { useState, useRef, useEffect } from 'react'
-import { Send, DollarSign, Smile, ChevronDown, MoreVertical, Flag } from 'lucide-react'
+// 01/10/2026: chữ tiếng Anh sót ("donated … to", "(You)", "new message") đổi sang tiếng Việt; dòng ủng hộ không in tên
+// nghệ sĩ nữa (DonationAlertDto không có trường đó — bản cũ in "to undefined"); nút ủng hộ có chữ, không dùng ký hiệu
+// đô-la cho sản phẩm tính tiền đồng; menu ba chấm chỉ có MỘT mục nên thay bằng nút "Báo cáo" đứng thẳng.
+import { Send, Heart, Smile, ChevronDown, Flag } from 'lucide-react'
 import EmojiPicker from 'emoji-picker-react'
 import DonateModal from './DonateModal'
 import ReportModal from './ReportModal'
@@ -14,23 +17,11 @@ const ChatPanel = ({ messages, performers, onSendMessage, onSendDonation, onRepo
 
   const chatContainerRef = useRef(null)
   const inputRef = useRef(null)
-  const actionMenuRef = useRef(null)
 
   // SMART SCROLL: user đang ở đáy hay đang cuộn lên đọc?
   const isNearBottomRef = useRef(true)
   const [unreadCount, setUnreadCount] = useState(0)
 
-  // ĐÓNG MENU 3 CHẤM KHI CLICK NGOÀI
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (actionMenuRef.current && !actionMenuRef.current.contains(e.target)) {
-        setShowActionMenu(false)
-      }
-    }
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [])
-  const [showActionMenu, setShowActionMenu] = useState(false)
 
   // 1. THEO DÕI VỊ TRÍ CUỘN (chỉ của container chat)
   const handleScroll = () => {
@@ -81,37 +72,12 @@ const ChatPanel = ({ messages, performers, onSendMessage, onSendDonation, onRepo
   return (
     <div className="flex flex-col h-full min-h-0">
 
-      {/* ===== HEADER — nút Donate thay bằng menu 3 chấm ===== */}
-      <div className="flex-none px-4 py-3 border-b border-line flex items-center justify-between">
-        <h3 className="font-bold text-sm">Trò chuyện trực tiếp</h3>
-
-        {/* MENU 3 CHẤM DỌC */}
-        <div className="relative" ref={actionMenuRef}>
-          <button
-            onClick={() => setShowActionMenu(!showActionMenu)}
-            className={`p-2 transition-colors ${showActionMenu ? 'text-ink bg-sunken' : 'text-ink-soft hover:text-ink hover:bg-sunken'}`}
-            aria-label="Tuỳ chọn trò chuyện"
-          >
-            <MoreVertical size={18} />
-          </button>
-
-          {showActionMenu && (
-            <div className="absolute right-0 top-full mt-2 w-44 bg-card shadow-soft border border-line py-1.5 z-50 duration-100">
-              <button
-                onClick={() => {
-                  setShowActionMenu(false)
-                  setShowReport(true)
-                }}
-                className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-ink-soft hover:bg-sunken hover:text-ink transition-colors text-left"
-              >
-                <Flag size={15} className="text-ink-soft" />
-                Báo cáo
-              </button>
-
-              {/* Sẵn slot cho action tương lai: collapse chat, chặn user,... */}
-            </div>
-          )}
-        </div>
+      <div className="flex-none px-4 py-2 border-b border-line flex items-center justify-between">
+        <h2 className="font-sans font-bold text-sm">Trò chuyện trực tiếp</h2>
+        <button type="button" onClick={() => setShowReport(true)} aria-label="Báo cáo buổi phát này"
+          className="inline-flex items-center gap-1.5 min-h-[44px] px-2 text-sm text-ink-soft hover:text-ink hover:bg-sunken">
+          <Flag size={15} aria-hidden="true" /> Báo cáo
+        </button>
       </div>
 
       <TopDonorsBar messages={messages} />
@@ -121,6 +87,7 @@ const ChatPanel = ({ messages, performers, onSendMessage, onSendDonation, onRepo
         <div
           ref={chatContainerRef}
           onScroll={handleScroll}
+          role="log" aria-live="polite" aria-label="Tin nhắn trò chuyện"
           className="absolute inset-0 overflow-y-auto px-4 py-3 space-y-3 chat-scrollbar"
         >
           {messages.map((msg, idx) => (
@@ -129,9 +96,9 @@ const ChatPanel = ({ messages, performers, onSendMessage, onSendDonation, onRepo
                 <img src={msg.user?.avatarUrl || anhChuCai(msg.user?.name)} className="w-6 h-6 flex-shrink-0" alt="" />
                 <div className="min-w-0">
                   <p className="text-xs font-bold text-ink truncate">
-                    {msg.user?.name} <span className="text-ink font-normal">donated {msg.amount?.toLocaleString('vi-VN')}đ</span>
+                    {msg.user?.name || 'Một khán giả'} <span className="font-normal">đã ủng hộ {msg.amount?.toLocaleString('vi-VN')} đ</span>
                   </p>
-                  <p className="text-xs text-ink-soft truncate">to {msg.performerName}: "{msg.message}"</p>
+                  {msg.message && <p className="text-xs text-ink-soft break-words">“{msg.message}”</p>}
                 </div>
               </div>
             ) : (
@@ -139,7 +106,7 @@ const ChatPanel = ({ messages, performers, onSendMessage, onSendDonation, onRepo
                 <img src={msg.user?.avatarUrl || anhChuCai(msg.user?.name)} className="w-6 h-6 flex-shrink-0 border border-line" alt="" />
                 <div className="min-w-0">
                   <p className={`text-xs font-semibold truncate ${msg.isMine ? 'text-ink' : 'text-ink-soft'}`}>
-                    {msg.user?.name}{msg.isMine && ' (You)'}
+                    {msg.user?.name}{msg.isMine && ' (bạn)'}
                   </p>
                   <p className="text-sm text-ink break-words">{msg.content}</p>
                 </div>
@@ -155,7 +122,7 @@ const ChatPanel = ({ messages, performers, onSendMessage, onSendDonation, onRepo
             className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-3.5 py-1.5 bg-ink text-lamp text-xs font-bold shadow-soft shadow-black/50 hover:bg-board transition-colors z-10"
           >
             <ChevronDown size={14} />
-            {unreadCount} new message
+            {unreadCount} tin nhắn mới
           </button>
         )}
       </div>
@@ -167,7 +134,7 @@ const ChatPanel = ({ messages, performers, onSendMessage, onSendDonation, onRepo
           <div className="absolute bottom-full left-0 right-0 mb-2 z-50" style={{ maxWidth: '350px', margin: '0 auto' }}>
             <EmojiPicker
               onEmojiClick={handleEmojiClick}
-              theme="dark"
+              theme="light"
               height={300}
               width="100%"
               searchDisabled={false}
@@ -196,10 +163,9 @@ const ChatPanel = ({ messages, performers, onSendMessage, onSendDonation, onRepo
           <button
             type="button"
             onClick={() => setShowDonate(true)}
-            className="flex-shrink-0 flex items-center gap-1.5 px-3 py-2 bg-ink text-lamp text-xs font-bold hover:bg-board transition-colors"
-            aria-label="Ủng hộ"
+            className="flex-shrink-0 inline-flex items-center gap-1.5 min-h-[44px] px-3 bg-ink text-lamp text-sm font-semibold hover:bg-board transition-colors"
           >
-            <DollarSign size={16} />
+            <Heart size={16} aria-hidden="true" /> Ủng hộ
           </button>
         </form>
       </div>

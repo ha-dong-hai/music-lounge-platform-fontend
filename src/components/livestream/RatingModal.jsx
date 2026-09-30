@@ -1,142 +1,108 @@
-import { useState, useEffect } from 'react'
-import { X, Star, Loader2, PartyPopper } from 'lucide-react'
-import toast from 'react-hot-toast'
+// src/components/livestream/RatingModal.jsx
+//
+// HỘP ĐÁNH GIÁ, tự mở khi buổi phát kết thúc (LivestreamWatchPage).
+//
+// LÀM LẠI 01/10/2026: chọn sao là NHÓM RADIO (mỗi sao có tên "3 sao — Tạm được"; bản cũ là năm nút "Rate 3 star" tiếng
+// Anh và chỉ báo bằng màu); bỏ biểu tượng cảm xúc trong nhãn; "Description" → "Nhận xét", tối đa 1000 ký tự
+// (RateShowCommandValidator); lỗi (kể cả "đã đánh giá rồi" — 409) in trong hộp thay vì toast; <dialog> của trình duyệt.
+import { useState, useEffect, useRef } from 'react'
+import { X, Star, Loader2 } from 'lucide-react'
 
-const RATING_LABELS = {
-  1: 'Rất tệ 😞',
-  2: 'Chưa ổn lắm 😕',
-  3: 'Tạm được 🙂',
-  4: 'Rất hay! 😃',
-  5: 'Tuyệt vời! 🤩',
-}
+const NHAN_SAO = { 1: 'Rất tệ', 2: 'Chưa ổn', 3: 'Tạm được', 4: 'Hay', 5: 'Tuyệt vời' }
+const DAI_NHAN_XET = 1000
 
 const RatingModal = ({ showName, onClose, onSubmit }) => {
-  const [rating, setRating] = useState(0)
-  const [hover, setHover] = useState(0) // preview sao khi rê chuột
-  const [comment, setComment] = useState('')
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [submitted, setIsSubmitted] = useState(false)
+  const ref = useRef(null)
+  const [diem, setDiem] = useState(0)
+  const [nhanXet, setNhanXet] = useState('')
+  const [dangGui, setDangGui] = useState(false)
+  const [loi, setLoi] = useState(null)
+  const [daGui, setDaGui] = useState(false)
 
-  // Màn cảm ơn → tự động đóng sau 2s
+  useEffect(() => { ref.current?.showModal() }, [])
+
+  // Màn cảm ơn tự đóng sau 2 giây.
   useEffect(() => {
-    if (!submitted) return
-    const t = setTimeout(onClose, 2000)
+    if (!daGui) return
+    const t = setTimeout(() => ref.current?.close(), 2000)
     return () => clearTimeout(t)
-  }, [submitted, onClose])
+  }, [daGui])
 
-  const handleSubmit = async () => {
-    if (rating === 0) return toast.error('Vui lòng chọn số sao!')
-    if (isSubmitting) return
-    setIsSubmitting(true)
+  const gui = async (e) => {
+    e.preventDefault()
+    if (!diem) { setLoi('Chọn số sao trước khi gửi.'); return }
+    setLoi(null)
+    setDangGui(true)
     try {
-      await onSubmit(rating, comment.trim())
-      setIsSubmitted(true) // chuyển màn cảm ơn → tự đóng
+      await onSubmit(diem, nhanXet.trim())
+      setDaGui(true)
     } catch (err) {
-      toast.error('Gửi đánh giá không thành công. Vui lòng thử lại.')
-      setIsSubmitting(false)
+      setLoi(err.message || 'Chưa gửi được đánh giá. Hãy thử lại.')
+      setDangGui(false)
     }
   }
 
-  // ===== MÀN CẢM ƠN (sau khi gửi thành công) =====
-  if (submitted) {
-    return (
-      <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
-        <div className="absolute inset-0 bg-ink/80"></div>
-        <div className="relative bg-card border border-ink/40 w-full max-w-sm p-8 text-center shadow-soft duration-300">
-          <PartyPopper size={44} className="mx-auto text-ink mb-4" />
-          <h2 className="text-xl text-ink mb-2">Cảm ơn bạn!</h2>
-          <p className="text-sm text-ink-soft">Đánh giá của bạn đã được ghi nhận.</p>
-        </div>
-      </div>
-    )
-  }
-
   return (
-    <div className="fixed inset-0 z-[110] flex items-center justify-center p-4" onClick={() => !isSubmitting && onClose()}>
-      <div className="absolute inset-0 bg-ink/80"></div>
-
-      <div className="relative bg-card border border-line w-full max-w-md max-h-[90vh] flex flex-col shadow-soft duration-300" onClick={(e) => e.stopPropagation()}>
-
-        {/* HEADER */}
-        <div className="flex-none flex items-start justify-between p-5 border-b border-line">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-ink/10 border border-ink/30 flex items-center justify-center flex-shrink-0">
-              <Star size={18} className="text-ink" />
-            </div>
+    <dialog ref={ref} aria-labelledby="danh-gia-td" onClose={onClose}
+      onCancel={(e) => { if (dangGui) e.preventDefault() }}
+      className="bg-card text-ink border-2 border-ink shadow-lift w-[calc(100vw-2rem)] max-w-md max-h-[90vh] p-0 m-auto backdrop:bg-board/80">
+      {daGui ? (
+        <div className="p-8 text-center" role="status">
+          <h2 id="danh-gia-td" className="text-3xl">Cảm ơn bạn.</h2>
+          <p className="mt-2 text-ink-soft">Đánh giá của bạn đã được ghi nhận.</p>
+        </div>
+      ) : (
+        <form onSubmit={gui} noValidate>
+          <div className="flex items-start justify-between gap-4 px-5 py-4 border-b-2 border-ink">
             <div className="min-w-0">
-              <h2 className="text-3xl text-ink">Đánh giá buổi phát trực tiếp</h2>
-              <p className="text-xs text-ink-mute truncate">{showName}</p>
+              <h2 id="danh-gia-td" className="text-3xl">Đánh giá buổi diễn</h2>
+              {showName && <p className="text-sm text-ink-soft break-words">{showName}</p>}
             </div>
+            <button type="button" onClick={() => ref.current?.close()} disabled={dangGui} aria-label="Để sau, đóng hộp đánh giá"
+              className="inline-flex items-center justify-center w-11 h-11 border-2 border-ink hover:bg-ink hover:text-lamp flex-shrink-0 disabled:opacity-60">
+              <X size={20} aria-hidden="true" />
+            </button>
           </div>
-          <button onClick={onClose} disabled={isSubmitting} className="p-2 hover:bg-sunken text-ink-soft disabled:opacity-30" aria-label="Đóng">
-            <X size={20} />
-          </button>
-        </div>
 
-        {/* BODY */}
-        <div className="flex-1 overflow-y-auto p-5">
-          <p className="text-sm text-ink-soft mb-6 text-center">
-            Buổi phát đã kết thúc. Trải nghiệm của bạn thế nào?
-          </p>
+          <div className="p-5 space-y-5">
+            <fieldset aria-describedby={loi && !diem ? 'loi-danh-gia' : undefined}>
+              <legend className="font-semibold">Buổi phát đã kết thúc. Bạn thấy thế nào?</legend>
+              <div className="mt-3 flex justify-center gap-1">
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <label key={i} className="cursor-pointer p-1" title={`${i} sao — ${NHAN_SAO[i]}`}>
+                    <input type="radio" name="so-sao" value={i} checked={diem === i} className="sr-only peer"
+                      aria-label={`${i} sao — ${NHAN_SAO[i]}`}
+                      onChange={() => { setDiem(i); setLoi(null) }} />
+                    <Star size={40} aria-hidden="true"
+                      className={`peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-ink ${i <= diem ? 'fill-ink text-ink' : 'text-ink-mute'}`} />
+                  </label>
+                ))}
+              </div>
+              <p className="text-center font-semibold min-h-[24px]" aria-live="polite">{diem ? `${diem} sao — ${NHAN_SAO[diem]}` : ''}</p>
+            </fieldset>
 
-          {/* STAR RATING — hover preview, click chọn */}
-          <div className="flex justify-center gap-1.5 mb-3" onMouseLeave={() => setHover(0)}>
-            {[1, 2, 3, 4, 5].map(i => (
-              <button
-                key={i}
-                type="button"
-                disabled={isSubmitting}
-                onClick={() => setRating(i)}
-                onMouseEnter={() => setHover(i)}
-                className="p-1 transition-transform hover:scale-110 disabled:cursor-not-allowed"
-                aria-label={`Rate ${i} star`}
-              >
-                <Star
-                  size={38}
-                  className={`transition-colors ${i <= (hover || rating) ? 'fill-ink text-ink' : 'text-ink-mute'}`}
-                />
-              </button>
-            ))}
+            <div>
+              <label htmlFor="nhan-xet" className="block font-semibold">Nhận xét <span className="font-normal text-ink-mute">(không bắt buộc)</span></label>
+              <textarea id="nhan-xet" rows={3} maxLength={DAI_NHAN_XET} value={nhanXet} onChange={(e) => setNhanXet(e.target.value)} disabled={dangGui}
+                aria-describedby="nhan-xet-dem"
+                className="mt-1 w-full px-3 py-2 bg-card border-2 border-ink focus:outline-none focus:ring-2 focus:ring-ink resize-none" />
+              <p id="nhan-xet-dem" className="text-right text-xs font-mono text-ink-mute">{nhanXet.length}/{DAI_NHAN_XET}</p>
+            </div>
+
+            {loi && <p id="loi-danh-gia" role="alert" className="font-semibold text-danger">{loi}</p>}
           </div>
-          <p className="text-center text-sm font-semibold text-ink min-h-[20px] mb-6">
-            {RATING_LABELS[hover || rating] || 'Chọn số sao'}
-          </p>
 
-          {/* COMMENT (tùy chọn) */}
-          <div>
-            <label className="block text-sm font-medium text-ink-soft mb-2">
-              Description <span className="text-ink-mute">(không bắt buộc)</span>
-            </label>
-            <textarea aria-label="Description (không bắt buộc)"
-              rows={3}
-              value={comment}
-              onChange={(e) => setComment(e.target.value)}
-              disabled={isSubmitting}
-              placeholder="Bạn thích điều gì, hoặc muốn cải thiện điều gì ở buổi phát này…"
-              className="w-full px-4 py-3 bg-page border border-line text-ink text-sm focus:outline-none focus:border-ink/50 resize-none disabled:opacity-50 placeholder:text-ink-mute"
-            />
+          <div className="flex flex-col-reverse sm:flex-row gap-3 px-5 py-4 border-t-2 border-ink">
+            <button type="button" onClick={() => ref.current?.close()} disabled={dangGui}
+              className="flex-1 min-h-[48px] border-2 border-ink font-semibold hover:bg-ink hover:text-lamp disabled:opacity-60">Để sau</button>
+            <button type="submit" disabled={dangGui}
+              className="flex-1 min-h-[48px] bg-ink text-lamp font-semibold inline-flex items-center justify-center gap-2 hover:bg-board disabled:opacity-60">
+              {dangGui && <Loader2 size={18} className="animate-spin" aria-hidden="true" />} Gửi đánh giá
+            </button>
           </div>
-        </div>
-
-        {/* FOOTER */}
-        <div className="flex-none p-5 border-t border-line flex gap-3">
-          <button
-            onClick={onClose}
-            disabled={isSubmitting}
-            className="flex-1 py-2.5 border border-line-strong text-ink-soft font-medium hover:bg-sunken transition-colors disabled:opacity-50"
-          >
-            Để sau
-          </button>
-          <button
-            onClick={handleSubmit}
-            disabled={isSubmitting || rating === 0}
-            className="flex-1 py-2.5 font-bold transition-colors flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed bg-ink text-lamp hover:bg-board"
-          >
-            {isSubmitting ? <><Loader2 size={16} className="animate-spin" /> Đang gửi…</> : <> Gửi đánh giá</>}
-          </button>
-        </div>
-      </div>
-    </div>
+        </form>
+      )}
+    </dialog>
   )
 }
 
