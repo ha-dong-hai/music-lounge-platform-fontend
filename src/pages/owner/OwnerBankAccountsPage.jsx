@@ -18,7 +18,31 @@ import { Loader2, Plus, Pencil, Landmark, ShieldCheck, ShieldAlert, AlertTriangl
 import toast from 'react-hot-toast'
 import { getBankAccounts, createBankAccount, updateBankAccount } from '../../services/bankAccountServices'
 import { getLounges } from '../../services/loungeServices'
+import { useAuthStore } from '../../store/useAuthStore'
 import { getMyPerformers } from '../../services/performerServices'
+
+// NGHỆ SĨ NÀO ĐƯỢC CHỌN (sửa 01/10/2026): GET /performers là danh mục DÙNG CHUNG của mọi phòng trà, sắp theo Id, kẹp
+// 50/trang. Bản cũ lấy một trang pageSize 100 (nhận 50) và cho chọn TẤT CẢ: chọn hồ sơ phòng trà khác tạo thì backend trả
+// 403 (BankAccountAccess.EnsureCanManageAsync — chỉ người tạo hồ sơ nghệ sĩ quản lý tài khoản của họ); còn nghệ sĩ
+// mình tạo nằm sau 50 hồ sơ đầu danh mục thì không bao giờ hiện. Nay lật từng trang 50 và chỉ giữ hồ sơ
+// createdByUserId = mình.
+// TRẦN: tối đa 10 trang (500 hồ sơ đầu danh mục) — quá trần thì báo rõ trên màn thay vì im lặng thiếu.
+// ĐƯỜNG NÂNG CẤP: backend thêm lọc "do tôi tạo" cho GET /performers (một task MLACP backend) → bỏ vòng lặp này.
+const TRAN_TRANG_NGHE_SI = 10
+const taiNgheSiDoToiTao = async (userId) => {
+  const cuaToi = []
+  let trang = 1
+  let soTrang
+  do {
+    const res = await getMyPerformers({ page: trang, pageSize: 50 })
+    if (!res?.success) throw new Error('performers')
+    const d = res.data
+    cuaToi.push(...((Array.isArray(d) ? d : d?.items) ?? []).filter((p) => String(p.createdByUserId) === String(userId)))
+    soTrang = Array.isArray(d) ? 1 : d?.totalPages ?? 1
+    trang += 1
+  } while (trang <= soTrang && trang <= TRAN_TRANG_NGHE_SI)
+  return { cuaToi, vuotTran: soTrang > TRAN_TRANG_NGHE_SI }
+}
 
 const inputCls = 'mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink focus:outline-none focus:border-ink/50'
 
@@ -117,6 +141,8 @@ const AccountFormModal = ({ initial, chuSoHuu, onClose, onSaved }) => {
 const OwnerBankAccountsPage = () => {
   const [lounge, setLounge] = useState(null)
   const [performers, setPerformers] = useState([])
+  const [ngheSiVuotTran, setNgheSiVuotTran] = useState(false)
+  const userId = useAuthStore((st) => st.user?.id)
   const [chuSoHuu, setChuSoHuu] = useState(null)   // { type, id, label }
   const [accounts, setAccounts] = useState([])
 
@@ -130,14 +156,15 @@ const OwnerBankAccountsPage = () => {
     try {
       const [loungeRes, performerRes] = await Promise.allSettled([
         getLounges({ mine: true }),
-        getMyPerformers({ pageSize: 100 }),
+        taiNgheSiDoToiTao(userId),
       ])
       const ds = loungeRes.status === 'fulfilled' && loungeRes.value?.success ? loungeRes.value.data : null
       const cuaToi = (Array.isArray(ds) ? ds : ds?.items)?.[0] ?? null
       setLounge(cuaToi)
 
-      const pds = performerRes.status === 'fulfilled' && performerRes.value?.success ? performerRes.value.data : null
-      setPerformers((Array.isArray(pds) ? pds : pds?.items) ?? [])
+      const pds = performerRes.status === 'fulfilled' ? performerRes.value : null
+      setPerformers(pds?.cuaToi ?? [])
+      setNgheSiVuotTran(Boolean(pds?.vuotTran))
 
       if (cuaToi) setChuSoHuu({ type: 'Lounge', id: cuaToi.id, label: cuaToi.name })
     } catch (err) {
@@ -145,7 +172,7 @@ const OwnerBankAccountsPage = () => {
     } finally {
       setIsLoading(false)
     }
-  }, [])
+  }, [userId])
 
   useEffect(() => { const chay = async () => { await loadChuSoHuu() }; chay() }, [loadChuSoHuu])
 
@@ -213,6 +240,10 @@ const OwnerBankAccountsPage = () => {
           )
         })}
       </div>
+      <p className="text-xs text-ink-mute -mt-3">
+        Chỉ hiện nghệ sĩ do bạn tạo — tài khoản nhận tiền của nghệ sĩ chỉ người tạo hồ sơ đó khai được.
+        {ngheSiVuotTran && ' Danh mục nghệ sĩ đã quá 500 hồ sơ nên có thể thiếu nghệ sĩ bạn tạo gần đây; báo quản trị viên nếu không thấy.'}
+      </p>
 
       <div className="bg-card border border-line p-6">
         <div className="flex items-center justify-between mb-4">
