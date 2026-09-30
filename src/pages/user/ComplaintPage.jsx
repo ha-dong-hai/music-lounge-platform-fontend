@@ -9,7 +9,8 @@
 //  - Sau khi gửi: trang xác nhận nói mã, việc tiếp theo và cách tra lại (GOV.UK confirmation page).
 //  - Ngày tháng qua utils/ngayVietNam; trạng thái qua NhanTrangThai.
 // GIỮ NGUYÊN: 6 loại đối tượng và 8 loại vấn đề đúng như backend; bằng chứng gửi dạng chuỗi JSON (backend không nhận mảng).
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useRef } from 'react'
+import { parseAsStringLiteral, useQueryState } from 'nuqs'
 import { Link } from 'react-router-dom'
 import { Loader2, Upload, X } from 'lucide-react'
 import toast from 'react-hot-toast'
@@ -18,6 +19,8 @@ import { uploadImage } from '../../services/userServices'
 import { useAuthStore } from '../../store/useAuthStore'
 import OTruong from '../../components/shared/OTruong'
 import NhanTrangThai from '../../components/shared/NhanTrangThai'
+import { useDanhSachMayChu } from '../../hooks/useDanhSachMayChu'
+import PhanTrang from '../../components/bang/PhanTrang'
 import { ngayDayDu, gioTrongNgay } from '../../utils/ngayVietNam'
 
 // Đúng 6 giá trị targetType backend nhận.
@@ -58,6 +61,9 @@ const TABS = [
   { key: 'lookup', label: 'Tra cứu bằng mã' },
   { key: 'mine', label: 'Khiếu nại của tôi' },
 ]
+// Việc đang chọn nằm trên URL (?muc=mine, 01/10/2026) — danh sách "của tôi" có trang trên URL (knTrang), tải lại hay
+// Quay lại phải mở đúng phần chứa nó; đăng nhập xong cũng quay về đúng phần "của tôi".
+const MUC = parseAsStringLiteral(TABS.map((t) => t.key)).withDefault('new').withOptions({ history: 'push' })
 
 const MO_TA_TOI_THIEU = 10
 const NUT_DAC = 'inline-flex items-center justify-center gap-2 min-h-[48px] px-6 bg-ink text-lamp font-semibold hover:bg-board transition-colors disabled:opacity-60'
@@ -81,7 +87,7 @@ const PhanHoi = ({ c }) => (
 
 const ComplaintPage = () => {
   const user = useAuthStore((s) => s.user)
-  const [tab, setTab] = useState('new')
+  const [tab, setTab] = useQueryState('muc', MUC)
 
   // --- gửi mới ---
   const [form, setForm] = useState({ targetType: 'show', targetId: '', category: 'Other', description: '', contactPhone: '' })
@@ -100,30 +106,11 @@ const ComplaintPage = () => {
   const [isLookingUp, setIsLookingUp] = useState(false)
 
   // --- của tôi ---
-  const [mine, setMine] = useState([])
-  const [isLoadingMine, setIsLoadingMine] = useState(false)
-  const [loiMine, setLoiMine] = useState(false)
-
-  const loadMine = useCallback(async () => {
-    if (!user) return
-    setIsLoadingMine(true)
-    setLoiMine(false)
-    try {
-      const res = await getMyComplaints({ pageSize: 50 })
-      if (!res.success) throw new Error('mine')
-      setMine(res.data.items ?? [])
-    } catch {
-      setLoiMine(true)
-    } finally {
-      setIsLoadingMine(false)
-    }
-  }, [user])
-
-  useEffect(() => {
-    if (tab !== 'mine') return
-    const chay = async () => { await loadMine() }
-    chay()
-  }, [tab, loadMine])
+  // PHÂN TRANG (01/10/2026): bản cũ xin cố định pageSize 50 không có trang tiếp — khiếu nại thứ 51 trở đi (cùng phản
+  // hồi của Admin) không bao giờ hiện. Chỉ tải khi đã đăng nhập VÀ đang mở phần này.
+  const dsMine = useDanhSachMayChu({ khoa: ['khieu-nai-cua-toi', user?.id], goi: getMyComplaints, tien: 'kn', coMacDinh: 10, batDau: Boolean(user) && tab === 'mine' })
+  const mine = dsMine.items
+  const loadMine = () => dsMine.taiLai()
 
   const taiBangChung = async (file) => {
     if (!file) return
@@ -222,7 +209,7 @@ const ComplaintPage = () => {
 
         <div role="group" aria-label="Chọn việc cần làm" className="flex flex-wrap gap-2 mb-8">
           {TABS.map((t) => (
-            <button key={t.key} type="button" aria-pressed={tab === t.key} onClick={() => setTab(t.key)}
+            <button key={t.key} type="button" aria-pressed={tab === t.key} onClick={() => { setTab(t.key === 'new' ? null : t.key); if (t.key !== 'mine') dsMine.datTrang(1) }}
               className={`min-h-[44px] px-4 border-2 border-ink font-semibold transition-colors ${tab === t.key ? 'bg-ink text-lamp' : 'bg-card text-ink hover:bg-sunken'}`}>
               {t.label}
             </button>
@@ -347,13 +334,13 @@ const ComplaintPage = () => {
           !user ? (
             <div className="border-2 border-ink bg-card p-6">
               <p>
-                Bạn cần <Link to="/login" state={{ from: '/complaints' }} className="font-semibold underline underline-offset-4">đăng nhập</Link> để xem khiếu nại của mình.
+                Bạn cần <Link to="/login" state={{ from: '/complaints?muc=mine' }} className="font-semibold underline underline-offset-4">đăng nhập</Link> để xem khiếu nại của mình.
                 Nếu đã gửi khi chưa đăng nhập, hãy dùng “Tra cứu bằng mã”.
               </p>
             </div>
-          ) : isLoadingMine ? (
+          ) : dsMine.dangTai ? (
             <div className="h-48 border-2 border-ink/20 bg-ink/5 animate-pulse" aria-busy="true" aria-label="Đang tải khiếu nại của bạn" />
-          ) : loiMine ? (
+          ) : dsMine.loi ? (
             <div role="alert" className="flex flex-wrap items-center gap-4 border-2 border-ink p-5">
               <p>Danh sách khiếu nại chưa tải được.</p>
               <button type="button" onClick={loadMine} className={NUT_DAC}>Thử lại</button>
@@ -361,7 +348,9 @@ const ComplaintPage = () => {
           ) : mine.length === 0 ? (
             <div className="border-2 border-ink bg-card p-6"><p>Bạn chưa gửi khiếu nại nào.</p></div>
           ) : (
-            <ul className="border-y-2 border-ink">
+            <div className="space-y-4">
+            <PhanTrang ds={dsMine} tenDonVi="khiếu nại" idDanhSach="ds-khieu-nai-cua-toi" />
+            <ul id="ds-khieu-nai-cua-toi" tabIndex={-1} className={`border-y-2 border-ink focus:outline-none ${dsMine.laDuLieuCu ? 'opacity-60' : ''}`}>
               {mine.map((c) => (
                 <li key={c.id} className="py-5 border-t border-ink/20 first:border-t-0">
                   <div className="flex flex-wrap items-start justify-between gap-3">
@@ -378,6 +367,8 @@ const ComplaintPage = () => {
                 </li>
               ))}
             </ul>
+            <PhanTrang ds={dsMine} tenDonVi="khiếu nại" idDanhSach="ds-khieu-nai-cua-toi" />
+            </div>
           )
         )}
       </div>
