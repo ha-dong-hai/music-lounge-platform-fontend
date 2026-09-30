@@ -80,11 +80,11 @@ const TicketDetailPage = () => {
                 if (res.success) {
                     setTicket(res.data)
                 } else {
-                    setApiError('Ticket not found')
+                    setApiError('Không tìm thấy vé')
                 }
             } catch (err) {
                 console.error('Ticket loading error:', err)
-                setApiError('Ticket information cannot be loaded.')
+                setApiError('Không tải được thông tin vé.')
             } finally {
                 setIsLoading(false)
             }
@@ -115,7 +115,7 @@ const TicketDetailPage = () => {
             <div className="min-h-[60vh] bg-page flex flex-col items-center justify-center text-ink">
                 <h1 className="text-2xl font-bold mb-4">{apiError || 'Không tìm thấy vé'}</h1>
                 <Link to="/my-shows" className="text-brand-text flex items-center gap-2">
-                    <ArrowLeft size={18} /> Return to list
+                    <ArrowLeft size={18} /> Về danh sách vé
                 </Link>
             </div>
         )

@@ -58,7 +58,7 @@ const EventDetailPage = () => {
             userHasTicket: beData.userHasTicket,
             userHasRated: beData.userHasRated,
             moodTags: [({ Offline: 'Tại chỗ', Online: 'Trực tuyến', Hybrid: 'Kết hợp' })[beData.format] || beData.format, beData.genres?.[0]?.name].filter(Boolean),
-            description: beData.description || 'Chưa có mô tả cho sự kiện này.',
+            description: beData.description || 'Chưa có mô tả cho buổi diễn này.',
             loungeLogo: `https://api.dicebear.com/7.x/initials/svg?seed=${beData.lounge?.name || 'ML'}&backgroundColor=10b981`
           }
 
@@ -101,7 +101,7 @@ const EventDetailPage = () => {
         }
       } catch (err) {
         console.error('API Detail Error:', err)
-        setApiError('Không thể tải chi tiết sự kiện.')
+        setApiError('Không thể tải chi tiết buổi diễn.')
       } finally {
         setIsLoading(false)
       }
@@ -299,7 +299,7 @@ const EventDetailPage = () => {
           <div className="absolute inset-0 bg-espresso/80 backdrop-blur-sm" onClick={() => setIsShareModalOpen(false)}></div>
           <div className="relative bg-card border border-line rounded-2xl w-full max-w-md p-6 shadow-2xl">
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-bold text-ink">Chia sẻ sự kiện</h2>
+              <h2 className="text-xl font-bold text-ink">Chia sẻ buổi diễn</h2>
               <button onClick={() => setIsShareModalOpen(false)} className="p-2 hover:bg-sunken rounded-full text-ink-soft transition-colors"><X size={20} /></button>
             </div>
             <p className="text-ink-soft text-sm mb-3">Sao chép liên kết bên dưới để gửi bạn bè:</p>

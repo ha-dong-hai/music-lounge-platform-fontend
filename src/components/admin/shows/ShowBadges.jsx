@@ -23,10 +23,14 @@ export const StatusBadge = ({ status }) => {
     published: 'bg-green-500/10 text-success border-green-500/20',
     ongoing: 'bg-blue-500/10 text-sky-700 border-blue-500/20',
     draft: 'bg-line-strong/10 text-ink-soft border-line-strong/20',
+    pending: 'bg-yellow-500/10 text-warning border-yellow-500/30',
     ended: 'bg-red-500/10 text-danger border-red-500/20',
     cancelled: 'bg-red-500/10 text-danger border-red-500/20',
   }
-  const labels = { published: 'Đã xuất bản', ongoing: 'Đang diễn ra', draft: 'Bản nháp', ended: 'Đã kết thúc', cancelled: 'Đã huỷ' }
+  // Đủ 6 giá trị LoungeShowStatus của backend (Draft, Pending, Published, Ongoing, Ended, Cancelled).
+  // Badge DÙNG CHUNG cho mọi màn hiện trạng thái buổi diễn — đừng viết lại một bảng nhãn khác
+  // (AllShowsTab từng có bản sao riêng in nhãn tiếng Anh).
+  const labels = { published: 'Đã xuất bản', ongoing: 'Đang diễn ra', draft: 'Bản nháp', pending: 'Chờ duyệt', ended: 'Đã kết thúc', cancelled: 'Đã huỷ' }
   const key = status ? status.toLowerCase() : 'draft'
   return (
     <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border ${styles[key] || styles.draft}`}>
@@ -68,7 +72,7 @@ export const RiskLevelBadge = ({ level }) => {
     High: 'bg-orange-500/10 text-orange-700 border-orange-500/20',
     Critical: 'bg-red-500/10 text-danger border-red-500/20',
   }
-  const labels = { Low: 'Low', Medium: 'Medium', High: 'High', Critical: 'Critical' }
+  const labels = { Low: 'Thấp', Medium: 'Trung bình', High: 'Cao', Critical: 'Nghiêm trọng' }
   if (!level) return <span className="text-xs text-ink-mute">Chưa chấm</span>
   return (
     <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border ${styles[level]}`}>

@@ -238,10 +238,10 @@ const OptionTypeTab = ({ typeKey, typeLabel, hasNameEn, hasDescription, hasIsAct
 
       <ConfirmModal
         isOpen={!!deleteTarget}
-        title={`Delete ${typeLabel.toLowerCase()}?`}
-        message={`"${deleteTarget?.name}" will be permanently removed from the system. Shows currently using this ${typeLabel.toLowerCase()} may be affected.`}
-        confirmText="Delete"
-        processingText="Deleting..."
+        title={`Xoá ${typeLabel.toLowerCase()}?`}
+        message={`"${deleteTarget?.name}" sẽ bị xoá hẳn khỏi hệ thống. Các buổi diễn đang dùng ${typeLabel.toLowerCase()} này có thể bị ảnh hưởng.`}
+        confirmText="Xoá"
+        processingText="Đang xoá…"
         danger={true}
         isProcessing={isDeleting}
         onClose={() => setDeleteTarget(null)}

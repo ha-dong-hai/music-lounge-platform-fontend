@@ -80,7 +80,7 @@ const AdminFilterOptionsPage = () => {
         <div>
           <h1 className="text-2xl font-bold text-ink">Bộ lọc & phân loại</h1>
           <p className="text-ink-soft text-sm">
-            Manage genres, moods, atmospheres and event categories used in show filters across the platform.
+            Quản lý thể loại, tâm trạng, không gian và danh mục dùng trong bộ lọc buổi diễn trên toàn nền tảng.
           </p>
         </div>
       </div>

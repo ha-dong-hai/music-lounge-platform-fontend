@@ -98,7 +98,7 @@ const OptionFormModal = ({ isOpen, typeLabel, hasNameEn, hasDescription, editing
                     {hasNameEn && (
                         <div>
                             <label className="block text-sm font-medium text-ink-soft mb-2">
-                                Name (English) <span className="text-ink-mute text-xs">(optional)</span>
+                                Name (English) <span className="text-ink-mute text-xs">(không bắt buộc)</span>
                             </label>
                             <input
                                 type="text"
@@ -127,7 +127,7 @@ const OptionFormModal = ({ isOpen, typeLabel, hasNameEn, hasDescription, editing
                         disabled={isSaving}
                         className="flex-1 py-2.5 border border-line-strong text-ink-soft rounded-lg font-medium hover:bg-sunken transition-colors disabled:opacity-50"
                     >
-                        Cancel
+                        Huỷ
                     </button>
                     <button
                         type="submit"
@@ -136,8 +136,8 @@ const OptionFormModal = ({ isOpen, typeLabel, hasNameEn, hasDescription, editing
                         className="flex-1 py-2.5 bg-brand text-on-brand rounded-lg font-bold hover:bg-brand-hover transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
                     >
                         {isSaving
-                            ? <><Loader2 size={16} className="animate-spin" /> Saving...</>
-                            : (isEditing ? 'Save Changes' : `Create ${typeLabel}`)}
+                            ? <><Loader2 size={16} className="animate-spin" /> Đang lưu…</>
+                            : (isEditing ? 'Lưu thay đổi' : `Create ${typeLabel}`)}
                     </button>
                 </div>
             </div>

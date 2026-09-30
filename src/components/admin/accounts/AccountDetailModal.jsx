@@ -84,7 +84,7 @@ const AccountDetailModal = ({ selectedAcc, isModalLoading, isUpdating, onClose, 
                 </button>
               )}
               <button onClick={onClose} className={`py-2.5 border border-line-strong text-ink-soft rounded-lg font-medium hover:bg-sunken transition-colors ${selectedAcc.role === 'Admin' ? 'flex-1' : 'px-6'}`}>
-                Close
+                Đóng
               </button>
             </div>
           </>

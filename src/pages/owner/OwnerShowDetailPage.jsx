@@ -43,6 +43,7 @@ import {
 import { getTiers, createTier, deleteTier, updateTier } from '../../services/ticketTierServices'
 import { getLoungeZones } from '../../services/loungeServices'
 import ShowAnalyticsSection from '../../components/owner/ShowAnalyticsSection'
+import { StatusBadge } from '../../components/admin/shows/ShowBadges'
 import { searchPerformers } from '../../services/catalogServices'
 
 const fmtMoney = (v) => `${Number(v || 0).toLocaleString('vi-VN')}đ`
@@ -361,7 +362,7 @@ const OwnerShowDetailPage = () => {
       <div>
         <h1 className="text-2xl font-bold text-ink mb-1">{show.name}</h1>
         <p className="text-ink-soft text-sm">
-          {dayjs(show.scheduledStart).format('HH:mm DD/MM/YYYY')} · {show.lounge?.name} · Trạng thái: {show.status}
+          {dayjs(show.scheduledStart).format('HH:mm DD/MM/YYYY')} · {show.lounge?.name} · <StatusBadge status={show.status} />
         </p>
       </div>
 

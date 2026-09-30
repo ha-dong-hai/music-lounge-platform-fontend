@@ -209,6 +209,56 @@ ForgotPasswordPage → báo SẬP, trang đối chứng /login vẫn xanh; file 
 `RequireOwner` trong khi handler của nó đã được MLACP-466 làm cho hiểu vai nhân viên → nửa sửa đó không bao
 giờ tới được nhân viên; 4 test của MLACP-466 không phủ tầng quyền của route này.
 
-**Chưa kiểm:** trang nghệ sĩ có dữ liệu thật (DB kiểm chưa có nghệ sĩ — trang báo "Không tìm thấy" đúng); các
-luồng có thanh toán VNPay (không có khoá sandbox trên máy); giao diện điện thoại; mọi thao tác ghi khác ngoài
-bán vé tại quầy.
+**Chưa kiểm (ở mục này):** trang nghệ sĩ có dữ liệu thật; giao diện điện thoại. Các luồng tiền và thao tác ghi
+được kiểm ở mục 10.
+
+## 10. Liên mạch hệ thống (30/09) — đi trọn từng việc nghiệp vụ qua giao diện thật
+
+Cùng môi trường mục 9, thêm: backend máy được cấp một cặp khoá VNPay **ngẫu nhiên của riêng lần kiểm** (không
+phải khoá thật), và một bộ giả lập ký IPN đúng thuật toán `VnPayService.BuildCallbackSignData` — nên luồng xác
+nhận thanh toán thật của backend (kiểm chữ ký, cấp vé, ghi sổ) chạy trọn trên máy mà không gọi ra ngoài.
+
+**Bốn chuỗi, mỗi bước đi bằng giao diện như người dùng thật:**
+| Chuỗi | Bước | Kết quả |
+|---|---|---|
+| Vé | khán giả chọn vé → giữ chỗ → VNPay → IPN → "Vé của tôi" + QR → chủ khai VCPMC → nhân viên bắt đầu buổi → soát vé → soát lần hai bị chặn | 12/12 |
+| Gọi món | chủ nộp CCCD → Admin duyệt → chủ tạo thực đơn + món → khán giả gọi món → nhân viên: làm → phục vụ → thu tiền mặt & đóng đơn → khán giả thấy đã thanh toán | 8/8 (+2 bước định danh) |
+| Khiếu nại | khách CHƯA đăng nhập gửi → nhận mã tra cứu → Admin xử lý + phản hồi → khách tra bằng mã thấy phản hồi | 4/4 |
+| Mở bán | Admin tạo gói → chủ mua gói (VNPay) → tài khoản nhận tiền → nghệ sĩ → tạo buổi → giấy phép + line-up + hạng vé → gửi duyệt → Admin duyệt ở tab Chờ duyệt → khách chưa đăng nhập thấy buổi mới | 12/12 |
+
+Đỏ-trước-xanh bằng đột biến có sao lưu + cmp: đưa lại lỗi `CheckedIn` → chuỗi vé đỏ đúng bước 12.
+
+**Chỗ đứt tìm được và đã sửa (FE):**
+1. **Buổi diễn tại chỗ không bao giờ bắt đầu được.** Backend bắt buộc mã tác quyền VCPMC trước khi bắt đầu (D19),
+   nhưng form khai chỉ có ở trang Livestream — trang đó chỉ liệt kê buổi Online. Tách `components/owner/VcpmcRoyaltyCard`
+   dùng chung cho Cài đặt buổi diễn (mọi hình thức) và Livestream; màn Vận hành báo trước + khoá nút Bắt đầu.
+2. **Soát vé:** so với `'CheckedIn'` — giá trị không tồn tại (backend là `Used`) → vé đã soát/huỷ/hoàn vẫn hiện
+   nút "Soát vé và cho vào". Nay chỉ vé `Confirmed` mới soát được, mỗi trạng thái khác có câu lý do.
+3. **Thông điệp lỗi của backend hiện tiếng Anh** giữa giao diện tiếng Việt: FE không gửi `Accept-Language` nên
+   backend (đã song ngữ, MLACP-487/489) theo ngôn ngữ trình duyệt. Axios nay gửi theo `lang` của web, mặc định vi.
+4. **Mọi form nuốt lỗi theo từng ô**: chỉ hiện "Dữ liệu gửi lên không hợp lệ." — axios gộp `errors` vào `message`.
+5. **Hồ sơ định danh không nộp được**: backend bắt buộc ngày sinh, form để tuỳ chọn và gửi null.
+6. **Nhân viên bếp không thấy đơn gọi món**: trang lấy phòng trà qua `/lounges?mine=true` (chỉ trả phòng trà mình
+   sở hữu). Nay nhân viên dùng `loungeId` trong phiên đăng nhập.
+7. **Nhân viên "Thu tiền" luôn nhận 403** (gọi `POST /pay` — endpoint của KHÁCH trả online; đã xác nhận bằng gọi thật)
+   **và đơn đã trả online không đóng được** (thiếu bước Served → Paid). Nay bước cuối là `PUT /status Paid`.
+8. **Yêu cầu hoàn tiền của khán giả** đọc 7 trường không có trong `RefundRequestDto` (số tiền hiện 0đ) và có nút
+   "Tôi đã nhận tiền mặt" gọi endpoint của nhân viên. Đọc đúng DTO, bỏ nút sai người.
+9. **Admin không tìm được buổi chủ vừa gửi duyệt**: hàng đợi duyệt mang nhãn "Hệ thống gắn cờ". Đổi tên "Chờ duyệt"
+   + số đang chờ. (Ban đầu tôi tưởng lần gộp làm mất hàng đợi — sai: hàng đợi vẫn còn, chỉ bị đặt tên sai.)
+10. **Ngôn ngữ**: 107 chuỗi tiếng Anh ở 33 file dịch sang tiếng Việt (bảng đối chiếu, kiểm số lần xuất hiện trước khi
+    ghi); badge trạng thái buổi diễn dùng một bản chung (`ShowBadges`), bỏ bản sao in tiếng Anh; "sự kiện" → "buổi diễn".
+
+**Máy kiểm dùng lại được** (scratchpad, chưa đưa vào repo): đối chiếu 81 lời gọi có body với swagger (1 khoá thừa,
+đã bỏ; ĐIỂM MÙ: 15 lời gọi truyền body qua biến — được phủ bằng các chuỗi đầu-cuối); đối chiếu chuỗi so enum với
+swagger (12 nghi vấn → 2 lỗi thật); dò liên kết chết (134 đích, 2 chết: `/terms`, `/privacy`).
+
+**Việc của backend — cần chủ dự án mở task, KHÔNG tự sửa:**
+- `VnPayIpnResponse(RspCode, Message)` ra JSON `rspCode`/`message` (camelCase mặc định), trong khi chính chú thích
+  code ghi VNPay đọc `RspCode`. Nếu VNPay so khoá phân biệt hoa thường thì mọi IPN bị coi là chưa xác nhận và gửi lại.
+- `GET /lounge-shows/mine` còn `RequireOwner` (xem mục 9).
+- Chủ phòng trà không có đường đọc trạng thái duyệt CCCD và lý do từ chối của chính mình (chỉ lấy lại được ảnh).
+
+**Cần chủ dự án quyết:** (1) song ngữ giao diện FE theo MLACP-407 — nút VN/EN hiện chỉ đổi ngôn ngữ thông điệp
+máy chủ, chữ giao diện vẫn tiếng Việt; (2) nội dung Điều khoản dịch vụ + Chính sách bảo mật cho `/terms`, `/privacy`
+(đăng ký bắt buộc đồng ý nhưng hai trang chưa tồn tại — FE không tự soạn nội dung pháp lý).

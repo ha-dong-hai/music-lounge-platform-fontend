@@ -9,8 +9,8 @@ import toast from 'react-hot-toast'
 import { getMyProfile, updateProfile, uploadImage } from '../../services/userServices'
 
 const accountSchema = z.object({
-  name: z.string().min(1, "Full name cannot be left blank"),
-  phone: z.string().min(1, "The phone number cannot be left blank").regex(/^[0-9]+$/, "Only numeric characters").min(9, "Invalid phone number").max(11, "Invalid phone number"),
+  name: z.string().min(1, "Họ tên không được để trống"),
+  phone: z.string().min(1, "Số điện thoại không được để trống").regex(/^[0-9]+$/, "Số điện thoại chỉ gồm chữ số").min(9, "Số điện thoại không hợp lệ").max(11, "Số điện thoại không hợp lệ"),
 })
 
 const ProfileTab = () => {

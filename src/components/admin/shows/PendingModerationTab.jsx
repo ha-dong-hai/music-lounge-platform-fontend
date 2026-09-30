@@ -125,7 +125,7 @@ const PendingModerationTab = () => {
                 <th className="p-4 text-brand-text font-semibold text-sm">{targetType} ({targetType} ID)</th>
                 <th className="p-4 text-brand-text font-semibold text-sm">Mức rủi ro</th>
                 <th className="p-4 text-brand-text font-semibold text-sm">Lý do gắn cờ</th>
-                <th className="p-4 text-brand-text font-semibold text-sm">AI score</th>
+                <th className="p-4 text-brand-text font-semibold text-sm">Điểm AI</th>
                 <th className="p-4 text-brand-text font-semibold text-sm">Hạn duyệt</th>
                 <th className="p-4 text-brand-text font-semibold text-sm text-right">Thao tác</th>
               </tr>
@@ -209,7 +209,7 @@ const PendingModerationTab = () => {
                 <tr>
                   <td colSpan="6" className="p-12 text-center text-ink-mute">
                     <Check size={32} className="mx-auto mb-3 text-success/50" />
-                    No programs were flagged. The system has reviewed everything!
+                    Không có mục nào đang chờ duyệt.
                   </td>
                 </tr>
               )}

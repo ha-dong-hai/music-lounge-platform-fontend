@@ -81,7 +81,7 @@ const ShowCarousel = ({ title, events = [], showViewMore = false, viewMoreLink =
               : 'opacity-0 pointer-events-none'
             }
           `}
-          aria-label="Previous"
+          aria-label="Buổi diễn trước"
         >
           <ChevronLeft size={20} strokeWidth={2.5} />
         </button>
@@ -126,7 +126,7 @@ const ShowCarousel = ({ title, events = [], showViewMore = false, viewMoreLink =
               : 'opacity-0 pointer-events-none'
             }
           `}
-          aria-label="Next"
+          aria-label="Buổi diễn sau"
         >
           <ChevronRight size={20} strokeWidth={2.5} />
         </button>

@@ -9,14 +9,20 @@
 // - `onlinePaymentLiveUntil`: khách đang giữ một liên kết VNPay còn trả được tới thời điểm đó. Trong
 //   lúc đó backend TỪ CHỐI thu tiền mặt và từ chối huỷ đơn — nếu không nói lý do thì nhân viên sẽ
 //   tưởng hệ thống hỏng. Hai nút liên quan bị khoá kèm giải thích cho tới khi hết hạn.
-// - Luồng trạng thái theo bếp: Pending → Preparing → Served. Paid là kết quả của việc thu tiền, còn
-//   Cancelled là huỷ đơn. Không cho nhảy lùi, vì backend cũng không cho.
+// - Luồng trạng thái: Pending → Preparing → Served → Paid (backend chỉ cho đi tuần tự, không lùi),
+//   Cancelled là huỷ đơn. Bước Served → Paid là ĐÓNG ĐƠN: chưa trả thì backend ghi nhận luôn khoản
+//   tiền mặt (UpdateFnbOrderStatusCommandHandler tạo Payment Cash); đã trả online thì chỉ đóng đơn.
+// - LỖI ĐÃ SỬA (đo 30/09): nút "Thu tiền" trước đây gọi POST /fnb-orders/{id}/pay — endpoint đó là
+//   KHÁCH tự khởi tạo thanh toán VNPay cho đơn của chính mình, nhân viên gọi luôn nhận 403. Và bảng
+//   bước kế thiếu Served → Paid, trong khi nút thu tiền ẩn khi đơn đã trả online — nên đơn trả trước
+//   nằm ở "Đã phục vụ" mãi, không đóng được.
 import { useState, useEffect, useCallback } from 'react'
 import { Loader2, RefreshCw, UtensilsCrossed, Banknote, CheckCircle2, XCircle, Clock, CreditCard } from 'lucide-react'
 import dayjs from 'dayjs'
 import toast from 'react-hot-toast'
-import { getLounges } from '../../services/loungeServices'
-import { getLoungeFnbOrders, updateFnbOrderStatus, payFnbOrder } from '../../services/fnbServices'
+import { getLounges, getLoungeDetail } from '../../services/loungeServices'
+import { useAuthStore } from '../../store/useAuthStore'
+import { getLoungeFnbOrders, updateFnbOrderStatus } from '../../services/fnbServices'
 
 const fmtMoney = (v) => `${Number(v || 0).toLocaleString('vi-VN')}đ`
 
@@ -29,8 +35,11 @@ const STATUS_VIEW = {
 }
 
 // Bước tiếp theo hợp lệ của bếp. Không có đường lùi — backend cũng không cho.
-const BUOC_TIEP = { Pending: 'Preparing', Preparing: 'Served' }
-const NHAN_BUOC_TIEP = { Preparing: 'Bắt đầu làm', Served: 'Đã phục vụ xong' }
+const BUOC_TIEP = { Pending: 'Preparing', Preparing: 'Served', Served: 'Paid' }
+const nhanBuocTiep = (buoc, daTra) =>
+  buoc === 'Paid' ? (daTra ? 'Đóng đơn' : 'Thu tiền mặt và đóng đơn')
+    : buoc === 'Served' ? 'Đã phục vụ xong' : 'Bắt đầu làm'
+const TEN_PHUONG_THUC = { Cash: 'Tiền mặt', Gateway: 'Online (VNPay)' }
 
 const LOC = [
   { key: 'dang-lam', label: 'Đang xử lý', statuses: ['Pending', 'Preparing', 'Served'] },
@@ -44,8 +53,17 @@ const OwnerFnbOrdersPage = () => {
   const [isLoading, setIsLoading] = useState(true)
   const [busyId, setBusyId] = useState(null)
 
+  // Nhân viên KHÔNG sở hữu phòng trà nào, nên GET /lounges?mine=true trả rỗng và màn này từng báo
+  // "Chưa có phòng trà nào để nhận đơn" với chính người đứng bếp (đo 30/09). Phòng trà nhân viên vận
+  // hành nằm trong phiên đăng nhập (AuthResultDto.loungeId) — dùng nó; chủ phòng trà vẫn đi đường mine.
+  const loungeIdPhien = useAuthStore((st) => st.user?.loungeId)
   const loadLounge = useCallback(async () => {
     try {
+      if (loungeIdPhien) {
+        const res = await getLoungeDetail(loungeIdPhien)
+        if (res.success) setLounge(res.data ?? null)
+        return
+      }
       const res = await getLounges({ mine: true })
       if (res.success) {
         const items = Array.isArray(res.data) ? res.data : res.data?.items
@@ -54,7 +72,7 @@ const OwnerFnbOrdersPage = () => {
     } catch (err) {
       toast.error(err.response?.data?.message || 'Không tải được thông tin phòng trà.')
     }
-  }, [])
+  }, [loungeIdPhien])
 
   const loadOrders = useCallback(async () => {
     if (!lounge) { setIsLoading(false); return }
@@ -83,19 +101,6 @@ const OwnerFnbOrdersPage = () => {
       await loadOrders()
     } catch (err) {
       toast.error(err.response?.data?.message || 'Không cập nhật được đơn.')
-    } finally {
-      setBusyId(null)
-    }
-  }
-
-  const thuTien = async (order) => {
-    setBusyId(order.id)
-    try {
-      await payFnbOrder(order.id)
-      toast.success('Đã ghi nhận thanh toán.')
-      await loadOrders()
-    } catch (err) {
-      toast.error(err.response?.data?.message || 'Không ghi nhận được thanh toán.')
     } finally {
       setBusyId(null)
     }
@@ -198,7 +203,7 @@ const OwnerFnbOrdersPage = () => {
                     <span className="inline-flex items-center gap-1.5 text-warning"><Clock size={13} /> Chưa thu tiền</span>
                   )}
                   <span className="text-ink-mute">·</span>
-                  <span className="text-ink-mute">{o.paymentMethod}</span>
+                  <span className="text-ink-mute">{TEN_PHUONG_THUC[o.paymentMethod] ?? o.paymentMethod}</span>
                 </div>
 
                 {conLinkOnline && (
@@ -210,20 +215,19 @@ const OwnerFnbOrdersPage = () => {
                 )}
 
                 <div className="mt-3 flex flex-wrap gap-2">
-                  {buocTiep && (
-                    <button onClick={() => doiTrangThai(o, buocTiep)} disabled={dangBan}
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand text-on-brand text-xs font-bold hover:bg-brand-hover disabled:opacity-50">
-                      {dangBan ? <Loader2 size={13} className="animate-spin" /> : <UtensilsCrossed size={13} />}
-                      {NHAN_BUOC_TIEP[buocTiep]}
-                    </button>
-                  )}
-                  {!o.isPaid && o.status !== 'Cancelled' && (
-                    <button onClick={() => thuTien(o)} disabled={dangBan || conLinkOnline}
-                      title={conLinkOnline ? 'Khách đang có liên kết thanh toán online còn hạn' : undefined}
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-green-500/40 text-success text-xs font-bold hover:bg-green-500/10 disabled:opacity-40 disabled:cursor-not-allowed">
-                      <Banknote size={13} /> Thu tiền
-                    </button>
-                  )}
+                  {buocTiep && (() => {
+                    // Thu tiền mặt bị backend chặn khi khách còn liên kết VNPay sống; đã trả online thì đóng đơn được.
+                    const khoaThuTien = buocTiep === 'Paid' && !o.isPaid && conLinkOnline
+                    return (
+                      <button onClick={() => doiTrangThai(o, buocTiep)} disabled={dangBan || khoaThuTien}
+                        title={khoaThuTien ? 'Khách đang có liên kết thanh toán online còn hạn' : undefined}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand text-on-brand text-xs font-bold hover:bg-brand-hover disabled:opacity-40 disabled:cursor-not-allowed">
+                        {dangBan ? <Loader2 size={13} className="animate-spin" />
+                          : buocTiep === 'Paid' ? <Banknote size={13} /> : <UtensilsCrossed size={13} />}
+                        {nhanBuocTiep(buocTiep, o.isPaid)}
+                      </button>
+                    )
+                  })()}
                   {o.status !== 'Cancelled' && o.status !== 'Paid' && (
                     <button onClick={() => doiTrangThai(o, 'Cancelled')} disabled={dangBan || conLinkOnline}
                       title={conLinkOnline ? 'Không huỷ được khi khách còn liên kết thanh toán online' : undefined}

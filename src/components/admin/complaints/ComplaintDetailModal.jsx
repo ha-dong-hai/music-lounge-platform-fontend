@@ -130,7 +130,7 @@ const ComplaintDetailModal = ({ complaint, onClose, onResolve }) => {
         {/* FOOTER */}
         <div className="flex-none p-6 pt-4 border-t border-line flex gap-3">
           <button onClick={onClose} className="flex-1 py-2.5 border border-line-strong text-ink-soft rounded-lg font-medium hover:bg-sunken transition-colors">
-            Close
+            Đóng
           </button>
           {/* Chưa xử lý xong thì mới có việc để làm — đã Resolved/Rejected rồi thì chỉ còn xem kết quả. */}
           {!isResolved && onResolve && (

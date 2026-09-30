@@ -3,11 +3,11 @@ import { X, Star, Loader2, PartyPopper } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 const RATING_LABELS = {
-  1: 'Very bad 😞',
-  2: 'Not so good 😕',
-  3: 'Okay 🙂',
-  4: 'Very good! 😃',
-  5: 'Great! 🤩',
+  1: 'Rất tệ 😞',
+  2: 'Chưa ổn lắm 😕',
+  3: 'Tạm được 🙂',
+  4: 'Rất hay! 😃',
+  5: 'Tuyệt vời! 🤩',
 }
 
 const RatingModal = ({ showName, onClose, onSubmit }) => {
@@ -105,7 +105,7 @@ const RatingModal = ({ showName, onClose, onSubmit }) => {
           {/* COMMENT (tùy chọn) */}
           <div>
             <label className="block text-sm font-medium text-ink-soft mb-2">
-              Description <span className="text-ink-mute">(Optional)</span>
+              Description <span className="text-ink-mute">(không bắt buộc)</span>
             </label>
             <textarea
               rows={3}

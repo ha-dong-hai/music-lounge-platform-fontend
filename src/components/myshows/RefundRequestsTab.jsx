@@ -1,14 +1,22 @@
 // src/components/myshows/RefundRequestsTab.jsx
+//
+// Đọc ĐÚNG RefundRequestDto (GET /tickets/refund-requests/my): amountRequested/amountApproved, status
+// Pending|Approved|Rejected, resolvedAt, payoutAccountRequired + payoutAccountNumber. Bản trước đọc
+// refundAmount/amount/refundMethod/cashRefundPending/payoutAccountProvided/showName — không trường nào
+// tồn tại (đối chiếu swagger 30/09), nên số tiền hiện 0đ và nút khai tài khoản không bao giờ tắt.
+// Bản trước còn có nút "Tôi đã nhận tiền mặt" gọi /cash-handed-back — endpoint đó là của NHÂN VIÊN/CHỦ
+// phòng trà xác nhận đã trả tiền (MLACP-345), khán giả gọi sẽ nhận 403; và vé tiền mặt tại quầy không có
+// người mua gắn tài khoản nên không bao giờ xuất hiện trong danh sách này. Đã bỏ.
 
 import { useState, useEffect, useCallback } from 'react'
-import { Loader2, Receipt, Landmark, HandCoins, AlertTriangle, CheckCircle2, Clock, X } from 'lucide-react'
+import { Loader2, Receipt, Landmark, AlertTriangle, CheckCircle2, Clock, X, XCircle } from 'lucide-react'
 import dayjs from 'dayjs'
 import toast from 'react-hot-toast'
-import {
-  getMyRefundRequests, provideRefundPayoutAccount, confirmCashRefundHandedBack,
-} from '../../services/ticketServices'
+import { getMyRefundRequests, provideRefundPayoutAccount } from '../../services/ticketServices'
 
 const fmtMoney = (v) => `${Number(v || 0).toLocaleString('vi-VN')}đ`
+const soTien = (r) => r.amountApproved ?? r.amountRequested
+const TRANG_THAI = { Pending: 'Đang chờ duyệt', Approved: 'Đã duyệt hoàn tiền', Rejected: 'Bị từ chối' }
 const inputCls = 'mt-1 w-full px-3 py-2 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-brand/50'
 
 const PayoutAccountModal = ({ request, onClose, onSaved }) => {
@@ -53,7 +61,7 @@ const PayoutAccountModal = ({ request, onClose, onSaved }) => {
         <form onSubmit={submit} className="p-5 space-y-4">
           <p className="text-xs text-ink-mute leading-relaxed">
             Giao dịch gốc không hoàn lại được qua cổng thanh toán, nên chúng tôi cần chuyển khoản tay.
-            Số tiền hoàn: <span className="text-ink font-medium">{fmtMoney(request.refundAmount ?? request.amount)}</span>
+            Số tiền hoàn: <span className="text-ink font-medium">{fmtMoney(soTien(request))}</span>
           </p>
 
           <div>
@@ -88,7 +96,6 @@ const PayoutAccountModal = ({ request, onClose, onSaved }) => {
 const RefundRequestsTab = () => {
   const [items, setItems] = useState([])
   const [isLoading, setIsLoading] = useState(true)
-  const [busyId, setBusyId] = useState(null)
   const [khaiTaiKhoan, setKhaiTaiKhoan] = useState(null)
 
   const load = useCallback(async () => {
@@ -108,17 +115,6 @@ const RefundRequestsTab = () => {
 
   useEffect(() => { const chay = async () => { await load() }; chay() }, [load])
 
-  const xacNhanNhanTienMat = async (r) => {
-    setBusyId(r.id)
-    try {
-      await confirmCashRefundHandedBack(r.id)
-      toast.success('Đã xác nhận nhận tiền. Yêu cầu hoàn tiền được đóng lại.')
-      await load()
-    } catch (err) {
-      toast.error(err.response?.data?.message || 'Không xác nhận được.')
-    } finally { setBusyId(null) }
-  }
-
   if (isLoading) {
     return <div className="py-16 flex justify-center"><Loader2 size={28} className="animate-spin text-brand-text" /></div>
   }
@@ -135,29 +131,29 @@ const RefundRequestsTab = () => {
   return (
     <div className="space-y-3">
       {items.map((r) => {
-        const canKhaiTaiKhoan = r.payoutAccountRequired && !r.payoutAccountProvided
-        const canXacNhanTienMat = r.cashRefundPending ?? (r.refundMethod === 'Cash' && r.status !== 'Completed')
-        const dangBan = busyId === r.id
+        // Chỉ cần khai khi hệ thống đòi VÀ chưa khai; đã bị từ chối thì khai cũng vô nghĩa.
+        const canKhaiTaiKhoan = r.payoutAccountRequired && !r.payoutAccountNumber && r.status !== 'Rejected'
 
         return (
           <div key={r.id} className="bg-card border border-line rounded-xl p-5">
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div className="min-w-0">
-                <p className="text-ink font-bold">{r.showName ?? `Yêu cầu #${r.id}`}</p>
+                <p className="text-ink font-bold">Yêu cầu hoàn tiền #{r.id}</p>
                 <p className="text-xs text-ink-mute mt-1">
-                  Gửi lúc {dayjs(r.createdAt ?? r.requestedAt).format('HH:mm DD/MM/YYYY')}
+                  Gửi lúc {dayjs(r.createdAt).format('HH:mm DD/MM/YYYY')}
                 </p>
                 {r.reason && <p className="text-xs text-ink-mute mt-0.5">Lý do: {r.reason}</p>}
               </div>
               <div className="text-right flex-shrink-0">
-                <p className="text-lg font-bold text-brand-text tabular-nums">
-                  {fmtMoney(r.refundAmount ?? r.amount)}
-                </p>
-                <p className="text-xs text-ink-mute">{r.status}</p>
+                <p className="text-lg font-bold text-brand-text tabular-nums">{fmtMoney(soTien(r))}</p>
+                {r.amountApproved != null && r.amountApproved !== r.amountRequested && (
+                  <p className="text-xs text-ink-mute tabular-nums">Yêu cầu {fmtMoney(r.amountRequested)}</p>
+                )}
+                <p className="text-xs text-ink-mute">{TRANG_THAI[r.status] ?? r.status}</p>
               </div>
             </div>
 
-            {r.expectedResolutionBy && (
+            {r.status === 'Pending' && r.expectedResolutionBy && (
               <p className="mt-3 text-xs text-ink-mute flex items-center gap-1.5">
                 <Clock size={12} /> Hạn phản hồi {dayjs(r.expectedResolutionBy).format('HH:mm DD/MM/YYYY')}
               </p>
@@ -177,22 +173,15 @@ const RefundRequestsTab = () => {
               </div>
             )}
 
-            {canXacNhanTienMat && (
-              <div className="mt-3 bg-blue-500/5 border border-blue-500/30 rounded-lg p-3">
-                <p className="text-xs text-sky-700 leading-relaxed">
-                  Vé này được hoàn bằng tiền mặt tại quầy. Sau khi đã nhận tiền, hãy bấm xác nhận để đóng yêu cầu.
-                </p>
-                <button onClick={() => xacNhanNhanTienMat(r)} disabled={dangBan}
-                  className="mt-2 flex items-center gap-2 px-3 py-1.5 rounded-lg border border-blue-500/40 text-sky-700 text-xs font-bold hover:bg-blue-500/10 disabled:opacity-50">
-                  {dangBan ? <Loader2 size={13} className="animate-spin" /> : <HandCoins size={13} />}
-                  Tôi đã nhận tiền mặt
-                </button>
-              </div>
-            )}
-
-            {r.status === 'Completed' && (
+            {r.status === 'Approved' && (
               <p className="mt-3 text-xs text-success flex items-center gap-1.5">
-                <CheckCircle2 size={13} /> Đã hoàn tiền xong
+                <CheckCircle2 size={13} /> Đã duyệt hoàn tiền
+                {r.resolvedAt && ` lúc ${dayjs(r.resolvedAt).format('HH:mm DD/MM/YYYY')}`}
+              </p>
+            )}
+            {r.status === 'Rejected' && (
+              <p className="mt-3 text-xs text-danger flex items-center gap-1.5">
+                <XCircle size={13} /> Yêu cầu bị từ chối
               </p>
             )}
           </div>

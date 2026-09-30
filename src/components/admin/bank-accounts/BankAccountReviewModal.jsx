@@ -9,12 +9,12 @@ const BankAccountReviewModal = ({ account, onClose, onDecision, isProcessing }) 
   // Checklist tín hiệu xác minh — trợ giúp quyết định của admin
   const checklist = [
     {
-      label: 'Account holder matches owner',
+      label: 'Tên chủ tài khoản khớp chủ phòng trà',
       ok: account.holderNameMatches,
       detail: `"${account.accountHolder}" vs "${account.expectedAccountHolder}"`,
     },
-    { label: 'Owner identity approved', ok: account.ownerIdentityApproved, detail: null },
-    { label: 'Account number readable', ok: !account.accountNumberUnreadable, detail: account.accountNumberUnreadable ? 'OCR could not read the number' : null },
+    { label: 'Định danh chủ phòng trà đã được duyệt', ok: account.ownerIdentityApproved, detail: null },
+    { label: 'Máy đọc được số tài khoản', ok: !account.accountNumberUnreadable, detail: account.accountNumberUnreadable ? 'Máy không đọc được số tài khoản' : null },
   ]
   const hasRedFlag = checklist.some(c => !c.ok)
 
@@ -30,7 +30,7 @@ const BankAccountReviewModal = ({ account, onClose, onDecision, isProcessing }) 
             <Landmark size={22} className="text-[#C3B665]" />
           </div>
           <div className="flex-1 min-w-0">
-            <h2 className="text-lg font-bold text-white">Bank Account Review</h2>
+            <h2 className="text-lg font-bold text-white">Duyệt tài khoản nhận tiền</h2>
             <p className="text-sm text-gray-500 truncate">
               {account.bankName} · {account.accountNumberMasked}
             </p>
@@ -55,7 +55,7 @@ const BankAccountReviewModal = ({ account, onClose, onDecision, isProcessing }) 
             </div>
             {account.isDefault && (
               <div className="flex justify-between gap-4">
-                <span className="text-gray-500">Payout account</span>
+                <span className="text-gray-500">Tài khoản nhận tiền</span>
                 <span className="text-[#C3B665] font-bold flex items-center gap-1">
                   <Star size={12} className="fill-[#C3B665]" /> Default
                 </span>
@@ -92,13 +92,13 @@ const BankAccountReviewModal = ({ account, onClose, onDecision, isProcessing }) 
 
           {/* Note */}
           <div>
-            <label className="block text-sm font-medium text-gray-400 mb-2">Review note (optional)</label>
+            <label className="block text-sm font-medium text-gray-400 mb-2">Ghi chú duyệt (không bắt buộc)</label>
             <textarea
               rows={3}
               value={note}
               onChange={(e) => setNote(e.target.value)}
               disabled={!!isProcessing}
-              placeholder="Reason for approval / rejection..."
+              placeholder="Lý do duyệt hoặc từ chối…"
               className="w-full px-4 py-2.5 bg-black border border-gray-800 rounded-lg text-white text-sm focus:outline-none focus:border-[#C3B665]/50 resize-none disabled:opacity-50"
             />
           </div>
@@ -112,7 +112,7 @@ const BankAccountReviewModal = ({ account, onClose, onDecision, isProcessing }) 
             className="flex-1 py-3 rounded-xl bg-green-500 text-white font-bold hover:bg-green-600 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isProcessing === true
-              ? <><Loader2 size={18} className="animate-spin" /> Processing...</>
+              ? <><Loader2 size={18} className="animate-spin" /> Đang xử lý…</>
               : <><Check size={18} strokeWidth={3} /> Approve</>}
           </button>
           <button
@@ -121,7 +121,7 @@ const BankAccountReviewModal = ({ account, onClose, onDecision, isProcessing }) 
             className="flex-1 py-3 rounded-xl bg-red-500 text-white font-bold hover:bg-red-600 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isProcessing === false
-              ? <><Loader2 size={18} className="animate-spin" /> Processing...</>
+              ? <><Loader2 size={18} className="animate-spin" /> Đang xử lý…</>
               : <><X size={18} strokeWidth={3} /> Reject</>}
           </button>
         </div>

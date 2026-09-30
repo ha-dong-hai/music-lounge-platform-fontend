@@ -33,13 +33,27 @@ const axiosClient = axios.create({
   }
 });
 
-// Interceptor Request: Tự động gắn token (đọc từ store, không phải localStorage thô)
+// NGÔN NGỮ THÔNG ĐIỆP TỪ MÁY CHỦ — backend song ngữ Việt/Anh theo Accept-Language (MLACP-487/489,
+// NgonNguYeuCau.cs). Không gửi thì trình duyệt tự gửi ngôn ngữ CỦA MÁY, nên người dùng đặt trình duyệt
+// tiếng Anh thấy lỗi tiếng Anh giữa giao diện tiếng Việt (đo 30/09: "Tickets can only be checked in
+// while the concert is running." trên màn soát vé). Lấy theo lựa chọn ngôn ngữ của chính trang web
+// (localStorage 'lang', Header.jsx), mặc định 'vi' — đúng phương án A đã chọn ở MLACP-407.
+const ngonNgu = () => {
+  try {
+    return localStorage.getItem('lang') === 'en' ? 'en' : 'vi';
+  } catch {
+    return 'vi';
+  }
+};
+
+// Interceptor Request: Tự động gắn token (đọc từ store, không phải localStorage thô) và ngôn ngữ
 axiosClient.interceptors.request.use(
   (config) => {
     const token = useAuthStore.getState().token;
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+    config.headers['Accept-Language'] = ngonNgu();
     return config;
   },
   (error) => Promise.reject(error)
@@ -66,6 +80,16 @@ axiosClient.interceptors.response.use(
     return response.data;
   },
   async (error) => {
+    // LỖI THEO TỪNG Ô: backend trả { message: "Dữ liệu gửi lên không hợp lệ.", errors: { DateOfBirth: ["…"] } }.
+    // Mọi màn hình chỉ hiện `message`, nên người dùng chỉ thấy câu chung mà không biết sai ô nào (đo 30/09:
+    // gửi hồ sơ CCCD thiếu ngày sinh). Gộp lý do cụ thể vào `message` ở MỘT chỗ này để mọi form đều hưởng,
+    // thay vì sửa từng catch. Giữ nguyên `errors` cho màn nào muốn tô đỏ đúng ô.
+    const data = error.response?.data;
+    if (data && typeof data === 'object' && data.errors && typeof data.errors === 'object') {
+      const lyDo = Object.values(data.errors).flat().filter((x) => typeof x === 'string' && x.trim());
+      if (lyDo.length) data.message = [...new Set(lyDo)].join(' ');
+    }
+
     const originalRequest = error.config;
     const status = error.response?.status;
     const isAuthEndpoint = originalRequest?.url?.includes('/auth/');

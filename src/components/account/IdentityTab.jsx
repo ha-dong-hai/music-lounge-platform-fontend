@@ -169,8 +169,12 @@ const IdentityTab = () => {
 
   const guiCccd = async (e) => {
     e.preventDefault()
-    if (!cccd.citizenCardNumber.trim() || !cccd.frontImageUrl || !cccd.backImageUrl) {
-      toast.error('Cần nhập số CCCD và tải đủ ảnh hai mặt.')
+    // Ngày sinh là BẮT BUỘC ở backend (SubmitCitizenCardCommandValidator: "Vui lòng nhập ngày sinh như
+    // trên CCCD/CMND."). Bản trước để ô này như tuỳ chọn và gửi null, nên mọi lần nộp đều bị từ chối
+    // với câu chung "Dữ liệu gửi lên không hợp lệ" — chủ phòng trà không nộp được hồ sơ định danh, tức
+    // là không bao giờ bán được (đo 30/09).
+    if (!cccd.citizenCardNumber.trim() || !cccd.dateOfBirth || !cccd.frontImageUrl || !cccd.backImageUrl) {
+      toast.error('Cần nhập số CCCD, ngày sinh và tải đủ ảnh hai mặt.')
       return
     }
     setBusyCccd(true)
@@ -333,7 +337,7 @@ const IdentityTab = () => {
                   className={inputCls} inputMode="numeric" />
               </div>
               <div>
-                <label className="text-xs text-ink-mute">Ngày sinh</label>
+                <label className="text-xs text-ink-mute">Ngày sinh (như trên CCCD) <span className="text-danger">*</span></label>
                 <input type="date" value={cccd.dateOfBirth} onChange={(e) => setCccd((p) => ({ ...p, dateOfBirth: e.target.value }))}
                   className={inputCls} />
               </div>

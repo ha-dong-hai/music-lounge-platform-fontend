@@ -50,7 +50,7 @@ const AdminShowDetailPage = () => {
             genre: beData.genres?.[0]?.name || 'Đang cập nhật',
             performers: beData.performers || [],
             moodTags: [beData.format, beData.genres?.[0]?.name].filter(Boolean),
-            description: beData.description || "Chưa có mô tả cho sự kiện này.",
+            description: beData.description || "Chưa có mô tả cho buổi diễn này.",
             loungeLogo: `https://api.dicebear.com/7.x/initials/svg?seed=${beData.lounge?.name || 'ML'}&backgroundColor=10b981`
           })
 
@@ -63,7 +63,7 @@ const AdminShowDetailPage = () => {
         }
       } catch (err) {
         console.error('Lỗi API Detail:', err)
-        setApiError('Không thể tải chi tiết sự kiện.')
+        setApiError('Không thể tải chi tiết buổi diễn.')
       } finally {
         setIsLoading(false)
       }
@@ -140,7 +140,7 @@ const AdminShowDetailPage = () => {
   if (apiError || !data) {
     return (
       <div className="min-h-screen bg-page flex flex-col items-center justify-center text-ink">
-        <h1 className="text-2xl font-bold text-ink mb-4">{apiError || 'Show not found'}</h1>
+        <h1 className="text-2xl font-bold text-ink mb-4">{apiError || 'Không tìm thấy buổi diễn'}</h1>
         <Link to="/admin/shows" className="text-brand-text hover:text-brand-text flex items-center gap-2 font-medium"><ArrowLeft size={18} /> Quay lại danh sách</Link>
       </div>
     )
@@ -171,7 +171,7 @@ const AdminShowDetailPage = () => {
           <ShowIntro
             data={data}
             isFollowing={false}
-            onToggleFollow={() => toast('Admin view — cant follow lounge')}
+            onToggleFollow={() => toast('Tài khoản Admin không theo dõi phòng trà.')}
           />
         )}
         {activeTab === 'map' && <ShowMap loungeId={data.loungeId} showData={data} readOnly />}

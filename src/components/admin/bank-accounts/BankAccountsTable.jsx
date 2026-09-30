@@ -7,7 +7,7 @@ const VerifiedBadge = ({ isVerified }) => (
     isVerified ? 'bg-green-500/15 text-green-400 border-green-500/30' : 'bg-yellow-500/15 text-yellow-400 border-yellow-500/30'
   }`}>
     <span className={`w-1.5 h-1.5 rounded-full ${isVerified ? 'bg-green-400' : 'bg-yellow-400'}`} />
-    {isVerified ? 'Verified' : 'Pending review'}
+    {isVerified ? 'Verified' : 'Chờ duyệt'}
   </span>
 )
 
@@ -31,9 +31,9 @@ const BankAccountsTable = ({ accounts, isLoading, pagination, onReview, onPageCh
         <table className="w-full text-left whitespace-nowrap">
           <thead className="bg-black/40 border-b border-gray-800">
             <tr>
-              <th className="p-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Bank Account</th>
+              <th className="p-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Tài khoản</th>
               <th className="p-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Holder</th>
-              <th className="p-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Lounge / Owner</th>
+              <th className="p-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Phòng trà / Chủ</th>
               <th className="p-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Verification</th>
               <th className="p-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Status</th>
               <th className="p-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Added</th>
@@ -69,8 +69,8 @@ const BankAccountsTable = ({ accounts, isLoading, pagination, onReview, onPageCh
                   <td className="p-4">
                     <div className="flex flex-wrap gap-1.5">
                       <SignalBadge ok={acc.holderNameMatches} okText="Name match" badText="Name mismatch" title={`"${acc.accountHolder}" vs "${acc.expectedAccountHolder}"`} />
-                      <SignalBadge ok={acc.ownerIdentityApproved} okText="Identity" badText="No identity" title="Owner identity approved" />
-                      <SignalBadge ok={!acc.accountNumberUnreadable} okText="Readable" badText="Unreadable" title="Account number readable by OCR" />
+                      <SignalBadge ok={acc.ownerIdentityApproved} okText="Đã định danh" badText="Chưa định danh" title="Định danh chủ phòng trà đã được duyệt" />
+                      <SignalBadge ok={!acc.accountNumberUnreadable} okText="Đọc được số" badText="Không đọc được số" title="Máy đọc được số tài khoản" />
                     </div>
                   </td>
                   <td className="p-4">
@@ -101,7 +101,7 @@ const BankAccountsTable = ({ accounts, isLoading, pagination, onReview, onPageCh
               <tr>
                 <td colSpan="7" className="p-10 text-center text-gray-500">
                   <Wallet size="32" className="mx-auto mb-3 opacity-50" />
-                  No bank accounts found.
+                  Chưa có tài khoản nhận tiền nào.
                 </td>
               </tr>
             )}
@@ -113,7 +113,7 @@ const BankAccountsTable = ({ accounts, isLoading, pagination, onReview, onPageCh
       {!isLoading && accounts.length > 0 && (
         <div className="flex items-center justify-between p-4 border-t border-gray-800">
           <p className="text-sm text-gray-500">
-            Page {pagination.page} / {pagination.totalPages} (Total: {pagination.totalCount})
+            Trang {pagination.page} / {pagination.totalPages} · {pagination.totalCount} tài khoản
           </p>
           <div className="flex gap-2">
             <button

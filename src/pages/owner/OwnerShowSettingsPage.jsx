@@ -41,6 +41,7 @@ import {
 import { uploadImage } from '../../services/userServices'
 import { getMySubscription } from '../../services/packageServices'
 import ShowCustomValuesSection from '../../components/owner/ShowCustomValuesSection'
+import VcpmcRoyaltyCard from '../../components/owner/VcpmcRoyaltyCard'
 
 const inputCls = 'mt-1 w-full px-3 py-2 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-brand/50'
 
@@ -505,6 +506,21 @@ const OwnerShowSettingsPage = () => {
           )}
         </div>
       </Card>
+
+      {/* === TÁC QUYỀN VCPMC — mọi hình thức; thiếu mã thì buổi diễn không bắt đầu được === */}
+      {!['Ongoing', 'Ended', 'Cancelled'].includes(show.status) && (
+        <Card
+          title="Tác quyền âm nhạc (VCPMC)"
+          subtitle="Bắt buộc khai trước giờ diễn: thiếu mã này thì nhân viên không bấm bắt đầu buổi diễn được, và không soát được vé vào cửa."
+        >
+          <VcpmcRoyaltyCard
+            showId={show.id}
+            declared={show.operatorInfo?.vcpmcDeclared}
+            reference={show.operatorInfo?.vcpmcRoyaltyReference}
+            onSaved={load}
+          />
+        </Card>
+      )}
 
       {/* === CHẾ ĐỘ PHÁT === */}
       {laTrucTuyen && (

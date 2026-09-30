@@ -108,7 +108,7 @@ const AdminVenuesPage = () => {
         <Building2 size={28} className="text-brand-text" />
         <div>
           <h1 className="text-2xl font-bold text-ink">Quản lý phòng trà</h1>
-          <p className="text-ink-soft text-sm">Manage the status of tea rooms within the system.</p>
+          <p className="text-ink-soft text-sm">Quản lý trạng thái các phòng trà trên hệ thống.</p>
         </div>
       </div>
 

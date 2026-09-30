@@ -103,7 +103,7 @@ const AdminDashboard = () => {
 
       {/* ===== HEADER (kiểu cũ) ===== */}
       <div>
-        <h1 className="text-2xl font-bold text-ink mb-1">System Overview</h1>
+        <h1 className="text-2xl font-bold text-ink mb-1">Tổng quan hệ thống</h1>
         <p className="text-ink-soft text-sm">Toàn bộ số liệu lấy trực tiếp từ hệ thống, không phải dữ liệu mẫu.</p>
       </div>
 
@@ -187,7 +187,7 @@ const AdminDashboard = () => {
       {dashboard ? (
         <div className="space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <h3 className="text-lg font-semibold text-ink">Revenue over the last six months</h3>
+            <h3 className="text-lg font-semibold text-ink">Doanh thu 6 tháng gần nhất</h3>
             {/* ⭐ SEGMENTED CONTROL từ bản mới */}
             <div className="inline-flex rounded-lg border border-line p-0.5 bg-sunken/70" role="group" aria-label="Đại lượng doanh thu">
               {MEASURES.map((m) => (
@@ -216,7 +216,7 @@ const AdminDashboard = () => {
               <RevenueByMonthChart months={dashboard.months} measure={measure} />
             </div>
             <div className="lg:col-span-1 bg-card border border-line rounded-xl p-6 flex flex-col">
-              <h3 className="text-base font-semibold text-ink">This month revenue</h3>
+              <h3 className="text-base font-semibold text-ink">Doanh thu tháng này</h3>
               <p className="text-xs text-ink-mute mt-0.5 mb-2">
                 Tháng {dayjs(`${dashboard.months.at(-1)?.month}-01`).format('MM/YYYY')}, chưa trọn tháng
               </p>
@@ -236,7 +236,7 @@ const AdminDashboard = () => {
               <TopShowsTable shows={dashboard.topShows} />
             </div>
             <div className="lg:col-span-1 bg-card border border-line rounded-xl p-6">
-              <h3 className="text-lg font-semibold text-ink mb-1">Trending genres</h3>
+              <h3 className="text-lg font-semibold text-ink mb-1">Thể loại đang được quan tâm</h3>
               <p className="text-ink-mute text-xs mb-6">Xếp theo số vé bán trong kỳ</p>
               <GenreTrendingList genres={dashboard.genres} />
             </div>

@@ -65,7 +65,7 @@ const PackageFormModal = ({ isOpen, editingPkg, isSaving, onClose, onSubmit }) =
       <div className="relative bg-card border border-line rounded-2xl w-full max-w-lg shadow-2xl flex flex-col max-h-[90vh]">
         {/* HEADER */}
         <div className="flex justify-between items-center p-6 border-b border-line">
-          <h2 className="text-xl font-bold text-ink">{isEditing ? 'Edit Package' : 'Create new Package'}</h2>
+          <h2 className="text-xl font-bold text-ink">{isEditing ? 'Sửa gói' : 'Tạo gói mới'}</h2>
           <button onClick={onClose} disabled={isSaving} className="p-2 hover:bg-sunken rounded-full text-ink-soft disabled:opacity-30">
             <X size={20} />
           </button>
@@ -86,7 +86,7 @@ const PackageFormModal = ({ isOpen, editingPkg, isSaving, onClose, onSubmit }) =
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-ink-soft mb-2">Price (VNĐ)</label>
+              <label className="block text-sm font-medium text-ink-soft mb-2">Giá (VNĐ)</label>
               <div className="relative">
                 <input
                   type="text" required
@@ -130,7 +130,7 @@ const PackageFormModal = ({ isOpen, editingPkg, isSaving, onClose, onSubmit }) =
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-ink-soft mb-2 flex items-center gap-1.5">
-                <Sparkles size={14} className="text-brand-text" /> Poster AI / month
+                <Sparkles size={14} className="text-brand-text" /> Poster AI / tháng
               </label>
               <input
                 type="number" min="0"
@@ -202,7 +202,7 @@ const PackageFormModal = ({ isOpen, editingPkg, isSaving, onClose, onSubmit }) =
             disabled={isSaving}
             className="flex-1 py-2.5 border border-line-strong text-ink-soft rounded-lg font-medium hover:bg-sunken transition-colors disabled:opacity-50"
           >
-            Cancel
+            Huỷ
           </button>
           <button
             type="submit"
@@ -210,7 +210,7 @@ const PackageFormModal = ({ isOpen, editingPkg, isSaving, onClose, onSubmit }) =
             disabled={isSaving}
             className="flex-1 py-2.5 bg-brand text-on-brand rounded-lg font-bold hover:bg-brand-hover transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
           >
-            {isSaving ? <><Loader2 size={16} className="animate-spin" /> Saving...</> : (isEditing ? 'Save' : 'Create')}
+            {isSaving ? <><Loader2 size={16} className="animate-spin" /> Đang lưu…</> : (isEditing ? 'Lưu' : 'Tạo')}
           </button>
         </div>
       </div>

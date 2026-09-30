@@ -112,7 +112,7 @@ const OwnerSubscriptionPage = () => {
                   ? 'bg-green-500/10 text-success border-green-500/30'
                   : 'bg-line-strong/10 text-ink-soft border-line-strong/30'
                   }`}>
-                  {current.status}
+                  {{ Active: 'Đang hoạt động', Expired: 'Đã hết hạn', Cancelled: 'Đã huỷ' }[current.status] ?? current.status}
                 </span>
               </div>
               <p className="text-sm text-ink-soft flex items-center gap-1.5">

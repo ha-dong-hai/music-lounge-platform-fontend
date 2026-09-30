@@ -21,7 +21,7 @@ const VenueReviewModal = ({ venue, onClose, onDecision, isProcessing }) => {
             <ShieldAlert size={22} className="text-[#C3B665]" />
           </div>
           <div className="flex-1 min-w-0">
-            <h2 className="text-lg font-bold text-white">Venue Review</h2>
+            <h2 className="text-lg font-bold text-white">Duyệt phòng trà</h2>
             <p className="text-sm text-gray-500 truncate">#{venue.loungeId} · {venue.name}</p>
           </div>
           <button onClick={onClose} disabled={isProcessing} className="p-2 hover:bg-gray-800 rounded-full text-gray-400 disabled:opacity-30">
@@ -66,13 +66,13 @@ const VenueReviewModal = ({ venue, onClose, onDecision, isProcessing }) => {
 
           {/* Note */}
           <div>
-            <label className="block text-sm font-medium text-gray-400 mb-2">Review note (optional)</label>
+            <label className="block text-sm font-medium text-gray-400 mb-2">Ghi chú duyệt (không bắt buộc)</label>
             <textarea
               rows={3}
               value={reviewNote}
               onChange={(e) => setReviewNote(e.target.value)}
               disabled={!!isProcessing}
-              placeholder="Reason for approval / rejection..."
+              placeholder="Lý do duyệt hoặc từ chối…"
               className="w-full px-4 py-2.5 bg-black border border-gray-800 rounded-lg text-white text-sm focus:outline-none focus:border-[#C3B665]/50 resize-none disabled:opacity-50"
             />
           </div>
@@ -86,7 +86,7 @@ const VenueReviewModal = ({ venue, onClose, onDecision, isProcessing }) => {
             className="flex-1 py-3 rounded-xl bg-green-500 text-white font-bold hover:bg-green-600 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isProcessing === 'Approved'
-              ? <><Loader2 size={18} className="animate-spin" /> Processing...</>
+              ? <><Loader2 size={18} className="animate-spin" /> Đang xử lý…</>
               : <><Check size={18} strokeWidth={3} /> Approve</>}
           </button>
           <button
@@ -95,7 +95,7 @@ const VenueReviewModal = ({ venue, onClose, onDecision, isProcessing }) => {
             className="flex-1 py-3 rounded-xl bg-red-500 text-white font-bold hover:bg-red-600 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isProcessing === 'Rejected'
-              ? <><Loader2 size={18} className="animate-spin" /> Processing...</>
+              ? <><Loader2 size={18} className="animate-spin" /> Đang xử lý…</>
               : <><X size={18} strokeWidth={3} /> Reject</>}
           </button>
         </div>

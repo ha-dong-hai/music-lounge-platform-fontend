@@ -60,7 +60,7 @@ export const PackageCard = ({ pkg, onEdit, onToggleStatus }) => {
         <p 
         title={pkg.description || ''}
         className="text-sm text-ink-mute line-clamp-2 min-h-[40px] mt-3">
-          {pkg.description || "No description"}
+          {pkg.description || "Chưa có mô tả"}
         </p>
       </div>
 

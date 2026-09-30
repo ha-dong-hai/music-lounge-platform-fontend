@@ -59,7 +59,7 @@ const AccountsTable = ({
                           onClick={() => onToggleBan(acc.id, acc.isActive)}
                           disabled={isUpdating}
                           className={`p-2 rounded-lg transition-colors disabled:opacity-50 ${acc.isActive ? 'bg-red-500/10 text-danger hover:bg-red-500/20' : 'bg-green-500/10 text-success hover:bg-green-500/20'}`}
-                          title={acc.isActive ? 'Banned account' : 'Unbanned account'}
+                          title={acc.isActive ? 'Khoá tài khoản' : 'Mở khoá tài khoản'}
                         >
                           {acc.isActive ? <Ban size={16} /> : <Unlock size={16} />}
                         </button>
@@ -84,7 +84,7 @@ const AccountsTable = ({
       {!isLoading && accounts.length > 0 && (
         <div className="flex items-center justify-between p-4 border-t border-line">
           <p className="text-sm text-ink-mute">
-            Trang {pagination.page} / {pagination.totalPages} (Total: {pagination.totalCount} account)
+            Trang {pagination.page} / {pagination.totalPages} · {pagination.totalCount} tài khoản
           </p>
           <div className="flex gap-2">
             <button

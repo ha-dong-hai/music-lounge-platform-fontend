@@ -54,7 +54,7 @@ const ComplaintsTable = ({ complaints, isLoading, pagination, onViewDetail, onPa
               <tr>
                 <td colSpan="8" className="p-10 text-center text-ink-mute">
                   <MessageSquareWarning size="32" className="mx-auto mb-3 opacity-50" />
-                  No complaint.
+                  Chưa có khiếu nại nào.
                 </td>
               </tr>
             )}
@@ -66,7 +66,7 @@ const ComplaintsTable = ({ complaints, isLoading, pagination, onViewDetail, onPa
       {!isLoading && complaints.length > 0 && (
         <div className="flex items-center justify-between p-4 border-t border-line">
           <p className="text-sm text-ink-mute">
-            Trang {pagination.page} / {pagination.totalPages} (Total: {pagination.totalCount} complaint)
+            Trang {pagination.page} / {pagination.totalPages} · {pagination.totalCount} khiếu nại
           </p>
           <div className="flex gap-2">
             <button

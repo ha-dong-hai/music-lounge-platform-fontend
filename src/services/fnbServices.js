@@ -40,7 +40,7 @@ export const createMenu = async ({ loungeId, name, description = null, displayOr
 
 // PUT ghi đè — phải gửi lại đủ cả isActive và displayOrder, bỏ trống là mất giá trị cũ.
 export const updateMenu = async (id, { name, description = null, isActive, displayOrder }) => {
-  return axiosClient.put(`/fnb-menus/${id}`, { menuId: id, name, description, isActive, displayOrder });
+  return axiosClient.put(`/fnb-menus/${id}`, { name, description, isActive, displayOrder });
 };
 
 export const deleteMenu = async (id) => {

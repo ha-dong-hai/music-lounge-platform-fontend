@@ -27,7 +27,8 @@ import {
 } from 'lucide-react'
 import dayjs from 'dayjs'
 import toast from 'react-hot-toast'
-import { getShows, startShow, endShow, getShowTicketStats, getShowOrders, getTicketTiers } from '../../services/showServices'
+import { Link } from 'react-router-dom'
+import { getShows, getShowDetail, startShow, endShow, getShowTicketStats, getShowOrders, getTicketTiers } from '../../services/showServices'
 import { useAuthStore } from '../../store/useAuthStore'
 import { getTicketByQr, checkInTicket, sellWalkInTicket } from '../../services/ticketServices'
 
@@ -35,6 +36,21 @@ const fmtMoney = (v) => `${Number(v || 0).toLocaleString('vi-VN')}đ`
 
 // Trạng thái buổi diễn quyết định nút nào bật — không đoán, lấy đúng tên trạng thái của backend.
 const CO_THE_BAT_DAU = ['Published']
+// Đúng enum LoungeShowStatus / TicketStatus của backend (đối chiếu swagger 30/09).
+const TRANG_THAI_BUOI = {
+  Draft: 'Bản nháp', Pending: 'Chờ duyệt', Published: 'Đã mở bán', Ongoing: 'Đang diễn',
+  Ended: 'Đã kết thúc', Cancelled: 'Đã huỷ',
+}
+const tenTrangThai = (s) => TRANG_THAI_BUOI[s] ?? s
+// Chỉ vé Confirmed mới soát được. Bản trước so với 'CheckedIn' — giá trị KHÔNG tồn tại trong TicketStatus
+// (backend dùng 'Used') — nên vé đã soát, đã huỷ hay đã hoàn tiền đều vẫn hiện nút "Soát vé và cho vào".
+const VE_KHONG_SOAT = {
+  Used: { cau: 'Vé này đã được soát.', tot: true },
+  Cancelled: { cau: 'Vé đã huỷ — không cho vào.' },
+  Refunded: { cau: 'Vé đã hoàn tiền — không cho vào.' },
+  Pending: { cau: 'Vé chưa thanh toán xong — không cho vào.' },
+}
+const TEN_TRANG_THAI_VE = { Pending: 'Chờ thanh toán', Confirmed: 'Hợp lệ', Used: 'Đã soát', Cancelled: 'Đã huỷ', Refunded: 'Đã hoàn tiền' }
 const CO_THE_KET_THUC = ['Ongoing']
 
 const Card = ({ title, subtitle, children, right }) => (
@@ -71,7 +87,12 @@ const OwnerOperatePage = () => {
   const clientRequestIdRef = useRef(null)
   const [giaBanQuay, setGiaBanQuay] = useState([])
   // Số liệu vé có doanh thu — backend chỉ mở cho chủ/Admin; nhân viên không gọi để khỏi nhận 403.
-  const xemDuocSoLieu = useAuthStore((st) => st.user?.role) !== 'Staff'
+  const vai = useAuthStore((st) => st.user?.role)
+  const xemDuocSoLieu = vai !== 'Staff'
+  // Chi tiết buổi đang chọn: operatorInfo.vcpmcDeclared + livestreamId quyết định nút "Bắt đầu" có
+  // dùng được không (StartLoungeShowCommandHandler chặn cả hai trường hợp) — báo TRƯỚC thay vì để
+  // người trực bấm rồi mới nhận lỗi.
+  const [chiTietBuoi, setChiTietBuoi] = useState(null)
 
   const showDangChon = shows.find((s) => s.id === showId) ?? null
 
@@ -142,6 +163,21 @@ const OwnerOperatePage = () => {
   }, [showId])
 
   useEffect(() => { const chay = async () => { await loadGiaBanQuay() }; chay() }, [loadGiaBanQuay])
+
+  const loadChiTietBuoi = useCallback(async () => {
+    if (!showId) { setChiTietBuoi(null); return }
+    try {
+      const res = await getShowDetail(showId)
+      setChiTietBuoi(res.success ? res.data : null)
+    } catch {
+      setChiTietBuoi(null) // không đọc được thì không chặn nút — để máy chủ quyết
+    }
+  }, [showId])
+
+  useEffect(() => { const chay = async () => { await loadChiTietBuoi() }; chay() }, [loadChiTietBuoi])
+
+  const coLivestream = !!chiTietBuoi?.livestreamId
+  const thieuVcpmc = chiTietBuoi?.operatorInfo != null && !chiTietBuoi.operatorInfo.vcpmcDeclared
 
   const loadStats = useCallback(async () => {
     if (!showId || !xemDuocSoLieu) { setStats(null); return }
@@ -274,7 +310,7 @@ const OwnerOperatePage = () => {
           className="mt-1 w-full max-w-xl px-3 py-2 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-brand/50">
           {shows.map((s) => (
             <option key={s.id} value={s.id}>
-              {s.name} — {dayjs(s.scheduledStart).format('HH:mm DD/MM/YYYY')} ({s.status})
+              {s.name} — {dayjs(s.scheduledStart).format('HH:mm DD/MM/YYYY')} ({tenTrangThai(s.status)})
             </option>
           ))}
         </select>
@@ -282,7 +318,7 @@ const OwnerOperatePage = () => {
 
       {showDangChon && (
         <div className="flex flex-wrap gap-3">
-          <button onClick={handleStart} disabled={busy !== null || !CO_THE_BAT_DAU.includes(showDangChon.status)}
+          <button onClick={handleStart} disabled={busy !== null || !CO_THE_BAT_DAU.includes(showDangChon.status) || thieuVcpmc || coLivestream}
             className="flex items-center gap-2 px-4 py-2 rounded-lg bg-green-500/10 border border-green-500/40 text-success text-sm font-bold hover:bg-green-500/20 disabled:opacity-40 disabled:cursor-not-allowed">
             {busy === 'start' ? <Loader2 size={16} className="animate-spin" /> : <Play size={16} />} Bắt đầu buổi diễn
           </button>
@@ -291,9 +327,22 @@ const OwnerOperatePage = () => {
             {busy === 'end' ? <Loader2 size={16} className="animate-spin" /> : <Square size={16} />} Kết thúc
           </button>
           <span className="text-xs text-ink-mute self-center">
-            Trạng thái hiện tại: <span className="text-ink-soft">{showDangChon.status}</span>
+            Trạng thái hiện tại: <span className="text-ink-soft">{tenTrangThai(showDangChon.status)}</span>
           </span>
         </div>
+      )}
+
+      {showDangChon && CO_THE_BAT_DAU.includes(showDangChon.status) && (thieuVcpmc || coLivestream) && (
+        <p className="text-xs text-warning leading-relaxed max-w-3xl">
+          {coLivestream ? (
+            <>Buổi diễn này có phát trực tuyến — bắt đầu ở trang <Link to="/owner/livestreams" className="underline">Livestream</Link>.</>
+          ) : vai === 'Staff' ? (
+            'Chưa bắt đầu được: buổi diễn chưa khai mã tác quyền VCPMC. Nhờ chủ phòng trà khai trong Cài đặt buổi diễn.'
+          ) : (
+            <>Chưa bắt đầu được: buổi diễn chưa khai mã tác quyền VCPMC —{' '}
+              <Link to={`/owner/shows/${showDangChon.id}/settings`} className="underline">khai trong Cài đặt buổi diễn</Link>.</>
+          )}
+        </p>
       )}
 
       {/* === SỐ LIỆU VÉ === */}
@@ -333,7 +382,7 @@ const OwnerOperatePage = () => {
           {veTraCuu && (
             <div className="mt-4 bg-sunken/70 border border-line rounded-lg p-4">
               <div className="flex items-start gap-2">
-                {veTraCuu.status === 'CheckedIn'
+                {veTraCuu.status === 'Used'
                   ? <CheckCircle2 size={18} className="text-success mt-0.5 flex-shrink-0" />
                   : <QrCode size={18} className="text-ink-mute mt-0.5 flex-shrink-0" />}
                 <div className="min-w-0">
@@ -342,15 +391,16 @@ const OwnerOperatePage = () => {
                     {[veTraCuu.tierName, veTraCuu.priceName, veTraCuu.zoneName].filter(Boolean).join(' · ') || '—'}
                   </p>
                   <p className="text-xs text-ink-mute mt-0.5">
-                    Trạng thái: <span className="text-ink-soft">{veTraCuu.status}</span>
+                    Trạng thái: <span className="text-ink-soft">{TEN_TRANG_THAI_VE[veTraCuu.status] ?? veTraCuu.status}</span>
                     {veTraCuu.holderName && <> · Người mua: <span className="text-ink-soft">{veTraCuu.holderName}</span></>}
                   </p>
                 </div>
               </div>
 
-              {veTraCuu.status === 'CheckedIn' ? (
-                <p className="mt-3 text-xs text-success flex items-center gap-1.5">
-                  <CheckCircle2 size={13} /> Vé này đã được soát.
+              {veTraCuu.status !== 'Confirmed' ? (
+                <p className={`mt-3 text-xs flex items-center gap-1.5 ${VE_KHONG_SOAT[veTraCuu.status]?.tot ? 'text-success' : 'text-danger'}`}>
+                  {VE_KHONG_SOAT[veTraCuu.status]?.tot ? <CheckCircle2 size={13} /> : <XCircle size={13} />}
+                  {VE_KHONG_SOAT[veTraCuu.status]?.cau ?? 'Vé này không soát được.'}
                 </p>
               ) : (
                 <button onClick={handleCheckIn} disabled={busy !== null}

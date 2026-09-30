@@ -15,7 +15,7 @@ const ShareModal = ({ onClose }) => {
       <div className="absolute inset-0 bg-espresso/80 backdrop-blur-sm"></div>
       <div className="relative bg-card border border-line rounded-2xl w-full max-w-md p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-bold text-ink">Chia sẻ sự kiện</h2>
+          <h2 className="text-xl font-bold text-ink">Chia sẻ buổi diễn</h2>
           <button onClick={onClose} className="p-2 hover:bg-sunken rounded-full text-ink-soft transition-colors"><X size={20} /></button>
         </div>
         <p className="text-ink-soft text-sm mb-3">Sao chép đường link bên dưới để gửi cho bạn bè:</p>

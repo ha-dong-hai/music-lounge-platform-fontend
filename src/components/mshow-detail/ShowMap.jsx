@@ -40,10 +40,17 @@ const ShowMap = ({ showData }) => {
   // lúc đó KHÔNG hiện khối, chứ không bịa ra điều khoản.
   const chinhSach = showData?.refundPolicy ?? null
 
+  // Tải hạng vé LỖI khác hẳn "chưa mở bán": bản trước nuốt lỗi và rơi về câu "Buổi diễn này chưa mở bán
+  // vé." — khách tưởng buổi diễn không bán, trong khi chỉ là mạng/máy chủ trục trặc (gặp 30/09 khi máy
+  // chủ trả 429). Giữ riêng cờ lỗi để nói đúng và cho thử lại.
+  const [loiTaiVe, setLoiTaiVe] = useState(false)
+  const [lanTai, setLanTai] = useState(0)
+
   useEffect(() => {
     if (!showId) return
     const fetchTiers = async () => {
       setIsLoading(true)
+      setLoiTaiVe(false)
       try {
         const res = await getTicketTiers(showId)
         if (res.success) {
@@ -51,12 +58,13 @@ const ShowMap = ({ showData }) => {
         }
       } catch (err) {
         console.error('Error loading ticket tiers:', err)
+        setLoiTaiVe(true)
       } finally {
         setIsLoading(false)
       }
     }
     fetchTiers()
-  }, [showId])
+  }, [showId, lanTai])
 
   // Đếm ngược thời hạn giữ chỗ theo mốc thật server trả về (expiresAt), không phải hardcode
   useEffect(() => {
@@ -182,16 +190,25 @@ const ShowMap = ({ showData }) => {
         {/* DANH SÁCH HẠNG VÉ */}
         <div className="lg:col-span-2 bg-card border border-line rounded-2xl p-4 md:p-8">
           <h3 className="text-xl font-bold text-brand-text mb-6 flex items-center gap-2">
-            <Ticket size={20} /> Ticket tiers
+            <Ticket size={20} /> Hạng vé
           </h3>
 
-          {allPrices.length === 0 ? (
+          {loiTaiVe ? (
+            <div className="flex flex-col items-center justify-center text-center py-16">
+              <MapPin size={40} className="text-ink-mute mb-4" />
+              <p className="text-ink-mute font-medium">Chưa tải được danh sách hạng vé.</p>
+              <button onClick={() => setLanTai((n) => n + 1)}
+                className="mt-3 px-4 py-2 rounded-lg border border-line text-ink-soft text-sm font-bold hover:bg-sunken">
+                Thử lại
+              </button>
+            </div>
+          ) : allPrices.length === 0 ? (
             <div className="flex flex-col items-center justify-center text-center py-16">
               <MapPin size={40} className="text-ink-mute mb-4" />
               <p className="text-ink-mute font-medium">
                 {zoneDangChon != null
                   ? 'Khu vực này không còn hạng vé nào bán trực tuyến.'
-                  : 'No tickets available for this show yet.'}
+                  : 'Buổi diễn này chưa mở bán vé.'}
               </p>
             </div>
           ) : (
@@ -214,7 +231,7 @@ const ShowMap = ({ showData }) => {
                     <div className="min-w-0">
                       <p className="text-ink font-semibold truncate">{price.tierName} — {price.name}</p>
                       <p className="text-ink-mute text-xs mt-1">
-                        {isSoldOut ? 'Sold out' : price.availableSlots != null ? `${price.availableSlots} left` : 'Available'}
+                        {isSoldOut ? 'Hết vé' : price.availableSlots != null ? `Còn ${price.availableSlots}` : 'Còn vé'}
                       </p>
                     </div>
                     <div className="flex items-center gap-3 flex-shrink-0">
@@ -318,7 +335,7 @@ const ShowMap = ({ showData }) => {
                     disabled={isProcessing}
                     className="w-full py-3 bg-brand text-on-brand rounded-lg font-bold hover:bg-brand-hover transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                   >
-                    {isProcessing ? <Loader2 size={18} className="animate-spin" /> : 'Pay now'}
+                    {isProcessing ? <Loader2 size={18} className="animate-spin" /> : 'Thanh toán'}
                   </button>
                   <button
                     onClick={handleCancelHold}
@@ -334,7 +351,7 @@ const ShowMap = ({ showData }) => {
                   disabled={isProcessing}
                   className="w-full py-3 bg-brand text-on-brand rounded-lg font-bold hover:bg-brand-hover transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                 >
-                  {isProcessing ? <Loader2 size={18} className="animate-spin" /> : 'Buy ticket'}
+                  {isProcessing ? <Loader2 size={18} className="animate-spin" /> : 'Giữ chỗ để mua'}
                 </button>
               )}
             </div>

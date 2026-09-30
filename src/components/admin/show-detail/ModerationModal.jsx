@@ -36,7 +36,7 @@ const ModerationModal = ({ moderation, onClose, onDecision, isProcessing }) => {
           {/* 4 thông số AI */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             <div className="bg-sunken/50 rounded-xl p-4 flex flex-col items-center gap-2">
-              <p className="text-xs text-ink-mute">AI Score</p>
+              <p className="text-xs text-ink-mute">Điểm AI</p>
               <AIScoreCircle score={moderation.aiScore} />
             </div>
             <div className="bg-sunken/50 rounded-xl p-4 flex flex-col items-center gap-2">
@@ -52,7 +52,7 @@ const ModerationModal = ({ moderation, onClose, onDecision, isProcessing }) => {
               <p className={`text-sm font-bold ${isSlaOverdue ? 'text-danger' : 'text-ink'}`}>
                 {moderation.slaDeadline ? dayjs(moderation.slaDeadline).format('HH:mm DD/MM') : '-'}
               </p>
-              {isSlaOverdue && <p className="text-[10px] text-danger font-bold">OVERDUE</p>}
+              {isSlaOverdue && <p className="text-[10px] text-danger font-bold">QUÁ HẠN</p>}
             </div>
           </div>
 
@@ -69,7 +69,7 @@ const ModerationModal = ({ moderation, onClose, onDecision, isProcessing }) => {
 
           {/* Ghi chú duyệt */}
           <div>
-            <label className="block text-sm font-medium text-ink-soft mb-2">Review note (Optional)</label>
+            <label className="block text-sm font-medium text-ink-soft mb-2">Ghi chú duyệt (không bắt buộc)</label>
             <textarea
               rows={3}
               value={reviewNote}
@@ -89,7 +89,7 @@ const ModerationModal = ({ moderation, onClose, onDecision, isProcessing }) => {
             className="flex-1 py-3 rounded-xl bg-green-500 text-white font-bold hover:bg-green-600 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isProcessing === 'approve'
-              ? <><Loader2 size={18} className="animate-spin" /> Processing...</>
+              ? <><Loader2 size={18} className="animate-spin" /> Đang xử lý…</>
               : <><Check size={18} strokeWidth={3} /> Duyệt</>}
           </button>
           <button
@@ -98,7 +98,7 @@ const ModerationModal = ({ moderation, onClose, onDecision, isProcessing }) => {
             className="flex-1 py-3 rounded-xl bg-red-500 text-white font-bold hover:bg-red-600 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isProcessing === 'reject'
-              ? <><Loader2 size={18} className="animate-spin" /> Processing...</>
+              ? <><Loader2 size={18} className="animate-spin" /> Đang xử lý…</>
               : <><X size={18} strokeWidth={3} /> Từ chối</>}
           </button>
         </div>

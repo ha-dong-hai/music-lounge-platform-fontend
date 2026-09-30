@@ -61,7 +61,7 @@ const ReportModal = ({ onClose, onSubmit }) => {
           {/* CHỌN LÝ DO */}
           <div>
             <label className="block text-sm font-medium text-ink-soft mb-2.5">
-              Reason for report <span className="text-danger">*</span>
+              Lý do báo cáo <span className="text-danger">*</span>
             </label>
             <div className="space-y-2">
               {REPORT_REASONS.map(r => (

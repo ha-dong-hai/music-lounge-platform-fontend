@@ -153,10 +153,10 @@ const AdminPackagesPage = () => {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-ink mb-1">Quản lý gói dịch vụ</h1>
-            <p className="text-ink-soft text-sm">Set up subscription plans for lounge owner.</p>
+            <p className="text-ink-soft text-sm">Thiết lập các gói dịch vụ cho chủ phòng trà.</p>
           </div>
           <button onClick={openCreateModal} className="flex items-center gap-2 bg-brand text-on-brand px-4 py-2.5 rounded-lg font-bold text-sm hover:bg-brand-hover transition-colors">
-            <Plus size={18} /> Create Package
+            <Plus size={18} /> Tạo gói
           </button>
         </div>
         <div className="bg-card/50 border border-dashed border-line rounded-2xl py-20 flex flex-col items-center justify-center text-center">
@@ -164,9 +164,9 @@ const AdminPackagesPage = () => {
             <Box size={28} className="text-brand-text" />
           </div>
           <p className="text-ink-soft font-semibold mb-1">Chưa có gói dịch vụ nào.</p>
-          <p className="text-ink-mute text-sm mb-5">Create the first package for lounge owners to subscribe.</p>
+          <p className="text-ink-mute text-sm mb-5">Tạo gói đầu tiên để chủ phòng trà đăng ký.</p>
           <button onClick={openCreateModal} className="flex items-center gap-2 bg-brand text-on-brand px-4 py-2.5 rounded-lg font-bold text-sm hover:bg-brand-hover transition-colors">
-            <Plus size={16} /> Create first package
+            <Plus size={16} /> Tạo gói đầu tiên
           </button>
         </div>
         <PackageFormModal
@@ -193,7 +193,7 @@ const AdminPackagesPage = () => {
           onClick={openCreateModal}
           className="flex items-center gap-2 bg-brand text-on-brand px-4 py-2.5 rounded-lg font-bold text-sm hover:bg-brand-hover transition-all shadow-lg shadow-brand/20 hover:shadow-brand/30 hover:-translate-y-0.5 flex-shrink-0"
         >
-          <Plus size={18} /> Create Package
+          <Plus size={18} /> Tạo gói
         </button>
       </div>
 
@@ -215,7 +215,7 @@ const AdminPackagesPage = () => {
           </div>
         ) : (
           <div className="bg-card/40 border border-dashed border-line rounded-xl p-8 text-center text-ink-mute text-sm">
-            No packages are currently displayed. 
+            Chưa có gói nào đang hiển thị. 
           </div>
         )}
       </section>
@@ -229,7 +229,7 @@ const AdminPackagesPage = () => {
             <span className="px-2 py-0.5 rounded-full bg-red-500/10 border border-red-500/25 text-danger text-xs font-bold">
               {hiddenPkgs.length}
             </span>
-            <span className="text-xs text-ink-mute ml-1">— Does not appear on the registration page</span>
+            <span className="text-xs text-ink-mute ml-1">— Không hiện ở trang đăng ký</span>
           </div>
           <div className="space-y-3">
             {hiddenPkgs.map(pkg => (
@@ -251,12 +251,12 @@ const AdminPackagesPage = () => {
       {/* CONFIRM HIDE/UNHIDE MODAL */}
       <ConfirmModal
         isOpen={!!confirmPkg}
-        title={confirmPkg?.isActive ? 'Hide Package?' : 'Show Package?'}
+        title={confirmPkg?.isActive ? 'Ẩn gói này?' : 'Hiện lại gói này?'}
         message={
           confirmPkg?.isActive ? (
             <>
               <div>
-                Package "<span className="font-bold text-ink">{confirmPkg?.name}</span>" will be hidden from the Package list.
+                Gói "<span className="font-bold text-ink">{confirmPkg?.name}</span>" sẽ bị ẩn khỏi danh sách gói.
               </div>
               <div className="text-xs text-ink mt-1.5">
                 Owners using this plan keep their current benefits, but can't renew it.
@@ -265,7 +265,7 @@ const AdminPackagesPage = () => {
           ) : (
             <>
               <div>
-                Package "<span className="font-bold text-ink">{confirmPkg?.name}</span>" will return to the Package list.
+                Gói "<span className="font-bold text-ink">{confirmPkg?.name}</span>" sẽ hiện lại trong danh sách gói.
               </div>
               <div className="text-xs text-ink-mute mt-1.5">
                 Owners can select this plan when subscribing.

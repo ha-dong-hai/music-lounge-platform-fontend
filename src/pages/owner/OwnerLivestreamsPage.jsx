@@ -12,9 +12,10 @@
 //    `operatorInfo` chỉ trả cho người vận hành (chủ, nhân viên được phân công, Admin) — khán giả
 //    nhận null, nên mọi chỗ đọc nó phải chịu được null.
 import { useState, useEffect, useCallback } from 'react'
-import { Radio, Loader2, Copy, Square, Play, ShieldCheck, MessageSquare, MessageSquareOff } from 'lucide-react'
+import { Radio, Loader2, Copy, Square, Play, MessageSquare, MessageSquareOff } from 'lucide-react'
 import toast from 'react-hot-toast'
-import { getShows, getShowDetail, setVcpmcRoyalty } from '../../services/showServices'
+import { getShows, getShowDetail } from '../../services/showServices'
+import VcpmcRoyaltyCard from '../../components/owner/VcpmcRoyaltyCard'
 import {
   createLivestream,
   getLivestreamDetail,
@@ -41,7 +42,6 @@ const StatusBadge = ({ status }) => {
 const ShowLivestreamRow = ({ show, onChanged }) => {
   const [livestream, setLivestream] = useState(undefined) // undefined = đang tải, null = chưa có
   const [credentials, setCredentials] = useState(null)
-  const [vcpmcRef, setVcpmcRef] = useState('')
   const [isBusy, setIsBusy] = useState(false)
   // Chi tiết buổi diễn. `show` truyền từ ngoài vào là MỘT DÒNG DANH SÁCH nên KHÔNG có operatorInfo —
   // mã tác quyền đã khai chỉ có ở chi tiết. Trước đây hàm dưới gọi chi tiết rồi bỏ đi, chỉ lấy
@@ -76,22 +76,6 @@ const ShowLivestreamRow = ({ show, onChanged }) => {
       await loadLivestream()
     } catch (err) {
       toast.error(err.response?.data?.message || 'Không tạo được livestream.')
-    } finally {
-      setIsBusy(false)
-    }
-  }
-
-  const handleSaveVcpmc = async () => {
-    if (!vcpmcRef.trim()) return
-    setIsBusy(true)
-    try {
-      await setVcpmcRoyalty(show.id, vcpmcRef.trim())
-      toast.success('Đã lưu mã tác quyền VCPMC.')
-      setVcpmcRef('')
-      // Tải lại chi tiết buổi diễn để khối "đã khai" hiện đúng mã vừa lưu, thay vì phải đoán.
-      await loadLivestream()
-    } catch (err) {
-      toast.error(err.response?.data?.message || 'Không lưu được mã tác quyền.')
     } finally {
       setIsBusy(false)
     }
@@ -186,35 +170,13 @@ const ShowLivestreamRow = ({ show, onChanged }) => {
 
       {livestream && livestream.status === 'Scheduled' && (
         <div className="mt-4 pt-4 border-t border-line space-y-3">
-          {/* HIỆN MÃ ĐÃ KHAI. Không có khối này thì khai xong không còn chỗ nào xem lại để đối
-              chiếu, và không biết mình đã khai hay chưa — trong khi đây là điều kiện bắt buộc để
-              bắt đầu phát. */}
-          {chiTiet?.operatorInfo?.vcpmcDeclared && (
-            <div className="p-3 rounded-lg bg-sunken/70 border border-line">
-              <p className="text-xs text-ink-mute">Đã khai mã tác quyền VCPMC</p>
-              <p className="text-sm text-ink mt-0.5 break-all">
-                {chiTiet.operatorInfo.vcpmcRoyaltyReference || '(đã khai, không đọc lại được mã)'}
-              </p>
-              <p className="text-[11px] text-ink-mute mt-1">Khai lại sẽ ghi đè mã trên.</p>
-            </div>
-          )}
-          <div className="flex gap-2">
-            <input
-              value={vcpmcRef}
-              onChange={(e) => setVcpmcRef(e.target.value)}
-              placeholder={chiTiet?.operatorInfo?.vcpmcDeclared
-                ? 'Nhập mã mới để thay mã đang khai'
-                : 'Mã tham chiếu đã thanh toán tác quyền VCPMC'}
-              className="flex-1 px-3 py-2 bg-page border border-line rounded-lg text-sm text-ink placeholder:text-ink-mute"
-            />
-            <button
-              onClick={handleSaveVcpmc}
-              disabled={isBusy || !vcpmcRef.trim()}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-line text-ink-soft text-xs font-bold hover:bg-sunken disabled:opacity-50"
-            >
-              <ShieldCheck size={14} /> {chiTiet?.operatorInfo?.vcpmcDeclared ? 'Thay mã' : 'Lưu VCPMC'}
-            </button>
-          </div>
+          {/* Mã tác quyền — điều kiện bắt buộc để bắt đầu phát. Khối dùng chung với trang Cài đặt buổi diễn. */}
+          <VcpmcRoyaltyCard
+            showId={show.id}
+            declared={chiTiet?.operatorInfo?.vcpmcDeclared}
+            reference={chiTiet?.operatorInfo?.vcpmcRoyaltyReference}
+            onSaved={loadLivestream}
+          />
           <button
             onClick={handleStart}
             disabled={isBusy}

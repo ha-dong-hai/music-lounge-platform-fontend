@@ -90,7 +90,7 @@ const AdminComplaintPage = () => {
             toast.error('Không có dữ liệu để xuất.')
             return
         }
-        const header = ['ID', 'Category', 'Target', 'Description', 'Contact number', 'Status', 'Create']
+        const header = ['Mã', 'Loại vấn đề', 'Đối tượng', 'Mô tả', 'Số liên hệ', 'Trạng thái', 'Ngày gửi']
         const rows = filteredComplaints.map(c => [
             c.id,
             CATEGORY_CONFIG[c.category]?.label || c.category,

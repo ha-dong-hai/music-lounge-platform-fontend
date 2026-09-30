@@ -44,7 +44,7 @@ const LoungeDetailPage = () => {
         const resLounge = await getLoungeDetail(id)
 
         if (!resLounge.success) {
-          setApiError(resLounge.message || 'Lounge not found')
+          setApiError(resLounge.message || 'Không tìm thấy phòng trà')
           return
         }
 
@@ -66,7 +66,7 @@ const LoungeDetailPage = () => {
           ...beData,
           images,
           tags: [beData.atmosphereName, beData.city].filter(Boolean),
-          description: beData.description || 'There is no description for this lounge yet.',
+          description: beData.description || 'Phòng trà chưa có phần giới thiệu.',
           areaLayoutImageUrl: beData.areaLayoutImageUrl, // dùng trực tiếp (null nếu không có)
         }
         setLounge(mappedLounge)
@@ -123,7 +123,7 @@ const LoungeDetailPage = () => {
       } catch (err) {
         console.error('Lounge loading error:', err)
         // Giữ err lại trong log: lỗi tải phòng trà thường là 404 hoặc phòng trà bị đình chỉ.
-        setApiError('Unable to load lounge data.')
+        setApiError('Không tải được thông tin phòng trà.')
       } finally {
         setIsLoading(false)
       }
@@ -147,7 +147,7 @@ const LoungeDetailPage = () => {
     } catch (err) {
       setIsFollowing(prevStatus)
       setLounge(prev => ({ ...prev, followerCount: prev.followerCount + (prevStatus ? 1 : -1) }))
-      toast.error(err.response?.data?.message || 'The process failed.')
+      toast.error(err.response?.data?.message || 'Thao tác không thành công.')
     } finally {
       setIsUpdatingFollow(false)
     }
@@ -175,7 +175,7 @@ const LoungeDetailPage = () => {
   if (apiError || !lounge) {
     return (
       <div className="min-h-[60vh] bg-page flex flex-col items-center justify-center text-ink">
-        <h1 className="text-2xl font-bold mb-4">{apiError || 'Lounge not found'}</h1>
+        <h1 className="text-2xl font-bold mb-4">{apiError || 'Không tìm thấy phòng trà'}</h1>
         <Link to="/" className="text-brand-text flex items-center gap-2"><ArrowLeft size={18} /> Về trang chủ</Link>
       </div>
     )

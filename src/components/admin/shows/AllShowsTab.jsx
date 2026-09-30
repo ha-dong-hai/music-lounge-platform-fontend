@@ -1,45 +1,11 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { Loader2, ChevronLeft, ChevronRight, Building, Radio, Cast, Music2, Search } from 'lucide-react'
+import { Loader2, ChevronLeft, ChevronRight, Music2, Search } from 'lucide-react'
 import dayjs from 'dayjs'
 import toast from 'react-hot-toast'
 import { getShows } from '../../../services/showServices'
-
-// Badge loại hình
-const FormatBadge = ({ format }) => {
-  const styles = {
-    offline: 'bg-line-strong/10 text-ink-soft border-line-strong/20',
-    livestream: 'bg-purple-500/10 text-purple-700 border-purple-500/20',
-    hybrid: 'bg-blue-500/10 text-sky-700 border-blue-500/20',
-  }
-  const icons = { offline: <Building size={12} />, livestream: <Radio size={12} />, hybrid: <Cast size={12} /> }
-  const labels = { offline: 'Tại chỗ', livestream: 'Livestream', hybrid: 'Kết hợp' }
-  const key = format ? format.toLowerCase() : 'offline'
-  if (!labels[key]) return null
-  return (
-    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs border ${styles[key]}`}>
-      {icons[key]}{labels[key]}
-    </span>
-  )
-}
-
-// Badge trạng thái show
-const StatusBadge = ({ status }) => {
-  const styles = {
-    published: 'bg-green-500/10 text-success border-green-500/20',
-    ongoing: 'bg-blue-500/10 text-sky-700 border-blue-500/20',
-    draft: 'bg-line-strong/10 text-ink-soft border-line-strong/20',
-    ended: 'bg-red-500/10 text-danger border-red-500/20',
-    cancelled: 'bg-red-500/10 text-danger border-red-500/20',
-  }
-  const labels = { published: 'Published', ongoing: 'Ongoing', draft: 'Draft', ended: 'Ended', cancelled: 'Cancelled' }
-  const key = status ? status.toLowerCase() : 'draft'
-  return (
-    <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border ${styles[key] || styles.draft}`}>
-      {labels[key] || status}
-    </span>
-  )
-}
+// Badge dùng chung — bản sao riêng trước đây ở file này in trạng thái bằng tiếng Anh (Published/Ongoing…).
+import { FormatBadge, StatusBadge } from './ShowBadges'
 
 const AllShowsTab = () => {
   const [shows, setShows] = useState([])
@@ -79,7 +45,7 @@ const AllShowsTab = () => {
     if (pagination.totalPages <= 1) return null
     return (
       <div className="flex items-center justify-between p-4 border-t border-line">
-        <p className="text-sm text-ink-mute">Page {pagination.page} / {pagination.totalPages} (Total: {pagination.totalCount} show)</p>
+        <p className="text-sm text-ink-mute">Trang {pagination.page} / {pagination.totalPages} · {pagination.totalCount} buổi diễn</p>
         <div className="flex gap-2">
           <button 
             onClick={() => setPagination(prev => ({ ...prev, page: prev.page - 1 }))} 
@@ -178,7 +144,7 @@ const AllShowsTab = () => {
                 <tr>
                   <td colSpan="6" className="p-10 text-center text-ink-mute">
                     <Music2 size="32" className="mx-auto mb-3 opacity-50" />
-                    Show not found.
+                    Không tìm thấy buổi diễn nào.
                   </td>
                 </tr>
               )}
