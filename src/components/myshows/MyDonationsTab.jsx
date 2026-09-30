@@ -34,7 +34,7 @@ const MyDonationsTab = () => {
         setTotalPages(res.data?.totalPages ?? 1)
       }
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Không tải được lịch sử donate.')
+      toast.error(err.response?.data?.message || 'Chưa tải được lịch sử ủng hộ.')
     } finally {
       setIsLoading(false)
     }
@@ -50,7 +50,7 @@ const MyDonationsTab = () => {
     return (
       <div className="bg-card border border-line p-12 text-center">
         <Heart size={32} className="mx-auto mb-3 text-ink-mute" />
-        <p className="text-lg font-semibold text-ink mb-1">Bạn chưa donate cho nghệ sĩ nào.</p>
+        <p className="text-lg font-semibold text-ink mb-1">Bạn chưa ủng hộ nghệ sĩ nào.</p>
         <p className="text-sm text-ink-mute">Trong buổi phát trực tiếp, bạn có thể tặng tiền cho nghệ sĩ đang biểu diễn.</p>
       </div>
     )
@@ -69,7 +69,7 @@ const MyDonationsTab = () => {
                   {d.performerId ? (
                     <Link to={`/performers/${d.performerId}/donations`}
                       className="text-base font-semibold text-ink hover:text-ink inline-flex items-center gap-1.5"
-                      title="Xem sao kê donate công khai của nghệ sĩ này">
+                      title="Xem sao kê tiền ủng hộ công khai của nghệ sĩ này">
                       {d.performerName} <ExternalLink size={13} className="text-ink-mute" />
                     </Link>
                   ) : (

@@ -15,7 +15,7 @@ import { Link } from 'react-router-dom'
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
 } from 'recharts'
-import { Loader2, DollarSign, Ticket, Music2, Star, Wallet, HandCoins, Download, Radio, Eye } from 'lucide-react'
+import { Loader2, Banknote, Ticket, Music2, Star, Wallet, HandCoins, Download, Radio, Eye } from 'lucide-react'
 import dayjs from 'dayjs'
 import toast from 'react-hot-toast'
 import { getLounges } from '../../services/loungeServices'
@@ -160,7 +160,7 @@ const OwnerAnalyticsPage = () => {
           title="Doanh thu gộp"
           value={fmtMoney(stats?.totalRevenue)}
           note={`Vé ${fmtMoney(stats?.ticketRevenue)} · F&B ${fmtMoney(stats?.fnbRevenue)}`}
-          icon={DollarSign} color="text-success" bg="bg-success/10"
+          icon={Banknote} color="text-success" bg="bg-success/10"
         />
         <StatCard
           title="Vé đã bán"
@@ -194,12 +194,12 @@ const OwnerAnalyticsPage = () => {
           title="Phí nền tảng đã trả"
           value={fmtMoney(revenue?.totalPlatformFeePaid)}
           note="Hoa hồng + thuế đã khấu trừ khi giải ngân"
-          icon={DollarSign} color="text-danger" bg="bg-danger/10"
+          icon={Banknote} color="text-danger" bg="bg-danger/10"
         />
         <StatCard
           title="Thu hộ nghệ sĩ"
           value={fmtMoney(revenue?.totalDonationCollectedForPerformers)}
-          note="Tiền donate giữ hộ, phải chuyển cho nghệ sĩ — không phải doanh thu"
+          note="Tiền ủng hộ giữ hộ, phải chuyển cho nghệ sĩ — không phải doanh thu"
           icon={HandCoins} color="text-danger" bg="bg-danger/10"
         />
       </div>
@@ -305,7 +305,7 @@ const OwnerAnalyticsPage = () => {
         <div className="bg-card border border-line p-6">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
-              <h2 className="font-sans font-bold text-base text-ink">Tiền donate theo nghệ sĩ</h2>
+              <h2 className="font-sans font-bold text-base text-ink">Tiền ủng hộ theo nghệ sĩ</h2>
               <p className="text-xs text-ink-mute mt-0.5 leading-relaxed">
                 Đây là tiền khán giả tặng nghệ sĩ, phòng trà giữ hộ và phải chuyển tiếp — KHÔNG phải doanh thu của bạn.
               </p>
@@ -321,7 +321,7 @@ const OwnerAnalyticsPage = () => {
               <thead>
                 <tr className="text-xs text-ink-mute border-b border-line">
                   <th scope="col" className="text-left py-2 pr-3 font-medium">Nghệ sĩ</th>
-                  <th scope="col" className="text-right py-2 pr-3 font-medium">Lượt donate</th>
+                  <th scope="col" className="text-right py-2 pr-3 font-medium">Lượt ủng hộ</th>
                   <th scope="col" className="text-right py-2 pr-3 font-medium">Số buổi diễn</th>
                   <th scope="col" className="text-right py-2 font-medium">Tổng tiền</th>
                 </tr>

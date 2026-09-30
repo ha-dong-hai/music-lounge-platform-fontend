@@ -527,7 +527,7 @@ const OwnerShowDetailPage = () => {
                     <p className="text-ink-mute text-xs">
                       {ROLES.find((r) => r.value === p.role)?.label || p.role}
                       {p.setTime && ` · ${String(p.setTime).slice(0, 5)}`}
-                      {p.acceptsDonation && ' · nhận donate'}
+                      {p.acceptsDonation && ' · nhận ủng hộ'}
                     </p>
                   </div>
                   {isDraft && (

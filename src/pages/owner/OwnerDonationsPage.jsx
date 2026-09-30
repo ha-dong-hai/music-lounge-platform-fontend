@@ -159,7 +159,7 @@ const OwnerDonationsPage = () => {
         setTongHop(null)
       }
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Không tải được danh sách donate.')
+      toast.error(err.response?.data?.message || 'Chưa tải được danh sách tiền ủng hộ.')
       setItems([])
     } finally {
       setIsLoading(false)
@@ -199,7 +199,7 @@ Không hoàn tiền, và lời nhắn gốc vẫn được lưu để đối chi
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-4xl text-ink mb-1">Tiền donate</h1>
+          <h1 className="text-4xl text-ink mb-1">Tiền ủng hộ</h1>
           <p className="text-ink-soft text-sm leading-relaxed">
             Đây là tiền khán giả tặng NGHỆ SĨ, phòng trà chỉ giữ hộ và chuyển tiếp — không phải doanh thu của bạn.
           </p>
@@ -227,9 +227,9 @@ Không hoàn tiền, và lời nhắn gốc vẫn được lưu để đối chi
         <div className="bg-card border border-line p-10 text-center">
           <HeartHandshake size={28} className="mx-auto mb-3 text-ink-mute" />
           <p className="text-sm text-ink-mute">
-            {tab === 'ack' ? 'Không có donate nào đang chờ bạn xác nhận.'
-              : tab === 'payout' ? 'Không có donate nào đang chờ chuyển cho nghệ sĩ.'
-              : 'Chưa có khoản donate nào trong kỳ này.'}
+            {tab === 'ack' ? 'Không có khoản ủng hộ nào đang chờ bạn xác nhận.'
+              : tab === 'payout' ? 'Không có khoản ủng hộ nào đang chờ chuyển cho nghệ sĩ.'
+              : 'Chưa có khoản ủng hộ nào trong kỳ này.'}
           </p>
         </div>
       ) : tab === 'history' ? (

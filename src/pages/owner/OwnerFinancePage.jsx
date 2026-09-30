@@ -28,7 +28,7 @@ const fmtTien = (v) => `${Number(v || 0).toLocaleString('vi-VN')}đ`
 const LOAI = [
   { value: '', label: 'Tất cả' },
   { value: 'payment', label: 'Tiền vé', icon: Ticket },
-  { value: 'donation', label: 'Donate (thu hộ)', icon: Heart },
+  { value: 'donation', label: 'Tiền ủng hộ (thu hộ)', icon: Heart },
   { value: 'settlement', label: 'Quyết toán', icon: Landmark },
 ]
 
@@ -258,9 +258,9 @@ const OwnerFinancePage = () => {
       </div>
 
       <p className="text-xs text-ink-mute leading-relaxed">
-        Tiền donate hiện ở đây là tiền <strong className="text-ink-soft">thu hộ nghệ sĩ</strong>, không phải
+        Tiền ủng hộ hiện ở đây là tiền <strong className="text-ink-soft">thu hộ nghệ sĩ</strong>, không phải
         doanh thu của bạn. Việc chuyển tiếp cho nghệ sĩ làm ở{' '}
-        <Link to="/owner/donations" className="text-ink hover:underline">màn Donate</Link>.
+        <Link to="/owner/donations" className="text-ink hover:underline">mục Tiền ủng hộ nghệ sĩ</Link>.
       </p>
     </div>
   )

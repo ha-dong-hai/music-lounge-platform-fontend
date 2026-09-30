@@ -2,7 +2,7 @@
 // Data thật từ /analytics/* — layout theo dashboard cũ + giữ các tính năng hay của bản mới:
 // nút chuyển đại lượng doanh thu (GMV ↔ Platform Revenue), khối luỹ kế, khối recommender.
 import { useState, useEffect } from 'react'
-import { DollarSign, Ticket, Users, AlertCircle, Store, Music2, HeartHandshake, Loader2, Brain } from 'lucide-react'
+import { Banknote, Ticket, Users, AlertCircle, Store, Music2, HeartHandshake, Loader2, Brain } from 'lucide-react'
 import toast from 'react-hot-toast'
 import dayjs from 'dayjs'
 import { getPlatformAnalytics, getAdminOverview, getRecommenderEvaluation, getAdminDashboard } from '../../services/analyticsServices'
@@ -116,7 +116,7 @@ const AdminDashboard = () => {
           <StatCard
             title="Doanh thu nền tảng"
             value={fmtMoney(overview?.platformRevenueInPeriod)}
-            icon={DollarSign} color="text-success" bg="bg-success/10"
+            icon={Banknote} color="text-success" bg="bg-success/10"
           />
           <StatCard
             title="Buổi diễn trong kỳ"
@@ -144,7 +144,7 @@ const AdminDashboard = () => {
           <StatCard
             title="Tổng giá trị giao dịch"
             value={fmtMoney(platform?.totalGrossMerchandiseValue)}
-            icon={DollarSign} color="text-success" bg="bg-success/10"
+            icon={Banknote} color="text-success" bg="bg-success/10"
           />
           <StatCard
             title="Vé đã bán"
@@ -152,7 +152,7 @@ const AdminDashboard = () => {
             icon={Ticket} color="text-ink" bg="bg-ink/10"
           />
           <StatCard
-            title="Tổng donate"
+            title="Tổng tiền ủng hộ"
             value={fmtMoney(platform?.totalDonationVolume)}
             icon={HeartHandshake} color="text-danger" bg="bg-danger/10"
           />
@@ -204,7 +204,7 @@ const AdminDashboard = () => {
           {/* Giải thích ý nghĩa 2 đại lượng — quan trọng để Admin không đọc sai số */}
           <p className="text-xs text-ink-mute leading-relaxed">
             {measure === 'platformRevenue'
-              ? 'Phần nền tảng thực nhận: hoa hồng trên vé và donate, cộng toàn bộ phí gói dịch vụ. Không gồm tiền giữ hộ phòng trà chờ quyết toán; vé bán tại quầy bằng tiền mặt không đi qua nền tảng nên gần như không có ở đây.'
+              ? 'Phần nền tảng thực nhận: hoa hồng trên vé và tiền ủng hộ, cộng toàn bộ phí gói dịch vụ. Không gồm tiền giữ hộ phòng trà chờ quyết toán; vé bán tại quầy bằng tiền mặt không đi qua nền tảng nên gần như không có ở đây.'
               : 'Tổng tiền người mua trả, GỒM cả vé bán tại quầy bằng tiền mặt. Đây KHÔNG phải doanh thu của nền tảng — phần lớn thuộc về phòng trà và nghệ sĩ.'}
           </p>
 
