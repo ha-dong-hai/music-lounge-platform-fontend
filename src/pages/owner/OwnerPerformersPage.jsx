@@ -1,7 +1,12 @@
 // src/pages/owner/OwnerPerformersPage.jsx
 //
 // GHI CHÚ CHO ĐỘI FE:
-// - Nghệ sĩ do chủ phòng trà tạo và quản lý. Đây là đối tượng được thêm vào line-up buổi diễn, và
+// - DANH MỤC DÙNG CHUNG (sửa 01/10/2026): GET /performers trả nghệ sĩ của MỌI phòng trà (GetPerformersQueryHandler —
+//   "shared-catalog autocomplete"), có `search` theo tên, kẹp pageSize 50. Bản cũ xin 100 và gọi đây là "nghệ sĩ bạn
+//   quản lý": quá 50 thì phần sau biến mất, và nút Sửa hiện trên cả hồ sơ phòng trà khác tạo — bấm là 403
+//   (UpdatePerformerCommandHandler / AddPerformerSocialLinkCommandHandler chỉ cho người tạo hoặc Admin). Nay phân trang
+//   thật + tìm theo tên phía máy chủ, và chỉ hồ sơ có createdByUserId = mình mới có nút Sửa/Liên kết.
+// - Nghệ sĩ do chủ phòng trà tạo. Đây là đối tượng được thêm vào line-up buổi diễn, và
 //   cũng là đối tượng NHẬN DONATE — nên mỗi nghệ sĩ có thể có tài khoản nhận tiền riêng
 //   (quản lý ở /owner/bank-accounts, chọn đúng nghệ sĩ trong danh sách chủ sở hữu).
 // - `contactEmail` không bắt buộc nhưng rất nên có: đó là nơi backend gửi liên kết để NGHỆ SĨ TỰ
@@ -10,7 +15,8 @@
 // - PUT ghi đè toàn phần: form luôn gửi lại đủ name/type/genreIds/avatarUrl/bio/contactEmail.
 // - Liên kết mạng xã hội chỉ có THÊM và XOÁ, backend không có endpoint sửa — muốn đổi thì xoá rồi
 //   thêm lại. Đừng dựng nút "Sửa liên kết".
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useRef } from 'react'
+import { parseAsString } from 'nuqs'
 import { Loader2, Plus, Pencil, X, Music2, Mail, Link2, Trash2, AlertTriangle } from 'lucide-react'
 import toast from 'react-hot-toast'
 import {
@@ -18,6 +24,9 @@ import {
   addPerformerSocialLink, removePerformerSocialLink,
 } from '../../services/performerServices'
 import { getGenres } from '../../services/catalogServices'
+import { useAuthStore } from '../../store/useAuthStore'
+import { useDanhSachMayChu } from '../../hooks/useDanhSachMayChu'
+import PhanTrang from '../../components/bang/PhanTrang'
 
 const inputCls = 'mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink focus:outline-none focus:border-ink/50'
 
@@ -235,35 +244,40 @@ const SocialLinksModal = ({ performer, onClose, onSaved }) => {
   )
 }
 
+const BO_LOC = { tim: parseAsString.withDefault('') }
+const goiNgheSi = ({ tim, ...q }) => getMyPerformers({ ...q, search: tim.trim() || undefined })
+
 const OwnerPerformersPage = () => {
-  const [performers, setPerformers] = useState([])
+  const user = useAuthStore((st) => st.user)
   const [genres, setGenres] = useState([])
-  const [isLoading, setIsLoading] = useState(true)
   const [editing, setEditing] = useState(undefined)
   const [linksOf, setLinksOf] = useState(null)
 
-  const load = useCallback(async () => {
-    setIsLoading(true)
-    try {
-      const [pRes, gRes] = await Promise.allSettled([
-        getMyPerformers({ pageSize: 100 }),
-        getGenres(),
-      ])
-      if (pRes.status === 'fulfilled' && pRes.value?.success) {
-        const ds = pRes.value.data
-        setPerformers((Array.isArray(ds) ? ds : ds?.items) ?? [])
-      }
-      if (gRes.status === 'fulfilled' && gRes.value?.success) {
-        setGenres(gRes.value.data ?? [])
-      }
-    } catch (err) {
-      toast.error(err.response?.data?.message || 'Không tải được danh sách nghệ sĩ.')
-    } finally {
-      setIsLoading(false)
-    }
-  }, [])
+  const ds = useDanhSachMayChu({ khoa: ['nghe-si'], goi: goiNgheSi, boLoc: BO_LOC })
+  const performers = ds.items
+  const load = () => ds.taiLai()
+  const cuaToi = (p) => user?.id != null && String(p.createdByUserId) === String(user.id)
 
-  useEffect(() => { const chay = async () => { await load() }; chay() }, [load])
+  // Ô tìm gõ tới đâu hiện tới đó, nhưng chỉ gửi lên máy chủ sau 300 ms ngừng gõ (không gọi API mỗi phím).
+  // Bấm Quay lại làm URL đổi → ô tìm theo URL (điều chỉnh state ngay lúc vẽ, không dùng effect — mẫu của React docs
+  // "Adjusting some state when a prop changes").
+  const timTrenUrl = ds.boLoc.tim
+  const [oTim, setOTim] = useState(timTrenUrl)
+  const [timDaDong, setTimDaDong] = useState(timTrenUrl)
+  if (timTrenUrl !== timDaDong) { setTimDaDong(timTrenUrl); setOTim(timTrenUrl) }
+  const datBoLoc = useRef(ds.datBoLoc)
+  useEffect(() => { datBoLoc.current = ds.datBoLoc })
+  useEffect(() => {
+    if (oTim === timTrenUrl) return undefined
+    const h = setTimeout(() => datBoLoc.current({ tim: oTim || null }), 300)
+    return () => clearTimeout(h)
+  }, [oTim, timTrenUrl])
+
+  useEffect(() => {
+    let conSong = true
+    getGenres().then((r) => { if (conSong && r?.success) setGenres(r.data ?? []) }).catch(() => {})
+    return () => { conSong = false }
+  }, [])
 
   // Danh sách không chắc có socialLinks/contactEmail — lấy bản chi tiết trước khi mở form sửa,
   // vì PUT ghi đè toàn phần, nạp thiếu là xoá mất dữ liệu.
@@ -276,7 +290,7 @@ const OwnerPerformersPage = () => {
     }
   }
 
-  if (isLoading) {
+  if (ds.dangTai) {
     return <div className="py-20 flex justify-center"><Loader2 size={32} className="animate-spin text-ink" /></div>
   }
 
@@ -285,8 +299,9 @@ const OwnerPerformersPage = () => {
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h1 className="text-4xl text-ink mb-1">Nghệ sĩ</h1>
-          <p className="text-ink-soft text-sm leading-relaxed">
-            Nghệ sĩ bạn quản lý, để thêm vào line-up buổi diễn. Đây cũng là đối tượng nhận tiền donate.
+          <p className="text-ink-soft text-sm leading-relaxed max-w-[65ch]">
+            Danh mục nghệ sĩ dùng chung giữa các phòng trà, để thêm vào line-up buổi diễn — cũng là người nhận tiền ủng hộ.
+            Bạn sửa được hồ sơ do mình tạo; hồ sơ phòng trà khác tạo chỉ để chọn vào line-up.
           </p>
         </div>
         <button onClick={() => setEditing(null)}
@@ -295,13 +310,36 @@ const OwnerPerformersPage = () => {
         </button>
       </div>
 
-      {performers.length === 0 ? (
+      <div className="flex flex-wrap items-end gap-3">
+        <label className="block w-full sm:w-80">
+          <span className="text-sm font-semibold">Tìm theo tên</span>
+          <input type="search" value={oTim} onChange={(e) => setOTim(e.target.value)} placeholder="Ví dụ: Hà Anh"
+            className="mt-1 w-full min-h-[44px] px-3 bg-card border-2 border-ink text-ink focus:outline-none focus:ring-2 focus:ring-ink" />
+        </label>
+        {ds.boLoc.tim && (
+          <button type="button" onClick={() => { setOTim(''); ds.xoaBoLoc() }}
+            className="min-h-[44px] px-3 border-2 border-ink text-sm font-semibold hover:bg-ink hover:text-lamp inline-flex items-center gap-1.5">
+            <X size={15} aria-hidden="true" /> Bỏ tìm “{ds.boLoc.tim}”
+          </button>
+        )}
+      </div>
+
+      {ds.loi ? (
+        <div role="alert" className="bg-card border border-line p-6 flex flex-wrap items-center gap-4">
+          <p className="text-sm">Chưa tải được danh sách nghệ sĩ.</p>
+          <button type="button" onClick={load} className="min-h-[44px] px-4 border-2 border-ink font-semibold hover:bg-ink hover:text-lamp">Thử lại</button>
+        </div>
+      ) : performers.length === 0 ? (
         <div className="bg-card border border-line p-10 text-center">
           <Music2 size={28} className="mx-auto mb-3 text-ink-mute" />
-          <p className="text-sm text-ink-mute">Chưa có nghệ sĩ nào. Thêm nghệ sĩ để dựng line-up cho buổi diễn.</p>
+          <p role="status" className="text-sm text-ink-mute">
+            {ds.boLoc.tim ? `Không có nghệ sĩ nào tên chứa “${ds.boLoc.tim}”. Kiểm tra chính tả, hoặc thêm nghệ sĩ mới.` : 'Chưa có nghệ sĩ nào. Thêm nghệ sĩ để dựng line-up cho buổi diễn.'}
+          </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+        <>
+        <PhanTrang ds={ds} tenDonVi="nghệ sĩ" idDanhSach="ds-nghe-si" />
+        <div id="ds-nghe-si" tabIndex={-1} className={`grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 focus:outline-none ${ds.laDuLieuCu ? 'opacity-60' : ''}`}>
           {performers.map((p) => (
             <div key={p.id} className="bg-card border border-line p-5">
               <div className="flex items-start gap-3">
@@ -338,6 +376,7 @@ const OwnerPerformersPage = () => {
                 </p>
               )}
 
+              {cuaToi(p) ? (
               <div className="mt-4 flex gap-2">
                 <button onClick={() => moSua(p)}
                   className="flex items-center gap-1.5 px-3 py-1.5 border border-line text-ink-soft text-xs font-bold hover:bg-sunken">
@@ -349,9 +388,14 @@ const OwnerPerformersPage = () => {
                   {p.socialLinks?.length > 0 && <span className="text-ink-mute">({p.socialLinks.length})</span>}
                 </button>
               </div>
+              ) : (
+                <p className="mt-4 text-xs text-ink-mute">Hồ sơ do phòng trà khác tạo — chỉ chọn vào line-up được.</p>
+              )}
             </div>
           ))}
         </div>
+        <PhanTrang ds={ds} tenDonVi="nghệ sĩ" idDanhSach="ds-nghe-si" />
+        </>
       )}
 
       {editing !== undefined && (
