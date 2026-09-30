@@ -4,8 +4,9 @@ import { formatCurrency } from '../../../utils/format'
 // 30/09/2026: chữ trên thẻ về tiếng Việt (bản cũ in "Monthly", "Ticket / Show", "Do not suport Poster AI", "Unhide");
 // bỏ quầng sáng mờ trang trí và đổ bóng phát sáng khi rê chuột; nút sửa/ẩn LUÔN hiện (bản cũ chỉ hiện khi rê chuột —
 // trên màn cảm ứng không bấm được) và có nhãn cho trình đọc màn hình.
-const CHU_KY = { Monthly: 'tháng', Yearly: 'năm' }
-const chuKy = (c) => CHU_KY[c] ?? 'tháng'
+// Đủ ba giá trị của SubscriptionBillingCycle. Bản cũ thiếu Quarterly và rơi về 'tháng' — gói theo quý bị in giá "/ tháng".
+const CHU_KY = { Monthly: 'tháng', Quarterly: 'quý', Yearly: 'năm' }
+const chuKy = (c) => CHU_KY[c] ?? c
 
 // Kiểu hiển thị 1 feature
 const Feature = ({ icon: Icon, label, enabled }) => (

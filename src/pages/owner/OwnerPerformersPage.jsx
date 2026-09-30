@@ -21,8 +21,11 @@ import { getGenres } from '../../services/catalogServices'
 
 const inputCls = 'mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink focus:outline-none focus:border-ink/50'
 
-// `type` là chuỗi tự do ở phía backend; giới hạn sẵn mấy giá trị hay dùng để dữ liệu không loạn.
-const PERFORMER_TYPES = ['Solo', 'Band', 'DJ', 'Group']
+// `type` KHÔNG phải chuỗi tự do: Create/UpdatePerformerCommandValidator ép vào enum PerformerType = Solo | Band.
+// Sửa 01/10/2026: bản cũ ghi "chuỗi tự do" và cho chọn thêm "DJ", "Group" — chọn hai mục đó thì backend trả 400, và
+// nhãn in thẳng chữ tiếng Anh. Thêm giá trị ở đây chỉ khi enum backend có thêm.
+const LOAI_NGHE_SI = { Solo: 'Hát/biểu diễn đơn', Band: 'Ban nhạc, nhóm' }
+const PERFORMER_TYPES = Object.keys(LOAI_NGHE_SI)
 
 const PerformerFormModal = ({ initial, genres, onClose, onSaved }) => {
   const isEdit = !!initial
@@ -88,7 +91,7 @@ const PerformerFormModal = ({ initial, genres, onClose, onSaved }) => {
             <div>
               <label className="text-xs text-ink-mute">Loại hình <span className="text-danger">*</span></label>
               <select aria-label="Loại hình" value={form.type} onChange={(e) => set('type', e.target.value)} className={inputCls}>
-                {PERFORMER_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
+                {PERFORMER_TYPES.map((t) => <option key={t} value={t}>{LOAI_NGHE_SI[t]}</option>)}
               </select>
             </div>
           </div>
@@ -309,7 +312,7 @@ const OwnerPerformersPage = () => {
                     </div>}
                 <div className="min-w-0">
                   <p className="text-ink font-bold truncate">{p.name}</p>
-                  <p className="text-xs text-ink-mute">{p.type}</p>
+                  <p className="text-xs text-ink-mute">{LOAI_NGHE_SI[p.type] ?? p.type}</p>
                 </div>
               </div>
 

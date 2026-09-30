@@ -112,6 +112,8 @@ const PackageFormModal = ({ isOpen, editingPkg, isSaving, onClose, onSubmit }) =
                 className={`${inputCls} cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed`}
               >
                 <option value="Monthly">Hàng tháng</option>
+                {/* SubscriptionBillingCycle = Monthly | Quarterly | Yearly (CreateSubscriptionPackageCommandValidator). */}
+                <option value="Quarterly">Hàng quý</option>
                 <option value="Yearly">Hàng năm</option>
               </select>
             </div>

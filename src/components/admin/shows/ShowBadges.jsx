@@ -60,7 +60,10 @@ export const RiskLevelBadge = ({ level }) => {
   return <NhanTrangThai sacThai={sacThai}>{nhan}</NhanTrangThai>
 }
 
-const GOI_Y_AI = { SuggestApprove: ['tot', 'AI gợi ý duyệt'], SuggestReject: ['xau', 'AI gợi ý từ chối'], SuggestManualReview: ['cho', 'AI gợi ý xem kỹ'] }
+// Khoá = enum AiModerationRecommendation của backend: SuggestApprove | NeedsReview | SuggestReject. Sửa 01/10/2026: bản cũ
+// dùng 'SuggestManualReview' (không tồn tại) nên gợi ý "cần xem kỹ" rơi xuống nhánh dự phòng và in thô "NeedsReview".
+// Kiểm bằng scratchpad/doi_chieu_enum.mjs.
+const GOI_Y_AI = { SuggestApprove: ['tot', 'AI gợi ý duyệt'], SuggestReject: ['xau', 'AI gợi ý từ chối'], NeedsReview: ['cho', 'AI gợi ý xem kỹ'] }
 export const AiRecommendationBadge = ({ recommendation }) => {
   if (!recommendation) return <span className="text-xs text-ink-mute">—</span>
   const [sacThai, nhan] = GOI_Y_AI[recommendation] ?? ['trung', recommendation]

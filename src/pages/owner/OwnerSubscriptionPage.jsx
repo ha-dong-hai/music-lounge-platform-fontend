@@ -221,7 +221,7 @@ const OwnerSubscriptionPage = () => {
                 </div>
                 <p className="text-2xl font-bold text-ink">{fmtMoney(p.price)}</p>
                 <p className="text-xs text-ink-mute mb-4">
-                  {p.billingCycle === 'Monthly' ? 'mỗi tháng' : p.billingCycle === 'Yearly' ? 'mỗi năm' : p.billingCycle}
+                  {{ Monthly: 'mỗi tháng', Quarterly: 'mỗi quý', Yearly: 'mỗi năm' }[p.billingCycle] ?? p.billingCycle}
                 </p>
                 {p.description && <p className="text-xs text-ink-soft mb-4">{p.description}</p>}
 
