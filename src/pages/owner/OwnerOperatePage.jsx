@@ -23,7 +23,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import {
   Loader2, Play, Square, QrCode, Ticket, Search, CheckCircle2, XCircle, Users, Banknote, RefreshCw,
-  ClipboardList, Eye, EyeOff,
+  ClipboardList, EyeOff,
 } from 'lucide-react'
 import dayjs from 'dayjs'
 import toast from 'react-hot-toast'
@@ -32,6 +32,8 @@ import { getShows, getShowDetail, startShow, endShow, getShowTicketStats, getSho
 import { useAuthStore } from '../../store/useAuthStore'
 import { getTicketByQr, checkInTicket, sellWalkInTicket } from '../../services/ticketServices'
 import NutXacNhan from '../../components/shared/NutXacNhan'
+import { useDanhSachMayChu } from '../../hooks/useDanhSachMayChu'
+import PhanTrang from '../../components/bang/PhanTrang'
 
 const fmtMoney = (v) => `${Number(v || 0).toLocaleString('vi-VN')}đ`
 
@@ -81,7 +83,6 @@ const OwnerOperatePage = () => {
 
   // Bán vé tại quầy — mã chống thu tiền hai lần, giữ qua các lần render bằng ref
   // Danh sách khách: chỉ tải khi người dùng chủ động bấm (có dữ liệu cá nhân).
-  const [khach, setKhach] = useState(null)
   const [moDanhSachKhach, setMoDanhSachKhach] = useState(false)
   const [priceId, setPriceId] = useState('')
   const [quantity, setQuantity] = useState(1)
@@ -127,23 +128,22 @@ const OwnerOperatePage = () => {
   // Đổi buổi diễn thì ẩn và xoá danh sách khách cũ: hiện tên khách của buổi khác là sai nghiêm trọng.
   const chonBuoiDien = (id) => {
     setShowId(id)
-    setKhach(null)
     setMoDanhSachKhach(false)
+    dsKhach.datTrang(1)
   }
 
-  const taiDanhSachKhach = async () => {
-    if (!showId) return
-    setBusy('khach')
-    try {
-      const res = await getShowOrders(showId, { page: 1, pageSize: 200 })
-      if (res.success) {
-        setKhach(res.data?.items ?? [])
-        setMoDanhSachKhach(true)
-      }
-    } catch (err) {
-      toast.error(err.response?.data?.message || 'Không tải được danh sách khách.')
-    } finally { setBusy(null) }
-  }
+  // DANH SÁCH KHÁCH (01/10/2026): bản cũ xin pageSize 200 mà GET /lounge-shows/{id}/orders kẹp ở 100
+  // (GetShowOrdersQueryHandler) — từ khách thứ 101 trở đi biến mất khỏi bảng mà không báo. Nay phân trang thật qua
+  // hooks/useDanhSachMayChu (tham số URL khachTrang/khachCo để không đụng bộ lọc khác). Vẫn chỉ tải khi người trực
+  // bấm mở (danh sách có tên + email). GIỚI HẠN: backend chưa có tìm theo tên/SĐT (đề xuất `keyword` — báo cáo
+  // "Thư viện bảng lọc phân trang dữ liệu lớn"), nên tìm một khách giữa nhiều trang vẫn phải lật trang.
+  const dsKhach = useDanhSachMayChu({
+    khoa: ['khach-buoi', showId],
+    goi: (q) => getShowOrders(showId, q),
+    tien: 'khach',
+    coMacDinh: 50,
+    batDau: Boolean(showId) && moDanhSachKhach,
+  })
 
   const loadGiaBanQuay = useCallback(async () => {
     if (!showId) { setGiaBanQuay([]); return }
@@ -483,35 +483,42 @@ const OwnerOperatePage = () => {
           title="Danh sách khách đã mua vé"
           subtitle="Dùng để đối soát và đón khách. Danh sách có tên và email người mua — chỉ mở khi cần."
           right={
-            khach == null ? (
-              <button onClick={taiDanhSachKhach} disabled={busy === 'khach'}
-                className="flex items-center gap-1.5 px-3 py-1.5 border border-line text-ink-soft text-xs font-bold hover:bg-sunken disabled:opacity-50 flex-shrink-0">
-                {busy === 'khach' ? <Loader2 size={14} className="animate-spin" /> : <ClipboardList size={14} />}
-                Tải danh sách
+            !moDanhSachKhach ? (
+              <button type="button" onClick={() => setMoDanhSachKhach(true)}
+                className="flex items-center gap-1.5 min-h-[44px] px-3 border-2 border-ink text-sm font-semibold hover:bg-ink hover:text-lamp flex-shrink-0">
+                <ClipboardList size={15} aria-hidden="true" /> Mở danh sách
               </button>
             ) : (
               <div className="flex gap-2 flex-shrink-0">
-                <button onClick={() => setMoDanhSachKhach((v) => !v)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 border border-line text-ink-soft text-xs font-bold hover:bg-sunken">
-                  {moDanhSachKhach ? <><EyeOff size={14} /> Ẩn</> : <><Eye size={14} /> Hiện</>}
+                <button type="button" onClick={() => setMoDanhSachKhach(false)}
+                  className="flex items-center gap-1.5 min-h-[44px] px-3 border-2 border-ink text-sm font-semibold hover:bg-ink hover:text-lamp">
+                  <EyeOff size={15} aria-hidden="true" /> Ẩn
                 </button>
-                <button onClick={taiDanhSachKhach} disabled={busy === 'khach'}
-                  className="flex items-center gap-1.5 px-3 py-1.5 border border-line text-ink-soft text-xs font-bold hover:bg-sunken disabled:opacity-50">
-                  <RefreshCw size={14} className={busy === 'khach' ? 'animate-spin' : ''} /> Tải lại
+                <button type="button" onClick={() => dsKhach.taiLai()} disabled={dsKhach.dangTaiLai}
+                  className="flex items-center gap-1.5 min-h-[44px] px-3 border-2 border-ink text-sm font-semibold hover:bg-ink hover:text-lamp disabled:opacity-50">
+                  <RefreshCw size={15} className={dsKhach.dangTaiLai ? 'animate-spin' : ''} aria-hidden="true" /> Tải lại
                 </button>
               </div>
             )
           }
         >
-          {khach == null ? (
-            <p className="text-sm text-ink-mute">Chưa tải. Bấm &quot;Tải danh sách&quot; khi cần đối soát.</p>
-          ) : !moDanhSachKhach ? (
-            <p className="text-sm text-ink-mute">Đã tải {khach.length} khách — đang ẩn.</p>
-          ) : khach.length === 0 ? (
+          {!moDanhSachKhach ? (
+            <p className="text-sm text-ink-mute">Đang đóng. Bấm &quot;Mở danh sách&quot; khi cần đối soát.</p>
+          ) : dsKhach.dangTai ? (
+            <div className="h-40 bg-ink/5 animate-pulse" aria-busy="true" aria-label="Đang tải danh sách khách" />
+          ) : dsKhach.loi ? (
+            <div role="alert" className="flex flex-wrap items-center gap-4">
+              <p>Danh sách khách chưa tải được.</p>
+              <button type="button" onClick={() => dsKhach.taiLai()} className="min-h-[44px] px-4 border-2 border-ink font-semibold hover:bg-ink hover:text-lamp">Thử lại</button>
+            </div>
+          ) : dsKhach.tong === 0 ? (
             <p className="text-sm text-ink-mute">Chưa có ai mua vé buổi diễn này.</p>
           ) : (
+            <div className="space-y-3">
+            <PhanTrang ds={dsKhach} tenDonVi="vé" idDanhSach="ds-khach" />
             <div className="overflow-x-auto">
-              <table className="w-full text-sm">
+              <table id="ds-khach" tabIndex={-1} className={`w-full text-sm focus:outline-none ${dsKhach.laDuLieuCu ? 'opacity-60' : ''}`}>
+                <caption className="sr-only">Khách đã mua vé buổi diễn đang chọn, trang {dsKhach.trang} trên {dsKhach.soTrang}</caption>
                 <thead>
                   <tr className="text-xs text-ink-mute border-b border-line">
                     <th scope="col" className="text-left py-2 pr-3 font-medium">Khách</th>
@@ -522,7 +529,7 @@ const OwnerOperatePage = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {khach.map((k) => (
+                  {dsKhach.items.map((k) => (
                     <tr key={k.ticketId} className="border-b border-line/60">
                       <td className="py-2.5 pr-3">
                         <p className="text-ink">{k.buyerName || 'Khách tại quầy'}</p>
@@ -549,6 +556,8 @@ const OwnerOperatePage = () => {
                   ))}
                 </tbody>
               </table>
+            </div>
+            {dsKhach.soTrang > 1 && <PhanTrang ds={dsKhach} tenDonVi="vé" idDanhSach="ds-khach" />}
             </div>
           )}
         </Card>
