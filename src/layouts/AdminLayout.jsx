@@ -1,5 +1,5 @@
 import { Outlet, NavLink, useNavigate } from 'react-router-dom'
-import { LayoutDashboard, Music, Package, LogOut, Users, Receipt, MessageSquareWarning, SlidersHorizontal, Landmark, TrendingUp, ShieldCheck, Gavel, Banknote } from 'lucide-react'
+import { LayoutDashboard, Music, Package, LogOut, Users, Receipt, MessageSquareWarning, SlidersHorizontal, Landmark, TrendingUp, ShieldCheck, Gavel, Banknote, ShieldAlert, Settings2 } from 'lucide-react'
 
 const AdminLayout = () => {
   const navigate = useNavigate()
@@ -45,6 +45,9 @@ const AdminLayout = () => {
           <NavLink to="/admin/insights" className={linkClasses}>
             <TrendingUp size={18} /> Nội dung &amp; tương tác
           </NavLink>
+          <NavLink to="/admin/system-config" className={linkClasses}>
+            <Settings2 size={18} /> Cấu hình hệ thống
+          </NavLink>
           <NavLink to="/admin/accounts" className={linkClasses}>
             <Users size={18} /> Account management
           </NavLink>
@@ -66,6 +69,9 @@ const AdminLayout = () => {
           </NavLink>
           <NavLink to="/admin/complaint" className={linkClasses}>
             <MessageSquareWarning size={18} /> Report
+          </NavLink>
+          <NavLink to="/admin/content-reports" className={linkClasses}>
+            <ShieldAlert size={18} /> Báo cáo vi phạm
           </NavLink>
           <NavLink to="/admin/penalty-appeals" className={linkClasses}>
             <Gavel size={18} /> Khiếu nại án phạt

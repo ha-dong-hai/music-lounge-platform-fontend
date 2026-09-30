@@ -127,3 +127,21 @@ export const triggerRecurringJob = async (jobId) => {
   if (!jobId) return Promise.reject(new Error('Thiếu id tác vụ.'));
   return axiosClient.post(`/admin/jobs/${encodeURIComponent(jobId)}/trigger`);
 };
+
+//// ===== CẤU HÌNH HỆ THỐNG =====
+
+export const getSystemConfigs = async () => {
+  return axiosClient.get('/admin/system-config');
+};
+
+export const getSystemConfigHistory = async (key) => {
+  return axiosClient.get(`/admin/system-config/${encodeURIComponent(key)}/history`);
+};
+
+export const updateSystemConfig = async (key, { configValue, note }) => {
+  return axiosClient.put(`/admin/system-config/${encodeURIComponent(key)}`, { configValue, note });
+};
+
+// ===== SOÁT CẤU HÌNH HỆ THỐNG =====
+
+export const getConfigurationAudit = async () => axiosClient.get('/admin/configuration-audit');
