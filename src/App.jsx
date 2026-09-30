@@ -1,12 +1,21 @@
 import { RouterProvider } from 'react-router-dom'
 import AppRouter from './routes/AppRouter'
 import { Toaster } from 'react-hot-toast'
+import { QueryClientProvider } from '@tanstack/react-query'
+import { NuqsAdapter } from 'nuqs/adapters/react-router/v7'
+import { queryClient } from './lib/queryClient'
 
 function App() {
   return (
 
     <>
-      <RouterProvider router={AppRouter} />
+      {/* Danh sách có phân trang/bộ lọc máy chủ: TanStack Query giữ dữ liệu, nuqs giữ trang và bộ lọc trên URL.
+          NuqsAdapter chỉ cấp hook qua context — các hook router chạy bên trong route, nên bọc ngoài RouterProvider. */}
+      <QueryClientProvider client={queryClient}>
+        <NuqsAdapter>
+          <RouterProvider router={AppRouter} />
+        </NuqsAdapter>
+      </QueryClientProvider>
 
       <Toaster
         position="top-center"

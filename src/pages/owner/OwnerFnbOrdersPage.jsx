@@ -16,13 +16,24 @@
 //   KHÁCH tự khởi tạo thanh toán VNPay cho đơn của chính mình, nhân viên gọi luôn nhận 403. Và bảng
 //   bước kế thiếu Served → Paid, trong khi nút thu tiền ẩn khi đơn đã trả online — nên đơn trả trước
 //   nằm ở "Đã phục vụ" mãi, không đóng được.
+// - DANH SÁCH (01/10/2026): bản cũ lấy 100 đơn rồi lọc "Đang xử lý" trên trình duyệt — quá 100 đơn là đơn cũ biến mất
+//   mà không báo. Nay dùng hooks/useDanhSachMayChu (TanStack Query + nuqs): mỗi tab là MỘT trạng thái lọc phía máy chủ
+//   (backend GET /fnb-orders chỉ nhận một `status` — GetFnbOrdersQueryHandler.cs:39-53, nên không gộp được 3 trạng thái),
+//   phân trang thật, tab + trang nằm trên URL, tự tải lại mỗi 30 giây để bếp thấy đơn mới.
+//   GIỚI HẠN: backend trả MỚI NHẤT TRƯỚC; bếp cần cũ trước nên trang được sắp lại cũ-trước — chỉ đúng trong một trang.
+//   Tab "Chờ làm" mặc định 50 đơn/trang nên hiếm khi vượt; vượt thì đơn cũ nhất nằm ở trang cuối. Đường nâng cấp: backend
+//   thêm `sort=oldest` cho endpoint này.
 import { useState, useEffect, useCallback } from 'react'
+import { parseAsStringLiteral } from 'nuqs'
 import { Loader2, RefreshCw, UtensilsCrossed, Banknote, CheckCircle2, XCircle, Clock, CreditCard } from 'lucide-react'
 import dayjs from 'dayjs'
 import toast from 'react-hot-toast'
 import { getLounges, getLoungeDetail } from '../../services/loungeServices'
 import { useAuthStore } from '../../store/useAuthStore'
 import { getLoungeFnbOrders, updateFnbOrderStatus } from '../../services/fnbServices'
+import { useDanhSachMayChu } from '../../hooks/useDanhSachMayChu'
+import PhanTrang from '../../components/bang/PhanTrang'
+import NutXacNhan from '../../components/shared/NutXacNhan'
 
 const fmtMoney = (v) => `${Number(v || 0).toLocaleString('vi-VN')}đ`
 
@@ -41,16 +52,22 @@ const nhanBuocTiep = (buoc, daTra) =>
     : buoc === 'Served' ? 'Đã phục vụ xong' : 'Bắt đầu làm'
 const TEN_PHUONG_THUC = { Cash: 'Tiền mặt', Gateway: 'Online (VNPay)' }
 
-const LOC = [
-  { key: 'dang-lam', label: 'Đang xử lý', statuses: ['Pending', 'Preparing', 'Served'] },
-  { key: 'tat-ca', label: 'Tất cả', statuses: null },
+// Mỗi tab = một trạng thái lọc phía máy chủ. 'TatCa' không gửi `status`.
+const TAB = [
+  { key: 'Pending', label: 'Chờ làm' },
+  { key: 'Preparing', label: 'Đang làm' },
+  { key: 'Served', label: 'Đã phục vụ' },
+  { key: 'Paid', label: 'Đã thanh toán' },
+  { key: 'Cancelled', label: 'Đã huỷ' },
+  { key: 'TatCa', label: 'Tất cả' },
 ]
+const BO_LOC = { tab: parseAsStringLiteral(TAB.map((t) => t.key)).withDefault('Pending') }
+// Hàng chờ của bếp đọc cũ-trước; lịch sử (đã thanh toán, đã huỷ, tất cả) đọc mới-trước như backend trả.
+const BEP = ['Pending', 'Preparing', 'Served']
 
 const OwnerFnbOrdersPage = () => {
   const [lounge, setLounge] = useState(null)
-  const [orders, setOrders] = useState([])
-  const [loc, setLoc] = useState('dang-lam')
-  const [isLoading, setIsLoading] = useState(true)
+  const [daTaiPhongTra, setDaTaiPhongTra] = useState(false)
   const [busyId, setBusyId] = useState(null)
 
   // Nhân viên KHÔNG sở hữu phòng trà nào, nên GET /lounges?mine=true trả rỗng và màn này từng báo
@@ -71,34 +88,30 @@ const OwnerFnbOrdersPage = () => {
       }
     } catch (err) {
       toast.error(err.response?.data?.message || 'Không tải được thông tin phòng trà.')
+    } finally {
+      setDaTaiPhongTra(true)
     }
   }, [loungeIdPhien])
 
-  const loadOrders = useCallback(async () => {
-    if (!lounge) { setIsLoading(false); return }
-    setIsLoading(true)
-    try {
-      const res = await getLoungeFnbOrders(lounge.id, { pageSize: 100 })
-      if (res.success) {
-        const items = Array.isArray(res.data) ? res.data : res.data?.items ?? []
-        setOrders(items)
-      }
-    } catch (err) {
-      toast.error(err.response?.data?.message || 'Không tải được danh sách đơn.')
-    } finally {
-      setIsLoading(false)
-    }
-  }, [lounge])
+  const ds = useDanhSachMayChu({
+    khoa: ['don-mon', lounge?.id],
+    goi: ({ tab, ...p }) => getLoungeFnbOrders(lounge.id, { ...p, status: tab === 'TatCa' ? undefined : tab }),
+    boLoc: BO_LOC,
+    coMacDinh: 50,
+    batDau: Boolean(lounge),
+    lamMoiMoi: 30_000,
+  })
+  const tab = ds.boLoc.tab
+  const hienThi = BEP.includes(tab) ? [...ds.items].sort((a, b) => a.id - b.id) : ds.items
 
   useEffect(() => { const chay = async () => { await loadLounge() }; chay() }, [loadLounge])
-  useEffect(() => { const chay = async () => { await loadOrders() }; chay() }, [loadOrders])
 
   const doiTrangThai = async (order, status) => {
     setBusyId(order.id)
     try {
       await updateFnbOrderStatus(order.id, status)
-      toast.success('Đã cập nhật đơn.')
-      await loadOrders()
+      toast.success(`Đã chuyển đơn #${order.id} sang “${TAB.find((t) => t.key === status)?.label ?? status}”.`)
+      await ds.taiLai()
     } catch (err) {
       toast.error(err.response?.data?.message || 'Không cập nhật được đơn.')
     } finally {
@@ -106,7 +119,7 @@ const OwnerFnbOrdersPage = () => {
     }
   }
 
-  if (isLoading && !orders.length) {
+  if (!daTaiPhongTra || (lounge && ds.dangTai)) {
     return <div className="py-20 flex justify-center"><Loader2 size={32} className="animate-spin text-ink" /></div>
   }
 
@@ -121,9 +134,6 @@ const OwnerFnbOrdersPage = () => {
     )
   }
 
-  const boLoc = LOC.find((l) => l.key === loc)
-  const hienThi = boLoc.statuses ? orders.filter((o) => boLoc.statuses.includes(o.status)) : orders
-
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
@@ -131,30 +141,37 @@ const OwnerFnbOrdersPage = () => {
           <h1 className="text-4xl text-ink mb-1">Đơn gọi món</h1>
           <p className="text-ink-soft text-sm">Đơn khách đặt tại bàn. Trạng thái bếp và việc thu tiền là hai việc tách nhau.</p>
         </div>
-        <button onClick={loadOrders} disabled={isLoading}
-          className="flex items-center gap-1.5 px-3 py-1.5 border border-line text-ink-soft text-xs font-bold hover:bg-sunken disabled:opacity-50">
-          <RefreshCw size={14} className={isLoading ? 'animate-spin' : ''} /> Tải lại
+        <button type="button" onClick={() => ds.taiLai()} disabled={ds.dangTaiLai}
+          className="inline-flex items-center gap-1.5 min-h-[44px] px-3 border-2 border-ink text-sm font-semibold hover:bg-ink hover:text-lamp disabled:opacity-50">
+          <RefreshCw size={15} className={ds.dangTaiLai ? 'animate-spin' : ''} aria-hidden="true" /> Tải lại
         </button>
       </div>
 
-      <div className="flex gap-2">
-        {LOC.map((l) => (
-          <button key={l.key} onClick={() => setLoc(l.key)}
-            className={`px-3 py-1.5 text-xs font-medium border transition-colors ${loc === l.key
-              ? 'bg-sunken border-ink/40 text-ink'
-              : 'bg-page border-line text-ink-soft hover:text-ink'}`}>
-            {l.label}
+      <div className="flex flex-wrap gap-2" role="group" aria-label="Lọc đơn theo trạng thái">
+        {TAB.map((t) => (
+          <button key={t.key} type="button" onClick={() => ds.datBoLoc({ tab: t.key })} aria-pressed={tab === t.key}
+            className={`min-h-[44px] px-3 border-2 text-sm font-semibold transition-colors ${tab === t.key
+              ? 'border-ink bg-ink text-lamp'
+              : 'border-ink/30 text-ink-soft hover:border-ink hover:text-ink'}`}>
+            {t.label}
           </button>
         ))}
       </div>
 
-      {hienThi.length === 0 ? (
+      <PhanTrang ds={ds} tenDonVi="đơn" idDanhSach="ds-don-mon" />
+
+      {ds.loi ? (
+        <div role="alert" className="flex flex-wrap items-center gap-4 border-2 border-ink p-5">
+          <p>Danh sách đơn chưa tải được.</p>
+          <button type="button" onClick={() => ds.taiLai()} className="min-h-[44px] px-4 border-2 border-ink font-semibold hover:bg-ink hover:text-lamp">Thử lại</button>
+        </div>
+      ) : hienThi.length === 0 ? (
         <div className="bg-card border border-line p-10 text-center">
           <UtensilsCrossed size={28} className="mx-auto mb-3 text-ink-mute" />
-          <p className="text-sm text-ink-mute">Không có đơn nào trong mục này.</p>
+          <p className="text-sm text-ink-mute">Không có đơn nào ở mục “{TAB.find((t) => t.key === tab)?.label}”.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+        <div id="ds-don-mon" tabIndex={-1} className={`grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 focus:outline-none ${ds.laDuLieuCu ? 'opacity-60' : ''}`}>
           {hienThi.map((o) => {
             const tt = STATUS_VIEW[o.status] ?? { label: o.status, cls: 'bg-line-strong/10 text-ink-soft border-line-strong/30' }
             const buocTiep = BUOC_TIEP[o.status]
@@ -229,11 +246,18 @@ const OwnerFnbOrdersPage = () => {
                     )
                   })()}
                   {o.status !== 'Cancelled' && o.status !== 'Paid' && (
-                    <button onClick={() => doiTrangThai(o, 'Cancelled')} disabled={dangBan || conLinkOnline}
-                      title={conLinkOnline ? 'Không huỷ được khi khách còn liên kết thanh toán online' : undefined} aria-label={conLinkOnline ? 'Không huỷ được khi khách còn liên kết thanh toán online' : undefined}
-                      className="flex items-center gap-1.5 px-3 py-1.5 border border-line text-ink-soft text-xs font-bold hover:bg-sunken disabled:opacity-40 disabled:cursor-not-allowed">
-                      <XCircle size={13} /> Huỷ đơn
-                    </button>
+                    // Huỷ là trạng thái cuối (không lùi được); đơn đã trả online thì backend tạo yêu cầu hoàn 100%
+                    // (UpdateFnbOrderStatusCommandHandler, MLACP-351) — hỏi lại và nói đúng hậu quả.
+                    <NutXacNhan onXacNhan={() => doiTrangThai(o, 'Cancelled')} disabled={dangBan || conLinkOnline}
+                      tieuDe={`Huỷ đơn #${o.id}?`} nhanXacNhan="Huỷ đơn" nhanGiu="Không, giữ đơn"
+                      noiDung={o.isPaid
+                        ? 'Khách đã trả tiền online cho đơn này: hệ thống tạo yêu cầu hoàn 100% và báo cho khách. Không hoàn tác được.'
+                        : 'Đơn chuyển sang Đã huỷ và khách được báo. Không hoàn tác được.'}
+                      title={conLinkOnline ? 'Không huỷ được khi khách còn liên kết thanh toán online' : undefined}
+                      aria-label={conLinkOnline ? 'Không huỷ được khi khách còn liên kết thanh toán online' : `Huỷ đơn #${o.id}`}
+                      className="flex items-center gap-1.5 min-h-[44px] px-3 border-2 border-ink/40 text-ink-soft text-sm font-semibold hover:border-danger hover:text-danger disabled:opacity-40 disabled:cursor-not-allowed">
+                      <XCircle size={14} aria-hidden="true" /> Huỷ đơn
+                    </NutXacNhan>
                   )}
                 </div>
               </div>
@@ -241,6 +265,8 @@ const OwnerFnbOrdersPage = () => {
           })}
         </div>
       )}
+
+      {ds.soTrang > 1 && <PhanTrang ds={ds} tenDonVi="đơn" idDanhSach="ds-don-mon" />}
     </div>
   )
 }
