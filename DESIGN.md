@@ -245,8 +245,20 @@ nay nằm dưới cổng `kiem:the-gioi`, nợ = 0, khối tên màu cũ trong `
   hiện trên dòng.
 - Nhãn trạng thái: chữ + biểu tượng, tối đa ~5–6 kiểu, không bấm được.
 - Thao tác tiền / xoá: `HopXacNhan` nói rõ đối tượng và hệ quả (hiện nhiều chỗ còn truyền câu chung chung).
-- Chữ tiếng Anh còn sót trong màn Admin (tiêu đề cột, nhãn) — chưa quét hết.
 - Dấu mộc cho trạng thái tiền ở sổ cái / quyết toán / hoàn tiền; ember cho buổi đang diễn ở màn nhân viên.
+
+**Đã làm thêm 01/10/2026 (không cần duyệt bố cục — logic và chữ):**
+- Thao tác tiền / không hoàn tác được: hoàn tiền (3 đường), quyết toán, gỡ nội dung bị báo cáo, xác nhận đã nhận tiền ủng hộ,
+  từ chối kiểm duyệt — mỗi cái có `HopXacNhan` nói đúng hậu quả, câu chữ đối chiếu handler (kiểm: `scratchpad/kiem_*.mjs`,
+  mã cũ thì đỏ). Câu xác nhận nào nói sai hậu quả thì sửa theo backend (vd. xoá thể loại: backend TỪ CHỐI khi đang dùng).
+- Chữ tiếng Anh: đã quét theo mẫu và danh sách từ; sửa "Name (EN)", "N/A", "Name match", "Created", "Approve/Reject", "show",
+  "donate", "scene/hotspot" (trang tour: "điểm đứng" / "điểm bấm"). Khoá nội bộ (`'donate'`, `'scene'`) giữ nguyên.
+- Tiền đồng không dùng biểu tượng đô-la (`Banknote`).
+- Biểu đồ: `chartTokens.js` theo bảng màu hiện hành; ba nguồn là ba độ đậm của mực (`--color-ink`, `--color-chart-2`,
+  `--color-chart-3`), mỗi màu >= 3:1 trên nền thẻ (WCAG 1.4.11). Không mượn ember hay son cho chuỗi dữ liệu.
+
+**Vẫn chưa làm (chờ chủ dự án duyệt trang mẫu `OwnerShowsPage`):** bố cục bảng, ô số liệu có ô biểu tượng ở tổng quan
+Admin / tài khoản / phòng trà, nhãn trạng thái dùng chung cho mọi bảng.
 
 ## Danh sách lựa chọn dài: thu gọn, không in hết (30/09/2026)
 

@@ -37,7 +37,7 @@ const inputCls = 'mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-
 // Giới hạn của backend, chặn sẵn ở form để không ai phải đoán từ một câu 422:
 //   yaw -180..180, pitch -90..90, label ≤ 100 ký tự, infoText ≤ 2000 ký tự.
 const LOAI_HOTSPOT = [
-  { value: 'Navigate', ten: 'Dẫn sang scene khác', mo: 'Khách bấm vào để nhảy sang điểm đứng khác.' },
+  { value: 'Navigate', ten: 'Dẫn sang điểm đứng khác', mo: 'Khách bấm vào để nhảy sang điểm đứng khác.' },
   { value: 'Info', ten: 'Chú thích', mo: 'Hiện một đoạn chữ tại điểm đó, không dẫn đi đâu. Đặt tên là "Sân khấu" để màn hình livestream nằm đúng chỗ này khi khán giả chọn "Ngồi tại phòng trà".' },
 ]
 
@@ -49,7 +49,7 @@ const HotspotModal = ({ loungeId, scene, scenes, onClose, onSaved }) => {
 
   const them = async (e) => {
     e.preventDefault()
-    if (laDanDuong && !form.targetSceneId) { toast.error('Chọn scene mà hotspot này dẫn tới.'); return }
+    if (laDanDuong && !form.targetSceneId) { toast.error('Chọn điểm đứng mà điểm bấm này dẫn tới.'); return }
     if (!laDanDuong && !form.infoText.trim()) { toast.error('Nhập nội dung chú thích.'); return }
     const yaw = Number(form.yaw) || 0
     const pitch = Number(form.pitch) || 0
@@ -66,10 +66,10 @@ const HotspotModal = ({ loungeId, scene, scenes, onClose, onSaved }) => {
         yaw,
         pitch,
       })
-      toast.success('Đã thêm hotspot.')
+      toast.success('Đã thêm điểm bấm.')
       onSaved(); onClose()
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Không thêm được hotspot.')
+      toast.error(err.response?.data?.message || 'Chưa thêm được điểm bấm.')
     } finally { setIsBusy(false) }
   }
 
@@ -80,7 +80,7 @@ const HotspotModal = ({ loungeId, scene, scenes, onClose, onSaved }) => {
       <div className="absolute inset-0 bg-ink/80" onClick={onClose} />
       <div className="relative bg-card border border-line w-full max-w-md shadow-soft">
         <div className="flex justify-between items-center p-5 border-b border-line">
-          <h2 className="text-3xl text-ink truncate">Hotspot của {scene.name || `scene #${scene.id}`}</h2>
+          <h2 className="text-3xl text-ink truncate">Điểm bấm của {scene.name || `điểm đứng #${scene.id}`}</h2>
           <button onClick={onClose} className="p-2 hover:bg-sunken text-ink-soft flex-shrink-0" aria-label="Đóng"><X size={20} /></button>
         </div>
 
@@ -106,10 +106,10 @@ const HotspotModal = ({ loungeId, scene, scenes, onClose, onSaved }) => {
                     <button onClick={async () => {
                       try {
                         await removeTourHotspot(loungeId, h.id)
-                        toast.success('Đã xoá hotspot.')
+                        toast.success('Đã xoá điểm bấm.')
                         onSaved()
                       } catch (err) {
-                        toast.error(err.response?.data?.message || 'Không xoá được hotspot.')
+                        toast.error(err.response?.data?.message || 'Chưa xoá được điểm bấm.')
                       }
                     }}
                       className="p-2 text-danger hover:bg-danger/10 flex-shrink-0" title="Xoá" aria-label="Xoá">
@@ -140,7 +140,7 @@ const HotspotModal = ({ loungeId, scene, scenes, onClose, onSaved }) => {
               </p>
 
               <div>
-                <label className="text-xs text-ink-mute">Loại hotspot</label>
+                <label className="text-xs text-ink-mute">Loại điểm bấm</label>
                 <div className="mt-1 grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {LOAI_HOTSPOT.map((l) => (
                     <button key={l.value} type="button" onClick={() => set('type', l.value)}
@@ -156,10 +156,10 @@ const HotspotModal = ({ loungeId, scene, scenes, onClose, onSaved }) => {
 
               {laDanDuong ? (
                 <div>
-                  <label className="text-xs text-ink-mute">Dẫn tới scene <span className="text-danger">*</span></label>
-                  <select aria-label="Dẫn tới scene" value={form.targetSceneId} onChange={(e) => set('targetSceneId', e.target.value)} className={inputCls}>
-                    <option value="">— chọn scene —</option>
-                    {khac.map((x) => <option key={x.id} value={x.id}>{x.name || `scene #${x.id}`}</option>)}
+                  <label className="text-xs text-ink-mute">Dẫn tới điểm đứng <span className="text-danger">*</span></label>
+                  <select aria-label="Dẫn tới điểm đứng" value={form.targetSceneId} onChange={(e) => set('targetSceneId', e.target.value)} className={inputCls}>
+                    <option value="">— chọn điểm đứng —</option>
+                    {khac.map((x) => <option key={x.id} value={x.id}>{x.name || `điểm đứng #${x.id}`}</option>)}
                   </select>
                   <p className="text-[11px] text-ink-mute mt-1">
                     Danh sách đã bỏ chính scene này — hotspot không trỏ về nơi chứa nó được.
@@ -269,10 +269,10 @@ const OwnerTourPage = () => {
     setBusyViTri(sceneId)
     try {
       await setTourScenePosition(lounge.id, sceneId, { x, y })
-      toast.success(soOTrong === 2 ? 'Đã xoá chấm định vị.' : 'Đã lưu vị trí scene.')
+      toast.success(soOTrong === 2 ? 'Đã xoá chấm định vị.' : 'Đã lưu vị trí điểm đứng.')
       await load()
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Không lưu được vị trí scene.')
+      toast.error(err.response?.data?.message || 'Chưa lưu được vị trí điểm đứng.')
     } finally { setBusyViTri(null) }
   }
 
@@ -283,10 +283,10 @@ const OwnerTourPage = () => {
       const up = await uploadImage(file)
       if (!up.success) throw new Error(up.message)
       await addTourScene(lounge.id, { imageUrl: up.data?.url ?? up.data })
-      toast.success('Đã thêm scene.')
+      toast.success('Đã thêm điểm đứng.')
       await load()
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Không thêm được scene.')
+      toast.error(err.response?.data?.message || 'Chưa thêm được điểm đứng.')
     } finally { setBusy(null) }
   }
 
@@ -324,7 +324,7 @@ const OwnerTourPage = () => {
       if (res.success) {
         setDonGhep(res.data)
         if (res.data.status === 'Succeeded') {
-          toast.success('Ghép xong, scene đã được thêm.')
+          toast.success('Ghép xong, điểm đứng đã được thêm.')
           setDonGhep(null)
           await load()
         } else if (res.data.status === 'Failed') {
@@ -340,11 +340,11 @@ const OwnerTourPage = () => {
     setBusy('xoa')
     try {
       await removeTourScene(lounge.id, xoaScene.id)
-      toast.success('Đã xoá scene.')
+      toast.success('Đã xoá điểm đứng.')
       setXoaScene(null)
       await load()
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Không xoá được scene.')
+      toast.error(err.response?.data?.message || 'Chưa xoá được điểm đứng.')
     } finally { setBusy(null) }
   }
 
@@ -392,8 +392,8 @@ const OwnerTourPage = () => {
       <div className="bg-card border border-line p-6">
         <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
           <div>
-            <h2 className="font-sans font-bold text-base text-ink">Các điểm đứng (scene)</h2>
-            <p className="text-xs text-ink-mute mt-0.5">Mỗi scene là một ảnh 360° tại một vị trí trong phòng trà.</p>
+            <h2 className="font-sans font-bold text-base text-ink">Các điểm đứng</h2>
+            <p className="text-xs text-ink-mute mt-0.5">Mỗi điểm đứng là một ảnh 360° chụp tại một vị trí trong phòng trà.</p>
           </div>
           <label className="inline-flex items-center gap-2 px-3 py-1.5 bg-ink text-lamp text-xs font-bold hover:bg-board cursor-pointer flex-shrink-0">
             {busy === 'scene' ? <Loader2 size={13} className="animate-spin" /> : <Plus size={13} />}
@@ -411,8 +411,8 @@ const OwnerTourPage = () => {
             <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
               <p className="text-xs text-ink-mute">
                 {sceneDangDat
-                  ? 'Bấm vào ảnh để đặt chấm cho scene đang nhắm.'
-                  : 'Chọn một scene bên dưới rồi bấm vào ảnh để đặt chấm định vị.'}
+                  ? 'Bấm vào ảnh để đặt chấm cho điểm đứng đang chọn.'
+                  : 'Chọn một điểm đứng bên dưới rồi bấm vào ảnh để đặt chấm định vị.'}
               </p>
               {sceneDangDat && (
                 <button onClick={() => setSceneDangDat(null)}
@@ -445,7 +445,7 @@ const OwnerTourPage = () => {
                 const dangNham = sceneDangDat === sc.id
                 return (
                   <span key={sc.id}
-                    title={sc.name || `Scene #${sc.id}`}
+                    title={sc.name || `Điểm đứng #${sc.id}`}
                     className={`absolute -translate-x-1/2 -translate-y-1/2 px-1.5 py-0.5 rounded-md text-[10px] font-bold whitespace-nowrap ${
                       dangNham ? 'bg-ink text-lamp ring-2 ring-line-strong/50' : 'bg-ink/80 text-stock border border-ink/50'
                     }`}
@@ -465,14 +465,14 @@ const OwnerTourPage = () => {
         )}
 
         {scenes.length === 0 ? (
-          <p className="py-8 text-center text-sm text-ink-mute">Chưa có scene nào.</p>
+          <p className="py-8 text-center text-sm text-ink-mute">Chưa có điểm đứng nào.</p>
         ) : (
           <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {scenes.map((sc) => (
               <li key={sc.id} className="bg-sunken/70 border border-line overflow-hidden">
                 {sc.imageUrl && <img src={sc.imageUrl} alt="" className="w-full h-32 object-cover" />}
                 <div className="p-3">
-                  <p className="text-sm text-ink font-medium truncate">{sc.name || `Scene #${sc.id}`}</p>
+                  <p className="text-sm text-ink font-medium truncate">{sc.name || `Điểm đứng #${sc.id}`}</p>
                   <p className="text-xs text-ink-mute mt-0.5">
                     {(sc.hotspots?.length ?? 0)} hotspot
                   </p>
@@ -613,8 +613,8 @@ const OwnerTourPage = () => {
       {xoaScene && (
         <ConfirmModal
           isOpen
-          title="Xoá scene này?"
-          message={`"${xoaScene.name || `Scene #${xoaScene.id}`}" và các hotspot dẫn tới nó sẽ không còn trong tour.`}
+          title="Xoá điểm đứng này?"
+          message={`"${xoaScene.name || `điểm đứng #${xoaScene.id}`}" và các điểm bấm dẫn tới nó sẽ không còn trong tour.`}
           confirmText="Xoá"
           processingText="Đang xoá..."
           isProcessing={busy === 'xoa'}

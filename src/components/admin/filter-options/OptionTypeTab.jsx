@@ -239,7 +239,9 @@ const OptionTypeTab = ({ typeKey, typeLabel, hasNameEn, hasDescription, hasIsAct
       <ConfirmModal
         isOpen={!!deleteTarget}
         title={`Xoá ${typeLabel.toLowerCase()}?`}
-        message={`"${deleteTarget?.name}" sẽ bị xoá hẳn khỏi hệ thống. Các buổi diễn đang dùng ${typeLabel.toLowerCase()} này có thể bị ảnh hưởng.`}
+        // 01/10/2026: câu cũ nói "buổi diễn đang dùng có thể bị ảnh hưởng" — sai: Delete{MusicGenre,Mood,Atmosphere,EventCategory}
+        // CommandHandler TỪ CHỐI (409) khi mục đang được buổi diễn, nghệ sĩ hoặc sở thích người dùng dùng, nên không ai bị ảnh hưởng.
+        message={`"${deleteTarget?.name}" sẽ bị xoá hẳn khỏi hệ thống. Nếu đang có buổi diễn, nghệ sĩ hoặc người dùng nào chọn mục này, hệ thống sẽ từ chối và không xoá gì${coTat ? ' — khi đó hãy tắt mục này thay vì xoá' : ''}.`}
         confirmText="Xoá"
         processingText="Đang xoá…"
         danger={true}
