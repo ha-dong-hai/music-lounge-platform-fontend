@@ -237,3 +237,36 @@ Mọi đường cong dùng ease-out-soft; không nảy. `prefers-reduced-motion`
 - Bảng dữ liệu theo mẫu Lịch tuần (thead mực, số mono thẳng cột), không theo bảng giờ diễn — bảng lật và hộp đèn là của Persuade.
 - Dấu mộc cho trạng thái tiền trong sổ cái/quyết toán/hoàn tiền (giữ hộ, đã hoàn, đã quyết toán); ember cho buổi đang diễn ở màn nhân viên.
 - Lỗi/cảnh báo dùng danger / danger-soft / warning, không mượn stamp.
+
+## Tiêu chí duyệt giao diện (chốt 30/09/2026)
+
+> Rút từ chính lời chủ dự án trong ngày 30/09 và từ những bản đã bị từ chối. Mục đích: trang nào làm lại cũng được
+> duyệt theo cùng một thước, không phải đoán. Sửa mục này khi chủ dự án nói khác, và ghi ngày.
+
+**Chủ dự án muốn** (nguyên văn): "nhẹ nhàng, tinh tế, sang trọng, đắt giá"; "ấm cúng và thân thiện với người dùng";
+"cảm giác nghệ thuật"; "thu hút người ghé thăm". **Không muốn**: "sặc sỡ, chối mắt", "khô cứng", "không tinh tế".
+
+**Đã chốt, giữ nguyên:**
+- Thế giới "tờ chương trình ca nhạc" và bảng giờ diễn mở thành hộp đèn ("UI bảng giờ diễn rất nổi bật").
+- Bảng màu Sơn then và lụa ngà. Giao diện gần như không màu, ẢNH mang màu; màu nhấn và ánh kim dưới ~10% diện tích.
+- Chữ Anton / Be Vietnam Pro / JetBrains Mono, góc vuông, viền mực.
+
+**Đã bị từ chối, không đề xuất lại:**
+- Bản "dịu màu" (vàng nhạt có thớ giấy, chữ Bricolage nét tròn, bo góc mềm, nét vẽ ca sĩ): chủ dự án yêu cầu lấy lại bản trước.
+- Bốn bản mẫu Stitch (nền tối ấm, áp phích bolero, bảng phấn, chạng vạng): "xấu quá".
+- Ảnh kho Wikimedia (nhạc cụ cận cảnh): "kì quá". Ảnh do chủ dự án tự tạo bằng Gemini và đưa vào `anh-gemini/`.
+- Thiết kế cũ Warm Luxury và mọi thứ của nó: không trộn, không tham khảo.
+
+**Máy kiểm (phải xanh trước khi đưa chủ dự án xem):**
+- `npm run kiem-thiet-ke` (5 cổng) và `npm run build`.
+- Mọi cặp chữ trên nền đạt 4.5:1, đo từ `src/index.css`.
+- Không tràn ngang ở 390, 1100 và 1440px (`scrollWidth` bằng bề rộng màn).
+- Bốn chuỗi nghiệp vụ và quét 96 trang không sập.
+
+**Mắt kiểm (máy không thay được):**
+- Chụp trang với dữ liệu giống thật và ảnh thật, máy tính và điện thoại. Dữ liệu trống che lỗi: ba lỗi của bảng lịch
+  tuần (thiếu tên buổi, liên kết gãy dòng, trang tràn 530px) chỉ lộ ra khi bảng có dữ liệu.
+- Không có mảng màu bão hoà lớn; ảnh sân khấu là thứ sáng nhất trong khung nhìn đầu.
+
+**Cách làm để không phải làm lại:** một trang mẫu cho mỗi loại trang → chủ dự án duyệt trên ảnh chụp thật → mới nhân
+rộng. Không đổi hướng thị giác giữa chừng một đợt nhân rộng; ý mới ghi lại và áp ở đợt sau.
