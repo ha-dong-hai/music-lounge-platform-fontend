@@ -23,12 +23,21 @@ import { join, relative } from 'node:path'
 // Cách dùng đúng là "ratchet": mỗi lần dọn xong một khu thì thêm khu đó vào đây, và nó không bao
 // giờ được phép đỏ trở lại.
 const KHU_CANH = [
-  'src/components/home',
   'src/components/program', // linh kiện trang chủ mới (30/09) — trước đó cổng canh nhầm thư mục trang chủ CŨ
   'src/components/brand',
   'src/pages/home',
   'src/components/shared',
   'src/pages/public',
+  'src/pages/lounge',
+  'src/components/lounge',
+  'src/pages/auth',
+  'src/components/auth',
+  'src/pages/events',
+  'src/components/mshow-detail',
+  'src/components/myshows',
+  'src/pages/user/MyShowsPage.jsx',
+  'src/pages/user/TicketDetailPage.jsx',
+  'src/pages/payment',
 ]
 
 // Mã lấy nguyên từ thư viện bên thứ ba — không phải mã của dự án, không áp luật token lên nó.

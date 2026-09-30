@@ -291,6 +291,53 @@ Ticketmaster và nghiên cứu Baymard, NN/g trên thương mại điện tử �
 không có chú thích chỉ định danh ("ảnh 3 trên 12"), chưa mô tả nội dung. Danh sách phòng trà tải hết về trình duyệt (trần
 500) vì API chưa có tham số tìm theo tên.
 
+## Form, danh sách có bộ lọc, vé và xác nhận (30/09/2026)
+
+> Căn cứ: `reports/Form lọc vé và màn vận hành.md` (repo backend). Mẫu chuẩn: `src/components/auth/`,
+> `src/pages/home/ShowSearchPage.jsx` + `src/utils/boLocBuoiDien.js`, `src/components/program/DongBuoiDien.jsx`,
+> `src/pages/user/TicketDetailPage.jsx`, `src/components/shared/HopXacNhan.jsx`, `src/pages/payment/PaymentResultPage.jsx`.
+> Bộ kiểm: `kiem_tai_khoan.mjs`, `kiem_buoi_dien.mjs`, `kiem_ve.mjs`.
+
+**Ô nhập (mọi form):**
+- Nhãn luôn nhìn thấy phía trên ô. KHÔNG dùng chữ mẫu trong ô thay nhãn hay làm ví dụ (biến mất khi gõ, bị tưởng là đã điền).
+- Gợi ý / luật của ô in TRƯỚC ô và luôn hiện, kể cả khi đang có lỗi. Lỗi in dưới ô, nối bằng `aria-describedby`; ô lỗi có `aria-invalid`.
+- Viền ô là mực 2px (đường kẻ nhạt không đủ 3:1 cho ranh giới một điều khiển).
+- Kiểm khi RỜI ô (`mode: 'onTouched'`), gỡ lỗi ngay khi gõ lại cho đúng. Không báo lỗi giữa lúc đang gõ.
+- Không chặn dán, không giới hạn ký tự ở ô mật khẩu; `autocomplete` đúng (`username`, `current-password`, `new-password`, `one-time-code`).
+- Nút Hiện/Ẩn mật khẩu bằng CHỮ, mang tên ô. Mật khẩu: chỉ luật độ dài của backend (15–64), không bịa luật thành phần ký tự.
+- Mã một lần: MỘT ô (`inputmode="numeric"`), không phải sáu ô.
+- Nút gửi không bị làm mờ để "chặn": bấm được, thiếu gì thì báo bằng chữ. Khi đang gửi thì khoá và ghi "Đang …".
+- Thông báo đăng nhập / quên mật khẩu KHÔNG được tiết lộ tài khoản có tồn tại hay không (in nguyên câu của backend).
+
+**Danh sách có bộ lọc:**
+- Bộ lọc, từ khoá, sắp xếp, số trang nằm trong ĐỊA CHỈ TRANG, theo ID. Giá trị hỏng trong địa chỉ bị bỏ qua, không làm sập.
+- Màn lớn: cột lọc bên trái luôn mở. Màn nhỏ: nút "Bộ lọc (n)" mở `<dialog>`, đóng bằng nút ghi số kết quả.
+- Ô chọn là checkbox / radio thật trong `<fieldset><legend>`. Áp ngay; riêng ô số áp khi rời ô hoặc Enter.
+- Bộ lọc đang áp in thành hàng nút gỡ + "Xoá tất cả". Mục đang chọn không bao giờ bị giấu trong phần thu gọn.
+- Khoảng vô lý (đến < từ) báo lỗi tại ô và KHÔNG gửi lên máy chủ.
+- Buổi diễn mặc định xếp theo ngày diễn gần nhất. Mốc ngày nhanh (Hôm nay, Cuối tuần này…) đứng trước khoảng ngày tự chọn.
+- Một dòng buổi diễn (`DongBuoiDien`) dùng cho mọi danh sách buổi diễn: ngày giờ → tên, người hát → phòng trà → giá → đi tiếp.
+  Không lưới thẻ, không băng chuyền ngang, không hiệu ứng phình thẻ khi rê chuột.
+
+**Vé và mã QR:**
+- Mã QR: ô ĐEN trên nền TRẮNG, lề trống quanh mã ≥ 4 ô (24px), kèm đúng chuỗi mã bằng chữ để đọc tay. Không đảo màu, không lồng logo.
+- Chỉ vé tại chỗ đã thanh toán mới có mã. Trạng thái khác nói rõ vì sao không có mã.
+- Trạng thái vé lấy từ `src/utils/trangThaiVe.js` (một nguồn). Dấu mộc chỉ cho trạng thái tiền.
+
+**Thao tác khó hoàn tác hoặc đụng tới tiền:** luôn qua `HopXacNhan` — nói rõ đối tượng và hệ quả, nút mang tên hành động,
+focus ban đầu ở lựa chọn an toàn, Esc là "không làm". Không hỏi xác nhận cho thao tác thường (hỏi mọi thứ thì không ai đọc).
+
+**Trang kết quả (thanh toán, gửi form):** dòng đầu là trạng thái bằng chữ ("Đã xong" / "Chưa xong" / "Đang chờ"), rồi tiêu
+đề, rồi mục "Tiếp theo" nói điều gì xảy ra kế và khi nào. Liên kết nằm ngoài khối `role="status"`. Không hứa điều hệ thống
+không có cơ chế thực hiện.
+
+**Màu trạng thái:** chỉ ba màu ngữ nghĩa `danger`, `success`, `warning` + mực; luôn kèm chữ (và biểu tượng nếu có).
+Không dùng bảng màu mặc định của Tailwind (`red-500`, `gray-200`…) — cổng `kiem-token` chặn.
+
+**Giới hạn đã biết:** nghiên cứu nền là của Mỹ và châu Âu, đo trên trang mua sắm; chưa có số đo của người dùng Việt Nam.
+Ô "nhập lại mật khẩu" ở trang đặt lại mật khẩu còn giữ (nguồn mâu thuẫn: GOV.UK bảo bỏ, OWASP bảo giữ). Backend chưa trả
+trạng thái lượt chuyển vé đang chờ nên trang vé chỉ nhớ lượt chuyển trong phiên.
+
 ## Tiêu chí duyệt giao diện (chốt 30/09/2026)
 
 > Rút từ chính lời chủ dự án trong ngày 30/09 và từ những bản đã bị từ chối. Mục đích: trang nào làm lại cũng được

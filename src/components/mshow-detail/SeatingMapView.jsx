@@ -85,7 +85,7 @@ const SeatingMapView = ({ showId, selectedZoneId, onSelectZone }) => {
                   onClick={() => onSelectZone?.(laChon ? null : z.zoneId)}
                   title={`${z.name} — ${nhanConLai(z)}`}
                   className={`absolute flex flex-col items-center justify-center border-2 px-1 overflow-hidden transition-all ${
-                    laChon ? 'border-ink ring-2 ring-ink/40 z-10' : 'border-white/25 hover:border-white/60'
+                    laChon ? 'border-ink ring-2 ring-ink/40 z-10' : 'border-lamp/25 hover:border-lamp/60'
                   } ${hetVe ? 'opacity-45' : ''}`}
                   style={{
                     left: `${z.layout2DX}%`,

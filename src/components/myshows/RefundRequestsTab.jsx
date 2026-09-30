@@ -160,7 +160,7 @@ const RefundRequestsTab = () => {
             )}
 
             {canKhaiTaiKhoan && (
-              <div className="mt-3 bg-yellow-500/5 border border-yellow-500/30 p-3">
+              <div className="mt-3 bg-warning/5 border border-warning/30 p-3">
                 <p className="text-xs text-warning flex items-start gap-1.5 leading-relaxed">
                   <AlertTriangle size={13} className="mt-px flex-shrink-0" />
                   Giao dịch gốc không hoàn lại được qua cổng thanh toán. Bạn cần khai tài khoản ngân hàng,

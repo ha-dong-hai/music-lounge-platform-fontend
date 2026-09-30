@@ -12,10 +12,10 @@ const fmtTien = (v) => `${Number(v || 0).toLocaleString('vi-VN')}đ`
 // Status của backend là chuỗi; chỉ ánh xạ những giá trị đã biết, còn lại hiện nguyên văn thay vì
 // đoán bừa — hiện sai trạng thái của một khoản tiền tệ hơn là hiện chữ lạ.
 const NHAN_TRANG_THAI = {
-  Pending: { chu: 'Chờ thanh toán', mau: 'text-warning bg-yellow-500/10', icon: Clock },
-  Paid: { chu: 'Đã thanh toán', mau: 'text-success bg-green-500/10', icon: CheckCircle2 },
-  Completed: { chu: 'Đã chuyển tới nghệ sĩ', mau: 'text-success bg-green-500/10', icon: CheckCircle2 },
-  Failed: { chu: 'Thanh toán thất bại', mau: 'text-danger bg-red-500/10', icon: Clock },
+  Pending: { chu: 'Chờ thanh toán', mau: 'text-warning bg-warning/10', icon: Clock },
+  Paid: { chu: 'Đã thanh toán', mau: 'text-success bg-success/10', icon: CheckCircle2 },
+  Completed: { chu: 'Đã chuyển tới nghệ sĩ', mau: 'text-success bg-success/10', icon: CheckCircle2 },
+  Failed: { chu: 'Thanh toán thất bại', mau: 'text-danger bg-danger/10', icon: Clock },
   Cancelled: { chu: 'Đã huỷ', mau: 'text-ink-soft bg-line-strong/10', icon: Clock },
 }
 

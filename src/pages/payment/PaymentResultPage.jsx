@@ -22,38 +22,48 @@
 // - Sửa TẬN GỐC vẫn thuộc backend: gắn `?type=ticket|donation|fnb|subscription` vào ba URL
 //   Business:Payment*Url. Khi có rồi thì đọc query param TRƯỚC, sessionStorage chỉ còn là dự phòng.
 // - "Khi thanh toán không thành công" khách cần một lối thoát: thêm liên kết tới trang khiếu nại công khai.
+//
+// 30/09/2026 — chuyển sang thế giới "tờ chương trình". Ba trạng thái phân biệt bằng CHỮ ở dòng đầu ("Đã xong",
+// "Chưa xong", "Đang chờ") + biểu tượng, không bằng màu nền (WCAG 1.4.1). Mỗi trạng thái có thêm mục "Tiếp theo":
+// GOV.UK (confirmation pages) yêu cầu nói rõ điều gì xảy ra tiếp và khi nào; tài liệu Stripe coi "đang xử lý" là
+// một trạng thái hợp lệ mà khách phải được giải thích, không phải một lỗi. Dấu mộc chỉ đóng khi TIỀN đã được ghi
+// nhận (thành công) — đúng luật "dấu mộc chỉ nói về tiền". Liên kết không nằm trong khối thông báo trạng thái.
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { CheckCircle2, XCircle, Clock, ArrowLeft, LifeBuoy } from 'lucide-react'
-import Reveal from '../../components/shared/Reveal'
+import { CheckCircle2, XCircle, Clock } from 'lucide-react'
+import DauMoc from '../../components/program/DauMoc'
+import Wordmark from '../../components/brand/Wordmark'
 import { layThanhToan, xoaThanhToan, LOAI_THANH_TOAN } from '../../utils/paymentContext'
 
 // Bản chữ chung — dùng khi không biết khách vừa trả tiền cho cái gì.
 const VARIANTS = {
   success: {
     icon: CheckCircle2,
-    ring: 'text-success bg-success/10 border-success/30',
+    nhan: 'Đã xong',
+    tiep: 'Bạn không cần làm gì thêm ở trang này.',
     title: 'Thanh toán thành công',
     message: 'Giao dịch của bạn đã được ghi nhận. Nếu bạn vừa mua vé, vé sẽ có trong mục Vé của tôi.',
     primary: { to: '/my-shows', label: 'Xem vé của tôi' },
-    secondary: { to: '/', label: 'Về trang chủ', icon: ArrowLeft },
+    secondary: { to: '/', label: 'Về trang chủ' },
   },
   failed: {
     icon: XCircle,
-    ring: 'text-danger bg-danger/10 border-danger/30',
+    nhan: 'Chưa xong',
+    tiep: 'Quay lại trang bạn vừa đặt và thử thanh toán lại. Nếu tài khoản của bạn vẫn bị trừ tiền, hãy gửi khiếu nại kèm thời điểm giao dịch.',
     title: 'Thanh toán chưa hoàn tất',
     message: 'Giao dịch không thành công và bạn chưa bị trừ tiền. Bạn có thể thử lại bất cứ lúc nào.',
     primary: { to: '/', label: 'Về trang chủ' },
-    secondary: { to: '/complaints', label: 'Cần hỗ trợ? Gửi khiếu nại', icon: LifeBuoy },
+    secondary: { to: '/complaints', label: 'Cần hỗ trợ? Gửi khiếu nại' },
   },
   processing: {
     icon: Clock,
-    ring: 'text-warning bg-warning/10 border-warning/30',
+    nhan: 'Đang chờ',
+    tiep: 'Xem lại sau ít phút. Sau 24 giờ vẫn chưa thấy thì gửi khiếu nại kèm thời điểm giao dịch để được kiểm tra.',
     title: 'Đã nhận thanh toán, đang chờ xác nhận',
     message:
       'Thanh toán của bạn đã thành công nhưng chúng tôi chưa kịp xác nhận vé (có thể vé vừa hết ngay trước khi thanh toán hoàn tất). Đội ngũ sẽ kiểm tra lại — vui lòng xem mục Vé của tôi sau ít phút, hoặc liên hệ hỗ trợ nếu sau 24 giờ vẫn chưa thấy vé.',
     primary: { to: '/my-shows', label: 'Xem vé của tôi' },
-    secondary: { to: '/complaints', label: 'Liên hệ hỗ trợ', icon: LifeBuoy },
+    secondary: { to: '/complaints', label: 'Gửi khiếu nại' },
   },
 }
 
@@ -128,32 +138,44 @@ const PaymentResultPage = ({ status }) => {
 
   const variant = { ...chung, ...rieng, primary: rieng?.primary ?? quayVe ?? chung.primary }
   const Icon = variant.icon
-  const SecondaryIcon = variant.secondary.icon
 
   return (
-    <div className="min-h-screen bg-page flex items-center justify-center px-4 sm:px-6 py-10">
-      <Reveal className="w-full max-w-md" role="status" aria-live="polite">
-        <div className="bg-card border border-line rounded-3xl p-8 sm:p-10 text-center shadow-glow">
-          <div className={`w-20 h-20 mx-auto rounded-full flex items-center justify-center mb-6 border ${variant.ring}`}>
-            <Icon size={38} strokeWidth={1.5} />
-          </div>
-          <h1 className="font-display text-3xl font-semibold text-ink mb-3 leading-tight">{variant.title}</h1>
-          <p className="text-ink-soft leading-relaxed mb-8">{variant.message}</p>
-
-          <Link
-            to={variant.primary.to}
-            className="flex items-center justify-center w-full min-h-[52px] bg-brand text-on-brand rounded-full font-bold hover:bg-brand-hover active:scale-[0.99] transition-all"
-          >
-            {variant.primary.label}
-          </Link>
-          <Link
-            to={variant.secondary.to}
-            className="mt-3 inline-flex items-center justify-center gap-2 min-h-[44px] px-4 text-sm text-ink-soft hover:text-brand-text transition-colors"
-          >
-            <SecondaryIcon size={15} /> {variant.secondary.label}
-          </Link>
+    <div className="min-h-screen flex flex-col bg-stock text-ink">
+      <header className="w-full border-b-2 border-ink">
+        <div className="max-w-[1440px] mx-auto px-4 sm:px-8 h-16 flex items-center">
+          <Link to="/" aria-label="MusicLounge, về trang chủ" className="font-display text-2xl leading-none inline-flex items-center min-h-[44px]"><Wordmark /></Link>
         </div>
-      </Reveal>
+      </header>
+
+      <main className="flex-1 flex items-start sm:items-center justify-center px-4 sm:px-8 py-10">
+        <div className="w-full max-w-xl bg-card border-2 border-ink shadow-lift p-6 sm:p-10">
+          {/* Khối trạng thái: chỉ có chữ. Liên kết và nút nằm NGOÀI khối này để trình đọc màn hình không đọc cả cụm một lần. */}
+          <div role="status" className="relative">
+            <p className="inline-flex items-center gap-2 font-mono text-sm">
+              <Icon size={18} aria-hidden="true" /> {variant.nhan}
+            </p>
+            <h1 className="text-4xl sm:text-5xl leading-[1.08] mt-2">{variant.title}</h1>
+            <p className="text-lg text-ink-soft leading-relaxed mt-4">{variant.message}</p>
+            {status === 'success' && (
+              <DauMoc vongNgoai="MUSICLOUNGE · ĐÃ GHI NHẬN · " giua={'ĐÃ\nTHANH TOÁN'} size={96} className="mt-5" />
+            )}
+          </div>
+
+          <div className="mt-6 border-t border-ink/20 pt-5">
+            <h2 className="font-sans font-bold text-base tracking-normal">Tiếp theo</h2>
+            <p className="text-ink-soft mt-1 leading-relaxed">{variant.tiep}</p>
+          </div>
+
+          <div className="mt-7 flex flex-col sm:flex-row sm:items-center gap-x-6 gap-y-2">
+            <Link to={variant.primary.to} className="inline-flex items-center justify-center min-h-[52px] px-7 bg-ink text-lamp font-display text-2xl hover:bg-board transition-colors">
+              {variant.primary.label}
+            </Link>
+            <Link to={variant.secondary.to} className="inline-flex items-center justify-center min-h-[44px] font-semibold underline underline-offset-4 decoration-2">
+              {variant.secondary.label}
+            </Link>
+          </div>
+        </div>
+      </main>
     </div>
   )
 }

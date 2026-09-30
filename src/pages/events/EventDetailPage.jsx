@@ -5,7 +5,7 @@ import { MapPin, Heart, Share2, ArrowLeft, Check, X, Copy, Star } from 'lucide-r
 import toast from 'react-hot-toast'
 import CoverFallback from '../../components/shared/CoverFallback'
 import { thuVietHoa, ngayDayDu, gioTrongNgay } from '../../utils/ngayVietNam'
-import ShowCarousel from '../../components/home/ShowCarousel'
+import DongBuoiDien from '../../components/program/DongBuoiDien'
 import ShowMap from '../../components/mshow-detail/ShowMap'
 import ShowIntro from '../../components/mshow-detail/ShowIntro'
 import ShowRatings from '../../components/mshow-detail/ShowRatings'
@@ -97,15 +97,8 @@ const EventDetailPage = () => {
           try {
             const simRes = await getSimilarShows(beData.id)
             if (simRes.success) {
-              const related = (simRes.data ?? []).map(ev => ({
-                id: ev.id,
-                title: ev.name,
-                thumbnail: ev.coverImageUrl,
-                start_date: ev.scheduledStart,
-                loungeName: ev.loungeName,
-                price: formatMinPrice(ev),
-                format: ev.format
-              }))
+              // Giữ nguyên hình dạng dòng của API (DongBuoiDien đọc thẳng) — không đổi tên trường, không bịa trường thiếu.
+              const related = simRes.data ?? []
               setRelatedEvents(related)
             }
           } catch { console.log('Không tải được buổi diễn tương tự.') }
@@ -305,9 +298,13 @@ const EventDetailPage = () => {
 
       {/* ===== BUỔI DIỄN TƯƠNG TỰ ===== */}
       {relatedEvents.length > 0 && (
-        <div className="max-w-[1440px] mx-auto px-4 sm:px-8 mt-24">
-          <ShowCarousel title="Buổi diễn tương tự" events={relatedEvents} showViewMore={false} />
-        </div>
+        <section aria-labelledby="tuong-tu-td" className="max-w-[1440px] mx-auto px-4 sm:px-8 mt-24">
+          <h2 id="tuong-tu-td" className="text-4xl mb-5">Buổi diễn tương tự</h2>
+          {/* Danh sách dọc thay cho băng chuyền cuộn ngang (DESIGN.md: không cuộn ngang). Backend đã giới hạn số buổi trả về. */}
+          <ol className="border-y-2 border-ink">
+            {relatedEvents.map((b) => <DongBuoiDien key={b.id} b={b} />)}
+          </ol>
+        </section>
       )}
 
       {/* ===== MODAL ĐÁNH GIÁ — reuse RatingModal của livestream ===== */}

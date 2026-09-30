@@ -15,19 +15,12 @@ import dayjs from 'dayjs'
 import DauMoc from '../program/DauMoc'
 import { getMyTickets } from '../../services/ticketServices'
 import { thuVietHoa, ngayGon, gioTrongNgay, ngayDayDu } from '../../utils/ngayVietNam'
+import { TRANG_THAI_VE, laVeTrucTuyen } from '../../utils/trangThaiVe'
 
 const ITEMS_PER_PAGE = 10
 
-const isOnlineTicket = (accessType) => !!accessType && accessType !== 'Physical'
-
-// Trạng thái vé → câu cho người giữ vé. `dau` là chữ trên dấu mộc, CHỈ có ở trạng thái tiền.
-const TRANG_THAI_VE = {
-  Pending: { nhan: 'Chờ thanh toán' },
-  Confirmed: { nhan: 'Đã thanh toán', dau: 'ĐÃ TRẢ' },
-  Used: { nhan: 'Đã soát vé', dau: 'ĐÃ TRẢ' },
-  Cancelled: { nhan: 'Đã huỷ' },
-  Refunded: { nhan: 'Đã hoàn tiền', dau: 'ĐÃ HOÀN' },
-}
+// Nhãn trạng thái và phép phân biệt vé trực tuyến dùng chung với trang chi tiết vé (src/utils/trangThaiVe.js).
+const isOnlineTicket = laVeTrucTuyen
 
 const nhanThoiGian = (batDau) => {
   if (!batDau) return null

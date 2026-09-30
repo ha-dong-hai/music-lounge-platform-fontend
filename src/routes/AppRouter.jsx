@@ -4,7 +4,6 @@ import MainLayout from '../layouts/MainLayout'
 
 // Pages Public & Auth
 import HomePage from '../pages/home/HomePage'
-import ShowListPage from '../pages/home/ShowListPage'
 import ShowSearchPage from '../pages/home/ShowSearchPage'
 import AccountPage from '../pages/user/AccountPage'
 import EventDetailPage from '../pages/events/EventDetailPage'
@@ -73,7 +72,7 @@ const AppRouter = createBrowserRouter([
     element: <MainLayout />,
     children: [
       { index: true, element: <HomePage /> },
-      { path: 'shows', element: <ShowListPage /> },
+      { path: 'shows', element: <ShowSearchPage /> },
       { path: 'shows/search', element: <ShowSearchPage /> },
       { path: 'shows/:id', element: <EventDetailPage /> },
       // Ba trang dưới chỉ có nghĩa khi đã đăng nhập: trước đây không bọc gì, khách mở vào thấy form

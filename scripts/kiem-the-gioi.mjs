@@ -42,6 +42,11 @@ const DA_CHUYEN = [
   // 30/09: nam trang tai khoan (dang nhap, dang ky, xac thuc email, quen va dat lai mat khau).
   'src/pages/auth',
   'src/components/auth',
+  // 30/09: trang Buoi dien (tim + loc), chi tiet ve, ket qua thanh toan, hop xac nhan.
+  'src/pages/home',
+  'src/pages/user/TicketDetailPage.jsx',
+  'src/pages/payment',
+  'src/components/shared/HopXacNhan.jsx',
 ]
 
 const TIEN_TO = '(?:bg|text|border|ring|outline|from|to|via|decoration|fill|stroke|divide|shadow|caret|accent|placeholder|ring-offset)(?:-[trblxy])?'

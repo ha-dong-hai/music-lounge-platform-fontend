@@ -29,13 +29,6 @@ import { useAuthStore } from '../../store/useAuthStore'
 
 const SO_BUOI_TAI = 50
 
-// Hình dạng bộ lọc rỗng mà ShowSearchPage đọc từ location.state (initialFilterState của nó).
-const BO_LOC_TRONG = {
-  selectedProvince: null, selectedDistricts: [], selectedWards: [],
-  selectedGenres: [], selectedSubGenres: [], selectedSpaces: [], selectedMoods: [],
-  minPrice: '', maxPrice: '',
-}
-
 // Một dòng của /lounge-shows sang hình dạng các khối dùng — một chỗ duy nhất cho mọi lượt gọi.
 const doiSangDong = (show) => ({
   id: show.id,
@@ -138,7 +131,7 @@ const HomePage = () => {
               <h1 id="dem-nay" className="text-[clamp(3rem,8vw,6rem)] leading-[0.95] text-ink">Đêm nay ở Sài Gòn</h1>
               <p className="font-mono text-base sm:text-lg mt-3" aria-live="polite">{dongPhu}</p>
             </div>
-            <Link to="/shows/search" className="inline-flex items-center gap-2 min-h-[44px] px-5 border-2 border-ink font-semibold hover:bg-ink hover:text-lamp transition-colors">
+            <Link to="/shows" className="inline-flex items-center gap-2 min-h-[44px] px-5 border-2 border-ink font-semibold hover:bg-ink hover:text-lamp transition-colors">
               <SlidersHorizontal size={16} aria-hidden="true" /> Tìm và lọc buổi diễn
             </Link>
           </div>
@@ -185,11 +178,10 @@ const HomePage = () => {
             <TieuDeKhoi id="theo-gu">Tìm theo gu</TieuDeKhoi>
             <div className="grid gap-8 md:grid-cols-3">
               {[
-                ['Dòng nhạc', dongNhac.map(([id, v]) => ({ key: id, ten: v.ten, so: v.so, to: `/shows/search?genreId=${id}` }))],
-                // Trang tìm kiếm nhận tâm trạng/không gian qua location.state theo TÊN (ShowSearchPage: appliedFilters
-                // → namesToIds), không qua query — cùng cách MoodExplorer cũ; dòng nhạc thì đọc ?genreId.
-                ['Tâm trạng', gu.moods.map((m) => ({ key: m.id, ten: m.name, to: '/shows/search', state: { appliedFilters: { ...BO_LOC_TRONG, selectedMoods: [m.name] } } }))],
-                ['Không gian', gu.atmospheres.map((a) => ({ key: a.id, ten: a.name, to: '/shows/search', state: { appliedFilters: { ...BO_LOC_TRONG, selectedSpaces: [a.name] } } }))],
+                // Bộ lọc đi qua ĐỊA CHỈ theo ID (src/utils/boLocBuoiDien.js): bấm Quay lại, tải lại hay gửi đường dẫn đều giữ nguyên.
+                ['Dòng nhạc', dongNhac.map(([id, v]) => ({ key: id, ten: v.ten, so: v.so, to: `/shows?the=${id}` }))],
+                ['Tâm trạng', gu.moods.map((m) => ({ key: m.id, ten: m.name, to: `/shows?tam=${m.id}` }))],
+                ['Không gian', gu.atmospheres.map((a) => ({ key: a.id, ten: a.name, to: `/shows?kg=${a.id}` }))],
               ].filter(([, ds]) => ds.length > 0).map(([tieuDe, ds]) => (
                 // Mỗi nhóm tự thu gọn khi dài (NhomGu): chỉ hiện các mục đáng thấy nhất, "Xem thêm N" mở phần còn lại.
                 <NhomGu key={tieuDe} tieuDe={tieuDe} ds={ds} />

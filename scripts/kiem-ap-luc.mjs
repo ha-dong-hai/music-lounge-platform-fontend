@@ -22,7 +22,16 @@ import { docTep } from './lib/docTep.mjs'
 import { join, relative } from 'node:path'
 
 // src/components/program: bảng giờ diễn mới (30/09) là nơi cám dỗ "sắp hết vé" lớn nhất — phải được canh.
-const KHU_CANH = ['src/components/home', 'src/components/program', 'src/pages/home']
+// CHI canh cac be mat KHAM PHA (trang chu, danh sach, trang phong tra, trang buoi dien): noi co cam do bia ra khan hiem.
+// Khong canh form tai khoan va buoc giu cho: dong ho o do la HAN THAT cua he thong (ma xac thuc het han, giu cho 15 phut),
+// khong phai ap luc gia.
+const KHU_CANH = [
+  'src/components/program',
+  'src/pages/home',
+  'src/pages/lounge',
+  'src/components/lounge',
+  'src/pages/events',
+]
 const BO_QUA = ['src/components/reactbits']
 
 // SỐ THẬT HAY BIẾN ĐỀU LÀ SỐ.

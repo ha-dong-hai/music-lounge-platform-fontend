@@ -9,8 +9,7 @@
 // QUYẾT ĐỊNH:
 //  - Danh sách dọc, gần nhất trước, không có nút sắp xếp (DICE, Ticketmaster đều vậy ở trang địa điểm).
 //  - KHÔNG băng chuyền ngang: NN/g ghi nhận người dùng bỏ sau vài lần vuốt và không trông đợi cuộn ngang trên máy tính.
-//  - Cả dòng bấm được (liên kết ở tên buổi trải kín dòng) — một đích cho bàn phím và trình đọc màn hình, không phải
-//    hai liên kết cùng dẫn tới một nơi.
+//  - Mỗi dòng là DongBuoiDien (dùng chung với trang Buổi diễn), tắt ảnh và tên phòng trà vì đang ở trang của chính nó.
 //  - Chưa có buổi nào: nói thật + mời theo dõi (DICE: "Follow this venue to find out when they have events").
 //    Không in buổi giả, không in "sắp ra mắt".
 //  - Lỗi tải là trạng thái RIÊNG có nút thử lại — bản cũ nuốt lỗi rồi ẩn cả khối, người xem tưởng phòng trà không diễn.
@@ -18,44 +17,11 @@
 import { useId, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Minus, Plus } from 'lucide-react'
-import { ngayTrongLich, ngayDayDu, gioTrongNgay } from '../../utils/ngayVietNam'
-import { formatMinPrice } from '../../utils/formatPrice'
+import { ngayDayDu } from '../../utils/ngayVietNam'
+import DongBuoiDien from '../program/DongBuoiDien'
 import { chiaLichPhongTra, catLich, SO_DA_DIEN_HIEN } from '../../utils/lichPhongTra'
 
-const HINH_THUC = { Online: 'Trực tuyến', Hybrid: 'Tại chỗ và trực tuyến' }
 const NUT_MO = 'inline-flex items-center gap-1.5 min-h-[44px] text-sm font-semibold text-ink underline underline-offset-4 decoration-2 hover:text-board'
-
-const giaIn = (b) => {
-  const gia = formatMinPrice(b)
-  return b.minPrice != null && b.maxPrice != null && b.maxPrice > b.minPrice ? `từ ${gia}` : gia
-}
-
-const DongBuoi = ({ b }) => {
-  const nguoiHat = b.performerNames ?? []
-  const phu = [...(b.genres ?? []).map((g) => g.name), HINH_THUC[b.format]].filter(Boolean)
-  return (
-    <li className="relative grid gap-x-8 gap-y-1.5 md:grid-cols-[14rem_minmax(0,1fr)_auto] md:items-center py-5 border-t border-ink/20 first:border-t-0 hover:bg-card transition-colors">
-      <p className="font-mono text-sm text-ink whitespace-nowrap">
-        {b.status === 'Ongoing'
-          ? <span className="inline-flex items-center px-2 min-h-[24px] bg-ember text-board font-sans font-semibold text-xs">Đang diễn</span>
-          : <>{ngayTrongLich(b.scheduledStart)}<span className="text-ink-mute"> · </span>{gioTrongNgay(b.scheduledStart)}</>}
-      </p>
-      <div className="min-w-0">
-        <h3 className="font-display font-normal text-2xl leading-tight tracking-normal break-words">
-          <Link to={`/shows/${b.id}`} className="after:absolute after:inset-0 hover:underline underline-offset-4 decoration-1">{b.name}</Link>
-        </h3>
-        {nguoiHat.length > 0 && <p className="text-ink-soft mt-1">{nguoiHat.join(', ')}</p>}
-        {phu.length > 0 && <p className="text-sm text-ink-mute mt-0.5">{phu.join(' · ')}</p>}
-      </div>
-      <p className="flex items-baseline gap-5 md:justify-end whitespace-nowrap">
-        <span className="font-mono">{giaIn(b)}</span>
-        <span className="font-semibold underline underline-offset-4 decoration-2" aria-hidden="true">
-          {b.status === 'Ongoing' ? 'Xem buổi diễn' : 'Xem và đặt'}
-        </span>
-      </p>
-    </li>
-  )
-}
 
 const LichDienPhongTra = ({ ds, tong = 0, loi = false, onThuLai, tenPhongTra = '', theoDoi = null }) => {
   const id = useId()
@@ -90,7 +56,7 @@ const LichDienPhongTra = ({ ds, tong = 0, loi = false, onThuLai, tenPhongTra = '
       ) : (
         <>
           <ol id={`${id}-sap`} className="border-y-2 border-ink">
-            {dangIn.map((b) => <DongBuoi key={b.id} b={b} />)}
+            {dangIn.map((b) => <DongBuoiDien key={b.id} b={b} hienPhongTra={false} hienAnh={false} />)}
           </ol>
           {an.length > 0 && (
             <button type="button" onClick={() => setMoHet((v) => !v)} aria-expanded={moHet} aria-controls={`${id}-sap`} className={`${NUT_MO} mt-2`}>

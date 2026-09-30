@@ -66,7 +66,7 @@ const RemoveModal = ({ rating, onClose, onDone }) => {
               Huỷ
             </button>
             <button type="submit" disabled={isBusy}
-              className="flex-1 py-2.5 bg-red-500 text-white font-bold hover:bg-red-600 flex items-center justify-center gap-2 disabled:opacity-50">
+              className="flex-1 py-2.5 bg-danger text-lamp font-bold hover:bg-danger flex items-center justify-center gap-2 disabled:opacity-50">
               {isBusy && <Loader2 size={16} className="animate-spin" />} Gỡ đánh giá
             </button>
           </div>
@@ -165,7 +165,7 @@ const ShowRatings = ({ showId }) => {
             </div>
             {laAdmin && (
               <button onClick={() => setRemoving(r)} title="Gỡ đánh giá"
-                className="p-2 text-ink-mute hover:bg-red-500/10 hover:text-danger flex-shrink-0">
+                className="p-2 text-ink-mute hover:bg-danger/10 hover:text-danger flex-shrink-0">
                 <Trash2 size={15} />
               </button>
             )}

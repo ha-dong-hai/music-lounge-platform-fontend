@@ -30,6 +30,13 @@ const KHU_CANH = [
   'src/components/program/CuongVeCamKet.jsx',
   'src/components/program/KyTuLat.jsx',
   'src/components/program/DauMoc.jsx',
+  'src/components/program/DongBuoiDien.jsx',
+  'src/components/program/BoLocBuoiDien.jsx',
+  'src/pages/home/ShowSearchPage.jsx',
+  'src/components/lounge/LichDienPhongTra.jsx',
+  'src/pages/lounge/LoungeDetailPage.jsx',
+  'src/pages/user/TicketDetailPage.jsx',
+  'src/pages/events/EventDetailPage.jsx',
 ]
 
 // `.format(` của dayjs. Bắt cả `dayjs(x).format(`, `t.format(`, `homNay.format(`.

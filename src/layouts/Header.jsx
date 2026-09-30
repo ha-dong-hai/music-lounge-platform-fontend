@@ -144,7 +144,7 @@ const Header = () => {
   const handleSearchSubmit = (e) => {
     e.preventDefault()
     if (localSearch.trim()) {
-      navigate(`/shows/search?keyword=${encodeURIComponent(localSearch.trim())}`)
+      navigate(`/shows?q=${encodeURIComponent(localSearch.trim())}`)
     }
   }
 
@@ -272,7 +272,7 @@ const Header = () => {
         </div>
 
         <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
-          <Link to="/shows/search" aria-label="Tìm kiếm" className="md:hidden w-11 h-11 inline-flex items-center justify-center text-ink hover:bg-ink hover:text-lamp transition-colors">
+          <Link to="/shows" aria-label="Tìm kiếm" className="md:hidden w-11 h-11 inline-flex items-center justify-center text-ink hover:bg-ink hover:text-lamp transition-colors">
             <Search size={20} />
           </Link>
           <Link to="/my-shows" className="bg-transparent hover:bg-ink hover:text-lamp text-ink border-2 border-ink px-5 min-h-[44px] text-sm font-semibold transition-colors hidden sm:inline-flex items-center">
