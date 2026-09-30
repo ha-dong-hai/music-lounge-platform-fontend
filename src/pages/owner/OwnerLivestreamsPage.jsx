@@ -65,9 +65,7 @@ const ShowLivestreamRow = ({ show, onChanged }) => {
     }
   }, [show.id])
 
-  useEffect(() => {
-    loadLivestream()
-  }, [loadLivestream])
+  useEffect(() => { const chay = async () => { await loadLivestream() }; chay() }, [loadLivestream])
 
   const handleCreate = async () => {
     setIsBusy(true)
@@ -256,9 +254,7 @@ const OwnerLivestreamsPage = () => {
     }
   }
 
-  useEffect(() => {
-    fetchShows()
-  }, [])
+  useEffect(() => { const chay = async () => { await fetchShows() }; chay() }, []) // tải một lần khi mở trang
 
   return (
     <div>

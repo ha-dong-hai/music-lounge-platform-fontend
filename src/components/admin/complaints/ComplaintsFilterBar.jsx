@@ -1,3 +1,7 @@
+// CỐ Ý CHƯA NỐI (01/10/2026): trang cha đã có handleExportCSV và truyền onExportCSV, nhưng nút xuất CHƯA TỪNG được vẽ
+// (kể cả ở commit tạo tệp, 90a8135). Tệp CSV chứa số điện thoại liên hệ của người khiếu nại — dữ liệu cá nhân, nên có mở
+// tính năng xuất hay không là quyết định của chủ dự án. Khi được duyệt: vẽ nút Download gọi onExportCSV ở đây.
+// eslint-disable-next-line no-unused-vars
 import { Search, Download } from 'lucide-react'
 import { CATEGORY_CONFIG } from './ComplaintBadges'
 
@@ -6,6 +10,7 @@ const ComplaintsFilterBar = ({
   searchQuery, setSearchQuery,
   categoryFilter, setCategoryFilter,
   statusFilter, setStatusFilter,
+  // eslint-disable-next-line no-unused-vars -- xem ghi chú đầu tệp
   onExportCSV,
 }) => {
   return (

@@ -89,7 +89,7 @@ const AdminAccountsPage = () => {
     try {
       const res = await getAdminUserDetail(id)
       if (res.success) { setSelectedAcc(res.data) }
-    } catch (err) {
+    } catch {
       toast.error('Không tải được chi tiết tài khoản.')
       setSelectedAcc(null)
     } finally {
@@ -128,7 +128,7 @@ const AdminAccountsPage = () => {
         banned: newStatus ? prevStats.banned - 1 : prevStats.banned + 1
       }))
       setConfirmTarget(null) // đóng modal
-    } catch (err) {
+    } catch {
       toast.error('Thao tác không thành công.')
     } finally {
       setIsUpdating(false)

@@ -57,9 +57,7 @@ const PendingModerationTab = () => {
     }
   }
 
-  useEffect(() => {
-    fetchPending()
-  }, [pagination.page, targetType])
+  useEffect(() => { const chay = async () => { await fetchPending() }; chay() }, [pagination.page, targetType]) // eslint-disable-line react-hooks/exhaustive-deps -- fetchPending tạo mới mỗi lần vẽ; đổi sang useCallback là việc riêng
 
   const handleTabChange = (type) => {
     setTargetType(type)
@@ -195,7 +193,7 @@ const PendingModerationTab = () => {
                         </div>
                       ) : targetType === 'Show' ? (
                         <Link
-                          to={`/admin/shows/${item.targetId}`}
+                          to={`/admin/shows/${item.targetId}`} state={{ fromModeration: true }}
                           className="inline-flex items-center gap-1.5 bg-ink text-lamp px-3 py-1.5 rounded-md text-xs font-bold hover:bg-board transition-colors"
                         >
                           <Eye size={14} aria-hidden="true" /> Xem và duyệt

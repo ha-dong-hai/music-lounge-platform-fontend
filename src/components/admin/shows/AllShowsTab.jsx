@@ -29,7 +29,7 @@ const AllShowsTab = () => {
           setShows(res.data.items)
           setPagination(prev => ({ ...prev, totalPages: res.data.totalPages, totalCount: res.data.totalCount }))
         }
-      } catch (err) {
+      } catch {
         toast.error('Không thể tải danh sách chương trình')
       } finally {
         setIsLoading(false)

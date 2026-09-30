@@ -4,8 +4,8 @@
 import dayjs from 'dayjs'
 import { Link } from 'react-router-dom'
 import { Music2, TrendingUp } from 'lucide-react'
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LabelList, PieChart, Pie, Cell } from 'recharts'
-import { SURFACE, GRID, AXIS_TEXT, CURSOR, SOURCES, SINGLE_SERIES, fmtMoney, fmtCompact } from './chartTokens'
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts'
+import { SURFACE, GRID, AXIS_TEXT, CURSOR, SOURCES, fmtMoney, fmtCompact } from './chartTokens'
 
 const monthLabel = (m) => dayjs(`${m}-01`).format('MM/YYYY')
 

@@ -27,7 +27,7 @@ const AdminPackagesPage = () => {
         if (res.success) {
           setPackages(res.data)
         }
-      } catch (err) {
+      } catch {
         toast.error('Không tải được danh sách gói.')
       } finally {
         setIsLoading(false)
@@ -70,7 +70,7 @@ const AdminPackagesPage = () => {
       toast.success(`${!pkg.isActive ? 'Đã hiện' : 'Đã ẩn'} gói ${pkg.name}`)
       setPackages(prev => prev.map(p => p.id === pkg.id ? { ...p, isActive: !pkg.isActive } : p))
       setConfirmPkg(null)
-    } catch (err) {
+    } catch {
       toast.error('Thao tác không thành công.')
     }
   }

@@ -23,6 +23,12 @@ const AdminShowDetailPage = () => {
   const [moderation, setModeration] = useState(null)
 
   const [isModerationOpen, setIsModerationOpen] = useState(false)
+  // Đi từ hàng đợi kiểm duyệt ("Xem và duyệt", PendingModerationTab truyền state.fromModeration) thì tự mở hộp duyệt khi
+  // dữ liệu đã về. Sửa 01/10/2026: bản cũ có effect ghi setIsModerationOpen(FALSE) — ngược ý định ghi ngay trên nó — và
+  // không nơi nào truyền fromModeration, nên chưa bao giờ chạy. Nay SUY RA trạng thái mở thay vì setState trong effect.
+  const [tuDongMo, setTuDongMo] = useState(Boolean(location.state?.fromModeration))
+  const moHopDuyet = isModerationOpen || (tuDongMo && !isLoading && Boolean(moderation))
+  const dongHopDuyet = () => { setIsModerationOpen(false); setTuDongMo(false) }
   const [isShareOpen, setIsShareOpen] = useState(false)
   const [processingDecision, setProcessingDecision] = useState(null) // 'approve' | 'reject' | null
 
@@ -70,12 +76,6 @@ const AdminShowDetailPage = () => {
     fetchData()
   }, [id])
 
-  // MODAL DUYỆT khi điều hướng từ tab "Cảnh báo AI"
-  useEffect(() => {
-    if (!isLoading && moderation && location.state?.fromModeration) {
-      setIsModerationOpen(false)
-    }
-  }, [isLoading, moderation, location.state])
 
   // XỬ LÝ DUYỆT / TỪ CHỐI
   const handleDecision = async (decision, reviewNote) => {
@@ -90,7 +90,7 @@ const AdminShowDetailPage = () => {
 
       if (res.success) {
         toast.success(decision === 'approve' ? 'Đã duyệt nội dung.' : 'Đã từ chối nội dung.')
-        setIsModerationOpen(false)
+        dongHopDuyet()
         setModeration(null)
         // Refresh lại show (status có thể đổi sau khi duyệt, VD: Draft → Published)
         const detailRes = await getShowDetail(id)
@@ -177,10 +177,10 @@ const AdminShowDetailPage = () => {
       </div>
 
       {/* ===== MODALS ===== */}
-      {isModerationOpen && moderation && (
+      {moHopDuyet && moderation && (
         <ModerationModal
           moderation={moderation}
-          onClose={() => setIsModerationOpen(false)}
+          onClose={dongHopDuyet}
           onDecision={handleDecision}
           isProcessing={processingDecision}
         />
