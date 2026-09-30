@@ -30,6 +30,10 @@ const ShowIntro = ({ data, isFollowing, onToggleFollow }) => {
   if (!data) return null
 
   const lineUp = [...(data.performers ?? [])].sort((a, b) => (a.orderIndex ?? 0) - (b.orderIndex ?? 0))
+  // 01/10/2026: PerformerSummaryDto có Role (bắt buộc) và SetTime (TimeOnly?, KHÔNG bắt buộc — chủ phòng trà có thể bỏ
+  // trống). Bản cũ in "—" ở cột giờ của mọi dòng khi cả buổi chưa ai được xếp giờ, và in "Biểu diễn" khi thiếu vai trò
+  // như thể đó là dữ liệu. Giờ: không tiết mục nào có giờ thì bỏ hẳn cột giờ; vai trò lạ thì không in.
+  const coGio = lineUp.some((p) => gioTietMuc(p.setTime))
   const tags = data.tags ?? data.moodTags ?? []
   const hoanVe = data.refundPolicy?.summary
 
@@ -40,18 +44,19 @@ const ShowIntro = ({ data, isFollowing, onToggleFollow }) => {
         {lineUp.length > 0 ? (
           <ol>
             {lineUp.map((p) => (
-              <li key={p.performanceId ?? p.id} className="grid grid-cols-[4.5rem_minmax(0,1fr)] gap-4 items-start py-4 border-b border-ink/20">
+              <li key={p.performanceId ?? p.id} className={`grid ${coGio ? 'grid-cols-[4.5rem_minmax(0,1fr)]' : 'grid-cols-1'} gap-4 items-start py-4 border-b border-ink/20`}>
                 {/* Giờ lên sân khấu — dữ liệu, nên chữ mono. Chưa có giờ thì in gạch, không bịa giờ. */}
-                <span className="font-mono text-lg text-ink pt-1">{gioTietMuc(p.setTime) ?? '—'}</span>
+                {coGio && <span className="font-mono text-lg text-ink pt-1">{gioTietMuc(p.setTime) ?? '—'}</span>}
                 <div className="flex items-start gap-3 min-w-0">
                   {p.avatarUrl && <img src={p.avatarUrl} alt="" loading="lazy" className="w-12 h-12 object-cover border border-ink flex-shrink-0" />}
                   <div className="min-w-0">
                     {/* Mỗi nghệ sĩ dẫn sang trang riêng: lịch diễn của họ + sao kê tiền ủng hộ công khai. */}
                     <Link to={`/performers/${p.id}`} className="font-display text-2xl leading-none text-ink hover:underline underline-offset-4 break-words">{p.name}</Link>
-                    <p className="text-sm text-ink-soft mt-1.5">
-                      {VAI[p.role] ?? 'Biểu diễn'}
-                      {p.acceptsDonation && ', nhận ủng hộ có sao kê công khai'}
-                    </p>
+                    {(VAI[p.role] || p.acceptsDonation) && (
+                      <p className="text-sm text-ink-soft mt-1.5">
+                        {[VAI[p.role], p.acceptsDonation && 'nhận ủng hộ có sao kê công khai'].filter(Boolean).join(', ').replace(/^./, (c) => c.toUpperCase())}
+                      </p>
+                    )}
                   </div>
                 </div>
               </li>
