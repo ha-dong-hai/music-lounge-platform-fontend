@@ -12,7 +12,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { Loader2, ShieldCheck, Upload, Phone, CheckCircle2, FileText, ExternalLink, AlertTriangle } from 'lucide-react'
 import toast from 'react-hot-toast'
 import {
-  getMyProfile, uploadImage, submitCitizenCard, getMyCitizenCardImage,
+  getMyProfile, uploadImage, submitCitizenCard, getMyCitizenCardImage, getMyCitizenCard,
   getMyTaxProfile, submitTaxProfile, requestPhoneVerificationCode, verifyPhone,
 } from '../../services/userServices'
 
@@ -55,13 +55,13 @@ const IdentityTab = () => {
   // đọc được là CHÍNH TẤM ẢNH — nên dùng nó làm bằng chứng: lấy được ảnh mặt trước nghĩa là đã nộp
   // (GetMyCitizenCardImageQueryHandler:36 ném NotFound khi chưa có).
   //
-  // ĐỀ NGHỊ CHO BACKEND: thêm trường CCCD vào UserProfileDto (`citizenCardStatus`,
-  // `citizenCardNumberMasked`, `citizenCardReviewNote`). Khi có thì bỏ hẳn cách dò bằng ảnh, VÀ
-  // hiện được trạng thái duyệt — hiện tại giao diện KHÔNG phân biệt được "chờ duyệt", "đã duyệt"
-  // và "bị từ chối", chỉ biết là "đã nộp".
+  // CẬP NHẬT 30/09: backend đã có GET /me/citizen-card (trạng thái duyệt + lý do từ chối + số che). Màn
+  // này đọc nó để phân biệt "chờ duyệt / đã duyệt / bị từ chối". Máy chủ nào chưa triển khai endpoint
+  // đó (404) thì vẫn rơi về cách dò bằng ảnh bên dưới — nên cờ `daNopCccd` vẫn giữ.
   //
   // null = đang dò · true/false = kết luận.
   const [daNopCccd, setDaNopCccd] = useState(null)
+  const [trangThaiCccd, setTrangThaiCccd] = useState(null) // CitizenCardStatusDto, null = chưa đọc được
   const [anhCccd, setAnhCccd] = useState({ front: null, back: null })
   const [nopLai, setNopLai] = useState(false)
 
@@ -96,10 +96,12 @@ const IdentityTab = () => {
   // Tải ảnh CCCD đã nộp về để (a) biết là đã nộp hay chưa, (b) hiện ngay tại chỗ cho người dùng
   // đối chiếu xem có chụp nhầm, chụp mờ, chụp ngược mặt không — trước khi Admin duyệt.
   const taiAnhDaNop = useCallback(async () => {
-    const [truoc, sau] = await Promise.allSettled([
+    const [truoc, sau, tt] = await Promise.allSettled([
       getMyCitizenCardImage('front'),
       getMyCitizenCardImage('back'),
+      getMyCitizenCard(),
     ])
+    setTrangThaiCccd(tt.status === 'fulfilled' && tt.value?.success ? tt.value.data : null)
     const thanhUrl = (kq) => {
       if (kq.status !== 'fulfilled' || !kq.value) return null
       // Service đặt responseType 'blob' nên interceptor trả thẳng Blob, không bóc `.data`.
@@ -284,9 +286,28 @@ const IdentityTab = () => {
           </div>
         ) : daNopCccd && !nopLai ? (
           <div className="space-y-4">
-            <p className="text-sm text-success flex items-center gap-2">
-              <ShieldCheck size={16} /> Đã gửi hồ sơ định danh
-            </p>
+            {trangThaiCccd?.reviewStatus === 'Approved' ? (
+              <p className="text-sm text-success flex items-center gap-2">
+                <ShieldCheck size={16} /> Đã xác minh danh tính{trangThaiCccd.numberMasked && ` · ${trangThaiCccd.numberMasked}`}
+              </p>
+            ) : trangThaiCccd?.reviewStatus === 'Rejected' ? (
+              <div className="rounded-lg border border-red-500/30 bg-red-500/5 p-3">
+                <p className="text-sm text-danger flex items-center gap-2"><AlertTriangle size={16} /> Hồ sơ bị từ chối</p>
+                {trangThaiCccd.reviewNote && <p className="text-xs text-ink-soft mt-1">Lý do: {trangThaiCccd.reviewNote}</p>}
+                <p className="text-xs text-ink-mute mt-1">Sửa theo lý do trên rồi bấm "Nộp lại hồ sơ".</p>
+              </div>
+            ) : trangThaiCccd?.reviewStatus === 'Pending' ? (
+              <p className="text-sm text-warning flex items-center gap-2">
+                <ShieldCheck size={16} /> Đã gửi — đang chờ Admin xác minh
+              </p>
+            ) : (
+              <p className="text-sm text-success flex items-center gap-2">
+                <ShieldCheck size={16} /> Đã gửi hồ sơ định danh
+              </p>
+            )}
+            {trangThaiCccd?.explanation && trangThaiCccd.reviewStatus !== 'Rejected' && (
+              <p className="text-xs text-ink-mute">{trangThaiCccd.explanation}</p>
+            )}
 
             {/* Hiện ảnh NGAY TẠI CHỖ. Trước đây chỉ có nút mở tab mới, nghĩa là muốn kiểm tra mình
                 chụp có mờ, có ngược mặt, có nhầm giấy tờ không thì phải rời trang. Giấy tờ tuỳ thân

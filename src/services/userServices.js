@@ -30,6 +30,13 @@ export const submitCitizenCard = async ({ citizenCardNumber, frontImageUrl, back
   return axiosClient.post('/me/citizen-card', { citizenCardNumber, frontImageUrl, backImageUrl, dateOfBirth });
 };
 
+// Trạng thái xác minh CCCD của chính mình: { reviewStatus: null|Pending|Approved|Rejected, reviewNote,
+// numberMasked, canSell, explanation, ... }. Endpoint mới (nhánh backend lien-mach-be, 30/09) — máy chủ
+// chưa triển khai thì trả 404; nơi gọi phải chịu được và rơi về cách hiện cũ.
+export const getMyCitizenCard = async () => {
+  return axiosClient.get('/me/citizen-card');
+};
+
 // side: 'front' | 'back'. Trả về FILE nhị phân, không phải JSON.
 export const getMyCitizenCardImage = async (side) => {
   return axiosClient.get(`/me/citizen-card/${side}`, { responseType: 'blob' });
