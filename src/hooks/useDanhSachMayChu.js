@@ -65,6 +65,8 @@ export const useDanhSachMayChu = ({ khoa, goi, boLoc = {}, coMacDinh = 20, cacCo
 
   return {
     items,
+    // Toàn bộ `data` đã bóc — cho endpoint trả kèm số liệu ngoài trang (vd. tổng hợp tiền ủng hộ).
+    duLieu: du,
     tong,
     trang,
     soTrang: Math.max(1, soTrang),

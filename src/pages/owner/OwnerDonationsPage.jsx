@@ -20,7 +20,8 @@
 //   không phải mảng trần như hai tab kia. Đừng dùng chung chỗ đọc dữ liệu.
 // - GỠ LỜI NHẮN chỉ ẩn lời nhắn khỏi livestream; KHÔNG hoàn tiền, và lời nhắn gốc vẫn được lưu để
 //   đối chiếu. Người đang xem nhận sự kiện SignalR DonationMessageHidden.
-import { useState, useEffect, useCallback } from 'react'
+import { useState } from 'react'
+import { parseAsStringLiteral } from 'nuqs'
 import { Loader2, HeartHandshake, CheckCircle2, Clock, AlertTriangle, X, Send, RefreshCw, EyeOff, History } from 'lucide-react'
 import dayjs from 'dayjs'
 import toast from 'react-hot-toast'
@@ -30,6 +31,8 @@ import {
 } from '../../services/donationServices'
 import { uploadImage } from '../../services/userServices'
 import NutXacNhan from '../../components/shared/NutXacNhan'
+import { useDanhSachMayChu } from '../../hooks/useDanhSachMayChu'
+import PhanTrang from '../../components/bang/PhanTrang'
 
 const fmtMoney = (v) => `${Number(v || 0).toLocaleString('vi-VN')}đ`
 const inputCls = 'mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink focus:outline-none focus:border-ink/50'
@@ -39,6 +42,23 @@ const TABS = [
   { key: 'payout', label: 'Chờ tôi chuyển cho nghệ sĩ' },
   { key: 'history', label: 'Lịch sử' },
 ]
+// Tab nằm trên URL (?tab=payout) để Quay lại và chép link trả đúng chỗ — hằng ở ngoài component để nuqs không
+// nhận một đối tượng mới mỗi lần vẽ.
+const BO_LOC = { tab: parseAsStringLiteral(TABS.map((t) => t.key)).withDefault('ack') }
+
+// PHÂN TRANG (01/10/2026): bản cũ xin cố định pageSize 50 và không có nút trang tiếp — khoản thứ 51 trở đi của cả ba
+// tab không bao giờ hiện, trong khi đây là tiền chủ phòng trà PHẢI xác nhận/chuyển trước hạn. Nay dùng
+// hooks/useDanhSachMayChu. Tab Lịch sử trả bản tổng hợp có `items` phân trang LỒNG bên trong (xem ghi chú đầu tệp):
+// bóc lớp ngoài ra để hook đọc được trang, và giữ các con số đếm ở `tongHop`.
+const goiDanhSach = async ({ tab, ...q }) => {
+  if (tab === 'history') {
+    const res = await getOwnerDonationHistory(q)
+    if (!res?.success) return res
+    const { items: trangLong, ...tongHop } = res.data ?? {}
+    return { success: true, data: { ...(trangLong ?? { items: [], totalCount: 0 }), tongHop } }
+  }
+  return tab === 'ack' ? getDonationsPendingAck(q) : getDonationsAwaitingPayout(q)
+}
 
 // Trạng thái chuyển tiếp trong lịch sử — chuỗi của backend, chỉ ánh xạ giá trị đã biết.
 const TRANG_THAI_CHUYEN = {
@@ -134,39 +154,16 @@ const ConfirmPaidModal = ({ donation, onClose, onSaved }) => {
 }
 
 const OwnerDonationsPage = () => {
-  const [tab, setTab] = useState('ack')
-  const [items, setItems] = useState([])
-  const [isLoading, setIsLoading] = useState(true)
   const [busyId, setBusyId] = useState(null)
   const [traNgheSi, setTraNgheSi] = useState(null)
+  const ds = useDanhSachMayChu({ khoa: ['ung-ho'], goi: goiDanhSach, boLoc: BO_LOC })
+  const { tab } = ds.boLoc
+  const items = ds.items
+  const isLoading = ds.dangTai
   // Chỉ có ở tab Lịch sử: các con số đếm nằm NGOÀI mảng items của bản tổng hợp.
-  const [tongHop, setTongHop] = useState(null)
+  const tongHop = tab === 'history' ? ds.duLieu?.tongHop ?? null : null
+  const load = () => ds.taiLai()
 
-  const load = useCallback(async () => {
-    setIsLoading(true)
-    try {
-      if (tab === 'history') {
-        const res = await getOwnerDonationHistory({ pageSize: 50 })
-        if (res.success) {
-          setTongHop(res.data ?? null)
-          setItems(res.data?.items?.items ?? [])
-        }
-      } else {
-        const res = tab === 'ack'
-          ? await getDonationsPendingAck({ pageSize: 50 })
-          : await getDonationsAwaitingPayout({ pageSize: 50 })
-        if (res.success) setItems(res.data.items ?? [])
-        setTongHop(null)
-      }
-    } catch (err) {
-      toast.error(err.response?.data?.message || 'Chưa tải được danh sách tiền ủng hộ.')
-      setItems([])
-    } finally {
-      setIsLoading(false)
-    }
-  }, [tab])
-
-  useEffect(() => { const chay = async () => { await load() }; chay() }, [load])
 
   const xacNhanNhan = async (d) => {
     setBusyId(d.id)
@@ -204,15 +201,15 @@ Không hoàn tiền, và lời nhắn gốc vẫn được lưu để đối chi
             Đây là tiền khán giả tặng NGHỆ SĨ, phòng trà chỉ giữ hộ và chuyển tiếp — không phải doanh thu của bạn.
           </p>
         </div>
-        <button onClick={load} disabled={isLoading}
+        <button type="button" onClick={load} disabled={ds.dangTaiLai}
           className="flex items-center gap-1.5 px-3 py-1.5 border border-line text-ink-soft text-xs font-bold hover:bg-sunken disabled:opacity-50">
-          <RefreshCw size={14} className={isLoading ? 'animate-spin' : ''} /> Tải lại
+          <RefreshCw size={14} className={ds.dangTaiLai ? 'animate-spin' : ''} /> Tải lại
         </button>
       </div>
 
       <div className="flex flex-wrap gap-2">
         {TABS.map((t) => (
-          <button key={t.key} onClick={() => setTab(t.key)}
+          <button type="button" key={t.key} onClick={() => ds.datBoLoc({ tab: t.key })} aria-pressed={tab === t.key}
             className={`px-3 py-1.5 text-xs font-medium border transition-colors ${tab === t.key
               ? 'bg-sunken border-ink/40 text-ink'
               : 'bg-page border-line text-ink-soft hover:text-ink'}`}>
@@ -223,6 +220,11 @@ Không hoàn tiền, và lời nhắn gốc vẫn được lưu để đối chi
 
       {isLoading ? (
         <div className="py-20 flex justify-center"><Loader2 size={32} className="animate-spin text-ink" /></div>
+      ) : ds.loi ? (
+        <div role="alert" className="bg-card border border-line p-6 flex flex-wrap items-center gap-4">
+          <p className="text-sm">Chưa tải được danh sách tiền ủng hộ.</p>
+          <button type="button" onClick={load} className="min-h-[44px] px-4 border-2 border-ink font-semibold hover:bg-ink hover:text-lamp">Thử lại</button>
+        </div>
       ) : items.length === 0 ? (
         <div className="bg-card border border-line p-10 text-center">
           <HeartHandshake size={28} className="mx-auto mb-3 text-ink-mute" />
@@ -266,7 +268,8 @@ Không hoàn tiền, và lời nhắn gốc vẫn được lưu để đối chi
             </p>
           )}
 
-          <ul className="space-y-2">
+          <PhanTrang ds={ds} tenDonVi="khoản" idDanhSach="ds-ung-ho" />
+          <ul id="ds-ung-ho" tabIndex={-1} className={`space-y-2 focus:outline-none ${ds.laDuLieuCu ? 'opacity-60' : ''}`}>
             {items.map((d) => {
               const tt = TRANG_THAI_CHUYEN[d.payoutStatus]
               return (
@@ -295,9 +298,12 @@ Không hoàn tiền, và lời nhắn gốc vẫn được lưu để đối chi
               )
             })}
           </ul>
+          <PhanTrang ds={ds} tenDonVi="khoản" idDanhSach="ds-ung-ho" />
         </>
       ) : (
-        <ul className="space-y-3">
+        <>
+        <PhanTrang ds={ds} tenDonVi="khoản" idDanhSach="ds-ung-ho" />
+        <ul id="ds-ung-ho" tabIndex={-1} className={`space-y-3 focus:outline-none ${ds.laDuLieuCu ? 'opacity-60' : ''}`}>
           {items.map((d) => {
             const quaHan = d.payoutDueAt && dayjs(d.payoutDueAt).isBefore(dayjs())
             const sapHan = !quaHan && d.payoutDueAt && dayjs(d.payoutDueAt).diff(dayjs(), 'hour') < 24
@@ -395,6 +401,8 @@ Không hoàn tiền, và lời nhắn gốc vẫn được lưu để đối chi
             )
           })}
         </ul>
+        <PhanTrang ds={ds} tenDonVi="khoản" idDanhSach="ds-ung-ho" />
+        </>
       )}
 
       {traNgheSi && (
