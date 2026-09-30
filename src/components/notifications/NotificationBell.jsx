@@ -96,7 +96,7 @@ const NotificationBell = () => {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 top-full mt-3 w-80 sm:w-96 bg-card shadow-lift border border-line py-2 z-50 animate-in fade-in slide-in-from-top-2">
+        <div className="absolute right-0 top-full mt-3 w-80 sm:w-96 bg-card shadow-lift border border-line py-2 z-50">
           <div className="flex items-center justify-between px-4 py-2 border-b border-line mb-1">
             <p className="text-sm font-semibold text-ink">Thông báo</p>
             {unread > 0 && (

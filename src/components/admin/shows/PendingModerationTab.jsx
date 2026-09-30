@@ -120,14 +120,14 @@ const PendingModerationTab = () => {
       <div className="bg-card border border-line overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left whitespace-nowrap">
-            <thead className="bg-sunken/80 border-b border-line">
+            <thead className="bg-sunken border-b-2 border-ink">
               <tr>
-                <th className="p-4 text-ink font-semibold text-sm">{targetType} ({targetType} ID)</th>
-                <th className="p-4 text-ink font-semibold text-sm">Mức rủi ro</th>
-                <th className="p-4 text-ink font-semibold text-sm">Lý do gắn cờ</th>
-                <th className="p-4 text-ink font-semibold text-sm">Điểm AI</th>
-                <th className="p-4 text-ink font-semibold text-sm">Hạn duyệt</th>
-                <th className="p-4 text-ink font-semibold text-sm text-right">Thao tác</th>
+                <th scope="col" className="p-4 text-ink font-semibold text-sm">{targetType} ({targetType} ID)</th>
+                <th scope="col" className="p-4 text-ink font-semibold text-sm">Mức rủi ro</th>
+                <th scope="col" className="p-4 text-ink font-semibold text-sm">Lý do gắn cờ</th>
+                <th scope="col" className="p-4 text-ink font-semibold text-sm">Điểm AI</th>
+                <th scope="col" className="p-4 text-ink font-semibold text-sm">Hạn duyệt</th>
+                <th scope="col" className="p-4 text-ink font-semibold text-sm text-right">Thao tác</th>
               </tr>
             </thead>
             <tbody>
@@ -225,15 +225,13 @@ const PendingModerationTab = () => {
               <button
                 onClick={() => setPagination(prev => ({ ...prev, page: prev.page - 1 }))}
                 disabled={pagination.page === 1}
-                className="p-2 rounded-md border border-line text-ink-soft hover:border-ink hover:text-ink disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-              >
+                className="p-2 rounded-md border border-line text-ink-soft hover:border-ink hover:text-ink disabled:opacity-30 disabled:cursor-not-allowed transition-colors" aria-label="Trang trước">
                 <ChevronLeft size={18} />
               </button>
               <button
                 onClick={() => setPagination(prev => ({ ...prev, page: prev.page + 1 }))}
                 disabled={pagination.page === pagination.totalPages}
-                className="p-2 rounded-md border border-line text-ink-soft hover:border-ink hover:text-ink disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-              >
+                className="p-2 rounded-md border border-line text-ink-soft hover:border-ink hover:text-ink disabled:opacity-30 disabled:cursor-not-allowed transition-colors" aria-label="Trang sau">
                 <ChevronRight size={18} />
               </button>
             </div>

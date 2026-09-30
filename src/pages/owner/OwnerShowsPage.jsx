@@ -14,9 +14,19 @@
 // - Điều kiện gửi duyệt nằm ở backend (>=1 hạng vé, >=1 nghệ sĩ, đã khai văn bản chấp thuận, nộp
 //   trước tối thiểu N ngày làm việc). FE KHÔNG đoán trước các điều kiện này — cứ gửi và hiển thị
 //   nguyên văn lý do 422 backend trả về, tránh hai nơi cùng định nghĩa luật rồi lệch nhau.
+//
+// LÀM LẠI 30/09/2026 (trang mẫu cho màn vận hành):
+// - HUỶ buổi đã đăng và XOÁ bản nháp nay qua HopXacNhan. Bản cũ làm NGAY ở lần bấm đầu tiên — huỷ buổi đã đăng là hoàn
+//   100% tiền vé cho mọi người đã mua, thao tác tiền không hoàn tác được (WCAG 2.2 SC 3.3.4).
+// - Lấy danh sách THEO TRANG và THEO TRẠNG THÁI từ máy chủ (/lounge-shows/mine nhận status, page, pageSize). Bản cũ tải
+//   cứng 100 buổi: buổi thứ 101 không bao giờ hiện. Tab có đếm số (totalCount của lượt gọi pageSize=1 mỗi trạng thái).
+// - Nhãn trạng thái dùng StatusBadge chung (components/admin/shows/ShowBadges) — một bảng nhãn cho cả Admin và chủ.
 import { useState, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
-import { Plus, Loader2, Pencil, Send, X, Trash2, Settings2, CalendarDays, Image as ImageIcon } from 'lucide-react'
+import { Plus, Loader2, Pencil, Send, X, Trash2, Settings2, Image as ImageIcon } from 'lucide-react'
+import HopXacNhan from '../../components/shared/HopXacNhan'
+import { StatusBadge, FormatBadge } from '../../components/admin/shows/ShowBadges'
+import { ngayDayDu, gioTrongNgay } from '../../utils/ngayVietNam'
 import dayjs from 'dayjs'
 import toast from 'react-hot-toast'
 import {
@@ -25,18 +35,17 @@ import {
 import { getLounges } from '../../services/loungeServices'
 import { getGenres, getMoods, getAtmospheres, getEventCategories } from '../../services/catalogServices'
 
-const STATUS_STYLES = {
-  Draft: 'bg-line-strong/10 text-ink-soft border-line-strong/30',
-  Pending: 'bg-warning/10 text-warning border-warning/30',
-  Published: 'bg-success/10 text-success border-success/30',
-  Ongoing: 'bg-danger/10 text-danger border-danger/30',
-  Ended: 'bg-line/20 text-ink-mute border-line/40',
-  Cancelled: 'bg-danger/20 text-danger border-danger/40',
-}
-const STATUS_LABELS = {
-  Draft: 'Nháp', Pending: 'Chờ duyệt', Published: 'Đã đăng',
-  Ongoing: 'Đang diễn ra', Ended: 'Đã kết thúc', Cancelled: 'Đã huỷ',
-}
+// Tab theo trạng thái backend (LoungeShowStatus). '' = tất cả.
+const TAB = [
+  { key: '', nhan: 'Tất cả' },
+  { key: 'Draft', nhan: 'Nháp' },
+  { key: 'Pending', nhan: 'Chờ duyệt' },
+  { key: 'Published', nhan: 'Đã đăng' },
+  { key: 'Ongoing', nhan: 'Đang diễn' },
+  { key: 'Ended', nhan: 'Đã kết thúc' },
+  { key: 'Cancelled', nhan: 'Đã huỷ' },
+]
+const CO_TRANG = 20
 
 const FORMATS = [
   { value: 'Offline', label: 'Tại chỗ' },
@@ -176,8 +185,8 @@ const ShowFormModal = ({ initial, loungeId, catalog, onClose, onSaved }) => {
       <div className="absolute inset-0 bg-ink/80" onClick={onClose} />
       <div className="relative bg-card border border-line w-full max-w-2xl max-h-[88vh] flex flex-col">
         <div className="flex items-center justify-between p-5 border-b border-line">
-          <h2 className="text-lg font-bold text-ink">{isEdit ? 'Sửa buổi diễn' : 'Tạo buổi diễn'}</h2>
-          <button onClick={onClose} className="p-2 hover:bg-sunken text-ink-soft"><X size={20} /></button>
+          <h2 className="text-3xl text-ink">{isEdit ? 'Sửa buổi diễn' : 'Tạo buổi diễn'}</h2>
+          <button onClick={onClose} className="p-2 hover:bg-sunken text-ink-soft" aria-label="Đóng"><X size={20} /></button>
         </div>
 
         <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-5 space-y-4">
@@ -289,14 +298,40 @@ const OwnerShowsPage = () => {
     }
   }
 
+  const [tab, setTab] = useState('')
+  const [trang, setTrang] = useState(1)
+  const [tong, setTong] = useState({ soTrang: 1, soBuoi: 0 })
+  const [dem, setDem] = useState({})
+  const [loiDs, setLoiDs] = useState(false)
+  const [xacNhan, setXacNhan] = useState(null) // { loai: 'huy' | 'xoa', buoi }
+
   const loadShows = useCallback(async () => {
+    setLoiDs(false)
     try {
-      const res = await getMyShows({ pageSize: 100 })
-      if (res.success) setShows(res.data.items)
+      const res = await getMyShows({ page: trang, pageSize: CO_TRANG, sortBy: 'Newest', ...(tab ? { status: tab } : {}) })
+      if (!res.success) throw new Error('mine')
+      setShows(res.data.items ?? [])
+      setTong({ soTrang: res.data.totalPages ?? 1, soBuoi: res.data.totalCount ?? 0 })
     } catch {
-      toast.error('Không tải được danh sách buổi diễn.')
+      setLoiDs(true)
     }
+  }, [tab, trang])
+
+  // SỐ ĐẾM CỦA TAB: MỘT lệnh (tối đa 100 buổi) rồi đếm tại chỗ — không gọi 7 lệnh, và không gọi lại khi đổi tab.
+  // Lý do: giới hạn 100 lượt/phút mỗi địa chỉ IP của backend; bản đầu gọi 8 lệnh mỗi lần đổi tab và làm chuỗi kiểm
+  // mở bán dính 429. Phòng trà có hơn 100 buổi thì chỉ in số "Tất cả" (lấy từ totalCount) — đếm từng tab sẽ thiếu.
+  const taiDem = useCallback(async () => {
+    try {
+      const res = await getMyShows({ page: 1, pageSize: 100 })
+      if (!res?.success) return
+      const ds = res.data.items ?? []
+      const tatCa = res.data.totalCount ?? ds.length
+      const dem = { '': tatCa }
+      if (tatCa <= ds.length) for (const t of TAB) if (t.key) dem[t.key] = ds.filter((x) => x.status === t.key).length
+      setDem(dem)
+    } catch { /* không có số đếm thì tab vẫn dùng được */ }
   }, [])
+  useEffect(() => { const chay = async () => { await taiDem() }; chay() }, [taiDem])
 
   useEffect(() => {
     const run = async () => {
@@ -311,7 +346,6 @@ const OwnerShowsPage = () => {
           genres: g.data || [], moods: m.data || [],
           atmospheres: a.data || [], categories: c.data || [],
         })
-        await loadShows()
       } catch {
         toast.error('Không tải được dữ liệu.')
       } finally {
@@ -319,14 +353,18 @@ const OwnerShowsPage = () => {
       }
     }
     run()
-  }, [loadShows])
+  }, [])
+
+  // Danh sách tải RIÊNG theo tab + trang: đổi tab không tải lại phòng trà, danh mục và không che cả trang bằng vòng quay.
+  useEffect(() => { const chay = async () => { await loadShows() }; chay() }, [loadShows])
 
   const act = async (id, fn, okMsg) => {
+    setXacNhan(null)
     setBusyId(id)
     try {
       await fn(id)
       toast.success(okMsg)
-      await loadShows()
+      await Promise.all([loadShows(), taiDem()])
     } catch (err) {
       // Lý do 422 của backend rất cụ thể (thiếu hạng vé / thiếu nghệ sĩ / chưa khai văn bản /
       // nộp quá sát ngày) — hiển thị nguyên văn, đừng rút gọn.
@@ -352,7 +390,7 @@ const OwnerShowsPage = () => {
     <div>
       <div className="flex items-start justify-between gap-4 mb-6 flex-wrap">
         <div>
-          <h1 className="text-2xl font-bold text-ink mb-1">Buổi diễn</h1>
+          <h1 className="text-4xl text-ink mb-1">Buổi diễn</h1>
           <p className="text-ink-soft text-sm">{lounge.name}</p>
         </div>
         <button onClick={() => setEditing(null)}
@@ -361,81 +399,120 @@ const OwnerShowsPage = () => {
         </button>
       </div>
 
-      {shows.length === 0 ? (
-        <div className="bg-card border border-line p-10 text-center">
-          <CalendarDays size={32} className="mx-auto text-ink-mute mb-3" />
-          <p className="text-ink-soft text-sm">Chưa có buổi diễn nào. Bấm "Tạo buổi diễn" để bắt đầu.</p>
+      {/* TAB THEO TRẠNG THÁI — nút thường có aria-pressed (lọc danh sách), không phải tablist: nội dung không đổi kiểu. */}
+      <div role="group" aria-label="Lọc theo trạng thái" className="flex flex-wrap gap-2 mb-5">
+        {TAB.map((t) => (
+          <button key={t.key || 'tat-ca'} type="button" aria-pressed={tab === t.key}
+            onClick={() => { setTab(t.key); setTrang(1) }}
+            className={`inline-flex items-center gap-2 min-h-[40px] px-3 border-2 border-ink text-sm font-semibold transition-colors ${tab === t.key ? 'bg-ink text-lamp' : 'bg-card text-ink hover:bg-sunken'}`}>
+            {t.nhan}{dem[t.key] != null && <span className="font-mono text-xs">{dem[t.key]}</span>}
+          </button>
+        ))}
+      </div>
+
+      {loiDs ? (
+        <div role="alert" className="flex flex-wrap items-center gap-4 border-2 border-ink p-5">
+          <p>Danh sách buổi diễn chưa tải được.</p>
+          <button type="button" onClick={loadShows} className="min-h-[44px] px-5 bg-ink text-lamp font-semibold hover:bg-board">Thử lại</button>
+        </div>
+      ) : shows.length === 0 ? (
+        <div className="border-2 border-ink p-6">
+          <p>{tab ? `Không có buổi diễn nào ở trạng thái “${TAB.find((t) => t.key === tab)?.nhan}”.` : 'Chưa có buổi diễn nào. Bấm “Tạo buổi diễn” để bắt đầu.'}</p>
         </div>
       ) : (
-        <div className="space-y-3">
+        <ul className="border-y-2 border-ink">
           {shows.map((s) => {
             const isDraft = s.status === 'Draft'
             const isBusy = busyId === s.id
             return (
-              <div key={s.id} className="bg-card border border-line p-5">
-                <div className="flex items-start justify-between gap-4 flex-wrap">
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <p className="text-ink font-bold">{s.name}</p>
-                      <span className={`px-2 py-0.5 text-xs font-bold border ${STATUS_STYLES[s.status] || STATUS_STYLES.Draft}`}>
-                        {STATUS_LABELS[s.status] || s.status}
-                      </span>
-                      <span className="px-2 py-0.5 rounded-md bg-sunken text-ink-soft text-xs">
-                        {FORMATS.find((f) => f.value === s.format)?.label || s.format}
-                      </span>
-                    </div>
-                    <p className="text-ink-mute text-xs mt-1">
-                      {dayjs(s.scheduledStart).format('HH:mm DD/MM/YYYY')}
-                      {s.minPrice != null && ` · từ ${Number(s.minPrice).toLocaleString('vi-VN')}đ`}
-                    </p>
-                  </div>
-
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <Link to={`/owner/shows/${s.id}`}
-                      className="flex items-center gap-1.5 px-3 py-1.5 border border-line text-ink-soft text-xs font-bold hover:bg-sunken">
-                      <Settings2 size={14} /> Chuẩn bị & gửi duyệt
-                    </Link>
-
-                    {/* Poster, dời lịch, đổi hình thức, chế độ phát — những thứ đổi được SAU khi đã đăng */}
-                    <Link to={`/owner/shows/${s.id}/settings`}
-                      className="flex items-center gap-1.5 px-3 py-1.5 border border-line text-ink-soft text-xs font-bold hover:bg-sunken">
-                      <ImageIcon size={14} /> Poster & cài đặt
-                    </Link>
-
-                    {isDraft && (
-                      <button onClick={() => openEdit(s)} disabled={isBusy}
-                        className="flex items-center gap-1.5 px-3 py-1.5 border border-line text-ink-soft text-xs font-bold hover:bg-sunken disabled:opacity-50">
-                        <Pencil size={14} /> Sửa
-                      </button>
-                    )}
-
-                    {isDraft && (
-                      <button onClick={() => act(s.id, submitShow, 'Đã gửi duyệt.')} disabled={isBusy}
-                        className="flex items-center gap-1.5 px-3 py-1.5 bg-ink text-lamp text-xs font-bold hover:bg-board disabled:opacity-50">
-                        <Send size={14} /> Gửi duyệt
-                      </button>
-                    )}
-
-                    {s.status === 'Published' && (
-                      <button onClick={() => act(s.id, cancelShow, 'Đã huỷ buổi diễn, vé đã bán sẽ được hoàn 100%.')} disabled={isBusy}
-                        className="flex items-center gap-1.5 px-3 py-1.5 border border-danger/40 text-danger text-xs font-bold hover:bg-danger/10 disabled:opacity-50">
-                        <X size={14} /> Huỷ buổi diễn
-                      </button>
-                    )}
-
-                    {isDraft && (
-                      <button onClick={() => act(s.id, deleteShow, 'Đã xoá bản nháp.')} disabled={isBusy}
-                        className="p-1.5 border border-line text-ink-mute hover:text-danger hover:border-danger/40 disabled:opacity-50">
-                        <Trash2 size={14} />
-                      </button>
-                    )}
+              <li key={s.id} className="py-4 border-t border-ink/20 first:border-t-0 grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
+                <div className="min-w-0">
+                  <p className="font-mono text-sm text-ink-soft">
+                    {gioTrongNgay(s.scheduledStart)} · {ngayDayDu(s.scheduledStart)}
+                    {s.minPrice != null && ` · từ ${Number(s.minPrice).toLocaleString('vi-VN')}đ`}
+                  </p>
+                  <h2 className="font-sans font-bold text-lg text-ink mt-0.5 break-words">
+                    <Link to={`/owner/shows/${s.id}`} className="hover:underline underline-offset-4">{s.name}</Link>
+                  </h2>
+                  <div className="flex flex-wrap items-center gap-2 mt-1.5">
+                    <StatusBadge status={s.status} />
+                    <FormatBadge format={s.format} />
                   </div>
                 </div>
-              </div>
+
+                <div className="flex items-center gap-2 flex-wrap">
+                  {isDraft && (
+                    <button onClick={() => act(s.id, submitShow, 'Đã gửi duyệt.')} disabled={isBusy}
+                      className="inline-flex items-center gap-1.5 min-h-[40px] px-3 bg-ink text-lamp text-sm font-semibold hover:bg-board disabled:opacity-50">
+                      {isBusy ? <Loader2 size={14} className="animate-spin" aria-hidden="true" /> : <Send size={14} aria-hidden="true" />} Gửi duyệt
+                    </button>
+                  )}
+                  <Link to={`/owner/shows/${s.id}`}
+                    className="inline-flex items-center gap-1.5 min-h-[40px] px-3 border border-ink text-ink text-sm font-semibold hover:bg-ink hover:text-lamp">
+                    <Settings2 size={14} aria-hidden="true" /> Chuẩn bị
+                  </Link>
+                  {/* Poster, dời lịch, đổi hình thức, chế độ phát — những thứ đổi được SAU khi đã đăng */}
+                  <Link to={`/owner/shows/${s.id}/settings`}
+                    className="inline-flex items-center gap-1.5 min-h-[40px] px-3 border border-ink text-ink text-sm font-semibold hover:bg-ink hover:text-lamp">
+                    <ImageIcon size={14} aria-hidden="true" /> Poster và cài đặt
+                  </Link>
+                  {isDraft && (
+                    <button onClick={() => openEdit(s)} disabled={isBusy}
+                      className="inline-flex items-center gap-1.5 min-h-[40px] px-3 border border-ink text-ink text-sm font-semibold hover:bg-ink hover:text-lamp disabled:opacity-50">
+                      <Pencil size={14} aria-hidden="true" /> Sửa
+                    </button>
+                  )}
+                  {s.status === 'Published' && (
+                    <button onClick={() => setXacNhan({ loai: 'huy', buoi: s })} disabled={isBusy}
+                      className="inline-flex items-center gap-1.5 min-h-[40px] px-3 border border-danger text-danger text-sm font-semibold hover:bg-danger hover:text-lamp disabled:opacity-50">
+                      <X size={14} aria-hidden="true" /> Huỷ buổi diễn
+                    </button>
+                  )}
+                  {isDraft && (
+                    <button onClick={() => setXacNhan({ loai: 'xoa', buoi: s })} disabled={isBusy} aria-label={`Xoá bản nháp ${s.name}`}
+                      className="inline-flex items-center justify-center min-w-[40px] min-h-[40px] border border-ink text-ink hover:bg-danger hover:border-danger hover:text-lamp disabled:opacity-50">
+                      <Trash2 size={14} aria-hidden="true" />
+                    </button>
+                  )}
+                </div>
+              </li>
             )
           })}
-        </div>
+        </ul>
       )}
+
+      {!loiDs && tong.soTrang > 1 && (
+        <nav aria-label="Phân trang" className="flex flex-wrap items-center gap-4 mt-6">
+          <button type="button" onClick={() => setTrang((t) => t - 1)} disabled={trang <= 1}
+            className="min-h-[44px] px-4 border-2 border-ink font-semibold hover:bg-ink hover:text-lamp disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-ink">Trang trước</button>
+          <p className="font-mono text-sm">Trang {trang} trên {tong.soTrang} · {tong.soBuoi} buổi</p>
+          <button type="button" onClick={() => setTrang((t) => t + 1)} disabled={trang >= tong.soTrang}
+            className="min-h-[44px] px-4 border-2 border-ink font-semibold hover:bg-ink hover:text-lamp disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-ink">Trang sau</button>
+        </nav>
+      )}
+
+      <HopXacNhan
+        mo={Boolean(xacNhan)}
+        tieuDe={xacNhan?.loai === 'huy' ? 'Huỷ buổi diễn này?' : 'Xoá bản nháp này?'}
+        nhanXacNhan={xacNhan?.loai === 'huy' ? 'Huỷ buổi diễn' : 'Xoá bản nháp'}
+        nhanGiu={xacNhan?.loai === 'huy' ? 'Không, giữ buổi diễn' : 'Không, giữ lại'}
+        dangXuLy={busyId != null && busyId === xacNhan?.buoi?.id}
+        onDong={() => setXacNhan(null)}
+        onXacNhan={() => xacNhan.loai === 'huy'
+          ? act(xacNhan.buoi.id, cancelShow, 'Đã huỷ buổi diễn. Vé đã bán được hoàn 100%.')
+          : act(xacNhan.buoi.id, deleteShow, 'Đã xoá bản nháp.')}
+      >
+        {xacNhan && (
+          <>
+            <p><span className="font-semibold text-ink">{xacNhan.buoi.name}</span> · {gioTrongNgay(xacNhan.buoi.scheduledStart)} {ngayDayDu(xacNhan.buoi.scheduledStart)}</p>
+            <p className="mt-2">
+              {xacNhan.loai === 'huy'
+                ? 'Buổi diễn sẽ gỡ khỏi trang bán vé. Mọi vé đã bán được hoàn 100% tiền cho người mua và khán giả được báo tin. Không hoàn tác được.'
+                : 'Bản nháp cùng line-up và hạng vé đã khai sẽ bị xoá. Không hoàn tác được.'}
+            </p>
+          </>
+        )}
+      </HopXacNhan>
 
       {editing !== undefined && (
         <ShowFormModal

@@ -47,7 +47,7 @@ const StatCard = ({ title, value, note, icon: Icon, color, bg }) => (
 )
 
 const SectionTitle = ({ children }) => (
-  <h2 className="text-sm font-semibold text-ink-soft mb-3">{children}</h2>
+  <h2 className="font-sans font-bold text-sm text-ink-soft mb-3">{children}</h2>
 )
 
 const AdminDashboard = () => {
@@ -103,7 +103,7 @@ const AdminDashboard = () => {
 
       {/* ===== HEADER (kiểu cũ) ===== */}
       <div>
-        <h1 className="text-2xl font-bold text-ink mb-1">Tổng quan hệ thống</h1>
+        <h1 className="text-4xl text-ink mb-1">Tổng quan hệ thống</h1>
         <p className="text-ink-soft text-sm">Toàn bộ số liệu lấy trực tiếp từ hệ thống, không phải dữ liệu mẫu.</p>
       </div>
 

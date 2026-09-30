@@ -65,8 +65,8 @@ const PackageFormModal = ({ isOpen, editingPkg, isSaving, onClose, onSubmit }) =
       <div className="relative bg-card border border-line w-full max-w-lg shadow-soft flex flex-col max-h-[90vh]">
         {/* HEADER */}
         <div className="flex justify-between items-center p-6 border-b border-line">
-          <h2 className="text-xl font-bold text-ink">{isEditing ? 'Sửa gói' : 'Tạo gói mới'}</h2>
-          <button onClick={onClose} disabled={isSaving} className="p-2 hover:bg-sunken text-ink-soft disabled:opacity-30">
+          <h2 className="text-xl text-ink">{isEditing ? 'Sửa gói' : 'Tạo gói mới'}</h2>
+          <button onClick={onClose} disabled={isSaving} className="p-2 hover:bg-sunken text-ink-soft disabled:opacity-30" aria-label="Đóng">
             <X size={20} />
           </button>
         </div>

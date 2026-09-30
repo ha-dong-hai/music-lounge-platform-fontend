@@ -57,8 +57,8 @@ const AppealModal = ({ penalty, onClose, onSaved }) => {
       <div className="absolute inset-0 bg-ink/80" onClick={onClose} />
       <div className="relative bg-card border border-line w-full max-w-md shadow-soft">
         <div className="flex justify-between items-center p-5 border-b border-line">
-          <h2 className="text-lg font-bold text-ink">Khiếu nại án phạt</h2>
-          <button onClick={onClose} className="p-2 hover:bg-sunken text-ink-soft"><X size={20} /></button>
+          <h2 className="text-3xl text-ink">Khiếu nại án phạt</h2>
+          <button onClick={onClose} className="p-2 hover:bg-sunken text-ink-soft" aria-label="Đóng"><X size={20} /></button>
         </div>
 
         <form onSubmit={submit} className="p-5 space-y-4">
@@ -113,7 +113,7 @@ const OwnerPenaltiesPage = () => {
   return (
     <div className="space-y-6 max-w-3xl">
       <div>
-        <h1 className="text-2xl font-bold text-ink mb-1">Án phạt</h1>
+        <h1 className="text-4xl text-ink mb-1">Án phạt</h1>
         <p className="text-ink-soft text-sm">Các án phạt đã áp lên phòng trà của bạn, và kết quả khiếu nại.</p>
       </div>
 

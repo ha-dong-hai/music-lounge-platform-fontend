@@ -137,6 +137,10 @@ const AdminAccountsPage = () => {
 
   return (
     <div className="space-y-6">
+      <div>
+        <h1 className="text-4xl text-ink">Tài khoản người dùng</h1>
+        <p className="text-ink-soft mt-1">Tra cứu, xem chi tiết, khoá và mở khoá tài khoản.</p>
+      </div>
       {/* === STATS CARDS === */}
       <StatsCards 
         stats={stats} 

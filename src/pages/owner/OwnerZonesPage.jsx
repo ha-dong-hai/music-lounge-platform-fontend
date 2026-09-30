@@ -68,8 +68,8 @@ const ZoneFormModal = ({ initial, loungeId, onClose, onSaved }) => {
       <div className="absolute inset-0 bg-ink/80" onClick={onClose} />
       <div className="relative bg-card border border-line w-full max-w-md shadow-soft">
         <div className="flex justify-between items-center p-5 border-b border-line">
-          <h2 className="text-lg font-bold text-ink">{isEdit ? 'Sửa khu vực' : 'Thêm khu vực'}</h2>
-          <button onClick={onClose} className="p-2 hover:bg-sunken text-ink-soft"><X size={20} /></button>
+          <h2 className="text-3xl text-ink">{isEdit ? 'Sửa khu vực' : 'Thêm khu vực'}</h2>
+          <button onClick={onClose} className="p-2 hover:bg-sunken text-ink-soft" aria-label="Đóng"><X size={20} /></button>
         </div>
         <form onSubmit={submit} className="p-5 space-y-4">
           <div>
@@ -347,7 +347,7 @@ const OwnerZonesPage = () => {
   if (!lounge) {
     return (
       <div className="max-w-2xl">
-        <h1 className="text-2xl font-bold text-ink mb-1">Khu vực chỗ ngồi</h1>
+        <h1 className="text-4xl text-ink mb-1">Khu vực chỗ ngồi</h1>
         <div className="mt-4 bg-card border border-line p-6">
           <p className="text-sm text-ink-soft">Hãy tạo hồ sơ phòng trà trước — khu vực thuộc về phòng trà.</p>
         </div>
@@ -362,7 +362,7 @@ const OwnerZonesPage = () => {
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-ink mb-1">Khu vực chỗ ngồi</h1>
+          <h1 className="text-4xl text-ink mb-1">Khu vực chỗ ngồi</h1>
           <p className="text-ink-soft text-sm leading-relaxed">
             Đặt khu vực trước, rồi tạo hạng vé gắn vào từng khu vực. Khán giả xem sơ đồ này khi chọn chỗ.
           </p>
@@ -384,7 +384,7 @@ const OwnerZonesPage = () => {
           <div className="bg-card border border-line p-6">
             <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
               <div>
-                <h2 className="text-base font-semibold text-ink">Sơ đồ 2D</h2>
+                <h2 className="font-sans font-bold text-base text-ink">Sơ đồ 2D</h2>
                 <p className="text-xs text-ink-mute mt-0.5 leading-relaxed">
                   Kéo từng khối để đặt vị trí, hoặc bấm Vẽ phác rồi vẽ tay hình khu vực — hệ thống tự chỉnh thành hình chuẩn. Chỉ lưu khi bấm nút — kéo tới đâu lưu tới đó sẽ làm sơ đồ nhảy khi mạng chậm.
                 </p>
@@ -478,7 +478,7 @@ const OwnerZonesPage = () => {
 
           {/* === DANH SÁCH KHU VỰC === */}
           <div className="bg-card border border-line p-6">
-            <h2 className="text-base font-semibold text-ink mb-4">Danh sách khu vực</h2>
+            <h2 className="font-sans font-bold text-base text-ink mb-4">Danh sách khu vực</h2>
             <ul className="space-y-3">
               {dangHoatDong.map((z) => {
                 const o = layout[z.id] ?? {}
@@ -546,7 +546,7 @@ const OwnerZonesPage = () => {
                         <button
                           onClick={() => { doiToaDo3D(z.id, 'x', ''); doiToaDo3D(z.id, 'y', ''); doiToaDo3D(z.id, 'z', '') }}
                           disabled={busy3D === z.id}
-                          title="Xoá trống cả ba ô rồi bấm Lưu 3D để xoá vị trí"
+                          title="Xoá trống cả ba ô rồi bấm Lưu 3D để xoá vị trí" aria-label="Xoá trống cả ba ô rồi bấm Lưu 3D để xoá vị trí"
                           className="flex items-center gap-1.5 px-3 py-1.5 border border-line text-ink-mute text-xs font-bold hover:bg-sunken disabled:opacity-50">
                           <Eraser size={13} /> Xoá trống
                         </button>
@@ -565,7 +565,7 @@ const OwnerZonesPage = () => {
 
       {daNgung.length > 0 && (
         <div className="bg-card border border-line p-6">
-          <h2 className="text-base font-semibold text-ink mb-1">Đã ngừng hoạt động ({daNgung.length})</h2>
+          <h2 className="font-sans font-bold text-base text-ink mb-1">Đã ngừng hoạt động ({daNgung.length})</h2>
           <p className="text-xs text-ink-mute mb-3">Giữ lại vì vé đã bán còn tham chiếu tới những khu vực này.</p>
           <ul className="space-y-2">
             {daNgung.map((z) => (

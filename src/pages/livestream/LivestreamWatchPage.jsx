@@ -330,7 +330,7 @@ const LivestreamWatchPage = () => {
           <ArrowLeft size={20} />
         </Link>
         <div className="flex-1 min-w-0">
-          <h1 className="text-base font-bold truncate">{showData?.name}</h1>
+          <h1 className="text-base truncate">{showData?.name}</h1>
           <p className="text-xs text-ink-soft flex items-center gap-2 flex-wrap">
             <span className="flex items-center gap-1.5">
               <span className="w-2 h-2 bg-danger animate-pulse inline-block"></span> LIVE
@@ -347,7 +347,7 @@ const LivestreamWatchPage = () => {
         <button
           onClick={handleEndStreamClick}
           className="flex-shrink-0 flex items-center gap-1.5 px-3 py-2 bg-danger/10 border border-danger/40 text-danger text-xs font-bold hover:bg-danger/20 transition-colors"
-          title="Kết thúc stream (test modal đánh giá)"
+          title="Kết thúc stream (test modal đánh giá)" aria-label="Kết thúc stream (test modal đánh giá)"
         >
           <Square size={12} className="fill-danger" /> Kết thúc
         </button>
@@ -358,7 +358,7 @@ const LivestreamWatchPage = () => {
           <button
             onClick={() => setMoCatSong(true)}
             className="flex-shrink-0 flex items-center gap-1.5 px-3 py-2 bg-danger/20 border border-danger text-danger text-xs font-bold hover:bg-danger/30 transition-colors"
-            title="Admin dừng buổi phát vì vi phạm nội dung"
+            title="Admin dừng buổi phát vì vi phạm nội dung" aria-label="Admin dừng buổi phát vì vi phạm nội dung"
           >
             <ShieldOff size={12} /> Cắt sóng
           </button>
@@ -479,11 +479,11 @@ const LivestreamWatchPage = () => {
           <div className="absolute inset-0 bg-ink/85" onClick={() => !dangCatSong && setMoCatSong(false)} />
           <div className="relative bg-card border border-danger/40 w-full max-w-md shadow-soft">
             <div className="flex justify-between items-center p-5 border-b border-line">
-              <h2 className="text-lg font-bold text-danger flex items-center gap-2">
+              <h2 className="text-3xl text-danger flex items-center gap-2">
                 <ShieldOff size={19} /> Cắt sóng buổi phát này?
               </h2>
               <button onClick={() => setMoCatSong(false)} disabled={dangCatSong}
-                className="p-2 hover:bg-sunken text-ink-soft disabled:opacity-30">
+                className="p-2 hover:bg-sunken text-ink-soft disabled:opacity-30" aria-label="Đóng">
                 <X size={20} />
               </button>
             </div>

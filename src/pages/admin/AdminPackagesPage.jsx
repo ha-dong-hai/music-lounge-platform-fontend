@@ -152,7 +152,7 @@ const AdminPackagesPage = () => {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-ink mb-1">Quản lý gói dịch vụ</h1>
+            <h1 className="text-4xl text-ink mb-1">Quản lý gói dịch vụ</h1>
             <p className="text-ink-soft text-sm">Thiết lập các gói dịch vụ cho chủ phòng trà.</p>
           </div>
           <button onClick={openCreateModal} className="flex items-center gap-2 bg-ink text-lamp px-4 py-2.5 font-bold text-sm hover:bg-board transition-colors">
@@ -186,7 +186,7 @@ const AdminPackagesPage = () => {
       {/* ===== HEADER ===== */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-ink mb-1">Quản lý gói dịch vụ</h1>
+          <h1 className="text-4xl text-ink mb-1">Quản lý gói dịch vụ</h1>
           <p className="text-ink-soft text-sm">Thiết lập các gói đăng ký dịch vụ.</p>
         </div>
         <button
@@ -201,7 +201,7 @@ const AdminPackagesPage = () => {
       <section className="space-y-4">
         <div className="flex items-center gap-2.5">
           <span className="w-2 h-2 bg-success" />
-          <h2 className="text-sm font-bold text-ink-soft">Đang hiển thị</h2>
+          <h2 className="font-sans font-bold text-sm text-ink-soft">Đang hiển thị</h2>
           <span className="px-2 py-0.5 bg-success/10 border border-success/25 text-success text-xs font-bold">
             {activePkgs.length}
           </span>
@@ -225,7 +225,7 @@ const AdminPackagesPage = () => {
         <section className="space-y-4">
           <div className="flex items-center gap-2.5">
             <span className="w-2 h-2 bg-danger" />
-            <h2 className="text-sm font-bold text-ink-soft">Đang ẩn</h2>
+            <h2 className="font-sans font-bold text-sm text-ink-soft">Đang ẩn</h2>
             <span className="px-2 py-0.5 bg-danger/10 border border-danger/25 text-danger text-xs font-bold">
               {hiddenPkgs.length}
             </span>

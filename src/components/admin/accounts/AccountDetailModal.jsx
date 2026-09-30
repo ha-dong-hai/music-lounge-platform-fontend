@@ -29,11 +29,11 @@ const AccountDetailModal = ({ selectedAcc, isModalLoading, isUpdating, onClose, 
               <div className="flex items-center gap-4">
                 <img src={selectedAcc.avatarUrl || anhChuCai(selectedAcc.fullName)} alt="avatar" className="w-16 h-16 border-2 border-ink/30 object-cover" />
                 <div>
-                  <h2 className="text-xl font-bold text-ink">{selectedAcc.fullName}</h2>
+                  <h2 className="text-xl text-ink">{selectedAcc.fullName}</h2>
                   <p className="text-sm text-ink-mute">{selectedAcc.email}</p>
                 </div>
               </div>
-              <button onClick={onClose} className="p-2 hover:bg-sunken text-ink-soft"><X size={20} /></button>
+              <button onClick={onClose} className="p-2 hover:bg-sunken text-ink-soft" aria-label="Đóng"><X size={20} /></button>
             </div>
 
             <div className="space-y-4 border-t border-line pt-4">

@@ -294,7 +294,7 @@ const OwnerShowSettingsPage = () => {
         <Link to={`/owner/shows/${id}`} className="inline-flex items-center gap-1.5 text-sm text-ink-mute hover:text-ink mb-3">
           <ArrowLeft size={16} /> Về buổi diễn
         </Link>
-        <h1 className="text-2xl font-bold text-ink mb-1">Cài đặt buổi diễn</h1>
+        <h1 className="text-4xl text-ink mb-1">Cài đặt buổi diễn</h1>
         <p className="text-ink-soft text-sm">{show.name}</p>
       </div>
 
@@ -357,7 +357,7 @@ const OwnerShowSettingsPage = () => {
                 màn này thấy, còn máy chủ thì xét tất cả gói của chủ phòng trà. */}
             <button onClick={taoPosterAi}
               disabled={busy !== null || !!donChoXuLy || goi === null}
-              title={donChoXuLy ? 'Đang có đơn tạo poster chờ xử lý' : undefined}
+              title={donChoXuLy ? 'Đang có đơn tạo poster chờ xử lý' : undefined} aria-label={donChoXuLy ? 'Đang có đơn tạo poster chờ xử lý' : undefined}
               className="flex items-center gap-2 px-4 py-2 bg-ink text-lamp text-sm font-bold hover:bg-board disabled:opacity-40 disabled:cursor-not-allowed">
               {busy === 'ai' ? <Loader2 size={15} className="animate-spin" /> : <Sparkles size={15} />} Tạo poster bằng AI
             </button>

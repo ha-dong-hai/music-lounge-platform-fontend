@@ -113,7 +113,7 @@ const OwnerFnbOrdersPage = () => {
   if (!lounge) {
     return (
       <div className="max-w-2xl">
-        <h1 className="text-2xl font-bold text-ink mb-1">Đơn gọi món</h1>
+        <h1 className="text-4xl text-ink mb-1">Đơn gọi món</h1>
         <div className="mt-4 bg-card border border-line p-6">
           <p className="text-sm text-ink-soft">Chưa có phòng trà nào để nhận đơn.</p>
         </div>
@@ -128,7 +128,7 @@ const OwnerFnbOrdersPage = () => {
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-ink mb-1">Đơn gọi món</h1>
+          <h1 className="text-4xl text-ink mb-1">Đơn gọi món</h1>
           <p className="text-ink-soft text-sm">Đơn khách đặt tại bàn. Trạng thái bếp và việc thu tiền là hai việc tách nhau.</p>
         </div>
         <button onClick={loadOrders} disabled={isLoading}
@@ -220,7 +220,7 @@ const OwnerFnbOrdersPage = () => {
                     const khoaThuTien = buocTiep === 'Paid' && !o.isPaid && conLinkOnline
                     return (
                       <button onClick={() => doiTrangThai(o, buocTiep)} disabled={dangBan || khoaThuTien}
-                        title={khoaThuTien ? 'Khách đang có liên kết thanh toán online còn hạn' : undefined}
+                        title={khoaThuTien ? 'Khách đang có liên kết thanh toán online còn hạn' : undefined} aria-label={khoaThuTien ? 'Khách đang có liên kết thanh toán online còn hạn' : undefined}
                         className="flex items-center gap-1.5 px-3 py-1.5 bg-ink text-lamp text-xs font-bold hover:bg-board disabled:opacity-40 disabled:cursor-not-allowed">
                         {dangBan ? <Loader2 size={13} className="animate-spin" />
                           : buocTiep === 'Paid' ? <Banknote size={13} /> : <UtensilsCrossed size={13} />}
@@ -230,7 +230,7 @@ const OwnerFnbOrdersPage = () => {
                   })()}
                   {o.status !== 'Cancelled' && o.status !== 'Paid' && (
                     <button onClick={() => doiTrangThai(o, 'Cancelled')} disabled={dangBan || conLinkOnline}
-                      title={conLinkOnline ? 'Không huỷ được khi khách còn liên kết thanh toán online' : undefined}
+                      title={conLinkOnline ? 'Không huỷ được khi khách còn liên kết thanh toán online' : undefined} aria-label={conLinkOnline ? 'Không huỷ được khi khách còn liên kết thanh toán online' : undefined}
                       className="flex items-center gap-1.5 px-3 py-1.5 border border-line text-ink-soft text-xs font-bold hover:bg-sunken disabled:opacity-40 disabled:cursor-not-allowed">
                       <XCircle size={13} /> Huỷ đơn
                     </button>

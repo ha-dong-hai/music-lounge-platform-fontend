@@ -88,8 +88,8 @@ const ConfirmPaidModal = ({ donation, onClose, onSaved }) => {
       <div className="absolute inset-0 bg-ink/80" onClick={onClose} />
       <div className="relative bg-card border border-line w-full max-w-md shadow-soft">
         <div className="flex justify-between items-center p-5 border-b border-line">
-          <h2 className="text-lg font-bold text-ink">Xác nhận đã trả nghệ sĩ</h2>
-          <button onClick={onClose} className="p-2 hover:bg-sunken text-ink-soft"><X size={20} /></button>
+          <h2 className="text-3xl text-ink">Xác nhận đã trả nghệ sĩ</h2>
+          <button onClick={onClose} className="p-2 hover:bg-sunken text-ink-soft" aria-label="Đóng"><X size={20} /></button>
         </div>
 
         <form onSubmit={submit} className="p-5 space-y-4">
@@ -198,7 +198,7 @@ Không hoàn tiền, và lời nhắn gốc vẫn được lưu để đối chi
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-ink mb-1">Tiền donate</h1>
+          <h1 className="text-4xl text-ink mb-1">Tiền donate</h1>
           <p className="text-ink-soft text-sm leading-relaxed">
             Đây là tiền khán giả tặng NGHỆ SĨ, phòng trà chỉ giữ hộ và chuyển tiếp — không phải doanh thu của bạn.
           </p>
@@ -368,7 +368,7 @@ Không hoàn tiền, và lời nhắn gốc vẫn được lưu để đối chi
                   {d.message && (
                     <button onClick={() => goLoiNhan(d)} disabled={dangBan}
                       className="flex items-center gap-2 px-4 py-2 border border-line text-ink-soft text-sm font-bold hover:bg-sunken disabled:opacity-50 order-last"
-                      title="Ẩn lời nhắn khỏi livestream; không hoàn tiền">
+                      title="Ẩn lời nhắn khỏi livestream; không hoàn tiền" aria-label="Ẩn lời nhắn khỏi livestream; không hoàn tiền">
                       <EyeOff size={15} /> Gỡ lời nhắn
                     </button>
                   )}
@@ -380,7 +380,7 @@ Không hoàn tiền, và lời nhắn gốc vẫn được lưu để đối chi
                     </button>
                   ) : (
                     <button onClick={() => setTraNgheSi(d)} disabled={dangBan || chuaNhanTien}
-                      title={chuaNhanTien ? 'Nền tảng chưa chuyển tiền về cho bạn' : undefined}
+                      title={chuaNhanTien ? 'Nền tảng chưa chuyển tiền về cho bạn' : undefined} aria-label={chuaNhanTien ? 'Nền tảng chưa chuyển tiền về cho bạn' : undefined}
                       className="flex items-center gap-2 px-4 py-2 bg-ink text-lamp text-sm font-bold hover:bg-board disabled:opacity-40 disabled:cursor-not-allowed">
                       <Send size={15} /> Xác nhận đã trả nghệ sĩ
                     </button>

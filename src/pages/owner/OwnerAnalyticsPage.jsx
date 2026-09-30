@@ -150,7 +150,7 @@ const OwnerAnalyticsPage = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-ink mb-1">Báo cáo doanh thu</h1>
+        <h1 className="text-4xl text-ink mb-1">Báo cáo doanh thu</h1>
         <p className="text-ink-soft text-sm">{lounge.name}</p>
       </div>
 
@@ -260,11 +260,11 @@ const OwnerAnalyticsPage = () => {
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left whitespace-nowrap">
-              <thead className="bg-sunken/70 border-y border-line">
+              <thead className="bg-sunken border-b-2 border-ink">
                 <tr>
-                  <th className="p-4 text-sm font-semibold text-ink-soft uppercase">Buổi diễn</th>
-                  <th className="p-4 text-sm font-semibold text-ink-soft uppercase">Vé bán / sức chứa</th>
-                  <th className="p-4 text-sm font-semibold text-ink-soft uppercase text-right">Doanh thu</th>
+                  <th scope="col" className="p-4 text-sm font-semibold text-ink uppercase">Buổi diễn</th>
+                  <th scope="col" className="p-4 text-sm font-semibold text-ink uppercase">Vé bán / sức chứa</th>
+                  <th scope="col" className="p-4 text-sm font-semibold text-ink uppercase text-right">Doanh thu</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-line">
@@ -305,7 +305,7 @@ const OwnerAnalyticsPage = () => {
         <div className="bg-card border border-line p-6">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
-              <h2 className="text-base font-semibold text-ink">Tiền donate theo nghệ sĩ</h2>
+              <h2 className="font-sans font-bold text-base text-ink">Tiền donate theo nghệ sĩ</h2>
               <p className="text-xs text-ink-mute mt-0.5 leading-relaxed">
                 Đây là tiền khán giả tặng nghệ sĩ, phòng trà giữ hộ và phải chuyển tiếp — KHÔNG phải doanh thu của bạn.
               </p>
@@ -320,10 +320,10 @@ const OwnerAnalyticsPage = () => {
             <table className="w-full text-sm">
               <thead>
                 <tr className="text-xs text-ink-mute border-b border-line">
-                  <th className="text-left py-2 pr-3 font-medium">Nghệ sĩ</th>
-                  <th className="text-right py-2 pr-3 font-medium">Lượt donate</th>
-                  <th className="text-right py-2 pr-3 font-medium">Số buổi diễn</th>
-                  <th className="text-right py-2 font-medium">Tổng tiền</th>
+                  <th scope="col" className="text-left py-2 pr-3 font-medium">Nghệ sĩ</th>
+                  <th scope="col" className="text-right py-2 pr-3 font-medium">Lượt donate</th>
+                  <th scope="col" className="text-right py-2 pr-3 font-medium">Số buổi diễn</th>
+                  <th scope="col" className="text-right py-2 font-medium">Tổng tiền</th>
                 </tr>
               </thead>
               <tbody>
@@ -349,18 +349,18 @@ const OwnerAnalyticsPage = () => {
       {/* LỊCH SỬ PHÁT TRỰC TIẾP */}
       {livestreamHistory.length > 0 && (
         <div className="bg-card border border-line p-6">
-          <h2 className="text-base font-semibold text-ink flex items-center gap-2">
+          <h2 className="font-sans font-bold text-base text-ink flex items-center gap-2">
             <Radio size={16} /> Lịch sử phát trực tiếp
           </h2>
           <div className="overflow-x-auto mt-4">
             <table className="w-full text-sm">
               <thead>
                 <tr className="text-xs text-ink-mute border-b border-line">
-                  <th className="text-left py-2 pr-3 font-medium">Buổi diễn</th>
-                  <th className="text-right py-2 pr-3 font-medium">Xem cao nhất</th>
-                  <th className="text-right py-2 pr-3 font-medium">Tổng lượt xem</th>
-                  <th className="text-right py-2 pr-3 font-medium">Doanh thu vé xem</th>
-                  <th className="text-right py-2 font-medium">Tiền ủng hộ</th>
+                  <th scope="col" className="text-left py-2 pr-3 font-medium">Buổi diễn</th>
+                  <th scope="col" className="text-right py-2 pr-3 font-medium">Xem cao nhất</th>
+                  <th scope="col" className="text-right py-2 pr-3 font-medium">Tổng lượt xem</th>
+                  <th scope="col" className="text-right py-2 pr-3 font-medium">Doanh thu vé xem</th>
+                  <th scope="col" className="text-right py-2 font-medium">Tiền ủng hộ</th>
                 </tr>
               </thead>
               <tbody>

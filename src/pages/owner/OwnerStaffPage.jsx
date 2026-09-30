@@ -56,8 +56,8 @@ const AddStaffModal = ({ loungeId, onClose, onSaved }) => {
       <div className="absolute inset-0 bg-ink/80" onClick={onClose} />
       <div className="relative bg-card border border-line w-full max-w-md shadow-soft">
         <div className="flex justify-between items-center p-5 border-b border-line">
-          <h2 className="text-lg font-bold text-ink">Thêm nhân viên</h2>
-          <button onClick={onClose} className="p-2 hover:bg-sunken text-ink-soft"><X size={20} /></button>
+          <h2 className="text-3xl text-ink">Thêm nhân viên</h2>
+          <button onClick={onClose} className="p-2 hover:bg-sunken text-ink-soft" aria-label="Đóng"><X size={20} /></button>
         </div>
 
         <div className="p-5 space-y-4">
@@ -140,7 +140,7 @@ const OwnerStaffPage = () => {
   if (!lounge) {
     return (
       <div className="max-w-2xl">
-        <h1 className="text-2xl font-bold text-ink mb-1">Nhân viên</h1>
+        <h1 className="text-4xl text-ink mb-1">Nhân viên</h1>
         <div className="mt-4 bg-card border border-line p-6">
           <p className="text-sm text-ink-soft">Hãy tạo hồ sơ phòng trà trước — nhân viên được gán vào phòng trà.</p>
         </div>
@@ -155,7 +155,7 @@ const OwnerStaffPage = () => {
     <div className="space-y-6 max-w-3xl">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-ink mb-1">Nhân viên</h1>
+          <h1 className="text-4xl text-ink mb-1">Nhân viên</h1>
           <p className="text-ink-soft text-sm leading-relaxed">
             Nhân viên soát vé, bán vé tại quầy, xử lý đơn gọi món và vận hành livestream.
             Họ không xem được báo cáo doanh thu, gói dịch vụ hay hồ sơ phòng trà.
@@ -168,7 +168,7 @@ const OwnerStaffPage = () => {
       </div>
 
       <div className="bg-card border border-line p-6">
-        <h2 className="text-base font-semibold text-ink mb-4">Đang làm việc ({dangLam.length})</h2>
+        <h2 className="font-sans font-bold text-base text-ink mb-4">Đang làm việc ({dangLam.length})</h2>
         {dangLam.length === 0 ? (
           <div className="py-8 text-center">
             <Users size={26} className="mx-auto mb-3 text-ink-mute" />
@@ -197,7 +197,7 @@ const OwnerStaffPage = () => {
 
       {daNgung.length > 0 && (
         <div className="bg-card border border-line p-6">
-          <h2 className="text-base font-semibold text-ink mb-1">Đã ngừng ({daNgung.length})</h2>
+          <h2 className="font-sans font-bold text-base text-ink mb-1">Đã ngừng ({daNgung.length})</h2>
           <p className="text-xs text-ink-mute mb-4">Giữ lại để tra được ai từng làm việc trong đêm diễn nào.</p>
           <ul className="space-y-2">
             {daNgung.map((s) => (

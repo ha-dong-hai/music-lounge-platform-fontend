@@ -360,7 +360,7 @@ const OwnerShowDetailPage = () => {
       </Link>
 
       <div>
-        <h1 className="text-2xl font-bold text-ink mb-1">{show.name}</h1>
+        <h1 className="text-4xl text-ink mb-1">{show.name}</h1>
         <p className="text-ink-soft text-sm">
           {dayjs(show.scheduledStart).format('HH:mm DD/MM/YYYY')} · {show.lounge?.name} · <StatusBadge status={show.status} />
         </p>
@@ -374,7 +374,7 @@ const OwnerShowDetailPage = () => {
       {duyet && (
         duyet.decision === 'Rejected' ? (
           <div className="bg-danger/5 border border-danger/40 p-5">
-            <h2 className="text-base font-semibold text-danger flex items-center gap-2">
+            <h2 className="font-sans font-bold text-base text-danger flex items-center gap-2">
               <XCircle size={17} /> Admin đã từ chối buổi diễn này
             </h2>
             <p className="text-sm text-ink-soft mt-2 leading-relaxed">
@@ -392,7 +392,7 @@ const OwnerShowDetailPage = () => {
           </div>
         ) : duyet.decision === 'Approved' ? (
           <div className="bg-success/5 border border-success/30 p-5">
-            <h2 className="text-base font-semibold text-success flex items-center gap-2">
+            <h2 className="font-sans font-bold text-base text-success flex items-center gap-2">
               <Check size={17} /> Admin đã duyệt
             </h2>
             <p className="text-xs text-ink-mute mt-1.5">
@@ -402,7 +402,7 @@ const OwnerShowDetailPage = () => {
           </div>
         ) : (
           <div className="bg-warning/5 border border-warning/30 p-5">
-            <h2 className="text-base font-semibold text-warning flex items-center gap-2">
+            <h2 className="font-sans font-bold text-base text-warning flex items-center gap-2">
               <Clock size={17} /> Đang chờ Admin duyệt
             </h2>
             <p className="text-xs text-ink-mute mt-1.5">
@@ -426,7 +426,7 @@ const OwnerShowDetailPage = () => {
 
       {/* === CHECKLIST GỬI DUYỆT === */}
       <div className="bg-card border border-line p-6">
-        <h2 className="text-lg font-semibold text-ink mb-4">Điều kiện gửi duyệt</h2>
+        <h2 className="text-3xl text-ink mb-4">Điều kiện gửi duyệt</h2>
         <div className="space-y-3">
           <ChecklistRow ok={hasTiers} label="Có ít nhất 1 hạng vé" hint="Thêm ở mục Hạng vé bên dưới" />
           <ChecklistRow ok={hasPerformers} label="Có ít nhất 1 nghệ sĩ trong line-up" hint="Thêm ở mục Line-up bên dưới" />
@@ -469,7 +469,7 @@ const OwnerShowDetailPage = () => {
 
       {/* === VĂN BẢN CHẤP THUẬN === */}
       <div className="bg-card border border-line p-6">
-        <h2 className="text-lg font-semibold text-ink mb-1 flex items-center gap-2">
+        <h2 className="text-3xl text-ink mb-1 flex items-center gap-2">
           <FileCheck size={18} className="text-ink" /> Văn bản chấp thuận biểu diễn
         </h2>
         <p className="text-ink-mute text-xs mb-4">
@@ -511,7 +511,7 @@ const OwnerShowDetailPage = () => {
 
       {/* === LINE-UP === */}
       <div className="bg-card border border-line p-6">
-        <h2 className="text-lg font-semibold text-ink mb-4 flex items-center gap-2">
+        <h2 className="text-3xl text-ink mb-4 flex items-center gap-2">
           <Users size={18} className="text-ink" /> Line-up nghệ sĩ
         </h2>
 
@@ -533,12 +533,12 @@ const OwnerShowDetailPage = () => {
                   {isDraft && (
                     <div className="flex items-center gap-1 flex-shrink-0">
                       <button onClick={() => handleDoiThuTu(p.performanceId, -1)} disabled={!!busy || i === 0}
-                        title="Diễn sớm hơn"
+                        title="Diễn sớm hơn" aria-label="Diễn sớm hơn"
                         className="p-1.5 text-ink-mute hover:text-ink disabled:opacity-30">
                         <ArrowUp size={14} />
                       </button>
                       <button onClick={() => handleDoiThuTu(p.performanceId, 1)} disabled={!!busy || i === arr.length - 1}
-                        title="Diễn muộn hơn"
+                        title="Diễn muộn hơn" aria-label="Diễn muộn hơn"
                         className="p-1.5 text-ink-mute hover:text-ink disabled:opacity-30">
                         <ArrowDown size={14} />
                       </button>
@@ -550,12 +550,12 @@ const OwnerShowDetailPage = () => {
                           setTime: p.setTime ? String(p.setTime).slice(0, 5) : '',
                           acceptsDonation: !!p.acceptsDonation,
                         })}
-                        disabled={!!busy} title="Sửa tiết mục"
+                        disabled={!!busy} title="Sửa tiết mục" aria-label="Sửa tiết mục"
                         className="p-1.5 text-ink-mute hover:text-ink disabled:opacity-50">
                         <Pencil size={14} />
                       </button>
                       <button onClick={() => handleRemovePerformer(p.performanceId)} disabled={!!busy}
-                        title="Gỡ khỏi line-up"
+                        title="Gỡ khỏi line-up" aria-label="Gỡ khỏi line-up"
                         className="p-1.5 text-ink-mute hover:text-danger disabled:opacity-50">
                         <Trash2 size={14} />
                       </button>
@@ -629,7 +629,7 @@ const OwnerShowDetailPage = () => {
       {/* === HẠNG VÉ === */}
       <div className="bg-card border border-line p-6">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-ink flex items-center gap-2">
+          <h2 className="text-3xl text-ink flex items-center gap-2">
             <Ticket size={18} className="text-ink" /> Hạng vé
           </h2>
           {isDraft && !showTierForm && (
@@ -671,12 +671,12 @@ const OwnerShowDetailPage = () => {
                           description: t.description ?? '',
                           totalCapacity: t.totalCapacity ?? '',
                         })}
-                        disabled={!!busy} title="Sửa hạng vé"
+                        disabled={!!busy} title="Sửa hạng vé" aria-label="Sửa hạng vé"
                         className="p-1.5 text-ink-mute hover:text-ink disabled:opacity-50">
                         <Pencil size={14} />
                       </button>
                       <button onClick={() => handleDeleteTier(t.id)} disabled={!!busy}
-                        title="Xoá hạng vé"
+                        title="Xoá hạng vé" aria-label="Xoá hạng vé"
                         className="p-1.5 text-ink-mute hover:text-danger disabled:opacity-50">
                         <Trash2 size={14} />
                       </button>

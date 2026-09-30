@@ -42,9 +42,9 @@ const RatingModal = ({ showName, onClose, onSubmit }) => {
     return (
       <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
         <div className="absolute inset-0 bg-ink/80"></div>
-        <div className="relative bg-card border border-ink/40 w-full max-w-sm p-8 text-center shadow-soft animate-in fade-in zoom-in-95 duration-300">
+        <div className="relative bg-card border border-ink/40 w-full max-w-sm p-8 text-center shadow-soft duration-300">
           <PartyPopper size={44} className="mx-auto text-ink mb-4" />
-          <h2 className="text-xl font-bold text-ink mb-2">Cảm ơn bạn!</h2>
+          <h2 className="text-xl text-ink mb-2">Cảm ơn bạn!</h2>
           <p className="text-sm text-ink-soft">Đánh giá của bạn đã được ghi nhận.</p>
         </div>
       </div>
@@ -55,7 +55,7 @@ const RatingModal = ({ showName, onClose, onSubmit }) => {
     <div className="fixed inset-0 z-[110] flex items-center justify-center p-4" onClick={() => !isSubmitting && onClose()}>
       <div className="absolute inset-0 bg-ink/80"></div>
 
-      <div className="relative bg-card border border-line w-full max-w-md max-h-[90vh] flex flex-col shadow-soft animate-in fade-in zoom-in-95 duration-300" onClick={(e) => e.stopPropagation()}>
+      <div className="relative bg-card border border-line w-full max-w-md max-h-[90vh] flex flex-col shadow-soft duration-300" onClick={(e) => e.stopPropagation()}>
 
         {/* HEADER */}
         <div className="flex-none flex items-start justify-between p-5 border-b border-line">
@@ -64,11 +64,11 @@ const RatingModal = ({ showName, onClose, onSubmit }) => {
               <Star size={18} className="text-ink" />
             </div>
             <div className="min-w-0">
-              <h2 className="text-lg font-bold text-ink">Đánh giá buổi phát trực tiếp</h2>
+              <h2 className="text-3xl text-ink">Đánh giá buổi phát trực tiếp</h2>
               <p className="text-xs text-ink-mute truncate">{showName}</p>
             </div>
           </div>
-          <button onClick={onClose} disabled={isSubmitting} className="p-2 hover:bg-sunken text-ink-soft disabled:opacity-30">
+          <button onClick={onClose} disabled={isSubmitting} className="p-2 hover:bg-sunken text-ink-soft disabled:opacity-30" aria-label="Đóng">
             <X size={20} />
           </button>
         </div>

@@ -35,11 +35,11 @@ const PenaltyAppealReviewModal = ({ target, isProcessing, onClose, onSubmit }) =
       <div className="absolute inset-0 bg-ink/80" onClick={() => !isProcessing && onClose()} />
       <div className="relative bg-card border border-line w-full max-w-lg shadow-soft flex flex-col max-h-[90vh]" onClick={(e) => e.stopPropagation()}>
         <div className="flex-none flex justify-between items-center p-5 border-b border-line">
-          <h2 className="text-lg font-bold text-ink">
+          <h2 className="text-3xl text-ink">
             {laHuy ? 'Huỷ án phạt này?' : 'Giữ nguyên án phạt?'}
           </h2>
           <button onClick={onClose} disabled={isProcessing}
-            className="p-2 hover:bg-sunken text-ink-soft disabled:opacity-30">
+            className="p-2 hover:bg-sunken text-ink-soft disabled:opacity-30" aria-label="Đóng">
             <X size={20} />
           </button>
         </div>

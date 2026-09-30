@@ -1,42 +1,30 @@
 import { Building, Radio, Cast } from 'lucide-react'
+import NhanTrangThai from '../../shared/NhanTrangThai'
 
+// 30/09/2026: nhãn vẽ bằng components/shared/NhanTrangThai (biểu tượng + chữ, 5 sắc thái) — không tự đặt màu ở đây nữa.
 // ===== SHOW BADGES =====
+const HINH_THUC = {
+  offline: { nhan: 'Tại chỗ', icon: Building },
+  online: { nhan: 'Trực tuyến', icon: Radio },
+  livestream: { nhan: 'Trực tuyến', icon: Radio },
+  hybrid: { nhan: 'Tại chỗ và trực tuyến', icon: Cast },
+}
 export const FormatBadge = ({ format }) => {
-  const styles = {
-    offline: 'bg-line-strong/10 text-ink-soft border-line-strong/20',
-    livestream: 'bg-ink/10 text-ink border-ink/20',
-    hybrid: 'bg-ink/10 text-ink border-ink/20',
-  }
-  const icons = { offline: <Building size={12} />, livestream: <Radio size={12} />, hybrid: <Cast size={12} /> }
-  const labels = { offline: 'Tại chỗ', livestream: 'Livestream', hybrid: 'Kết hợp' }
-  const key = format ? format.toLowerCase() : 'offline'
-  if (!labels[key]) return null
-  return (
-    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-xs border ${styles[key]}`}>
-      {icons[key]}{labels[key]}
-    </span>
-  )
+  const h = HINH_THUC[format ? format.toLowerCase() : 'offline']
+  if (!h) return null
+  return <NhanTrangThai sacThai="trung" icon={h.icon}>{h.nhan}</NhanTrangThai>
 }
 
+// Đủ 6 giá trị LoungeShowStatus của backend (Draft, Pending, Published, Ongoing, Ended, Cancelled).
+// Badge DÙNG CHUNG cho mọi màn hiện trạng thái buổi diễn — đừng viết lại một bảng nhãn khác
+// (AllShowsTab từng có bản sao riêng in nhãn tiếng Anh).
+const TRANG_THAI_BUOI = {
+  published: ['tot', 'Đã xuất bản'], ongoing: ['dien', 'Đang diễn'], draft: ['tat', 'Bản nháp'],
+  pending: ['cho', 'Chờ duyệt'], ended: ['tat', 'Đã kết thúc'], cancelled: ['xau', 'Đã huỷ'],
+}
 export const StatusBadge = ({ status }) => {
-  const styles = {
-    published: 'bg-success/10 text-success border-success/20',
-    ongoing: 'bg-ink/10 text-ink border-ink/20',
-    draft: 'bg-line-strong/10 text-ink-soft border-line-strong/20',
-    pending: 'bg-warning/10 text-warning border-warning/30',
-    ended: 'bg-danger/10 text-danger border-danger/20',
-    cancelled: 'bg-danger/10 text-danger border-danger/20',
-  }
-  // Đủ 6 giá trị LoungeShowStatus của backend (Draft, Pending, Published, Ongoing, Ended, Cancelled).
-  // Badge DÙNG CHUNG cho mọi màn hiện trạng thái buổi diễn — đừng viết lại một bảng nhãn khác
-  // (AllShowsTab từng có bản sao riêng in nhãn tiếng Anh).
-  const labels = { published: 'Đã xuất bản', ongoing: 'Đang diễn ra', draft: 'Bản nháp', pending: 'Chờ duyệt', ended: 'Đã kết thúc', cancelled: 'Đã huỷ' }
-  const key = status ? status.toLowerCase() : 'draft'
-  return (
-    <span className={`inline-flex items-center px-2.5 py-1 text-xs font-medium border ${styles[key] || styles.draft}`}>
-      {labels[key] || status}
-    </span>
-  )
+  const [sacThai, nhan] = TRANG_THAI_BUOI[status ? status.toLowerCase() : 'draft'] ?? ['trung', status]
+  return <NhanTrangThai sacThai={sacThai}>{nhan}</NhanTrangThai>
 }
 
 // ===== MODERATION BADGES =====
@@ -60,42 +48,21 @@ export const AIScoreCircle = ({ score }) => {
   const colorClass = numScore >= 70 ? 'border-success text-success' : numScore >= 40 ? 'border-warning text-warning' : 'border-danger text-danger'
   return (
     <div className={`w-10 h-10 flex items-center justify-center border-2 font-bold text-sm ${colorClass}`}>
-      {numScore}
+      <span aria-label={`Điểm AI ${numScore} trên 100`}>{numScore}</span>
     </div>
   )
 }
 
+const MUC_RUI_RO = { Low: ['tot', 'Rủi ro thấp'], Medium: ['cho', 'Rủi ro trung bình'], High: ['xau', 'Rủi ro cao'], Critical: ['xau', 'Rủi ro nghiêm trọng'] }
 export const RiskLevelBadge = ({ level }) => {
-  const styles = {
-    Low: 'bg-success/10 text-success border-success/20',
-    Medium: 'bg-warning/10 text-warning border-warning/20',
-    High: 'bg-warning/10 text-warning border-warning/20',
-    Critical: 'bg-danger/10 text-danger border-danger/20',
-  }
-  const labels = { Low: 'Thấp', Medium: 'Trung bình', High: 'Cao', Critical: 'Nghiêm trọng' }
   if (!level) return <span className="text-xs text-ink-mute">Chưa chấm</span>
-  return (
-    <span className={`inline-flex items-center px-2.5 py-1 text-xs font-medium border ${styles[level]}`}>
-      {labels[level] || level}
-    </span>
-  )
+  const [sacThai, nhan] = MUC_RUI_RO[level] ?? ['trung', level]
+  return <NhanTrangThai sacThai={sacThai}>{nhan}</NhanTrangThai>
 }
 
+const GOI_Y_AI = { SuggestApprove: ['tot', 'AI gợi ý duyệt'], SuggestReject: ['xau', 'AI gợi ý từ chối'], SuggestManualReview: ['cho', 'AI gợi ý xem kỹ'] }
 export const AiRecommendationBadge = ({ recommendation }) => {
-  const styles = {
-    SuggestApprove: 'bg-success/10 text-success border-success/20',
-    SuggestReject: 'bg-danger/10 text-danger border-danger/20',
-    SuggestManualReview: 'bg-warning/10 text-warning border-warning/20',
-  }
-  const labels = {
-    SuggestApprove: 'Nên duyệt',
-    SuggestReject: 'Nên từ chối',
-    SuggestManualReview: 'Cần xem xét',
-  }
   if (!recommendation) return <span className="text-xs text-ink-mute">—</span>
-  return (
-    <span className={`inline-flex items-center px-2.5 py-1 text-xs font-medium border ${styles[recommendation] || 'bg-line-strong/10 text-ink-soft border-line-strong/20'}`}>
-      {labels[recommendation] || recommendation}
-    </span>
-  )
+  const [sacThai, nhan] = GOI_Y_AI[recommendation] ?? ['trung', recommendation]
+  return <NhanTrangThai sacThai={sacThai}>{nhan}</NhanTrangThai>
 }

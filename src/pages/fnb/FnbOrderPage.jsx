@@ -153,7 +153,7 @@ const FnbOrderPage = () => {
         <ArrowLeft size={16} /> Quay lại phòng trà
       </Link>
 
-      <h1 className="text-2xl font-bold mb-1">Đặt đồ uống &amp; món ăn</h1>
+      <h1 className="text-4xl mb-1">Đặt đồ uống &amp; món ăn</h1>
       <p className="text-ink-soft text-sm mb-8">{lounge?.name}</p>
 
       {!user && (
@@ -174,7 +174,7 @@ const FnbOrderPage = () => {
           <div className="lg:col-span-2 space-y-6">
             {Object.entries(grouped).map(([category, list]) => (
               <div key={category}>
-                <h2 className="text-sm font-semibold text-ink mb-3">{category}</h2>
+                <h2 className="font-sans font-bold text-sm text-ink mb-3">{category}</h2>
                 <div className="space-y-2">
                   {list.map((item) => (
                     <div key={item.id} className="bg-card border border-line p-4 flex items-center justify-between gap-4">
@@ -186,13 +186,13 @@ const FnbOrderPage = () => {
                       <div className="flex items-center gap-2 flex-shrink-0">
                         {cart[item.id] ? (
                           <>
-                            <button onClick={() => changeQty(item.id, -1)} className="w-8 h-8 border border-line flex items-center justify-center hover:border-ink hover:text-ink">
+                            <button onClick={() => changeQty(item.id, -1)} className="w-8 h-8 border border-line flex items-center justify-center hover:border-ink hover:text-ink" aria-label="Bớt một">
                               <Minus size={14} />
                             </button>
                             <span className="w-6 text-center font-bold">{cart[item.id]}</span>
                           </>
                         ) : null}
-                        <button onClick={() => changeQty(item.id, 1)} className="w-8 h-8 bg-ink text-lamp flex items-center justify-center hover:bg-board">
+                        <button onClick={() => changeQty(item.id, 1)} className="w-8 h-8 bg-ink text-lamp flex items-center justify-center hover:bg-board" aria-label="Thêm một">
                           <Plus size={14} />
                         </button>
                       </div>
@@ -206,7 +206,7 @@ const FnbOrderPage = () => {
           {/* GIỎ + ĐƠN CỦA TÔI */}
           <div className="space-y-4">
             <div className="bg-card border border-line p-5 sticky top-24">
-              <h2 className="font-bold flex items-center gap-2 mb-4">
+              <h2 className="flex items-center gap-2 mb-4">
                 <ShoppingCart size={18} className="text-ink" /> Đơn của bạn
               </h2>
 
@@ -256,7 +256,7 @@ const FnbOrderPage = () => {
             {/* ĐƠN GẦN ĐÂY */}
             {orders.length > 0 && (
               <div className="bg-card border border-line p-5">
-                <h2 className="font-bold flex items-center gap-2 mb-4">
+                <h2 className="flex items-center gap-2 mb-4">
                   <Receipt size={18} className="text-ink" /> Đơn gần đây
                 </h2>
                 <div className="space-y-3">

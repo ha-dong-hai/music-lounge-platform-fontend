@@ -26,8 +26,8 @@ const Modal = ({ title, onClose, children }) => (
     <div className="absolute inset-0 bg-ink/80" onClick={onClose} />
     <div className="relative bg-card border border-line w-full max-w-md shadow-soft max-h-[90vh] flex flex-col">
       <div className="flex justify-between items-center p-5 border-b border-line">
-        <h2 className="text-lg font-bold text-ink">{title}</h2>
-        <button onClick={onClose} className="p-2 hover:bg-sunken text-ink-soft"><X size={20} /></button>
+        <h2 className="text-3xl text-ink">{title}</h2>
+        <button onClick={onClose} className="p-2 hover:bg-sunken text-ink-soft" aria-label="Đóng"><X size={20} /></button>
       </div>
       <div className="p-5 overflow-y-auto">{children}</div>
     </div>
@@ -268,7 +268,7 @@ const OwnerFnbMenusPage = () => {
   if (!lounge) {
     return (
       <div className="max-w-2xl">
-        <h1 className="text-2xl font-bold text-ink mb-1">Thực đơn</h1>
+        <h1 className="text-4xl text-ink mb-1">Thực đơn</h1>
         <div className="mt-4 bg-card border border-line p-6">
           <p className="text-sm text-ink-soft">Hãy tạo hồ sơ phòng trà trước — thực đơn gắn với phòng trà.</p>
         </div>
@@ -280,7 +280,7 @@ const OwnerFnbMenusPage = () => {
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-ink mb-1">Thực đơn</h1>
+          <h1 className="text-4xl text-ink mb-1">Thực đơn</h1>
           <p className="text-ink-soft text-sm">Đây là thứ khách nhìn thấy khi đặt món tại bàn.</p>
         </div>
         <button onClick={() => setEditingMenu(null)}
@@ -311,7 +311,7 @@ const OwnerFnbMenusPage = () => {
           {menuId && (
             <div className="bg-card border border-line p-6">
               <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
-                <h2 className="text-base font-semibold text-ink">
+                <h2 className="font-sans font-bold text-base text-ink">
                   {menus.find((m) => m.id === menuId)?.name}
                 </h2>
                 <div className="flex gap-2">
@@ -356,10 +356,10 @@ const OwnerFnbMenusPage = () => {
                         </div>
                       </div>
                       <div className="flex gap-1 flex-shrink-0">
-                        <button onClick={() => setEditingItem(it)} className="p-2 text-ink-soft hover:bg-sunken" title="Sửa">
+                        <button onClick={() => setEditingItem(it)} className="p-2 text-ink-soft hover:bg-sunken" title="Sửa" aria-label="Sửa">
                           <Pencil size={14} />
                         </button>
-                        <button onClick={() => setXoaTarget({ loai: 'item', doiTuong: it })} className="p-2 text-danger hover:bg-danger/10" title="Xoá">
+                        <button onClick={() => setXoaTarget({ loai: 'item', doiTuong: it })} className="p-2 text-danger hover:bg-danger/10" title="Xoá" aria-label="Xoá">
                           <Trash2 size={14} />
                         </button>
                       </div>

@@ -80,8 +80,8 @@ const HotspotModal = ({ loungeId, scene, scenes, onClose, onSaved }) => {
       <div className="absolute inset-0 bg-ink/80" onClick={onClose} />
       <div className="relative bg-card border border-line w-full max-w-md shadow-soft">
         <div className="flex justify-between items-center p-5 border-b border-line">
-          <h2 className="text-lg font-bold text-ink truncate">Hotspot của {scene.name || `scene #${scene.id}`}</h2>
-          <button onClick={onClose} className="p-2 hover:bg-sunken text-ink-soft flex-shrink-0"><X size={20} /></button>
+          <h2 className="text-3xl text-ink truncate">Hotspot của {scene.name || `scene #${scene.id}`}</h2>
+          <button onClick={onClose} className="p-2 hover:bg-sunken text-ink-soft flex-shrink-0" aria-label="Đóng"><X size={20} /></button>
         </div>
 
         <div className="p-5 space-y-4">
@@ -112,7 +112,7 @@ const HotspotModal = ({ loungeId, scene, scenes, onClose, onSaved }) => {
                         toast.error(err.response?.data?.message || 'Không xoá được hotspot.')
                       }
                     }}
-                      className="p-2 text-danger hover:bg-danger/10 flex-shrink-0" title="Xoá">
+                      className="p-2 text-danger hover:bg-danger/10 flex-shrink-0" title="Xoá" aria-label="Xoá">
                       <Trash2 size={14} />
                     </button>
                   </li>
@@ -369,7 +369,7 @@ const OwnerTourPage = () => {
   if (!lounge) {
     return (
       <div className="max-w-2xl">
-        <h1 className="text-2xl font-bold text-ink mb-1">Tour 360°</h1>
+        <h1 className="text-4xl text-ink mb-1">Tour 360°</h1>
         <div className="mt-4 bg-card border border-line p-6">
           <p className="text-sm text-ink-soft">Hãy tạo hồ sơ phòng trà trước.</p>
         </div>
@@ -382,7 +382,7 @@ const OwnerTourPage = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-ink mb-1">Tour 360° &amp; mô hình 3D</h1>
+        <h1 className="text-4xl text-ink mb-1">Tour 360° &amp; mô hình 3D</h1>
         <p className="text-ink-soft text-sm leading-relaxed">
           Khán giả dùng tour này để xem trước không gian phòng trà trước khi mua vé.
         </p>
@@ -392,7 +392,7 @@ const OwnerTourPage = () => {
       <div className="bg-card border border-line p-6">
         <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
           <div>
-            <h2 className="text-base font-semibold text-ink">Các điểm đứng (scene)</h2>
+            <h2 className="font-sans font-bold text-base text-ink">Các điểm đứng (scene)</h2>
             <p className="text-xs text-ink-mute mt-0.5">Mỗi scene là một ảnh 360° tại một vị trí trong phòng trà.</p>
           </div>
           <label className="inline-flex items-center gap-2 px-3 py-1.5 bg-ink text-lamp text-xs font-bold hover:bg-board cursor-pointer flex-shrink-0">
@@ -508,7 +508,7 @@ const OwnerTourPage = () => {
                       </button>
                       <button onClick={() => { doiViTri(sc.id, 'x', ''); doiViTri(sc.id, 'y', '') }}
                         disabled={busyViTri === sc.id}
-                        title="Xoá trống cả hai ô rồi bấm Lưu để xoá chấm định vị"
+                        title="Xoá trống cả hai ô rồi bấm Lưu để xoá chấm định vị" aria-label="Xoá trống cả hai ô rồi bấm Lưu để xoá chấm định vị"
                         className="flex items-center gap-1.5 px-2.5 py-1.5 border border-line text-ink-mute text-xs font-bold hover:bg-sunken disabled:opacity-50">
                         <Eraser size={12} />
                       </button>
@@ -533,7 +533,7 @@ const OwnerTourPage = () => {
 
       {/* === GHÉP ẢNH THÀNH 360° === */}
       <div className="bg-card border border-line p-6">
-        <h2 className="text-base font-semibold text-ink flex items-center gap-2">
+        <h2 className="font-sans font-bold text-base text-ink flex items-center gap-2">
           <Layers size={16} /> Ghép ảnh thường thành ảnh 360°
         </h2>
         <p className="text-xs text-ink-mute mt-1 leading-relaxed">
@@ -560,7 +560,7 @@ const OwnerTourPage = () => {
                   <span key={url} className="inline-flex items-center gap-1.5 px-2.5 py-1.5 bg-page border border-line text-xs text-ink-soft">
                     Ảnh {i + 1}
                     <button onClick={() => setAnhGhep((p) => p.filter((u) => u !== url))}
-                      className="text-ink-mute hover:text-danger"><X size={12} /></button>
+                      className="text-ink-mute hover:text-danger" aria-label="Bỏ"><X size={12} /></button>
                   </span>
                 ))}
               </div>
@@ -589,7 +589,7 @@ const OwnerTourPage = () => {
 
       {/* === MÔ HÌNH 3D === */}
       <div className="bg-card border border-line p-6">
-        <h2 className="text-base font-semibold text-ink flex items-center gap-2">
+        <h2 className="font-sans font-bold text-base text-ink flex items-center gap-2">
           <Box size={16} /> Mô hình 3D không gian
         </h2>
         <p className="text-xs text-ink-mute mt-1 leading-relaxed">

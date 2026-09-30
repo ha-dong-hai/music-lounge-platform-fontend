@@ -1,23 +1,53 @@
 // src/layouts/AdminLayout.jsx
 //
-// GHI CHÚ CHO ĐỘI FE: khung (thanh bên + thanh tiêu đề + vùng nội dung) nay nằm ở components/portal/PortalShell.jsx,
-// dùng chung với OwnerLayout — xem ghi chú trong tệp đó để biết vì sao phải làm ngăn kéo cho màn hẹp.
-// Ở đây chỉ còn DANH SÁCH MỤC và hành động đăng xuất. Mọi mục nav giữ nguyên như trước, chỉ Việt hoá nhãn.
-import { Outlet, NavLink, Link, useNavigate } from 'react-router-dom'
-import { LayoutDashboard, Music, Store, Package, LogOut, Users, Receipt, MessageSquareWarning, SlidersHorizontal, ShieldAlert, Banknote, Landmark, ShieldCheck, Settings2, TrendingUp, Gavel, ExternalLink, UserCog } from 'lucide-react'
+// KHU QUẢN TRỊ HỆ THỐNG. Khung (thanh bên, ngăn kéo cho điện thoại, đầu trang) nằm ở components/portal/PortalShell.jsx,
+// dùng chung với OwnerLayout. Ở đây chỉ còn DỮ LIỆU MENU và đăng xuất.
+//
+// GOM NHÓM (30/09/2026): 16 mục phẳng → 4 nhóm theo loại việc: duyệt nội dung, tiền, khiếu nại, hệ thống.
+import { Outlet, useNavigate } from 'react-router-dom'
+import { LayoutDashboard, Music, Store, Package, LogOut, Users, Receipt, MessageSquareWarning, SlidersHorizontal, ShieldAlert, Banknote, Landmark, ShieldCheck, Settings2, TrendingUp, Gavel, ExternalLink, UserCog, Building2 } from 'lucide-react'
 import { useAuthStore } from '../store/useAuthStore'
 import PortalShell from '../components/portal/PortalShell'
 
-// min-h-[44px] thay cho py-3: vùng chạm đủ lớn cho ngón tay khi mở bằng ngăn kéo trên điện thoại.
-const linkClasses = ({ isActive }) =>
-  `flex items-center gap-3 px-4 min-h-[44px] text-sm font-medium transition-colors ${isActive
-    ? 'bg-sunken text-ink'
-    : 'text-ink-soft hover:text-ink hover:bg-sunken/50'
-  }`
+const NHOM = [
+  { ten: 'Tổng quan', muc: [
+    { to: '/admin', end: true, nhan: 'Tổng quan', icon: LayoutDashboard },
+    { to: '/admin/insights', nhan: 'Nội dung và tương tác', icon: TrendingUp },
+  ] },
+  { ten: 'Duyệt', muc: [
+    { to: '/admin/shows', nhan: 'Buổi diễn', icon: Music },
+    { to: '/admin/venues', nhan: 'Phòng trà', icon: Store },
+    { to: '/admin/kyc-reviews', nhan: 'Định danh người bán', icon: ShieldCheck },
+    { to: '/admin/content-reports', nhan: 'Báo cáo vi phạm', icon: ShieldAlert },
+  ] },
+  { ten: 'Tiền', muc: [
+    { to: '/admin/refunds', nhan: 'Hoàn tiền', icon: Banknote },
+    { to: '/admin/settlements', nhan: 'Quyết toán', icon: Landmark },
+    { to: '/admin/ledger', nhan: 'Sổ cái', icon: Receipt },
+    { to: '/admin/bank-accounts', nhan: 'Tài khoản nhận tiền', icon: Building2 },
+    { to: '/admin/packages', nhan: 'Gói dịch vụ', icon: Package },
+  ] },
+  { ten: 'Khiếu nại', muc: [
+    { to: '/admin/complaint', nhan: 'Xử lý khiếu nại', icon: MessageSquareWarning },
+    { to: '/admin/penalty-appeals', nhan: 'Khiếu nại án phạt', icon: Gavel },
+  ] },
+  { ten: 'Hệ thống', muc: [
+    { to: '/admin/accounts', nhan: 'Tài khoản người dùng', icon: Users },
+    { to: '/admin/filter-options', nhan: 'Danh mục phân loại', icon: SlidersHorizontal },
+    { to: '/admin/system-config', nhan: 'Cấu hình hệ thống', icon: Settings2 },
+  ] },
+]
+
+// LỐI RA — Admin cần xem sản phẩm như khách thấy (kiểm một buổi diễn vừa duyệt chẳng hạn).
+const LOI_RA = [
+  { to: '/account', nhan: 'Tài khoản của tôi', icon: UserCog },
+  { to: '/', nhan: 'Về trang công khai', icon: ExternalLink },
+]
 
 const AdminLayout = () => {
   const navigate = useNavigate()
   const logout = useAuthStore((s) => s.logout)
+  const ten = useAuthStore((s) => s.user?.name || s.user?.fullName || s.user?.email || '')
 
   const handleLogout = () => {
     // Trước đây xoá key 'token'/'user' không khớp key thật ('musiclounge-auth') mà useAuthStore
@@ -26,92 +56,16 @@ const AdminLayout = () => {
     navigate('/login')
   }
 
-  const nav = (
-    <>
-      <NavLink to="/admin" end className={linkClasses}>
-        <LayoutDashboard size={18} /> Tổng quan
-      </NavLink>
-      <NavLink to="/admin/shows" className={linkClasses}>
-        <Music size={18} /> Buổi diễn
-      </NavLink>
-      <NavLink to="/admin/venues" className={linkClasses}>
-        <Store size={18} /> Phòng trà
-      </NavLink>
-      <NavLink to="/admin/filter-options" className={linkClasses}>
-        <SlidersHorizontal size={18} />
-        <span>Bộ lọc &amp; phân loại</span>
-      </NavLink>
-      <NavLink to="/admin/kyc-reviews" className={linkClasses}>
-        <ShieldCheck size={18} /> Duyệt định danh
-      </NavLink>
-      <NavLink to="/admin/insights" className={linkClasses}>
-        <TrendingUp size={18} /> Nội dung &amp; tương tác
-      </NavLink>
-      <NavLink to="/admin/system-config" className={linkClasses}>
-        <Settings2 size={18} /> Cấu hình hệ thống
-      </NavLink>
-      <NavLink to="/admin/accounts" className={linkClasses}>
-        <Users size={18} /> Quản lý tài khoản
-      </NavLink>
-      <NavLink to="/admin/packages" className={linkClasses}>
-        <Package size={18} /> Gói dịch vụ
-      </NavLink>
-      <NavLink to="/admin/refunds" className={linkClasses}>
-        <Banknote size={18} /> Hoàn tiền
-      </NavLink>
-      <NavLink to="/admin/settlements" className={linkClasses}>
-        <Landmark size={18} /> Quyết toán
-      </NavLink>
-      <NavLink to="/admin/ledger" className={linkClasses}>
-        <Receipt size={18} /> Sổ cái
-      </NavLink>
-      <NavLink to="/admin/bank-accounts" className={linkClasses}>
-        <Landmark size={18} /> Tài khoản nhận tiền
-      </NavLink>
-      <NavLink to="/admin/penalty-appeals" className={linkClasses}>
-        <Gavel size={18} /> Khiếu nại án phạt
-      </NavLink>
-      <NavLink to="/admin/complaint" className={linkClasses}>
-        <MessageSquareWarning size={18} /> Xử lý khiếu nại
-      </NavLink>
-      <NavLink to="/admin/content-reports" className={linkClasses}>
-        <ShieldAlert size={18} /> Báo cáo vi phạm
-      </NavLink>
-      {/* LỐI RA — trước đây vào trang quản trị rồi thì chỉ còn Đăng xuất, bấm Back, hoặc tự
-          gõ URL mới ra được. Admin cần xem sản phẩm như khách thấy (kiểm một buổi diễn vừa
-          duyệt chẳng hạn) thì không có đường nào. */}
-      <div className="pt-2 mt-2 border-t border-line space-y-1.5">
-        <Link to="/account" className={linkClasses({ isActive: false })}>
-          <UserCog size={18} /> Tài khoản của tôi
-        </Link>
-        <Link to="/" className={linkClasses({ isActive: false })}>
-          <ExternalLink size={18} /> Về trang công khai
-        </Link>
-      </div>
-    </>
-  )
-
   const footer = (
-    <button
-      onClick={handleLogout}
-      className="flex items-center gap-3 px-4 min-h-[44px] w-full text-sm font-medium text-danger hover:bg-danger/10 transition-colors"
-    >
-      <LogOut size={18} /> Đăng xuất
+    <button type="button" onClick={handleLogout}
+      className="flex items-center gap-3 px-3 min-h-[44px] w-full text-sm font-medium text-lamp-mute hover:text-lamp hover:bg-board-soft transition-colors">
+      <LogOut size={18} aria-hidden="true" /> Đăng xuất
     </button>
   )
 
   return (
-    <PortalShell
-      portalName="Quản trị hệ thống"
-      pageTitle="Quản trị MusicLounge"
-      nav={nav}
-      footer={footer}
-      headerRight={
-        <span className="w-9 h-9 bg-ink flex items-center justify-center text-lamp text-xs font-bold" aria-hidden="true">
-          AD
-        </span>
-      }
-    >
+    <PortalShell portalName="Quản trị hệ thống" nhom={NHOM} loiRa={LOI_RA} footer={footer}
+      headerRight={ten ? <span className="text-sm text-ink-soft">Đăng nhập: <span className="font-semibold text-ink">{ten}</span></span> : null}>
       <Outlet />
     </PortalShell>
   )

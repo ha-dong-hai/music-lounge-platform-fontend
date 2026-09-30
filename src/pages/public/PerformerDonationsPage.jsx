@@ -79,8 +79,8 @@ const EvidenceModal = ({ donationId, onClose }) => {
       <div className="absolute inset-0 bg-ink/80" onClick={onClose} />
       <div className="relative bg-card border border-line w-full max-w-3xl shadow-soft flex flex-col max-h-[90vh]">
         <div className="flex-none flex justify-between items-center p-5 border-b border-line">
-          <h2 className="text-lg font-bold text-ink">Nhật ký bằng chứng · khoản #{donationId}</h2>
-          <button onClick={onClose} className="p-2 hover:bg-sunken text-ink-soft">
+          <h2 className="text-3xl text-ink">Nhật ký bằng chứng · khoản #{donationId}</h2>
+          <button onClick={onClose} className="p-2 hover:bg-sunken text-ink-soft" aria-label="Đóng">
             <X size={20} />
           </button>
         </div>
@@ -248,7 +248,7 @@ const PerformerDonationsPage = () => {
 
         <div className="flex items-center gap-3 mb-2">
           <Heart size={26} className="text-ink" />
-          <h1 className="text-2xl font-bold">
+          <h1 className="text-4xl">
             Sao kê donate {summary?.performerName ? `· ${summary.performerName}` : ''}
           </h1>
         </div>
@@ -338,7 +338,7 @@ const PerformerDonationsPage = () => {
             {/* CHÍNH SÁCH — hiện nguyên văn câu backend soạn, không tự tính lại */}
             {summary.policy && (
               <div className="bg-card border border-line p-6 mt-4">
-                <h2 className="text-base font-semibold text-ink">Chính sách đang áp dụng</h2>
+                <h2 className="font-sans font-bold text-base text-ink">Chính sách đang áp dụng</h2>
                 <ul className="mt-3 space-y-2">
                   {(summary.policy.statements ?? []).map((c, i) => (
                     <li key={i} className="text-sm text-ink-soft leading-relaxed flex items-start gap-2">
@@ -361,7 +361,7 @@ const PerformerDonationsPage = () => {
         )}
 
         {/* TỪNG KHOẢN */}
-        <h2 className="text-base font-semibold text-ink mt-8 mb-3">Từng khoản donate</h2>
+        <h2 className="font-sans font-bold text-base text-ink mt-8 mb-3">Từng khoản donate</h2>
 
         {rows.length === 0 ? (
           <div className="bg-card border border-line p-10 text-center">

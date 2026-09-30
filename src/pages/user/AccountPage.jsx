@@ -35,7 +35,7 @@ const AccountPage = () => {
   return (
     <div className="min-h-[60vh] bg-page text-ink pb-16">
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6 py-8">
-        <h1 className="text-3xl font-bold text-ink mb-8">Tài khoản của tôi</h1>
+        <h1 className="text-4xl text-ink mb-8">Tài khoản của tôi</h1>
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           
           {/* SIDEBAR TABS */}

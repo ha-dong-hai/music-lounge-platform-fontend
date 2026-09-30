@@ -86,8 +86,7 @@ const TopDonorsBar = ({ messages }) => {
           {canScrollLeft && (
             <button
               onClick={() => scroll('left')}
-              className="absolute left-1 top-1/2 -translate-y-1/2 z-20 w-6 h-6 bg-ink/80 border border-lamp/10 text-lamp flex items-center justify-center opacity-0 group-hover/strip:opacity-100 hover:bg-board hover:text-lamp transition-all"
-            >
+              className="absolute left-1 top-1/2 -translate-y-1/2 z-20 w-6 h-6 bg-ink/80 border border-lamp/10 text-lamp flex items-center justify-center opacity-0 group-hover/strip:opacity-100 hover:bg-board hover:text-lamp transition-all" aria-label="Cuộn sang trái">
               <ChevronLeft size={14} />
             </button>
           )}
@@ -126,8 +125,7 @@ const TopDonorsBar = ({ messages }) => {
           {canScrollRight && (
             <button
               onClick={() => scroll('right')}
-              className="absolute right-1 top-1/2 -translate-y-1/2 z-20 w-6 h-6 bg-ink/80 border border-lamp/10 text-lamp flex items-center justify-center opacity-0 group-hover/strip:opacity-100 hover:bg-board hover:text-lamp transition-all"
-            >
+              className="absolute right-1 top-1/2 -translate-y-1/2 z-20 w-6 h-6 bg-ink/80 border border-lamp/10 text-lamp flex items-center justify-center opacity-0 group-hover/strip:opacity-100 hover:bg-board hover:text-lamp transition-all" aria-label="Cuộn sang phải">
               <ChevronRight size={14} />
             </button>
           )}

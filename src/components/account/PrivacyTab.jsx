@@ -12,6 +12,7 @@ import { getMyDataExport, deactivateMyAccount, requestDataErasure } from '../../
 import { registerDevice, unregisterDevice } from '../../services/notificationServices'
 import { layMaThietBi, xoaMaThietBi, laCauHinhDuPush } from '../../config/firebaseMessaging'
 import { useAuthStore } from '../../store/useAuthStore'
+import NutXacNhan from '../shared/NutXacNhan'
 
 const XAC_NHAN = 'XOA DU LIEU'
 
@@ -152,10 +153,11 @@ const PrivacyTab = () => {
           Bạn sẽ bị đăng xuất và không dùng tài khoản này nữa. Dữ liệu vẫn được giữ lại — đây KHÔNG phải
           là xoá dữ liệu. Vé đã mua và lịch sử giao dịch không mất đi.
         </p>
-        <button onClick={voHieuHoa} disabled={busy !== null}
+        <NutXacNhan onXacNhan={voHieuHoa} tieuDe="Vô hiệu hoá tài khoản?" nhanXacNhan="Vô hiệu hoá tài khoản" nhanGiu="Không, giữ tài khoản"
+            noiDung="Bạn sẽ bị đăng xuất ngay và không đăng nhập lại được. Vé đã mua không bị huỷ, nhưng không đăng nhập thì bạn không mở được mã vào cửa. Muốn mở lại tài khoản phải liên hệ quản trị viên." disabled={busy !== null}
           className="mt-4 flex items-center gap-2 px-4 py-2 border border-line text-ink-soft text-sm font-bold hover:bg-sunken disabled:opacity-50">
           {busy === 'deactivate' ? <Loader2 size={15} className="animate-spin" /> : <UserX size={15} />} Vô hiệu hoá tài khoản
-        </button>
+        </NutXacNhan>
       </div>
 
       <div className="bg-card border border-danger/30 p-6">

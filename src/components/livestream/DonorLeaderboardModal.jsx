@@ -24,14 +24,14 @@ const DonorLeaderboardModal = ({ donors, onClose }) => {
         {/* HEADER */}
         <div className="flex-none flex justify-between items-start p-5 border-b border-line">
           <div>
-            <h2 className="text-lg font-bold text-ink flex items-center gap-2">
+            <h2 className="text-3xl text-ink flex items-center gap-2">
               <Trophy size={18} className="text-ink" /> Donate leaderboard
             </h2>
             <p className="text-xs text-ink-mute mt-1">
               Tổng cộng <span className="text-ink font-bold">{fmt(totalAmount)}</span> · {totalCount} total {donors.length} donor
             </p>
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-sunken text-ink-soft transition-colors">
+          <button onClick={onClose} className="p-2 hover:bg-sunken text-ink-soft transition-colors" aria-label="Đóng">
             <X size={20} />
           </button>
         </div>

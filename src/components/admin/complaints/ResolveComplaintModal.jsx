@@ -76,10 +76,10 @@ const ResolveComplaintModal = ({ complaint, onClose, onSaved }) => {
       <div className="relative bg-card border border-line w-full max-w-lg shadow-soft max-h-[90vh] flex flex-col">
         <div className="flex justify-between items-center p-5 border-b border-line">
           <div>
-            <h2 className="text-lg font-bold text-ink">Xử lý khiếu nại #{complaint.id}</h2>
+            <h2 className="text-3xl text-ink">Xử lý khiếu nại #{complaint.id}</h2>
             <p className="text-xs text-ink-mute mt-0.5">{complaint.targetType} #{complaint.targetId}</p>
           </div>
-          <button onClick={onClose} disabled={isBusy} className="p-2 hover:bg-sunken text-ink-soft disabled:opacity-30">
+          <button onClick={onClose} disabled={isBusy} className="p-2 hover:bg-sunken text-ink-soft disabled:opacity-30" aria-label="Đóng">
             <X size={20} />
           </button>
         </div>

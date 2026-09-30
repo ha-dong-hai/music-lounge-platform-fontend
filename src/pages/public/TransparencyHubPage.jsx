@@ -85,7 +85,7 @@ const TransparencyHubPage = () => {
             Công khai · không cần đăng nhập
           </p>
         </div>
-        <h1 className="font-display text-3xl sm:text-4xl font-semibold leading-tight mb-4">
+        <h1 className="font-display text-4xl sm:text-4xl leading-tight mb-4">
           Tiền ủng hộ đi đâu, đến khi nào
         </h1>
         <p className="text-ink-soft leading-relaxed max-w-2xl mb-10">
@@ -122,7 +122,7 @@ const TransparencyHubPage = () => {
 
         <div className="flex items-end justify-between gap-4 mb-5">
           <div>
-            <h2 className="font-display text-xl sm:text-2xl font-semibold text-ink">Xem sao kê của nghệ sĩ</h2>
+            <h2 className="font-display text-xl sm:text-2xl text-ink">Xem sao kê của nghệ sĩ</h2>
             <p className="text-sm text-ink-mute mt-1">Những nghệ sĩ có nhận ủng hộ trong các đêm diễn gần đây.</p>
           </div>
           <button

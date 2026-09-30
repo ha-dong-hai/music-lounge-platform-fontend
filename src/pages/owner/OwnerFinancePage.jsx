@@ -98,7 +98,7 @@ const OwnerFinancePage = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-ink mb-1 flex items-center gap-2">
+        <h1 className="text-4xl text-ink mb-1 flex items-center gap-2">
           <Wallet size={24} className="text-ink" /> Tiền &amp; quyết toán
         </h1>
         <p className="text-ink-soft text-sm leading-relaxed">
@@ -143,7 +143,7 @@ const OwnerFinancePage = () => {
       {/* QUYẾT TOÁN GẦN ĐÂY */}
       {(earnings?.recentSettlements?.length ?? 0) > 0 && (
         <div className="bg-card border border-line p-6">
-          <h2 className="text-base font-semibold text-ink flex items-center gap-2">
+          <h2 className="font-sans font-bold text-base text-ink flex items-center gap-2">
             <Landmark size={16} /> Các đợt quyết toán gần đây
           </h2>
           <p className="text-xs text-ink-mute mt-0.5 mb-4 leading-relaxed">
@@ -174,7 +174,7 @@ const OwnerFinancePage = () => {
       {/* LỊCH SỬ GIAO DỊCH */}
       <div className="bg-card border border-line p-6">
         <div className="flex flex-wrap items-start justify-between gap-3">
-          <h2 className="text-base font-semibold text-ink flex items-center gap-2">
+          <h2 className="font-sans font-bold text-base text-ink flex items-center gap-2">
             <ArrowRightLeft size={16} /> Lịch sử giao dịch
           </h2>
         </div>

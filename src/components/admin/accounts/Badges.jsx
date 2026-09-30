@@ -1,27 +1,12 @@
-export const RoleBadge = ({ role }) => {
-  const styles = {
-    admin: 'bg-ink/15 text-ink border-ink/30',
-    owner: 'bg-ink/15 text-ink border-ink/30',
-    staff: 'bg-warning/15 text-warning border-warning/30',
-    audience: 'bg-line-strong/15 text-ink-soft border-line-strong/30',
-  }
-  const labels = { admin: 'Admin', owner: 'Owner', staff: 'Staff', audience: 'Audience' }
-  const key = role ? role.toLowerCase() : 'audience'
-  return (
-    <span className={`inline-flex items-center px-2.5 py-1 text-xs font-medium border ${styles[key]}`}>
-      {labels[key]}
-    </span>
-  )
-}
+import NhanTrangThai from '../../shared/NhanTrangThai'
+// 30/09/2026: nhãn vẽ bằng components/shared/NhanTrangThai (biểu tượng + chữ, 5 sắc thái) — không tự đặt màu ở đây nữa.
+// Vai trò in bằng tiếng Việt (bản cũ in "Admin", "Owner", "Staff", "Audience").
+const VAI_TRO = { admin: 'Quản trị', owner: 'Chủ phòng trà', staff: 'Nhân viên', audience: 'Khán giả' }
 
-export const StatusBadge = ({ isActive }) => {
-  const styles = isActive
-    ? 'bg-success/15 text-success border-success/30'
-    : 'bg-danger/15 text-danger border-danger/30'
-  return (
-    <span className={`inline-flex items-center gap-1 px-2.5 py-1 text-xs font-bold border ${styles}`}>
-      <span className={`w-1.5 h-1.5 ${isActive ? 'bg-success' : 'bg-danger'}`}></span>
-      {isActive ? 'Active' : 'Banned'}
-    </span>
-  )
-}
+export const RoleBadge = ({ role }) => (
+  <NhanTrangThai sacThai="trung">{VAI_TRO[role ? role.toLowerCase() : 'audience'] ?? role}</NhanTrangThai>
+)
+
+export const StatusBadge = ({ isActive }) => (
+  <NhanTrangThai sacThai={isActive ? 'tot' : 'xau'}>{isActive ? 'Đang hoạt động' : 'Bị khoá'}</NhanTrangThai>
+)

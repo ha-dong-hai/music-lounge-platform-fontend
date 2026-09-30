@@ -39,7 +39,7 @@ const DonateAlert = ({ alert, onEnd, duration = 5000 }) => {
 
   return (
     <div className={`
-      animate-slideInLeft flex flex-col bg-ink/80
+      flex flex-col bg-ink/80
       border border-ink/50 shadow-soft mb-2 w-[260px] overflow-hidden
       transition-all duration-300
       ${isExiting ? 'opacity-0 -translate-x-4' : 'opacity-100'}

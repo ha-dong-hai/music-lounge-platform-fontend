@@ -24,7 +24,7 @@ const NotFoundPage = () => {
         </div>
 
         <p className="text-sm text-ink-mute mt-6 tracking-widest">404</p>
-        <h1 className="text-2xl sm:text-3xl font-bold mt-1">Không có trang này</h1>
+        <h1 className="text-4xl sm:text-4xl mt-1">Không có trang này</h1>
         <p className="text-sm text-ink-mute mt-3 leading-relaxed">
           Địa chỉ bạn vừa mở không tồn tại, hoặc trang đã được chuyển đi nơi khác. Nếu bạn bấm vào
           một đường dẫn trong hệ thống mà gặp trang này, hãy báo lại — đó là một liên kết hỏng.

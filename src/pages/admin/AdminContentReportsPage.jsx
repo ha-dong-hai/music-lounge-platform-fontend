@@ -85,7 +85,7 @@ const AdminContentReportsPage = () => {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-ink mb-1">Báo cáo vi phạm</h1>
+        <h1 className="text-4xl text-ink mb-1">Báo cáo vi phạm</h1>
         <p className="text-ink-soft text-sm">
           Nội dung đã đăng bị người dùng báo cáo. Nội dung bị nhiều người báo nhất xếp lên đầu.
         </p>
@@ -94,13 +94,13 @@ const AdminContentReportsPage = () => {
       <div className="bg-card border border-line overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left whitespace-nowrap">
-            <thead className="bg-sunken/80 border-b border-line">
+            <thead className="bg-sunken border-b-2 border-ink">
               <tr>
-                <th className="p-4 text-ink font-semibold text-sm">Nội dung bị báo cáo</th>
-                <th className="p-4 text-ink font-semibold text-sm">Số lượt báo</th>
-                <th className="p-4 text-ink font-semibold text-sm">Lý do gần nhất</th>
-                <th className="p-4 text-ink font-semibold text-sm">Hạn xử lý</th>
-                <th className="p-4 text-ink font-semibold text-sm text-right">Xử lý</th>
+                <th scope="col" className="p-4 text-ink font-semibold text-sm">Nội dung bị báo cáo</th>
+                <th scope="col" className="p-4 text-ink font-semibold text-sm">Số lượt báo</th>
+                <th scope="col" className="p-4 text-ink font-semibold text-sm">Lý do gần nhất</th>
+                <th scope="col" className="p-4 text-ink font-semibold text-sm">Hạn xử lý</th>
+                <th scope="col" className="p-4 text-ink font-semibold text-sm text-right">Xử lý</th>
               </tr>
             </thead>
             <tbody>
@@ -189,15 +189,13 @@ const AdminContentReportsPage = () => {
               <button
                 onClick={() => setPagination((prev) => ({ ...prev, page: prev.page - 1 }))}
                 disabled={pagination.page === 1}
-                className="p-2 rounded-md border border-line text-ink-soft hover:border-ink hover:text-ink disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-              >
+                className="p-2 rounded-md border border-line text-ink-soft hover:border-ink hover:text-ink disabled:opacity-30 disabled:cursor-not-allowed transition-colors" aria-label="Trang trước">
                 <ChevronLeft size={18} />
               </button>
               <button
                 onClick={() => setPagination((prev) => ({ ...prev, page: prev.page + 1 }))}
                 disabled={pagination.page === pagination.totalPages}
-                className="p-2 rounded-md border border-line text-ink-soft hover:border-ink hover:text-ink disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-              >
+                className="p-2 rounded-md border border-line text-ink-soft hover:border-ink hover:text-ink disabled:opacity-30 disabled:cursor-not-allowed transition-colors" aria-label="Trang sau">
                 <ChevronRight size={18} />
               </button>
             </div>

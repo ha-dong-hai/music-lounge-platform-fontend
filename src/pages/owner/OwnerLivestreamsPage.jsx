@@ -24,6 +24,7 @@ import {
   endLivestream,
   setChatEnabled,
 } from '../../services/livestreamServices'
+import NutXacNhan from '../../components/shared/NutXacNhan'
 
 const StatusBadge = ({ status }) => {
   const styles = {
@@ -189,13 +190,14 @@ const ShowLivestreamRow = ({ show, onChanged }) => {
 
       {livestream && livestream.status === 'Live' && (
         <div className="mt-4 pt-4 border-t border-line space-y-3">
-          <button
-            onClick={handleEnd}
+          <NutXacNhan
+            onXacNhan={handleEnd} tieuDe="Kết thúc phát trực tuyến?" nhanXacNhan="Kết thúc phát" nhanGiu="Chưa, tiếp tục phát"
+            noiDung="Người đang xem bị ngắt ngay và buổi diễn được ghi nhận là đã diễn xong. Buổi phát này không bắt đầu lại được, và phần đã phát không được lưu để xem lại."
             disabled={isBusy}
             className="flex items-center gap-1.5 px-3 py-2 bg-danger/10 border border-danger/40 text-danger text-xs font-bold hover:bg-danger/20 disabled:opacity-50"
           >
             <Square size={14} className="fill-danger" /> Kết thúc phát
-          </button>
+          </NutXacNhan>
           <button
             onClick={() => handleToggleChat(!(livestream.chatEnabled ?? true))}
             disabled={isBusy}
@@ -223,11 +225,11 @@ const ShowLivestreamRow = ({ show, onChanged }) => {
           <div className="space-y-1.5 text-xs font-mono">
             <div className="flex items-center justify-between gap-2">
               <span className="text-ink-soft truncate">RTMP: {credentials.rtmpUrl}</span>
-              <button onClick={() => copyToClipboard(credentials.rtmpUrl)}><Copy size={12} className="text-ink-mute hover:text-ink" /></button>
+              <button onClick={() => copyToClipboard(credentials.rtmpUrl)} aria-label="Sao chép"><Copy size={12} className="text-ink-mute hover:text-ink" /></button>
             </div>
             <div className="flex items-center justify-between gap-2">
               <span className="text-ink-soft truncate">Key: {credentials.streamKey}</span>
-              <button onClick={() => copyToClipboard(credentials.streamKey)}><Copy size={12} className="text-ink-mute hover:text-ink" /></button>
+              <button onClick={() => copyToClipboard(credentials.streamKey)} aria-label="Sao chép"><Copy size={12} className="text-ink-mute hover:text-ink" /></button>
             </div>
           </div>
         </div>
@@ -260,7 +262,7 @@ const OwnerLivestreamsPage = () => {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-ink mb-6">Vận hành Livestream</h1>
+      <h1 className="text-4xl text-ink mb-6">Vận hành Livestream</h1>
 
       {isLoading ? (
         <Loader2 size={24} className="animate-spin text-ink-mute" />

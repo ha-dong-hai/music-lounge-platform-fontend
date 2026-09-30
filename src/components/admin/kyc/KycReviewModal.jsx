@@ -25,10 +25,10 @@ const KycReviewModal = ({ target, isProcessing, onClose, onSubmit }) => {
       <div className="absolute inset-0 bg-ink/80" onClick={() => !isProcessing && onClose()} />
       <div className="relative bg-card border border-line w-full max-w-md shadow-soft" onClick={(e) => e.stopPropagation()}>
         <div className="flex justify-between items-center p-5 border-b border-line">
-          <h2 className="text-lg font-bold text-ink">
+          <h2 className="text-3xl text-ink">
             {target.approve ? 'Duyệt' : 'Từ chối'} {tenGiayTo}
           </h2>
-          <button onClick={onClose} disabled={isProcessing} className="p-2 hover:bg-sunken text-ink-soft disabled:opacity-30">
+          <button onClick={onClose} disabled={isProcessing} className="p-2 hover:bg-sunken text-ink-soft disabled:opacity-30" aria-label="Đóng">
             <X size={20} />
           </button>
         </div>

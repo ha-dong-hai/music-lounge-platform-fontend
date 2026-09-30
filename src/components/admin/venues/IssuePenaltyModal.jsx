@@ -80,12 +80,12 @@ const IssuePenaltyModal = ({ venue, onClose, onSaved }) => {
       <div className="absolute inset-0 bg-ink/80" onClick={() => !isBusy && onClose()} />
       <div className="relative bg-card border border-line w-full max-w-lg shadow-soft flex flex-col max-h-[90vh]">
         <div className="flex-none flex justify-between items-center p-5 border-b border-line">
-          <h2 className="text-lg font-bold text-ink flex items-center gap-2 min-w-0">
+          <h2 className="text-3xl text-ink flex items-center gap-2 min-w-0">
             <ShieldAlert size={19} className="text-danger flex-shrink-0" />
             <span className="truncate">Ra án phạt · {venue.name}</span>
           </h2>
           <button onClick={onClose} disabled={isBusy}
-            className="p-2 hover:bg-sunken text-ink-soft disabled:opacity-30 flex-shrink-0">
+            className="p-2 hover:bg-sunken text-ink-soft disabled:opacity-30 flex-shrink-0" aria-label="Đóng">
             <X size={20} />
           </button>
         </div>

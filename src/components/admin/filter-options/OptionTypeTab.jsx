@@ -127,20 +127,20 @@ const OptionTypeTab = ({ typeKey, typeLabel, hasNameEn, hasDescription, hasIsAct
       <div className="bg-card border border-line overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left whitespace-nowrap">
-            <thead className="bg-sunken/70 border-b border-line">
+            <thead className="bg-sunken border-b-2 border-ink">
               <tr>
-                <th className="p-4 text-sm font-semibold text-ink-softr w-24">ID</th>
-                <th className="p-4 text-sm font-semibold text-ink-softr">Tên</th>
+                <th scope="col" className="p-4 text-sm font-semibold text-ink w-24">ID</th>
+                <th scope="col" className="p-4 text-sm font-semibold text-ink">Tên</th>
                 {hasNameEn && (
-                  <th className="p-4 text-sm font-semibold text-ink-softr">Name (EN)</th>
+                  <th scope="col" className="p-4 text-sm font-semibold text-ink">Name (EN)</th>
                 )}
                 {hasDescription && (
-                  <th className="p-4 text-sm font-semibold text-ink-softr">Mô tả</th>
+                  <th scope="col" className="p-4 text-sm font-semibold text-ink">Mô tả</th>
                 )}
                 {coTat && (
-                  <th className="p-4 text-sm font-semibold text-ink-softr">Trạng thái</th>
+                  <th scope="col" className="p-4 text-sm font-semibold text-ink">Trạng thái</th>
                 )}
-                <th className="p-4 text-sm font-semibold text-ink-softr text-right">Thao tác</th>
+                <th scope="col" className="p-4 text-sm font-semibold text-ink text-right">Thao tác</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-line">
@@ -171,7 +171,7 @@ const OptionTypeTab = ({ typeKey, typeLabel, hasNameEn, hasDescription, hasIsAct
                         <button
                           onClick={() => openEdit(opt)}
                           className="p-2 bg-line/30 text-ink-soft hover:bg-line/50 hover:text-ink transition-colors"
-                          title="Sửa"
+                          title="Sửa" aria-label="Sửa"
                         >
                           <Pencil size={14} />
                         </button>
@@ -181,7 +181,7 @@ const OptionTypeTab = ({ typeKey, typeLabel, hasNameEn, hasDescription, hasIsAct
                               onClick={() => doiTrangThai(opt, true)}
                               disabled={isHiding}
                               className="p-2 bg-line/30 text-ink-soft hover:bg-line/50 hover:text-success transition-colors disabled:opacity-40"
-                              title="Bật lại (hiện trong danh sách chọn)"
+                              title="Bật lại (hiện trong danh sách chọn)" aria-label="Bật lại (hiện trong danh sách chọn)"
                             >
                               <Eye size={14} />
                             </button>
@@ -189,7 +189,7 @@ const OptionTypeTab = ({ typeKey, typeLabel, hasNameEn, hasDescription, hasIsAct
                             <button
                               onClick={() => setHideTarget(opt)}
                               className="p-2 bg-line/30 text-ink-soft hover:bg-line/50 hover:text-warning transition-colors"
-                              title="Tắt (ẩn khỏi danh sách chọn)"
+                              title="Tắt (ẩn khỏi danh sách chọn)" aria-label="Tắt (ẩn khỏi danh sách chọn)"
                             >
                               <EyeOff size={14} />
                             </button>
@@ -198,7 +198,7 @@ const OptionTypeTab = ({ typeKey, typeLabel, hasNameEn, hasDescription, hasIsAct
                         <button
                           onClick={() => setDeleteTarget(opt)}
                           className="p-2 bg-line/30 text-ink-soft hover:bg-danger/15 hover:text-danger transition-colors"
-                          title="Xoá"
+                          title="Xoá" aria-label="Xoá"
                         >
                           <Trash2 size={14} />
                         </button>

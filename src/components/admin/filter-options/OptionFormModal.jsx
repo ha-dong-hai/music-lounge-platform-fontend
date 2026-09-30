@@ -54,10 +54,10 @@ const OptionFormModal = ({ isOpen, typeLabel, hasNameEn, hasDescription, editing
 
                 {/* HEADER */}
                 <div className="flex-none flex justify-between items-center p-5 border-b border-line">
-                    <h2 className="text-lg font-bold text-ink">
+                    <h2 className="text-3xl text-ink">
                         {isEditing ? `Edit ${typeLabel}` : `Add New ${typeLabel}`}
                     </h2>
-                    <button onClick={onClose} disabled={isSaving} className="p-2 hover:bg-sunken text-ink-soft disabled:opacity-30">
+                    <button onClick={onClose} disabled={isSaving} className="p-2 hover:bg-sunken text-ink-soft disabled:opacity-30" aria-label="Đóng">
                         <X size={20} />
                     </button>
                 </div>

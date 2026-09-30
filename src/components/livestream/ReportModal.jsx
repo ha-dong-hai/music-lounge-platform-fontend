@@ -47,11 +47,11 @@ const ReportModal = ({ onClose, onSubmit }) => {
               <Flag size={18} className="text-danger" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-ink">Báo cáo</h2>
+              <h2 className="text-3xl text-ink">Báo cáo</h2>
               <p className="text-xs text-ink-mute">Báo cáo nội dung của buổi phát này.</p>
             </div>
           </div>
-          <button onClick={onClose} disabled={isSubmitting} className="p-2 hover:bg-sunken text-ink-soft disabled:opacity-30">
+          <button onClick={onClose} disabled={isSubmitting} className="p-2 hover:bg-sunken text-ink-soft disabled:opacity-30" aria-label="Đóng">
             <X size={20} />
           </button>
         </div>

@@ -92,7 +92,7 @@ const NotificationsPage = () => {
           <div className="flex items-center gap-3">
             <Bell size={26} className="text-ink" />
             <div>
-              <h1 className="text-2xl font-bold">Thông báo</h1>
+              <h1 className="text-4xl">Thông báo</h1>
               {totalCount > 0 && (
                 <p className="text-sm text-ink-mute mt-0.5">{totalCount.toLocaleString('vi-VN')} thông báo</p>
               )}

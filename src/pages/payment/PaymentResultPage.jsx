@@ -162,7 +162,7 @@ const PaymentResultPage = ({ status }) => {
           </div>
 
           <div className="mt-6 border-t border-ink/20 pt-5">
-            <h2 className="font-sans font-bold text-base tracking-normal">Tiếp theo</h2>
+            <h2 className="font-sans font-bold font-sans text-base tracking-normal">Tiếp theo</h2>
             <p className="text-ink-soft mt-1 leading-relaxed">{variant.tiep}</p>
           </div>
 

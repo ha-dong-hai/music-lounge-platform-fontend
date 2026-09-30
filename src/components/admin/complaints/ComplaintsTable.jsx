@@ -8,16 +8,16 @@ const ComplaintsTable = ({ complaints, isLoading, pagination, onViewDetail, onPa
     <div className="bg-card border border-line overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full text-left whitespace-nowrap">
-          <thead className="bg-sunken/70 border-b border-line">
+          <thead className="bg-sunken border-b-2 border-ink">
             <tr>
-              <th className="p-4 text-sm font-semibold text-ink-softr">#ID</th>
-              <th className="p-4 text-sm font-semibold text-ink-softr">Phân loại</th>
-              <th className="p-4 text-sm font-semibold text-ink-softr">Nội dung</th>
-              <th className="p-4 text-sm font-semibold text-ink-softr">Đối tượng</th>
-              <th className="p-4 text-sm font-semibold text-ink-softr">Số điện thoại</th>
-              <th className="p-4 text-sm font-semibold text-ink-softr">Trạng thái</th>
-              <th className="p-4 text-sm font-semibold text-ink-softr">Ngày gửi</th>
-              <th className="p-4 text-sm font-semibold text-ink-softr text-center">Thao tác</th>
+              <th scope="col" className="p-4 text-sm font-semibold text-ink">#ID</th>
+              <th scope="col" className="p-4 text-sm font-semibold text-ink">Phân loại</th>
+              <th scope="col" className="p-4 text-sm font-semibold text-ink">Nội dung</th>
+              <th scope="col" className="p-4 text-sm font-semibold text-ink">Đối tượng</th>
+              <th scope="col" className="p-4 text-sm font-semibold text-ink">Số điện thoại</th>
+              <th scope="col" className="p-4 text-sm font-semibold text-ink">Trạng thái</th>
+              <th scope="col" className="p-4 text-sm font-semibold text-ink">Ngày gửi</th>
+              <th scope="col" className="p-4 text-sm font-semibold text-ink text-center">Thao tác</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-line">
@@ -44,7 +44,9 @@ const ComplaintsTable = ({ complaints, isLoading, pagination, onViewDetail, onPa
                   <td className="p-4"><StatusBadge status={c.status} /></td>
                   <td className="p-4 text-sm text-ink-soft">{dayjs(c.createdAt).format('HH:mm DD/MM/YYYY')}</td>
                   <td className="p-4 text-center">
-                    <button className="p-2 bg-line/30 text-ink-soft hover:bg-line/50 hover:text-ink transition-colors inline-flex">
+                    {/* Cả hàng bấm được bằng chuột, nhưng <tr> không nhận focus: nút này là lối vào cho bàn phím và trình đọc màn
+                        hình. Bản cũ là một nút KHÔNG có onClick (chỉ ăn theo sự kiện của hàng) và không có tên. */}
+                    <button type="button" onClick={(e) => { e.stopPropagation(); onViewDetail(c) }} aria-label={`Xem khiếu nại #${c.id}`} className="p-2 min-w-[40px] min-h-[40px] border border-ink text-ink hover:bg-ink hover:text-lamp transition-colors inline-flex items-center justify-center">
                       <Eye size={16} />
                     </button>
                   </td>
@@ -72,15 +74,13 @@ const ComplaintsTable = ({ complaints, isLoading, pagination, onViewDetail, onPa
             <button
               onClick={() => onPageChange(pagination.page - 1)}
               disabled={pagination.page === 1}
-              className="p-2 rounded-md border border-line text-ink-soft hover:border-ink hover:text-ink disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-            >
+              className="p-2 rounded-md border border-line text-ink-soft hover:border-ink hover:text-ink disabled:opacity-30 disabled:cursor-not-allowed transition-colors" aria-label="Trang trước">
               <ChevronLeft size={18} />
             </button>
             <button
               onClick={() => onPageChange(pagination.page + 1)}
               disabled={pagination.page === pagination.totalPages}
-              className="p-2 rounded-md border border-line text-ink-soft hover:border-ink hover:text-ink disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-            >
+              className="p-2 rounded-md border border-line text-ink-soft hover:border-ink hover:text-ink disabled:opacity-30 disabled:cursor-not-allowed transition-colors" aria-label="Trang sau">
               <ChevronRight size={18} />
             </button>
           </div>

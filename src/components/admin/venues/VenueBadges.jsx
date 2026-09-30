@@ -1,30 +1,22 @@
-// ===== CONFIG: 6 TRẠNG THÁI VENUE (nguồn sự thật duy nhất) =====
+import NhanTrangThai from '../../shared/NhanTrangThai'
+// 30/09/2026: nhãn vẽ bằng components/shared/NhanTrangThai (biểu tượng + chữ, 5 sắc thái) — không tự đặt màu ở đây nữa.
+
+// ===== 6 TRẠNG THÁI PHÒNG TRÀ (nguồn sự thật duy nhất) — `label` còn được bộ lọc đọc =====
 export const VENUE_STATUS_CONFIG = {
-  Pending:   { label: 'Chờ duyệt',   cls: 'bg-warning/15 text-warning border-warning/30', dot: 'bg-warning' },
-  Approved:  { label: 'Đã duyệt',    cls: 'bg-success/15 text-success border-success/30', dot: 'bg-success' },
-  Warned:    { label: 'Bị cảnh báo', cls: 'bg-warning/15 text-warning border-warning/30', dot: 'bg-warning' },
-  Suspended: { label: 'Tạm ngưng',   cls: 'bg-ink/15 text-ink border-ink/30', dot: 'bg-ink' },
-  Locked:    { label: 'Bị khoá',     cls: 'bg-danger/15 text-danger border-danger/30', dot: 'bg-danger' },
-  Rejected:  { label: 'Bị từ chối',  cls: 'bg-line-strong/15 text-ink-soft border-line-strong/30', dot: 'bg-line' },
+  Pending:   { label: 'Chờ duyệt',   sacThai: 'cho' },
+  Approved:  { label: 'Đã duyệt',    sacThai: 'tot' },
+  Warned:    { label: 'Bị cảnh báo', sacThai: 'cho' },
+  Suspended: { label: 'Tạm ngưng',   sacThai: 'xau' },
+  Locked:    { label: 'Bị khoá',     sacThai: 'xau' },
+  Rejected:  { label: 'Bị từ chối',  sacThai: 'tat' },
 }
 
 export const VenueStatusBadge = ({ status }) => {
   const cfg = VENUE_STATUS_CONFIG[status]
-  return (
-    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium border whitespace-nowrap ${cfg ? cfg.cls : 'bg-line-strong/15 text-ink-soft border-line-strong/30'}`}>
-      <span className={`w-1.5 h-1.5 ${cfg?.dot || 'bg-line'}`} />
-      {cfg ? cfg.label : (status || '—')}
-    </span>
-  )
+  return <NhanTrangThai sacThai={cfg?.sacThai ?? 'trung'}>{cfg ? cfg.label : (status || '—')}</NhanTrangThai>
 }
 
-// Badge giấy phép kinh doanh
+// Giấy phép kinh doanh
 export const LicenseBadge = ({ hasLicense }) => (
-  <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold border whitespace-nowrap ${
-    hasLicense
-      ? 'bg-success/15 text-success border-success/30'
-      : 'bg-danger/15 text-danger border-danger/30'
-  }`}>
-    {hasLicense ? '✔ Có giấy phép' : '✘ Chưa có giấy phép'}
-  </span>
+  <NhanTrangThai sacThai={hasLicense ? 'tot' : 'xau'}>{hasLicense ? 'Có giấy phép' : 'Chưa có giấy phép'}</NhanTrangThai>
 )

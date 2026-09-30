@@ -1,32 +1,22 @@
 // src/layouts/OwnerLayout.jsx
 //
-// GHI CHÚ CHO ĐỘI FE: khung (thanh bên + thanh tiêu đề + vùng nội dung) nay nằm ở components/portal/PortalShell.jsx,
-// dùng chung với AdminLayout. Riêng khu này rất hay được mở TRÊN ĐIỆN THOẠI ngay tại quán (soát vé, xem đơn gọi món),
-// nên ngăn kéo cho màn hẹp là bắt buộc, không phải tiện thêm — xem ghi chú trong PortalShell.jsx.
+// KHU LÀM VIỆC CỦA CHỦ PHÒNG TRÀ VÀ NHÂN VIÊN. Khung (thanh bên, ngăn kéo cho điện thoại, đầu trang) nằm ở
+// components/portal/PortalShell.jsx, dùng chung với AdminLayout. Ở đây chỉ còn DỮ LIỆU MENU và đăng xuất.
 //
-// Chỉ thêm mục nav khi trang đã thật sự tồn tại, tránh link chết.
-// ĐÃ CÓ: buổi diễn (tạo/sửa/gửi duyệt + line-up + hạng vé), vận hành livestream, báo cáo doanh thu,
-// gói dịch vụ.
-// Các mục từng thiếu (thực đơn F&B, màn bếp, tài khoản nhận tiền, nhân viên, hồ sơ phòng trà,
-// khu vực/zone, tour 360°, donate phía chủ, án phạt venue, tiền & quyết toán) NAY ĐÃ CÓ ĐỦ.
-import { Outlet, NavLink, Link, useNavigate } from 'react-router-dom'
+// GOM NHÓM (30/09/2026): 15 mục phẳng → 4 nhóm theo việc người vận hành đang làm: dựng phòng trà, chạy đêm diễn,
+// tiền, tuân thủ. Thứ tự trong nhóm giữ như cũ.
+//
+// Nhân viên (Staff) chỉ thấy các mục RequireVenueOperator (vận hành đêm diễn, đơn gọi món, livestream). Mục nào gọi
+// endpoint RequireOwner thì ẩn với Staff — phải khớp guard từng route trong AppRouter.jsx.
+// Chỉ thêm mục khi trang đã thật sự tồn tại, tránh link chết.
+import { Outlet, useNavigate } from 'react-router-dom'
 import { Radio, LogOut, Package, BarChart3, CalendarDays, Store, Landmark, ScanLine, UtensilsCrossed, BookOpen, Mic2, Users, HeartHandshake, ShieldAlert, LayoutGrid, Box, Wallet, ShieldCheck, ExternalLink } from 'lucide-react'
 import { useAuthStore } from '../store/useAuthStore'
 import PortalShell from '../components/portal/PortalShell'
 
-// min-h-[44px] thay cho py-3: vùng chạm đủ lớn cho ngón tay khi mở bằng ngăn kéo trên điện thoại.
-const linkClasses = ({ isActive }) =>
-  `flex items-center gap-3 px-4 min-h-[44px] text-sm font-medium transition-colors ${isActive
-    ? 'bg-sunken text-ink'
-    : 'text-ink-soft hover:text-ink hover:bg-sunken/50'
-  }`
-
 const OwnerLayout = () => {
   const navigate = useNavigate()
   const logout = useAuthStore((s) => s.logout)
-  // Staff chỉ vận hành được livestream (RequireVenueOperator). Buổi diễn, báo cáo doanh thu và
-  // gói dịch vụ gọi endpoint RequireOwner — không hiện cửa mà Staff bấm vào sẽ bị đẩy ra.
-  // Phải khớp với guard từng route trong AppRouter.jsx.
   const isOwner = useAuthStore((s) => s.user?.role) === 'Owner'
 
   const handleLogout = () => {
@@ -34,112 +24,51 @@ const OwnerLayout = () => {
     navigate('/login')
   }
 
-  const nav = (
-    <>
-      {isOwner && (
-        <NavLink to="/owner/lounge" className={linkClasses}>
-          <Store size={18} /> Hồ sơ phòng trà
-        </NavLink>
-      )}
-      {isOwner && (
-        <NavLink to="/owner/zones" className={linkClasses}>
-          <LayoutGrid size={18} /> Khu vực chỗ ngồi
-        </NavLink>
-      )}
-      {isOwner && (
-        <NavLink to="/owner/tour" className={linkClasses}>
-          <Box size={18} /> Tour 360°
-        </NavLink>
-      )}
-      {isOwner && (
-        <NavLink to="/owner/performers" className={linkClasses}>
-          <Mic2 size={18} /> Nghệ sĩ
-        </NavLink>
-      )}
-      {isOwner && (
-        <NavLink to="/owner/staff" className={linkClasses}>
-          <Users size={18} /> Nhân viên
-        </NavLink>
-      )}
-      {isOwner && (
-        <NavLink to="/owner/fnb-menus" className={linkClasses}>
-          <BookOpen size={18} /> Thực đơn
-        </NavLink>
-      )}
-      {isOwner && (
-        <NavLink to="/owner/shows" className={linkClasses}>
-          <CalendarDays size={18} /> Buổi diễn
-        </NavLink>
-      )}
-      {/* Nhân viên dùng được: soát vé, bán vé quầy, bắt đầu/kết thúc đều là RequireVenueOperator */}
-      <NavLink to="/owner/operate" className={linkClasses}>
-        <ScanLine size={18} /> Vận hành đêm diễn
-      </NavLink>
-      <NavLink to="/owner/fnb-orders" className={linkClasses}>
-        <UtensilsCrossed size={18} /> Đơn gọi món
-      </NavLink>
-      <NavLink to="/owner/livestreams" className={linkClasses}>
-        <Radio size={18} /> Livestream
-      </NavLink>
-      {isOwner && (
-        <>
-          <NavLink to="/owner/donations" className={linkClasses}>
-            <HeartHandshake size={18} /> Tiền donate
-          </NavLink>
-          <NavLink to="/owner/penalties" className={linkClasses}>
-            <ShieldAlert size={18} /> Án phạt
-          </NavLink>
-          <NavLink to="/owner/analytics" className={linkClasses}>
-            <BarChart3 size={18} /> Báo cáo doanh thu
-          </NavLink>
-          <NavLink to="/owner/finance" className={linkClasses}>
-            <Wallet size={18} /> Tiền &amp; quyết toán
-          </NavLink>
-          <NavLink to="/owner/bank-accounts" className={linkClasses}>
-            <Landmark size={18} /> Tài khoản nhận tiền
-          </NavLink>
-          <NavLink to="/owner/subscription" className={linkClasses}>
-            <Package size={18} /> Gói dịch vụ
-          </NavLink>
-        </>
-      )}
+  const chiChu = (muc) => (isOwner ? muc : [])
+  const nhom = [
+    { ten: 'Phòng trà', muc: chiChu([
+      { to: '/owner/lounge', nhan: 'Hồ sơ phòng trà', icon: Store },
+      { to: '/owner/zones', nhan: 'Khu vực chỗ ngồi', icon: LayoutGrid },
+      { to: '/owner/tour', nhan: 'Tham quan 360°', icon: Box },
+      { to: '/owner/performers', nhan: 'Nghệ sĩ', icon: Mic2 },
+      { to: '/owner/staff', nhan: 'Nhân viên', icon: Users },
+      { to: '/owner/fnb-menus', nhan: 'Thực đơn', icon: BookOpen },
+    ]) },
+    { ten: 'Đêm diễn', muc: [
+      ...chiChu([{ to: '/owner/shows', nhan: 'Buổi diễn', icon: CalendarDays }]),
+      // Nhân viên dùng được: soát vé, bán vé quầy, bắt đầu/kết thúc đều là RequireVenueOperator
+      { to: '/owner/operate', nhan: 'Vận hành đêm diễn', icon: ScanLine },
+      { to: '/owner/fnb-orders', nhan: 'Đơn gọi món', icon: UtensilsCrossed },
+      { to: '/owner/livestreams', nhan: 'Phát trực tuyến', icon: Radio },
+    ] },
+    { ten: 'Tiền', muc: chiChu([
+      { to: '/owner/finance', nhan: 'Tiền và quyết toán', icon: Wallet },
+      { to: '/owner/analytics', nhan: 'Báo cáo doanh thu', icon: BarChart3 },
+      { to: '/owner/donations', nhan: 'Tiền ủng hộ nghệ sĩ', icon: HeartHandshake },
+      { to: '/owner/bank-accounts', nhan: 'Tài khoản nhận tiền', icon: Landmark },
+      { to: '/owner/subscription', nhan: 'Gói dịch vụ', icon: Package },
+    ]) },
+    { ten: 'Tuân thủ', muc: chiChu([{ to: '/owner/penalties', nhan: 'Án phạt', icon: ShieldAlert }]) },
+  ].filter((n) => n.muc.length > 0)
 
-      {/* HAI LỐI RA, ĐỂ NGOÀI KHỐI CHỈ-DÀNH-CHO-CHỦ vì cả nhân viên cũng cần:
-          - Tài khoản: nhân viên cũng có hồ sơ riêng, và với chủ phòng trà thì XÁC MINH DANH
-            TÍNH là cửa BẮT BUỘC để bán vé (MLACP-397) mà lại nằm ở trang tài khoản chung —
-            không có lối này thì bị chặn lúc bán vé mà không biết đi đâu mở khoá.
-          - Trang công khai: trước đây vào khu này rồi thì chỉ còn cách Đăng xuất, bấm Back,
-            hoặc tự gõ URL mới ra được. Chủ phòng trà muốn xem trang phòng trà của mình hiện
-            ra sao với khách thì không có đường nào.
-          Dùng Link chứ không NavLink: đây là đường RA KHỎI khu vực này nên không bao giờ ở
-          trạng thái "đang chọn". */}
-      <div className="pt-2 mt-2 border-t border-line space-y-1.5">
-        <Link to="/account?tab=identity" className={linkClasses({ isActive: false })}>
-          <ShieldCheck size={18} /> Định danh &amp; tài khoản
-        </Link>
-        <Link to="/" className={linkClasses({ isActive: false })}>
-          <ExternalLink size={18} /> Về trang công khai
-        </Link>
-      </div>
-    </>
-  )
+  // HAI LỐI RA, cho cả nhân viên:
+  // - Định danh: với chủ phòng trà, XÁC MINH DANH TÍNH là cửa bắt buộc để bán vé (MLACP-397) mà lại nằm ở trang tài
+  //   khoản chung — không có lối này thì bị chặn lúc bán vé mà không biết đi đâu mở khoá.
+  // - Trang công khai: để chủ phòng trà xem trang của mình hiện ra sao với khách.
+  const loiRa = [
+    { to: '/account?tab=identity', nhan: 'Định danh và tài khoản', icon: ShieldCheck },
+    { to: '/', nhan: 'Về trang công khai', icon: ExternalLink },
+  ]
 
   const footer = (
-    <button
-      onClick={handleLogout}
-      className="flex items-center gap-3 px-4 min-h-[44px] w-full text-sm font-medium text-danger hover:bg-danger/10 transition-colors"
-    >
-      <LogOut size={18} /> Đăng xuất
+    <button type="button" onClick={handleLogout}
+      className="flex items-center gap-3 px-3 min-h-[44px] w-full text-sm font-medium text-lamp-mute hover:text-lamp hover:bg-board-soft transition-colors">
+      <LogOut size={18} aria-hidden="true" /> Đăng xuất
     </button>
   )
 
   return (
-    <PortalShell
-      portalName="Phòng trà của tôi"
-      pageTitle="Quản lý vận hành phòng trà"
-      nav={nav}
-      footer={footer}
-    >
+    <PortalShell portalName={isOwner ? 'Phòng trà của tôi' : 'Nhân viên phòng trà'} nhom={nhom} loiRa={loiRa} footer={footer}>
       <Outlet />
     </PortalShell>
   )

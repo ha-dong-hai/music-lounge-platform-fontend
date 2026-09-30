@@ -14,7 +14,7 @@ const fmtTien = (v) => `${Number(v || 0).toLocaleString('vi-VN')}đ`
 const LedgerIntegrityCard = ({ issues, isChecking, lastCheckedAt, onRefresh }) => (
   <div>
     <div className="flex items-start justify-between gap-3 mb-1">
-      <h2 className="text-sm font-semibold text-ink-soft">Toàn vẹn bút toán</h2>
+      <h2 className="font-sans font-bold text-sm text-ink-soft">Toàn vẹn bút toán</h2>
       <button onClick={onRefresh} disabled={isChecking}
         className="flex items-center gap-1.5 px-3 py-1.5 border border-line text-ink-soft text-xs font-bold hover:bg-sunken disabled:opacity-50 flex-shrink-0">
         {isChecking ? <Loader2 size={13} className="animate-spin" /> : <RefreshCw size={13} />}
@@ -60,14 +60,14 @@ const LedgerIntegrityCard = ({ issues, isChecking, lastCheckedAt, onRefresh }) =
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-left whitespace-nowrap">
-            <thead className="bg-sunken/70 border-b border-line">
+            <thead className="bg-sunken border-b-2 border-ink">
               <tr>
-                <th className="p-4 text-sm font-semibold text-ink-softr">Loại lệch</th>
-                <th className="p-4 text-sm font-semibold text-ink-softr">Mã bút toán</th>
-                <th className="p-4 text-sm font-semibold text-ink-softr text-right">Tổng Nợ</th>
-                <th className="p-4 text-sm font-semibold text-ink-softr text-right">Tổng Có</th>
-                <th className="p-4 text-sm font-semibold text-ink-softr text-right">Chênh lệch</th>
-                <th className="p-4 text-sm font-semibold text-ink-softr">Chi tiết</th>
+                <th scope="col" className="p-4 text-sm font-semibold text-ink">Loại lệch</th>
+                <th scope="col" className="p-4 text-sm font-semibold text-ink">Mã bút toán</th>
+                <th scope="col" className="p-4 text-sm font-semibold text-ink text-right">Tổng Nợ</th>
+                <th scope="col" className="p-4 text-sm font-semibold text-ink text-right">Tổng Có</th>
+                <th scope="col" className="p-4 text-sm font-semibold text-ink text-right">Chênh lệch</th>
+                <th scope="col" className="p-4 text-sm font-semibold text-ink">Chi tiết</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-line">

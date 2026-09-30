@@ -33,7 +33,7 @@ const StatCard = ({ title, value, note, icon: Icon, color, bg }) => (
 
 const Section = ({ title, subtitle, children }) => (
   <div>
-    <h2 className="text-sm font-semibold text-ink-soft">{title}</h2>
+    <h2 className="font-sans font-bold text-sm text-ink-soft">{title}</h2>
     {subtitle && <p className="text-xs text-ink-mute mt-0.5 mb-3 leading-relaxed">{subtitle}</p>}
     <div className={subtitle ? '' : 'mt-3'}>{children}</div>
   </div>
@@ -73,7 +73,7 @@ const AdminInsightsPage = () => {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-bold text-ink mb-1">Nội dung &amp; tương tác</h1>
+        <h1 className="text-4xl text-ink mb-1">Nội dung &amp; tương tác</h1>
         <p className="text-ink-soft text-sm">Việc cần xử lý, mức tương tác của khán giả, và chất lượng gợi ý.</p>
       </div>
 

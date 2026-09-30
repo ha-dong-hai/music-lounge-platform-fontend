@@ -19,13 +19,13 @@ const AccountsTable = ({
     <div className="bg-card border border-line overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full text-left whitespace-nowrap">
-          <thead className="bg-sunken/70 border-b border-line">
+          <thead className="bg-sunken border-b-2 border-ink">
             <tr>
-              <th className="p-4 text-sm font-semibold text-ink-softr">Tài khoản</th>
-              <th className="p-4 text-sm font-semibold text-ink-softr">Vai trò</th>
-              <th className="p-4 text-sm font-semibold text-ink-softr">Ngày tạo</th>
-              <th className="p-4 text-sm font-semibold text-ink-softr">Trạng thái</th>
-              <th className="p-4 text-sm font-semibold text-ink-softr text-right">Thao tác</th>
+              <th scope="col" className="p-4 text-sm font-semibold text-ink">Tài khoản</th>
+              <th scope="col" className="p-4 text-sm font-semibold text-ink">Vai trò</th>
+              <th scope="col" className="p-4 text-sm font-semibold text-ink">Ngày tạo</th>
+              <th scope="col" className="p-4 text-sm font-semibold text-ink">Trạng thái</th>
+              <th scope="col" className="p-4 text-sm font-semibold text-ink text-right">Thao tác</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-line">
@@ -43,7 +43,7 @@ const AccountsTable = ({
                       <img src={acc.avatarUrl || anhChuCai(acc.fullName)} alt="avatar" className="w-10 h-10 object-cover border border-line" />
                       <div>
                         <p className="text-sm text-ink font-medium">{acc.fullName}</p>
-                        <p className="text-xs text-ink-mute mt-0.5">{acc.email} | {acc.phone}</p>
+                        <p className="text-xs text-ink-mute mt-0.5">{[acc.email, acc.phone].filter(Boolean).join(" · ")}</p>
                       </div>
                     </div>
                   </td>
@@ -52,7 +52,7 @@ const AccountsTable = ({
                   <td className="p-4"><StatusBadge isActive={acc.isActive} /></td>
                   <td className="p-4">
                     <div className="flex items-center justify-end gap-2">
-                      <button onClick={() => onViewDetail(acc.id)} className="p-2 bg-line/30 text-ink-soft hover:bg-line/50 hover:text-ink transition-colors" title="Xem chi tiết">
+                      <button onClick={() => onViewDetail(acc.id)} className="p-2 bg-line/30 text-ink-soft hover:bg-line/50 hover:text-ink transition-colors" title="Xem chi tiết" aria-label="Xem chi tiết">
                         <Eye size={16} />
                       </button>
                       {acc.role !== 'Admin' && (
@@ -60,7 +60,7 @@ const AccountsTable = ({
                           onClick={() => onToggleBan(acc.id, acc.isActive)}
                           disabled={isUpdating}
                           className={`p-2 transition-colors disabled:opacity-50 ${acc.isActive ? 'bg-danger/10 text-danger hover:bg-danger/20' : 'bg-success/10 text-success hover:bg-success/20'}`}
-                          title={acc.isActive ? 'Khoá tài khoản' : 'Mở khoá tài khoản'}
+                          title={acc.isActive ? 'Khoá tài khoản' : 'Mở khoá tài khoản'} aria-label={acc.isActive ? 'Khoá tài khoản' : 'Mở khoá tài khoản'}
                         >
                           {acc.isActive ? <Ban size={16} /> : <Unlock size={16} />}
                         </button>
@@ -91,15 +91,13 @@ const AccountsTable = ({
             <button
               onClick={() => onPageChange(pagination.page - 1)}
               disabled={pagination.page === 1}
-              className="p-2 rounded-md border border-line text-ink-soft hover:border-ink hover:text-ink disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-            >
+              className="p-2 rounded-md border border-line text-ink-soft hover:border-ink hover:text-ink disabled:opacity-30 disabled:cursor-not-allowed transition-colors" aria-label="Trang trước">
               <ChevronLeft size={18} />
             </button>
             <button
               onClick={() => onPageChange(pagination.page + 1)}
               disabled={pagination.page === pagination.totalPages}
-              className="p-2 rounded-md border border-line text-ink-soft hover:border-ink hover:text-ink disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-            >
+              className="p-2 rounded-md border border-line text-ink-soft hover:border-ink hover:text-ink disabled:opacity-30 disabled:cursor-not-allowed transition-colors" aria-label="Trang sau">
               <ChevronRight size={18} />
             </button>
           </div>

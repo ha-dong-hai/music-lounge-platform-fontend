@@ -14,7 +14,7 @@ const ModerationModal = ({ moderation, onClose, onDecision, isProcessing }) => {
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4" onClick={() => !isProcessing && onClose()}>
       <div className="absolute inset-0 bg-ink/80"></div>
 
-      <div className="relative bg-card border-2 border-warning/40 w-full max-w-2xl max-h-[90vh] flex flex-col shadow-soft animate-in fade-in slide-in-from-bottom-4 duration-300" onClick={(e) => e.stopPropagation()}>
+      <div className="relative bg-card border-2 border-warning/40 w-full max-w-2xl max-h-[90vh] flex flex-col shadow-soft duration-300" onClick={(e) => e.stopPropagation()}>
 
         {/* ===== HEADER ===== */}
         <div className="flex-none flex items-center gap-3 p-6 border-b border-line">
@@ -22,10 +22,10 @@ const ModerationModal = ({ moderation, onClose, onDecision, isProcessing }) => {
             <ShieldAlert size={22} className="text-warning" />
           </div>
           <div className="flex-1 min-w-0">
-            <h2 className="text-lg font-bold text-ink">Duyệt nội dung</h2>
+            <h2 className="text-3xl text-ink">Duyệt nội dung</h2>
             <p className="text-sm text-ink-mute">Show #{moderation.targetId} • Need Admin approval</p>
           </div>
-          <button onClick={onClose} disabled={isProcessing} className="p-2 hover:bg-sunken text-ink-soft disabled:opacity-30">
+          <button onClick={onClose} disabled={isProcessing} className="p-2 hover:bg-sunken text-ink-soft disabled:opacity-30" aria-label="Đóng">
             <X size={20} />
           </button>
         </div>

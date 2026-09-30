@@ -11,15 +11,15 @@ const VenuesTable = ({ venues, isLoading, pagination, onPageChange, onViewDossie
     <div className="bg-card border border-line overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full text-left whitespace-nowrap">
-          <thead className="bg-sunken/70 border-b border-line">
+          <thead className="bg-sunken border-b-2 border-ink">
             <tr>
-              <th className="p-4 text-sm font-semibold text-ink-softr">Phòng trà</th>
-              <th className="p-4 text-sm font-semibold text-ink-softr">Chủ phòng trà</th>
-              <th className="p-4 text-sm font-semibold text-ink-softr">Địa chỉ</th>
-              <th className="p-4 text-sm font-semibold text-ink-softr">Giấy phép</th>
-              <th className="p-4 text-sm font-semibold text-ink-softr">Trạng thái</th>
-              <th className="p-4 text-sm font-semibold text-ink-softr">Ngày</th>
-              <th className="p-4 text-sm font-semibold text-ink-softr text-right">Thao tác</th>
+              <th scope="col" className="p-4 text-sm font-semibold text-ink">Phòng trà</th>
+              <th scope="col" className="p-4 text-sm font-semibold text-ink">Chủ phòng trà</th>
+              <th scope="col" className="p-4 text-sm font-semibold text-ink">Địa chỉ</th>
+              <th scope="col" className="p-4 text-sm font-semibold text-ink">Giấy phép</th>
+              <th scope="col" className="p-4 text-sm font-semibold text-ink">Trạng thái</th>
+              <th scope="col" className="p-4 text-sm font-semibold text-ink">Ngày</th>
+              <th scope="col" className="p-4 text-sm font-semibold text-ink text-right">Thao tác</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-line">
@@ -119,15 +119,13 @@ const VenuesTable = ({ venues, isLoading, pagination, onPageChange, onViewDossie
             <button
               onClick={() => onPageChange(pagination.page - 1)}
               disabled={pagination.page === 1}
-              className="p-2 rounded-md border border-line text-ink-soft hover:border-ink hover:text-ink disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-            >
+              className="p-2 rounded-md border border-line text-ink-soft hover:border-ink hover:text-ink disabled:opacity-30 disabled:cursor-not-allowed transition-colors" aria-label="Trang trước">
               <ChevronLeft size={18} />
             </button>
             <button
               onClick={() => onPageChange(pagination.page + 1)}
               disabled={pagination.page === pagination.totalPages}
-              className="p-2 rounded-md border border-line text-ink-soft hover:border-ink hover:text-ink disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-            >
+              className="p-2 rounded-md border border-line text-ink-soft hover:border-ink hover:text-ink disabled:opacity-30 disabled:cursor-not-allowed transition-colors" aria-label="Trang sau">
               <ChevronRight size={18} />
             </button>
           </div>

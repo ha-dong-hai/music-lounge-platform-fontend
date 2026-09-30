@@ -78,7 +78,7 @@ const AdminFilterOptionsPage = () => {
       <div className="flex items-center gap-3 mb-6">
         <SlidersHorizontal size={28} className="text-ink" />
         <div>
-          <h1 className="text-2xl font-bold text-ink">Bộ lọc & phân loại</h1>
+          <h1 className="text-4xl text-ink">Bộ lọc & phân loại</h1>
           <p className="text-ink-soft text-sm">
             Quản lý thể loại, tâm trạng, không gian và danh mục dùng trong bộ lọc buổi diễn trên toàn nền tảng.
           </p>

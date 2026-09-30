@@ -36,8 +36,8 @@ const DonateModal = ({ performers, onClose, onSendDonation }) => {
       <div className="relative bg-card border border-line w-full max-w-md shadow-soft flex flex-col" onClick={e => e.stopPropagation()}>
         
         <div className="p-5 border-b border-line flex justify-between items-center">
-          <h2 className="text-lg font-bold text-ink flex items-center gap-2"><Heart className="text-danger" size={20}/> Ủng hộ</h2>
-          <button onClick={onClose} className="text-ink-soft hover:text-ink"><X size={20}/></button>
+          <h2 className="text-3xl text-ink flex items-center gap-2"><Heart className="text-danger" size={20}/> Ủng hộ</h2>
+          <button onClick={onClose} className="text-ink-soft hover:text-ink" aria-label="Đóng"><X size={20}/></button>
         </div>
 
         <div className="p-5 space-y-5 overflow-y-auto">

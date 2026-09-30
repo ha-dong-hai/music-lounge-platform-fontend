@@ -70,8 +70,8 @@ const AccountFormModal = ({ initial, chuSoHuu, onClose, onSaved }) => {
       <div className="absolute inset-0 bg-ink/80" onClick={onClose} />
       <div className="relative bg-card border border-line w-full max-w-md shadow-soft">
         <div className="flex justify-between items-center p-5 border-b border-line">
-          <h2 className="text-lg font-bold text-ink">{isEdit ? 'Sửa tài khoản' : 'Thêm tài khoản nhận tiền'}</h2>
-          <button onClick={onClose} disabled={isBusy} className="p-2 hover:bg-sunken text-ink-soft disabled:opacity-30">
+          <h2 className="text-3xl text-ink">{isEdit ? 'Sửa tài khoản' : 'Thêm tài khoản nhận tiền'}</h2>
+          <button onClick={onClose} disabled={isBusy} className="p-2 hover:bg-sunken text-ink-soft disabled:opacity-30" aria-label="Đóng">
             <X size={20} />
           </button>
         </div>
@@ -173,7 +173,7 @@ const OwnerBankAccountsPage = () => {
   if (!lounge) {
     return (
       <div className="max-w-2xl">
-        <h1 className="text-2xl font-bold text-ink mb-1">Tài khoản nhận tiền</h1>
+        <h1 className="text-4xl text-ink mb-1">Tài khoản nhận tiền</h1>
         <div className="mt-4 bg-card border border-line p-6">
           <p className="text-sm text-ink-soft">
             Bạn chưa có phòng trà. Hãy tạo hồ sơ phòng trà trước — tài khoản nhận tiền gắn với phòng trà,
@@ -192,7 +192,7 @@ const OwnerBankAccountsPage = () => {
   return (
     <div className="space-y-6 max-w-3xl">
       <div>
-        <h1 className="text-2xl font-bold text-ink mb-1">Tài khoản nhận tiền</h1>
+        <h1 className="text-4xl text-ink mb-1">Tài khoản nhận tiền</h1>
         <p className="text-ink-soft text-sm leading-relaxed">
           Nơi hệ thống chuyển tiền quyết toán sau mỗi buổi diễn, và tiền donate trả cho nghệ sĩ.
           Chưa khai tài khoản thì tiền vẫn được ghi sổ nhưng chưa chuyển đi được.
@@ -216,7 +216,7 @@ const OwnerBankAccountsPage = () => {
 
       <div className="bg-card border border-line p-6">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-base font-semibold text-ink">{chuSoHuu?.label}</h2>
+          <h2 className="font-sans font-bold text-base text-ink">{chuSoHuu?.label}</h2>
           <button onClick={() => setEditing(null)}
             className="flex items-center gap-1.5 px-3 py-1.5 bg-ink text-lamp text-xs font-bold hover:bg-board">
             <Plus size={14} /> Thêm tài khoản

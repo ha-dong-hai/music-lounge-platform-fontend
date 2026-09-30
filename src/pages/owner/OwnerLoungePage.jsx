@@ -293,7 +293,7 @@ const OwnerLoungePage = () => {
   return (
     <div className="space-y-6 max-w-3xl">
       <div>
-        <h1 className="text-2xl font-bold text-ink mb-1">Hồ sơ phòng trà</h1>
+        <h1 className="text-4xl text-ink mb-1">Hồ sơ phòng trà</h1>
         <p className="text-ink-soft text-sm">
           {isEdit
             ? 'Thông tin hiển thị cho khán giả và dùng cho mọi buổi diễn của bạn.'
@@ -427,16 +427,16 @@ const OwnerLoungePage = () => {
                   <div className="absolute inset-x-0 bottom-0 flex justify-between items-center gap-1 p-1.5 bg-ink/70 opacity-0 group-hover:opacity-100 transition-opacity">
                     <div className="flex gap-1">
                       <button onClick={() => handleDoiThuTu(img.id, -1)} disabled={i === 0 || isUploading !== null}
-                        className="p-1 rounded text-ink-soft hover:text-ink disabled:opacity-30" title="Lùi lên trước">
+                        className="p-1 rounded text-ink-soft hover:text-ink disabled:opacity-30" title="Lùi lên trước" aria-label="Lùi lên trước">
                         <ArrowLeft size={13} />
                       </button>
                       <button onClick={() => handleDoiThuTu(img.id, 1)} disabled={i === arr.length - 1 || isUploading !== null}
-                        className="p-1 rounded text-ink-soft hover:text-ink disabled:opacity-30" title="Đẩy xuống sau">
+                        className="p-1 rounded text-ink-soft hover:text-ink disabled:opacity-30" title="Đẩy xuống sau" aria-label="Đẩy xuống sau">
                         <ArrowRight size={13} />
                       </button>
                     </div>
                     <button onClick={() => handleXoaAnhThuVien(img.id)} disabled={isUploading !== null}
-                      className="p-1 rounded text-danger hover:text-danger disabled:opacity-30" title="Xoá ảnh">
+                      className="p-1 rounded text-danger hover:text-danger disabled:opacity-30" title="Xoá ảnh" aria-label="Xoá ảnh">
                       <Trash2 size={13} />
                     </button>
                   </div>

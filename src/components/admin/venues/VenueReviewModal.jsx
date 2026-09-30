@@ -22,10 +22,10 @@ const VenueReviewModal = ({ venue, onClose, onDecision, isProcessing }) => {
             <ShieldAlert size={22} className="text-ink" />
           </div>
           <div className="flex-1 min-w-0">
-            <h2 className="text-lg font-bold text-lamp">Duyệt phòng trà</h2>
+            <h2 className="text-3xl text-lamp">Duyệt phòng trà</h2>
             <p className="text-sm text-ink-soft truncate">#{venue.loungeId} · {venue.name}</p>
           </div>
-          <button onClick={onClose} disabled={isProcessing} className="p-2 hover:bg-board text-ink-mute disabled:opacity-30">
+          <button onClick={onClose} disabled={isProcessing} className="p-2 hover:bg-board text-ink-mute disabled:opacity-30" aria-label="Đóng">
             <X size={20} />
           </button>
         </div>

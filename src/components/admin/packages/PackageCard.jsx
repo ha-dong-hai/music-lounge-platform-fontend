@@ -147,7 +147,7 @@ export const HiddenPackageCard = ({ pkg, onEdit, onRestore }) => {
         <button
           onClick={() => onEdit(pkg)}
           className="p-2 border border-line/60 text-ink-mute hover:text-ink hover:border-ink/50 transition-colors"
-          title="Sửa gói"
+          title="Sửa gói" aria-label="Sửa gói"
         >
           <Pencil size={14} />
         </button>

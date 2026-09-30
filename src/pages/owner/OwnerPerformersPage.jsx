@@ -75,8 +75,8 @@ const PerformerFormModal = ({ initial, genres, onClose, onSaved }) => {
       <div className="absolute inset-0 bg-ink/80" onClick={onClose} />
       <div className="relative bg-card border border-line w-full max-w-lg shadow-soft max-h-[90vh] flex flex-col">
         <div className="flex justify-between items-center p-5 border-b border-line">
-          <h2 className="text-lg font-bold text-ink">{isEdit ? 'Sửa nghệ sĩ' : 'Thêm nghệ sĩ'}</h2>
-          <button onClick={onClose} className="p-2 hover:bg-sunken text-ink-soft"><X size={20} /></button>
+          <h2 className="text-3xl text-ink">{isEdit ? 'Sửa nghệ sĩ' : 'Thêm nghệ sĩ'}</h2>
+          <button onClick={onClose} className="p-2 hover:bg-sunken text-ink-soft" aria-label="Đóng"><X size={20} /></button>
         </div>
 
         <form onSubmit={submit} className="p-5 space-y-4 overflow-y-auto">
@@ -185,8 +185,8 @@ const SocialLinksModal = ({ performer, onClose, onSaved }) => {
       <div className="absolute inset-0 bg-ink/80" onClick={onClose} />
       <div className="relative bg-card border border-line w-full max-w-md shadow-soft max-h-[90vh] flex flex-col">
         <div className="flex justify-between items-center p-5 border-b border-line">
-          <h2 className="text-lg font-bold text-ink truncate">Liên kết của {performer.name}</h2>
-          <button onClick={onClose} className="p-2 hover:bg-sunken text-ink-soft flex-shrink-0"><X size={20} /></button>
+          <h2 className="text-3xl text-ink truncate">Liên kết của {performer.name}</h2>
+          <button onClick={onClose} className="p-2 hover:bg-sunken text-ink-soft flex-shrink-0" aria-label="Đóng"><X size={20} /></button>
         </div>
 
         <div className="p-5 space-y-4 overflow-y-auto">
@@ -202,7 +202,7 @@ const SocialLinksModal = ({ performer, onClose, onSaved }) => {
                       className="text-xs text-ink hover:underline truncate block">{l.displayName || l.url}</a>
                   </div>
                   <button onClick={() => xoa(l.id)} disabled={isBusy}
-                    className="p-2 text-danger hover:bg-danger/10 disabled:opacity-40 flex-shrink-0" title="Xoá">
+                    className="p-2 text-danger hover:bg-danger/10 disabled:opacity-40 flex-shrink-0" title="Xoá" aria-label="Xoá">
                     <Trash2 size={14} />
                   </button>
                 </li>
@@ -281,7 +281,7 @@ const OwnerPerformersPage = () => {
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-ink mb-1">Nghệ sĩ</h1>
+          <h1 className="text-4xl text-ink mb-1">Nghệ sĩ</h1>
           <p className="text-ink-soft text-sm leading-relaxed">
             Nghệ sĩ bạn quản lý, để thêm vào line-up buổi diễn. Đây cũng là đối tượng nhận tiền donate.
           </p>

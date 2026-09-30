@@ -66,7 +66,7 @@ const AdminPenaltyAppealsPage = () => {
         <div className="flex items-center gap-3">
           <Gavel size={28} className="text-ink" />
           <div>
-            <h1 className="text-2xl font-bold text-ink">Khiếu nại án phạt</h1>
+            <h1 className="text-4xl text-ink">Khiếu nại án phạt</h1>
             <p className="text-ink-soft text-sm leading-relaxed">
               Chủ phòng trà gửi khiếu nại khi cho rằng án phạt không đúng. Quyết định ở đây có hiệu
               lực ngay và không hoàn tác được.

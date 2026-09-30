@@ -61,7 +61,7 @@ const AdminKycReviewsPage = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-ink mb-1">Duyệt định danh</h1>
+        <h1 className="text-4xl text-ink mb-1">Duyệt định danh</h1>
         <p className="text-ink-soft text-sm leading-relaxed">
           Mỗi người có tới hai giấy tờ được duyệt riêng: CCCD và hồ sơ thuế. Từ chối thì bắt buộc ghi lý do.
         </p>

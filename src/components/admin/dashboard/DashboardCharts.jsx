@@ -83,9 +83,9 @@ export const RevenueByMonthChart = ({ months, measure }) => {
           <table className="w-full tabular-nums">
             <thead>
               <tr className="text-ink-mute">
-                <th className="text-left py-1.5 pr-3 font-medium">Tháng</th>
-                {SOURCES.map((s) => <th key={s.key} className="text-right py-1.5 pr-3 font-medium">{s.label}</th>)}
-                <th className="text-right py-1.5 font-medium">Tổng</th>
+                <th scope="col" className="text-left py-1.5 pr-3 font-medium">Tháng</th>
+                {SOURCES.map((s) => <th scope="col" key={s.key} className="text-right py-1.5 pr-3 font-medium">{s.label}</th>)}
+                <th scope="col" className="text-right py-1.5 font-medium">Tổng</th>
               </tr>
             </thead>
             <tbody>
@@ -160,12 +160,12 @@ export const TopShowsTable = ({ shows }) => {
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-left whitespace-nowrap">
-        <thead className="bg-page/60 border-y border-line">
+        <thead className="bg-sunken border-b-2 border-ink">
           <tr>
-            <th className="p-4 text-sm font-semibold text-ink-muter w-10">#</th>
-            <th className="p-4 text-sm font-semibold text-ink-muter">Buổi diễn</th>
-            <th className="p-4 text-sm font-semibold text-ink-muter">Vé bán</th>
-            <th className="p-4 text-sm font-semibold text-ink-muter text-right">Doanh thu vé</th>
+            <th scope="col" className="p-4 text-sm font-semibold text-ink w-10">#</th>
+            <th scope="col" className="p-4 text-sm font-semibold text-ink">Buổi diễn</th>
+            <th scope="col" className="p-4 text-sm font-semibold text-ink">Vé bán</th>
+            <th scope="col" className="p-4 text-sm font-semibold text-ink text-right">Doanh thu vé</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-line">

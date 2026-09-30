@@ -148,7 +148,7 @@ const ProfileTab = () => {
 
   return (
     <div className="bg-card border border-line p-6 md:p-8">
-      <h2 className="text-xl font-bold text-ink mb-6">Thông tin cá nhân</h2>
+      <h2 className="text-xl text-ink mb-6">Thông tin cá nhân</h2>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         
         <div className="flex items-center gap-6 pb-6 border-b border-line">

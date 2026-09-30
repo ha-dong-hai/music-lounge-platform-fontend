@@ -88,11 +88,11 @@ const ReviewModal = ({ item, approve, onClose, onSaved }) => {
       <div className="absolute inset-0 bg-ink/80" onClick={() => !isBusy && onClose()} />
       <div className="relative bg-card border border-line w-full max-w-md shadow-soft">
         <div className="flex justify-between items-center p-5 border-b border-line">
-          <h2 className="text-lg font-bold text-ink">
+          <h2 className="text-3xl text-ink">
             {approve ? 'Duyệt tài khoản nhận tiền?' : 'Từ chối tài khoản?'}
           </h2>
           <button onClick={onClose} disabled={isBusy}
-            className="p-2 hover:bg-sunken text-ink-soft disabled:opacity-30">
+            className="p-2 hover:bg-sunken text-ink-soft disabled:opacity-30" aria-label="Đóng">
             <X size={20} />
           </button>
         </div>
@@ -181,7 +181,7 @@ const AdminBankAccountsPage = () => {
         <div className="flex items-center gap-3">
           <Landmark size={28} className="text-ink" />
           <div>
-            <h1 className="text-2xl font-bold text-ink">Tài khoản nhận tiền</h1>
+            <h1 className="text-4xl text-ink">Tài khoản nhận tiền</h1>
             <p className="text-ink-soft text-sm leading-relaxed">
               Duyệt số tài khoản mà doanh thu của phòng trà sẽ được chuyển vào. Chỉ tài khoản của
               phòng trà — tài khoản của nghệ sĩ không duyệt ở đây.
@@ -275,7 +275,7 @@ const AdminBankAccountsPage = () => {
                     <div className="flex gap-2 flex-shrink-0">
                       <button onClick={() => setTarget({ item: it, approve: true })}
                         disabled={!duDieuKien}
-                        title={duDieuKien ? undefined : 'Chưa đủ điều kiện — xem các dòng cảnh báo bên trái'}
+                        title={duDieuKien ? undefined : 'Chưa đủ điều kiện — xem các dòng cảnh báo bên trái'} aria-label={duDieuKien ? undefined : 'Chưa đủ điều kiện — xem các dòng cảnh báo bên trái'}
                         className="flex items-center gap-1.5 px-3 py-1.5 border border-success/40 text-success text-xs font-bold hover:bg-success/10 disabled:opacity-30 disabled:cursor-not-allowed">
                         <CheckCircle2 size={13} /> Duyệt
                       </button>

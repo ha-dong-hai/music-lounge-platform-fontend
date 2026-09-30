@@ -83,7 +83,7 @@ const SeatingMapView = ({ showId, selectedZoneId, onSelectZone }) => {
                   key={z.zoneId}
                   type="button"
                   onClick={() => onSelectZone?.(laChon ? null : z.zoneId)}
-                  title={`${z.name} — ${nhanConLai(z)}`}
+                  title={`${z.name} — ${nhanConLai(z)}`} aria-label={`${z.name} — ${nhanConLai(z)}`}
                   className={`absolute flex flex-col items-center justify-center border-2 px-1 overflow-hidden transition-all ${
                     laChon ? 'border-ink ring-2 ring-ink/40 z-10' : 'border-lamp/25 hover:border-lamp/60'
                   } ${hetVe ? 'opacity-45' : ''}`}

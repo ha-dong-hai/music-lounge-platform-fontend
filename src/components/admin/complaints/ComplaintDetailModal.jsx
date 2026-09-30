@@ -30,9 +30,9 @@ const ComplaintDetailModal = ({ complaint, onClose, onResolve }) => {
         <div className="flex-none flex justify-between items-start p-6 border-b border-line">
           <div>
             <p className="text-sm text-ink-mute mb-1">Chi tiết khiếu nại</p>
-            <h2 className="text-xl font-bold text-ink font-mono">#{c.id}</h2>
+            <h2 className="text-xl text-ink font-mono">#{c.id}</h2>
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-sunken text-ink-soft">
+          <button onClick={onClose} className="p-2 hover:bg-sunken text-ink-soft" aria-label="Đóng">
             <X size={20} />
           </button>
         </div>

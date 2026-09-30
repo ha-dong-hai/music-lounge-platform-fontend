@@ -120,7 +120,7 @@ const PerformerConfirmationPage = () => {
       <Khung>
         <div className="bg-card border border-danger/30 p-6">
           <AlertTriangle size={22} className="text-danger mb-3" />
-          <h1 className="text-xl font-bold mb-2">Không mở được liên kết</h1>
+          <h1 className="text-4xl mb-2">Không mở được liên kết</h1>
           <p className="text-sm text-ink-soft leading-relaxed">{loi}</p>
         </div>
       </Khung>
@@ -132,7 +132,7 @@ const PerformerConfirmationPage = () => {
       <Khung>
         <div className="bg-card border border-success/30 p-6">
           <CheckCircle2 size={22} className="text-success mb-3" />
-          <h1 className="text-xl font-bold mb-2">Đã ghi nhận</h1>
+          <h1 className="text-4xl mb-2">Đã ghi nhận</h1>
           <p className="text-sm text-ink-soft leading-relaxed">
             Cảm ơn {info.performerName}. Câu trả lời của bạn đã được gửi tới phòng trà và nền tảng.
             Bạn có thể đóng trang này.
@@ -149,7 +149,7 @@ const PerformerConfirmationPage = () => {
       <Khung>
         <div className={`bg-card border p-6 ${v.cls}`}>
           <v.icon size={22} className={`${v.mauIcon} mb-3`} />
-          <h1 className="text-xl font-bold mb-2">{v.tieuDe}</h1>
+          <h1 className="text-4xl mb-2">{v.tieuDe}</h1>
           <p className="text-sm text-ink-soft leading-relaxed">{v.mo}</p>
           {info.outcome && (
             <p className="text-sm text-ink-soft mt-3">
@@ -163,7 +163,7 @@ const PerformerConfirmationPage = () => {
 
   return (
     <Khung>
-      <h1 className="text-2xl font-bold mb-1">Xin chào {info.performerName}</h1>
+      <h1 className="text-4xl mb-1">Xin chào {info.performerName}</h1>
       <p className="text-sm text-ink-soft mb-6 leading-relaxed">
         Phòng trà cần bạn xác nhận thông tin bên dưới. Liên kết này dùng một lần và
         hết hạn lúc {dayjs(info.expiresAt).format('HH:mm DD/MM/YYYY')}.

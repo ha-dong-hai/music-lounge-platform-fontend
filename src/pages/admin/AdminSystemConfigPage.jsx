@@ -49,8 +49,8 @@ const EditModal = ({ config, onClose, onSaved }) => {
       <div className="absolute inset-0 bg-ink/80" onClick={onClose} />
       <div className="relative bg-card border border-line w-full max-w-md shadow-soft">
         <div className="flex justify-between items-center p-5 border-b border-line">
-          <h2 className="text-lg font-bold text-ink truncate">{config.configKey}</h2>
-          <button onClick={onClose} disabled={isBusy} className="p-2 hover:bg-sunken text-ink-soft disabled:opacity-30 flex-shrink-0">
+          <h2 className="text-3xl text-ink truncate">{config.configKey}</h2>
+          <button onClick={onClose} disabled={isBusy} className="p-2 hover:bg-sunken text-ink-soft disabled:opacity-30 flex-shrink-0" aria-label="Đóng">
             <X size={20} />
           </button>
         </div>
@@ -131,8 +131,8 @@ const HistoryModal = ({ configKey, onClose }) => {
       <div className="absolute inset-0 bg-ink/80" onClick={onClose} />
       <div className="relative bg-card border border-line w-full max-w-lg shadow-soft max-h-[90vh] flex flex-col">
         <div className="flex justify-between items-center p-5 border-b border-line">
-          <h2 className="text-lg font-bold text-ink truncate">Lịch sử: {configKey}</h2>
-          <button onClick={onClose} className="p-2 hover:bg-sunken text-ink-soft flex-shrink-0"><X size={20} /></button>
+          <h2 className="text-3xl text-ink truncate">Lịch sử: {configKey}</h2>
+          <button onClick={onClose} className="p-2 hover:bg-sunken text-ink-soft flex-shrink-0" aria-label="Đóng"><X size={20} /></button>
         </div>
 
         <div className="p-5 overflow-y-auto">
@@ -218,10 +218,10 @@ const AdminSystemConfigPage = () => {
       <table className="w-full text-sm">
         <thead>
           <tr className="text-xs text-ink-mute border-b border-line">
-            <th className="text-left py-2 pr-3 font-medium">Tham số</th>
-            <th className="text-left py-2 pr-3 font-medium">Giá trị</th>
-            <th className="text-left py-2 pr-3 font-medium">Đổi lần cuối</th>
-            <th className="py-2 font-medium" />
+            <th scope="col" className="text-left py-2 pr-3 font-medium">Tham số</th>
+            <th scope="col" className="text-left py-2 pr-3 font-medium">Giá trị</th>
+            <th scope="col" className="text-left py-2 pr-3 font-medium">Đổi lần cuối</th>
+            <th scope="col" className="py-2 font-medium" />
           </tr>
         </thead>
         <tbody>
@@ -238,11 +238,11 @@ const AdminSystemConfigPage = () => {
               </td>
               <td className="py-3 align-top">
                 <div className="flex gap-1 justify-end">
-                  <button onClick={() => setHistoryKey(c.configKey)} title="Lịch sử thay đổi"
+                  <button onClick={() => setHistoryKey(c.configKey)} title="Lịch sử thay đổi" aria-label="Lịch sử thay đổi"
                     className="p-2 text-ink-soft hover:bg-sunken">
                     <History size={14} />
                   </button>
-                  <button onClick={() => setEditing(c)} title="Sửa"
+                  <button onClick={() => setEditing(c)} title="Sửa" aria-label="Sửa"
                     className="px-3 py-1.5 border border-line text-ink-soft text-xs font-bold hover:bg-sunken">
                     Sửa
                   </button>
@@ -258,7 +258,7 @@ const AdminSystemConfigPage = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-ink mb-1">Cấu hình hệ thống</h1>
+        <h1 className="text-4xl text-ink mb-1">Cấu hình hệ thống</h1>
         <p className="text-ink-soft text-sm leading-relaxed">
           Những tham số này điều khiển cách hệ thống tính tiền và xử lý thời hạn. Mỗi lần đổi đều phải ghi lý do
           và được lưu vào lịch sử.
@@ -267,7 +267,7 @@ const AdminSystemConfigPage = () => {
 
       {/* CẤU HÌNH HẠ TẦNG CÒN THIẾU — chỉ đọc, sửa ở biến môi trường của server chứ không ở đây */}
       <div className="bg-card border border-line p-6">
-        <h2 className="text-base font-semibold text-ink flex items-center gap-2">
+        <h2 className="font-sans font-bold text-base text-ink flex items-center gap-2">
           <PlugZap size={16} /> Cấu hình hạ tầng
         </h2>
         <p className="text-xs text-ink-mute mt-1 leading-relaxed">
@@ -296,7 +296,7 @@ const AdminSystemConfigPage = () => {
 
       {tienTe.length > 0 && (
         <div className="bg-card border border-line p-6">
-          <h2 className="text-base font-semibold text-ink flex items-center gap-2">
+          <h2 className="font-sans font-bold text-base text-ink flex items-center gap-2">
             <Coins size={16} className="text-warning" /> Tỉ lệ tiền
           </h2>
           <p className="text-xs text-ink-mute mt-1 mb-4 leading-relaxed">
@@ -308,7 +308,7 @@ const AdminSystemConfigPage = () => {
 
       {conLai.length > 0 && (
         <div className="bg-card border border-line p-6">
-          <h2 className="text-base font-semibold text-ink flex items-center gap-2">
+          <h2 className="font-sans font-bold text-base text-ink flex items-center gap-2">
             <SlidersHorizontal size={16} /> Tham số khác
           </h2>
           <div className="mt-4">{renderBang(conLai)}</div>

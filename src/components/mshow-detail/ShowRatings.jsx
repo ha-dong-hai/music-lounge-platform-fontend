@@ -41,8 +41,8 @@ const RemoveModal = ({ rating, onClose, onDone }) => {
       <div className="absolute inset-0 bg-ink/80" onClick={onClose} />
       <div className="relative bg-card border border-line w-full max-w-md shadow-lift">
         <div className="flex justify-between items-center p-5 border-b border-line">
-          <h2 className="text-lg font-bold text-ink">Gỡ đánh giá này?</h2>
-          <button onClick={onClose} disabled={isBusy} className="p-2 hover:bg-sunken text-ink-soft disabled:opacity-30">
+          <h2 className="text-3xl text-ink">Gỡ đánh giá này?</h2>
+          <button onClick={onClose} disabled={isBusy} className="p-2 hover:bg-sunken text-ink-soft disabled:opacity-30" aria-label="Đóng">
             <X size={20} />
           </button>
         </div>
@@ -164,7 +164,7 @@ const ShowRatings = ({ showId }) => {
               <p className="text-xs text-ink-mute mt-2">{dayjs(r.createdAt).format('DD/MM/YYYY')}</p>
             </div>
             {laAdmin && (
-              <button onClick={() => setRemoving(r)} title="Gỡ đánh giá"
+              <button onClick={() => setRemoving(r)} title="Gỡ đánh giá" aria-label="Gỡ đánh giá"
                 className="p-2 text-ink-mute hover:bg-danger/10 hover:text-danger flex-shrink-0">
                 <Trash2 size={15} />
               </button>

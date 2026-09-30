@@ -184,7 +184,7 @@ const Header = () => {
               className="w-full pl-11 pr-11 py-2.5 min-h-[44px] bg-card text-ink placeholder:text-ink-mute border-2 border-ink text-sm focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2 focus:ring-offset-stock transition-all"
             />
             {localSearch && (
-              <button type="button" onClick={() => { setLocalSearch(''); setMoGoiY(false) }} className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-soft hover:text-ink">
+              <button type="button" onClick={() => { setLocalSearch(''); setMoGoiY(false) }} className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-soft hover:text-ink" aria-label="Đóng">
                 <X size={18} />
               </button>
             )}
@@ -302,7 +302,7 @@ const Header = () => {
                 <ChevronDown size={14} className={`hidden lg:block transition-transform duration-200 ${isUserMenuOpen ? 'rotate-180' : ''}`} />
               </button>
               {isUserMenuOpen && (
-                <div className="absolute right-0 top-full mt-3 w-56 bg-card border-2 border-ink shadow-lift py-2 z-50 animate-in fade-in slide-in-from-top-2">
+                <div className="absolute right-0 top-full mt-3 w-56 bg-card border-2 border-ink shadow-lift py-2 z-50">
                   <div className="px-4 py-2 border-b border-line mb-1">
                     <p className="text-xs text-ink-mute">Xin chào,</p>
                     <p className="text-sm font-semibold text-ink truncate">{user.email}</p>
@@ -360,7 +360,7 @@ const Header = () => {
               <ChevronDown size={14} className={`transition-transform duration-200 ${isLangOpen ? 'rotate-180' : ''}`} />
             </button>
             {isLangOpen && (
-              <div className="absolute right-0 top-full mt-3 w-44 bg-card border-2 border-ink shadow-lift py-2 z-50 animate-in fade-in slide-in-from-top-2">
+              <div className="absolute right-0 top-full mt-3 w-44 bg-card border-2 border-ink shadow-lift py-2 z-50">
                 <button onClick={() => handleChangeLang('vi')} className={`w-full flex items-center justify-between px-4 py-2.5 text-sm transition-colors ${currentLang === 'vi' ? 'text-ink bg-sunken/50' : 'text-ink-soft hover:bg-sunken hover:text-ink'}`}>
                   Tiếng Việt {currentLang === 'vi' && <Check size={14} />}
                 </button>

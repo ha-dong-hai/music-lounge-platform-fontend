@@ -30,12 +30,12 @@ const BankAccountReviewModal = ({ account, onClose, onDecision, isProcessing }) 
             <Landmark size={22} className="text-ink" />
           </div>
           <div className="flex-1 min-w-0">
-            <h2 className="text-lg font-bold text-lamp">Duyệt tài khoản nhận tiền</h2>
+            <h2 className="text-3xl text-lamp">Duyệt tài khoản nhận tiền</h2>
             <p className="text-sm text-ink-soft truncate">
               {account.bankName} · {account.accountNumberMasked}
             </p>
           </div>
-          <button onClick={onClose} disabled={isProcessing} className="p-2 hover:bg-board text-ink-mute disabled:opacity-30">
+          <button onClick={onClose} disabled={isProcessing} className="p-2 hover:bg-board text-ink-mute disabled:opacity-30" aria-label="Đóng">
             <X size={20} />
           </button>
         </div>

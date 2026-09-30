@@ -80,7 +80,7 @@ const AdminLedgerPage = () => {
       <div className="flex items-center gap-3">
         <Receipt size={28} className="text-ink" />
         <div>
-          <h1 className="text-2xl font-bold text-ink">Sổ cái</h1>
+          <h1 className="text-4xl text-ink">Sổ cái</h1>
           <p className="text-ink-soft text-sm">
             Kiểm tra bút toán có cân không, và chạy lại tác vụ định kỳ khi cần.
           </p>

@@ -117,7 +117,7 @@ const AdminComplaintPage = () => {
 
             {/* HEADER */}
             <div>
-                <h1 className="text-2xl font-bold text-ink mb-1">Xử lý khiếu nại</h1>
+                <h1 className="text-4xl text-ink mb-1">Xử lý khiếu nại</h1>
                 <p className="text-ink-soft text-sm">Khiếu nại do người dùng gửi.</p>
             </div>
 

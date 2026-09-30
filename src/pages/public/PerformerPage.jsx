@@ -58,7 +58,7 @@ const PerformerPage = () => {
   if (!data) {
     return (
       <div className="min-h-screen bg-page flex flex-col items-center justify-center text-ink">
-        <h1 className="text-2xl font-bold mb-4">Không tìm thấy nghệ sĩ</h1>
+        <h1 className="text-4xl mb-4">Không tìm thấy nghệ sĩ</h1>
         <Link to="/" className="text-ink flex items-center gap-2">
           <ArrowLeft size={18} /> Về trang chủ
         </Link>
@@ -86,7 +86,7 @@ const PerformerPage = () => {
           <div className="min-w-0 flex-1 text-center sm:text-left">
             <div className="flex items-center gap-2 justify-center sm:justify-start">
               <Mic2 size={18} className="text-ink" />
-              <h1 className="text-2xl font-bold">{data.name}</h1>
+              <h1 className="text-4xl">{data.name}</h1>
             </div>
 
             {(data.genres?.length ?? 0) > 0 && (
@@ -114,7 +114,7 @@ const PerformerPage = () => {
 
         {/* BUỔI DIỄN */}
         <div className="flex flex-wrap items-center justify-between gap-3 mt-10 mb-4">
-          <h2 className="text-lg font-bold">
+          <h2 className="text-3xl">
             {xemDaDien ? 'Tất cả buổi diễn' : 'Buổi diễn sắp tới'}
           </h2>
           {/* Nút này cần thiết vì mặc định của backend là CHỈ buổi sắp diễn — không có nó thì nghệ

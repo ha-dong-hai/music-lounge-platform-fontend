@@ -1,5 +1,7 @@
 // src/components/admin/kyc/KycBadges.jsx
 // Config dùng chung — page (tabs) và DocBlock (chip) cùng đọc từ đây
+import NhanTrangThai from '../../shared/NhanTrangThai'
+// 30/09/2026: nhãn vẽ bằng components/shared/NhanTrangThai (biểu tượng + chữ, 5 sắc thái) — không tự đặt màu ở đây nữa.
 
 export const KYC_TABS = [
   { key: 'Pending', label: 'Chờ duyệt' },
@@ -7,16 +9,10 @@ export const KYC_TABS = [
   { key: 'Rejected', label: 'Đã từ chối' },
 ]
 
-export const KYC_STATUS_CHIP = {
-  Pending: 'bg-warning/10 text-warning border-warning/30',
-  Approved: 'bg-success/10 text-success border-success/30',
-  Rejected: 'bg-danger/10 text-danger border-danger/30',
-}
+const TRANG_THAI_KYC = { Pending: ['cho', 'Chờ duyệt'], Approved: ['tot', 'Đã duyệt'], Rejected: ['xau', 'Đã từ chối'] }
 
-export const KycStatusChip = ({ status }) => (
-  <span className={`px-2 py-0.5 rounded-md border text-xs font-medium whitespace-nowrap ${
-    KYC_STATUS_CHIP[status] ?? 'bg-line-strong/10 text-ink-soft border-line-strong/30'
-  }`}>
-    {status}
-  </span>
-)
+// Bản cũ in NGUYÊN mã trạng thái ("Pending", "Approved") thay vì chữ.
+export const KycStatusChip = ({ status }) => {
+  const [sacThai, nhan] = TRANG_THAI_KYC[status] ?? ['trung', status]
+  return <NhanTrangThai sacThai={sacThai}>{nhan}</NhanTrangThai>
+}

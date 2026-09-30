@@ -31,6 +31,7 @@ import { Link } from 'react-router-dom'
 import { getShows, getShowDetail, startShow, endShow, getShowTicketStats, getShowOrders, getTicketTiers } from '../../services/showServices'
 import { useAuthStore } from '../../store/useAuthStore'
 import { getTicketByQr, checkInTicket, sellWalkInTicket } from '../../services/ticketServices'
+import NutXacNhan from '../../components/shared/NutXacNhan'
 
 const fmtMoney = (v) => `${Number(v || 0).toLocaleString('vi-VN')}đ`
 
@@ -283,7 +284,7 @@ const OwnerOperatePage = () => {
   if (shows.length === 0) {
     return (
       <div className="max-w-2xl">
-        <h1 className="text-2xl font-bold text-ink mb-1">Vận hành đêm diễn</h1>
+        <h1 className="text-4xl text-ink mb-1">Vận hành đêm diễn</h1>
         <div className="mt-4 bg-card border border-line p-6">
           <p className="text-sm text-ink-soft">Chưa có buổi diễn nào để vận hành.</p>
         </div>
@@ -295,7 +296,7 @@ const OwnerOperatePage = () => {
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-ink mb-1">Vận hành đêm diễn</h1>
+          <h1 className="text-4xl text-ink mb-1">Vận hành đêm diễn</h1>
           <p className="text-ink-soft text-sm">Soát vé tại cửa, bán vé cho khách vãng lai, và theo dõi số vé theo thời gian thực.</p>
         </div>
         <button onClick={loadStats} disabled={isLoadingStats}
@@ -322,10 +323,11 @@ const OwnerOperatePage = () => {
             className="flex items-center gap-2 px-4 py-2 bg-success/10 border border-success/40 text-success text-sm font-bold hover:bg-success/20 disabled:opacity-40 disabled:cursor-not-allowed">
             {busy === 'start' ? <Loader2 size={16} className="animate-spin" /> : <Play size={16} />} Bắt đầu buổi diễn
           </button>
-          <button onClick={handleEnd} disabled={busy !== null || !CO_THE_KET_THUC.includes(showDangChon.status)}
+          <NutXacNhan onXacNhan={handleEnd} tieuDe="Kết thúc buổi diễn?" nhanXacNhan="Kết thúc buổi diễn" nhanGiu="Chưa, còn đang diễn"
+            noiDung="Nhân viên sẽ không soát vé được nữa. Buổi diễn được ghi nhận là đã diễn xong (căn cứ để quyết toán tiền vé), và khán giả bắt đầu đánh giá được. Không hoàn tác được." disabled={busy !== null || !CO_THE_KET_THUC.includes(showDangChon.status)}
             className="flex items-center gap-2 px-4 py-2 bg-danger/10 border border-danger/40 text-danger text-sm font-bold hover:bg-danger/20 disabled:opacity-40 disabled:cursor-not-allowed">
             {busy === 'end' ? <Loader2 size={16} className="animate-spin" /> : <Square size={16} />} Kết thúc
-          </button>
+          </NutXacNhan>
           <span className="text-xs text-ink-mute self-center">
             Trạng thái hiện tại: <span className="text-ink-soft">{tenTrangThai(showDangChon.status)}</span>
           </span>
@@ -512,11 +514,11 @@ const OwnerOperatePage = () => {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="text-xs text-ink-mute border-b border-line">
-                    <th className="text-left py-2 pr-3 font-medium">Khách</th>
-                    <th className="text-left py-2 pr-3 font-medium">Hạng vé</th>
-                    <th className="text-right py-2 pr-3 font-medium">Đã trả</th>
-                    <th className="text-left py-2 pr-3 font-medium">Kênh</th>
-                    <th className="text-left py-2 font-medium">Vào cửa</th>
+                    <th scope="col" className="text-left py-2 pr-3 font-medium">Khách</th>
+                    <th scope="col" className="text-left py-2 pr-3 font-medium">Hạng vé</th>
+                    <th scope="col" className="text-right py-2 pr-3 font-medium">Đã trả</th>
+                    <th scope="col" className="text-left py-2 pr-3 font-medium">Kênh</th>
+                    <th scope="col" className="text-left py-2 font-medium">Vào cửa</th>
                   </tr>
                 </thead>
                 <tbody>

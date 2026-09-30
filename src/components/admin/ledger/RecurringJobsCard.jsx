@@ -14,7 +14,7 @@ const tenDocDuoc = (jobId) => jobId.replace(/[-_]/g, ' ')
  */
 const RecurringJobsCard = ({ jobs, isLoading, isTriggering, onTrigger }) => (
   <div>
-    <h2 className="text-sm font-semibold text-ink-soft flex items-center gap-2">
+    <h2 className="font-sans font-bold text-sm text-ink-soft flex items-center gap-2">
       <Clock size={15} /> Tác vụ định kỳ
     </h2>
     <p className="text-xs text-ink-mute mt-0.5 mb-3 leading-relaxed">

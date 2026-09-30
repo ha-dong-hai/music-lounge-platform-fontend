@@ -96,7 +96,7 @@ const ChatPanel = ({ messages, performers, onSendMessage, onSendDonation, onRepo
           </button>
 
           {showActionMenu && (
-            <div className="absolute right-0 top-full mt-2 w-44 bg-card shadow-soft border border-line py-1.5 z-50 animate-in fade-in slide-in-from-top-2 duration-100">
+            <div className="absolute right-0 top-full mt-2 w-44 bg-card shadow-soft border border-line py-1.5 z-50 duration-100">
               <button
                 onClick={() => {
                   setShowActionMenu(false)
@@ -177,7 +177,7 @@ const ChatPanel = ({ messages, performers, onSendMessage, onSendDonation, onRepo
         )}
 
         <form onSubmit={handleSubmit} className="flex items-center gap-2">
-          <button type="button" onClick={() => setShowEmoji(!showEmoji)} className={`p-2 transition-colors flex-shrink-0 ${showEmoji ? 'text-ink bg-sunken' : 'text-ink-soft hover:text-ink'}`}>
+          <button type="button" onClick={() => setShowEmoji(!showEmoji)} className={`p-2 transition-colors flex-shrink-0 ${showEmoji ? 'text-ink bg-sunken' : 'text-ink-soft hover:text-ink'}`} aria-label="Chèn biểu tượng cảm xúc">
             <Smile size={20} />
           </button>
           <input
@@ -189,7 +189,7 @@ const ChatPanel = ({ messages, performers, onSendMessage, onSendDonation, onRepo
             className="flex-1 min-w-0 bg-sunken text-ink text-sm px-3 py-2 focus:outline-none focus:ring-1 focus:ring-ink placeholder:text-ink-mute"
           />
           {/* NÚT SEND — donate chuyển sang phải của nó */}
-          <button type="submit" className="p-2 text-ink hover:text-ink transition-colors disabled:opacity-30 flex-shrink-0" disabled={!text.trim()}>
+          <button type="submit" className="p-2 text-ink hover:text-ink transition-colors disabled:opacity-30 flex-shrink-0" disabled={!text.trim()} aria-label="Gửi">
             <Send size={20} />
           </button>
           {/* NÚT DONATE — vị trí mới */}

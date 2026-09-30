@@ -171,7 +171,7 @@ const ComplaintPage = () => {
           <ArrowLeft size={16} /> Về trang chủ
         </Link>
 
-        <h1 className="text-2xl font-bold mb-1">Khiếu nại &amp; báo cáo</h1>
+        <h1 className="text-4xl mb-1">Khiếu nại &amp; báo cáo</h1>
         <p className="text-ink-soft text-sm mb-6">
           Gửi khiếu nại về buổi diễn, phòng trà, vé hoặc tiền donate. Bạn không cần đăng nhập để gửi.
         </p>
@@ -259,7 +259,7 @@ const ComplaintPage = () => {
                   <span key={url} className="inline-flex items-center gap-1.5 px-2.5 py-1.5 bg-page border border-line text-xs text-ink-soft">
                     Ảnh {i + 1}
                     <button type="button" onClick={() => setEvidences((p) => p.filter((u) => u !== url))}
-                      className="text-ink-mute hover:text-danger"><X size={12} /></button>
+                      className="text-ink-mute hover:text-danger" aria-label="Bỏ"><X size={12} /></button>
                   </span>
                 ))}
                 <label className="inline-flex items-center gap-2 px-3 py-1.5 border border-line text-ink-soft text-xs font-medium hover:bg-sunken cursor-pointer">

@@ -198,12 +198,12 @@ const CustomCriteriaSection = ({ loungeId }) => {
                       {!dangSua && (
                         <>
                           <button onClick={() => setSuaTen({ id: c.id, name: c.name })}
-                            disabled={busyId === c.id} title="Đổi tên hiển thị"
+                            disabled={busyId === c.id} title="Đổi tên hiển thị" aria-label="Đổi tên hiển thị"
                             className="p-1.5 text-ink-mute hover:text-ink disabled:opacity-40">
                             <Pencil size={14} />
                           </button>
                           <button onClick={() => doiBatTat(c, daTat)} disabled={busyId === c.id}
-                            title={daTat ? 'Bật lại' : 'Tắt (ẩn khỏi danh sách chọn khi tạo buổi diễn)'}
+                            title={daTat ? 'Bật lại' : 'Tắt (ẩn khỏi danh sách chọn khi tạo buổi diễn)'} aria-label={daTat ? 'Bật lại' : 'Tắt (ẩn khỏi danh sách chọn khi tạo buổi diễn)'}
                             className={`p-1.5 text-ink-mute disabled:opacity-40 ${daTat ? 'hover:text-success' : 'hover:text-warning'}`}>
                             {daTat ? <Eye size={14} /> : <EyeOff size={14} />}
                           </button>
@@ -222,7 +222,7 @@ const CustomCriteriaSection = ({ loungeId }) => {
         <form onSubmit={them} className="mt-4 pt-4 border-t border-line space-y-3">
           <div className="flex items-center justify-between">
             <p className="text-sm font-medium text-ink">Tiêu chí mới</p>
-            <button type="button" onClick={() => setMoForm(false)} className="p-1 text-ink-mute hover:text-ink">
+            <button type="button" onClick={() => setMoForm(false)} className="p-1 text-ink-mute hover:text-ink" aria-label="Đóng">
               <X size={16} />
             </button>
           </div>

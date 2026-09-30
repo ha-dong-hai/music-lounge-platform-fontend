@@ -68,7 +68,7 @@ const AdminSettlementsPage = () => {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-ink mb-1">Quyết toán chờ xử lý</h1>
+        <h1 className="text-4xl text-ink mb-1">Quyết toán chờ xử lý</h1>
         <p className="text-ink-soft text-sm">
           Tiền của phòng trà đang bị giữ vì nghi buổi diễn không chạy đủ như đã hứa với người mua vé.
         </p>
@@ -167,9 +167,9 @@ const AdminSettlementsPage = () => {
           <p className="text-sm text-ink-mute">Trang {pagination.page} / {pagination.totalPages} · {pagination.totalCount} khoản</p>
           <div className="flex gap-2">
             <button onClick={() => setPagination((p) => ({ ...p, page: p.page - 1 }))} disabled={pagination.page === 1}
-              className="p-2 rounded-md border border-line text-ink-soft hover:border-ink disabled:opacity-30"><ChevronLeft size={18} /></button>
+              className="p-2 rounded-md border border-line text-ink-soft hover:border-ink disabled:opacity-30" aria-label="Trang trước"><ChevronLeft size={18} /></button>
             <button onClick={() => setPagination((p) => ({ ...p, page: p.page + 1 }))} disabled={pagination.page === pagination.totalPages}
-              className="p-2 rounded-md border border-line text-ink-soft hover:border-ink disabled:opacity-30"><ChevronRight size={18} /></button>
+              className="p-2 rounded-md border border-line text-ink-soft hover:border-ink disabled:opacity-30" aria-label="Trang sau"><ChevronRight size={18} /></button>
           </div>
         </div>
       )}

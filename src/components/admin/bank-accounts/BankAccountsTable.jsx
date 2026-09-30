@@ -29,15 +29,15 @@ const BankAccountsTable = ({ accounts, isLoading, pagination, onReview, onPageCh
     <div className="bg-board border border-ink overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full text-left whitespace-nowrap">
-          <thead className="bg-board/40 border-b border-ink">
+          <thead className="bg-sunken border-b-2 border-ink">
             <tr>
-              <th className="p-4 text-sm font-semibold text-ink-muter">Tài khoản</th>
-              <th className="p-4 text-sm font-semibold text-ink-muter">Chủ tài khoản</th>
-              <th className="p-4 text-sm font-semibold text-ink-muter">Phòng trà / Chủ</th>
-              <th className="p-4 text-sm font-semibold text-ink-muter">Xác minh</th>
-              <th className="p-4 text-sm font-semibold text-ink-muter">Trạng thái</th>
-              <th className="p-4 text-sm font-semibold text-ink-muter">Ngày thêm</th>
-              <th className="p-4 text-sm font-semibold text-ink-muter text-right"><span className="sr-only">Thao tác</span></th>
+              <th scope="col" className="p-4 text-sm font-semibold text-ink">Tài khoản</th>
+              <th scope="col" className="p-4 text-sm font-semibold text-ink">Chủ tài khoản</th>
+              <th scope="col" className="p-4 text-sm font-semibold text-ink">Phòng trà / Chủ</th>
+              <th scope="col" className="p-4 text-sm font-semibold text-ink">Xác minh</th>
+              <th scope="col" className="p-4 text-sm font-semibold text-ink">Trạng thái</th>
+              <th scope="col" className="p-4 text-sm font-semibold text-ink">Ngày thêm</th>
+              <th scope="col" className="p-4 text-sm font-semibold text-ink text-right"><span className="sr-only">Thao tác</span></th>
             </tr>
           </thead>
           <tbody className="divide-y divide-ink">
@@ -119,15 +119,13 @@ const BankAccountsTable = ({ accounts, isLoading, pagination, onReview, onPageCh
             <button
               onClick={() => onPageChange(pagination.page - 1)}
               disabled={pagination.page === 1}
-              className="p-2 rounded-md border border-ink text-ink-mute hover:border-ink hover:text-ink disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-            >
+              className="p-2 rounded-md border border-ink text-ink-mute hover:border-ink hover:text-ink disabled:opacity-30 disabled:cursor-not-allowed transition-colors" aria-label="Trang trước">
               <ChevronLeft size={18} />
             </button>
             <button
               onClick={() => onPageChange(pagination.page + 1)}
               disabled={pagination.page === pagination.totalPages}
-              className="p-2 rounded-md border border-ink text-ink-mute hover:border-ink hover:text-ink disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-            >
+              className="p-2 rounded-md border border-ink text-ink-mute hover:border-ink hover:text-ink disabled:opacity-30 disabled:cursor-not-allowed transition-colors" aria-label="Trang sau">
               <ChevronRight size={18} />
             </button>
           </div>

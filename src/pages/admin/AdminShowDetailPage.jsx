@@ -139,7 +139,7 @@ const AdminShowDetailPage = () => {
   if (apiError || !data) {
     return (
       <div className="min-h-screen bg-page flex flex-col items-center justify-center text-ink">
-        <h1 className="text-2xl font-bold text-ink mb-4">{apiError || 'Không tìm thấy buổi diễn'}</h1>
+        <h1 className="text-4xl text-ink mb-4">{apiError || 'Không tìm thấy buổi diễn'}</h1>
         <Link to="/admin/shows" className="text-ink hover:text-ink flex items-center gap-2 font-medium"><ArrowLeft size={18} /> Quay lại danh sách</Link>
       </div>
     )

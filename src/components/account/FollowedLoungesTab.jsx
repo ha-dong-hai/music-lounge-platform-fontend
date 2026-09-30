@@ -93,7 +93,7 @@ const FollowedLoungesTab = () => {
     <div className="bg-card border border-line p-6 md:p-8">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
-          <h2 className="text-xl font-bold text-ink">Phòng trà đang theo dõi</h2>
+          <h2 className="text-xl text-ink">Phòng trà đang theo dõi</h2>
           {!isLoadingLounges && (
             <span className="px-2.5 py-1 bg-ink/10 border border-ink/25 text-ink text-xs font-bold">
               {followedLounges.length}

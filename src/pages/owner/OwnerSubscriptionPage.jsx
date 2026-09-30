@@ -20,6 +20,7 @@ import {
   cancelSubscription,
 } from '../../services/packageServices'
 import { ghiNhoThanhToan, LOAI_THANH_TOAN } from '../../utils/paymentContext'
+import NutXacNhan from '../../components/shared/NutXacNhan'
 
 const fmtMoney = (v) => `${Number(v || 0).toLocaleString('vi-VN')}đ`
 
@@ -96,7 +97,7 @@ const OwnerSubscriptionPage = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-ink mb-1">Gói dịch vụ</h1>
+        <h1 className="text-4xl text-ink mb-1">Gói dịch vụ</h1>
         <p className="text-ink-soft text-sm">Gói quyết định số vé tối đa mỗi buổi diễn, quyền dùng poster AI và số cảnh tour 360°.</p>
       </div>
 
@@ -107,7 +108,7 @@ const OwnerSubscriptionPage = () => {
             <div>
               <div className="flex items-center gap-2 mb-1">
                 <Package size={18} className="text-ink" />
-                <h2 className="text-lg font-bold text-ink">{current.packageName}</h2>
+                <h2 className="text-3xl text-ink">{current.packageName}</h2>
                 <span className={`px-2 py-0.5 text-xs font-bold border ${current.status === 'Active'
                   ? 'bg-success/10 text-success border-success/30'
                   : 'bg-line-strong/10 text-ink-soft border-line-strong/30'
@@ -135,13 +136,14 @@ const OwnerSubscriptionPage = () => {
                 {busy === 'renew' ? 'Đang chuyển...' : 'Gia hạn'}
               </button>
               {!current.cancelledAt && (
-                <button
-                  onClick={handleCancel}
+                <NutXacNhan
+                  onXacNhan={handleCancel} tieuDe="Huỷ gia hạn gói dịch vụ?" nhanXacNhan="Huỷ gia hạn" nhanGiu="Không, giữ gia hạn"
+            noiDung="Gói vẫn dùng được tới hết kỳ đã trả. Sau mốc đó gói hết hiệu lực; muốn dùng tiếp thì đăng ký lại."
                   disabled={!!busy}
                   className="px-4 py-2 border border-line text-ink-soft text-sm font-bold hover:bg-sunken disabled:opacity-50"
                 >
                   Huỷ gia hạn
-                </button>
+                </NutXacNhan>
               )}
             </div>
           </div>
@@ -202,7 +204,7 @@ const OwnerSubscriptionPage = () => {
 
       {/* === DANH SÁCH GÓI === */}
       <div>
-        <h2 className="text-sm font-semibold text-ink-soft mb-3">Các gói đang mở bán</h2>
+        <h2 className="font-sans font-bold text-sm text-ink-soft mb-3">Các gói đang mở bán</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {packages.map((p) => {
             const isCurrent = current?.packageId === p.id

@@ -68,7 +68,7 @@ const ShowAnalyticsSection = ({ showId }) => {
   if (!perf && !trend && !forecast) {
     return (
       <div className="bg-card border border-line p-6">
-        <h2 className="text-lg font-semibold text-ink flex items-center gap-2">
+        <h2 className="text-3xl text-ink flex items-center gap-2">
           <TrendingUp size={18} className="text-ink" /> Thống kê
         </h2>
         <p className="text-sm text-ink-mute mt-2">Chưa có số liệu cho buổi diễn này.</p>
@@ -84,7 +84,7 @@ const ShowAnalyticsSection = ({ showId }) => {
       {/* LƯỢT XEM & CHUYỂN ĐỔI */}
       {perf && (
         <div className="bg-card border border-line p-6">
-          <h2 className="text-lg font-semibold text-ink flex items-center gap-2 mb-4">
+          <h2 className="text-3xl text-ink flex items-center gap-2 mb-4">
             <TrendingUp size={18} className="text-ink" /> Lượt xem &amp; chuyển đổi
           </h2>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
@@ -109,7 +109,7 @@ const ShowAnalyticsSection = ({ showId }) => {
       {trend && (
         <div className="bg-card border border-line p-6">
           <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
-            <h2 className="text-lg font-semibold text-ink flex items-center gap-2">
+            <h2 className="text-3xl text-ink flex items-center gap-2">
               <LineChart size={18} className="text-ink" /> Tiến độ bán vé
             </h2>
             <div className="text-right">
@@ -157,7 +157,7 @@ const ShowAnalyticsSection = ({ showId }) => {
       {/* DỰ BÁO — KHỐI RIÊNG, ghi nhãn rõ để không lẫn với số đã bán */}
       {forecast && (
         <div className="bg-card border border-dashed border-line p-6">
-          <h2 className="text-lg font-semibold text-ink flex items-center gap-2">
+          <h2 className="text-3xl text-ink flex items-center gap-2">
             <Sparkles size={18} className="text-ink-soft" /> Dự báo nhu cầu
           </h2>
           <p className="text-xs text-warning/90 mt-1 flex items-start gap-1.5 leading-relaxed">
