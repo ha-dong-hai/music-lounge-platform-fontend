@@ -9,7 +9,7 @@ import { FormatBadge } from './ShowBadges'
 
 // Vòng tròn điểm AI (0 -> 100)
 const AIScoreCircle = ({ score }) => {
-  if (score === null || score === undefined) return <div className="text-ink-mute text-sm">N/A</div>
+  if (score === null || score === undefined) return <div className="text-ink-mute text-sm">Chưa chấm</div>
   const numScore = Math.round(score * 100)
   const colorClass = numScore >= 70 ? 'border-success text-success' : numScore >= 40 ? 'border-warning text-warning' : 'border-danger text-danger'
   return (

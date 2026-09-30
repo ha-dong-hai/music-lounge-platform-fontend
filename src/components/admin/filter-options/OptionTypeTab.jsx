@@ -132,7 +132,7 @@ const OptionTypeTab = ({ typeKey, typeLabel, hasNameEn, hasDescription, hasIsAct
                 <th scope="col" className="p-4 text-sm font-semibold text-ink w-24">ID</th>
                 <th scope="col" className="p-4 text-sm font-semibold text-ink">Tên</th>
                 {hasNameEn && (
-                  <th scope="col" className="p-4 text-sm font-semibold text-ink">Name (EN)</th>
+                  <th scope="col" className="p-4 text-sm font-semibold text-ink">Tên tiếng Anh</th>
                 )}
                 {hasDescription && (
                   <th scope="col" className="p-4 text-sm font-semibold text-ink">Mô tả</th>

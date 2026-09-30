@@ -68,7 +68,7 @@ const BankAccountsTable = ({ accounts, isLoading, pagination, onReview, onPageCh
                   </td>
                   <td className="p-4">
                     <div className="flex flex-wrap gap-1.5">
-                      <SignalBadge ok={acc.holderNameMatches} okText="Name match" badText="Name mismatch" title={`"${acc.accountHolder}" vs "${acc.expectedAccountHolder}"`} />
+                      <SignalBadge ok={acc.holderNameMatches} okText="Khớp tên" badText="Lệch tên" title={`Chủ tài khoản "${acc.accountHolder}" — tên phải khớp "${acc.expectedAccountHolder}"`} />
                       <SignalBadge ok={acc.ownerIdentityApproved} okText="Đã định danh" badText="Chưa định danh" title="Định danh chủ phòng trà đã được duyệt" />
                       <SignalBadge ok={!acc.accountNumberUnreadable} okText="Đọc được số" badText="Không đọc được số" title="Máy đọc được số tài khoản" />
                     </div>

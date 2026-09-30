@@ -5,7 +5,7 @@ import dayjs from 'dayjs'
 import { Link } from 'react-router-dom'
 import { Music2, TrendingUp } from 'lucide-react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts'
-import { SURFACE, GRID, AXIS_TEXT, CURSOR, SOURCES, fmtMoney, fmtCompact } from './chartTokens'
+import { SURFACE, GRID, AXIS_TEXT, CURSOR, SOURCES, fmtMoney, fmtCompact, fmtTienGon } from './chartTokens'
 
 const monthLabel = (m) => dayjs(`${m}-01`).format('MM/YYYY')
 
@@ -130,7 +130,8 @@ export const RevenueShareDonut = ({ month, measure }) => {
         {/* Tổng ở giữa doughnut — kiểu cũ */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none">
           <p className="text-xs text-ink-mute">Tổng</p>
-          <p className="text-lg font-bold text-ink">{fmtCompact(total)}đ</p>
+          <p className="text-lg font-bold text-ink tabular-nums leading-tight">{fmtTienGon(total).split(' ')[0]}</p>
+          <p className="text-xs text-ink-mute">{fmtTienGon(total).split(' ').slice(1).join(' ')}</p>
         </div>
       </div>
 
@@ -213,7 +214,7 @@ export const GenreTrendingList = ({ genres }) => {
             </div>
             <div className="flex items-center gap-1 text-xs font-medium text-ink-soft tabular-nums">
               <TrendingUp size={12} className="text-success" />
-              {g.ticketsSold.toLocaleString('vi-VN')} vé · {g.showCount} show
+              {g.ticketsSold.toLocaleString('vi-VN')} vé · {g.showCount} buổi diễn
             </div>
           </div>
           <div className="w-full h-1.5 bg-sunken overflow-hidden">

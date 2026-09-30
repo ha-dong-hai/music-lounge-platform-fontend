@@ -42,6 +42,10 @@
   --color-lamp-mute: #B3A899;     /* chữ phụ trên khối tối */
   --color-stamp: #9B2A23;         /* đỏ son trầm, dấu mộc — CHỈ trạng thái tiền: giữ hộ, đã hoàn, đã quyết toán */
   --color-ember: #C9A45C;         /* vàng thếp — CHỈ buổi đang diễn; ánh kim chỉ dùng cho chi tiết nhỏ, không làm mảng lớn */
+  /* Chuỗi 2 và 3 của biểu đồ nhiều nguồn (01/10/2026): độ đậm trung gian của mực. ink-mute và lamp-mute có sẵn thì
+     lamp-mute chỉ 2,2:1 trên nền thẻ, không đạt WCAG 1.4.11 (>= 3:1) cho đồ hoạ. Đo: 5,9 và 3,1 : 1. */
+  --color-chart-2: #6E5E50;
+  --color-chart-3: #9A8B7C;
 
   --font-sans: 'Be Vietnam Pro', ui-sans-serif, system-ui, sans-serif;
   --font-display: 'Anton', 'Be Vietnam Pro', sans-serif;

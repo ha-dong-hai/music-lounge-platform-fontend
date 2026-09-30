@@ -66,9 +66,9 @@ const OptionFormModal = ({ isOpen, typeLabel, hasNameEn, hasDescription, editing
                 <form id="option-form" onSubmit={handleSubmit} className="p-5 space-y-5">
                     <div>
                         <label className="block text-sm font-medium text-ink-soft mb-2">
-                            Name (Vietnamese) <span className="text-danger">*</span>
+                            Tên (tiếng Việt) <span className="text-danger">*</span>
                         </label>
-                        <input aria-label="Name (Vietnamese)"
+                        <input aria-label="Tên (tiếng Việt)"
                             type="text"
                             value={formData.name}
                             onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
@@ -98,13 +98,13 @@ const OptionFormModal = ({ isOpen, typeLabel, hasNameEn, hasDescription, editing
                     {hasNameEn && (
                         <div>
                             <label className="block text-sm font-medium text-ink-soft mb-2">
-                                Name (English) <span className="text-ink-mute text-xs">(không bắt buộc)</span>
+                                Tên tiếng Anh <span className="text-ink-mute text-xs">(không bắt buộc)</span>
                             </label>
-                            <input aria-label="Name (English) (không bắt buộc)"
+                            <input aria-label="Tên tiếng Anh (không bắt buộc)"
                                 type="text"
                                 value={formData.nameEn}
                                 onChange={(e) => setFormData(prev => ({ ...prev, nameEn: e.target.value }))}
-                                placeholder="E.g. Ballad"
+                                placeholder="Ví dụ: Ballad"
                                 className={inputCls}
                             />
                         </div>
