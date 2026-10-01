@@ -12,7 +12,6 @@
 // đi là không còn đường bật lại. Đường /admin trả cả mục đã tắt, nên bật lại được.
 import { useState, useEffect, useCallback } from 'react'
 import { Loader2 } from 'lucide-react'
-import toast from 'react-hot-toast'
 import { getFilterOptions } from '../../services/showServices' //  TÁI DÙNG service sẵn có
 import { getAdminEventCategories, getAdminGenres } from '../../services/adminServices'
 import OptionTypeTab from '../../components/admin/filter-options/OptionTypeTab'
@@ -29,11 +28,14 @@ const TABS = [
 const AdminFilterOptionsPage = () => {
   const [activeTab, setActiveTab] = useState('genres')
   const [options, setOptions] = useState({ genres: [], moods: [], atmospheres: [], cities: [], eventCategories: [] })
+  // Loại nào tải lỗi (01/10/2026): bản cũ bật toast rồi tab đó báo 'Chưa có … nào' — Admin tưởng danh mục bị xoá.
+  const [loaiLoi, setLoaiLoi] = useState({})
   const [isLoading, setIsLoading] = useState(true)
 
   // BA NGUỒN, GỌI SONG SONG VÀ ĐỘC LẬP: một cái lỗi chỉ làm trống tab của nó, không trắng cả trang.
   const fetchOptions = useCallback(async () => {
     setIsLoading(true)
+    setLoaiLoi({})
     const [loc, theLoai, loai] = await Promise.allSettled([
       getFilterOptions(), getAdminGenres(), getAdminEventCategories(),
     ])
@@ -49,19 +51,19 @@ const AdminFilterOptionsPage = () => {
         cities: d.cities || [],
       }))
     } else {
-      toast.error('Không tải được danh mục bộ lọc.')
+      setLoaiLoi((p) => ({ ...p, moods: true, atmospheres: true }))
     }
 
     if (theLoai.status === 'fulfilled' && theLoai.value?.success) {
       setOptions((prev) => ({ ...prev, genres: theLoai.value.data || [] }))
     } else {
-      toast.error('Không tải được danh sách thể loại nhạc.')
+      setLoaiLoi((p) => ({ ...p, genres: true }))
     }
 
     if (loai.status === 'fulfilled' && loai.value?.success) {
       setOptions((prev) => ({ ...prev, eventCategories: loai.value.data || [] }))
     } else {
-      toast.error('Không tải được danh sách loại buổi diễn.')
+      setLoaiLoi((p) => ({ ...p, eventCategories: true }))
     }
 
     setIsLoading(false)
@@ -121,6 +123,7 @@ const AdminFilterOptionsPage = () => {
             hasDescription={tab.hasDescription}
             hasIsActive={tab.hasIsActive}
             options={options[tab.key]}
+            loi={!!loaiLoi[tab.key]}
             onRefresh={fetchOptions}
           />
         ))

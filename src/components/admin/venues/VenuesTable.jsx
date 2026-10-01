@@ -1,4 +1,4 @@
-import { Loader2, ChevronLeft, ChevronRight, Building2, FileText, ShieldAlert } from 'lucide-react'
+import { Loader2, Building2, FileText, ShieldAlert } from 'lucide-react'
 import dayjs from 'dayjs'
 import { VenueStatusBadge, LicenseBadge } from './VenueBadges'
 import { anhChuCai } from '../../../utils/anhChuCai'
@@ -6,7 +6,7 @@ import { anhChuCai } from '../../../utils/anhChuCai'
 // Component thuần UI: nhận data đã lọc + callbacks từ cha.
 // `onViewDossier` mở HỒ SƠ ĐÃ NỘP. Bản trước nút này là <Link to={`/lounge/{id}`}> mở thẳng trang
 // giới thiệu công khai — xem mục "VÌ SAO CÓ FILE NÀY" trong VenueDossierModal.jsx.
-const VenuesTable = ({ venues, isLoading, pagination, onPageChange, onViewDossier, onReview, onPenalize }) => {
+const VenuesTable = ({ venues, isLoading, onViewDossier, onReview, onPenalize }) => {
   return (
     <div className="bg-card border border-line overflow-hidden">
       <div className="overflow-x-auto">
@@ -109,28 +109,6 @@ const VenuesTable = ({ venues, isLoading, pagination, onPageChange, onViewDossie
         </table>
       </div>
 
-      {/* PAGINATION */}
-      {!isLoading && venues.length > 0 && (
-        <div className="flex items-center justify-between p-4 border-t border-line">
-          <p className="text-sm text-ink-mute">
-            Trang {pagination.page} / {pagination.totalPages} (Tổng: {pagination.totalCount} phòng trà)
-          </p>
-          <div className="flex gap-2">
-            <button
-              onClick={() => onPageChange(pagination.page - 1)}
-              disabled={pagination.page === 1}
-              className="inline-flex items-center justify-center w-11 h-11 flex-shrink-0 border border-line text-ink-soft hover:border-ink hover:text-ink disabled:opacity-30 disabled:cursor-not-allowed transition-colors" aria-label="Trang trước">
-              <ChevronLeft size={18} />
-            </button>
-            <button
-              onClick={() => onPageChange(pagination.page + 1)}
-              disabled={pagination.page === pagination.totalPages}
-              className="inline-flex items-center justify-center w-11 h-11 flex-shrink-0 border border-line text-ink-soft hover:border-ink hover:text-ink disabled:opacity-30 disabled:cursor-not-allowed transition-colors" aria-label="Trang sau">
-              <ChevronRight size={18} />
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   )
 }

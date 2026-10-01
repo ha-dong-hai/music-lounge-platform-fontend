@@ -8,7 +8,13 @@
 //   hai thứ đó — đừng hiểu nhầm là tìm trên mọi khiếu nại.
 // - Backend GHI LOG mỗi lần gọi (mã Admin + bộ lọc) vì dữ liệu gồm số điện thoại người khiếu nại.
 //   Chỉ tải lại khi đổi trang hoặc đổi trạng thái, không tải nền.
-import { useState, useEffect, useMemo } from 'react'
+// - 01/10/2026: chuyển sang khung danh sách chung (hooks/useDanhSachMayChu + PhanTrang + KhungTai): trạng thái + trang lên
+//   URL; tải lỗi thì báo "chưa tải được" (bản cũ toast rồi bảng trống); xử lý xong khiếu nại thì TẢI LẠI THẬT (bản cũ
+//   chỉ đặt page=1 — đang ở trang 1 thì không đổi gì, khiếu nại vừa xử lý vẫn hiện trạng thái cũ); đổi bộ lọc gọi API
+//   MỘT lần (bản cũ hai lần vì một effect đặt lại trang). Tìm kiếm + loại vấn đề vẫn lọc trong trang cho tới khi backend
+//   có keyword (T-BE-12).
+import { useState, useMemo } from 'react'
+import { parseAsStringLiteral } from 'nuqs'
 import dayjs from 'dayjs'
 import toast from 'react-hot-toast'
 import { getComplaintHistory } from '../../services/adminServices'
@@ -17,72 +23,36 @@ import ComplaintsFilterBar from '../../components/admin/complaints/ComplaintsFil
 import ComplaintsTable from '../../components/admin/complaints/ComplaintsTable'
 import ComplaintDetailModal from '../../components/admin/complaints/ComplaintDetailModal'
 import ResolveComplaintModal from '../../components/admin/complaints/ResolveComplaintModal'
+import { useDanhSachMayChu } from '../../hooks/useDanhSachMayChu'
+import PhanTrang from '../../components/bang/PhanTrang'
+import KhungTai from '../../components/bang/KhungTai'
 
+const BO_LOC = { trangThai: parseAsStringLiteral(Object.keys(STATUS_CONFIG)) }
+const goiKhieuNai = ({ trangThai, ...q }) => getComplaintHistory({ ...q, status: trangThai ? [trangThai] : undefined })
 
 const AdminComplaintPage = () => {
-    const [complaints, setComplaints] = useState([])
-    const [isLoading, setIsLoading] = useState(true)
-    const [pagination, setPagination] = useState({ page: 1, totalPages: 1, totalCount: 0 })
+    const ds = useDanhSachMayChu({ khoa: ['admin-khieu-nai'], goi: goiKhieuNai, boLoc: BO_LOC, coMacDinh: 20 })
+    const statusFilter = ds.boLoc.trangThai ?? 'all'
+    const setStatusFilter = (v) => ds.datBoLoc({ trangThai: v === 'all' ? null : v })
 
-    // status lọc phía server; tìm kiếm + danh mục lọc trong trang hiện tại (BE không có tham số cho chúng)
+    // tìm kiếm + danh mục lọc trong trang hiện tại (BE không có tham số cho chúng)
     const [searchQuery, setSearchQuery] = useState('')
     const [categoryFilter, setCategoryFilter] = useState('all')
-    const [statusFilter, setStatusFilter] = useState('all')
 
     const [selectedComplaint, setSelectedComplaint] = useState(null)
     const [resolvingComplaint, setResolvingComplaint] = useState(null)
 
-    // 1. FETCH (phân trang + lọc trạng thái phía server)
-    // statusFilter PHẢI nằm trong deps: đang ở trang 1 mà đổi trạng thái thì page vẫn là 1, nếu chỉ
-    // phụ thuộc page thì effect không chạy lại và bộ lọc không có tác dụng.
-    // Cờ `cancelled`: đổi trạng thái khi đang ở trang 3 sẽ bắn hai request (trang 3 rồi trang 1);
-    // bỏ kết quả của request cũ để nó về trễ cũng không ghi đè danh sách đúng.
-    useEffect(() => {
-        let cancelled = false
-        const fetchComplaints = async () => {
-            setIsLoading(true)
-            try {
-                const res = await getComplaintHistory({
-                    page: pagination.page,
-                    pageSize: 10,
-                    status: statusFilter === 'all' ? undefined : [statusFilter],
-                })
-                if (!cancelled && res.success) {
-                    setComplaints(res.data.items)
-                    setPagination(prev => ({ ...prev, totalPages: res.data.totalPages, totalCount: res.data.totalCount }))
-                }
-            } catch (err) {
-                if (cancelled) return
-                console.error('Error loading complaints:', err)
-                // 422 = tên trạng thái sai; message của backend liệt kê giá trị hợp lệ nên hiện thẳng.
-                toast.error(err?.response?.data?.message || 'Không tải được danh sách khiếu nại.')
-            } finally {
-                if (!cancelled) setIsLoading(false)
-            }
-        }
-        fetchComplaints()
-        return () => { cancelled = true }
-    }, [pagination.page, statusFilter])
-
-    // 2. ĐỔI FILTER → VỀ TRANG 1
-    useEffect(() => {
-        setPagination(prev => ({ ...prev, page: 1 }))
-    }, [searchQuery, categoryFilter, statusFilter])
-
-    // 3. FILTER CLIENT-SIDE trong trang hiện tại
     const filteredComplaints = useMemo(() => {
         const q = searchQuery.toLowerCase().trim()
-        return complaints.filter(c => {
+        return ds.items.filter(c => {
             const matchSearch = !q ||
                 String(c.id).includes(q) ||
                 (c.description || '').toLowerCase().includes(q) ||
                 (c.contactPhone || '').includes(q)
-
             const matchCategory = categoryFilter === 'all' || c.category === categoryFilter
-
             return matchSearch && matchCategory
         })
-    }, [complaints, searchQuery, categoryFilter])
+    }, [ds.items, searchQuery, categoryFilter])
 
     // 4. EXPORT CSV các dòng đã lọc
     const handleExportCSV = () => {
@@ -106,7 +76,7 @@ const AdminComplaintPage = () => {
         const url = URL.createObjectURL(blob)
         const a = document.createElement('a')
         a.href = url
-        a.download = `complaints_page${pagination.page}_${dayjs().format('YYYYMMDD_HHmm')}.csv`
+        a.download = `khieu-nai_trang${ds.trang}_${dayjs().format('YYYYMMDD_HHmm')}.csv`
         a.click()
         URL.revokeObjectURL(url)
         toast.success('Đã xuất tệp CSV.')
@@ -130,13 +100,17 @@ const AdminComplaintPage = () => {
             />
 
             {/* TABLE */}
-            <ComplaintsTable
-                complaints={filteredComplaints}
-                isLoading={isLoading}
-                pagination={pagination}
-                onViewDetail={setSelectedComplaint}
-                onPageChange={(page) => setPagination(prev => ({ ...prev, page }))}
-            />
+            <KhungTai loi={ds.loi} taiLai={ds.taiLai} tenVung="danh sách khiếu nại">
+                <div className="space-y-3">
+                    <PhanTrang ds={ds} tenDonVi="khiếu nại" idDanhSach="bang-khieu-nai" />
+                    <ComplaintsTable
+                        complaints={filteredComplaints}
+                        isLoading={ds.dangTai}
+                        onViewDetail={setSelectedComplaint}
+                    />
+                    {ds.soTrang > 1 && <PhanTrang ds={ds} tenDonVi="khiếu nại" idDanhSach="bang-khieu-nai" />}
+                </div>
+            </KhungTai>
 
             {/* MODAL */}
             {selectedComplaint && (
@@ -151,7 +125,7 @@ const AdminComplaintPage = () => {
                 <ResolveComplaintModal
                     complaint={resolvingComplaint}
                     onClose={() => setResolvingComplaint(null)}
-                    onSaved={() => setPagination((prev) => ({ ...prev, page: 1 }))}
+                    onSaved={() => ds.taiLai()}
                 />
             )}
         </div>

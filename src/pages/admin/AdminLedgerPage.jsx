@@ -14,6 +14,7 @@ const AdminLedgerPage = () => {
 
   const [jobs, setJobs] = useState([])
   const [isLoadingJobs, setIsLoadingJobs] = useState(true)
+  const [loiJobs, setLoiJobs] = useState(false)
   const [jobXacNhan, setJobXacNhan] = useState(null)
   const [isTriggering, setIsTriggering] = useState(false)
 
@@ -40,11 +41,14 @@ const AdminLedgerPage = () => {
   // 2. TẢI DANH SÁCH JOB
   const taiJobs = useCallback(async () => {
     setIsLoadingJobs(true)
+    setLoiJobs(false)
     try {
       const res = await getRecurringJobs()
-      if (res.success) setJobs(res.data ?? [])
-    } catch (err) {
-      toast.error(err.response?.data?.message || 'Không tải được danh sách tác vụ định kỳ.')
+      if (!res.success) throw new Error('jobs')
+      setJobs(res.data ?? [])
+    } catch {
+      // Bản cũ: toast rồi danh sách tác vụ trống như thể hệ thống không có tác vụ nào.
+      setLoiJobs(true)
     } finally {
       setIsLoadingJobs(false)
     }
@@ -97,6 +101,8 @@ const AdminLedgerPage = () => {
       <RecurringJobsCard
         jobs={jobs}
         isLoading={isLoadingJobs}
+        loi={loiJobs}
+        taiLai={taiJobs}
         isTriggering={isTriggering}
         onTrigger={setJobXacNhan}
       />

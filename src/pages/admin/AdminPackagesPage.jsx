@@ -6,10 +6,14 @@ import { getPackages, createPackage, updatePackage } from '../../services/packag
 import { PackageCard, HiddenPackageCard } from '../../components/admin/packages/PackageCard'
 import PackageFormModal from '../../components/admin/packages/PackageFormModal'
 import ConfirmModal from '../../components/shared/ConfirmModal'
+import { TrangLoiTai } from '../../components/bang/KhungTai'
 
 const AdminPackagesPage = () => {
   const [packages, setPackages] = useState([])
   const [isLoading, setIsLoading] = useState(true)
+  // Lỗi tải: bản cũ bật toast rồi vẽ 'chưa có gói nào' (01/10/2026).
+  const [loiTai, setLoiTai] = useState(false)
+  const [lanTai, setLanTai] = useState(0)
 
   const [confirmPkg, setConfirmPkg] = useState(null) // package sắp hide/unhide
 
@@ -22,19 +26,19 @@ const AdminPackagesPage = () => {
   useEffect(() => {
     const fetchPackages = async () => {
       setIsLoading(true)
+      setLoiTai(false)
       try {
         const res = await getPackages(false) // Lấy tất cả kể cả bị ẩn
-        if (res.success) {
-          setPackages(res.data)
-        }
+        if (!res.success) throw new Error('packages')
+        setPackages(res.data)
       } catch {
-        toast.error('Không tải được danh sách gói.')
+        setLoiTai(true)
       } finally {
         setIsLoading(false)
       }
     }
     fetchPackages()
-  }, [])
+  }, [lanTai])
 
   // 2. MỞ MODAL
   const openCreateModal = () => {
@@ -145,6 +149,8 @@ const AdminPackagesPage = () => {
       </div>
     )
   }
+
+  if (loiTai) return <TrangLoiTai tieuDe="Gói dịch vụ" tenVung="danh sách gói dịch vụ" taiLai={() => setLanTai((n) => n + 1)} />
 
   // ===== EMPTY: chưa có gói nào cả =====
   if (packages.length === 0) {

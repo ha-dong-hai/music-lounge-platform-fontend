@@ -1,5 +1,6 @@
 // src/components/admin/ledger/RecurringJobsCard.jsx
 import { Loader2, Clock, Play, ExternalLink } from 'lucide-react'
+import KhungTai from '../../bang/KhungTai'
 
 // Id job của Hangfire là mã kỹ thuật — chỉ bỏ dấu gạch cho đọc được, KHÔNG dịch
 // (id là thứ duy nhất khớp với log + dashboard Hangfire)
@@ -44,7 +45,7 @@ const tenDocDuoc = (jobId) => TEN_TAC_VU[jobId] ?? jobId
  * @param {boolean} isTriggering - đang chạy 1 job → khóa toàn bộ nút
  * @param {function} onTrigger - (jobId) — page mở ConfirmModal
  */
-const RecurringJobsCard = ({ jobs, isLoading, isTriggering, onTrigger }) => (
+const RecurringJobsCard = ({ jobs, isLoading, isTriggering, onTrigger, loi, taiLai }) => (
   <div>
     <h2 className="font-sans font-bold text-sm text-ink-soft flex items-center gap-2">
       <Clock size={15} /> Tác vụ định kỳ
@@ -57,6 +58,8 @@ const RecurringJobsCard = ({ jobs, isLoading, isTriggering, onTrigger }) => (
       <div className="bg-card border border-line py-12 flex justify-center">
         <Loader2 size={22} className="animate-spin text-ink" />
       </div>
+    ) : loi ? (
+      <KhungTai loi tenVung="danh sách tác vụ định kỳ" taiLai={taiLai} />
     ) : jobs.length === 0 ? (
       <div className="bg-card border border-line p-6">
         <p className="text-sm text-ink-mute">Không có tác vụ định kỳ nào đang đăng ký.</p>

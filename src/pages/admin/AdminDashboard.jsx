@@ -8,6 +8,7 @@ import dayjs from 'dayjs'
 import { getPlatformAnalytics, getAdminOverview, getRecommenderEvaluation, getAdminDashboard } from '../../services/analyticsServices'
 import { RevenueByMonthChart, RevenueShareDonut, TopShowsTable, GenreTrendingList } from '../../components/admin/dashboard/DashboardCharts'
 import NhomTab from '../../components/bang/NhomTab'
+import KhungTai from '../../components/bang/KhungTai'
 
 const fmtMoney = (v) => `${Number(v || 0).toLocaleString('vi-VN')}đ`
 
@@ -58,6 +59,9 @@ const AdminDashboard = () => {
   const [dashboard, setDashboard] = useState(null)
   const [measure, setMeasure] = useState('platformRevenue')
   const [isLoading, setIsLoading] = useState(true)
+  // Nguồn số liệu nào lỗi (01/10/2026): bản cũ chỉ báo khi có ngoại lệ — một nguồn lỗi thì thẻ của nó lặng lẽ thiếu.
+  const [nguonLoi, setNguonLoi] = useState([])
+  const [lanTai, setLanTai] = useState(0)
 
   useEffect(() => {
     const fetchAll = async () => {
@@ -78,6 +82,7 @@ const AdminDashboard = () => {
         if (pRes.success) setPlatform(pRes.data)
         if (oRes.success) setOverview(oRes.data)
         if (rRes.success) setRecommender(rRes.data)
+        setNguonLoi(['doanh thu nền tảng', 'tổng quan trong kỳ', 'đánh giá gợi ý', 'luỹ kế hệ thống'].filter((_, i) => ![pRes, oRes, rRes, dRes][i].success))
       } catch {
         toast.error('Không tải được số liệu thống kê.')
       } finally {
@@ -85,7 +90,7 @@ const AdminDashboard = () => {
       }
     }
     fetchAll()
-  }, [])
+  }, [lanTai])
 
   if (isLoading) {
     return (
@@ -107,6 +112,7 @@ const AdminDashboard = () => {
         <h1 className="text-4xl text-ink mb-1">Tổng quan</h1>
         <p className="text-ink-soft text-sm">Toàn bộ số liệu lấy trực tiếp từ hệ thống, không phải dữ liệu mẫu.</p>
       </div>
+      {nguonLoi.length > 0 && <KhungTai loi tenVung={`phần ${nguonLoi.join(', ')}`} taiLai={() => setLanTai((n) => n + 1)} />}
 
       {/* ===== KỲ HIỆN TẠI (data thật — giữ từ bản mới) ===== */}
       <div>

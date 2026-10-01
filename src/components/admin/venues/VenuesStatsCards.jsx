@@ -17,9 +17,10 @@ const VenuesStatsCards = ({ counts, statusFilter, onSelectStatus }) => {
       value: counts.total,
       icon: <Building2 size={24} className="text-ink" />,
       iconBg: 'bg-ink/10',
-      active: statusFilter === 'all',
-      activeStyle: 'border-ink ring-1 ring-ink',
-      onClick: () => onSelectStatus('all'),
+      // Chỉ để đọc: backend chưa liệt kê được mọi trạng thái cùng lúc (xem AdminVenuesPage).
+      active: false,
+      activeStyle: '',
+      onClick: null,
     },
     {
       key: 'Pending',
@@ -29,7 +30,7 @@ const VenuesStatsCards = ({ counts, statusFilter, onSelectStatus }) => {
       iconBg: 'bg-warning/10',
       active: statusFilter === 'Pending',
       activeStyle: 'border-warning ring-1 ring-warning',
-      onClick: () => onSelectStatus(statusFilter === 'Pending' ? 'all' : 'Pending'),
+      onClick: () => onSelectStatus('Pending'),
     },
     {
       key: 'Approved',
@@ -39,7 +40,7 @@ const VenuesStatsCards = ({ counts, statusFilter, onSelectStatus }) => {
       iconBg: 'bg-success/10',
       active: statusFilter === 'Approved',
       activeStyle: 'border-success ring-1 ring-success',
-      onClick: () => onSelectStatus(statusFilter === 'Approved' ? 'all' : 'Approved'),
+      onClick: () => onSelectStatus('Approved'),
     },
     {
       key: 'problem',
@@ -51,8 +52,7 @@ const VenuesStatsCards = ({ counts, statusFilter, onSelectStatus }) => {
       activeStyle: 'border-danger ring-1 ring-danger',
       // Bấm → chọn status vấn đề đầu tiên có data (hoặc Warned mặc định)
       onClick: () => onSelectStatus(
-        isProblemActive ? 'all'
-          : (PROBLEM_STATUSES.find(s => (counts[s] || 0) > 0) || 'Warned')
+        PROBLEM_STATUSES.find(s => (counts[s] || 0) > 0) || 'Warned'
       ),
     },
   ]
@@ -62,8 +62,11 @@ const VenuesStatsCards = ({ counts, statusFilter, onSelectStatus }) => {
       {cards.map(card => (
         <button
           key={card.key}
-          onClick={card.onClick}
-          className={`bg-card border p-5 flex items-center gap-4 text-left transition-all ${
+          type="button"
+          onClick={card.onClick ?? undefined}
+          disabled={!card.onClick}
+          aria-pressed={card.onClick ? card.active : undefined}
+          className={`bg-card border p-5 flex items-center gap-4 text-left transition-all disabled:cursor-default ${
             card.active ? card.activeStyle : 'border-line hover:border-line'
           }`}
         >

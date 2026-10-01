@@ -11,7 +11,6 @@ const VenuesFilterBar = ({ statusFilter, setStatusFilter }) => {
           onChange={(e) => setStatusFilter(e.target.value)}
           className="px-4 py-2.5 bg-page border border-line text-sm text-ink focus:outline-none focus:border-ink/50 cursor-pointer"
         >
-          <option value="all">Tất cả</option>
           {Object.keys(VENUE_STATUS_CONFIG).map(key => (
             <option key={key} value={key}>{VENUE_STATUS_CONFIG[key].label}</option>
           ))}

@@ -4,9 +4,10 @@ import toast from 'react-hot-toast'
 import { createFilterOption, updateFilterOption, deleteFilterOption } from '../../../services/adminServices'
 import ConfirmModal from '../../shared/ConfirmModal'
 import OptionFormModal from './OptionFormModal'
+import KhungTai from '../../bang/KhungTai'
 
 
-const OptionTypeTab = ({ typeKey, typeLabel, hasNameEn, hasDescription, hasIsActive, options, onRefresh }) => {
+const OptionTypeTab = ({ typeKey, typeLabel, hasNameEn, hasDescription, hasIsActive, options, onRefresh, loi }) => {
   // Loại buổi diễn là loại DUY NHẤT có isActive. Xoá bị backend chặn (409) khi đang có buổi diễn
   // dùng tới, nên "tắt" là cách thật để cho một loại nghỉ hưu.
   // Trang cha đọc qua /admin/event-categories (không lọc mục đã tắt) nên BẬT LẠI ĐƯỢC — trước đây
@@ -106,6 +107,8 @@ const OptionTypeTab = ({ typeKey, typeLabel, hasNameEn, hasDescription, hasIsAct
     if (!hideTarget) return
     await doiTrangThai(hideTarget, false)
   }
+
+  if (loi) return <KhungTai loi tenVung={`danh sách ${typeLabel}`} taiLai={onRefresh} />
 
   return (
     <div className="space-y-4">
