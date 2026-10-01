@@ -29,17 +29,21 @@ const FnbOrderPage = () => {
   const [orders, setOrders] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [busy, setBusy] = useState(null)
+  const [loiDon, setLoiDon] = useState(false)
 
   const loadOrders = async () => {
     if (!user) return
+    setLoiDon(false)
     try {
-      const res = await getMyFnbOrders({ pageSize: 10 })
-      if (res.success) {
-        // API trả đơn của mọi phòng trà — lọc lại đúng phòng đang xem cho đỡ rối.
-        setOrders(res.data.items.filter((o) => String(o.loungeId) === String(loungeId)))
-      }
+      // loungeId (MLACP-500, PR #361, 01/10/2026): lấy ĐÚNG đơn của phòng trà đang ngồi. Bản cũ lấy 10 đơn gần nhất của
+      // MỌI phòng trà rồi lọc — vừa gọi món ở phòng khác thì đơn CHƯA THANH TOÁN ở phòng này biến mất (mất nút Trả online).
+      // Backend chưa có MLACP-500 bỏ qua loungeId → vẫn lọc lại phía trình duyệt; GỠ dòng lọc sau khi #361 deploy.
+      const res = await getMyFnbOrders({ loungeId, pageSize: 10 })
+      if (!res.success) throw new Error('orders')
+      setOrders(res.data.items.filter((o) => String(o.loungeId) === String(loungeId)))
     } catch {
-      // Không chặn cả trang chỉ vì phần lịch sử đơn lỗi.
+      // Không chặn cả trang chỉ vì phần lịch sử đơn lỗi — nhưng phải NÓI là chưa tải được: đơn chưa trả nằm ở đây.
+      setLoiDon(true)
     }
   }
 
@@ -264,6 +268,12 @@ const FnbOrderPage = () => {
             </div>
 
             {/* ĐƠN GẦN ĐÂY */}
+            {loiDon && (
+              <div role="alert" className="border-2 border-ink bg-card p-4 flex flex-wrap items-center gap-3">
+                <p className="text-sm">Chưa tải được đơn gần đây của bạn ở phòng trà này.</p>
+                <button type="button" onClick={loadOrders} className="min-h-[44px] px-4 border-2 border-ink font-semibold hover:bg-ink hover:text-lamp">Thử lại</button>
+              </div>
+            )}
             {orders.length > 0 && (
               <div className="bg-card border border-line p-5">
                 <h2 className="flex items-center gap-2 mb-4">
