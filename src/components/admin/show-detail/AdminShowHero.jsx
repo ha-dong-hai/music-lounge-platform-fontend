@@ -1,3 +1,5 @@
+// src/components/admin/show-detail/AdminShowHero.jsx
+
 import { Link } from 'react-router-dom'
 import { CalendarDays, MapPin, Share2, ArrowLeft, ShieldAlert, AlertTriangle } from 'lucide-react'
 import { FormatBadge, StatusBadge } from '../shows/ShowBadges'

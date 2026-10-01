@@ -1,3 +1,5 @@
+// src/components/admin/venues/VenuesTable.jsx
+
 import { Loader2, ChevronLeft, ChevronRight, Building2, ExternalLink, ShieldCheck } from 'lucide-react'
 import dayjs from 'dayjs'
 import { Link } from 'react-router-dom'

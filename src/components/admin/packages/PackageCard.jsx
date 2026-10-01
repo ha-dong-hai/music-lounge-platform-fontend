@@ -1,3 +1,5 @@
+// src/components/admin/packages/PackageCard.jsx
+
 import { Pencil, EyeOff, Ticket, Sparkles, Box, X } from 'lucide-react'
 import { formatCurrency, maNgan } from '../../../utils/format'
 

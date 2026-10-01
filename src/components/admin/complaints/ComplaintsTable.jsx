@@ -1,3 +1,5 @@
+// src/components/admin/complaints/ComplaintsTable.jsx
+
 import { Eye, Loader2, ChevronLeft, ChevronRight, MessageSquareWarning } from 'lucide-react'
 import dayjs from 'dayjs'
 import { CategoryBadge, StatusBadge, TARGET_TYPE_LABELS } from './ComplaintBadges'

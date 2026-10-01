@@ -1,3 +1,4 @@
+// src/pages/lounge/LoungeListPage.jsx
 import { useState, useEffect, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { Search, MapPin, Users, UserPlus, Check, ArrowLeft, Loader2, X, Building2 } from 'lucide-react'

@@ -1,3 +1,5 @@
+// src/components/admin/show-detail/ModerationModal.jsx
+
 import { useState } from 'react'
 import { X, Check, Loader2, ShieldAlert, AlertTriangle } from 'lucide-react'
 import dayjs from 'dayjs'

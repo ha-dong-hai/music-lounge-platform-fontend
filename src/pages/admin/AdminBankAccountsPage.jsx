@@ -1,3 +1,5 @@
+// src/pages/admin/AdminBankAccountsPage.jsx
+
 import { useState, useEffect } from 'react'
 import { Landmark, CheckCircle2, Clock } from 'lucide-react'
 import toast from 'react-hot-toast'

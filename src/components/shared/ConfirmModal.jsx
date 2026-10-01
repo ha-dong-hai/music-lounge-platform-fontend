@@ -1,3 +1,5 @@
+// src/components/shared/ConfirmModal.jsx
+
 import { X, AlertTriangle, Loader2 } from 'lucide-react'
 
 const ConfirmModal = ({

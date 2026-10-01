@@ -1,3 +1,5 @@
+// src/pages/admin/AdminShowsPage.jsx
+
 import { useState } from 'react'
 import { Music, ShieldAlert } from 'lucide-react'
 import AllShowsTab from '../../components/admin/shows/AllShowsTab'

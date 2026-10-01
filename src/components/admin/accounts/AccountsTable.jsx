@@ -1,3 +1,4 @@
+// src/components/admin/accounts/AccountsTable.jsx
 import { Eye, Ban, Unlock, Loader2, ChevronLeft, ChevronRight, Users as UsersIcon } from 'lucide-react'
 import dayjs from 'dayjs'
 import { RoleBadge, StatusBadge } from './Badges'

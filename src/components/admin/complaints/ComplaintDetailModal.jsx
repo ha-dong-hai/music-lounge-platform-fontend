@@ -1,3 +1,5 @@
+// src/components/admin/complaints/ComplaintDetailModal.jsx
+
 import { X, Phone, Paperclip, User, ShieldCheck, Clock } from 'lucide-react'
 import dayjs from 'dayjs'
 import { CategoryBadge, StatusBadge, TARGET_TYPE_LABELS } from './ComplaintBadges'
