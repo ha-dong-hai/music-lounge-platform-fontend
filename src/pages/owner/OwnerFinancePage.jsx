@@ -12,15 +12,18 @@
 //   doanh thu của phòng trà. Màn Donate mới là nơi xử lý việc chuyển tiếp đó.
 // - `pendingSettlement` là tiền đã chốt nhưng CHƯA chuyển: nằm ở trạng thái Scheduled hoặc
 //   PendingReview. Không hiện nó chung một ô với tiền đã nhận.
-import { useState, useEffect, useCallback } from 'react'
+import { parseAsString, parseAsStringLiteral } from 'nuqs'
+import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
 import {
   Loader2, Wallet, Landmark, Clock, CheckCircle2, ArrowRightLeft, Ticket, Heart, Info,
 } from 'lucide-react'
 import dayjs from 'dayjs'
-import toast from 'react-hot-toast'
 import { getMyEarnings, getMyTransactions } from '../../services/userServices'
 import NhomTab from '../../components/bang/NhomTab'
+import KhungTai from '../../components/bang/KhungTai'
+import PhanTrang from '../../components/bang/PhanTrang'
+import { useDanhSachMayChu } from '../../hooks/useDanhSachMayChu'
 
 const fmtTien = (v) => `${Number(v || 0).toLocaleString('vi-VN')}đ`
 
@@ -48,51 +51,31 @@ const TRANG_THAI_QUYET_TOAN = {
   Cancelled: { chu: 'Đã huỷ', mau: 'text-ink-soft bg-line-strong/10' },
 }
 
+// DANH SÁCH GIAO DỊCH (01/10/2026): chuyển sang hooks/useDanhSachMayChu — loại, từ ngày, đến ngày và trang nằm trên URL
+// (?loai=…&tu=…&den=…&trang=…), đổi lọc về trang 1, PhanTrang thay hai nút Trước/Sau. Lỗi tải danh sách nay báo "chưa tải
+// được" — bản cũ vẽ "Không có giao dịch nào khớp bộ lọc" (nói sai khi mất mạng). Tổng quan tải riêng (useQuery), lỗi thì
+// báo kèm Thử lại; danh sách vẫn dùng được và ngược lại.
+const BO_LOC = {
+  loai: parseAsStringLiteral(LOAI.map((l) => l.value).filter(Boolean)),
+  tu: parseAsString.withDefault(''),
+  den: parseAsString.withDefault(''),
+}
+// Ô ngày trả về "YYYY-MM-DD"; backend nhận DateTimeOffset nên gửi nguyên chuỗi là đủ.
+const goiGiaoDich = ({ loai, tu, den, ...q }) => getMyTransactions({ ...q, type: loai || undefined, from: tu || undefined, to: den || undefined })
+const O_NGAY = 'mt-1 min-h-[44px] px-3 bg-card border-2 border-ink text-ink focus:outline-none focus:ring-2 focus:ring-ink'
+
 const OwnerFinancePage = () => {
-  const [earnings, setEarnings] = useState(null)
-  const [rows, setRows] = useState([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [loai, setLoai] = useState('')
-  const [tuNgay, setTuNgay] = useState('')
-  const [denNgay, setDenNgay] = useState('')
-  const [page, setPage] = useState(1)
-  const [totalPages, setTotalPages] = useState(1)
+  const tongQuan = useQuery({
+    queryKey: ['thu-nhap-cua-toi'],
+    queryFn: async () => { const r = await getMyEarnings(); if (!r?.success) throw new Error('earnings'); return r.data },
+  })
+  const earnings = tongQuan.data ?? null
+  const ds = useDanhSachMayChu({ khoa: ['giao-dich-cua-toi'], goi: goiGiaoDich, boLoc: BO_LOC })
+  const { loai, tu: tuNgay, den: denNgay } = ds.boLoc
+  const rows = ds.items
+  const coLoc = Boolean(loai || tuNgay || denNgay)
 
-  const load = useCallback(async () => {
-    setIsLoading(true)
-    // Hai nguồn độc lập: tổng hợp lỗi thì danh sách vẫn phải hiện, và ngược lại.
-    const [e, t] = await Promise.allSettled([
-      getMyEarnings(),
-      getMyTransactions({
-        type: loai || undefined,
-        // Ô ngày trả về "YYYY-MM-DD"; backend nhận DateTimeOffset nên gửi nguyên chuỗi là đủ.
-        from: tuNgay || undefined,
-        to: denNgay || undefined,
-        page,
-        pageSize: 20,
-      }),
-    ])
-    setEarnings(e.status === 'fulfilled' && e.value?.success ? e.value.data : null)
-    if (t.status === 'fulfilled' && t.value?.success) {
-      setRows(t.value.data?.items ?? [])
-      setTotalPages(t.value.data?.totalPages ?? 1)
-    } else {
-      setRows([])
-    }
-    if (e.status !== 'fulfilled' && t.status !== 'fulfilled') {
-      toast.error('Không tải được số liệu tiền.')
-    }
-    setIsLoading(false)
-  }, [loai, tuNgay, denNgay, page])
-
-  useEffect(() => { const chay = async () => { await load() }; chay() }, [load])
-
-  // Đổi bộ lọc thì về trang 1, nếu không sẽ xin trang 5 của một danh sách chỉ còn 2 trang.
-  // Đặt lại ngay trong handler chứ không trong useEffect: đặt state trong thân effect gây render
-  // lặp và gọi API hai lượt cho mỗi lần đổi lọc.
-  const doiLoc = (fn) => { fn(); setPage(1) }
-
-  if (isLoading && !earnings && rows.length === 0) {
+  if (tongQuan.isPending && ds.dangTai) {
     return <div className="py-20 flex justify-center"><Loader2 size={32} className="animate-spin text-ink" /></div>
   }
 
@@ -133,10 +116,10 @@ const OwnerFinancePage = () => {
             </p>
           </div>
         </div>
+      ) : tongQuan.isPending ? (
+        <div className="h-28 bg-ink/5 animate-pulse" aria-busy="true" aria-label="Đang tải tổng quan tiền" />
       ) : (
-        <div className="bg-card border border-warning/30 p-5">
-          <p className="text-sm text-ink-soft">Không tải được phần tổng quan. Danh sách giao dịch bên dưới vẫn đúng.</p>
-        </div>
+        <KhungTai loi tenVung="phần tổng quan (danh sách giao dịch bên dưới vẫn đúng)" taiLai={tongQuan.refetch} />
       )}
 
       {/* QUYẾT TOÁN GẦN ĐÂY */}
@@ -186,32 +169,29 @@ const OwnerFinancePage = () => {
 
         {/* BỘ LỌC */}
         <div className="mt-4 flex flex-wrap items-end gap-3">
-          <NhomTab nhan="Lọc theo loại khoản" dangChon={loai} cacTab={LOAI.map((l) => ({ khoa: l.value, nhan: l.label }))}
-            onChon={(v) => doiLoc(() => setLoai(v))} />
-          <div>
-            <label className="text-xs text-ink-mute block">Từ ngày</label>
-            <input aria-label="Từ ngày" type="date" value={tuNgay} onChange={(e) => doiLoc(() => setTuNgay(e.target.value))}
-              className="mt-1 px-3 py-1.5 bg-page border border-line text-sm text-ink" />
-          </div>
-          <div>
-            <label className="text-xs text-ink-mute block">Đến ngày</label>
-            <input aria-label="Đến ngày" type="date" value={denNgay} onChange={(e) => doiLoc(() => setDenNgay(e.target.value))}
-              className="mt-1 px-3 py-1.5 bg-page border border-line text-sm text-ink" />
-          </div>
-          {(tuNgay || denNgay || loai) && (
-            <button onClick={() => doiLoc(() => { setLoai(''); setTuNgay(''); setDenNgay('') })}
+          <NhomTab nhan="Lọc theo loại khoản" dangChon={loai ?? ''} cacTab={LOAI.map((l) => ({ khoa: l.value, nhan: l.label }))}
+            onChon={(v) => ds.datBoLoc({ loai: v || null })} />
+          <label className="block">
+            <span className="text-sm font-semibold">Từ ngày</span>
+            <input type="date" value={tuNgay} onChange={(e) => ds.datBoLoc({ tu: e.target.value || null })} className={`block ${O_NGAY}`} />
+          </label>
+          <label className="block">
+            <span className="text-sm font-semibold">Đến ngày</span>
+            <input type="date" value={denNgay} onChange={(e) => ds.datBoLoc({ den: e.target.value || null })} className={`block ${O_NGAY}`} />
+          </label>
+          {coLoc && (
+            <button type="button" onClick={() => ds.xoaBoLoc()}
               className="inline-flex items-center justify-center gap-2 min-h-[44px] px-4 border-2 border-ink bg-card text-ink text-sm font-semibold hover:bg-ink hover:text-lamp">
               Xoá lọc
             </button>
           )}
         </div>
 
-        {isLoading ? (
-          <div className="py-12 flex justify-center"><Loader2 size={22} className="animate-spin text-ink" /></div>
-        ) : rows.length === 0 ? (
-          <p className="mt-5 text-sm text-ink-mute">Không có giao dịch nào khớp bộ lọc.</p>
-        ) : (
-          <div className="mt-5 divide-y divide-line">
+        <div className="mt-5">
+        <KhungTai dangTai={ds.dangTai} loi={ds.loi} taiLai={ds.taiLai} tenVung="danh sách giao dịch" rong={rows.length === 0}
+          noiDungRong={coLoc ? 'Không có giao dịch nào khớp bộ lọc. Bỏ bớt bộ lọc để xem thêm.' : 'Chưa có giao dịch nào đi qua phòng trà.'}>
+          <PhanTrang ds={ds} tenDonVi="giao dịch" idDanhSach="ds-giao-dich" className="mb-3" />
+          <div id="ds-giao-dich" tabIndex={-1} className={`divide-y divide-line focus:outline-none ${ds.laDuLieuCu ? 'opacity-60' : ''}`}>
             {rows.map((r) => {
               const Icon = iconTheoLoai(r.type)
               return (
@@ -231,21 +211,10 @@ const OwnerFinancePage = () => {
               )
             })}
           </div>
-        )}
 
-        {totalPages > 1 && (
-          <div className="flex items-center justify-center gap-3 mt-5">
-            <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page <= 1}
-              className="px-4 py-2 border border-line text-sm text-ink-soft hover:bg-sunken disabled:opacity-40">
-              Trước
-            </button>
-            <span className="text-sm text-ink-mute">Trang {page}/{totalPages}</span>
-            <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page >= totalPages}
-              className="px-4 py-2 border border-line text-sm text-ink-soft hover:bg-sunken disabled:opacity-40">
-              Sau
-            </button>
-          </div>
-        )}
+        {ds.soTrang > 1 && <PhanTrang ds={ds} tenDonVi="giao dịch" idDanhSach="ds-giao-dich" className="mt-3" />}
+        </KhungTai>
+        </div>
       </div>
 
       <p className="text-xs text-ink-mute leading-relaxed">
