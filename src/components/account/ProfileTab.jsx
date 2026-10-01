@@ -181,7 +181,7 @@ const ProfileTab = () => {
 
           <div>
             <label htmlFor="ho-so-email" className="block font-semibold text-ink mb-1">Email <span className="font-normal text-ink-mute">(không đổi được)</span></label>
-            <input id="ho-so-email" type="email" value={user?.email || ''} disabled className="w-full px-4 py-2.5 bg-sunken/50 border border-line text-ink-mute text-sm cursor-not-allowed" />
+            <input id="ho-so-email" type="email" value={user?.email || ''} disabled className="w-full min-h-[44px] px-4 py-2 bg-sunken border-2 border-ink/30 text-ink-soft text-sm cursor-not-allowed" />
           </div>
         </div>
 
@@ -189,7 +189,7 @@ const ProfileTab = () => {
           <button 
             type="submit" 
             disabled={isSaving || isUploading} 
-            className="flex items-center gap-2 bg-ink text-lamp px-6 py-2.5 text-sm font-bold hover:bg-board transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="inline-flex items-center gap-2 min-h-[44px] bg-ink text-lamp px-6 text-sm font-semibold hover:bg-board transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isSaving ? <><Loader2 size={16} className="animate-spin" aria-hidden="true" /> Đang lưu…</> : <><Save size={16} aria-hidden="true" /> Lưu thay đổi</>}
           </button>

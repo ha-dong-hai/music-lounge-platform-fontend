@@ -294,8 +294,9 @@ const LivestreamWatchPage = () => {
     return (
       <div className="min-h-screen bg-page flex flex-col items-center justify-center text-ink">
         <AlertCircle size={40} className="text-danger mb-4" />
-        <p className="text-xl mb-4">{error}</p>
-        <Link to="/" className="text-ink underline flex items-center gap-2"><ArrowLeft size={16} /> Về trang chủ</Link>
+        {/* Trang lỗi cũng cần một h1 — trình đọc màn hình nhảy theo tiêu đề (quét 01/10/2026: 0 h1). */}
+        <h1 className="text-xl mb-4 px-4 text-center">{error}</h1>
+        <Link to="/" className="text-ink underline inline-flex items-center gap-2 min-h-[44px]"><ArrowLeft size={16} aria-hidden="true" /> Về trang chủ</Link>
       </div>
     )
   }

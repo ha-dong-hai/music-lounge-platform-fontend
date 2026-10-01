@@ -172,7 +172,7 @@ const OwnerAnalyticsPage = () => {
         <StatCard
           title="Vé đã bán"
           value={stats?.totalTicketsSold ?? 0}
-          note={`Tại chỗ ${stats?.offlineTicketsSold ?? 0} · Online ${stats?.onlineTicketsSold ?? 0}`}
+          note={`Tại chỗ ${stats?.offlineTicketsSold ?? 0} · Trực tuyến ${stats?.onlineTicketsSold ?? 0}`}
           icon={Ticket} color="text-ink" bg="bg-ink/10"
         />
         <StatCard

@@ -36,7 +36,7 @@ const FnbOrderPage = () => {
     setLoiDon(false)
     try {
       // loungeId (MLACP-500, PR #361, 01/10/2026): lấy ĐÚNG đơn của phòng trà đang ngồi. Bản cũ lấy 10 đơn gần nhất của
-      // MỌI phòng trà rồi lọc — vừa gọi món ở phòng khác thì đơn CHƯA THANH TOÁN ở phòng này biến mất (mất nút Trả online).
+      // MỌI phòng trà rồi lọc — vừa gọi món ở phòng khác thì đơn CHƯA THANH TOÁN ở phòng này biến mất (mất nút Thanh toán trực tuyến).
       // Backend chưa có MLACP-500 bỏ qua loungeId → vẫn lọc lại phía trình duyệt; GỠ dòng lọc sau khi #361 deploy.
       const res = await getMyFnbOrders({ loungeId, pageSize: 10 })
       if (!res.success) throw new Error('orders')
@@ -153,8 +153,8 @@ const FnbOrderPage = () => {
 
   return (
     <div className="min-h-[60vh] bg-page text-ink px-4 sm:px-6 py-8 max-w-5xl mx-auto">
-      <Link to={`/lounge/${loungeId}`} className="inline-flex items-center gap-2 text-ink-soft hover:text-ink text-sm mb-6">
-        <ArrowLeft size={16} /> Quay lại phòng trà
+      <Link to={`/lounge/${loungeId}`} className="inline-flex items-center gap-2 min-h-[44px] text-ink-soft hover:text-ink text-sm mb-6">
+        <ArrowLeft size={16} aria-hidden="true" /> Quay lại phòng trà
       </Link>
 
       <h1 className="text-4xl mb-1">Đặt đồ uống &amp; món ăn</h1>
@@ -301,10 +301,10 @@ const FnbOrderPage = () => {
                         <button
                           onClick={() => handlePayOnline(o.id)}
                           disabled={!!busy}
-                          className="mt-2 w-full inline-flex items-center justify-center gap-1.5 py-2 border border-ink text-ink text-xs font-bold hover:bg-board hover:text-lamp transition-colors disabled:opacity-50"
+                          className="mt-2 w-full inline-flex items-center justify-center gap-1.5 min-h-[44px] px-3 border-2 border-ink text-ink text-sm font-semibold hover:bg-ink hover:text-lamp transition-colors disabled:opacity-50"
                         >
                           <CreditCard size={14} />
-                          {busy === `pay-${o.id}` ? 'Đang chuyển...' : 'Trả online'}
+                          {busy === `pay-${o.id}` ? 'Đang chuyển…' : 'Thanh toán trực tuyến'}
                         </button>
                       )}
                       {o.onlinePaymentLiveUntil && !o.isPaid && (

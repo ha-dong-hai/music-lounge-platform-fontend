@@ -362,8 +362,8 @@ const OwnerShowDetailPage = () => {
 
   return (
     <div className="space-y-6">
-      <Link to="/owner/shows" className="inline-flex items-center gap-2 text-ink-soft hover:text-ink text-sm">
-        <ArrowLeft size={16} /> Danh sách buổi diễn
+      <Link to="/owner/shows" className="inline-flex items-center gap-2 min-h-[44px] text-ink-soft hover:text-ink text-sm">
+        <ArrowLeft size={16} aria-hidden="true" /> Danh sách buổi diễn
       </Link>
 
       <div>

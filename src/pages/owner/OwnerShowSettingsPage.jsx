@@ -298,8 +298,8 @@ const OwnerShowSettingsPage = () => {
   return (
     <div className="space-y-6 max-w-3xl">
       <div>
-        <Link to={`/owner/shows/${id}`} className="inline-flex items-center gap-1.5 text-sm text-ink-mute hover:text-ink mb-3">
-          <ArrowLeft size={16} /> Về buổi diễn
+        <Link to={`/owner/shows/${id}`} className="inline-flex items-center gap-1.5 min-h-[44px] text-sm text-ink-mute hover:text-ink mb-1">
+          <ArrowLeft size={16} aria-hidden="true" /> Về buổi diễn
         </Link>
         <h1 className="text-4xl text-ink mb-1">Cài đặt buổi diễn</h1>
         <p className="text-ink-soft text-sm">{show.name}</p>

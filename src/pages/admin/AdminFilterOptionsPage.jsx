@@ -92,8 +92,8 @@ const AdminFilterOptionsPage = () => {
           {TABS.map(tab => (
             <button
               key={tab.key}
-              onClick={() => setActiveTab(tab.key)}
-              className={`pb-4 text-base font-bold border-b-2 transition-colors ${
+              onClick={() => setActiveTab(tab.key)} aria-pressed={activeTab === tab.key}
+              className={`min-h-[44px] pb-3 text-base font-bold border-b-2 transition-colors ${
                 activeTab === tab.key
                   ? 'border-ink text-ink'
                   : 'border-transparent text-ink-mute hover:text-ink'

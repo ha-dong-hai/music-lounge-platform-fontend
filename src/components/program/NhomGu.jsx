@@ -23,7 +23,7 @@ import { chiaNhomGu, locTheoTen, NGUONG_TIM } from '../../utils/nhomGu'
 
 const Nhan = ({ x }) => (
   <li>
-    <Link to={x.to} state={x.state} className="inline-flex items-center gap-2 min-h-[40px] px-3 border-2 border-ink bg-card text-sm font-medium hover:bg-ink hover:text-lamp transition-colors">
+    <Link to={x.to} state={x.state} className="inline-flex items-center gap-2 min-h-[44px] px-3 border-2 border-ink bg-card text-sm font-medium hover:bg-ink hover:text-lamp transition-colors">
       {x.ten}
       {x.so != null && <span className="font-mono text-xs" aria-label={`${x.so} buổi`}>{x.so}</span>}
     </Link>

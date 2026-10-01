@@ -91,8 +91,8 @@ const NotificationsPage = () => {
   return (
     <div className="min-h-[60vh] bg-stock text-ink pb-20">
       <div className="max-w-3xl mx-auto px-6 py-8">
-        <Link to="/" className="inline-flex items-center gap-2 text-sm font-medium text-ink-soft hover:text-ink mb-6">
-          <ArrowLeft size={18} /> Về trang chủ
+        <Link to="/" className="inline-flex items-center gap-2 min-h-[44px] text-sm font-medium text-ink-soft hover:text-ink mb-6">
+          <ArrowLeft size={18} aria-hidden="true" /> Về trang chủ
         </Link>
 
         <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
@@ -108,7 +108,7 @@ const NotificationsPage = () => {
 
           {soChuaDoc > 0 && (
             <button onClick={danhDauTatCa} disabled={isBusy}
-              className="flex items-center gap-2 px-4 py-2 border border-line text-ink-soft text-sm font-bold hover:bg-sunken disabled:opacity-50">
+              className="inline-flex items-center gap-2 min-h-[44px] px-4 border-2 border-ink bg-card text-ink text-sm font-semibold hover:bg-ink hover:text-lamp disabled:opacity-50">
               {isBusy ? <Loader2 size={15} className="animate-spin" /> : <CheckCheck size={15} />}
               Đánh dấu tất cả đã đọc
             </button>

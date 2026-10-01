@@ -172,7 +172,7 @@ const Header = () => {
           </Link>
 
           <form onSubmit={handleSearchSubmit} ref={oTimKiemRef} className="relative w-full max-w-md hidden md:block">
-            <button type="submit" className="absolute left-1 top-1/2 -translate-y-1/2 w-10 h-10 inline-flex items-center justify-center text-ink cursor-pointer" aria-label="Tìm kiếm">
+            <button type="submit" className="absolute left-0.5 top-1/2 -translate-y-1/2 w-11 h-11 inline-flex items-center justify-center text-ink cursor-pointer" aria-label="Tìm kiếm">
               <Search size={18} strokeWidth={2.5}/>
             </button>
             <input aria-label="Tìm đêm nhạc, phòng trà, nghệ sĩ"
@@ -188,7 +188,7 @@ const Header = () => {
               onKeyDown={handleKeyDown}
               autoComplete="off"
               placeholder="Tìm đêm nhạc, phòng trà, nghệ sĩ…"
-              className="w-full pl-11 pr-11 py-2.5 min-h-[44px] bg-card text-ink placeholder:text-ink-mute border-2 border-ink text-sm focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2 focus:ring-offset-stock transition-all"
+              className="w-full pl-12 pr-11 py-2.5 min-h-[44px] bg-card text-ink placeholder:text-ink-mute border-2 border-ink text-sm focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2 focus:ring-offset-stock transition-all"
             />
             {localSearch && (
               <button type="button" onClick={() => { setLocalSearch(''); setMoGoiY(false) }} className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-soft hover:text-ink" aria-label="Đóng">

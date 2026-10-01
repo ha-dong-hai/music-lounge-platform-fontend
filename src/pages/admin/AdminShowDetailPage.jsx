@@ -57,7 +57,8 @@ const AdminShowDetailPage = () => {
             dateStr: beData.scheduledStart ? dayjs(beData.scheduledStart).format('HH:mm - dddd, DD/MM/YYYY') : 'Đang cập nhật',
             genre: beData.genres?.[0]?.name || 'Đang cập nhật',
             performers: beData.performers || [],
-            moodTags: [beData.format, beData.genres?.[0]?.name].filter(Boolean),
+            // Hình thức in bằng tiếng Việt — bản cũ in thẳng enum "Offline"/"Online" (quét 01/10/2026).
+            moodTags: [{ Offline: 'Tại chỗ', Online: 'Trực tuyến', Hybrid: 'Tại chỗ và trực tuyến' }[beData.format] ?? beData.format, beData.genres?.[0]?.name].filter(Boolean),
             description: beData.description || "Chưa có mô tả cho buổi diễn này.",
           })
 

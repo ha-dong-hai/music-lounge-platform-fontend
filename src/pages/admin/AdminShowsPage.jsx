@@ -34,14 +34,14 @@ const AdminShowsPage = () => {
       <div className="mb-6 border-b border-line">
         <div className="flex gap-8">
           <button
-            onClick={() => setActiveTab('all')}
-            className={`pb-4 text-base font-bold border-b-2 transition-colors ${activeTab === 'all' ? 'border-ink text-ink' : 'border-transparent text-ink-mute hover:text-ink'}`}
+            onClick={() => setActiveTab('all')} aria-pressed={activeTab === 'all'}
+            className={`min-h-[44px] pb-3 text-base font-bold border-b-2 transition-colors ${activeTab === 'all' ? 'border-ink text-ink' : 'border-transparent text-ink-mute hover:text-ink'}`}
           >
             Buổi diễn đang mở bán
           </button>
           <button
-            onClick={() => setActiveTab('pending')}
-            className={`pb-4 text-base font-bold border-b-2 transition-colors flex items-center gap-2 ${activeTab === 'pending' ? 'border-ink text-ink' : 'border-transparent text-ink-mute hover:text-ink'}`}
+            onClick={() => setActiveTab('pending')} aria-pressed={activeTab === 'pending'}
+            className={`min-h-[44px] pb-3 text-base font-bold border-b-2 transition-colors flex items-center gap-2 ${activeTab === 'pending' ? 'border-ink text-ink' : 'border-transparent text-ink-mute hover:text-ink'}`}
           >
             <ShieldAlert size={16} />
             Chờ duyệt
