@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import dayjs from 'dayjs'
 import toast from 'react-hot-toast'
-import { getAdminComplaints } from '../../services/adminServices'
+import { getComplaintHistory } from '../../services/adminServices'
 import { CATEGORY_CONFIG, STATUS_CONFIG, TARGET_TYPE_LABELS } from '../../components/admin/complaints/ComplaintBadges'
 import ComplaintsTable from '../../components/admin/complaints/ComplaintsTable'
 import ComplaintDetailModal from '../../components/admin/complaints/ComplaintDetailModal'
@@ -25,7 +25,7 @@ const AdminComplaintPage = () => {
         const fetchComplaints = async () => {
             setIsLoading(true)
             try {
-                const res = await getAdminComplaints({ page: pagination.page, pageSize: 10 })
+                const res = await getComplaintHistory({ page: pagination.page, pageSize: 10 })
                 if (res.success) {
                     setComplaints(res.data.items)
                     setPagination(prev => ({ ...prev, totalPages: res.data.totalPages, totalCount: res.data.totalCount }))

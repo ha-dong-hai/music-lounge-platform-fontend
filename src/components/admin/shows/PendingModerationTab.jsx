@@ -143,7 +143,6 @@ const PendingModerationTab = () => {
                       {targetType} #{item.targetId}
                       <p className="text-xs text-ink-mute mt-1">Created: {dayjs(item.createdAt).format('HH:mm DD/MM/YYYY')}</p>
                     </td>
-                    <td className="p-4"><FormatBadge format={item.format} /></td>
                     <td className="p-4"><RiskLevelBadge level={item.riskLevel} /></td>
                     <td className="p-4">
                       {item.flagReason ? (

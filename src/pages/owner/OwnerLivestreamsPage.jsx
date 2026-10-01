@@ -14,7 +14,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Radio, Loader2, Copy, Square, Play, ShieldCheck, MessageSquare, MessageSquareOff } from 'lucide-react'
 import toast from 'react-hot-toast'
-import { getShows, getShowDetail, setVcpmcRoyalty } from '../../services/showServices'
+import { getMyShows, getShowDetail, setVcpmcRoyalty } from '../../services/showServices'
 import {
   createLivestream,
   getLivestreamDetail,
@@ -281,9 +281,9 @@ const OwnerLivestreamsPage = () => {
   const fetchShows = async () => {
     setIsLoading(true)
     try {
-      const res = await getShows({ mine: true, pageSize: 100 })
+      const res = await getMyShows({ pageSize: 100 })
       if (res.success) {
-        setShows(res.data.items.filter((s) => s.format === 'Online'))
+        setShows(res.data.items.filter((s) => s.format !== 'Offline'))
       }
     } catch {
       toast.error('Không tải được danh sách show.')
@@ -304,7 +304,7 @@ const OwnerLivestreamsPage = () => {
         <Loader2 size={24} className="animate-spin text-ink-mute" />
       ) : shows.length === 0 ? (
         <div className="bg-card border border-line rounded-xl p-8 text-center text-ink-mute">
-          Bạn chưa có buổi diễn nào ở định dạng Online (chỉ show Online mới có livestream).
+          Bạn chưa có buổi diễn nào ở định dạng Online hoặc Hybrid.
         </div>
       ) : (
         <div className="space-y-4">

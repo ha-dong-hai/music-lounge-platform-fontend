@@ -55,7 +55,7 @@ const AdminShowDetailPage = () => {
           })
 
           if (pendingRes?.success) {
-            const found = pendingRes.data.items.find(m => String(m.showId) === String(id))
+            const found = pendingRes.data.items.find(m => String(m.targetId) === String(id))
             setModeration(found || null)
           }
         } else {
