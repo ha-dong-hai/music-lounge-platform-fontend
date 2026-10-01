@@ -1,6 +1,5 @@
 // src/components/home/TonightStrip.jsx
-//
-// GHI CHÚ CHO ĐỘI FE — vì sao khối này tồn tại (docs/design/TRANG-CHU-BRIEF.md):
+
 // - Đây là công năng chính của trang chủ (duyệt xem tối nay/tuần này có gì), nên đặt NGAY dưới
 //   hero, không chôn dưới các khối marketing. Người mua vé cần thấy lịch thật trước, không phải
 //   đọc thương hiệu trước.

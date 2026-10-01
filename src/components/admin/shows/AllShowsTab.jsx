@@ -1,3 +1,5 @@
+// src/components/admin/shows/AllShowsTab.jsx
+
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { Loader2, ChevronLeft, ChevronRight, Building, Radio, Cast, Music2, Search } from 'lucide-react'

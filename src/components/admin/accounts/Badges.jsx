@@ -1,3 +1,5 @@
+// src/components/admin/accounts/Badges.jsx
+
 export const RoleBadge = ({ role }) => {
   const styles = {
     admin: 'bg-purple-500/15 text-purple-400 border-purple-500/30',

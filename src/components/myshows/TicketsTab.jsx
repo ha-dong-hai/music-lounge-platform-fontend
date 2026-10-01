@@ -1,3 +1,5 @@
+// src/components/myshows/TicketsTab.jsx
+
 import { useState, useEffect, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { Ticket, ChevronLeft, ChevronRight, Clock, Search, MapPin, Video, QrCode, X } from 'lucide-react'

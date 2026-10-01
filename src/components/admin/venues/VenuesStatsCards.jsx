@@ -1,3 +1,5 @@
+// src/components/admin/venues/VenuesStatsCards.jsx
+
 import { Building2, Clock, CheckCircle2, ShieldAlert } from 'lucide-react'
 
 // Nhóm "Vấn đề" = tổng 4 status rủi ro

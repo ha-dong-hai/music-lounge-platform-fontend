@@ -1,3 +1,5 @@
+// src/components/admin/venues/VenuesFilterBar.jsx
+
 import { VENUE_STATUS_CONFIG } from './VenueBadges'
 
 // Bỏ search (tạm ẩn) — chỉ còn dropdown status để đi sâu từng loại

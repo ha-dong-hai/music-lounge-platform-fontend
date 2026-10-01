@@ -1,3 +1,5 @@
+// src/components/admin/venues/VenueReviewModal.jsx
+
 import { useState } from 'react'
 import { X, Check, Loader2, ShieldAlert, MapPin, User } from 'lucide-react'
 import dayjs from 'dayjs'

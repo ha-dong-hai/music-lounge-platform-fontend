@@ -1,3 +1,5 @@
+// src/components/admin/bank-accounts/BankAccountReviewModal.jsx
+
 import { useState } from 'react'
 import { X, Check, Loader2, Landmark, Star, AlertCircle } from 'lucide-react'
 

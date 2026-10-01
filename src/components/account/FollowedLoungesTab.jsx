@@ -1,3 +1,5 @@
+// src/account/FollowedLoungesTab.jsx
+
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { Building2, UserMinus, Loader2, ChevronRight, Compass, Bell, BellOff } from 'lucide-react'
