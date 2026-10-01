@@ -23,7 +23,10 @@
 //   Giữ lại làm lưới chắn, không phải vá tạm quên gỡ. Các mốc của án phạt vốn đã có offset.
 // - `expectedAccountHolder: null` kèm `holderNameMatches: false` là trạng thái CÓ THẬT khi chủ
 //   phòng trà chưa được chốt họ tên trên CCCD — đó đúng là lúc nút Duyệt phải chặn.
-import { useState, useEffect, useCallback } from 'react'
+// PHÂN TRANG (01/10/2026): dùng hooks/useDanhSachMayChu + components/bang/PhanTrang như mọi danh sách khác — bản cũ tự
+// giữ {page,totalPages} với hai nút trước/sau, trang và tab không lên URL (tải lại về trang 1) và không có dòng "Hiện x–y".
+import { useState } from 'react'
+import { parseAsBoolean } from 'nuqs'
 import { Link } from 'react-router-dom'
 import {
   Loader2, Landmark, CheckCircle2, XCircle, AlertTriangle, RefreshCw, ShieldCheck, X, Ban,
@@ -32,9 +35,14 @@ import dayjs from 'dayjs'
 import toast from 'react-hot-toast'
 import { getAdminBankAccounts, reviewPayoutBankAccount } from '../../services/adminServices'
 import { mocUtc } from '../../utils/format'
+import { useDanhSachMayChu } from '../../hooks/useDanhSachMayChu'
+import PhanTrang from '../../components/bang/PhanTrang'
 
 // Một điều kiện duyệt. `dat` = đã thoả. Hiện cả khi đạt lẫn khi chưa, vì "không thấy cảnh báo"
 // và "chưa kiểm" trông giống nhau nếu chỉ hiện lúc hỏng.
+// Tab trên URL (?daDuyet=true) — Quay lại/tải lại giữ đúng tab.
+const BO_LOC = { daDuyet: parseAsBoolean.withDefault(false) }
+
 const CoDieuKien = ({ dat, chuDat, chuChuaDat }) => (
   <span className={`inline-flex items-center gap-1 text-xs ${dat ? 'text-success' : 'text-danger'}`}>
     {dat ? <CheckCircle2 size={12} /> : <XCircle size={12} />}
@@ -146,34 +154,15 @@ const ReviewModal = ({ item, approve, onClose, onSaved }) => {
 }
 
 const AdminBankAccountsPage = () => {
-  const [items, setItems] = useState([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [daDuyet, setDaDuyet] = useState(false) // false = hàng đợi chờ duyệt
-  const [page, setPage] = useState(1)
-  const [totalPages, setTotalPages] = useState(1)
-  const [totalCount, setTotalCount] = useState(0)
+  const ds = useDanhSachMayChu({ khoa: ['admin-tk-ngan-hang'], goi: ({ daDuyet, ...q }) => getAdminBankAccounts({ ...q, verified: daDuyet }), boLoc: BO_LOC })
+  const daDuyet = ds.boLoc.daDuyet
+  const items = ds.items
+  const isLoading = ds.dangTai
+  const totalCount = ds.tong
+  const load = () => ds.taiLai()
   const [target, setTarget] = useState(null) // { item, approve }
 
-  const load = useCallback(async () => {
-    setIsLoading(true)
-    try {
-      const res = await getAdminBankAccounts({ verified: daDuyet, page, pageSize: 20 })
-      if (res.success) {
-        setItems(res.data?.items ?? [])
-        setTotalPages(res.data?.totalPages ?? 1)
-        setTotalCount(res.data?.totalCount ?? 0)
-      }
-    } catch (err) {
-      toast.error(err.response?.data?.message || 'Không tải được danh sách tài khoản.')
-      setItems([])
-    } finally {
-      setIsLoading(false)
-    }
-  }, [daDuyet, page])
-
-  useEffect(() => { const chay = async () => { await load() }; chay() }, [load])
-
-  const doiTab = (v) => { setDaDuyet(v); setPage(1) }
+  const doiTab = (v) => ds.datBoLoc({ daDuyet: v || null })
 
   return (
     <div className="space-y-6">
@@ -211,6 +200,11 @@ const AdminBankAccountsPage = () => {
 
       {isLoading ? (
         <div className="py-20 flex justify-center"><Loader2 size={30} className="animate-spin text-ink" /></div>
+      ) : ds.loi ? (
+        <div role="alert" className="bg-card border border-line p-6 flex flex-wrap items-center gap-4">
+          <p className="text-sm">Chưa tải được danh sách tài khoản nhận tiền.</p>
+          <button type="button" onClick={() => ds.taiLai()} className="min-h-[44px] px-4 border-2 border-ink font-semibold hover:bg-ink hover:text-lamp">Thử lại</button>
+        </div>
       ) : items.length === 0 ? (
         <div className="bg-card border border-line p-12 text-center">
           <Landmark size={30} className="mx-auto mb-3 text-ink-mute" />
@@ -306,19 +300,7 @@ const AdminBankAccountsPage = () => {
         </ul>
       )}
 
-      {totalPages > 1 && (
-        <div className="flex items-center justify-center gap-3">
-          <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page <= 1}
-            className="px-4 py-2 border border-line text-sm text-ink-soft hover:bg-sunken disabled:opacity-40">
-            Trước
-          </button>
-          <span className="text-sm text-ink-mute">Trang {page}/{totalPages}</span>
-          <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page >= totalPages}
-            className="px-4 py-2 border border-line text-sm text-ink-soft hover:bg-sunken disabled:opacity-40">
-            Sau
-          </button>
-        </div>
-      )}
+      {!isLoading && !ds.loi && <PhanTrang ds={ds} tenDonVi="tài khoản" />}
 
       {target && (
         <ReviewModal item={target.item} approve={target.approve}

@@ -18,13 +18,17 @@
 //   Livestream  → cắt sóng VĨNH VIỄN (Terminated, chỉ khi đang phát); Rating / ChatMessage → ẩn.
 // Nay qua HopXacNhan nói đúng hậu quả theo loại, và gửi `note` (backend có nhận nhưng giao diện chưa từng gửi — người xem
 // buổi phát bị cắt chỉ thấy câu mặc định). "Bỏ qua" vẫn một lần bấm: nó chỉ đóng báo cáo, không đụng nội dung hay tiền.
-import { useState, useEffect, useCallback } from 'react'
+// PHÂN TRANG (01/10/2026): dùng hooks/useDanhSachMayChu + components/bang/PhanTrang như mọi danh sách khác — bản cũ tự
+// giữ {page,totalPages} với hai nút trước/sau, trang không lên URL (tải lại về trang 1) và không có dòng "Hiện x–y".
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Loader2, ShieldAlert, Trash2, CheckCircle2, Clock, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Loader2, ShieldAlert, Trash2, CheckCircle2, Clock } from 'lucide-react'
 import dayjs from 'dayjs'
 import toast from 'react-hot-toast'
 import { getContentReportQueue, resolveContentReport } from '../../services/contentReportServices'
 import HopXacNhan from '../../components/shared/HopXacNhan'
+import { useDanhSachMayChu } from '../../hooks/useDanhSachMayChu'
+import PhanTrang from '../../components/bang/PhanTrang'
 
 const HAU_QUA = {
   Show: 'Buổi diễn bị HUỶ: mọi vé đã bán bị huỷ, hệ thống tạo yêu cầu hoàn 100% tiền vé cho từng người mua và báo cho họ.',
@@ -57,32 +61,12 @@ const contentLink = (item) => {
 }
 
 const AdminContentReportsPage = () => {
-  const [items, setItems] = useState([])
-  const [isLoading, setIsLoading] = useState(true)
+  const ds = useDanhSachMayChu({ khoa: ['admin-bao-cao-vi-pham'], goi: getContentReportQueue })
+  const items = ds.items
+  const isLoading = ds.dangTai
   const [busyKey, setBusyKey] = useState(null)
   const [goChon, setGoChon] = useState(null) // nội dung đang chờ xác nhận gỡ
   const [ghiChu, setGhiChu] = useState('')
-  const [pagination, setPagination] = useState({ page: 1, totalPages: 1, totalCount: 0 })
-
-  const fetchQueue = useCallback(async (page) => {
-    setIsLoading(true)
-    try {
-      const res = await getContentReportQueue({ page, pageSize: 20 })
-      if (res.success) {
-        setItems(res.data.items)
-        setPagination((prev) => ({ ...prev, totalPages: res.data.totalPages, totalCount: res.data.totalCount }))
-      }
-    } catch {
-      toast.error('Không tải được hàng đợi báo cáo.')
-    } finally {
-      setIsLoading(false)
-    }
-  }, [])
-
-  useEffect(() => {
-    const run = async () => { await fetchQueue(pagination.page) }
-    run()
-  }, [fetchQueue, pagination.page])
 
   const handleResolve = async (item, action) => {
     const key = `${item.targetType}-${item.targetId}`
@@ -92,7 +76,7 @@ const AdminContentReportsPage = () => {
       toast.success(action === 'Removed' ? 'Đã gỡ nội dung.' : 'Đã bỏ qua báo cáo.')
       setGoChon(null)
       setGhiChu('')
-      await fetchQueue(pagination.page)
+      await ds.taiLai()
     } catch (err) {
       setGoChon(null)
       toast.error(err.response?.data?.message || 'Xử lý thất bại.', { duration: 10000 })
@@ -127,6 +111,15 @@ const AdminContentReportsPage = () => {
                 <tr>
                   <td colSpan="5" className="p-10 text-center">
                     <Loader2 size={24} className="mx-auto animate-spin text-ink" />
+                  </td>
+                </tr>
+              ) : ds.loi ? (
+                <tr>
+                  <td colSpan="5" className="p-6">
+                    <div role="alert" className="flex flex-wrap items-center gap-4">
+                      <p>Chưa tải được hàng đợi báo cáo.</p>
+                      <button type="button" onClick={() => ds.taiLai()} className="min-h-[44px] px-4 border-2 border-ink font-semibold hover:bg-ink hover:text-lamp">Thử lại</button>
+                    </div>
                   </td>
                 </tr>
               ) : items.length === 0 ? (
@@ -201,25 +194,7 @@ const AdminContentReportsPage = () => {
           </table>
         </div>
 
-        {!isLoading && items.length > 0 && pagination.totalPages > 1 && (
-          <div className="flex items-center justify-between p-4 border-t border-line">
-            <p className="text-sm text-ink-mute">Trang {pagination.page} / {pagination.totalPages}</p>
-            <div className="flex gap-2">
-              <button
-                onClick={() => setPagination((prev) => ({ ...prev, page: prev.page - 1 }))}
-                disabled={pagination.page === 1}
-                className="p-2 rounded-md border border-line text-ink-soft hover:border-ink hover:text-ink disabled:opacity-30 disabled:cursor-not-allowed transition-colors" aria-label="Trang trước">
-                <ChevronLeft size={18} />
-              </button>
-              <button
-                onClick={() => setPagination((prev) => ({ ...prev, page: prev.page + 1 }))}
-                disabled={pagination.page === pagination.totalPages}
-                className="p-2 rounded-md border border-line text-ink-soft hover:border-ink hover:text-ink disabled:opacity-30 disabled:cursor-not-allowed transition-colors" aria-label="Trang sau">
-                <ChevronRight size={18} />
-              </button>
-            </div>
-          </div>
-        )}
+        {!isLoading && <PhanTrang ds={ds} tenDonVi="nội dung bị báo cáo" className="p-4 border-t border-line" />}
       </div>
 
       <HopXacNhan mo={!!goChon} dangXuLy={busyKey != null} nhanGiu="Không, quay lại"

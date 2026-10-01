@@ -21,12 +21,15 @@
 // - Ghi chú khi TỪ CHỐI được gửi nguyên văn cho người mua (ProcessRefundRequestCommandHandler, NotifyBuyerAsync) — nói rõ.
 // - Mọi quyết định đi qua HopXacNhan (WCAG 2.2 SC 3.3.4: thao tác tài chính phải xác nhận được); bản cũ hoàn tiền ngay
 //   ở lần bấm đầu.
-import { useState, useEffect, useCallback } from 'react'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+// PHÂN TRANG (01/10/2026): dùng hooks/useDanhSachMayChu + components/bang/PhanTrang như mọi danh sách khác — bản cũ tự
+// giữ {page,totalPages} với hai nút trước/sau, trang không lên URL (tải lại về trang 1) và không có dòng "Hiện x–y".
+import { useState } from 'react'
 import toast from 'react-hot-toast'
 import { getPendingRefundRequests, processRefundRequest } from '../../services/moneyServices'
 import HopXacNhan from '../../components/shared/HopXacNhan'
 import NhanTrangThai from '../../components/shared/NhanTrangThai'
+import { useDanhSachMayChu } from '../../hooks/useDanhSachMayChu'
+import PhanTrang from '../../components/bang/PhanTrang'
 import { ngayDayDu, gioTrongNgay } from '../../utils/ngayVietNam'
 
 const tien = (v) => `${Number(v || 0).toLocaleString('vi-VN')} đ`
@@ -34,35 +37,15 @@ const duong = (r) => (r.payoutAccountRequired ? 'cho' : r.payoutConsentAt ? 'ck'
 const O = 'w-full min-h-[44px] px-3 bg-card border-2 border-ink text-ink focus:outline-none focus:ring-2 focus:ring-ink'
 
 const AdminRefundsPage = () => {
-  const [items, setItems] = useState([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [loiTai, setLoiTai] = useState(false)
+  const ds = useDanhSachMayChu({ khoa: ['admin-hoan-tien'], goi: getPendingRefundRequests })
+  const items = ds.items
+  const isLoading = ds.dangTai
+  const loiTai = Boolean(ds.loi)
   const [busyId, setBusyId] = useState(null)
   const [ghiChu, setGhiChu] = useState({})
   const [maCk, setMaCk] = useState({})
   const [loiMa, setLoiMa] = useState({})
   const [hoi, setHoi] = useState(null) // { r, decision }
-  const [pagination, setPagination] = useState({ page: 1, totalPages: 1, totalCount: 0 })
-
-  const fetchQueue = useCallback(async (page) => {
-    setIsLoading(true)
-    setLoiTai(false)
-    try {
-      const res = await getPendingRefundRequests({ page, pageSize: 20 })
-      if (!res.success) throw new Error('hoan-tien')
-      setItems(res.data.items)
-      setPagination((p) => ({ ...p, totalPages: res.data.totalPages, totalCount: res.data.totalCount }))
-    } catch {
-      setLoiTai(true)
-    } finally {
-      setIsLoading(false)
-    }
-  }, [])
-
-  useEffect(() => {
-    const run = async () => { await fetchQueue(pagination.page) }
-    run()
-  }, [fetchQueue, pagination.page])
 
   const moHoi = (r, decision) => {
     if (decision === 'Approved' && duong(r) === 'ck' && !(maCk[r.id] || '').trim()) {
@@ -84,7 +67,7 @@ const AdminRefundsPage = () => {
       })
       toast.success(decision === 'Approved' ? 'Đã duyệt hoàn tiền.' : 'Đã từ chối yêu cầu.')
       setHoi(null)
-      await fetchQueue(pagination.page)
+      await ds.taiLai()
     } catch (err) {
       setHoi(null)
       toast.error(err.response?.data?.message || 'Xử lý thất bại.', { duration: 10000 })
@@ -110,7 +93,7 @@ const AdminRefundsPage = () => {
         ) : loiTai ? (
           <div role="alert" className="flex flex-wrap items-center gap-4 border-2 border-ink p-5">
             <p>Hàng đợi hoàn tiền chưa tải được.</p>
-            <button type="button" onClick={() => fetchQueue(pagination.page)} className="min-h-[44px] px-4 border-2 border-ink font-semibold hover:bg-ink hover:text-lamp">Thử lại</button>
+            <button type="button" onClick={() => ds.taiLai()} className="min-h-[44px] px-4 border-2 border-ink font-semibold hover:bg-ink hover:text-lamp">Thử lại</button>
           </div>
         ) : items.length === 0 ? (
           <p className="border-2 border-ink p-6">Không có yêu cầu hoàn tiền nào đang chờ.</p>
@@ -190,17 +173,7 @@ const AdminRefundsPage = () => {
         )}
       </div>
 
-      {!isLoading && !loiTai && pagination.totalPages > 1 && (
-        <nav aria-label="Phân trang" className="flex items-center justify-between mt-4">
-          <p className="font-mono text-sm">Trang {pagination.page} trên {pagination.totalPages} · {pagination.totalCount} yêu cầu</p>
-          <div className="flex gap-2">
-            <button type="button" onClick={() => setPagination((p) => ({ ...p, page: p.page - 1 }))} disabled={pagination.page === 1}
-              className="inline-flex items-center justify-center w-11 h-11 border-2 border-ink hover:bg-ink hover:text-lamp disabled:opacity-30" aria-label="Trang trước"><ChevronLeft size={18} aria-hidden="true" /></button>
-            <button type="button" onClick={() => setPagination((p) => ({ ...p, page: p.page + 1 }))} disabled={pagination.page === pagination.totalPages}
-              className="inline-flex items-center justify-center w-11 h-11 border-2 border-ink hover:bg-ink hover:text-lamp disabled:opacity-30" aria-label="Trang sau"><ChevronRight size={18} aria-hidden="true" /></button>
-          </div>
-        </nav>
-      )}
+      {!isLoading && !loiTai && <PhanTrang ds={ds} tenDonVi="yêu cầu" className="mt-4" />}
 
       <HopXacNhan mo={!!hoi} tieuDe={tieuDeHoi} dangXuLy={busyId != null}
         nhanXacNhan={!hoi ? '' : hoi.decision === 'Rejected' ? 'Từ chối yêu cầu' : duong(hoi.r) === 'ck' ? 'Ghi nhận đã chuyển' : 'Hoàn tiền qua VNPay'}

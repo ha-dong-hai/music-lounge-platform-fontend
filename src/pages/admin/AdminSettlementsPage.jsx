@@ -19,13 +19,16 @@
 //   trang hoàn tiền. Chốt "chưa có tài khoản nhận tiền" không có trong DTO → để backend báo, in nguyên văn.
 // - releaseType in thô ("Partial70", "Final30", "Full") → đổi sang chữ; tỉ lệ đợt là cấu hình nên không in số 70/30.
 // - Lý do là ô có nhãn thật; lỗi thiếu lý do in dưới ô thay vì toast.
-import { useState, useEffect, useCallback } from 'react'
+// PHÂN TRANG (01/10/2026): dùng hooks/useDanhSachMayChu + components/bang/PhanTrang như mọi danh sách khác — bản cũ tự
+// giữ {page,totalPages} với hai nút trước/sau, trang không lên URL (tải lại về trang 1) và không có dòng "Hiện x–y".
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { getSettlementsPendingReview, reviewSettlement } from '../../services/moneyServices'
 import HopXacNhan from '../../components/shared/HopXacNhan'
 import NhanTrangThai from '../../components/shared/NhanTrangThai'
+import { useDanhSachMayChu } from '../../hooks/useDanhSachMayChu'
+import PhanTrang from '../../components/bang/PhanTrang'
 import { ngayDayDu, gioTrongNgay } from '../../utils/ngayVietNam'
 
 const tien = (v) => `${Number(v || 0).toLocaleString('vi-VN')} đ`
@@ -37,34 +40,14 @@ const DOT = { Partial70: 'Đợt chi trả đầu', Final30: 'Đợt chi trả c
 const PHAN_XET = { NeverStarted: ['xau', 'Chưa từng bắt đầu'], Measured: ['cho', 'Diễn ngắn hơn dự kiến'], Unknown: ['tat', 'Chưa đủ dữ liệu'] }
 
 const AdminSettlementsPage = () => {
-  const [items, setItems] = useState([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [loiTai, setLoiTai] = useState(false)
+  const ds = useDanhSachMayChu({ khoa: ['admin-quyet-toan'], goi: getSettlementsPendingReview })
+  const items = ds.items
+  const isLoading = ds.dangTai
+  const loiTai = Boolean(ds.loi)
   const [busyId, setBusyId] = useState(null)
   const [notes, setNotes] = useState({})
   const [loiLyDo, setLoiLyDo] = useState({})
   const [hoi, setHoi] = useState(null) // { s, decision }
-  const [pagination, setPagination] = useState({ page: 1, totalPages: 1, totalCount: 0 })
-
-  const fetchQueue = useCallback(async (page) => {
-    setIsLoading(true)
-    setLoiTai(false)
-    try {
-      const res = await getSettlementsPendingReview({ page, pageSize: 20 })
-      if (!res.success) throw new Error('quyet-toan')
-      setItems(res.data.items)
-      setPagination((p) => ({ ...p, totalPages: res.data.totalPages, totalCount: res.data.totalCount }))
-    } catch {
-      setLoiTai(true)
-    } finally {
-      setIsLoading(false)
-    }
-  }, [])
-
-  useEffect(() => {
-    const run = async () => { await fetchQueue(pagination.page) }
-    run()
-  }, [fetchQueue, pagination.page])
 
   const moHoi = (s, decision) => {
     if (!(notes[s.settlementId] || '').trim()) {
@@ -82,7 +65,7 @@ const AdminSettlementsPage = () => {
       await reviewSettlement(s.settlementId, { decision, note: notes[s.settlementId].trim() })
       toast.success(decision === 'Release' ? 'Đã nhả tiền cho phòng trà.' : 'Đã giữ lại khoản này.')
       setHoi(null)
-      await fetchQueue(pagination.page)
+      await ds.taiLai()
     } catch (err) {
       setHoi(null)
       toast.error(err.response?.data?.message || 'Xử lý thất bại.', { duration: 10000 })
@@ -105,7 +88,7 @@ const AdminSettlementsPage = () => {
         ) : loiTai ? (
           <div role="alert" className="flex flex-wrap items-center gap-4 border-2 border-ink p-5">
             <p>Danh sách quyết toán chưa tải được.</p>
-            <button type="button" onClick={() => fetchQueue(pagination.page)} className="min-h-[44px] px-4 border-2 border-ink font-semibold hover:bg-ink hover:text-lamp">Thử lại</button>
+            <button type="button" onClick={() => ds.taiLai()} className="min-h-[44px] px-4 border-2 border-ink font-semibold hover:bg-ink hover:text-lamp">Thử lại</button>
           </div>
         ) : items.length === 0 ? (
           <p className="border-2 border-ink p-6">Không có khoản quyết toán nào đang bị giữ.</p>
@@ -175,17 +158,7 @@ const AdminSettlementsPage = () => {
         )}
       </div>
 
-      {!isLoading && !loiTai && pagination.totalPages > 1 && (
-        <nav aria-label="Phân trang" className="flex items-center justify-between mt-4">
-          <p className="font-mono text-sm">Trang {pagination.page} trên {pagination.totalPages} · {pagination.totalCount} khoản</p>
-          <div className="flex gap-2">
-            <button type="button" onClick={() => setPagination((p) => ({ ...p, page: p.page - 1 }))} disabled={pagination.page === 1}
-              className="inline-flex items-center justify-center w-11 h-11 border-2 border-ink hover:bg-ink hover:text-lamp disabled:opacity-30" aria-label="Trang trước"><ChevronLeft size={18} aria-hidden="true" /></button>
-            <button type="button" onClick={() => setPagination((p) => ({ ...p, page: p.page + 1 }))} disabled={pagination.page === pagination.totalPages}
-              className="inline-flex items-center justify-center w-11 h-11 border-2 border-ink hover:bg-ink hover:text-lamp disabled:opacity-30" aria-label="Trang sau"><ChevronRight size={18} aria-hidden="true" /></button>
-          </div>
-        </nav>
-      )}
+      {!isLoading && !loiTai && <PhanTrang ds={ds} tenDonVi="khoản" className="mt-4" />}
 
       <HopXacNhan mo={!!hoi} dangXuLy={busyId != null} nhanGiu="Không, quay lại" nguyHiem={hoi?.decision === 'Withhold'}
         tieuDe={!hoi ? '' : hoi.decision === 'Withhold' ? `Giữ lại ${tien(hoi.s.netAmount)}?` : `Nhả ${tien(hoi.s.netAmount)} cho phòng trà?`}

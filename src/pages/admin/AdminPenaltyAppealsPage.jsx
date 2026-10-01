@@ -1,44 +1,32 @@
 // src/pages/admin/AdminPenaltyAppealsPage.jsx
 // Phía ĐỐI XỨNG của màn Án phạt bên chủ phòng trà (/owner/penalties). Quyết định ở đây
 // có hiệu lực NGAY và KHÔNG hoàn tác được.
-import { useState, useEffect, useCallback } from 'react'
+// PHÂN TRANG (01/10/2026): dùng hooks/useDanhSachMayChu + components/bang/PhanTrang như mọi danh sách khác — bản cũ tự
+// giữ {page,totalPages} với hai nút trước/sau, trang và tab không lên URL (tải lại về trang 1) và không có dòng "Hiện x–y".
+import { useState } from 'react'
+import { parseAsBoolean } from 'nuqs'
 import { Loader2, Gavel, RefreshCw, MessageSquareWarning } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { getPenaltyAppeals, reviewPenaltyAppeal } from '../../services/penaltyServices'
 import PenaltyAppealCard from '../../components/admin/penalty-appeals/PenaltyAppealCard'
 import PenaltyAppealReviewModal from '../../components/admin/penalty-appeals/PenaltyAppealReviewModal'
+import { useDanhSachMayChu } from '../../hooks/useDanhSachMayChu'
+import PhanTrang from '../../components/bang/PhanTrang'
+
+// Tab trên URL (?daXuLy=true) — Quay lại/tải lại giữ đúng tab.
+const BO_LOC = { daXuLy: parseAsBoolean.withDefault(false) }
 
 const AdminPenaltyAppealsPage = () => {
-  const [items, setItems] = useState([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [daXuLy, setDaXuLy] = useState(false)
-  const [page, setPage] = useState(1)
-  const [totalPages, setTotalPages] = useState(1)
-  const [totalCount, setTotalCount] = useState(0)
+  const ds = useDanhSachMayChu({ khoa: ['admin-khieu-nai-an-phat'], goi: ({ daXuLy, ...q }) => getPenaltyAppeals({ ...q, resolved: daXuLy }), boLoc: BO_LOC })
+  const daXuLy = ds.boLoc.daXuLy
+  const items = ds.items
+  const isLoading = ds.dangTai
+  const totalCount = ds.tong
+  const load = () => ds.taiLai()
   const [target, setTarget] = useState(null) // { item, decision }
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  // 1. FETCH THEO TAB + TRANG
-  const load = useCallback(async () => {
-    setIsLoading(true)
-    try {
-      const res = await getPenaltyAppeals({ resolved: daXuLy, page, pageSize: 20 })
-      if (res.success) {
-        setItems(res.data?.items ?? [])
-        setTotalPages(res.data?.totalPages ?? 1)
-        setTotalCount(res.data?.totalCount ?? 0)
-      }
-    } catch (err) {
-      toast.error(err.response?.data?.message || 'Không tải được danh sách khiếu nại.')
-      setItems([])
-    } finally {
-      setIsLoading(false)
-    }
-  }, [daXuLy, page])
-
-  useEffect(() => { const chay = async () => { await load() }; chay() }, [load])
-
-  const doiTab = (v) => { setDaXuLy(v); setPage(1) }
+  const doiTab = (v) => ds.datBoLoc({ daXuLy: v || null })
 
   // 2. SUBMIT QUYẾT ĐỊNH — page giữ API, modal lo validate note
   const handleReviewSubmit = async (reviewNote) => {
@@ -91,6 +79,11 @@ const AdminPenaltyAppealsPage = () => {
 
       {isLoading ? (
         <div className="py-20 flex justify-center"><Loader2 size={30} className="animate-spin text-ink" /></div>
+      ) : ds.loi ? (
+        <div role="alert" className="bg-card border border-line p-6 flex flex-wrap items-center gap-4">
+          <p className="text-sm">Chưa tải được danh sách khiếu nại án phạt.</p>
+          <button type="button" onClick={() => ds.taiLai()} className="min-h-[44px] px-4 border-2 border-ink font-semibold hover:bg-ink hover:text-lamp">Thử lại</button>
+        </div>
       ) : items.length === 0 ? (
         <div className="bg-card border border-line p-12 text-center">
           <MessageSquareWarning size={30} className="mx-auto mb-3 text-ink-mute" />
@@ -111,19 +104,7 @@ const AdminPenaltyAppealsPage = () => {
         </ul>
       )}
 
-      {totalPages > 1 && (
-        <div className="flex items-center justify-center gap-3">
-          <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page <= 1}
-            className="px-4 py-2 border border-line text-sm text-ink-soft hover:bg-sunken disabled:opacity-40">
-            Trước
-          </button>
-          <span className="text-sm text-ink-mute">Trang {page}/{totalPages}</span>
-          <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page >= totalPages}
-            className="px-4 py-2 border border-line text-sm text-ink-soft hover:bg-sunken disabled:opacity-40">
-            Sau
-          </button>
-        </div>
-      )}
+      {!isLoading && !ds.loi && <PhanTrang ds={ds} tenDonVi="khiếu nại" />}
 
       {target && (
         <PenaltyAppealReviewModal
