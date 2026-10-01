@@ -1,4 +1,4 @@
-// src/components/mshow-detail/EventMap.jsx
+// src/components/mshow-detail/ShowMap.jsx
 import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { MapPin, Check, Lock, Loader2, Minus, Plus, Ticket, Timer, Info } from 'lucide-react'

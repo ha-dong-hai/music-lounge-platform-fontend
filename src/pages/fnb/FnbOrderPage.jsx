@@ -1,3 +1,5 @@
+// src/pages/fnb/FnbOrderPage.jsx
+
 import { useState, useEffect, useMemo } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { Loader2, Plus, Minus, ShoppingCart, ArrowLeft, CreditCard, Receipt } from 'lucide-react'

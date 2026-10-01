@@ -1,3 +1,5 @@
+// src/components/admin/bank-accounts/BankAccountsTable.jsx
+
 import { Loader2, ChevronLeft, ChevronRight, Wallet, ShieldCheck, Check, X, Star } from 'lucide-react'
 import dayjs from 'dayjs'
 

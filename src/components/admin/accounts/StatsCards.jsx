@@ -1,3 +1,5 @@
+// src/components/admin/accounts/StatsCards.jsx
+
 import { Ban, Building2, UserCog, User as UserIcon, Users as UsersIcon } from 'lucide-react'
 
 const StatsCards = ({ stats, roleFilter, statusFilter, onSelectFilter }) => {

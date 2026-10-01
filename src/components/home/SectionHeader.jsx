@@ -1,3 +1,4 @@
+// src/components/home/SectionHeader.jsx
 import { useState, useRef, useEffect } from 'react'
 import { SlidersHorizontal, CalendarDays, X } from 'lucide-react'
 import dayjs from 'dayjs'

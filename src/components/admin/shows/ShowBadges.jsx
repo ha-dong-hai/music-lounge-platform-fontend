@@ -1,3 +1,5 @@
+// src/components/admin/shows/ShowBadges.jsx
+
 import { Building, Radio, Cast } from 'lucide-react'
 
 // ===== SHOW BADGES =====

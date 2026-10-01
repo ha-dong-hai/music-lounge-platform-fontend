@@ -1,3 +1,5 @@
+// src/components/admin/accounts/AccountDetailModal.jsx
+
 import { X, Loader2, Ban, Unlock, ShieldCheck } from 'lucide-react'
 import dayjs from 'dayjs'
 import { RoleBadge, StatusBadge } from './Badges'
