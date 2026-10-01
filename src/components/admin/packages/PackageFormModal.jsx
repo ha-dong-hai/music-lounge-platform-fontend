@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { X, Sparkles, Box, Loader2 } from 'lucide-react'
 import toast from 'react-hot-toast'
+import HopThoai, { TieuDeHop } from '../../shared/HopThoai'
 
 const EMPTY_FORM = {
   name: '', description: '', price: 0, billingCycle: 'Monthly',
@@ -59,13 +60,10 @@ const PackageFormModal = ({ isOpen, editingPkg, isSaving, onClose, onSubmit }) =
   const inputCls = "w-full px-4 py-2.5 bg-page border border-line text-ink text-sm focus:outline-none focus:border-ink/50"
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 chat-scrollbar">
-      <div className="absolute inset-0 bg-ink/80" onClick={() => !isSaving && onClose()}></div>
-
-      <div className="relative bg-card border border-line w-full max-w-lg shadow-soft flex flex-col max-h-[90vh]">
+    <HopThoai onDong={onClose} dongKhiBamNgoai={false} className="max-w-lg flex flex-col max-h-[90vh]">
         {/* HEADER */}
         <div className="flex justify-between items-center p-6 border-b border-line">
-          <h2 className="text-xl text-ink">{isEditing ? 'Sửa gói' : 'Tạo gói mới'}</h2>
+          <TieuDeHop><h2 className="text-xl text-ink">{isEditing ? 'Sửa gói' : 'Tạo gói mới'}</h2></TieuDeHop>
           <button onClick={onClose} disabled={isSaving} className="inline-flex items-center justify-center w-11 h-11 flex-shrink-0 hover:bg-sunken text-ink-soft disabled:opacity-30" aria-label="Đóng">
             <X size={20} />
           </button>
@@ -215,8 +213,7 @@ const PackageFormModal = ({ isOpen, editingPkg, isSaving, onClose, onSubmit }) =
             {isSaving ? <><Loader2 size={16} className="animate-spin" /> Đang lưu…</> : (isEditing ? 'Lưu' : 'Tạo')}
           </button>
         </div>
-      </div>
-    </div>
+      </HopThoai>
   )
 }
 

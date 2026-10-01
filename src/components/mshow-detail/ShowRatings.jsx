@@ -7,6 +7,7 @@ import toast from 'react-hot-toast'
 import { getShowRatings } from '../../services/showServices'
 import { removeRating } from '../../services/adminServices'
 import { useAuthStore } from '../../store/useAuthStore'
+import HopThoai, { TieuDeHop } from '../shared/HopThoai'
 
 const SaoHang = ({ score, size = 14 }) => (
   <span className="inline-flex items-center gap-0.5" aria-label={`${score} trên 5 sao`}>
@@ -37,11 +38,9 @@ const RemoveModal = ({ rating, onClose, onDone }) => {
   }
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-ink/80" onClick={onClose} />
-      <div className="relative bg-card border border-line w-full max-w-md shadow-lift">
+    <HopThoai onDong={onClose} className="max-w-md">
         <div className="flex justify-between items-center p-5 border-b border-line">
-          <h2 className="text-3xl text-ink">Gỡ đánh giá này?</h2>
+          <TieuDeHop><h2 className="text-3xl text-ink">Gỡ đánh giá này?</h2></TieuDeHop>
           <button onClick={onClose} disabled={isBusy} className="p-2 hover:bg-sunken text-ink-soft disabled:opacity-30" aria-label="Đóng">
             <X size={20} />
           </button>
@@ -71,8 +70,7 @@ const RemoveModal = ({ rating, onClose, onDone }) => {
             </button>
           </div>
         </form>
-      </div>
-    </div>
+      </HopThoai>
   )
 }
 

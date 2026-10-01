@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { X, Check, Copy } from 'lucide-react'
+import HopThoai, { TieuDeHop } from '../../shared/HopThoai'
 
 const ShareModal = ({ onClose }) => {
   const [isCopied, setIsCopied] = useState(false)
@@ -11,11 +12,9 @@ const ShareModal = ({ onClose }) => {
   }
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4" onClick={onClose}>
-      <div className="absolute inset-0 bg-ink/80"></div>
-      <div className="relative bg-card border border-line w-full max-w-md p-6 shadow-soft" onClick={(e) => e.stopPropagation()}>
+    <HopThoai onDong={onClose} className="max-w-md p-6">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl text-ink">Chia sẻ buổi diễn</h2>
+          <TieuDeHop><h2 className="text-xl text-ink">Chia sẻ buổi diễn</h2></TieuDeHop>
           <button onClick={onClose} className="inline-flex items-center justify-center w-11 h-11 flex-shrink-0 hover:bg-sunken text-ink-soft transition-colors" aria-label="Đóng"><X size={20} /></button>
         </div>
         <p className="text-ink-soft text-sm mb-3">Sao chép đường link bên dưới để gửi cho bạn bè:</p>
@@ -25,8 +24,7 @@ const ShareModal = ({ onClose }) => {
             {isCopied ? <><Check size={14} /> Đã copy</> : <><Copy size={14} /> Sao chép</>}
           </button>
         </div>
-      </div>
-    </div>
+      </HopThoai>
   )
 }
 

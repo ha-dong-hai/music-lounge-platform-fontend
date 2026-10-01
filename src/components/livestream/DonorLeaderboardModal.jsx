@@ -1,5 +1,6 @@
 import { X, Trophy } from 'lucide-react'
 import { anhChuCai } from '../../utils/anhChuCai'
+import HopThoai, { TieuDeHop } from '../shared/HopThoai'
 
 const fmt = (v) => (v || 0).toLocaleString('vi-VN') + 'đ'
 
@@ -16,17 +17,14 @@ const DonorLeaderboardModal = ({ donors, onClose }) => {
   const totalCount = donors.reduce((s, d) => s + d.count, 0)
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4" onClick={onClose}>
-      <div className="absolute inset-0 bg-ink/80"></div>
-
-      <div className="relative bg-card border border-line w-full max-w-md max-h-[85vh] flex flex-col shadow-soft" onClick={(e) => e.stopPropagation()}>
+    <HopThoai onDong={onClose} className="max-w-md max-h-[85vh] flex flex-col">
 
         {/* HEADER */}
         <div className="flex-none flex justify-between items-start p-5 border-b border-line">
           <div>
-            <h2 className="text-3xl text-ink flex items-center gap-2">
+            <TieuDeHop><h2 className="text-3xl text-ink flex items-center gap-2">
               <Trophy size={18} className="text-ink" /> Donate leaderboard
-            </h2>
+            </h2></TieuDeHop>
             <p className="text-xs text-ink-mute mt-1">
               Tổng cộng <span className="text-ink font-bold">{fmt(totalAmount)}</span> · {totalCount} total {donors.length} donor
             </p>
@@ -65,8 +63,7 @@ const DonorLeaderboardModal = ({ donors, onClose }) => {
             )
           })}
         </div>
-      </div>
-    </div>
+      </HopThoai>
   )
 }
 

@@ -21,6 +21,7 @@ import { getLounges } from '../../services/loungeServices'
 import { useAuthStore } from '../../store/useAuthStore'
 import { getMyPerformers } from '../../services/performerServices'
 import KhungTai, { TrangLoiTai } from '../../components/bang/KhungTai'
+import HopThoai, { TieuDeHop } from '../../components/shared/HopThoai'
 
 // NGHỆ SĨ NÀO ĐƯỢC CHỌN (sửa 01/10/2026): GET /performers là danh mục DÙNG CHUNG của mọi phòng trà, sắp theo Id, kẹp
 // 50/trang. Bản cũ lấy một trang pageSize 100 (nhận 50) và cho chọn TẤT CẢ: chọn hồ sơ phòng trà khác tạo thì backend trả
@@ -93,11 +94,9 @@ const AccountFormModal = ({ initial, chuSoHuu, onClose, onSaved }) => {
   }
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-ink/80" onClick={onClose} />
-      <div className="relative bg-card border border-line w-full max-w-md shadow-soft">
+    <HopThoai onDong={onClose} className="max-w-md">
         <div className="flex justify-between items-center p-5 border-b border-line">
-          <h2 className="text-3xl text-ink">{isEdit ? 'Sửa tài khoản' : 'Thêm tài khoản nhận tiền'}</h2>
+          <TieuDeHop><h2 className="text-3xl text-ink">{isEdit ? 'Sửa tài khoản' : 'Thêm tài khoản nhận tiền'}</h2></TieuDeHop>
           <button onClick={onClose} disabled={isBusy} className="inline-flex items-center justify-center w-11 h-11 flex-shrink-0 hover:bg-sunken text-ink-soft disabled:opacity-30" aria-label="Đóng">
             <X size={20} />
           </button>
@@ -136,8 +135,7 @@ const AccountFormModal = ({ initial, chuSoHuu, onClose, onSaved }) => {
             </button>
           </div>
         </form>
-      </div>
-    </div>
+      </HopThoai>
   )
 }
 

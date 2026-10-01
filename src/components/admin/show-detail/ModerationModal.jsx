@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { X, Check, Loader2, ShieldAlert, AlertTriangle } from 'lucide-react'
 import dayjs from 'dayjs'
 import { AIScoreCircle, RiskLevelBadge, AiRecommendationBadge } from '../shows/ShowBadges'
+import HopThoai, { TieuDeHop } from '../../shared/HopThoai'
 
 // SỬA 01/10/2026: ReviewShowCommandValidator BẮT BUỘC ReviewNote khi Rejected, và ReviewShowCommandHandler gửi nguyên văn
 // lý do cho chủ phòng trà. Bản cũ ghi "Ghi chú duyệt (không bắt buộc)" → bấm Từ chối không lý do thì nhận 400. Nay chặn
@@ -19,10 +20,7 @@ const ModerationModal = ({ moderation, onClose, onDecision, isProcessing }) => {
   const isSlaOverdue = moderation.slaDeadline && dayjs(moderation.slaDeadline).isBefore(dayjs())
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4" onClick={() => !isProcessing && onClose()}>
-      <div className="absolute inset-0 bg-ink/80"></div>
-
-      <div className="relative bg-card border-2 border-warning/40 w-full max-w-2xl max-h-[90vh] flex flex-col shadow-soft duration-300" onClick={(e) => e.stopPropagation()}>
+    <HopThoai onDong={onClose} dongKhiBamNgoai={false} className="border-warning/40 max-w-2xl max-h-[90vh] flex flex-col duration-300">
 
         {/* ===== HEADER ===== */}
         <div className="flex-none flex items-center gap-3 p-6 border-b border-line">
@@ -30,7 +28,7 @@ const ModerationModal = ({ moderation, onClose, onDecision, isProcessing }) => {
             <ShieldAlert size={22} className="text-warning" />
           </div>
           <div className="flex-1 min-w-0">
-            <h2 className="text-3xl text-ink">Duyệt nội dung</h2>
+            <TieuDeHop><h2 className="text-3xl text-ink">Duyệt nội dung</h2></TieuDeHop>
             <p className="text-sm text-ink-mute">Buổi diễn #{moderation.targetId} · chờ quản trị viên duyệt</p>
           </div>
           <button onClick={onClose} disabled={isProcessing} className="inline-flex items-center justify-center w-11 h-11 flex-shrink-0 hover:bg-sunken text-ink-soft disabled:opacity-30" aria-label="Đóng">
@@ -113,8 +111,7 @@ const ModerationModal = ({ moderation, onClose, onDecision, isProcessing }) => {
               : <><X size={18} strokeWidth={3} /> Từ chối</>}
           </button>
         </div>
-      </div>
-    </div>
+      </HopThoai>
   )
 }
 

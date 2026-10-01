@@ -2,6 +2,7 @@
 import { useState } from 'react'
 import { X, Loader2, AlertTriangle } from 'lucide-react'
 import toast from 'react-hot-toast'
+import HopThoai, { TieuDeHop } from '../../shared/HopThoai'
 
 const KycReviewModal = ({ target, isProcessing, onClose, onSubmit }) => {
   const [note, setNote] = useState('')
@@ -21,13 +22,11 @@ const KycReviewModal = ({ target, isProcessing, onClose, onSubmit }) => {
   const canhBaoThue = target.approve && target.document === 'TaxProfile' && target.item.withholdingWouldStopIfApproved
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-ink/80" onClick={() => !isProcessing && onClose()} />
-      <div className="relative bg-card border border-line w-full max-w-md shadow-soft" onClick={(e) => e.stopPropagation()}>
+    <HopThoai onDong={onClose} dongKhiBamNgoai={false} className="max-w-md">
         <div className="flex justify-between items-center p-5 border-b border-line">
-          <h2 className="text-3xl text-ink">
+          <TieuDeHop><h2 className="text-3xl text-ink">
             {target.approve ? 'Duyệt' : 'Từ chối'} {tenGiayTo}
-          </h2>
+          </h2></TieuDeHop>
           <button onClick={onClose} disabled={isProcessing} className="inline-flex items-center justify-center w-11 h-11 flex-shrink-0 hover:bg-sunken text-ink-soft disabled:opacity-30" aria-label="Đóng">
             <X size={20} />
           </button>
@@ -70,8 +69,7 @@ const KycReviewModal = ({ target, isProcessing, onClose, onSubmit }) => {
             </button>
           </div>
         </form>
-      </div>
-    </div>
+      </HopThoai>
   )
 }
 

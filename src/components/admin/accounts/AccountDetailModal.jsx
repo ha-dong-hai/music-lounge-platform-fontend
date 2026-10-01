@@ -10,14 +10,13 @@ import dayjs from 'dayjs'
 import { mocUtc } from '../../../utils/format'
 import { RoleBadge, StatusBadge } from './Badges'
 import { anhChuCai } from '../../../utils/anhChuCai'
+import HopThoai, { TieuDeHop } from '../../shared/HopThoai'
 
 const AccountDetailModal = ({ selectedAcc, isModalLoading, isUpdating, onClose, onToggleBan }) => {
   if (!selectedAcc) return null
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4" onClick={() => !isModalLoading && onClose()}>
-      <div className="absolute inset-0 bg-ink/80"></div>
-      <div className="relative bg-card border border-line w-full max-w-lg p-6 shadow-soft" onClick={(e) => e.stopPropagation()}>
+    <HopThoai onDong={onClose} dongKhiBamNgoai={false} className="max-w-lg p-6">
         {isModalLoading ? (
           <div className="flex flex-col items-center justify-center py-10">
             <Loader2 size={32} className="animate-spin text-ink mb-3" />
@@ -29,7 +28,7 @@ const AccountDetailModal = ({ selectedAcc, isModalLoading, isUpdating, onClose, 
               <div className="flex items-center gap-4">
                 <img src={selectedAcc.avatarUrl || anhChuCai(selectedAcc.fullName)} alt="avatar" className="w-16 h-16 border-2 border-ink/30 object-cover" />
                 <div>
-                  <h2 className="text-xl text-ink">{selectedAcc.fullName}</h2>
+                  <TieuDeHop><h2 className="text-xl text-ink">{selectedAcc.fullName}</h2></TieuDeHop>
                   <p className="text-sm text-ink-mute">{selectedAcc.email}</p>
                 </div>
               </div>
@@ -90,8 +89,7 @@ const AccountDetailModal = ({ selectedAcc, isModalLoading, isUpdating, onClose, 
             </div>
           </>
         )}
-      </div>
-    </div>
+      </HopThoai>
   )
 }
 

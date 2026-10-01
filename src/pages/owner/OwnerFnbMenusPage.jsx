@@ -19,21 +19,19 @@ import {
 import ConfirmModal from '../../components/shared/ConfirmModal'
 import NhomTab from '../../components/bang/NhomTab'
 import KhungTai, { TrangLoiTai } from '../../components/bang/KhungTai'
+import HopThoai, { TieuDeHop } from '../../components/shared/HopThoai'
 
 const fmtMoney = (v) => `${Number(v || 0).toLocaleString('vi-VN')}đ`
 const inputCls = 'mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink focus:outline-none focus:border-ink/50'
 
 const Modal = ({ title, onClose, children }) => (
-  <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-    <div className="absolute inset-0 bg-ink/80" onClick={onClose} />
-    <div className="relative bg-card border border-line w-full max-w-md shadow-soft max-h-[90vh] flex flex-col">
+  <HopThoai onDong={onClose} className="max-w-md max-h-[90vh] flex flex-col">
       <div className="flex justify-between items-center p-5 border-b border-line">
-        <h2 className="text-3xl text-ink">{title}</h2>
+        <TieuDeHop><h2 className="text-3xl text-ink">{title}</h2></TieuDeHop>
         <button onClick={onClose} className="inline-flex items-center justify-center w-11 h-11 flex-shrink-0 hover:bg-sunken text-ink-soft" aria-label="Đóng"><X size={20} /></button>
       </div>
       <div className="p-5 overflow-y-auto">{children}</div>
-    </div>
-  </div>
+    </HopThoai>
 )
 
 const MenuFormModal = ({ initial, loungeId, onClose, onSaved }) => {

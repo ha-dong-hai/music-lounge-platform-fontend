@@ -27,6 +27,7 @@ import dayjs from 'dayjs'
 import toast from 'react-hot-toast'
 import { getLoungeBusinessLicense } from '../../../services/loungeServices'
 import { VenueStatusBadge, LicenseBadge } from './VenueBadges'
+import HopThoai, { TieuDeHop } from '../../shared/HopThoai'
 
 const Dong = ({ icon: Icon, nhan, children }) => (
   <div className="flex items-start gap-3 py-3 border-b border-line last:border-b-0">
@@ -60,13 +61,11 @@ const VenueDossierModal = ({ venue, onClose, onReview }) => {
   const choDuyet = venue.status === 'Pending'
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-ink/80" onClick={onClose} />
-      <div className="relative bg-card border border-line w-full max-w-2xl shadow-soft flex flex-col max-h-[90vh]">
+    <HopThoai onDong={onClose} className="max-w-2xl flex flex-col max-h-[90vh]">
 
         <div className="flex-none flex justify-between items-start gap-4 p-5 border-b border-line">
           <div className="min-w-0">
-            <h2 className="text-3xl text-ink truncate">Hồ sơ phòng trà đã nộp</h2>
+            <TieuDeHop><h2 className="text-3xl text-ink truncate">Hồ sơ phòng trà đã nộp</h2></TieuDeHop>
             <p className="text-xs text-ink-mute mt-0.5">#{venue.loungeId} · {venue.name}</p>
           </div>
           <button onClick={onClose} aria-label="Đóng hồ sơ" className="inline-flex items-center justify-center w-11 h-11 flex-shrink-0 hover:bg-sunken text-ink-soft">
@@ -150,8 +149,7 @@ const VenueDossierModal = ({ venue, onClose, onReview }) => {
             </button>
           </div>
         )}
-      </div>
-    </div>
+      </HopThoai>
   )
 }
 

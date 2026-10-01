@@ -16,6 +16,7 @@ import toast from 'react-hot-toast'
 import { getMyPenalties, submitPenaltyAppeal } from '../../services/penaltyServices'
 import { useDanhSachMayChu } from '../../hooks/useDanhSachMayChu'
 import PhanTrang from '../../components/bang/PhanTrang'
+import HopThoai, { TieuDeHop } from '../../components/shared/HopThoai'
 
 const TYPE_VIEW = {
   Warning: { label: 'Cảnh cáo', cls: 'bg-warning/10 text-warning border-warning/30', icon: AlertTriangle,
@@ -55,11 +56,9 @@ const AppealModal = ({ penalty, onClose, onSaved }) => {
   }
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-ink/80" onClick={onClose} />
-      <div className="relative bg-card border border-line w-full max-w-md shadow-soft">
+    <HopThoai onDong={onClose} className="max-w-md">
         <div className="flex justify-between items-center p-5 border-b border-line">
-          <h2 className="text-3xl text-ink">Khiếu nại án phạt</h2>
+          <TieuDeHop><h2 className="text-3xl text-ink">Khiếu nại án phạt</h2></TieuDeHop>
           <button onClick={onClose} className="inline-flex items-center justify-center w-11 h-11 flex-shrink-0 hover:bg-sunken text-ink-soft" aria-label="Đóng"><X size={20} /></button>
         </div>
 
@@ -84,8 +83,7 @@ const AppealModal = ({ penalty, onClose, onSaved }) => {
             {isBusy && <Loader2 size={16} className="animate-spin" />} Gửi khiếu nại
           </button>
         </form>
-      </div>
-    </div>
+      </HopThoai>
   )
 }
 

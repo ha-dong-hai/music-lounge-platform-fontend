@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { X, Check, Loader2, Landmark, Star, AlertCircle } from 'lucide-react'
+import HopThoai, { TieuDeHop } from '../../shared/HopThoai'
 
 const BankAccountReviewModal = ({ account, onClose, onDecision, isProcessing }) => {
   const [note, setNote] = useState('')
@@ -19,10 +20,7 @@ const BankAccountReviewModal = ({ account, onClose, onDecision, isProcessing }) 
   const hasRedFlag = checklist.some(c => !c.ok)
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4" onClick={() => !isProcessing && onClose()}>
-      <div className="absolute inset-0 bg-board/80"></div>
-
-      <div className="relative bg-board border border-ink w-full max-w-lg max-h-[90vh] flex flex-col shadow-soft" onClick={(e) => e.stopPropagation()}>
+    <HopThoai onDong={onClose} dongKhiBamNgoai={false} className="bg-board max-w-lg max-h-[90vh] flex flex-col">
 
         {/* HEADER */}
         <div className="flex-none flex items-center gap-3 p-5 border-b border-ink">
@@ -30,7 +28,7 @@ const BankAccountReviewModal = ({ account, onClose, onDecision, isProcessing }) 
             <Landmark size={22} className="text-ink" />
           </div>
           <div className="flex-1 min-w-0">
-            <h2 className="text-3xl text-lamp">Duyệt tài khoản nhận tiền</h2>
+            <TieuDeHop><h2 className="text-3xl text-lamp">Duyệt tài khoản nhận tiền</h2></TieuDeHop>
             <p className="text-sm text-ink-soft truncate">
               {account.bankName} · {account.accountNumberMasked}
             </p>
@@ -125,8 +123,7 @@ const BankAccountReviewModal = ({ account, onClose, onDecision, isProcessing }) 
               : <><X size={18} strokeWidth={3} aria-hidden="true" /> Từ chối</>}
           </button>
         </div>
-      </div>
-    </div>
+      </HopThoai>
   )
 }
 

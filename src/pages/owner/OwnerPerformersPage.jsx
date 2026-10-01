@@ -28,6 +28,7 @@ import { useAuthStore } from '../../store/useAuthStore'
 import { useDanhSachMayChu } from '../../hooks/useDanhSachMayChu'
 import { useOTimTre } from '../../hooks/useOTimTre'
 import PhanTrang from '../../components/bang/PhanTrang'
+import HopThoai, { TieuDeHop } from '../../components/shared/HopThoai'
 
 const inputCls = 'mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink focus:outline-none focus:border-ink/50'
 
@@ -84,11 +85,9 @@ const PerformerFormModal = ({ initial, genres, onClose, onSaved }) => {
   }
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-ink/80" onClick={onClose} />
-      <div className="relative bg-card border border-line w-full max-w-lg shadow-soft max-h-[90vh] flex flex-col">
+    <HopThoai onDong={onClose} className="max-w-lg max-h-[90vh] flex flex-col">
         <div className="flex justify-between items-center p-5 border-b border-line">
-          <h2 className="text-3xl text-ink">{isEdit ? 'Sửa nghệ sĩ' : 'Thêm nghệ sĩ'}</h2>
+          <TieuDeHop><h2 className="text-3xl text-ink">{isEdit ? 'Sửa nghệ sĩ' : 'Thêm nghệ sĩ'}</h2></TieuDeHop>
           <button onClick={onClose} className="inline-flex items-center justify-center w-11 h-11 flex-shrink-0 hover:bg-sunken text-ink-soft" aria-label="Đóng"><X size={20} /></button>
         </div>
 
@@ -145,8 +144,7 @@ const PerformerFormModal = ({ initial, genres, onClose, onSaved }) => {
             {isBusy && <Loader2 size={16} className="animate-spin" />} Lưu
           </button>
         </form>
-      </div>
-    </div>
+      </HopThoai>
   )
 }
 
@@ -192,11 +190,9 @@ const SocialLinksModal = ({ performer, onClose, onSaved }) => {
   }
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-ink/80" onClick={onClose} />
-      <div className="relative bg-card border border-line w-full max-w-md shadow-soft max-h-[90vh] flex flex-col">
+    <HopThoai onDong={onClose} className="max-w-md max-h-[90vh] flex flex-col">
         <div className="flex justify-between items-center p-5 border-b border-line">
-          <h2 className="text-3xl text-ink truncate">Liên kết của {performer.name}</h2>
+          <TieuDeHop><h2 className="text-3xl text-ink truncate">Liên kết của {performer.name}</h2></TieuDeHop>
           <button onClick={onClose} className="inline-flex items-center justify-center w-11 h-11 flex-shrink-0 hover:bg-sunken text-ink-soft" aria-label="Đóng"><X size={20} /></button>
         </div>
 
@@ -238,8 +234,7 @@ const SocialLinksModal = ({ performer, onClose, onSaved }) => {
             </button>
           </form>
         </div>
-      </div>
-    </div>
+      </HopThoai>
   )
 }
 

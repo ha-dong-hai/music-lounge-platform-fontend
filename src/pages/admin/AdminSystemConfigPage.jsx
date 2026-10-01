@@ -21,6 +21,7 @@ import {
   getSystemConfigs, getSystemConfigHistory, updateSystemConfig, getConfigurationAudit,
 } from '../../services/adminServices'
 import { TrangLoiTai } from '../../components/bang/KhungTai'
+import HopThoai, { TieuDeHop } from '../../components/shared/HopThoai'
 
 const EditModal = ({ config, onClose, onSaved }) => {
   const [configValue, setConfigValue] = useState(config.configValue ?? '')
@@ -46,11 +47,9 @@ const EditModal = ({ config, onClose, onSaved }) => {
   }
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-ink/80" onClick={onClose} />
-      <div className="relative bg-card border border-line w-full max-w-md shadow-soft">
+    <HopThoai onDong={onClose} className="max-w-md">
         <div className="flex justify-between items-center p-5 border-b border-line">
-          <h2 className="text-3xl text-ink truncate">{config.configKey}</h2>
+          <TieuDeHop><h2 className="text-3xl text-ink truncate">{config.configKey}</h2></TieuDeHop>
           <button onClick={onClose} disabled={isBusy} className="inline-flex items-center justify-center w-11 h-11 flex-shrink-0 hover:bg-sunken text-ink-soft disabled:opacity-30" aria-label="Đóng">
             <X size={20} />
           </button>
@@ -103,8 +102,7 @@ const EditModal = ({ config, onClose, onSaved }) => {
             </button>
           </div>
         </form>
-      </div>
-    </div>
+      </HopThoai>
   )
 }
 
@@ -128,11 +126,9 @@ const HistoryModal = ({ configKey, onClose }) => {
   }, [configKey])
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-ink/80" onClick={onClose} />
-      <div className="relative bg-card border border-line w-full max-w-lg shadow-soft max-h-[90vh] flex flex-col">
+    <HopThoai onDong={onClose} className="max-w-lg max-h-[90vh] flex flex-col">
         <div className="flex justify-between items-center p-5 border-b border-line">
-          <h2 className="text-3xl text-ink truncate">Lịch sử: {configKey}</h2>
+          <TieuDeHop><h2 className="text-3xl text-ink truncate">Lịch sử: {configKey}</h2></TieuDeHop>
           <button onClick={onClose} className="inline-flex items-center justify-center w-11 h-11 flex-shrink-0 hover:bg-sunken text-ink-soft" aria-label="Đóng"><X size={20} /></button>
         </div>
 
@@ -159,8 +155,7 @@ const HistoryModal = ({ configKey, onClose }) => {
             </ul>
           )}
         </div>
-      </div>
-    </div>
+      </HopThoai>
   )
 }
 

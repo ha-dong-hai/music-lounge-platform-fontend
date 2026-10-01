@@ -228,7 +228,7 @@ Mọi đường cong dùng ease-out-soft; không nảy. `prefers-reduced-motion`
 - **Don't** bịa kênh liên hệ (số điện thoại, email) hay liên kết `href="#"`.
 - **Don't** dùng ember ngoài buổi đang diễn, stamp ngoài tiền, dấu mộc trên nền mực, shadow-glow ngoài thứ sáng đèn.
 
-## Màn vận hành (Chủ phòng trà / Nhân viên / Admin) — ĐÃ CHUYỂN CƠ HỌC, CHƯA LÀM LẠI TỪNG TRANG (30/09/2026)
+## Màn vận hành (Chủ phòng trà / Nhân viên / Admin) — CHUYỂN CƠ HỌC 30/09, LÀM LẠI THEO THÀNH PHẦN CHUNG 01/10/2026
 
 > 35 trang vận hành đã được đưa vào thế giới mới bằng chuyển đổi CƠ HỌC, không phải thiết kế lại từng trang như lối đi
 > của khán giả. Nói rõ để không ai tưởng chúng đã qua cùng một quy trình.
@@ -257,8 +257,21 @@ nay nằm dưới cổng `kiem:the-gioi`, nợ = 0, khối tên màu cũ trong `
 - Biểu đồ: `chartTokens.js` theo bảng màu hiện hành; ba nguồn là ba độ đậm của mực (`--color-ink`, `--color-chart-2`,
   `--color-chart-3`), mỗi màu >= 3:1 trên nền thẻ (WCAG 1.4.11). Không mượn ember hay son cho chuỗi dữ liệu.
 
-**Vẫn chưa làm (chờ chủ dự án duyệt trang mẫu `OwnerShowsPage`):** bố cục bảng, ô số liệu có ô biểu tượng ở tổng quan
-Admin / tài khoản / phòng trà, nhãn trạng thái dùng chung cho mọi bảng.
+**Làm lại 01/10/2026 — thành phần dùng chung (trang vận hành KHÔNG tự dựng lại những thứ này):**
+- Nút: 44px, năm kiểu — chính (đặc mực), phụ (viền 2px), xoá (viền son), đồng ý, cảnh báo; nút xác nhận trong hộp thoại
+  hậu quả nặng thì đặc màu (đỏ/xanh). Nút chỉ có biểu tượng 44×44, luôn có `aria-label` nêu đối tượng. Lớp sẵn:
+  `components/bang/DauTrang.jsx` (`NUT_CHINH`, `NUT_PHU`, `NUT_BIEU_TUONG`, `NUT_BIEU_TUONG_XOA`).
+- Đầu trang: tiêu đề = đúng tên mục trên thanh trái; không đặt biểu tượng trước tiêu đề.
+- Nhóm tab lọc: `NhomTab` (role="group" + aria-pressed, 44px, số đếm tuỳ chọn) — không phải tablist.
+- Tải / lỗi / rỗng: `KhungTai`, `TrangLoiTai`. Lỗi tải KHÔNG bao giờ được vẽ thành "chưa có…" (25 trang đã sửa).
+- Danh sách lớn: `useDanhSachMayChu` + `PhanTrang` (+ `BangDuLieu` cho bảng, `ChipBoLoc` cho bộ lọc đang áp); trang và
+  bộ lọc nằm trên URL.
+- Hộp thoại: `components/shared/HopThoai.jsx` (Radix Dialog) — role=dialog, giữ tiêu điểm, Esc, trả tiêu điểm; tiêu đề hiển
+  thị bọc `TieuDeHop`. Hộp xác nhận hành động khó hoàn tác vẫn dùng `HopXacNhan`.
+- Chip bật/tắt (thể loại, chế độ vẽ…): 44px, viền 2px, `aria-pressed`.
+
+**Còn lại:** ô số liệu ba kiểu khác nhau → `OChiSo`; ô nhập trên form vận hành còn viền 1px; bảng tự viết còn lại
+(Danh mục phân loại, Cấu hình hệ thống) → `BangDuLieu`.
 
 ## Danh sách lựa chọn dài: thu gọn, không in hết (30/09/2026)
 

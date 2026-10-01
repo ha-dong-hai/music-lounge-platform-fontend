@@ -3,6 +3,7 @@ import { X, Check, Loader2, ShieldAlert, MapPin, User } from 'lucide-react'
 import dayjs from 'dayjs'
 import { VenueStatusBadge, LicenseBadge } from './VenueBadges'
 import { anhChuCai } from '../../../utils/anhChuCai'
+import HopThoai, { TieuDeHop } from '../../shared/HopThoai'
 
 
 const VenueReviewModal = ({ venue, onClose, onDecision, isProcessing }) => {
@@ -11,10 +12,7 @@ const VenueReviewModal = ({ venue, onClose, onDecision, isProcessing }) => {
   if (!venue) return null
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4" onClick={() => !isProcessing && onClose()}>
-      <div className="absolute inset-0 bg-board/80"></div>
-
-      <div className="relative bg-board border border-ink w-full max-w-lg max-h-[90vh] flex flex-col shadow-soft" onClick={(e) => e.stopPropagation()}>
+    <HopThoai onDong={onClose} dongKhiBamNgoai={false} className="bg-board max-w-lg max-h-[90vh] flex flex-col">
 
         {/* HEADER */}
         <div className="flex-none flex items-center gap-3 p-5 border-b border-ink">
@@ -22,7 +20,7 @@ const VenueReviewModal = ({ venue, onClose, onDecision, isProcessing }) => {
             <ShieldAlert size={22} className="text-ink" />
           </div>
           <div className="flex-1 min-w-0">
-            <h2 className="text-3xl text-lamp">Duyệt phòng trà</h2>
+            <TieuDeHop><h2 className="text-3xl text-lamp">Duyệt phòng trà</h2></TieuDeHop>
             <p className="text-sm text-ink-soft truncate">#{venue.loungeId} · {venue.name}</p>
           </div>
           <button onClick={onClose} disabled={isProcessing} className="inline-flex items-center justify-center w-11 h-11 flex-shrink-0 hover:bg-board text-ink-mute disabled:opacity-30" aria-label="Đóng">
@@ -100,8 +98,7 @@ const VenueReviewModal = ({ venue, onClose, onDecision, isProcessing }) => {
               : <><X size={18} strokeWidth={3} /> Từ chối</>}
           </button>
         </div>
-      </div>
-    </div>
+      </HopThoai>
   )
 }
 

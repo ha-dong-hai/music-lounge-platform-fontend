@@ -15,6 +15,7 @@ import { Loader2, Receipt, Landmark, AlertTriangle, CheckCircle2, Clock, X, XCir
 import dayjs from 'dayjs'
 import toast from 'react-hot-toast'
 import { getMyRefundRequests, provideRefundPayoutAccount } from '../../services/ticketServices'
+import HopThoai, { TieuDeHop } from '../shared/HopThoai'
 
 const fmtMoney = (v) => `${Number(v || 0).toLocaleString('vi-VN')}đ`
 const soTien = (r) => r.amountApproved ?? r.amountRequested
@@ -52,11 +53,9 @@ const PayoutAccountModal = ({ request, onClose, onSaved }) => {
   }
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-ink/80" onClick={onClose} />
-      <div className="relative bg-card border border-line w-full max-w-md shadow-soft">
+    <HopThoai onDong={onClose} className="max-w-md">
         <div className="flex justify-between items-center p-5 border-b border-line">
-          <h2 className="text-3xl text-ink">Tài khoản nhận tiền hoàn</h2>
+          <TieuDeHop><h2 className="text-3xl text-ink">Tài khoản nhận tiền hoàn</h2></TieuDeHop>
           <button onClick={onClose} className="p-2 hover:bg-sunken text-ink-soft" aria-label="Đóng"><X size={20} /></button>
         </div>
 
@@ -90,8 +89,7 @@ const PayoutAccountModal = ({ request, onClose, onSaved }) => {
             {isBusy && <Loader2 size={16} className="animate-spin" />} Gửi thông tin
           </button>
         </form>
-      </div>
-    </div>
+      </HopThoai>
   )
 }
 

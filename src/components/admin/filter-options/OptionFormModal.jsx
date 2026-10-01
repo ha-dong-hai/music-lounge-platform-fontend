@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { X, Loader2, AlertTriangle } from 'lucide-react'
 import toast from 'react-hot-toast'
+import HopThoai, { TieuDeHop } from '../../shared/HopThoai'
 
 // GHI CHÚ CHO ĐỘI FE:
 // - Backend nhận PUT là GHI ĐÈ TOÀN BỘ: trường nào không gửi là bị xoá. Vì vậy form phải nạp đủ
@@ -47,16 +48,13 @@ const OptionFormModal = ({ isOpen, typeLabel, hasNameEn, hasDescription, editing
     const inputCls = "w-full px-4 py-2.5 bg-page border border-line text-ink text-sm focus:outline-none focus:border-ink/50"
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-            <div className="absolute inset-0 bg-ink/80" onClick={() => !isSaving && onClose()}></div>
-
-            <div className="relative bg-card border border-line w-full max-w-md shadow-soft flex flex-col max-h-[90vh]" onClick={(e) => e.stopPropagation()}>
+        <HopThoai onDong={onClose} dongKhiBamNgoai={false} className="max-w-md flex flex-col max-h-[90vh]">
 
                 {/* HEADER */}
                 <div className="flex-none flex justify-between items-center p-5 border-b border-line">
-                    <h2 className="text-3xl text-ink">
+                    <TieuDeHop><h2 className="text-3xl text-ink">
                         {isEditing ? `Sửa ${typeLabel}` : `Thêm ${typeLabel}`}
-                    </h2>
+                    </h2></TieuDeHop>
                     <button onClick={onClose} disabled={isSaving} className="inline-flex items-center justify-center w-11 h-11 flex-shrink-0 hover:bg-sunken text-ink-soft disabled:opacity-30" aria-label="Đóng">
                         <X size={20} />
                     </button>
@@ -140,8 +138,7 @@ const OptionFormModal = ({ isOpen, typeLabel, hasNameEn, hasDescription, editing
                             : (isEditing ? 'Lưu thay đổi' : `Thêm ${typeLabel}`)}
                     </button>
                 </div>
-            </div>
-        </div>
+            </HopThoai>
     )
 }
 

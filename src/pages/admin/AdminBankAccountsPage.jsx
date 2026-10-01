@@ -38,6 +38,7 @@ import { mocUtc } from '../../utils/format'
 import { useDanhSachMayChu } from '../../hooks/useDanhSachMayChu'
 import PhanTrang from '../../components/bang/PhanTrang'
 import NhomTab from '../../components/bang/NhomTab'
+import HopThoai, { TieuDeHop } from '../../components/shared/HopThoai'
 
 // Một điều kiện duyệt. `dat` = đã thoả. Hiện cả khi đạt lẫn khi chưa, vì "không thấy cảnh báo"
 // và "chưa kiểm" trông giống nhau nếu chỉ hiện lúc hỏng.
@@ -93,13 +94,11 @@ const ReviewModal = ({ item, approve, onClose, onSaved }) => {
   }
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-ink/80" onClick={() => !isBusy && onClose()} />
-      <div className="relative bg-card border border-line w-full max-w-md shadow-soft">
+    <HopThoai onDong={onClose} dongKhiBamNgoai={false} className="max-w-md">
         <div className="flex justify-between items-center p-5 border-b border-line">
-          <h2 className="text-3xl text-ink">
+          <TieuDeHop><h2 className="text-3xl text-ink">
             {approve ? 'Duyệt tài khoản nhận tiền?' : 'Từ chối tài khoản?'}
-          </h2>
+          </h2></TieuDeHop>
           <button onClick={onClose} disabled={isBusy}
             className="inline-flex items-center justify-center w-11 h-11 flex-shrink-0 hover:bg-sunken text-ink-soft disabled:opacity-30" aria-label="Đóng">
             <X size={20} />
@@ -149,8 +148,7 @@ const ReviewModal = ({ item, approve, onClose, onSaved }) => {
             </button>
           </div>
         </form>
-      </div>
-    </div>
+      </HopThoai>
   )
 }
 

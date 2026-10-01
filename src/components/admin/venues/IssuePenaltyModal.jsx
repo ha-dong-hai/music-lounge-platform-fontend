@@ -14,6 +14,7 @@ import { useState } from 'react'
 import { X, Loader2, ShieldAlert, AlertTriangle } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { issuePenalty } from '../../../services/penaltyServices'
+import HopThoai, { TieuDeHop } from '../../shared/HopThoai'
 
 const MUC = [
   {
@@ -76,14 +77,12 @@ const IssuePenaltyModal = ({ venue, onClose, onSaved }) => {
   }
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-ink/80" onClick={() => !isBusy && onClose()} />
-      <div className="relative bg-card border border-line w-full max-w-lg shadow-soft flex flex-col max-h-[90vh]">
+    <HopThoai onDong={onClose} dongKhiBamNgoai={false} className="max-w-lg flex flex-col max-h-[90vh]">
         <div className="flex-none flex justify-between items-center p-5 border-b border-line">
-          <h2 className="text-3xl text-ink flex items-center gap-2 min-w-0">
+          <TieuDeHop><h2 className="text-3xl text-ink flex items-center gap-2 min-w-0">
             <ShieldAlert size={19} className="text-danger flex-shrink-0" />
             <span className="truncate">Ra án phạt · {venue.name}</span>
-          </h2>
+          </h2></TieuDeHop>
           <button onClick={onClose} disabled={isBusy}
             className="inline-flex items-center justify-center w-11 h-11 flex-shrink-0 hover:bg-sunken text-ink-soft disabled:opacity-30" aria-label="Đóng">
             <X size={20} />
@@ -149,8 +148,7 @@ const IssuePenaltyModal = ({ venue, onClose, onSaved }) => {
             </button>
           </div>
         </form>
-      </div>
-    </div>
+      </HopThoai>
   )
 }
 
