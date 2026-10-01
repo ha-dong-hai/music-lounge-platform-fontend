@@ -20,9 +20,8 @@ export const getTrendingShows = async (params = {}) => {
   return axiosClient.get('/lounge-shows/trending', { params });
 };
 
-export const getDistricts = async (city) => {
-  return axiosClient.get('/lounge-shows/filter-options/districts', { params: { city } });
-};
+// MLACP-522: đã bỏ getDistricts — /lounge-shows/filter-options/districts chưa từng tồn tại ở backend (luôn 404) và cấp
+// quận/huyện không còn từ 01/7/2025. Danh sách phường/xã theo tỉnh: getWardsOfProvince (catalogServices).
 
 export const getRecommendedShows = async (params = {}) => {
   return axiosClient.get('/recommendations', { params });
