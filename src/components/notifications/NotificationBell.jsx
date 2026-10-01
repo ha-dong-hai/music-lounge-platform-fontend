@@ -40,6 +40,14 @@ const NotificationBell = () => {
     init()
   }, [loadUnread])
 
+  // Esc đóng danh sách — trước đây chỉ đóng được bằng chuột (rà soát 01/10/2026).
+  useEffect(() => {
+    if (!isOpen) return
+    const khiBam = (e) => { if (e.key === 'Escape') setIsOpen(false) }
+    window.addEventListener('keydown', khiBam)
+    return () => window.removeEventListener('keydown', khiBam)
+  }, [isOpen])
+
   const openAndLoad = async () => {
     const next = !isOpen
     setIsOpen(next)
@@ -84,6 +92,7 @@ const NotificationBell = () => {
     <div className="relative">
       <button
         onClick={openAndLoad}
+        aria-expanded={isOpen}
         className="relative flex items-center justify-center w-11 h-11 border border-line hover:border-ink text-ink-soft hover:text-ink transition-colors"
         aria-label={unread > 0 ? `Thông báo, ${unread} chưa đọc` : 'Thông báo'}
       >

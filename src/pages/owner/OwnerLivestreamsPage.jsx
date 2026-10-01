@@ -248,6 +248,10 @@ const OwnerLivestreamsPage = () => {
   const [shows, setShows] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [loiTai, setLoiTai] = useState(false)
+  // Trần: lọc hình thức trên 100 buổi đầu (backend kẹp pageSize 100). Phòng trà có hơn 100 buổi thì buổi phát trực tuyến
+  // nằm ngoài 100 buổi đó không hiện — phải NÓI ra thay vì cắt lặng lẽ. Đường nâng cấp: tham số `format` phía máy chủ
+  // (T-BE-09, PR #359, chờ merge/deploy) rồi chuyển sang useDanhSachMayChu.
+  const [biCat, setBiCat] = useState(false)
 
   const fetchShows = async () => {
     setIsLoading(true)
@@ -256,6 +260,7 @@ const OwnerLivestreamsPage = () => {
       const res = await getShows({ mine: true, pageSize: 100 })
       if (!res.success) throw new Error('shows')
       setShows(res.data.items.filter((s) => CO_PHAT.includes(s.format)))
+      setBiCat((res.data.totalCount ?? 0) > res.data.items.length)
     } catch {
       // Lỗi tải KHÔNG phải "chưa có buổi trực tuyến" — bản cũ bật toast rồi vẽ câu trống.
       setLoiTai(true)
@@ -268,10 +273,23 @@ const OwnerLivestreamsPage = () => {
 
   return (
     <div className="space-y-5">
-      <h1 className="text-4xl text-ink">Phát trực tuyến</h1>
+      <div>
+        <h1 className="text-4xl text-ink mb-1">Phát trực tuyến</h1>
+        {/* Trang duy nhất trong 35 trang vận hành chưa có dòng mô tả (đo 01/10/2026). */}
+        <p className="text-ink-soft text-sm">Các buổi diễn trực tuyến hoặc tại chỗ kèm phát của phòng trà — lấy khoá phát và theo dõi buổi đang phát.</p>
+      </div>
+      {/* Câu báo cắt nằm NGOÀI khung tải: khi 100 buổi đầu không có buổi trực tuyến nào, khung hiện trạng thái trống —
+          đúng lúc đó người dùng cần biết danh sách bị cắt nhất (đo 01/10/2026: câu báo bị giấu sau câu trống). */}
+      {!isLoading && !loiTai && biCat && (
+        <p role="note" className="border-2 border-ink p-4 text-sm">
+          Đang xét 100 buổi diễn gần nhất của phòng trà. Buổi phát trực tuyến cũ hơn chưa hiện ở đây — tìm trong mục Buổi diễn.
+        </p>
+      )}
       <KhungTai dangTai={isLoading} loi={loiTai} taiLai={fetchShows} tenVung="danh sách buổi phát trực tuyến"
         rong={shows.length === 0}
-        noiDungRong="Chưa có buổi diễn nào phát trực tuyến. Chỉ buổi có hình thức trực tuyến, hoặc tại chỗ kèm phát, mới phát được.">
+        noiDungRong={biCat
+          ? 'Trong 100 buổi diễn gần nhất không có buổi nào phát trực tuyến.'
+          : 'Chưa có buổi diễn nào phát trực tuyến. Chỉ buổi có hình thức trực tuyến, hoặc tại chỗ kèm phát, mới phát được.'}>
         <div className="space-y-4">
           {shows.map((show) => (
             <ShowLivestreamRow key={show.id} show={show} onChanged={fetchShows} />

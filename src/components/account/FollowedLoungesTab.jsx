@@ -20,6 +20,9 @@ const FollowedLoungesTab = () => {
   const [ds, setDs] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [loiTai, setLoiTai] = useState(false)
+  // Trần: 100 phòng trà đầu (backend kẹp pageSize 100). Danh sách cập nhật lạc quan + Hoàn tác nên giữ một mảng tại chỗ
+  // thay vì phân trang máy chủ; vượt 100 thì nói ra. Đường nâng cấp: useDanhSachMayChu + PhanTrang (bỏ theo dõi thì taiLai).
+  const [tongTheoDoi, setTongTheoDoi] = useState(0)
   const [dangBo, setDangBo] = useState(null)
   // Tắt thông báo KHÁC với bỏ theo dõi: vẫn theo dõi để phòng trà còn trong danh sách,
   // nhưng không nhận thông báo mỗi lần họ đăng buổi diễn mới.
@@ -33,6 +36,7 @@ const FollowedLoungesTab = () => {
       const res = await getFollowedLounges({ page: 1, pageSize: 100 })
       if (!res.success) throw new Error('theo-doi')
       setDs(res.data.items || [])
+      setTongTheoDoi(res.data.totalCount ?? (res.data.items || []).length)
     } catch {
       setLoiTai(true)
     } finally {
@@ -121,6 +125,12 @@ const FollowedLoungesTab = () => {
           <Link to="/lounges" className="inline-flex items-center min-h-[44px] mt-2 font-semibold underline underline-offset-4">Xem các phòng trà</Link>
         </div>
       ) : (
+        <>
+        {tongTheoDoi > 100 && (
+          <p role="note" className="mb-3 text-sm text-ink-soft">
+            Đang hiện 100 phòng trà đầu tiên trên {tongTheoDoi.toLocaleString('vi-VN')} phòng trà bạn theo dõi.
+          </p>
+        )}
         <ul className="border-y-2 border-ink divide-y divide-ink/20">
           {ds.map((l) => {
             const daTat = mutedIds.includes(l.id)
@@ -148,6 +158,7 @@ const FollowedLoungesTab = () => {
             )
           })}
         </ul>
+        </>
       )}
     </section>
   )

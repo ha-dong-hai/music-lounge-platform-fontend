@@ -23,6 +23,7 @@
 // (table/rowgroup/row/columnheader/cell). Cột không cần nhãn trên màn hẹp (vd. cột tên có ảnh) đặt meta.khongNhanHep.
 import { rowPaginationFeature, tableFeatures, useTable } from '@tanstack/react-table'
 import PhanTrang from './PhanTrang'
+import { HEP } from './lopBangHep'
 
 const features = tableFeatures({ rowPaginationFeature })
 const RONG = []
@@ -50,7 +51,6 @@ const BangDuLieu = ({ ds, cot, tenDonVi = 'mục', chuThich, idDanhSach, khiRong
   const soCot = cot.length
   const canPhai = (meta) => (meta?.canPhai ? 'md:text-right' : 'text-left')
   const nhanCot = (col) => (typeof col.columnDef.header === 'string' && !col.columnDef.meta?.khongNhanHep ? col.columnDef.header : undefined)
-  const O_HEP = 'max-md:flex max-md:items-center max-md:justify-between max-md:gap-4 max-md:px-4 max-md:py-1.5 max-md:before:content-[attr(data-nhan)] max-md:before:text-sm max-md:before:font-semibold max-md:before:text-ink-soft'
 
   return (
     <div className="space-y-3">
@@ -89,7 +89,7 @@ const BangDuLieu = ({ ds, cot, tenDonVi = 'mục', chuThich, idDanhSach, khiRong
                 <tr key={r.id} role="row" className="hover:bg-sunken/40 max-md:block max-md:py-2">
                   {r.getAllCells().map((c) => (
                     <td key={c.id} role="cell" data-nhan={nhanCot(c.column)}
-                      className={`px-4 py-3 align-middle ${canPhai(c.column.columnDef.meta)} ${nhanCot(c.column) ? O_HEP : 'max-md:block max-md:px-4 max-md:py-1.5'}`}>
+                      className={`px-4 py-3 align-middle ${canPhai(c.column.columnDef.meta)} ${nhanCot(c.column) ? HEP.o : HEP.oTron}`}>
                       <table.FlexRender cell={c} />
                     </td>
                   ))}

@@ -52,6 +52,13 @@ const Header = () => {
     window.addEventListener('keydown', khiBam)
     return () => window.removeEventListener('keydown', khiBam)
   }, [moMenu])
+  // Cùng lý do cho menu ngôn ngữ và menu tài khoản (rà soát 01/10/2026: chỉ đóng được bằng chuột).
+  useEffect(() => {
+    if (!isLangOpen && !isUserMenuOpen) return
+    const khiBam = (e) => { if (e.key === 'Escape') { setIsLangOpen(false); setIsUserMenuOpen(false) } }
+    window.addEventListener('keydown', khiBam)
+    return () => window.removeEventListener('keydown', khiBam)
+  }, [isLangOpen, isUserMenuOpen])
 
   // Gõ tới đâu gợi ý tới đó, nhưng chỉ gọi API sau khi người dùng ngừng gõ 300ms.
   // Cờ "đang tải" được bật trong handler onChange (hành động của người dùng) chứ không trong effect:
@@ -354,7 +361,7 @@ const Header = () => {
           )}
 
           <div className="relative hidden sm:block">
-            <button onClick={() => setIsLangOpen(!isLangOpen)} className="flex items-center gap-1.5 px-3 min-h-[44px] border-2 border-transparent hover:border-ink text-sm font-medium text-ink transition-colors">
+            <button type="button" onClick={() => setIsLangOpen(!isLangOpen)} aria-expanded={isLangOpen} aria-label={`Ngôn ngữ, đang chọn ${currentLang === 'vi' ? 'VN' : 'EN'}`} className="flex items-center gap-1.5 px-3 min-h-[44px] border-2 border-transparent hover:border-ink text-sm font-medium text-ink transition-colors">
               <Languages size={16} />
               <span>{currentLang === 'vi' ? 'VN' : 'EN'}</span>
               <ChevronDown size={14} className={`transition-transform duration-200 ${isLangOpen ? 'rotate-180' : ''}`} />

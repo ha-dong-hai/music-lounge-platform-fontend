@@ -91,7 +91,7 @@ const IssuePenaltyModal = ({ venue, onClose, onSaved }) => {
 
         <form onSubmit={submit} className="p-5 space-y-4 overflow-y-auto">
           <div>
-            <label className="text-xs text-ink-mute">Mức phạt</label>
+            <label className="text-sm font-semibold text-ink">Mức phạt</label>
             <div className="mt-2 space-y-2">
               {MUC.map((m) => (
                 <button key={m.value} type="button" onClick={() => setPenaltyType(m.value)}
@@ -107,7 +107,7 @@ const IssuePenaltyModal = ({ venue, onClose, onSaved }) => {
 
           {penaltyType === 'Suspension' && (
             <div>
-              <label className="text-xs text-ink-mute">Số ngày đình chỉ <span className="text-danger">*</span></label>
+              <label className="text-sm font-semibold text-ink">Số ngày đình chỉ <span className="text-danger">*</span></label>
               <input aria-label="Số ngày đình chỉ" type="number" min="1" value={suspensionDays}
                 onChange={(e) => setSuspensionDays(e.target.value)}
                 className="mt-1 w-full tabular-nums min-h-[44px] px-3 py-2 bg-card border-2 border-ink text-ink focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2" />
@@ -115,7 +115,7 @@ const IssuePenaltyModal = ({ venue, onClose, onSaved }) => {
           )}
 
           <div>
-            <label className="text-xs text-ink-mute">Lý do <span className="text-danger">*</span></label>
+            <label className="text-sm font-semibold text-ink">Lý do <span className="text-danger">*</span></label>
             <textarea aria-label="Lý do" rows={4} value={reason} maxLength={1000}
               onChange={(e) => setReason(e.target.value)}
               placeholder="Nêu cụ thể việc đã xảy ra, ngày nào, buổi diễn nào — chủ phòng trà dùng đúng câu này để sửa hoặc để khiếu nại."
@@ -124,7 +124,7 @@ const IssuePenaltyModal = ({ venue, onClose, onSaved }) => {
           </div>
 
           <div>
-            <label className="text-xs text-ink-mute">Dẫn chứng <span className="text-ink-mute">(không bắt buộc)</span></label>
+            <label className="text-sm font-semibold text-ink">Dẫn chứng <span className="text-ink-mute">(không bắt buộc)</span></label>
             <input aria-label="Dẫn chứng (không bắt buộc)" value={evidenceRef} maxLength={500}
               onChange={(e) => setEvidenceRef(e.target.value)}
               placeholder="Mã báo cáo vi phạm, liên kết ảnh chụp, số biên bản..."

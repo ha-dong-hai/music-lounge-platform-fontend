@@ -46,7 +46,7 @@ const KycReviewModal = ({ target, isProcessing, onClose, onSubmit }) => {
           )}
 
           <div>
-            <label className="text-xs text-ink-mute">
+            <label className="text-sm font-semibold text-ink">
               Ghi chú {laTuChoi && <span className="text-danger">* (bắt buộc khi từ chối)</span>}
             </label>
             <textarea aria-label={laTuChoi ? "Ghi chú (bắt buộc khi từ chối)" : "Ghi chú"} value={note} onChange={(e) => setNote(e.target.value)} rows={4} disabled={isProcessing}

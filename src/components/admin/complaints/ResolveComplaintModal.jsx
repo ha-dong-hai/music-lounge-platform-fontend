@@ -96,7 +96,7 @@ const ResolveComplaintModal = ({ complaint, onClose, onSaved }) => {
           </div>
 
           <div>
-            <label className="text-xs text-ink-mute">Kết luận</label>
+            <label className="text-sm font-semibold text-ink">Kết luận</label>
             <select aria-label="Kết luận" value={status} onChange={(e) => setStatus(e.target.value)} className={inputCls}>
               {STATUSES.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
             </select>
@@ -105,7 +105,7 @@ const ResolveComplaintModal = ({ complaint, onClose, onSaved }) => {
 
           {canResolved && (
             <div>
-              <label className="text-xs text-ink-mute">Hành động</label>
+              <label className="text-sm font-semibold text-ink">Hành động</label>
               <select aria-label="Hành động" value={action} onChange={(e) => { setAction(e.target.value); setGoXacNhan('') }} className={inputCls}>
                 {ACTIONS.map((a) => <option key={a.value} value={a.value}>{a.label}</option>)}
               </select>
@@ -117,7 +117,7 @@ const ResolveComplaintModal = ({ complaint, onClose, onSaved }) => {
           )}
 
           <div>
-            <label className="text-xs text-ink-mute">Phản hồi cho người khiếu nại</label>
+            <label className="text-sm font-semibold text-ink">Phản hồi cho người khiếu nại</label>
             <textarea aria-label="Phản hồi cho người khiếu nại" value={resolution} onChange={(e) => setResolution(e.target.value)} rows={4}
               className={`${inputCls} resize-none`}
               placeholder="Người khiếu nại đọc được nội dung này khi tra cứu kết quả." />

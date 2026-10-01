@@ -67,7 +67,7 @@ const ReviewVenueModal = ({ venue, decision, onClose, onSaved }) => {
           )}
 
           <div>
-            <label className="text-xs text-ink-mute">
+            <label className="text-sm font-semibold text-ink">
               Ghi chú {laTuChoi && <span className="text-danger">* (bắt buộc khi từ chối)</span>}
             </label>
             <textarea aria-label={laTuChoi ? "Ghi chú (bắt buộc khi từ chối)" : "Ghi chú"} value={reviewNote} onChange={(e) => setReviewNote(e.target.value)} rows={4}

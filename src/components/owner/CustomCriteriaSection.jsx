@@ -227,11 +227,11 @@ const CustomCriteriaSection = ({ loungeId }) => {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="text-xs text-ink-mute">Tên hiển thị <span className="text-danger">*</span></label>
+              <label className="text-sm font-semibold text-ink">Tên hiển thị <span className="text-danger">*</span></label>
               <input aria-label="Tên hiển thị" value={form.name} onChange={(e) => set('name', e.target.value)} className={inputCls} placeholder="VD: Độ ồn" />
             </div>
             <div>
-              <label className="text-xs text-ink-mute">Mã tiêu chí <span className="text-danger">*</span></label>
+              <label className="text-sm font-semibold text-ink">Mã tiêu chí <span className="text-danger">*</span></label>
               <input aria-label="Mã tiêu chí" value={form.key} onChange={(e) => set('key', e.target.value)} className={`${inputCls} font-mono`} placeholder="VD: noise_level" />
               <p className="text-xs text-warning/80 mt-1 leading-relaxed">
                 Mã tiêu chí KHÔNG sửa lại được sau khi tạo (tên thì sửa được). Đổi mã là mất liên
@@ -241,7 +241,7 @@ const CustomCriteriaSection = ({ loungeId }) => {
           </div>
 
           <div>
-            <label className="text-xs text-ink-mute">Kiểu dữ liệu</label>
+            <label className="text-sm font-semibold text-ink">Kiểu dữ liệu</label>
             <select aria-label="Kiểu dữ liệu" value={form.dataType} onChange={(e) => set('dataType', e.target.value)} className={inputCls}>
               {DATA_TYPES.map((d) => <option key={d.value} value={d.value}>{d.label}</option>)}
             </select>
@@ -249,7 +249,7 @@ const CustomCriteriaSection = ({ loungeId }) => {
 
           {loaiHienTai?.optionsHint && (
             <div>
-              <label className="text-xs text-ink-mute">Tuỳ chọn</label>
+              <label className="text-sm font-semibold text-ink">Tuỳ chọn</label>
               <input aria-label="Tuỳ chọn" value={form.options} onChange={(e) => set('options', e.target.value)} className={`${inputCls} font-mono`} />
               <p className="text-xs text-ink-mute mt-1">{loaiHienTai.optionsHint}</p>
             </div>

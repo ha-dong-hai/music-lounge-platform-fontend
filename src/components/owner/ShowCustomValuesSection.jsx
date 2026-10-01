@@ -349,7 +349,7 @@ const ShowCustomValuesSection = ({ showId }) => {
           return (
             // Tiêu chí đã tắt vẫn hiện, chỉ mờ đi: bỏ nó khỏi form là lần lưu sau xoá mất giá trị.
             <div key={c.criteriaId} className={daTat ? 'opacity-60' : ''}>
-              <label className="text-xs text-ink-mute flex flex-wrap items-center gap-1.5">
+              <label className="text-sm font-semibold text-ink flex flex-wrap items-center gap-1.5">
                 {c.name}
                 <span className="text-ink-mute font-mono">{c.key}</span>
                 {daTat && (

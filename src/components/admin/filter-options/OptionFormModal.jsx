@@ -63,7 +63,7 @@ const OptionFormModal = ({ isOpen, typeLabel, hasNameEn, hasDescription, editing
                 {/* BODY */}
                 <form id="option-form" onSubmit={handleSubmit} className="p-5 space-y-5">
                     <div>
-                        <label className="block text-sm font-medium text-ink-soft mb-2">
+                        <label className="block text-sm font-semibold text-ink mb-2">
                             Tên (tiếng Việt) <span className="text-danger">*</span>
                         </label>
                         <input aria-label="Tên (tiếng Việt)"
@@ -79,7 +79,7 @@ const OptionFormModal = ({ isOpen, typeLabel, hasNameEn, hasDescription, editing
                     {/* CHỈ LOẠI BUỔI DIỄN CÓ description */}
                     {hasDescription && (
                         <div>
-                            <label className="block text-sm font-medium text-ink-soft mb-2">
+                            <label className="block text-sm font-semibold text-ink mb-2">
                                 Mô tả <span className="text-ink-mute text-xs">(không bắt buộc)</span>
                             </label>
                             <textarea aria-label="Mô tả (không bắt buộc)"
@@ -95,7 +95,7 @@ const OptionFormModal = ({ isOpen, typeLabel, hasNameEn, hasDescription, editing
                     {/* CHỈ GENRE CÓ nameEn */}
                     {hasNameEn && (
                         <div>
-                            <label className="block text-sm font-medium text-ink-soft mb-2">
+                            <label className="block text-sm font-semibold text-ink mb-2">
                                 Tên tiếng Anh <span className="text-ink-mute text-xs">(không bắt buộc)</span>
                             </label>
                             <input aria-label="Tên tiếng Anh (không bắt buộc)"

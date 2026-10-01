@@ -74,7 +74,7 @@ const PackageFormModal = ({ isOpen, editingPkg, isSaving, onClose, onSubmit }) =
           {/* Tên gói & Giá */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-ink-soft mb-2">Tên gói</label>
+              <label className="block text-sm font-semibold text-ink mb-2">Tên gói</label>
               <input aria-label="Tên gói"
                 type="text" required
                 disabled={isEditing} // BE không cho sửa tên khi EDIT
@@ -84,7 +84,7 @@ const PackageFormModal = ({ isOpen, editingPkg, isSaving, onClose, onSubmit }) =
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-ink-soft mb-2">Giá (VNĐ)</label>
+              <label className="block text-sm font-semibold text-ink mb-2">Giá (VNĐ)</label>
               <div className="relative">
                 <input aria-label="Giá (VNĐ)"
                   type="text" required
@@ -102,7 +102,7 @@ const PackageFormModal = ({ isOpen, editingPkg, isSaving, onClose, onSubmit }) =
           {/* Chu kỳ & Max Tickets */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-ink-soft mb-2">Chu kỳ thanh toán</label>
+              <label className="block text-sm font-semibold text-ink mb-2">Chu kỳ thanh toán</label>
               <select aria-label="Chu kỳ thanh toán"
                 disabled={isEditing} // BE không cho sửa chu kỳ khi EDIT
                 value={formData.billingCycle}
@@ -116,7 +116,7 @@ const PackageFormModal = ({ isOpen, editingPkg, isSaving, onClose, onSubmit }) =
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-ink-soft mb-2">Số vé tối đa mỗi buổi diễn</label>
+              <label className="block text-sm font-semibold text-ink mb-2">Số vé tối đa mỗi buổi diễn</label>
               <input aria-label="Số vé tối đa mỗi buổi diễn"
                 type="number" required min="0"
                 value={formData.maxTicketsPerEvent}
@@ -129,7 +129,7 @@ const PackageFormModal = ({ isOpen, editingPkg, isSaving, onClose, onSubmit }) =
           {/* Hạn mức AI Poster & Tour ảo */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-ink-soft mb-2 flex items-center gap-1.5">
+              <label className="block text-sm font-semibold text-ink mb-2 flex items-center gap-1.5">
                 <Sparkles size={14} className="text-ink" /> Poster AI / tháng
               </label>
               <input aria-label="Poster AI / tháng"
@@ -142,7 +142,7 @@ const PackageFormModal = ({ isOpen, editingPkg, isSaving, onClose, onSubmit }) =
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-ink-soft mb-2 flex items-center gap-1.5">
+              <label className="block text-sm font-semibold text-ink mb-2 flex items-center gap-1.5">
                 <Box size={14} className="text-ink" /> Tour 360°
               </label>
               <input aria-label="Tour 360°"
@@ -157,7 +157,7 @@ const PackageFormModal = ({ isOpen, editingPkg, isSaving, onClose, onSubmit }) =
 
           {/* Mô tả */}
           <div>
-            <label className="block text-sm font-medium text-ink-soft mb-2">Mô tả gói</label>
+            <label className="block text-sm font-semibold text-ink mb-2">Mô tả gói</label>
             <textarea aria-label="Mô tả gói"
               rows="3"
               value={formData.description}

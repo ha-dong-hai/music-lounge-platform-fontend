@@ -5,6 +5,7 @@ import { createFilterOption, updateFilterOption, deleteFilterOption } from '../.
 import ConfirmModal from '../../shared/ConfirmModal'
 import OptionFormModal from './OptionFormModal'
 import KhungTai from '../../bang/KhungTai'
+import { HEP } from '../../bang/lopBangHep'
 
 
 const OptionTypeTab = ({ typeKey, typeLabel, hasNameEn, hasDescription, hasIsActive, options, onRefresh, loi }) => {
@@ -129,39 +130,40 @@ const OptionTypeTab = ({ typeKey, typeLabel, hasNameEn, hasDescription, hasIsAct
       {/* TABLE */}
       <div className="bg-card border border-line overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-left whitespace-nowrap">
-            <thead className="bg-sunken border-b-2 border-ink">
-              <tr>
-                <th scope="col" className="p-4 text-sm font-semibold text-ink w-24">ID</th>
-                <th scope="col" className="p-4 text-sm font-semibold text-ink">Tên</th>
+          {/* Màn hẹp: mỗi mục một khối có nhãn (lopBangHep) — trước đây cuộn ngang, cột Thao tác khuất ở 390px. */}
+          <table role="table" className={`w-full text-left md:whitespace-nowrap ${HEP.bang}`}>
+            <thead role="rowgroup" className={`bg-sunken border-b-2 border-ink ${HEP.dau}`}>
+              <tr role="row">
+                <th scope="col" role="columnheader" className="p-4 text-sm font-semibold text-ink w-24">ID</th>
+                <th scope="col" role="columnheader" className="p-4 text-sm font-semibold text-ink">Tên</th>
                 {hasNameEn && (
-                  <th scope="col" className="p-4 text-sm font-semibold text-ink">Tên tiếng Anh</th>
+                  <th scope="col" role="columnheader" className="p-4 text-sm font-semibold text-ink">Tên tiếng Anh</th>
                 )}
                 {hasDescription && (
-                  <th scope="col" className="p-4 text-sm font-semibold text-ink">Mô tả</th>
+                  <th scope="col" role="columnheader" className="p-4 text-sm font-semibold text-ink">Mô tả</th>
                 )}
                 {coTat && (
-                  <th scope="col" className="p-4 text-sm font-semibold text-ink">Trạng thái</th>
+                  <th scope="col" role="columnheader" className="p-4 text-sm font-semibold text-ink">Trạng thái</th>
                 )}
-                <th scope="col" className="p-4 text-sm font-semibold text-ink text-right">Thao tác</th>
+                <th scope="col" role="columnheader" className="p-4 text-sm font-semibold text-ink text-right">Thao tác</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-line">
+            <tbody role="rowgroup" className={`divide-y divide-line ${HEP.than}`}>
               {options.length > 0 ? (
                 options.map(opt => (
-                  <tr key={opt.id} className="hover:bg-sunken/30 transition-colors group">
-                    <td className="p-4 text-xs text-ink-mute font-mono">#{opt.id}</td>
-                    <td className="p-4 text-sm text-ink font-medium">{opt.name}</td>
+                  <tr key={opt.id} role="row" className={`hover:bg-sunken/30 transition-colors group ${HEP.dong}`}>
+                    <td role="cell" data-nhan="ID" className={`p-4 text-xs text-ink-mute font-mono ${HEP.o}`}>#{opt.id}</td>
+                    <td role="cell" className={`p-4 text-sm text-ink font-semibold ${HEP.oTron}`}>{opt.name}</td>
                     {hasNameEn && (
-                      <td className="p-4 text-sm text-ink-soft">{opt.nameEn || <span className="text-ink-mute italic">—</span>}</td>
+                      <td role="cell" data-nhan="Tên tiếng Anh" className={`p-4 text-sm text-ink-soft ${HEP.o}`}>{opt.nameEn || <span className="text-ink-mute italic">—</span>}</td>
                     )}
                     {hasDescription && (
-                      <td className="p-4 text-sm text-ink-soft whitespace-normal max-w-xs leading-relaxed">
+                      <td role="cell" data-nhan="Mô tả" className={`p-4 text-sm text-ink-soft whitespace-normal md:max-w-xs leading-relaxed ${HEP.o}`}>
                         {opt.description || <span className="text-ink-mute italic">—</span>}
                       </td>
                     )}
                     {coTat && (
-                      <td className="p-4">
+                      <td role="cell" data-nhan="Trạng thái" className={`p-4 ${HEP.o}`}>
                         {opt.isActive === false ? (
                           <span className="px-2 py-0.5 rounded-md bg-sunken text-ink-mute text-xs">Đã tắt</span>
                         ) : (
@@ -169,7 +171,7 @@ const OptionTypeTab = ({ typeKey, typeLabel, hasNameEn, hasDescription, hasIsAct
                         )}
                       </td>
                     )}
-                    <td className="p-4">
+                    <td role="cell" className={`p-4 ${HEP.oTron}`}>
                       <div className="flex items-center justify-end gap-2">
                         <button
                           onClick={() => openEdit(opt)}
@@ -210,8 +212,8 @@ const OptionTypeTab = ({ typeKey, typeLabel, hasNameEn, hasDescription, hasIsAct
                   </tr>
                 ))
               ) : (
-                <tr>
-                  <td colSpan={3 + (hasNameEn ? 1 : 0) + (hasDescription ? 1 : 0) + (coTat ? 1 : 0)} className="p-10 text-center text-ink-mute">
+                <tr role="row">
+                  <td role="cell" colSpan={3 + (hasNameEn ? 1 : 0) + (hasDescription ? 1 : 0) + (coTat ? 1 : 0)} className="p-10 text-center text-ink-mute">
                     <Music2 size="32" className="mx-auto mb-3 opacity-50" />
                     Chưa có {typeLabel} nào.
                   </td>

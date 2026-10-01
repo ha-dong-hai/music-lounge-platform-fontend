@@ -140,7 +140,7 @@ const HotspotModal = ({ loungeId, scene, scenes, onClose, onSaved }) => {
               </p>
 
               <div>
-                <label className="text-xs text-ink-mute">Loại điểm bấm</label>
+                <label className="text-sm font-semibold text-ink">Loại điểm bấm</label>
                 <div className="mt-1 grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {LOAI_HOTSPOT.map((l) => (
                     <button key={l.value} type="button" onClick={() => set('type', l.value)}
@@ -156,7 +156,7 @@ const HotspotModal = ({ loungeId, scene, scenes, onClose, onSaved }) => {
 
               {laDanDuong ? (
                 <div>
-                  <label className="text-xs text-ink-mute">Dẫn tới điểm đứng <span className="text-danger">*</span></label>
+                  <label className="text-sm font-semibold text-ink">Dẫn tới điểm đứng <span className="text-danger">*</span></label>
                   <select aria-label="Dẫn tới điểm đứng" value={form.targetSceneId} onChange={(e) => set('targetSceneId', e.target.value)} className={inputCls}>
                     <option value="">— chọn điểm đứng —</option>
                     {khac.map((x) => <option key={x.id} value={x.id}>{x.name || `điểm đứng #${x.id}`}</option>)}
@@ -167,7 +167,7 @@ const HotspotModal = ({ loungeId, scene, scenes, onClose, onSaved }) => {
                 </div>
               ) : (
                 <div>
-                  <label className="text-xs text-ink-mute">Nội dung chú thích <span className="text-danger">*</span></label>
+                  <label className="text-sm font-semibold text-ink">Nội dung chú thích <span className="text-danger">*</span></label>
                   <textarea aria-label="Nội dung chú thích" rows={3} maxLength={2000} value={form.infoText}
                     onChange={(e) => set('infoText', e.target.value)}
                     className={`${inputCls} resize-none`}
@@ -177,18 +177,18 @@ const HotspotModal = ({ loungeId, scene, scenes, onClose, onSaved }) => {
               )}
 
               <div>
-                <label className="text-xs text-ink-mute">Nhãn hiển thị</label>
+                <label className="text-sm font-semibold text-ink">Nhãn hiển thị</label>
                 <input aria-label="Nhãn hiển thị" value={form.label} maxLength={100} onChange={(e) => set('label', e.target.value)} className={inputCls}
                   placeholder={laDanDuong ? 'VD: Sang khu sân khấu' : 'VD: Cây piano'} />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs text-ink-mute">Hướng ngang (yaw)</label>
+                  <label className="text-sm font-semibold text-ink">Hướng ngang (yaw)</label>
                   <input aria-label="Hướng ngang (yaw)" type="number" min="-180" max="180" value={form.yaw} onChange={(e) => set('yaw', e.target.value)} className={inputCls} />
                   <p className="text-[11px] text-ink-mute mt-1">-180 đến 180</p>
                 </div>
                 <div>
-                  <label className="text-xs text-ink-mute">Hướng dọc (pitch)</label>
+                  <label className="text-sm font-semibold text-ink">Hướng dọc (pitch)</label>
                   <input aria-label="Hướng dọc (pitch)" type="number" min="-90" max="90" value={form.pitch} onChange={(e) => set('pitch', e.target.value)} className={inputCls} />
                   <p className="text-[11px] text-ink-mute mt-1">-90 đến 90</p>
                 </div>
@@ -501,7 +501,7 @@ const OwnerTourPage = () => {
                     <div className="mt-2 flex flex-wrap items-end gap-2">
                       {['x', 'y'].map((truc) => (
                         <div key={truc} className="w-16">
-                          <label className="text-xs text-ink-mute uppercase">{truc}</label>
+                          <label className="text-sm font-semibold text-ink">{truc}</label>
                           <input aria-label={`Vị trí ${truc.toUpperCase()} trên mặt bằng (%) của ${sc.name || `cảnh #${sc.id}`}`} type="number" step="any" min="0" max="100"
                             value={(viTri[sc.id] ?? {})[truc] ?? ''}
                             onChange={(e) => doiViTri(sc.id, truc, e.target.value)}

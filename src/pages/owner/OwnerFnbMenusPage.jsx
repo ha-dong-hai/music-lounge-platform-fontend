@@ -73,15 +73,15 @@ const MenuFormModal = ({ initial, loungeId, onClose, onSaved }) => {
     <Modal title={isEdit ? 'Sửa thực đơn' : 'Thêm thực đơn'} onClose={onClose}>
       <form onSubmit={submit} className="space-y-4">
         <div>
-          <label className="text-xs text-ink-mute">Tên thực đơn <span className="text-danger">*</span></label>
+          <label className="text-sm font-semibold text-ink">Tên thực đơn <span className="text-danger">*</span></label>
           <input aria-label="Tên thực đơn" value={form.name} onChange={(e) => set('name', e.target.value)} className={inputCls} placeholder="VD: Đồ uống" />
         </div>
         <div>
-          <label className="text-xs text-ink-mute">Mô tả</label>
+          <label className="text-sm font-semibold text-ink">Mô tả</label>
           <textarea aria-label="Mô tả" value={form.description} onChange={(e) => set('description', e.target.value)} rows={2} className={`${inputCls} resize-none`} />
         </div>
         <div>
-          <label className="text-xs text-ink-mute">Thứ tự hiển thị</label>
+          <label className="text-sm font-semibold text-ink">Thứ tự hiển thị</label>
           <input aria-label="Thứ tự hiển thị" type="number" value={form.displayOrder} onChange={(e) => set('displayOrder', e.target.value)} className={inputCls} />
           <p className="text-xs text-ink-mute mt-1">Số nhỏ hiện lên trước.</p>
         </div>
@@ -148,28 +148,28 @@ const ItemFormModal = ({ initial, menuId, onClose, onSaved }) => {
       <form onSubmit={submit} className="space-y-4">
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="text-xs text-ink-mute">Nhóm món <span className="text-danger">*</span></label>
+            <label className="text-sm font-semibold text-ink">Nhóm món <span className="text-danger">*</span></label>
             <input aria-label="Nhóm món" value={form.category} onChange={(e) => set('category', e.target.value)} className={inputCls} placeholder="VD: Cà phê" />
           </div>
           <div>
-            <label className="text-xs text-ink-mute">Giá (đ) <span className="text-danger">*</span></label>
+            <label className="text-sm font-semibold text-ink">Giá (đ) <span className="text-danger">*</span></label>
             <input aria-label="Giá (đ)" type="number" min="0" step="1000" value={form.price} onChange={(e) => set('price', e.target.value)} className={inputCls} />
           </div>
         </div>
         <div>
-          <label className="text-xs text-ink-mute">Tên món <span className="text-danger">*</span></label>
+          <label className="text-sm font-semibold text-ink">Tên món <span className="text-danger">*</span></label>
           <input aria-label="Tên món" value={form.name} onChange={(e) => set('name', e.target.value)} className={inputCls} />
         </div>
         <div>
-          <label className="text-xs text-ink-mute">Mô tả</label>
+          <label className="text-sm font-semibold text-ink">Mô tả</label>
           <textarea aria-label="Mô tả" value={form.description} onChange={(e) => set('description', e.target.value)} rows={2} className={`${inputCls} resize-none`} />
         </div>
         <div>
-          <label className="text-xs text-ink-mute">Đường dẫn ảnh</label>
+          <label className="text-sm font-semibold text-ink">Đường dẫn ảnh</label>
           <input aria-label="Đường dẫn ảnh" value={form.imageUrl} onChange={(e) => set('imageUrl', e.target.value)} className={inputCls} placeholder="https://..." />
         </div>
         <div>
-          <label className="text-xs text-ink-mute">Thứ tự hiển thị</label>
+          <label className="text-sm font-semibold text-ink">Thứ tự hiển thị</label>
           <input aria-label="Thứ tự hiển thị" type="number" value={form.displayOrder} onChange={(e) => set('displayOrder', e.target.value)} className={inputCls} />
         </div>
         {isEdit && (

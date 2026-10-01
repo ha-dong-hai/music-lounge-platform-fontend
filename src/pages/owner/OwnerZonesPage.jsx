@@ -73,15 +73,15 @@ const ZoneFormModal = ({ initial, loungeId, onClose, onSaved }) => {
         </div>
         <form onSubmit={submit} className="p-5 space-y-4">
           <div>
-            <label className="text-xs text-ink-mute">Tên khu vực <span className="text-danger">*</span></label>
+            <label className="text-sm font-semibold text-ink">Tên khu vực <span className="text-danger">*</span></label>
             <input aria-label="Tên khu vực" value={form.name} onChange={(e) => set('name', e.target.value)} className={inputCls} placeholder="VD: Khu sân khấu" />
           </div>
           <div>
-            <label className="text-xs text-ink-mute">Mô tả</label>
+            <label className="text-sm font-semibold text-ink">Mô tả</label>
             <textarea aria-label="Mô tả" value={form.description} onChange={(e) => set('description', e.target.value)} rows={2} className={`${inputCls} resize-none`} />
           </div>
           <div>
-            <label className="text-xs text-ink-mute">Sức chứa <span className="text-danger">*</span></label>
+            <label className="text-sm font-semibold text-ink">Sức chứa <span className="text-danger">*</span></label>
             <input aria-label="Sức chứa" type="number" min="0" step="1" value={form.capacity} onChange={(e) => set('capacity', e.target.value)} className={inputCls} />
             <p className="text-xs text-ink-mute mt-1">Số chỗ tối đa của khu vực này.</p>
           </div>
@@ -515,14 +515,14 @@ const OwnerZonesPage = () => {
                     <div className="mt-3 grid grid-cols-2 sm:grid-cols-4 gap-3">
                       {[['width', 'Rộng (%)'], ['height', 'Cao (%)'], ['rotationDeg', 'Góc quay (°)']].map(([key, label]) => (
                         <div key={key}>
-                          <label className="text-xs text-ink-mute">{label}</label>
+                          <label className="text-sm font-semibold text-ink">{label}</label>
                           <input aria-label={`${label} của ${z.name}`} type="number" value={o[key] ?? 0}
                             onChange={(e) => doiKichThuoc(z.id, key, e.target.value)}
                             className="mt-1 w-full tabular-nums min-h-[44px] px-3 py-2 bg-card border-2 border-ink text-ink focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2" />
                         </div>
                       ))}
                       <div>
-                        <label className="text-xs text-ink-mute">Màu</label>
+                        <label className="text-sm font-semibold text-ink">Màu</label>
                         <input aria-label="Màu" type="color" value={o.color ?? '#3987e5'}
                           onChange={(e) => setLayout((p) => ({ ...p, [z.id]: { ...p[z.id], color: e.target.value } }))}
                           className="mt-1 w-full h-[30px] bg-page border border-line rounded-md cursor-pointer" />
@@ -538,7 +538,7 @@ const OwnerZonesPage = () => {
                       <div className="mt-2 flex flex-wrap items-end gap-2">
                         {['x', 'y', 'z'].map((truc) => (
                           <div key={truc} className="w-20">
-                            <label className="text-xs text-ink-mute uppercase">{truc}</label>
+                            <label className="text-sm font-semibold text-ink">{truc}</label>
                             <input aria-label={`Toạ độ ${truc.toUpperCase()} trong không gian 3D của ${z.name}`} type="number" step="any"
                               value={(layout3D[z.id] ?? {})[truc] ?? ''}
                               onChange={(e) => doiToaDo3D(z.id, truc, e.target.value)}

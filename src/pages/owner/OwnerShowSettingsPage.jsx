@@ -316,7 +316,7 @@ const OwnerShowSettingsPage = () => {
 
         <div className="space-y-4">
           <div>
-            <label className="text-xs text-ink-mute">Gợi ý phong cách cho AI <span className="text-ink-mute">(không bắt buộc)</span></label>
+            <label className="text-sm font-semibold text-ink">Gợi ý phong cách cho AI <span className="text-ink-mute">(không bắt buộc)</span></label>
             <input aria-label="Gợi ý phong cách cho AI (không bắt buộc)" value={styleHint} onChange={(e) => setStyleHint(e.target.value)} className={inputCls}
               placeholder="VD: tông trầm, nhiều cây xanh" maxLength={300} />
             {/* KHÔNG phải ô viết prompt. Máy chủ tự ghép prompt từ dữ liệu buổi diễn (tên chương
@@ -562,7 +562,7 @@ const OwnerShowSettingsPage = () => {
       >
         <div className="space-y-3">
           <div>
-            <label className="text-xs text-ink-mute">Giờ bắt đầu mới</label>
+            <label className="text-sm font-semibold text-ink">Giờ bắt đầu mới</label>
             <input aria-label="Giờ bắt đầu mới" type="datetime-local" value={newStart} onChange={(e) => { setNewStart(e.target.value); setXacNhanDoiLich(false) }}
               className={inputCls} />
             <p className="text-xs text-ink-mute mt-1">
@@ -604,7 +604,7 @@ const OwnerShowSettingsPage = () => {
       >
         <div className="space-y-3">
           <div>
-            <label className="text-xs text-ink-mute">Hình thức mới</label>
+            <label className="text-sm font-semibold text-ink">Hình thức mới</label>
             <select aria-label="Hình thức mới" value={newFormat} onChange={(e) => { setNewFormat(e.target.value); setXacNhanDoiHinhThuc(false) }} className={inputCls}>
               {FORMATS.map((f) => <option key={f.value} value={f.value}>{f.label}</option>)}
             </select>

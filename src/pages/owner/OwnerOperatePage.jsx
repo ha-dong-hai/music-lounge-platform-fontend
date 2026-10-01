@@ -34,6 +34,7 @@ import { getTicketByQr, checkInTicket, sellWalkInTicket } from '../../services/t
 import NutXacNhan from '../../components/shared/NutXacNhan'
 import { useDanhSachMayChu } from '../../hooks/useDanhSachMayChu'
 import PhanTrang from '../../components/bang/PhanTrang'
+import OChiSo from '../../components/bang/OChiSo'
 
 const fmtMoney = (v) => `${Number(v || 0).toLocaleString('vi-VN')}đ`
 
@@ -316,7 +317,7 @@ const OwnerOperatePage = () => {
       </div>
 
       <div>
-        <label className="text-xs text-ink-mute">Buổi diễn</label>
+        <label className="text-sm font-semibold text-ink">Buổi diễn</label>
         <select aria-label="Buổi diễn" value={showId ?? ''} onChange={(e) => { chonBuoiDien(Number(e.target.value)); setVeTraCuu(null); setPriceId('') }}
           className="mt-1 w-full max-w-xl min-h-[44px] px-3 py-2 bg-card border-2 border-ink text-ink focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2">
           {shows.map((s) => (
@@ -360,21 +361,10 @@ const OwnerOperatePage = () => {
       {/* === SỐ LIỆU VÉ === */}
       {stats && (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="bg-card border border-line p-5">
-            <p className="text-sm text-ink-mute mb-1 flex items-center gap-1.5"><Ticket size={14} /> Vé đã bán</p>
-            <p className="text-2xl font-bold text-ink">{stats.totalTicketsSold.toLocaleString('vi-VN')}</p>
-          </div>
-          <div className="bg-card border border-line p-5">
-            <p className="text-sm text-ink-mute mb-1 flex items-center gap-1.5"><Users size={14} /> Đã vào cửa</p>
-            <p className="text-2xl font-bold text-ink">{stats.totalCheckedIn.toLocaleString('vi-VN')}</p>
-            <p className="text-xs text-ink-mute mt-1">
-              Còn {Math.max(0, stats.totalTicketsSold - stats.totalCheckedIn).toLocaleString('vi-VN')} vé chưa vào
-            </p>
-          </div>
-          <div className="bg-card border border-line p-5">
-            <p className="text-sm text-ink-mute mb-1 flex items-center gap-1.5"><Banknote size={14} /> Doanh thu vé</p>
-            <p className="text-2xl font-bold text-ink">{fmtMoney(stats.totalRevenue)}</p>
-          </div>
+          <OChiSo nhan="Vé đã bán" so={stats.totalTicketsSold} icon={Ticket} />
+          <OChiSo nhan="Đã vào cửa" so={stats.totalCheckedIn} icon={Users}
+            phu={`Còn ${Math.max(0, stats.totalTicketsSold - stats.totalCheckedIn).toLocaleString('vi-VN')} vé chưa vào`} />
+          <OChiSo nhan="Doanh thu vé" so={fmtMoney(stats.totalRevenue)} icon={Banknote} />
         </div>
       )}
 
@@ -443,7 +433,7 @@ const OwnerOperatePage = () => {
           ) : (
             <form onSubmit={handleSell} className="space-y-3">
               <div>
-                <label className="text-xs text-ink-mute">Hạng vé</label>
+                <label className="text-sm font-semibold text-ink">Hạng vé</label>
                 <select aria-label="Hạng vé" value={priceId} onChange={(e) => setPriceId(e.target.value)}
                   className="mt-1 w-full min-h-[44px] px-3 py-2 bg-card border-2 border-ink text-ink focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2">
                   <option value="">— chọn hạng vé —</option>
@@ -456,7 +446,7 @@ const OwnerOperatePage = () => {
                 </select>
               </div>
               <div>
-                <label className="text-xs text-ink-mute">Số lượng</label>
+                <label className="text-sm font-semibold text-ink">Số lượng</label>
                 <input aria-label="Số lượng" type="number" min="1" step="1" value={quantity}
                   onChange={(e) => setQuantity(e.target.value)}
                   className="mt-1 w-full min-h-[44px] px-3 py-2 bg-card border-2 border-ink text-ink focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2" />

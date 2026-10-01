@@ -24,6 +24,7 @@ import NhomTab from '../../components/bang/NhomTab'
 import KhungTai from '../../components/bang/KhungTai'
 import PhanTrang from '../../components/bang/PhanTrang'
 import { useDanhSachMayChu } from '../../hooks/useDanhSachMayChu'
+import OChiSo from '../../components/bang/OChiSo'
 
 const fmtTien = (v) => `${Number(v || 0).toLocaleString('vi-VN')}đ`
 
@@ -91,30 +92,10 @@ const OwnerFinancePage = () => {
       {/* TỔNG QUAN */}
       {earnings ? (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="bg-card border border-line p-5">
-            <div className="flex items-start justify-between gap-2">
-              <p className="text-sm text-ink-mute">Tổng đã ghi nhận</p>
-              <Wallet size={17} className="text-ink flex-shrink-0" />
-            </div>
-            <p className="text-2xl font-bold text-ink mt-1.5 tabular-nums">{fmtTien(earnings.totalEarned)}</p>
-          </div>
-          <div className="bg-card border border-line p-5">
-            <div className="flex items-start justify-between gap-2">
-              <p className="text-sm text-ink-mute">Đã chuyển cho bạn</p>
-              <CheckCircle2 size={17} className="text-success flex-shrink-0" />
-            </div>
-            <p className="text-2xl font-bold text-ink mt-1.5 tabular-nums">{fmtTien(earnings.completedSettlement)}</p>
-          </div>
-          <div className="bg-card border border-line p-5">
-            <div className="flex items-start justify-between gap-2">
-              <p className="text-sm text-ink-mute">Chờ chuyển</p>
-              <Clock size={17} className="text-warning flex-shrink-0" />
-            </div>
-            <p className="text-2xl font-bold text-ink mt-1.5 tabular-nums">{fmtTien(earnings.pendingSettlement)}</p>
-            <p className="text-xs text-ink-mute mt-1.5 leading-relaxed">
-              {earnings.pendingSettlementCount} đợt đã chốt nhưng chưa tới ngày chuyển.
-            </p>
-          </div>
+          <OChiSo nhan="Tổng đã ghi nhận" so={fmtTien(earnings.totalEarned)} icon={Wallet} />
+          <OChiSo nhan="Đã chuyển cho bạn" so={fmtTien(earnings.completedSettlement)} icon={CheckCircle2} />
+          <OChiSo nhan="Chờ chuyển" so={fmtTien(earnings.pendingSettlement)} icon={Clock}
+            phu={`${earnings.pendingSettlementCount} đợt đã chốt nhưng chưa tới ngày chuyển.`} />
         </div>
       ) : tongQuan.isPending ? (
         <div className="h-28 bg-ink/5 animate-pulse" aria-busy="true" aria-label="Đang tải tổng quan tiền" />

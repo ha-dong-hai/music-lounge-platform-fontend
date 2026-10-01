@@ -122,7 +122,7 @@ const ConfirmPaidModal = ({ donation, onClose, onSaved }) => {
           </div>
 
           <div>
-            <label className="text-xs text-ink-mute">Mã giao dịch chuyển khoản <span className="text-danger">*</span></label>
+            <label className="text-sm font-semibold text-ink">Mã giao dịch chuyển khoản <span className="text-danger">*</span></label>
             <input aria-label="Mã giao dịch chuyển khoản" value={paymentRef} onChange={(e) => setPaymentRef(e.target.value)} className={inputCls}
               placeholder="Mã do ngân hàng của bạn cấp" />
             <p className="text-xs text-ink-mute mt-1">
@@ -131,7 +131,7 @@ const ConfirmPaidModal = ({ donation, onClose, onSaved }) => {
           </div>
 
           <div>
-            <label className="text-xs text-ink-mute">Ảnh chứng từ</label>
+            <label className="text-sm font-semibold text-ink">Ảnh chứng từ</label>
             <div className="mt-1 flex items-center gap-2">
               <label className="inline-flex items-center justify-center gap-2 cursor-pointer min-h-[44px] px-4 border-2 border-ink bg-card text-ink text-sm font-semibold hover:bg-ink hover:text-lamp">
                 {isUploading ? <Loader2 size={15} className="animate-spin" /> : <Send size={15} />}

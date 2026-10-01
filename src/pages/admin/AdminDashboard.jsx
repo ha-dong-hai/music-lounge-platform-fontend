@@ -9,6 +9,7 @@ import { getPlatformAnalytics, getAdminOverview, getRecommenderEvaluation, getAd
 import { RevenueByMonthChart, RevenueShareDonut, TopShowsTable, GenreTrendingList } from '../../components/admin/dashboard/DashboardCharts'
 import NhomTab from '../../components/bang/NhomTab'
 import KhungTai from '../../components/bang/KhungTai'
+import OChiSo from '../../components/bang/OChiSo'
 
 const fmtMoney = (v) => `${Number(v || 0).toLocaleString('vi-VN')}đ`
 
@@ -35,18 +36,9 @@ const MEASURES = [
   { key: 'gmv', label: 'Tổng giá trị giao dịch (GMV)' },
 ]
 
-const StatCard = ({ title, value, note, icon: Icon, color, bg }) => (
-  <div className="bg-card border border-line p-5 flex items-start justify-between">
-    <div className="min-w-0">
-      <p className="text-sm text-ink-mute mb-1">{title}</p>
-      <p className="text-2xl font-bold text-ink">{value}</p>
-      {note && <p className="text-xs mt-2 font-medium text-ink-mute">{note}</p>}
-    </div>
-    <div className={`p-3 ${bg} flex-shrink-0`}>
-      <Icon size={24} className={color} />
-    </div>
-  </div>
-)
+// Ô số liệu: dùng OChiSo chung (01/10/2026). Bản cũ có ô biểu tượng tô màu (xanh/đỏ/xám) — màu chỉ trang trí, không mang
+// nghĩa (thẻ "Tổng tiền ủng hộ" nền đỏ), và mỗi trang một kiểu ô số liệu. Tham số color/bg cũ được bỏ qua.
+const StatCard = ({ title, value, note, icon }) => <OChiSo nhan={title} so={value} phu={note} icon={icon} />
 
 const SectionTitle = ({ children }) => (
   <h2 className="font-sans font-bold text-sm text-ink-soft mb-3">{children}</h2>

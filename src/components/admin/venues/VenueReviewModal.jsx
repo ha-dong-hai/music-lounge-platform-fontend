@@ -65,7 +65,7 @@ const VenueReviewModal = ({ venue, onClose, onDecision, isProcessing }) => {
 
           {/* Note */}
           <div>
-            <label className="block text-sm font-medium text-ink-mute mb-2">Ghi chú duyệt (không bắt buộc)</label>
+            <label className="block text-sm font-semibold text-ink mb-2">Ghi chú duyệt (không bắt buộc)</label>
             <textarea aria-label="Ghi chú duyệt (không bắt buộc)"
               rows={3}
               value={reviewNote}

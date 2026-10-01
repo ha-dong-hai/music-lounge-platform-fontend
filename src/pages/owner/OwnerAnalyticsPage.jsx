@@ -24,6 +24,7 @@ import {
   getArtistDonationStats, getOwnerLivestreamHistory,
 } from '../../services/analyticsServices'
 import KhungTai, { TrangLoiTai } from '../../components/bang/KhungTai'
+import OChiSo from '../../components/bang/OChiSo'
 
 const fmtMoney = (v) => `${Number(v || 0).toLocaleString('vi-VN')}đ`
 const fmtAxis = (v) => {
@@ -32,18 +33,9 @@ const fmtAxis = (v) => {
   return v
 }
 
-const StatCard = ({ title, value, note, icon: Icon, color, bg }) => (
-  <div className="bg-card border border-line p-5 flex items-start justify-between">
-    <div>
-      <p className="text-sm text-ink-mute mb-1">{title}</p>
-      <p className="text-2xl font-bold text-ink">{value}</p>
-      {note && <p className="text-xs mt-2 text-ink-mute">{note}</p>}
-    </div>
-    <div className={`p-3 ${bg}`}>
-      <Icon size={24} className={color} />
-    </div>
-  </div>
-)
+// Ô số liệu: dùng OChiSo chung (01/10/2026). Bản cũ có ô biểu tượng tô màu (xanh/đỏ/xám) — màu chỉ trang trí, không mang
+// nghĩa, và mỗi trang một kiểu ô số liệu. Tham số color/bg của nơi gọi được bỏ qua.
+const StatCard = ({ title, value, note, icon }) => <OChiSo nhan={title} so={value} phu={note} icon={icon} />
 
 const ChartTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null
@@ -67,6 +59,8 @@ const OwnerAnalyticsPage = () => {
   const [revenue, setRevenue] = useState(null)
   const [artistDonations, setArtistDonations] = useState(null)
   const [livestreamHistory, setLivestreamHistory] = useState([])
+  // Tổng số buổi đã phát (totalCount) — bảng chỉ lấy 20 buổi gần nhất, phải nói rõ khi còn nhiều hơn (GĐ4, 01/10/2026).
+  const [tongLichSu, setTongLichSu] = useState(0)
   const [isExporting, setIsExporting] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   // Lỗi tải dữ liệu nền: vẽ TrangLoiTai thay vì nhánh 'chưa có' (01/10/2026 — xem components/bang/KhungTai.jsx).
@@ -102,7 +96,7 @@ const OwnerAnalyticsPage = () => {
         if (sData) setStats(sData)
         if (rData) setRevenue(rData)
         if (dData) setArtistDonations(dData)
-        if (lData) setLivestreamHistory(lData.items ?? [])
+        if (lData) { setLivestreamHistory(lData.items ?? []); setTongLichSu(lData.totalCount ?? (lData.items ?? []).length) }
         setNguonLoi(['tổng quan', 'doanh thu theo tháng', 'tiền ủng hộ theo nghệ sĩ', 'lịch sử phát trực tiếp'].filter((_, i) => kq[i].status === 'rejected' || !kq[i].value?.success))
       } catch {
         // Lỗi khi hỏi "phòng trà của tôi" KHÔNG phải "chưa sở hữu phòng trà" — bản cũ nói vậy.
@@ -363,8 +357,14 @@ const OwnerAnalyticsPage = () => {
       {livestreamHistory.length > 0 && (
         <div className="bg-card border border-line p-6">
           <h2 className="font-sans font-bold text-base text-ink flex items-center gap-2">
-            <Radio size={16} /> Lịch sử phát trực tiếp
+            <Radio size={16} aria-hidden="true" /> Lịch sử phát trực tiếp
           </h2>
+          {/* Trần: 20 buổi gần nhất. Nâng cấp khi cần xem hết: chuyển bảng này sang useDanhSachMayChu + BangDuLieu. */}
+          <p className="text-sm text-ink-soft mt-1">
+            {tongLichSu > livestreamHistory.length
+              ? `${livestreamHistory.length} buổi gần nhất trên ${tongLichSu.toLocaleString('vi-VN')} buổi đã phát.`
+              : `${livestreamHistory.length} buổi đã phát.`}
+          </p>
           <div className="overflow-x-auto mt-4">
             <table className="w-full text-sm">
               <thead>

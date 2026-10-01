@@ -14,22 +14,14 @@ import {
   getAdminContentOverview, getAudienceEngagement, getAiRecommendationPerformance,
 } from '../../services/analyticsServices'
 import KhungTai, { TrangLoiTai } from '../../components/bang/KhungTai'
+import OChiSo from '../../components/bang/OChiSo'
 
 const fmtSo = (v) => Number(v || 0).toLocaleString('vi-VN')
 const fmtPhanTram = (v) => `${Number(v || 0).toLocaleString('vi-VN', { maximumFractionDigits: 1 })}%`
 
-const StatCard = ({ title, value, note, icon: Icon, color, bg }) => (
-  <div className="bg-card border border-line p-5 flex items-start justify-between gap-3">
-    <div className="min-w-0">
-      <p className="text-sm text-ink-mute mb-1">{title}</p>
-      <p className="text-2xl font-bold text-ink">{value}</p>
-      {note && <p className="text-xs mt-2 text-ink-mute leading-relaxed">{note}</p>}
-    </div>
-    <div className={`p-3 flex-shrink-0 ${bg}`}>
-      <Icon size={22} className={color} />
-    </div>
-  </div>
-)
+// Ô số liệu: dùng OChiSo chung (01/10/2026). Bản cũ có ô biểu tượng tô màu (xanh/đỏ/xám) — màu chỉ trang trí, không mang
+// nghĩa, và mỗi trang một kiểu ô số liệu. Tham số color/bg của nơi gọi được bỏ qua.
+const StatCard = ({ title, value, note, icon }) => <OChiSo nhan={title} so={value} phu={note} icon={icon} />
 
 const Section = ({ title, subtitle, children }) => (
   <div>

@@ -126,7 +126,7 @@ const ReviewModal = ({ item, approve, onClose, onSaved }) => {
           )}
 
           <div>
-            <label className="text-xs text-ink-mute">
+            <label className="text-sm font-semibold text-ink">
               Ghi chú {approve ? <span className="text-ink-mute">(không bắt buộc)</span> : <span className="text-danger">*</span>}
             </label>
             <textarea aria-label={approve ? "Ghi chú (không bắt buộc)" : "Ghi chú (bắt buộc)"} rows={3} value={note} onChange={(e) => setNote(e.target.value)}

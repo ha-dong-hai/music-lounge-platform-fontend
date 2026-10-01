@@ -94,11 +94,11 @@ const PerformerFormModal = ({ initial, genres, onClose, onSaved }) => {
         <form onSubmit={submit} className="p-5 space-y-4 overflow-y-auto">
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-xs text-ink-mute">Tên nghệ sĩ <span className="text-danger">*</span></label>
+              <label className="text-sm font-semibold text-ink">Tên nghệ sĩ <span className="text-danger">*</span></label>
               <input aria-label="Tên nghệ sĩ" value={form.name} onChange={(e) => set('name', e.target.value)} className={inputCls} />
             </div>
             <div>
-              <label className="text-xs text-ink-mute">Loại hình <span className="text-danger">*</span></label>
+              <label className="text-sm font-semibold text-ink">Loại hình <span className="text-danger">*</span></label>
               <select aria-label="Loại hình" value={form.type} onChange={(e) => set('type', e.target.value)} className={inputCls}>
                 {PERFORMER_TYPES.map((t) => <option key={t} value={t}>{LOAI_NGHE_SI[t]}</option>)}
               </select>
@@ -106,7 +106,7 @@ const PerformerFormModal = ({ initial, genres, onClose, onSaved }) => {
           </div>
 
           <div>
-            <label className="text-xs text-ink-mute">Email liên lạc</label>
+            <label className="text-sm font-semibold text-ink">Email liên lạc</label>
             <input aria-label="Email liên lạc" type="email" value={form.contactEmail} onChange={(e) => set('contactEmail', e.target.value)} className={inputCls} />
             <p className="text-xs text-warning/80 mt-1 leading-relaxed">
               Nơi gửi liên kết để nghệ sĩ tự xác nhận đã nhận tiền ủng hộ. Không có email thì tiền ủng hộ
@@ -115,17 +115,17 @@ const PerformerFormModal = ({ initial, genres, onClose, onSaved }) => {
           </div>
 
           <div>
-            <label className="text-xs text-ink-mute">Giới thiệu</label>
+            <label className="text-sm font-semibold text-ink">Giới thiệu</label>
             <textarea aria-label="Giới thiệu" value={form.bio} onChange={(e) => set('bio', e.target.value)} rows={3} className={`${inputCls} resize-none`} />
           </div>
 
           <div>
-            <label className="text-xs text-ink-mute">Đường dẫn ảnh đại diện</label>
+            <label className="text-sm font-semibold text-ink">Đường dẫn ảnh đại diện</label>
             <input aria-label="Đường dẫn ảnh đại diện" value={form.avatarUrl} onChange={(e) => set('avatarUrl', e.target.value)} className={inputCls} placeholder="https://..." />
           </div>
 
           <div>
-            <label className="text-xs text-ink-mute">Thể loại nhạc</label>
+            <label className="text-sm font-semibold text-ink">Thể loại nhạc</label>
             <div className="mt-2 flex flex-wrap gap-2">
               {genres.map((g) => {
                 const chon = form.genreIds.includes(g.id)

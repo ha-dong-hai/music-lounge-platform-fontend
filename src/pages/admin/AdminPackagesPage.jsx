@@ -156,7 +156,7 @@ const AdminPackagesPage = () => {
   if (packages.length === 0) {
     return (
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <h1 className="text-4xl text-ink mb-1">Gói dịch vụ</h1>
             <p className="text-ink-soft text-sm">Thiết lập các gói dịch vụ cho chủ phòng trà.</p>
@@ -190,7 +190,7 @@ const AdminPackagesPage = () => {
     <div className="space-y-8">
 
       {/* ===== HEADER ===== */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="text-4xl text-ink mb-1">Gói dịch vụ</h1>
           <p className="text-ink-soft text-sm">Thiết lập các gói đăng ký dịch vụ.</p>

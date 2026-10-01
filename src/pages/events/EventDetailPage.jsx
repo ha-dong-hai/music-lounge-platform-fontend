@@ -16,6 +16,7 @@ import { getFollowedLounges, toggleWishlist, toggleFollowLounge } from '../../se
 
 import { useAuthStore } from '../../store/useAuthStore'
 import { formatMinPrice } from '../../utils/formatPrice'
+import HopThoai, { TieuDeHop } from '../../components/shared/HopThoai'
 
 const EventDetailPage = () => {
   const { id } = useParams()
@@ -327,11 +328,11 @@ const EventDetailPage = () => {
 
       {/* ===== HỘP CHIA SẺ ===== */}
       {isShareModalOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-board/80" onClick={() => setIsShareModalOpen(false)} />
-          <div role="dialog" aria-modal="true" aria-labelledby="tieu-de-chia-se" className="relative bg-card border-2 border-ink w-full max-w-md p-6 shadow-lift">
+        // HopThoai (Radix): bản cũ có role=dialog nhưng Tab thoát ra trang sau, Esc không đóng (rà soát 01/10/2026).
+        <HopThoai onDong={() => setIsShareModalOpen(false)} className="max-w-md p-6">
+          <div>
             <div className="flex justify-between items-center mb-5">
-              <h2 id="tieu-de-chia-se" className="text-3xl text-ink">Chia sẻ buổi diễn</h2>
+              <TieuDeHop><h2 className="text-3xl text-ink">Chia sẻ buổi diễn</h2></TieuDeHop>
               <button type="button" onClick={() => setIsShareModalOpen(false)} aria-label="Đóng" className="w-11 h-11 inline-flex items-center justify-center text-ink hover:bg-ink hover:text-lamp transition-colors"><X size={20} aria-hidden="true" /></button>
             </div>
             <p className="text-ink-soft text-sm mb-3">Sao chép liên kết bên dưới để gửi bạn bè:</p>
@@ -342,7 +343,7 @@ const EventDetailPage = () => {
               </button>
             </div>
           </div>
-        </div>
+        </HopThoai>
       )}
     </div>
   )

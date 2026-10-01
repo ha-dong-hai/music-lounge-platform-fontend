@@ -10,6 +10,7 @@ import { useAuthStore } from '../../store/useAuthStore'
 import Skeleton from '../shared/Skeleton'
 import SeatingMapView from './SeatingMapView'
 import { ghiNhoThanhToan, LOAI_THANH_TOAN } from '../../utils/paymentContext'
+import HopThoai, { TieuDeHop } from '../shared/HopThoai'
 
 const formatVnd = (amount) => `${Number(amount || 0).toLocaleString('vi-VN')}đ`
 
@@ -366,24 +367,22 @@ const ShowMap = ({ showData }) => {
 
       {/* MODAL YÊU CẦU ĐĂNG NHẬP */}
       {isLoginModalOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-ink/80" onClick={() => setIsLoginModalOpen(false)}></div>
-          <div className="relative bg-card border border-line w-full max-w-md p-6 shadow-lift text-center">
-            <div className="w-16 h-16 mx-auto bg-ink/10 flex items-center justify-center mb-4 border border-ink/30">
-              <Lock size={28} className="text-ink" />
-            </div>
-            <h2 className="text-xl text-ink mb-2">Cần đăng nhập</h2>
-            <p className="text-ink-soft mb-6">Vui lòng đăng nhập để mua vé.</p>
-            <div className="flex gap-3">
-              <button onClick={() => setIsLoginModalOpen(false)} className="flex-1 py-2.5 border border-line text-ink-soft font-medium hover:bg-sunken transition-colors">
-                Huỷ
-              </button>
-              <Link to="/login" className="flex-1 py-2.5 bg-ink text-lamp font-bold hover:bg-board transition-colors flex items-center justify-center">
-                Đăng nhập
-              </Link>
-            </div>
+        // HopThoai (Radix): role=dialog có tên, Esc đóng, giữ tiêu điểm — bản tự dựng cũ không có (rà soát 01/10/2026).
+        <HopThoai onDong={() => setIsLoginModalOpen(false)} className="max-w-md p-6 text-center">
+          <div className="w-16 h-16 mx-auto bg-ink/10 flex items-center justify-center mb-4 border border-ink/30">
+            <Lock size={28} className="text-ink" aria-hidden="true" />
           </div>
-        </div>
+          <TieuDeHop><h2 className="text-xl text-ink mb-2">Cần đăng nhập</h2></TieuDeHop>
+          <p className="text-ink-soft mb-6">Vui lòng đăng nhập để mua vé.</p>
+          <div className="flex flex-wrap gap-3">
+            <button type="button" onClick={() => setIsLoginModalOpen(false)} className="flex-1 inline-flex items-center justify-center min-h-[44px] px-4 border-2 border-ink bg-card text-ink text-sm font-semibold hover:bg-ink hover:text-lamp">
+              Huỷ
+            </button>
+            <Link to="/login" className="flex-1 inline-flex items-center justify-center min-h-[44px] px-4 bg-ink text-lamp text-sm font-semibold hover:bg-board">
+              Đăng nhập
+            </Link>
+          </div>
+        </HopThoai>
       )}
     </>
   )

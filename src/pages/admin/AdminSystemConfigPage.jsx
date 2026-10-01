@@ -22,6 +22,7 @@ import {
 } from '../../services/adminServices'
 import { TrangLoiTai } from '../../components/bang/KhungTai'
 import HopThoai, { TieuDeHop } from '../../components/shared/HopThoai'
+import { HEP } from '../../components/bang/lopBangHep'
 
 const EditModal = ({ config, onClose, onSaved }) => {
   const [configValue, setConfigValue] = useState(config.configValue ?? '')
@@ -69,14 +70,14 @@ const EditModal = ({ config, onClose, onSaved }) => {
           )}
 
           <div>
-            <label className="text-xs text-ink-mute">Giá trị hiện tại</label>
+            <label className="text-sm font-semibold text-ink">Giá trị hiện tại</label>
             <p className="mt-1 px-3 py-2 bg-sunken border border-line text-sm text-ink-soft tabular-nums">
               {config.configValue}
             </p>
           </div>
 
           <div>
-            <label className="text-xs text-ink-mute">
+            <label className="text-sm font-semibold text-ink">
               Giá trị mới <span className="text-danger">*</span>
               <span className="text-ink-mute"> · kiểu {config.dataType}</span>
             </label>
@@ -85,7 +86,7 @@ const EditModal = ({ config, onClose, onSaved }) => {
           </div>
 
           <div>
-            <label className="text-xs text-ink-mute">Lý do thay đổi <span className="text-danger">*</span></label>
+            <label className="text-sm font-semibold text-ink">Lý do thay đổi <span className="text-danger">*</span></label>
             <textarea aria-label="Lý do thay đổi" value={note} onChange={(e) => setNote(e.target.value)} rows={3}
               className="mt-1 w-full resize-none min-h-[44px] px-3 py-2 bg-card border-2 border-ink text-ink focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2"
               placeholder="Vì sao đổi, theo quyết định nào. Nội dung này lưu vĩnh viễn trong lịch sử." />
@@ -216,28 +217,34 @@ const AdminSystemConfigPage = () => {
 
   const renderBang = (ds) => (
     <div className="overflow-x-auto">
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="text-xs text-ink-mute border-b border-line">
-            <th scope="col" className="text-left py-2 pr-3 font-medium">Tham số</th>
-            <th scope="col" className="text-left py-2 pr-3 font-medium">Giá trị</th>
-            <th scope="col" className="text-left py-2 pr-3 font-medium">Đổi lần cuối</th>
-            <th scope="col" className="py-2 font-medium" />
+      {/* Màn hẹp: mỗi tham số một khối có nhãn (lopBangHep) — trước đây cuộn ngang ở 390px, nút Sửa nằm khuất. */}
+      <table role="table" className={`w-full text-sm ${HEP.bang}`}>
+        <thead role="rowgroup" className={HEP.dau}>
+          <tr role="row" className="text-sm text-ink border-b-2 border-ink">
+            <th scope="col" role="columnheader" className="text-left py-2 pr-3 font-semibold">Tham số</th>
+            <th scope="col" role="columnheader" className="text-left py-2 pr-3 font-semibold">Giá trị</th>
+            <th scope="col" role="columnheader" className="text-left py-2 pr-3 font-semibold">Đổi lần cuối</th>
+            <th scope="col" role="columnheader" className="py-2 font-semibold"><span className="sr-only">Thao tác</span></th>
           </tr>
         </thead>
-        <tbody>
+        <tbody role="rowgroup" className={HEP.than}>
           {ds.map((c) => (
-            <tr key={c.configKey} className="border-b border-line/60">
-              <td className="py-3 pr-3 align-top">
-                <p className="text-ink font-medium break-all">{c.configKey}</p>
+            <tr key={c.configKey} role="row" className={`border-b border-line/60 ${HEP.dong}`}>
+              <td role="cell" className={`py-3 pr-3 align-top ${HEP.oTron}`}>
+                <p className="text-ink font-semibold break-all">{c.configKey}</p>
                 {c.description && <p className="text-xs text-ink-mute mt-0.5 leading-relaxed">{c.description}</p>}
               </td>
-              <td className="py-3 pr-3 align-top text-ink-soft tabular-nums whitespace-nowrap">{c.configValue}</td>
-              <td className="py-3 pr-3 align-top text-xs text-ink-mute whitespace-nowrap">
-                {dayjs(c.updatedAt).format('DD/MM/YYYY')}
-                {c.updatedByName && <span className="block text-ink-mute">{c.updatedByName}</span>}
+              <td role="cell" data-nhan="Giá trị" className={`py-3 pr-3 align-top text-ink-soft tabular-nums md:whitespace-nowrap ${HEP.o}`}>
+                {/* Giá trị dạng chuỗi dài (vd. mã phiên bản điều khoản) phải ngắt được ở màn hẹp — đo 01/10: tràn 35px ở 390px. */}
+                <span className="min-w-0 max-md:break-all max-md:text-right">{c.configValue}</span>
               </td>
-              <td className="py-3 align-top">
+              <td role="cell" data-nhan="Đổi lần cuối" className={`py-3 pr-3 align-top text-xs text-ink-mute whitespace-nowrap ${HEP.o}`}>
+                <span>
+                  {dayjs(c.updatedAt).format('DD/MM/YYYY')}
+                  {c.updatedByName && <span className="block text-ink-mute">{c.updatedByName}</span>}
+                </span>
+              </td>
+              <td role="cell" className={`py-3 align-top ${HEP.oTron}`}>
                 <div className="flex gap-1 justify-end">
                   <button onClick={() => setHistoryKey(c.configKey)} title="Lịch sử thay đổi" aria-label="Lịch sử thay đổi"
                     className="inline-flex items-center justify-center w-11 h-11 flex-shrink-0 text-ink-soft hover:bg-sunken">

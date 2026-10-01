@@ -69,7 +69,7 @@ const AppealModal = ({ penalty, onClose, onSaved }) => {
           </div>
 
           <div>
-            <label className="text-xs text-ink-mute">Lý do khiếu nại</label>
+            <label className="text-sm font-semibold text-ink">Lý do khiếu nại</label>
             <textarea aria-label="Lý do khiếu nại" value={reason} onChange={(e) => setReason(e.target.value)} rows={5}
               className="mt-1 w-full resize-none min-h-[44px] px-3 py-2 bg-card border-2 border-ink text-ink focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2"
               placeholder="Trình bày vì sao bạn cho rằng án phạt này không đúng, kèm thông tin đối chiếu nếu có." />

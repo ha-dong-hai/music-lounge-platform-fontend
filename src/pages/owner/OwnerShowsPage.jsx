@@ -190,25 +190,25 @@ const ShowFormModal = ({ initial, loungeId, catalog, onClose, onSaved }) => {
 
         <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-5 space-y-4">
           <div>
-            <label className="text-xs text-ink-mute">Tên buổi diễn *</label>
+            <label className="text-sm font-semibold text-ink">Tên buổi diễn *</label>
             <input aria-label="Tên buổi diễn" value={form.name} onChange={(e) => set('name', e.target.value)}
               className="mt-1 w-full min-h-[44px] px-3 py-2 bg-card border-2 border-ink text-ink focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2" />
           </div>
 
           <div>
-            <label className="text-xs text-ink-mute">Mô tả *</label>
+            <label className="text-sm font-semibold text-ink">Mô tả *</label>
             <textarea aria-label="Mô tả" value={form.description} onChange={(e) => set('description', e.target.value)} rows={3}
               className="mt-1 w-full min-h-[44px] px-3 py-2 bg-card border-2 border-ink text-ink focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2" />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-xs text-ink-mute">Bắt đầu *</label>
+              <label className="text-sm font-semibold text-ink">Bắt đầu *</label>
               <input aria-label="Bắt đầu" type="datetime-local" value={form.scheduledStart} onChange={(e) => set('scheduledStart', e.target.value)}
                 className="mt-1 w-full min-h-[44px] px-3 py-2 bg-card border-2 border-ink text-ink focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2" />
             </div>
             <div>
-              <label className="text-xs text-ink-mute">Kết thúc</label>
+              <label className="text-sm font-semibold text-ink">Kết thúc</label>
               <input aria-label="Kết thúc" type="datetime-local" value={form.scheduledEnd} onChange={(e) => set('scheduledEnd', e.target.value)}
                 className="mt-1 w-full min-h-[44px] px-3 py-2 bg-card border-2 border-ink text-ink focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2" />
             </div>
@@ -217,26 +217,26 @@ const ShowFormModal = ({ initial, loungeId, catalog, onClose, onSaved }) => {
           <div className="grid grid-cols-3 gap-3">
             <div>
               {/* Hình thức chốt lúc tạo — đổi sau phải qua endpoint riêng PUT /format */}
-              <label className="text-xs text-ink-mute">Hình thức {isEdit && '(không đổi ở đây)'}</label>
+              <label className="text-sm font-semibold text-ink">Hình thức {isEdit && '(không đổi ở đây)'}</label>
               <select aria-label="Hình thức" value={form.format} onChange={(e) => set('format', e.target.value)} disabled={isEdit}
                 className="mt-1 w-full disabled:opacity-50 min-h-[44px] px-3 py-2 bg-card border-2 border-ink text-ink focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2">
                 {FORMATS.map((f) => <option key={f.value} value={f.value}>{f.label}</option>)}
               </select>
             </div>
             <div>
-              <label className="text-xs text-ink-mute">Sức chứa tại chỗ</label>
+              <label className="text-sm font-semibold text-ink">Sức chứa tại chỗ</label>
               <input aria-label="Sức chứa tại chỗ" type="number" min="1" value={form.offlineQuota} onChange={(e) => set('offlineQuota', e.target.value)}
                 className="mt-1 w-full min-h-[44px] px-3 py-2 bg-card border-2 border-ink text-ink focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2" />
             </div>
             <div>
-              <label className="text-xs text-ink-mute">Sức chứa trực tuyến</label>
+              <label className="text-sm font-semibold text-ink">Sức chứa trực tuyến</label>
               <input aria-label="Sức chứa trực tuyến" type="number" min="1" value={form.onlineQuota} onChange={(e) => set('onlineQuota', e.target.value)}
                 className="mt-1 w-full min-h-[44px] px-3 py-2 bg-card border-2 border-ink text-ink focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2" />
             </div>
           </div>
 
           <div>
-            <label className="text-xs text-ink-mute">Danh mục</label>
+            <label className="text-sm font-semibold text-ink">Danh mục</label>
             <select aria-label="Danh mục" value={form.categoryId} onChange={(e) => set('categoryId', e.target.value)}
               className="mt-1 w-full min-h-[44px] px-3 py-2 bg-card border-2 border-ink text-ink focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2">
               <option value="">— không chọn —</option>
