@@ -1,34 +1,31 @@
 // src/pages/admin/AdminKycReviewsPage.jsx
-import { useState, useEffect, useCallback } from 'react'
+//
+// PHÂN TRANG (01/10/2026): bản cũ xin cố định pageSize 50 và không có trang tiếp — hồ sơ thứ 51 trở đi trong hàng đợi
+// "Chờ duyệt" không bao giờ hiện, tức là có người bán chờ định danh mãi mà Admin không thấy. Nay dùng
+// hooks/useDanhSachMayChu; tab lên URL (?tab=Approved). Backend (GetKycReviewQueueQueryHandler) phân trang đúng nhưng nạp
+// cả hàng đợi vào bộ nhớ rồi mới cắt trang — chuyện hiệu năng phía backend, không làm sai dữ liệu ở đây.
+import { useState } from 'react'
+import { parseAsStringLiteral } from 'nuqs'
 import { Loader2, ShieldCheck } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { getKycReviewQueue, reviewKycDocument, getUserCitizenCardImage } from '../../services/adminServices'
 import { KYC_TABS } from '../../components/admin/kyc/KycBadges'
 import KycUserCard from '../../components/admin/kyc/KycUserCard'
 import KycReviewModal from '../../components/admin/kyc/KycReviewModal'
+import { useDanhSachMayChu } from '../../hooks/useDanhSachMayChu'
+import PhanTrang from '../../components/bang/PhanTrang'
+
+const BO_LOC = { tab: parseAsStringLiteral(KYC_TABS.map((t) => t.key)).withDefault('Pending') }
+const goiHangDoi = ({ tab, ...q }) => getKycReviewQueue({ ...q, status: tab })
 
 const AdminKycReviewsPage = () => {
-  const [tab, setTab] = useState('Pending')
-  const [items, setItems] = useState([])
-  const [isLoading, setIsLoading] = useState(true)
+  const ds = useDanhSachMayChu({ khoa: ['admin-kyc'], goi: goiHangDoi, boLoc: BO_LOC })
+  const { tab } = ds.boLoc
+  const items = ds.items
+  const isLoading = ds.dangTai
+  const load = () => ds.taiLai()
   const [target, setTarget] = useState(null) // { item, document, approve }
   const [isSubmitting, setIsSubmitting] = useState(false)
-
-  // 1. FETCH HÀNG ĐỢI THEO TAB
-  const load = useCallback(async () => {
-    setIsLoading(true)
-    try {
-      const res = await getKycReviewQueue({ status: tab, pageSize: 50 })
-      if (res.success) setItems(res.data.items ?? [])
-    } catch (err) {
-      toast.error(err.response?.data?.message || 'Không tải được hàng đợi định danh.')
-      setItems([])
-    } finally {
-      setIsLoading(false)
-    }
-  }, [tab])
-
-  useEffect(() => { const chay = async () => { await load() }; chay() }, [load])
 
   // 2. XEM ẢNH CCCD (blob) — Admin xem giấy tờ người khác thì BE GHI LOG, đừng gọi thừa
   const handleViewImage = async (userId, side) => {
@@ -70,7 +67,7 @@ const AdminKycReviewsPage = () => {
       {/* TABS */}
       <div className="flex flex-wrap gap-2">
         {KYC_TABS.map((t) => (
-          <button key={t.key} onClick={() => setTab(t.key)}
+          <button type="button" key={t.key} onClick={() => ds.datBoLoc({ tab: t.key })} aria-pressed={tab === t.key}
             className={`px-3 py-1.5 text-xs font-medium border transition-colors ${tab === t.key
               ? 'bg-sunken border-ink/40 text-ink'
               : 'bg-page border-line text-ink-soft hover:text-ink'}`}>
@@ -81,13 +78,20 @@ const AdminKycReviewsPage = () => {
 
       {isLoading ? (
         <div className="py-20 flex justify-center"><Loader2 size={32} className="animate-spin text-ink" /></div>
+      ) : ds.loi ? (
+        <div role="alert" className="bg-card border border-line p-6 flex flex-wrap items-center gap-4">
+          <p className="text-sm">Chưa tải được hàng đợi định danh.</p>
+          <button type="button" onClick={load} className="min-h-[44px] px-4 border-2 border-ink font-semibold hover:bg-ink hover:text-lamp">Thử lại</button>
+        </div>
       ) : items.length === 0 ? (
         <div className="bg-card border border-line p-10 text-center">
           <ShieldCheck size={28} className="mx-auto mb-3 text-ink-mute" />
           <p className="text-sm text-ink-mute">Không có hồ sơ nào trong mục này.</p>
         </div>
       ) : (
-        <ul className="space-y-4">
+        <>
+        <PhanTrang ds={ds} tenDonVi="hồ sơ" idDanhSach="ds-kyc" />
+        <ul id="ds-kyc" tabIndex={-1} className={`space-y-4 focus:outline-none ${ds.laDuLieuCu ? 'opacity-60' : ''}`}>
           {items.map((it) => (
             <KycUserCard
               key={it.userId}
@@ -97,6 +101,8 @@ const AdminKycReviewsPage = () => {
             />
           ))}
         </ul>
+        <PhanTrang ds={ds} tenDonVi="hồ sơ" idDanhSach="ds-kyc" />
+        </>
       )}
 
       {target && (
