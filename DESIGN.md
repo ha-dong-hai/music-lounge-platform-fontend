@@ -270,8 +270,22 @@ nay nằm dưới cổng `kiem:the-gioi`, nợ = 0, khối tên màu cũ trong `
   thị bọc `TieuDeHop`. Hộp xác nhận hành động khó hoàn tác vẫn dùng `HopXacNhan`.
 - Chip bật/tắt (thể loại, chế độ vẽ…): 44px, viền 2px, `aria-pressed`.
 
-**Còn lại:** ô số liệu ba kiểu khác nhau → `OChiSo`; ô nhập trên form vận hành còn viền 1px; bảng tự viết còn lại
-(Danh mục phân loại, Cấu hình hệ thống) → `BangDuLieu`.
+- Ô số liệu: `OChiSo` (nhãn, số, dòng phụ "so với cái gì"); ô bấm để lọc là nút `aria-pressed`, ô chỉ đọc là `<div>`;
+  biểu tượng chỉ trang trí, không tô màu. Ô cần chú ý dùng `canChuY` (viền + chữ son) kèm chữ.
+- Ô nhập form vận hành: 44px, viền 2px mực, vòng tiêu điểm rõ; nhãn `text-sm font-semibold text-ink` (không còn chữ nhỏ xám).
+- Bảng danh sách đầy đủ (không phân trang máy chủ): dùng lớp `components/bang/lopBangHep.js` (`HEP`) — dưới 768px mỗi dòng
+  xếp thành khối có nhãn cột, role bảng tường minh. Bảng phân trang máy chủ dùng `BangDuLieu` (cùng lớp đó).
+- Danh sách bị backend cắt (pageSize kẹp 100 / chỉ lấy N mục gần nhất) phải NÓI ra ("100 buổi gần nhất trên N…"), câu báo
+  nằm ngoài trạng thái trống. Chỗ cắt còn lại chờ backend có tham số lọc (`format`, `follows/lounges/status`).
+- Menu thả xuống ở đầu trang (ngôn ngữ, tài khoản, chuông): nút có `aria-expanded`, Esc đóng.
+
+**Cố ý không làm:** chuyển hàng loạt 35 đầu trang sang `DauTrang` — đo 01/10 thấy 34/35 trang đã cùng kiểu tiêu đề + dòng
+mô tả, nút đã 44px; đổi cấu trúc không đổi gì người dùng thấy mà có rủi ro hồi quy. Chỉ sửa chỗ lệch thật (Phát trực tuyến
+thiếu mô tả, Gói dịch vụ không xuống dòng). Trang mới thì dùng `DauTrang`.
+
+**Còn lại (chờ backend deploy, xem `kb/facts/be/loc-phan-trang-may-chu-2026-10-01.md`):** gỡ lọc phía trình duyệt ở Phát
+trực tuyến / Đơn gọi món / nghệ sĩ; `keyword` cho Admin khiếu nại, phòng trà, buổi diễn, danh sách phòng trà công khai;
+`allStatuses=true` để thêm lại "Tất cả" ở Admin Phòng trà; trái tim theo dõi qua `/follows/lounges/status`.
 
 ## Danh sách lựa chọn dài: thu gọn, không in hết (30/09/2026)
 
