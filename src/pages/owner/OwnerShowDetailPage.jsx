@@ -461,7 +461,7 @@ const OwnerShowDetailPage = () => {
 
         {isDraft && (
           <button onClick={handleSubmit} disabled={!readyToSubmit || !!busy}
-            className="mt-5 flex items-center gap-2 px-4 py-2 bg-ink text-lamp text-sm font-bold hover:bg-board disabled:opacity-40 disabled:cursor-not-allowed">
+            className="mt-5 flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed justify-center min-h-[44px] px-4 bg-ink text-lamp text-sm font-semibold hover:bg-board">
             <Send size={16} /> {busy === 'submit' ? 'Đang gửi...' : 'Gửi duyệt'}
           </button>
         )}
@@ -502,7 +502,7 @@ const OwnerShowDetailPage = () => {
               placeholder={daKhaiVanBan ? 'Nhập số mới để thay giá trị đang khai' : 'VD: 1234/SVHTT-QLVH hoặc đường dẫn tới văn bản'}
               className="flex-1 px-3 py-2 bg-page border border-line text-sm text-ink placeholder:text-ink-mute" />
             <button onClick={handleSaveLegal} disabled={!legalRef.trim() || !!busy}
-              className="px-4 py-2 border border-line text-ink-soft text-sm font-bold hover:bg-sunken disabled:opacity-50">
+              className="inline-flex disabled:opacity-50 items-center justify-center gap-2 min-h-[44px] px-4 border-2 border-ink bg-card text-ink text-sm font-semibold hover:bg-ink hover:text-lamp">
               {daKhaiVanBan ? 'Thay' : 'Lưu'}
             </button>
           </div>
@@ -534,12 +534,12 @@ const OwnerShowDetailPage = () => {
                     <div className="flex items-center gap-1 flex-shrink-0">
                       <button onClick={() => handleDoiThuTu(p.performanceId, -1)} disabled={!!busy || i === 0}
                         title="Diễn sớm hơn" aria-label="Diễn sớm hơn"
-                        className="p-1.5 text-ink-mute hover:text-ink disabled:opacity-30">
+                        className="inline-flex items-center justify-center w-11 h-11 flex-shrink-0 text-ink-mute hover:text-ink disabled:opacity-30">
                         <ArrowUp size={14} />
                       </button>
                       <button onClick={() => handleDoiThuTu(p.performanceId, 1)} disabled={!!busy || i === arr.length - 1}
                         title="Diễn muộn hơn" aria-label="Diễn muộn hơn"
-                        className="p-1.5 text-ink-mute hover:text-ink disabled:opacity-30">
+                        className="inline-flex items-center justify-center w-11 h-11 flex-shrink-0 text-ink-mute hover:text-ink disabled:opacity-30">
                         <ArrowDown size={14} />
                       </button>
                       <button
@@ -551,12 +551,12 @@ const OwnerShowDetailPage = () => {
                           acceptsDonation: !!p.acceptsDonation,
                         })}
                         disabled={!!busy} title="Sửa tiết mục" aria-label="Sửa tiết mục"
-                        className="p-1.5 text-ink-mute hover:text-ink disabled:opacity-50">
+                        className="inline-flex items-center justify-center w-11 h-11 flex-shrink-0 text-ink-mute hover:text-ink disabled:opacity-50">
                         <Pencil size={14} />
                       </button>
                       <button onClick={() => handleRemovePerformer(p.performanceId)} disabled={!!busy}
                         title="Gỡ khỏi line-up" aria-label="Gỡ khỏi line-up"
-                        className="p-1.5 text-ink-mute hover:text-danger disabled:opacity-50">
+                        className="inline-flex items-center justify-center w-11 h-11 flex-shrink-0 text-ink-mute hover:text-danger disabled:opacity-50">
                         <Trash2 size={14} />
                       </button>
                     </div>
@@ -588,13 +588,13 @@ const OwnerShowDetailPage = () => {
                           className="accent-ink" />
                         Nhận donate
                       </label>
-                      <div className="flex gap-2 mt-2">
+                      <div className="flex gap-2 mt-2 flex-wrap">
                         <button onClick={handleLuuTietMuc} disabled={!!busy}
-                          className="flex items-center gap-1.5 px-3 py-1.5 bg-ink text-lamp text-xs font-bold disabled:opacity-50">
+                          className="flex items-center gap-1.5 disabled:opacity-50 justify-center min-h-[44px] px-4 bg-ink text-lamp text-sm font-semibold hover:bg-board">
                           {busy === `perf-${p.performanceId}` ? <Loader2 size={13} className="animate-spin" /> : <Save size={13} />} Lưu
                         </button>
                         <button onClick={() => setSuaTietMuc(null)} disabled={!!busy}
-                          className="px-3 py-1.5 border border-line text-ink-soft text-xs font-bold hover:bg-sunken">
+                          className="inline-flex items-center justify-center gap-2 min-h-[44px] px-4 border-2 border-ink bg-card text-ink text-sm font-semibold hover:bg-ink hover:text-lamp">
                           Huỷ
                         </button>
                       </div>
@@ -634,7 +634,7 @@ const OwnerShowDetailPage = () => {
           </h2>
           {isDraft && !showTierForm && (
             <button onClick={() => setShowTierForm(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 border border-line text-ink-soft text-xs font-bold hover:bg-sunken">
+              className="flex items-center gap-1.5 justify-center min-h-[44px] px-4 border-2 border-ink bg-card text-ink text-sm font-semibold hover:bg-ink hover:text-lamp">
               <Plus size={14} /> Thêm hạng vé
             </button>
           )}
@@ -657,7 +657,7 @@ const OwnerShowDetailPage = () => {
                         <p key={pr.id} className="text-xs text-ink-soft">
                           {pr.name}: <span className="text-ink font-medium">{fmtMoney(pr.price)}</span>
                           {pr.quota != null && ` · ${pr.availableSlots}/${pr.quota} còn lại`}
-                          {` · ${pr.purchaseChannel === 'Both' ? 'online + tại quầy' : pr.purchaseChannel === 'Online' ? 'chỉ online' : 'chỉ tại quầy'}`}
+                          {` · ${pr.purchaseChannel === 'Both' ? 'bán qua mạng và tại quầy' : pr.purchaseChannel === 'Online' ? 'chỉ bán qua mạng' : 'chỉ bán tại quầy'}`}
                         </p>
                       ))}
                     </div>
@@ -672,12 +672,12 @@ const OwnerShowDetailPage = () => {
                           totalCapacity: t.totalCapacity ?? '',
                         })}
                         disabled={!!busy} title="Sửa hạng vé" aria-label="Sửa hạng vé"
-                        className="p-1.5 text-ink-mute hover:text-ink disabled:opacity-50">
+                        className="inline-flex items-center justify-center w-11 h-11 flex-shrink-0 text-ink-mute hover:text-ink disabled:opacity-50">
                         <Pencil size={14} />
                       </button>
                       <button onClick={() => handleDeleteTier(t.id)} disabled={!!busy}
                         title="Xoá hạng vé" aria-label="Xoá hạng vé"
-                        className="p-1.5 text-ink-mute hover:text-danger disabled:opacity-50">
+                        className="inline-flex items-center justify-center w-11 h-11 flex-shrink-0 text-ink-mute hover:text-danger disabled:opacity-50">
                         <Trash2 size={14} />
                       </button>
                     </div>
@@ -712,13 +712,13 @@ const OwnerShowDetailPage = () => {
                     <p className="text-[11px] text-ink-mute">
                       Giá vé không sửa ở đây — giá thuộc đợt giá riêng của hạng vé.
                     </p>
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 flex-wrap">
                       <button onClick={handleLuuHangVe} disabled={!!busy}
-                        className="flex items-center gap-1.5 px-4 py-2 bg-ink text-lamp text-sm font-bold disabled:opacity-50">
+                        className="flex items-center gap-1.5 disabled:opacity-50 justify-center min-h-[44px] px-4 bg-ink text-lamp text-sm font-semibold hover:bg-board">
                         {busy === `tier-${t.id}` ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />} Lưu
                       </button>
                       <button onClick={() => setSuaHangVe(null)} disabled={!!busy}
-                        className="px-4 py-2 border border-line text-ink-soft text-sm font-bold hover:bg-sunken">
+                        className="inline-flex items-center justify-center gap-2 min-h-[44px] px-4 border-2 border-ink bg-card text-ink text-sm font-semibold hover:bg-ink hover:text-lamp">
                         Huỷ
                       </button>
                     </div>
@@ -793,9 +793,9 @@ const OwnerShowDetailPage = () => {
                 <label className="text-xs text-ink-mute">Kênh bán</label>
                 <select aria-label="Kênh bán" value={tierForm.purchaseChannel} onChange={(e) => setTierForm((p) => ({ ...p, purchaseChannel: e.target.value }))}
                   className="mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink">
-                  <option value="Both">Online + tại quầy</option>
-                  <option value="Online">Chỉ online</option>
-                  <option value="Offline">Chỉ tại quầy</option>
+                  <option value="Both">Bán qua mạng và tại quầy</option>
+                  <option value="Online">Chỉ bán qua mạng</option>
+                  <option value="Offline">Chỉ bán tại quầy</option>
                 </select>
               </div>
             </div>
@@ -804,13 +804,13 @@ const OwnerShowDetailPage = () => {
               Vé mở bán ngay và bán tới khi buổi diễn kết thúc. Giá phải là số nguyên đồng.
             </p>
 
-            <div className="flex gap-2">
+            <div className="flex gap-2 flex-wrap">
               <button type="submit" disabled={!!busy}
-                className="px-4 py-2 bg-ink text-lamp text-sm font-bold hover:bg-board disabled:opacity-50">
+                className="inline-flex disabled:opacity-50 items-center justify-center gap-2 min-h-[44px] px-4 bg-ink text-lamp text-sm font-semibold hover:bg-board">
                 {busy === 'tier' ? 'Đang tạo...' : 'Tạo hạng vé'}
               </button>
               <button type="button" onClick={() => setShowTierForm(false)}
-                className="px-4 py-2 border border-line text-ink-soft text-sm font-bold hover:bg-sunken">
+                className="inline-flex items-center justify-center gap-2 min-h-[44px] px-4 border-2 border-ink bg-card text-ink text-sm font-semibold hover:bg-ink hover:text-lamp">
                 Huỷ
               </button>
             </div>

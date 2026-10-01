@@ -35,28 +35,22 @@ export const PackageCard = ({ pkg, onEdit, onToggleStatus }) => {
   return (
     <div className="relative bg-card border border-line p-6 flex flex-col overflow-hidden border-ink">
 
-      {/* ===== ACTIONS — hiện khi hover góc phải (giữ nguyên) ===== */}
-      <div className="absolute top-4 right-4 z-10 flex gap-1.5">
-        <button
-          onClick={() => onEdit(pkg)}
-          className="w-10 h-10 inline-flex items-center justify-center border border-ink text-ink hover:bg-ink hover:text-lamp transition-colors"
-          title="Sửa gói" aria-label={`Sửa gói ${pkg.name}`}
-        >
-          <Pencil size={13} />
-        </button>
-        <button
-          onClick={() => onToggleStatus(pkg)}
-          className="w-10 h-10 inline-flex items-center justify-center border border-ink text-ink hover:bg-ink hover:text-lamp transition-colors"
-          title="Ẩn gói" aria-label={`Ẩn gói ${pkg.name}`}
-        >
-          <EyeOff size={13} />
-        </button>
-      </div>
-
       {/* ===== HEADER ===== */}
       <div className="relative z-[1]">
-        <div className="flex items-center gap-2.5 mb-2 pr-14">
-          <h3 className="text-xl font-bold text-ink truncate">{pkg.name}</h3>
+        {/* Tên + thao tác cùng một hàng (01/10/2026): bản cũ đặt hai nút tuyệt đối ở góc mà tên chỉ chừa pr-14 (56px) cho
+            ~92px nút — tên dài bị cắt và đè lên nút Sửa. Tên nay xuống dòng, không cắt. */}
+        <div className="flex items-start justify-between gap-3 mb-2">
+          <h3 className="text-xl font-bold text-ink min-w-0 break-words">{pkg.name}</h3>
+          <div className="flex gap-2 flex-shrink-0">
+            <button type="button" onClick={() => onEdit(pkg)} aria-label={`Sửa gói ${pkg.name}`}
+              className="w-11 h-11 inline-flex items-center justify-center border-2 border-ink text-ink hover:bg-ink hover:text-lamp">
+              <Pencil size={15} aria-hidden="true" />
+            </button>
+            <button type="button" onClick={() => onToggleStatus(pkg)} aria-label={`Ẩn gói ${pkg.name}`}
+              className="w-11 h-11 inline-flex items-center justify-center border-2 border-ink text-ink hover:bg-ink hover:text-lamp">
+              <EyeOff size={15} aria-hidden="true" />
+            </button>
+          </div>
         </div>
         <span className="inline-flex px-2.5 py-1 text-xs font-semibold border border-ink">
           Trả theo {chuKy(pkg.billingCycle)}
@@ -147,14 +141,14 @@ export const HiddenPackageCard = ({ pkg, onEdit, onRestore }) => {
       <div className="flex items-center gap-2 flex-shrink-0">
         <button
           onClick={() => onEdit(pkg)}
-          className="p-2 border border-line/60 text-ink-mute hover:text-ink hover:border-ink/50 transition-colors"
+          className="inline-flex items-center justify-center w-11 h-11 flex-shrink-0 border border-line/60 text-ink-mute hover:text-ink hover:border-ink/50 transition-colors"
           title="Sửa gói" aria-label="Sửa gói"
         >
           <Pencil size={14} />
         </button>
         <button
           onClick={() => onRestore(pkg)}
-          className="flex items-center gap-1.5 px-3.5 py-2 bg-ink text-lamp text-xs font-bold hover:bg-board transition-colors"
+          className="flex items-center gap-1.5 justify-center min-h-[44px] px-4 bg-ink text-lamp text-sm font-semibold hover:bg-board"
         >
           <EyeOff size={13} className="rotate-180" aria-hidden="true" /> Hiện lại
         </button>

@@ -85,7 +85,7 @@ const IssuePenaltyModal = ({ venue, onClose, onSaved }) => {
             <span className="truncate">Ra án phạt · {venue.name}</span>
           </h2>
           <button onClick={onClose} disabled={isBusy}
-            className="p-2 hover:bg-sunken text-ink-soft disabled:opacity-30 flex-shrink-0" aria-label="Đóng">
+            className="inline-flex items-center justify-center w-11 h-11 flex-shrink-0 hover:bg-sunken text-ink-soft disabled:opacity-30" aria-label="Đóng">
             <X size={20} />
           </button>
         </div>
@@ -138,13 +138,13 @@ const IssuePenaltyModal = ({ venue, onClose, onSaved }) => {
             hạn quy định.
           </p>
 
-          <div className="flex gap-3 pt-1">
+          <div className="flex gap-3 pt-1 flex-wrap">
             <button type="button" onClick={onClose} disabled={isBusy}
-              className="flex-1 py-2.5 border border-line-strong text-ink-soft font-medium hover:bg-sunken disabled:opacity-50">
+              className="inline-flex flex-1 disabled:opacity-50 items-center justify-center gap-2 min-h-[44px] px-4 border-2 border-ink bg-card text-ink text-sm font-semibold hover:bg-ink hover:text-lamp">
               Huỷ
             </button>
             <button type="submit" disabled={isBusy}
-              className="flex-1 py-2.5 bg-danger text-lamp font-bold hover:bg-danger flex items-center justify-center gap-2 disabled:opacity-50">
+              className="flex-1 bg-danger flex items-center justify-center gap-2 disabled:opacity-50 min-h-[44px] px-4 border-2 border-danger bg-danger text-lamp text-sm font-semibold hover:bg-danger/90">
               {isBusy && <Loader2 size={16} className="animate-spin" />} Ra án phạt
             </button>
           </div>

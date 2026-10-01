@@ -1,6 +1,5 @@
 // src/pages/admin/AdminLedgerPage.jsx
 import { useState, useEffect, useCallback } from 'react'
-import { Receipt } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { getLedgerIntegrityCheck, getRecurringJobs, triggerRecurringJob } from '../../services/adminServices'
 import ConfirmModal from '../../components/shared/ConfirmModal'
@@ -78,7 +77,6 @@ const AdminLedgerPage = () => {
     <div className="space-y-6">
       {/* HEADER */}
       <div className="flex items-center gap-3">
-        <Receipt size={28} className="text-ink" />
         <div>
           <h1 className="text-4xl text-ink">Sổ cái</h1>
           <p className="text-ink-soft text-sm">

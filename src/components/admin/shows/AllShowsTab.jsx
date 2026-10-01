@@ -51,13 +51,13 @@ const AllShowsTab = () => {
           <button 
             onClick={() => setPagination(prev => ({ ...prev, page: prev.page - 1 }))} 
             disabled={pagination.page === 1} 
-            className="p-2 rounded-md border border-line text-ink-soft hover:border-ink hover:text-ink disabled:opacity-30 disabled:cursor-not-allowed transition-colors" aria-label="Trang trước">
+            className="inline-flex items-center justify-center w-11 h-11 flex-shrink-0 border border-line text-ink-soft hover:border-ink hover:text-ink disabled:opacity-30 disabled:cursor-not-allowed transition-colors" aria-label="Trang trước">
             <ChevronLeft size={18} />
           </button>
           <button 
             onClick={() => setPagination(prev => ({ ...prev, page: prev.page + 1 }))} 
             disabled={pagination.page === pagination.totalPages} 
-            className="p-2 rounded-md border border-line text-ink-soft hover:border-ink hover:text-ink disabled:opacity-30 disabled:cursor-not-allowed transition-colors" aria-label="Trang sau">
+            className="inline-flex items-center justify-center w-11 h-11 flex-shrink-0 border border-line text-ink-soft hover:border-ink hover:text-ink disabled:opacity-30 disabled:cursor-not-allowed transition-colors" aria-label="Trang sau">
             <ChevronRight size={18} />
           </button>
         </div>
@@ -132,7 +132,7 @@ const AllShowsTab = () => {
                     <td className="p-4 text-right">
                       <Link 
                         to={`/admin/shows/${show.id}`} 
-                        className="inline-flex items-center gap-1.5 min-h-[40px] text-ink border border-ink/30 hover:bg-board/10 px-3 rounded-md text-xs font-bold transition-colors"
+                        className="inline-flex items-center gap-1.5 min-h-[44px] px-4 border-2 border-ink bg-card text-ink text-sm font-semibold hover:bg-ink hover:text-lamp"
                       >
                         Xem chi tiết
                       </Link>

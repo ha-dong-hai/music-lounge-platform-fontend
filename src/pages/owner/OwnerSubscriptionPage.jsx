@@ -131,7 +131,7 @@ const OwnerSubscriptionPage = () => {
               <button
                 onClick={() => goToPayment('renew', renewSubscription)}
                 disabled={!!busy}
-                className="px-4 py-2 bg-ink text-lamp text-sm font-bold hover:bg-board disabled:opacity-50"
+                className="inline-flex disabled:opacity-50 items-center justify-center gap-2 min-h-[44px] px-4 bg-ink text-lamp text-sm font-semibold hover:bg-board"
               >
                 {busy === 'renew' ? 'Đang chuyển...' : 'Gia hạn'}
               </button>
@@ -140,7 +140,7 @@ const OwnerSubscriptionPage = () => {
                   onXacNhan={handleCancel} tieuDe="Huỷ gia hạn gói dịch vụ?" nhanXacNhan="Huỷ gia hạn" nhanGiu="Không, giữ gia hạn"
             noiDung="Gói vẫn dùng được tới hết kỳ đã trả. Sau mốc đó gói hết hiệu lực; muốn dùng tiếp thì đăng ký lại."
                   disabled={!!busy}
-                  className="px-4 py-2 border border-line text-ink-soft text-sm font-bold hover:bg-sunken disabled:opacity-50"
+                  className="inline-flex disabled:opacity-50 items-center justify-center gap-2 min-h-[44px] px-4 border-2 border-ink bg-card text-ink text-sm font-semibold hover:bg-ink hover:text-lamp"
                 >
                   Huỷ gia hạn
                 </NutXacNhan>
@@ -240,14 +240,14 @@ const OwnerSubscriptionPage = () => {
 
                 <div className="mt-auto">
                   {isCurrent ? (
-                    <button disabled className="w-full py-2 bg-sunken text-ink-mute text-sm font-bold cursor-default">
+                    <button disabled className="inline-flex w-full cursor-default items-center justify-center gap-2 min-h-[44px] px-4 border-2 border-ink bg-sunken text-ink text-sm font-semibold">
                       Gói hiện tại
                     </button>
                   ) : current ? (
                     <button
                       onClick={() => goToPayment(`change-${p.id}`, () => changePackage(p.id))}
                       disabled={!!busy}
-                      className="w-full py-2 border border-ink text-ink text-sm font-bold hover:bg-board hover:text-lamp transition-colors disabled:opacity-50"
+                      className="inline-flex w-full disabled:opacity-50 items-center justify-center gap-2 min-h-[44px] px-4 border-2 border-ink bg-card text-ink text-sm font-semibold hover:bg-ink hover:text-lamp"
                     >
                       {busy === `change-${p.id}` ? 'Đang chuyển...' : 'Đổi sang gói này'}
                     </button>
@@ -255,7 +255,7 @@ const OwnerSubscriptionPage = () => {
                     <button
                       onClick={() => goToPayment(`sub-${p.id}`, () => subscribeToPackage(p.id))}
                       disabled={!!busy}
-                      className="w-full py-2 bg-ink text-lamp text-sm font-bold hover:bg-board disabled:opacity-50"
+                      className="inline-flex w-full disabled:opacity-50 items-center justify-center gap-2 min-h-[44px] px-4 bg-ink text-lamp text-sm font-semibold hover:bg-board"
                     >
                       {busy === `sub-${p.id}` ? 'Đang chuyển...' : 'Đăng ký'}
                     </button>

@@ -46,7 +46,7 @@ const ComplaintsTable = ({ complaints, isLoading, pagination, onViewDetail, onPa
                   <td className="p-4 text-center">
                     {/* Cả hàng bấm được bằng chuột, nhưng <tr> không nhận focus: nút này là lối vào cho bàn phím và trình đọc màn
                         hình. Bản cũ là một nút KHÔNG có onClick (chỉ ăn theo sự kiện của hàng) và không có tên. */}
-                    <button type="button" onClick={(e) => { e.stopPropagation(); onViewDetail(c) }} aria-label={`Xem khiếu nại #${c.id}`} className="p-2 min-w-[40px] min-h-[40px] border border-ink text-ink hover:bg-ink hover:text-lamp transition-colors inline-flex items-center justify-center">
+                    <button type="button" onClick={(e) => { e.stopPropagation(); onViewDetail(c) }} aria-label={`Xem khiếu nại #${c.id}`} className="w-11 h-11 border-2 border-ink text-ink hover:bg-ink hover:text-lamp transition-colors inline-flex items-center justify-center">
                       <Eye size={16} />
                     </button>
                   </td>
@@ -74,13 +74,13 @@ const ComplaintsTable = ({ complaints, isLoading, pagination, onViewDetail, onPa
             <button
               onClick={() => onPageChange(pagination.page - 1)}
               disabled={pagination.page === 1}
-              className="p-2 rounded-md border border-line text-ink-soft hover:border-ink hover:text-ink disabled:opacity-30 disabled:cursor-not-allowed transition-colors" aria-label="Trang trước">
+              className="inline-flex items-center justify-center w-11 h-11 flex-shrink-0 border border-line text-ink-soft hover:border-ink hover:text-ink disabled:opacity-30 disabled:cursor-not-allowed transition-colors" aria-label="Trang trước">
               <ChevronLeft size={18} />
             </button>
             <button
               onClick={() => onPageChange(pagination.page + 1)}
               disabled={pagination.page === pagination.totalPages}
-              className="p-2 rounded-md border border-line text-ink-soft hover:border-ink hover:text-ink disabled:opacity-30 disabled:cursor-not-allowed transition-colors" aria-label="Trang sau">
+              className="inline-flex items-center justify-center w-11 h-11 flex-shrink-0 border border-line text-ink-soft hover:border-ink hover:text-ink disabled:opacity-30 disabled:cursor-not-allowed transition-colors" aria-label="Trang sau">
               <ChevronRight size={18} />
             </button>
           </div>

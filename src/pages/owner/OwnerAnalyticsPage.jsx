@@ -224,7 +224,7 @@ const OwnerAnalyticsPage = () => {
             </p>
           </div>
           <Link to="/owner/donations"
-            className="flex-shrink-0 px-4 py-2 bg-ink text-lamp text-sm font-bold hover:bg-board">
+            className="inline-flex flex-shrink-0 items-center justify-center gap-2 min-h-[44px] px-4 bg-ink text-lamp text-sm font-semibold hover:bg-board">
             Xử lý ngay
           </Link>
         </div>
@@ -294,7 +294,7 @@ const OwnerAnalyticsPage = () => {
       {/* XUẤT BÁO CÁO — endpoint trả về FILE, không phải JSON */}
       {lounge && (
         <button onClick={xuatBaoCao} disabled={isExporting}
-          className="flex items-center gap-2 px-4 py-2 border border-line text-ink-soft text-sm font-bold hover:bg-sunken disabled:opacity-50">
+          className="flex items-center gap-2 disabled:opacity-50 justify-center min-h-[44px] px-4 border-2 border-ink bg-card text-ink text-sm font-semibold hover:bg-ink hover:text-lamp">
           {isExporting ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />}
           Tải báo cáo doanh thu
         </button>

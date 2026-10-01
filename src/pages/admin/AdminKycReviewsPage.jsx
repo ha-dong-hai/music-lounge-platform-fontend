@@ -14,6 +14,7 @@ import KycUserCard from '../../components/admin/kyc/KycUserCard'
 import KycReviewModal from '../../components/admin/kyc/KycReviewModal'
 import { useDanhSachMayChu } from '../../hooks/useDanhSachMayChu'
 import PhanTrang from '../../components/bang/PhanTrang'
+import NhomTab from '../../components/bang/NhomTab'
 
 const BO_LOC = { tab: parseAsStringLiteral(KYC_TABS.map((t) => t.key)).withDefault('Pending') }
 const goiHangDoi = ({ tab, ...q }) => getKycReviewQueue({ ...q, status: tab })
@@ -58,23 +59,15 @@ const AdminKycReviewsPage = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-4xl text-ink mb-1">Duyệt định danh</h1>
+        <h1 className="text-4xl text-ink mb-1">Định danh người bán</h1>
         <p className="text-ink-soft text-sm leading-relaxed">
           Mỗi người có tới hai giấy tờ được duyệt riêng: CCCD và hồ sơ thuế. Từ chối thì bắt buộc ghi lý do.
         </p>
       </div>
 
       {/* TABS */}
-      <div className="flex flex-wrap gap-2">
-        {KYC_TABS.map((t) => (
-          <button type="button" key={t.key} onClick={() => ds.datBoLoc({ tab: t.key })} aria-pressed={tab === t.key}
-            className={`px-3 py-1.5 text-xs font-medium border transition-colors ${tab === t.key
-              ? 'bg-sunken border-ink/40 text-ink'
-              : 'bg-page border-line text-ink-soft hover:text-ink'}`}>
-            {t.label}
-          </button>
-        ))}
-      </div>
+      <NhomTab nhan="Lọc hồ sơ theo trạng thái" dangChon={tab} cacTab={KYC_TABS.map((t) => ({ khoa: t.key, nhan: t.label }))}
+        onChon={(k) => ds.datBoLoc({ tab: k })} />
 
       {isLoading ? (
         <div className="py-20 flex justify-center"><Loader2 size={32} className="animate-spin text-ink" /></div>

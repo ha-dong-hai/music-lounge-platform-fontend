@@ -20,6 +20,7 @@ import {
 import dayjs from 'dayjs'
 import toast from 'react-hot-toast'
 import { getMyEarnings, getMyTransactions } from '../../services/userServices'
+import NhomTab from '../../components/bang/NhomTab'
 
 const fmtTien = (v) => `${Number(v || 0).toLocaleString('vi-VN')}đ`
 
@@ -98,9 +99,7 @@ const OwnerFinancePage = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-4xl text-ink mb-1 flex items-center gap-2">
-          <Wallet size={24} className="text-ink" /> Tiền &amp; quyết toán
-        </h1>
+        <h1 className="text-4xl text-ink mb-1">Tiền và quyết toán</h1>
         <p className="text-ink-soft text-sm leading-relaxed">
           Tổng quan tiền bạn được nhận, và lịch sử từng giao dịch đã đi qua phòng trà.
         </p>
@@ -147,7 +146,7 @@ const OwnerFinancePage = () => {
             <Landmark size={16} /> Các đợt quyết toán gần đây
           </h2>
           <p className="text-xs text-ink-mute mt-0.5 mb-4 leading-relaxed">
-            Backend trả 10 đợt gần nhất. Muốn xem đầy đủ thì lọc &quot;Quyết toán&quot; ở danh sách bên dưới.
+            Đây là 10 đợt gần nhất. Muốn xem đầy đủ thì lọc &quot;Quyết toán&quot; ở danh sách bên dưới.
           </p>
           <div className="space-y-2">
             {earnings.recentSettlements.map((s) => {
@@ -187,16 +186,8 @@ const OwnerFinancePage = () => {
 
         {/* BỘ LỌC */}
         <div className="mt-4 flex flex-wrap items-end gap-3">
-          <div className="flex flex-wrap gap-2">
-            {LOAI.map((l) => (
-              <button key={l.value} onClick={() => doiLoc(() => setLoai(l.value))}
-                className={`px-3 py-1.5 text-xs font-medium border transition-colors ${
-                  loai === l.value ? 'border-ink bg-ink/10 text-ink' : 'border-line text-ink-soft hover:bg-sunken'
-                }`}>
-                {l.label}
-              </button>
-            ))}
-          </div>
+          <NhomTab nhan="Lọc theo loại khoản" dangChon={loai} cacTab={LOAI.map((l) => ({ khoa: l.value, nhan: l.label }))}
+            onChon={(v) => doiLoc(() => setLoai(v))} />
           <div>
             <label className="text-xs text-ink-mute block">Từ ngày</label>
             <input aria-label="Từ ngày" type="date" value={tuNgay} onChange={(e) => doiLoc(() => setTuNgay(e.target.value))}
@@ -209,7 +200,7 @@ const OwnerFinancePage = () => {
           </div>
           {(tuNgay || denNgay || loai) && (
             <button onClick={() => doiLoc(() => { setLoai(''); setTuNgay(''); setDenNgay('') })}
-              className="px-3 py-1.5 border border-line text-ink-soft text-xs font-medium hover:bg-sunken">
+              className="inline-flex items-center justify-center gap-2 min-h-[44px] px-4 border-2 border-ink bg-card text-ink text-sm font-semibold hover:bg-ink hover:text-lamp">
               Xoá lọc
             </button>
           )}

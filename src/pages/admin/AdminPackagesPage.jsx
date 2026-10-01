@@ -152,10 +152,10 @@ const AdminPackagesPage = () => {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-4xl text-ink mb-1">Quản lý gói dịch vụ</h1>
+            <h1 className="text-4xl text-ink mb-1">Gói dịch vụ</h1>
             <p className="text-ink-soft text-sm">Thiết lập các gói dịch vụ cho chủ phòng trà.</p>
           </div>
-          <button onClick={openCreateModal} className="flex items-center gap-2 bg-ink text-lamp px-4 py-2.5 font-bold text-sm hover:bg-board transition-colors">
+          <button onClick={openCreateModal} className="flex items-center gap-2 justify-center min-h-[44px] px-4 bg-ink text-lamp text-sm font-semibold hover:bg-board">
             <Plus size={18} /> Tạo gói
           </button>
         </div>
@@ -165,7 +165,7 @@ const AdminPackagesPage = () => {
           </div>
           <p className="text-ink-soft font-semibold mb-1">Chưa có gói dịch vụ nào.</p>
           <p className="text-ink-mute text-sm mb-5">Tạo gói đầu tiên để chủ phòng trà đăng ký.</p>
-          <button onClick={openCreateModal} className="flex items-center gap-2 bg-ink text-lamp px-4 py-2.5 font-bold text-sm hover:bg-board transition-colors">
+          <button onClick={openCreateModal} className="flex items-center gap-2 justify-center min-h-[44px] px-4 bg-ink text-lamp text-sm font-semibold hover:bg-board">
             <Plus size={16} /> Tạo gói đầu tiên
           </button>
         </div>
@@ -186,12 +186,12 @@ const AdminPackagesPage = () => {
       {/* ===== HEADER ===== */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-4xl text-ink mb-1">Quản lý gói dịch vụ</h1>
+          <h1 className="text-4xl text-ink mb-1">Gói dịch vụ</h1>
           <p className="text-ink-soft text-sm">Thiết lập các gói đăng ký dịch vụ.</p>
         </div>
         <button
           onClick={openCreateModal}
-          className="flex items-center gap-2 bg-ink text-lamp px-4 py-2.5 font-bold text-sm hover:bg-board transition-all shadow-soft shadow-ink/20 hover:shadow-ink/30 hover:-translate-y-0.5 flex-shrink-0"
+          className="flex items-center gap-2 shadow-soft shadow-ink/20 hover:shadow-ink/30 hover:-translate-y-0.5 flex-shrink-0 justify-center min-h-[44px] px-4 bg-ink text-lamp text-sm font-semibold hover:bg-board"
         >
           <Plus size={18} /> Tạo gói
         </button>

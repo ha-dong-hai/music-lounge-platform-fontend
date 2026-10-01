@@ -61,11 +61,11 @@ const PenaltyAppealCard = ({ p, choXuLy, onDecide }) => (
       {choXuLy && (
         <div className="flex flex-col gap-2 flex-shrink-0">
           <button onClick={() => onDecide(p, 'Overturned')}
-            className="flex items-center gap-1.5 px-3 py-1.5 border border-success/40 text-success text-xs font-bold hover:bg-success/10">
+            className="flex items-center gap-1.5 justify-center min-h-[44px] px-4 border-2 border-success bg-card text-success text-sm font-semibold hover:bg-success hover:text-lamp">
             <CheckCircle2 size={13} /> Huỷ án phạt
           </button>
           <button onClick={() => onDecide(p, 'Upheld')}
-            className="flex items-center gap-1.5 px-3 py-1.5 border border-line text-ink-soft text-xs font-bold hover:bg-sunken">
+            className="flex items-center gap-1.5 justify-center min-h-[44px] px-4 border-2 border-ink bg-card text-ink text-sm font-semibold hover:bg-ink hover:text-lamp">
             <XCircle size={13} /> Giữ nguyên
           </button>
         </div>

@@ -175,18 +175,18 @@ const PendingModerationTab = () => {
                     </td>
                     <td className="p-4 text-right">
                       {targetType === 'TicketTier' ? (
-                        <div className="flex items-center justify-end gap-2">
+                        <div className="flex items-center justify-end gap-2 flex-wrap">
                           <button
                             onClick={() => handleReviewTier(item.targetId, 'Approved')}
                             disabled={busyId === item.targetId}
-                            className="inline-flex items-center gap-1.5 bg-success/10 border border-success/40 text-success px-3 py-1.5 rounded-md text-xs font-bold hover:bg-success/20 disabled:opacity-50"
+                            className="inline-flex items-center gap-1.5 disabled:opacity-50 justify-center min-h-[44px] px-4 border-2 border-success bg-card text-success text-sm font-semibold hover:bg-success hover:text-lamp"
                           >
                             <Check size={14} /> Duyệt
                           </button>
                           <button
                             type="button" onClick={() => { setLyDo(''); setLoiLyDo(null); setTuChoi({ loai: 'tier', id: item.targetId }) }}
                             disabled={busyId === item.targetId}
-                            className="inline-flex items-center gap-1.5 bg-danger/10 border border-danger/40 text-danger px-3 py-1.5 rounded-md text-xs font-bold hover:bg-danger/20 disabled:opacity-50"
+                            className="inline-flex items-center gap-1.5 disabled:opacity-50 justify-center min-h-[44px] px-4 border-2 border-danger bg-card text-danger text-sm font-semibold hover:bg-danger hover:text-lamp"
                           >
                             <X size={14} /> Từ chối
                           </button>
@@ -194,23 +194,23 @@ const PendingModerationTab = () => {
                       ) : targetType === 'Show' ? (
                         <Link
                           to={`/admin/shows/${item.targetId}`} state={{ fromModeration: true }}
-                          className="inline-flex items-center gap-1.5 bg-ink text-lamp px-3 py-1.5 rounded-md text-xs font-bold hover:bg-board transition-colors"
+                          className="inline-flex items-center gap-1.5 justify-center min-h-[44px] px-4 bg-ink text-lamp text-sm font-semibold hover:bg-board"
                         >
                           <Eye size={14} aria-hidden="true" /> Xem và duyệt
                         </Link>
                       ) : (
-                        <div className="flex items-center justify-end gap-2">
+                        <div className="flex items-center justify-end gap-2 flex-wrap">
                           <button
                             onClick={() => handleReviewLivestream(item.targetId, 'Approved')}
                             disabled={busyId === item.targetId}
-                            className="inline-flex items-center gap-1.5 bg-success/10 border border-success/40 text-success px-3 py-1.5 rounded-md text-xs font-bold hover:bg-success/20 disabled:opacity-50"
+                            className="inline-flex items-center gap-1.5 disabled:opacity-50 justify-center min-h-[44px] px-4 border-2 border-success bg-card text-success text-sm font-semibold hover:bg-success hover:text-lamp"
                           >
                             <Check size={14} aria-hidden="true" /> Duyệt
                           </button>
                           <button
                             type="button" onClick={() => { setLyDo(''); setLoiLyDo(null); setTuChoi({ loai: 'ls', id: item.targetId }) }}
                             disabled={busyId === item.targetId}
-                            className="inline-flex items-center gap-1.5 bg-danger/10 border border-danger/40 text-danger px-3 py-1.5 rounded-md text-xs font-bold hover:bg-danger/20 disabled:opacity-50"
+                            className="inline-flex items-center gap-1.5 disabled:opacity-50 justify-center min-h-[44px] px-4 border-2 border-danger bg-card text-danger text-sm font-semibold hover:bg-danger hover:text-lamp"
                           >
                             <X size={14} aria-hidden="true" /> Từ chối
                           </button>
@@ -239,13 +239,13 @@ const PendingModerationTab = () => {
               <button
                 onClick={() => setPagination(prev => ({ ...prev, page: prev.page - 1 }))}
                 disabled={pagination.page === 1}
-                className="p-2 rounded-md border border-line text-ink-soft hover:border-ink hover:text-ink disabled:opacity-30 disabled:cursor-not-allowed transition-colors" aria-label="Trang trước">
+                className="inline-flex items-center justify-center w-11 h-11 flex-shrink-0 border border-line text-ink-soft hover:border-ink hover:text-ink disabled:opacity-30 disabled:cursor-not-allowed transition-colors" aria-label="Trang trước">
                 <ChevronLeft size={18} />
               </button>
               <button
                 onClick={() => setPagination(prev => ({ ...prev, page: prev.page + 1 }))}
                 disabled={pagination.page === pagination.totalPages}
-                className="p-2 rounded-md border border-line text-ink-soft hover:border-ink hover:text-ink disabled:opacity-30 disabled:cursor-not-allowed transition-colors" aria-label="Trang sau">
+                className="inline-flex items-center justify-center w-11 h-11 flex-shrink-0 border border-line text-ink-soft hover:border-ink hover:text-ink disabled:opacity-30 disabled:cursor-not-allowed transition-colors" aria-label="Trang sau">
                 <ChevronRight size={18} />
               </button>
             </div>

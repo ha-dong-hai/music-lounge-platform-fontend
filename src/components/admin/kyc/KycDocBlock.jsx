@@ -16,13 +16,13 @@ const KycDocBlock = ({ icon: Icon, title, status, children, onApprove, onReject,
 
     {/* Chỉ duyệt khi: đã gửi dữ liệu + đang chờ */}
     {coDuLieu && status === 'Pending' && (
-      <div className="mt-3 flex gap-2">
+      <div className="mt-3 flex gap-2 flex-wrap">
         <button onClick={onApprove}
-          className="flex items-center gap-1.5 px-3 py-1.5 bg-success/10 border border-success/40 text-success text-xs font-bold hover:bg-success/20">
+          className="flex items-center gap-1.5 justify-center min-h-[44px] px-4 border-2 border-success bg-card text-success text-sm font-semibold hover:bg-success hover:text-lamp">
           <CheckCircle2 size={13} /> Duyệt
         </button>
         <button onClick={onReject}
-          className="flex items-center gap-1.5 px-3 py-1.5 bg-danger/10 border border-danger/40 text-danger text-xs font-bold hover:bg-danger/20">
+          className="flex items-center gap-1.5 justify-center min-h-[44px] px-4 border-2 border-danger bg-card text-danger text-sm font-semibold hover:bg-danger hover:text-lamp">
           <XCircle size={13} /> Từ chối
         </button>
       </div>

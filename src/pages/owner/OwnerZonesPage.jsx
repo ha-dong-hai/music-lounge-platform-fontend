@@ -69,7 +69,7 @@ const ZoneFormModal = ({ initial, loungeId, onClose, onSaved }) => {
       <div className="relative bg-card border border-line w-full max-w-md shadow-soft">
         <div className="flex justify-between items-center p-5 border-b border-line">
           <h2 className="text-3xl text-ink">{isEdit ? 'Sửa khu vực' : 'Thêm khu vực'}</h2>
-          <button onClick={onClose} className="p-2 hover:bg-sunken text-ink-soft" aria-label="Đóng"><X size={20} /></button>
+          <button onClick={onClose} className="inline-flex items-center justify-center w-11 h-11 flex-shrink-0 hover:bg-sunken text-ink-soft" aria-label="Đóng"><X size={20} /></button>
         </div>
         <form onSubmit={submit} className="p-5 space-y-4">
           <div>
@@ -86,7 +86,7 @@ const ZoneFormModal = ({ initial, loungeId, onClose, onSaved }) => {
             <p className="text-xs text-ink-mute mt-1">Số chỗ tối đa của khu vực này.</p>
           </div>
           <button type="submit" disabled={isBusy}
-            className="w-full py-2.5 bg-ink text-lamp font-bold flex items-center justify-center gap-2 disabled:opacity-50">
+            className="w-full flex items-center justify-center gap-2 disabled:opacity-50 min-h-[44px] px-4 bg-ink text-lamp text-sm font-semibold hover:bg-board">
             {isBusy && <Loader2 size={16} className="animate-spin" />} Lưu
           </button>
         </form>
@@ -368,7 +368,7 @@ const OwnerZonesPage = () => {
           </p>
         </div>
         <button onClick={() => setEditing(null)}
-          className="flex items-center gap-1.5 px-3 py-1.5 bg-ink text-lamp text-xs font-bold hover:bg-board">
+          className="flex items-center gap-1.5 justify-center min-h-[44px] px-4 bg-ink text-lamp text-sm font-semibold hover:bg-board">
           <Plus size={14} /> Thêm khu vực
         </button>
       </div>
@@ -390,7 +390,7 @@ const OwnerZonesPage = () => {
                 </p>
               </div>
               <div className="flex flex-wrap gap-2">
-                <label className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-line text-ink-soft text-xs font-bold hover:bg-sunken cursor-pointer">
+                <label className="inline-flex items-center gap-1.5 cursor-pointer justify-center min-h-[44px] px-4 border-2 border-ink bg-card text-ink text-sm font-semibold hover:bg-ink hover:text-lamp">
                   {isUploadingBg ? <Loader2 size={13} className="animate-spin" /> : <ImageIcon size={13} />}
                   {lounge.areaLayoutImageUrl ? 'Đổi ảnh nền' : 'Ảnh mặt bằng'}
                   <input type="file" accept="image/*" className="hidden" disabled={isUploadingBg}
@@ -398,16 +398,16 @@ const OwnerZonesPage = () => {
                 </label>
                 {lounge.areaLayoutImageUrl && (
                   <button onClick={boAnhNen} disabled={isUploadingBg}
-                    className="px-3 py-1.5 border border-line text-ink-soft text-xs font-bold hover:bg-sunken disabled:opacity-50">
+                    className="inline-flex disabled:opacity-50 items-center justify-center gap-2 min-h-[44px] px-4 border-2 border-ink bg-card text-ink text-sm font-semibold hover:bg-ink hover:text-lamp">
                     Bỏ ảnh nền
                   </button>
                 )}
-                <button onClick={batTatVe} aria-pressed={veMode}
-                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 border text-xs font-bold transition-colors ${veMode ? 'bg-ink text-lamp border-ink' : 'border-line text-ink-soft hover:bg-sunken'}`}>
+                <button type="button" onClick={batTatVe} aria-pressed={veMode}
+                  className={`inline-flex items-center gap-1.5 min-h-[44px] px-3 border-2 text-sm font-semibold transition-colors ${veMode ? 'bg-ink text-lamp border-ink' : 'bg-card border-ink/30 text-ink hover:border-ink'}`}>
                   <PenTool size={13} /> {veMode ? 'Đang vẽ phác' : 'Vẽ phác'}
                 </button>
                 <button onClick={luuSoDo} disabled={isSavingLayout}
-                  className="flex items-center gap-1.5 px-3 py-1.5 bg-ink text-lamp text-xs font-bold hover:bg-board disabled:opacity-50">
+                  className="flex items-center gap-1.5 disabled:opacity-50 justify-center min-h-[44px] px-4 bg-ink text-lamp text-sm font-semibold hover:bg-board">
                   {isSavingLayout ? <Loader2 size={13} className="animate-spin" /> : <Save size={13} />} Lưu sơ đồ
                 </button>
               </div>
@@ -428,7 +428,7 @@ const OwnerZonesPage = () => {
                 </label>
                 {coHoanTac && (
                   <button onClick={hoanTacVe}
-                    className="inline-flex items-center gap-1 px-2 py-1 rounded-md border border-line bg-card text-ink font-semibold hover:bg-page">
+                    className="inline-flex items-center gap-1 justify-center min-h-[44px] px-4 border-2 border-ink bg-card text-ink text-sm font-semibold hover:bg-ink hover:text-lamp">
                     <Undo2 size={12} /> Hoàn tác
                   </button>
                 )}
@@ -493,13 +493,13 @@ const OwnerZonesPage = () => {
                           {z.description && <p className="text-xs text-ink-mute mt-0.5">{z.description}</p>}
                         </div>
                       </div>
-                      <div className="flex gap-2 flex-shrink-0">
+                      <div className="flex gap-2 flex-shrink-0 flex-wrap">
                         <button onClick={() => setEditing(z)}
-                          className="flex items-center gap-1.5 px-3 py-1.5 border border-line text-ink-soft text-xs font-bold hover:bg-sunken">
+                          className="flex items-center gap-1.5 justify-center min-h-[44px] px-4 border-2 border-ink bg-card text-ink text-sm font-semibold hover:bg-ink hover:text-lamp">
                           <Pencil size={13} /> Sửa
                         </button>
                         <button onClick={() => setNgungTarget(z)}
-                          className="flex items-center gap-1.5 px-3 py-1.5 border border-line text-danger text-xs font-bold hover:bg-danger/10">
+                          className="flex items-center gap-1.5 justify-center min-h-[44px] px-4 border-2 border-danger bg-card text-danger text-sm font-semibold hover:bg-danger hover:text-lamp">
                           <Ban size={13} /> Ngừng
                         </button>
                       </div>
@@ -540,14 +540,14 @@ const OwnerZonesPage = () => {
                           </div>
                         ))}
                         <button onClick={() => luuToaDo3D(z.id)} disabled={busy3D === z.id}
-                          className="flex items-center gap-1.5 px-3 py-1.5 border border-line text-ink-soft text-xs font-bold hover:bg-sunken disabled:opacity-50">
+                          className="flex items-center gap-1.5 disabled:opacity-50 justify-center min-h-[44px] px-4 border-2 border-ink bg-card text-ink text-sm font-semibold hover:bg-ink hover:text-lamp">
                           {busy3D === z.id ? <Loader2 size={13} className="animate-spin" /> : <Save size={13} />} Lưu 3D
                         </button>
                         <button
                           onClick={() => { doiToaDo3D(z.id, 'x', ''); doiToaDo3D(z.id, 'y', ''); doiToaDo3D(z.id, 'z', '') }}
                           disabled={busy3D === z.id}
                           title="Xoá trống cả ba ô rồi bấm Lưu 3D để xoá vị trí" aria-label="Xoá trống cả ba ô rồi bấm Lưu 3D để xoá vị trí"
-                          className="flex items-center gap-1.5 px-3 py-1.5 border border-line text-ink-mute text-xs font-bold hover:bg-sunken disabled:opacity-50">
+                          className="flex items-center gap-1.5 disabled:opacity-50 justify-center min-h-[44px] px-4 border-2 border-ink bg-card text-ink text-sm font-semibold hover:bg-ink hover:text-lamp">
                           <Eraser size={13} /> Xoá trống
                         </button>
                       </div>

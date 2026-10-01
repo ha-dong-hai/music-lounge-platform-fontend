@@ -37,6 +37,7 @@ import { getAdminBankAccounts, reviewPayoutBankAccount } from '../../services/ad
 import { mocUtc } from '../../utils/format'
 import { useDanhSachMayChu } from '../../hooks/useDanhSachMayChu'
 import PhanTrang from '../../components/bang/PhanTrang'
+import NhomTab from '../../components/bang/NhomTab'
 
 // Một điều kiện duyệt. `dat` = đã thoả. Hiện cả khi đạt lẫn khi chưa, vì "không thấy cảnh báo"
 // và "chưa kiểm" trông giống nhau nếu chỉ hiện lúc hỏng.
@@ -100,7 +101,7 @@ const ReviewModal = ({ item, approve, onClose, onSaved }) => {
             {approve ? 'Duyệt tài khoản nhận tiền?' : 'Từ chối tài khoản?'}
           </h2>
           <button onClick={onClose} disabled={isBusy}
-            className="p-2 hover:bg-sunken text-ink-soft disabled:opacity-30" aria-label="Đóng">
+            className="inline-flex items-center justify-center w-11 h-11 flex-shrink-0 hover:bg-sunken text-ink-soft disabled:opacity-30" aria-label="Đóng">
             <X size={20} />
           </button>
         </div>
@@ -136,7 +137,7 @@ const ReviewModal = ({ item, approve, onClose, onSaved }) => {
 
           <div className="flex gap-3">
             <button type="button" onClick={onClose} disabled={isBusy}
-              className="flex-1 py-2.5 border border-line-strong text-ink-soft font-medium hover:bg-sunken disabled:opacity-50">
+              className="inline-flex flex-1 disabled:opacity-50 items-center justify-center gap-2 min-h-[44px] px-4 border-2 border-ink bg-card text-ink text-sm font-semibold hover:bg-ink hover:text-lamp">
               Huỷ
             </button>
             <button type="submit" disabled={isBusy}
@@ -168,7 +169,6 @@ const AdminBankAccountsPage = () => {
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex items-center gap-3">
-          <Landmark size={28} className="text-ink" />
           <div>
             <h1 className="text-4xl text-ink">Tài khoản nhận tiền</h1>
             <p className="text-ink-soft text-sm leading-relaxed">
@@ -178,25 +178,13 @@ const AdminBankAccountsPage = () => {
           </div>
         </div>
         <button onClick={load} disabled={isLoading}
-          className="flex items-center gap-2 px-4 py-2 border border-line text-ink-soft text-sm font-bold hover:bg-sunken disabled:opacity-50">
+          className="flex items-center gap-2 disabled:opacity-50 justify-center min-h-[44px] px-4 border-2 border-ink bg-card text-ink text-sm font-semibold hover:bg-ink hover:text-lamp">
           <RefreshCw size={16} className={isLoading ? 'animate-spin' : ''} /> Tải lại
         </button>
       </div>
 
-      <div className="flex flex-wrap gap-2">
-        <button onClick={() => doiTab(false)}
-          className={`px-3 py-1.5 text-xs font-medium border transition-colors ${
-            !daDuyet ? 'bg-sunken border-ink/40 text-ink' : 'bg-page border-line text-ink-soft hover:text-ink'
-          }`}>
-          Chờ duyệt{!daDuyet && totalCount > 0 ? ` (${totalCount})` : ''}
-        </button>
-        <button onClick={() => doiTab(true)}
-          className={`px-3 py-1.5 text-xs font-medium border transition-colors ${
-            daDuyet ? 'bg-sunken border-ink/40 text-ink' : 'bg-page border-line text-ink-soft hover:text-ink'
-          }`}>
-          Đã duyệt
-        </button>
-      </div>
+      <NhomTab nhan="Lọc tài khoản theo trạng thái duyệt" dangChon={daDuyet} onChon={doiTab}
+        cacTab={[{ khoa: false, nhan: 'Chờ duyệt', dem: !daDuyet && totalCount > 0 ? totalCount : undefined }, { khoa: true, nhan: 'Đã duyệt' }]} />
 
       {isLoading ? (
         <div className="py-20 flex justify-center"><Loader2 size={30} className="animate-spin text-ink" /></div>
@@ -266,15 +254,15 @@ const AdminBankAccountsPage = () => {
                   </div>
 
                   {!it.isVerified && (
-                    <div className="flex gap-2 flex-shrink-0">
+                    <div className="flex gap-2 flex-shrink-0 flex-wrap">
                       <button onClick={() => setTarget({ item: it, approve: true })}
                         disabled={!duDieuKien}
                         title={duDieuKien ? undefined : 'Chưa đủ điều kiện — xem các dòng cảnh báo bên trái'} aria-label={duDieuKien ? undefined : 'Chưa đủ điều kiện — xem các dòng cảnh báo bên trái'}
-                        className="flex items-center gap-1.5 px-3 py-1.5 border border-success/40 text-success text-xs font-bold hover:bg-success/10 disabled:opacity-30 disabled:cursor-not-allowed">
+                        className="flex items-center gap-1.5 disabled:opacity-30 disabled:cursor-not-allowed justify-center min-h-[44px] px-4 border-2 border-success bg-card text-success text-sm font-semibold hover:bg-success hover:text-lamp">
                         <CheckCircle2 size={13} /> Duyệt
                       </button>
                       <button onClick={() => setTarget({ item: it, approve: false })}
-                        className="flex items-center gap-1.5 px-3 py-1.5 border border-danger/40 text-danger text-xs font-bold hover:bg-danger/10">
+                        className="flex items-center gap-1.5 justify-center min-h-[44px] px-4 border-2 border-danger bg-card text-danger text-sm font-semibold hover:bg-danger hover:text-lamp">
                         <Ban size={13} /> Từ chối
                       </button>
                     </div>

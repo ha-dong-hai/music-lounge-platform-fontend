@@ -89,7 +89,7 @@ const PerformerFormModal = ({ initial, genres, onClose, onSaved }) => {
       <div className="relative bg-card border border-line w-full max-w-lg shadow-soft max-h-[90vh] flex flex-col">
         <div className="flex justify-between items-center p-5 border-b border-line">
           <h2 className="text-3xl text-ink">{isEdit ? 'Sửa nghệ sĩ' : 'Thêm nghệ sĩ'}</h2>
-          <button onClick={onClose} className="p-2 hover:bg-sunken text-ink-soft" aria-label="Đóng"><X size={20} /></button>
+          <button onClick={onClose} className="inline-flex items-center justify-center w-11 h-11 flex-shrink-0 hover:bg-sunken text-ink-soft" aria-label="Đóng"><X size={20} /></button>
         </div>
 
         <form onSubmit={submit} className="p-5 space-y-4 overflow-y-auto">
@@ -110,7 +110,7 @@ const PerformerFormModal = ({ initial, genres, onClose, onSaved }) => {
             <label className="text-xs text-ink-mute">Email liên lạc</label>
             <input aria-label="Email liên lạc" type="email" value={form.contactEmail} onChange={(e) => set('contactEmail', e.target.value)} className={inputCls} />
             <p className="text-xs text-warning/80 mt-1 leading-relaxed">
-              Nơi gửi liên kết để nghệ sĩ tự xác nhận đã nhận tiền donate. Không có email thì tiền donate
+              Nơi gửi liên kết để nghệ sĩ tự xác nhận đã nhận tiền ủng hộ. Không có email thì tiền ủng hộ
               sẽ mắc lại ở bước chờ nghệ sĩ xác nhận.
             </p>
           </div>
@@ -131,10 +131,8 @@ const PerformerFormModal = ({ initial, genres, onClose, onSaved }) => {
               {genres.map((g) => {
                 const chon = form.genreIds.includes(g.id)
                 return (
-                  <button key={g.id} type="button" onClick={() => toggleGenre(g.id)}
-                    className={`px-3 py-1.5 border text-xs font-medium transition-colors ${chon
-                      ? 'bg-sunken border-ink/40 text-ink'
-                      : 'bg-page border-line text-ink-soft hover:text-ink'}`}>
+                  <button key={g.id} type="button" onClick={() => toggleGenre(g.id)} aria-pressed={chon}
+                    className={`inline-flex items-center gap-1.5 min-h-[44px] px-3 border-2 text-sm font-semibold transition-colors ${chon ? 'bg-ink text-lamp border-ink' : 'bg-card border-ink/30 text-ink hover:border-ink'}`}>
                     {g.name}
                   </button>
                 )
@@ -143,7 +141,7 @@ const PerformerFormModal = ({ initial, genres, onClose, onSaved }) => {
           </div>
 
           <button type="submit" disabled={isBusy}
-            className="w-full py-2.5 bg-ink text-lamp font-bold flex items-center justify-center gap-2 disabled:opacity-50">
+            className="w-full flex items-center justify-center gap-2 disabled:opacity-50 min-h-[44px] px-4 bg-ink text-lamp text-sm font-semibold hover:bg-board">
             {isBusy && <Loader2 size={16} className="animate-spin" />} Lưu
           </button>
         </form>
@@ -199,7 +197,7 @@ const SocialLinksModal = ({ performer, onClose, onSaved }) => {
       <div className="relative bg-card border border-line w-full max-w-md shadow-soft max-h-[90vh] flex flex-col">
         <div className="flex justify-between items-center p-5 border-b border-line">
           <h2 className="text-3xl text-ink truncate">Liên kết của {performer.name}</h2>
-          <button onClick={onClose} className="p-2 hover:bg-sunken text-ink-soft flex-shrink-0" aria-label="Đóng"><X size={20} /></button>
+          <button onClick={onClose} className="inline-flex items-center justify-center w-11 h-11 flex-shrink-0 hover:bg-sunken text-ink-soft" aria-label="Đóng"><X size={20} /></button>
         </div>
 
         <div className="p-5 space-y-4 overflow-y-auto">
@@ -215,7 +213,7 @@ const SocialLinksModal = ({ performer, onClose, onSaved }) => {
                       className="text-xs text-ink hover:underline truncate block">{l.displayName || l.url}</a>
                   </div>
                   <button onClick={() => xoa(l.id)} disabled={isBusy}
-                    className="p-2 text-danger hover:bg-danger/10 disabled:opacity-40 flex-shrink-0" title="Xoá" aria-label="Xoá">
+                    className="inline-flex items-center justify-center w-11 h-11 flex-shrink-0 text-danger hover:bg-danger/10 disabled:opacity-40" title="Xoá" aria-label="Xoá">
                     <Trash2 size={14} />
                   </button>
                 </li>
@@ -235,7 +233,7 @@ const SocialLinksModal = ({ performer, onClose, onSaved }) => {
             <input aria-label="https://" value={form.url} onChange={(e) => set('url', e.target.value)}
               placeholder="https://..." className={`${inputCls} mt-0`} />
             <button type="submit" disabled={isBusy}
-              className="w-full py-2 border border-line text-ink-soft text-sm font-bold hover:bg-sunken flex items-center justify-center gap-2 disabled:opacity-50">
+              className="w-full flex items-center justify-center gap-2 disabled:opacity-50 min-h-[44px] px-4 border-2 border-ink bg-card text-ink text-sm font-semibold hover:bg-ink hover:text-lamp">
               {isBusy ? <Loader2 size={15} className="animate-spin" /> : <Plus size={15} />} Thêm liên kết
             </button>
           </form>
@@ -294,7 +292,7 @@ const OwnerPerformersPage = () => {
           </p>
         </div>
         <button onClick={() => setEditing(null)}
-          className="flex items-center gap-1.5 px-3 py-1.5 bg-ink text-lamp text-xs font-bold hover:bg-board">
+          className="flex items-center gap-1.5 justify-center min-h-[44px] px-4 bg-ink text-lamp text-sm font-semibold hover:bg-board">
           <Plus size={14} /> Thêm nghệ sĩ
         </button>
       </div>
@@ -356,7 +354,7 @@ const OwnerPerformersPage = () => {
               {!p.contactEmail && (
                 <p className="mt-3 text-xs text-warning/80 flex items-start gap-1.5 leading-relaxed">
                   <AlertTriangle size={12} className="mt-0.5 flex-shrink-0" />
-                  Chưa có email liên lạc — nghệ sĩ này không tự xác nhận được tiền donate.
+                  Chưa có email liên lạc — nghệ sĩ này không tự xác nhận được tiền ủng hộ.
                 </p>
               )}
               {p.contactEmail && (
@@ -366,13 +364,13 @@ const OwnerPerformersPage = () => {
               )}
 
               {cuaToi(p) ? (
-              <div className="mt-4 flex gap-2">
+              <div className="mt-4 flex gap-2 flex-wrap">
                 <button onClick={() => moSua(p)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 border border-line text-ink-soft text-xs font-bold hover:bg-sunken">
+                  className="flex items-center gap-1.5 justify-center min-h-[44px] px-4 border-2 border-ink bg-card text-ink text-sm font-semibold hover:bg-ink hover:text-lamp">
                   <Pencil size={13} /> Sửa
                 </button>
                 <button onClick={() => setLinksOf(p)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 border border-line text-ink-soft text-xs font-bold hover:bg-sunken">
+                  className="flex items-center gap-1.5 justify-center min-h-[44px] px-4 border-2 border-ink bg-card text-ink text-sm font-semibold hover:bg-ink hover:text-lamp">
                   <Link2 size={13} /> Liên kết
                   {p.socialLinks?.length > 0 && <span className="text-ink-mute">({p.socialLinks.length})</span>}
                 </button>

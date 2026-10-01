@@ -89,7 +89,7 @@ const BankAccountsTable = ({ accounts, isLoading, pagination, onReview, onPageCh
                     {!acc.isVerified && (
                       <button
                         onClick={() => onReview(acc)}
-                        className="inline-flex items-center gap-1.5 bg-ink text-lamp px-3 py-1.5 rounded-md text-xs font-bold hover:bg-board transition-colors"
+                        className="inline-flex items-center gap-1.5 justify-center min-h-[44px] px-4 bg-ink text-lamp text-sm font-semibold hover:bg-board"
                       >
                         <ShieldCheck size={12} /> Review
                       </button>
@@ -119,13 +119,13 @@ const BankAccountsTable = ({ accounts, isLoading, pagination, onReview, onPageCh
             <button
               onClick={() => onPageChange(pagination.page - 1)}
               disabled={pagination.page === 1}
-              className="p-2 rounded-md border border-ink text-ink-mute hover:border-ink hover:text-ink disabled:opacity-30 disabled:cursor-not-allowed transition-colors" aria-label="Trang trước">
+              className="inline-flex items-center justify-center w-11 h-11 flex-shrink-0 border border-ink text-ink-mute hover:border-ink hover:text-ink disabled:opacity-30 disabled:cursor-not-allowed transition-colors" aria-label="Trang trước">
               <ChevronLeft size={18} />
             </button>
             <button
               onClick={() => onPageChange(pagination.page + 1)}
               disabled={pagination.page === pagination.totalPages}
-              className="p-2 rounded-md border border-ink text-ink-mute hover:border-ink hover:text-ink disabled:opacity-30 disabled:cursor-not-allowed transition-colors" aria-label="Trang sau">
+              className="inline-flex items-center justify-center w-11 h-11 flex-shrink-0 border border-ink text-ink-mute hover:border-ink hover:text-ink disabled:opacity-30 disabled:cursor-not-allowed transition-colors" aria-label="Trang sau">
               <ChevronRight size={18} />
             </button>
           </div>

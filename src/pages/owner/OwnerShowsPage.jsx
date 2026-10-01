@@ -34,6 +34,7 @@ import {
 } from '../../services/showServices'
 import { getLounges } from '../../services/loungeServices'
 import { getGenres, getMoods, getAtmospheres, getEventCategories } from '../../services/catalogServices'
+import NhomTab from '../../components/bang/NhomTab'
 
 // Tab theo trạng thái backend (LoungeShowStatus). '' = tất cả.
 const TAB = [
@@ -72,9 +73,8 @@ const MultiPick = ({ label, options, selected, onToggle }) => (
             key={o.id}
             type="button"
             onClick={() => onToggle(o.id)}
-            className={`px-3 py-1.5 text-xs font-medium border transition-colors ${on
-              ? 'bg-ink text-lamp border-ink'
-              : 'border-line text-ink-soft hover:border-line-strong'}`}
+            aria-pressed={on}
+            className={`inline-flex items-center gap-1.5 min-h-[44px] px-3 border-2 text-sm font-semibold transition-colors ${on ? 'bg-ink text-lamp border-ink' : 'bg-card border-ink/30 text-ink hover:border-ink'}`}
           >
             {o.name}
           </button>
@@ -186,7 +186,7 @@ const ShowFormModal = ({ initial, loungeId, catalog, onClose, onSaved }) => {
       <div className="relative bg-card border border-line w-full max-w-2xl max-h-[88vh] flex flex-col">
         <div className="flex items-center justify-between p-5 border-b border-line">
           <h2 className="text-3xl text-ink">{isEdit ? 'Sửa buổi diễn' : 'Tạo buổi diễn'}</h2>
-          <button onClick={onClose} className="p-2 hover:bg-sunken text-ink-soft" aria-label="Đóng"><X size={20} /></button>
+          <button onClick={onClose} className="inline-flex items-center justify-center w-11 h-11 flex-shrink-0 hover:bg-sunken text-ink-soft" aria-label="Đóng"><X size={20} /></button>
         </div>
 
         <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-5 space-y-4">
@@ -261,10 +261,10 @@ const ShowFormModal = ({ initial, loungeId, catalog, onClose, onSaved }) => {
           )}
         </form>
 
-        <div className="p-5 border-t border-line flex justify-end gap-2">
-          <button onClick={onClose} className="px-4 py-2 border border-line text-ink-soft text-sm font-bold hover:bg-sunken">Huỷ</button>
+        <div className="p-5 border-t border-line flex justify-end gap-2 flex-wrap">
+          <button onClick={onClose} className="inline-flex items-center justify-center gap-2 min-h-[44px] px-4 border-2 border-ink bg-card text-ink text-sm font-semibold hover:bg-ink hover:text-lamp">Huỷ</button>
           <button onClick={handleSubmit} disabled={isBusy}
-            className="px-4 py-2 bg-ink text-lamp text-sm font-bold hover:bg-board disabled:opacity-50">
+            className="inline-flex disabled:opacity-50 items-center justify-center gap-2 min-h-[44px] px-4 bg-ink text-lamp text-sm font-semibold hover:bg-board">
             {isBusy ? 'Đang lưu...' : isEdit ? 'Lưu' : 'Tạo'}
           </button>
         </div>
@@ -394,21 +394,15 @@ const OwnerShowsPage = () => {
           <p className="text-ink-soft text-sm">{lounge.name}</p>
         </div>
         <button onClick={() => setEditing(null)}
-          className="flex items-center gap-2 px-4 py-2 bg-ink text-lamp text-sm font-bold hover:bg-board">
+          className="flex items-center gap-2 justify-center min-h-[44px] px-4 bg-ink text-lamp text-sm font-semibold hover:bg-board">
           <Plus size={16} /> Tạo buổi diễn
         </button>
       </div>
 
       {/* TAB THEO TRẠNG THÁI — nút thường có aria-pressed (lọc danh sách), không phải tablist: nội dung không đổi kiểu. */}
-      <div role="group" aria-label="Lọc theo trạng thái" className="flex flex-wrap gap-2 mb-5">
-        {TAB.map((t) => (
-          <button key={t.key || 'tat-ca'} type="button" aria-pressed={tab === t.key}
-            onClick={() => { setTab(t.key); setTrang(1) }}
-            className={`inline-flex items-center gap-2 min-h-[40px] px-3 border-2 border-ink text-sm font-semibold transition-colors ${tab === t.key ? 'bg-ink text-lamp' : 'bg-card text-ink hover:bg-sunken'}`}>
-            {t.nhan}{dem[t.key] != null && <span className="font-mono text-xs">{dem[t.key]}</span>}
-          </button>
-        ))}
-      </div>
+      <NhomTab nhan="Lọc theo trạng thái" className="mb-5" dangChon={tab}
+        cacTab={TAB.map((t) => ({ khoa: t.key, nhan: t.nhan, dem: dem[t.key] }))}
+        onChon={(k) => { setTab(k); setTrang(1) }} />
 
       {loiDs ? (
         <div role="alert" className="flex flex-wrap items-center gap-4 border-2 border-ink p-5">
@@ -443,34 +437,34 @@ const OwnerShowsPage = () => {
                 <div className="flex items-center gap-2 flex-wrap">
                   {isDraft && (
                     <button onClick={() => act(s.id, submitShow, 'Đã gửi duyệt.')} disabled={isBusy}
-                      className="inline-flex items-center gap-1.5 min-h-[40px] px-3 bg-ink text-lamp text-sm font-semibold hover:bg-board disabled:opacity-50">
+                      className="inline-flex items-center gap-1.5 min-h-[44px] px-4 bg-ink text-lamp text-sm font-semibold hover:bg-board disabled:opacity-50">
                       {isBusy ? <Loader2 size={14} className="animate-spin" aria-hidden="true" /> : <Send size={14} aria-hidden="true" />} Gửi duyệt
                     </button>
                   )}
                   <Link to={`/owner/shows/${s.id}`}
-                    className="inline-flex items-center gap-1.5 min-h-[40px] px-3 border border-ink text-ink text-sm font-semibold hover:bg-ink hover:text-lamp">
+                    className="inline-flex items-center gap-1.5 min-h-[44px] px-4 border-2 border-ink bg-card text-ink text-sm font-semibold hover:bg-ink hover:text-lamp">
                     <Settings2 size={14} aria-hidden="true" /> Chuẩn bị
                   </Link>
                   {/* Poster, dời lịch, đổi hình thức, chế độ phát — những thứ đổi được SAU khi đã đăng */}
                   <Link to={`/owner/shows/${s.id}/settings`}
-                    className="inline-flex items-center gap-1.5 min-h-[40px] px-3 border border-ink text-ink text-sm font-semibold hover:bg-ink hover:text-lamp">
+                    className="inline-flex items-center gap-1.5 min-h-[44px] px-4 border-2 border-ink bg-card text-ink text-sm font-semibold hover:bg-ink hover:text-lamp">
                     <ImageIcon size={14} aria-hidden="true" /> Poster và cài đặt
                   </Link>
                   {isDraft && (
                     <button onClick={() => openEdit(s)} disabled={isBusy}
-                      className="inline-flex items-center gap-1.5 min-h-[40px] px-3 border border-ink text-ink text-sm font-semibold hover:bg-ink hover:text-lamp disabled:opacity-50">
+                      className="inline-flex items-center gap-1.5 min-h-[44px] px-4 border-2 border-ink bg-card text-ink text-sm font-semibold hover:bg-ink hover:text-lamp disabled:opacity-50">
                       <Pencil size={14} aria-hidden="true" /> Sửa
                     </button>
                   )}
                   {s.status === 'Published' && (
                     <button onClick={() => setXacNhan({ loai: 'huy', buoi: s })} disabled={isBusy}
-                      className="inline-flex items-center gap-1.5 min-h-[40px] px-3 border border-danger text-danger text-sm font-semibold hover:bg-danger hover:text-lamp disabled:opacity-50">
+                      className="inline-flex items-center gap-1.5 min-h-[44px] px-4 border-2 border-danger bg-card text-danger text-sm font-semibold hover:bg-danger hover:text-lamp disabled:opacity-50">
                       <X size={14} aria-hidden="true" /> Huỷ buổi diễn
                     </button>
                   )}
                   {isDraft && (
                     <button onClick={() => setXacNhan({ loai: 'xoa', buoi: s })} disabled={isBusy} aria-label={`Xoá bản nháp ${s.name}`}
-                      className="inline-flex items-center justify-center min-w-[40px] min-h-[40px] border border-ink text-ink hover:bg-danger hover:border-danger hover:text-lamp disabled:opacity-50">
+                      className="inline-flex items-center justify-center w-11 h-11 border-2 border-ink bg-card text-ink hover:bg-danger hover:border-danger hover:text-lamp disabled:opacity-50">
                       <Trash2 size={14} aria-hidden="true" />
                     </button>
                   )}

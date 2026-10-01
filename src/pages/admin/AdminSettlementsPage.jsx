@@ -76,7 +76,7 @@ const AdminSettlementsPage = () => {
 
   return (
     <div>
-      <h1 className="text-4xl text-ink">Quyết toán chờ xử lý</h1>
+      <h1 className="text-4xl text-ink">Quyết toán</h1>
       <p className="mt-2 max-w-[70ch] text-ink-soft">
         Tiền của phòng trà đang bị giữ vì nghi buổi diễn không chạy đủ như đã hứa với người mua vé. Quyết định ở đây không tự
         hoàn tiền cho người mua — việc đó đi qua trang Yêu cầu hoàn tiền.

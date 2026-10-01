@@ -133,16 +133,14 @@ const CustomCriteriaSection = ({ loungeId }) => {
           </p>
         </div>
         <div className="flex flex-wrap gap-2 flex-shrink-0">
-          <button onClick={() => setXemCaDaTat((v) => !v)}
-            className={`flex items-center gap-1.5 px-3 py-1.5 border text-xs font-bold ${
-              xemCaDaTat ? 'border-ink/40 bg-ink/10 text-ink' : 'border-line text-ink-soft hover:bg-sunken'
-            }`}>
+          <button type="button" onClick={() => setXemCaDaTat((v) => !v)} aria-pressed={xemCaDaTat}
+            className={`inline-flex items-center gap-1.5 min-h-[44px] px-3 border-2 text-sm font-semibold transition-colors ${xemCaDaTat ? 'bg-ink text-lamp border-ink' : 'bg-card border-ink/30 text-ink hover:border-ink'}`}>
             {xemCaDaTat ? <Eye size={14} /> : <EyeOff size={14} />}
             {xemCaDaTat ? 'Đang xem cả đã tắt' : 'Xem cả đã tắt'}
           </button>
           {!moForm && (
             <button onClick={() => setMoForm(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 border border-line text-ink-soft text-xs font-bold hover:bg-sunken">
+              className="flex items-center gap-1.5 justify-center min-h-[44px] px-4 border-2 border-ink bg-card text-ink text-sm font-semibold hover:bg-ink hover:text-lamp">
               <Plus size={14} /> Thêm tiêu chí
             </button>
           )}
@@ -162,7 +160,7 @@ const CustomCriteriaSection = ({ loungeId }) => {
               return (
                 <li key={c.id}
                   className={`bg-sunken/70 border border-line p-3 ${daTat ? 'opacity-60' : ''}`}>
-                  <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-start justify-between gap-3 flex-wrap">
                     <div className="min-w-0 flex-1">
                       {dangSua ? (
                         // Chỉ sửa TÊN. Mã, kiểu dữ liệu và tuỳ chọn không sửa được nên không bày ô.
@@ -171,11 +169,11 @@ const CustomCriteriaSection = ({ loungeId }) => {
                             onChange={(e) => setSuaTen((v) => ({ ...v, name: e.target.value }))}
                             className="flex-1 min-w-[10rem] px-2 py-1.5 bg-page border border-line rounded-md text-sm text-ink focus:outline-none focus:border-ink/50" />
                           <button onClick={() => luuTen(c)} disabled={busyId === c.id}
-                            className="flex items-center gap-1.5 px-3 py-1.5 bg-ink text-lamp text-xs font-bold disabled:opacity-50">
+                            className="flex items-center gap-1.5 disabled:opacity-50 justify-center min-h-[44px] px-4 bg-ink text-lamp text-sm font-semibold hover:bg-board">
                             {busyId === c.id ? <Loader2 size={13} className="animate-spin" /> : <Save size={13} />} Lưu
                           </button>
                           <button onClick={() => setSuaTen(null)} disabled={busyId === c.id}
-                            className="px-3 py-1.5 border border-line text-ink-soft text-xs font-bold hover:bg-sunken">
+                            className="inline-flex items-center justify-center gap-2 min-h-[44px] px-4 border-2 border-ink bg-card text-ink text-sm font-semibold hover:bg-ink hover:text-lamp">
                             Huỷ
                           </button>
                         </div>
@@ -199,7 +197,7 @@ const CustomCriteriaSection = ({ loungeId }) => {
                         <>
                           <button onClick={() => setSuaTen({ id: c.id, name: c.name })}
                             disabled={busyId === c.id} title="Đổi tên hiển thị" aria-label="Đổi tên hiển thị"
-                            className="p-1.5 text-ink-mute hover:text-ink disabled:opacity-40">
+                            className="inline-flex items-center justify-center w-11 h-11 flex-shrink-0 text-ink-mute hover:text-ink disabled:opacity-40">
                             <Pencil size={14} />
                           </button>
                           <button onClick={() => doiBatTat(c, daTat)} disabled={busyId === c.id}
@@ -222,7 +220,7 @@ const CustomCriteriaSection = ({ loungeId }) => {
         <form onSubmit={them} className="mt-4 pt-4 border-t border-line space-y-3">
           <div className="flex items-center justify-between">
             <p className="text-sm font-medium text-ink">Tiêu chí mới</p>
-            <button type="button" onClick={() => setMoForm(false)} className="p-1 text-ink-mute hover:text-ink" aria-label="Đóng">
+            <button type="button" onClick={() => setMoForm(false)} className="inline-flex items-center justify-center w-11 h-11 flex-shrink-0 text-ink-mute hover:text-ink" aria-label="Đóng">
               <X size={16} />
             </button>
           </div>
@@ -258,7 +256,7 @@ const CustomCriteriaSection = ({ loungeId }) => {
           )}
 
           <button type="submit" disabled={isBusy}
-            className="w-full py-2.5 bg-ink text-lamp font-bold flex items-center justify-center gap-2 disabled:opacity-50">
+            className="w-full flex items-center justify-center gap-2 disabled:opacity-50 min-h-[44px] px-4 bg-ink text-lamp text-sm font-semibold hover:bg-board">
             {isBusy && <Loader2 size={16} className="animate-spin" />} Thêm tiêu chí
           </button>
         </form>

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Music, ShieldAlert } from 'lucide-react'
+import { ShieldAlert } from 'lucide-react'
 import AllShowsTab from '../../components/admin/shows/AllShowsTab'
 import PendingModerationTab from '../../components/admin/shows/PendingModerationTab'
 import { getPendingModerations } from '../../services/adminServices'
@@ -23,9 +23,8 @@ const AdminShowsPage = () => {
   return (
     <div>
       <div className="flex items-center gap-3 mb-6">
-        <Music size={28} className="text-ink" />
         <div>
-          <h1 className="text-4xl text-ink">Quản lý buổi diễn</h1>
+          <h1 className="text-4xl text-ink">Buổi diễn</h1>
           <p className="text-ink-soft text-sm">
             Buổi diễn, hạng vé và livestream chủ phòng trà gửi lên nằm ở tab Chờ duyệt. Điểm an toàn do hệ thống chấm giúp ưu tiên xem trước.
           </p>

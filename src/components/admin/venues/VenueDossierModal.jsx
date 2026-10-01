@@ -69,7 +69,7 @@ const VenueDossierModal = ({ venue, onClose, onReview }) => {
             <h2 className="text-3xl text-ink truncate">Hồ sơ phòng trà đã nộp</h2>
             <p className="text-xs text-ink-mute mt-0.5">#{venue.loungeId} · {venue.name}</p>
           </div>
-          <button onClick={onClose} aria-label="Đóng hồ sơ" className="p-2 hover:bg-sunken text-ink-soft flex-shrink-0">
+          <button onClick={onClose} aria-label="Đóng hồ sơ" className="inline-flex items-center justify-center w-11 h-11 flex-shrink-0 hover:bg-sunken text-ink-soft">
             <X size={20} />
           </button>
         </div>

@@ -59,7 +59,7 @@ const VcpmcRoyaltyCard = ({ showId, declared, reference, onSaved }) => {
         <button
           onClick={luu}
           disabled={dangLuu || !ma.trim()}
-          className="flex items-center gap-1.5 px-3 py-2 border border-line text-ink-soft text-xs font-bold hover:bg-sunken disabled:opacity-50"
+          className="flex items-center gap-1.5 disabled:opacity-50 justify-center min-h-[44px] px-4 border-2 border-ink bg-card text-ink text-sm font-semibold hover:bg-ink hover:text-lamp"
         >
           {dangLuu ? <Loader2 size={14} className="animate-spin" /> : <ShieldCheck size={14} />}
           {declared ? 'Thay mã' : 'Lưu VCPMC'}

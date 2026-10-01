@@ -1,5 +1,4 @@
 import { useState, useEffect, useMemo } from 'react'
-import { Building2 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { getAdminVenues } from '../../services/adminServices'
 import VenuesStatsCards from '../../components/admin/venues/VenuesStatsCards'
@@ -105,9 +104,8 @@ const AdminVenuesPage = () => {
     <div className="space-y-6">
       {/* HEADER */}
       <div className="flex items-center gap-3">
-        <Building2 size={28} className="text-ink" />
         <div>
-          <h1 className="text-4xl text-ink">Quản lý phòng trà</h1>
+          <h1 className="text-4xl text-ink">Phòng trà</h1>
           <p className="text-ink-soft text-sm">Quản lý trạng thái các phòng trà trên hệ thống.</p>
         </div>
       </div>

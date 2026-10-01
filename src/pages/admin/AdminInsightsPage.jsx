@@ -73,7 +73,7 @@ const AdminInsightsPage = () => {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-4xl text-ink mb-1">Nội dung &amp; tương tác</h1>
+        <h1 className="text-4xl text-ink mb-1">Nội dung và tương tác</h1>
         <p className="text-ink-soft text-sm">Việc cần xử lý, mức tương tác của khán giả, và chất lượng gợi ý.</p>
       </div>
 

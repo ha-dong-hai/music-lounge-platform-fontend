@@ -300,7 +300,7 @@ const OwnerOperatePage = () => {
           <p className="text-ink-soft text-sm">Soát vé tại cửa, bán vé cho khách vãng lai, và theo dõi số vé theo thời gian thực.</p>
         </div>
         <button onClick={loadStats} disabled={isLoadingStats}
-          className="flex items-center gap-1.5 px-3 py-1.5 border border-line text-ink-soft text-xs font-bold hover:bg-sunken disabled:opacity-50">
+          className="flex items-center gap-1.5 disabled:opacity-50 justify-center min-h-[44px] px-4 border-2 border-ink bg-card text-ink text-sm font-semibold hover:bg-ink hover:text-lamp">
           <RefreshCw size={14} className={isLoadingStats ? 'animate-spin' : ''} /> Cập nhật số liệu
         </button>
       </div>
@@ -320,12 +320,12 @@ const OwnerOperatePage = () => {
       {showDangChon && (
         <div className="flex flex-wrap gap-3">
           <button onClick={handleStart} disabled={busy !== null || !CO_THE_BAT_DAU.includes(showDangChon.status) || thieuVcpmc || coLivestream}
-            className="flex items-center gap-2 px-4 py-2 bg-success/10 border border-success/40 text-success text-sm font-bold hover:bg-success/20 disabled:opacity-40 disabled:cursor-not-allowed">
+            className="flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed justify-center min-h-[44px] px-4 border-2 border-success bg-card text-success text-sm font-semibold hover:bg-success hover:text-lamp">
             {busy === 'start' ? <Loader2 size={16} className="animate-spin" /> : <Play size={16} />} Bắt đầu buổi diễn
           </button>
           <NutXacNhan onXacNhan={handleEnd} tieuDe="Kết thúc buổi diễn?" nhanXacNhan="Kết thúc buổi diễn" nhanGiu="Chưa, còn đang diễn"
             noiDung="Nhân viên sẽ không soát vé được nữa. Buổi diễn được ghi nhận là đã diễn xong (căn cứ để quyết toán tiền vé), và khán giả bắt đầu đánh giá được. Không hoàn tác được." disabled={busy !== null || !CO_THE_KET_THUC.includes(showDangChon.status)}
-            className="flex items-center gap-2 px-4 py-2 bg-danger/10 border border-danger/40 text-danger text-sm font-bold hover:bg-danger/20 disabled:opacity-40 disabled:cursor-not-allowed">
+            className="flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed justify-center min-h-[44px] px-4 border-2 border-danger bg-card text-danger text-sm font-semibold hover:bg-danger hover:text-lamp">
             {busy === 'end' ? <Loader2 size={16} className="animate-spin" /> : <Square size={16} />} Kết thúc
           </NutXacNhan>
           <span className="text-xs text-ink-mute self-center">
@@ -337,7 +337,7 @@ const OwnerOperatePage = () => {
       {showDangChon && CO_THE_BAT_DAU.includes(showDangChon.status) && (thieuVcpmc || coLivestream) && (
         <p className="text-xs text-warning leading-relaxed max-w-3xl">
           {coLivestream ? (
-            <>Buổi diễn này có phát trực tuyến — bắt đầu ở trang <Link to="/owner/livestreams" className="underline">Livestream</Link>.</>
+            <>Buổi diễn này có phát trực tuyến — bắt đầu ở trang <Link to="/owner/livestreams" className="underline">Phát trực tuyến</Link>.</>
           ) : vai === 'Staff' ? (
             'Chưa bắt đầu được: buổi diễn chưa khai mã tác quyền VCPMC. Nhờ chủ phòng trà khai trong Cài đặt buổi diễn.'
           ) : (
@@ -376,7 +376,7 @@ const OwnerOperatePage = () => {
               placeholder="Quét hoặc nhập mã QR trên vé" autoFocus
               className="flex-1 px-3 py-2 bg-page border border-line text-sm text-ink focus:outline-none focus:border-ink/50" />
             <button type="submit" disabled={busy !== null || !qr.trim()}
-              className="flex items-center gap-1.5 px-4 py-2 border border-line text-ink-soft text-sm font-bold hover:bg-sunken disabled:opacity-50">
+              className="flex items-center gap-1.5 disabled:opacity-50 justify-center min-h-[44px] px-4 border-2 border-ink bg-card text-ink text-sm font-semibold hover:bg-ink hover:text-lamp">
               {busy === 'lookup' ? <Loader2 size={16} className="animate-spin" /> : <Search size={16} />} Tra cứu
             </button>
           </form>
@@ -406,7 +406,7 @@ const OwnerOperatePage = () => {
                 </p>
               ) : (
                 <button onClick={handleCheckIn} disabled={busy !== null}
-                  className="mt-3 w-full flex items-center justify-center gap-2 py-2.5 bg-ink text-lamp font-bold text-sm hover:bg-board disabled:opacity-50">
+                  className="mt-3 w-full flex items-center justify-center gap-2 disabled:opacity-50 min-h-[44px] px-4 bg-ink text-lamp text-sm font-semibold hover:bg-board">
                   {busy === 'checkin' ? <Loader2 size={16} className="animate-spin" /> : <CheckCircle2 size={16} />}
                   Soát vé và cho vào
                 </button>
@@ -452,7 +452,7 @@ const OwnerOperatePage = () => {
                   className="mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink focus:outline-none focus:border-ink/50" />
               </div>
               <button type="submit" disabled={busy !== null}
-                className="w-full flex items-center justify-center gap-2 py-2.5 bg-ink text-lamp font-bold text-sm hover:bg-board disabled:opacity-50">
+                className="w-full flex items-center justify-center gap-2 disabled:opacity-50 min-h-[44px] px-4 bg-ink text-lamp text-sm font-semibold hover:bg-board">
                 {busy === 'sell' ? <Loader2 size={16} className="animate-spin" /> : <Ticket size={16} />}
                 Bán vé và thu tiền mặt
               </button>

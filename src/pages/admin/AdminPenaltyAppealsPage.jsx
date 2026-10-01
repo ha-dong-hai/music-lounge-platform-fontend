@@ -12,6 +12,7 @@ import PenaltyAppealCard from '../../components/admin/penalty-appeals/PenaltyApp
 import PenaltyAppealReviewModal from '../../components/admin/penalty-appeals/PenaltyAppealReviewModal'
 import { useDanhSachMayChu } from '../../hooks/useDanhSachMayChu'
 import PhanTrang from '../../components/bang/PhanTrang'
+import NhomTab from '../../components/bang/NhomTab'
 
 // Tab trên URL (?daXuLy=true) — Quay lại/tải lại giữ đúng tab.
 const BO_LOC = { daXuLy: parseAsBoolean.withDefault(false) }
@@ -44,10 +45,6 @@ const AdminPenaltyAppealsPage = () => {
     }
   }
 
-  const tabBtn = (active) => `px-3 py-1.5 text-xs font-medium border transition-colors ${
-    active ? 'bg-sunken border-ink/40 text-ink' : 'bg-page border-line text-ink-soft hover:text-ink'
-  }`
-
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
@@ -62,20 +59,14 @@ const AdminPenaltyAppealsPage = () => {
           </div>
         </div>
         <button onClick={load} disabled={isLoading}
-          className="flex items-center gap-2 px-4 py-2 border border-line text-ink-soft text-sm font-bold hover:bg-sunken disabled:opacity-50">
+          className="flex items-center gap-2 disabled:opacity-50 justify-center min-h-[44px] px-4 border-2 border-ink bg-card text-ink text-sm font-semibold hover:bg-ink hover:text-lamp">
           <RefreshCw size={16} className={isLoading ? 'animate-spin' : ''} /> Tải lại
         </button>
       </div>
 
       {/* TABS */}
-      <div className="flex flex-wrap gap-2">
-        <button onClick={() => doiTab(false)} className={tabBtn(!daXuLy)}>
-          Chờ xử lý{!daXuLy && totalCount > 0 ? ` (${totalCount})` : ''}
-        </button>
-        <button onClick={() => doiTab(true)} className={tabBtn(daXuLy)}>
-          Đã xử lý
-        </button>
-      </div>
+      <NhomTab nhan="Lọc khiếu nại theo trạng thái" dangChon={daXuLy} onChon={doiTab}
+        cacTab={[{ khoa: false, nhan: 'Chờ xử lý', dem: !daXuLy && totalCount > 0 ? totalCount : undefined }, { khoa: true, nhan: 'Đã xử lý' }]} />
 
       {isLoading ? (
         <div className="py-20 flex justify-center"><Loader2 size={30} className="animate-spin text-ink" /></div>

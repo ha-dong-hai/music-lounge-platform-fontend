@@ -406,7 +406,7 @@ const ShowCustomValuesSection = ({ showId }) => {
       </div>
 
       <button onClick={luu} disabled={isBusy}
-        className="mt-5 flex items-center gap-2 px-4 py-2 bg-ink text-lamp text-sm font-bold hover:bg-board disabled:opacity-50">
+        className="mt-5 flex items-center gap-2 disabled:opacity-50 justify-center min-h-[44px] px-4 bg-ink text-lamp text-sm font-semibold hover:bg-board">
         {isBusy ? <Loader2 size={15} className="animate-spin" /> : <Save size={15} />} Lưu tiêu chí
       </button>
     </div>

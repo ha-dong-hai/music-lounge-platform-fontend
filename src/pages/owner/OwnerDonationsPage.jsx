@@ -33,6 +33,7 @@ import { uploadImage } from '../../services/userServices'
 import NutXacNhan from '../../components/shared/NutXacNhan'
 import { useDanhSachMayChu } from '../../hooks/useDanhSachMayChu'
 import PhanTrang from '../../components/bang/PhanTrang'
+import NhomTab from '../../components/bang/NhomTab'
 
 const fmtMoney = (v) => `${Number(v || 0).toLocaleString('vi-VN')}đ`
 const inputCls = 'mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink focus:outline-none focus:border-ink/50'
@@ -110,7 +111,7 @@ const ConfirmPaidModal = ({ donation, onClose, onSaved }) => {
       <div className="relative bg-card border border-line w-full max-w-md shadow-soft">
         <div className="flex justify-between items-center p-5 border-b border-line">
           <h2 className="text-3xl text-ink">Xác nhận đã trả nghệ sĩ</h2>
-          <button onClick={onClose} className="p-2 hover:bg-sunken text-ink-soft" aria-label="Đóng"><X size={20} /></button>
+          <button onClick={onClose} className="inline-flex items-center justify-center w-11 h-11 flex-shrink-0 hover:bg-sunken text-ink-soft" aria-label="Đóng"><X size={20} /></button>
         </div>
 
         <form onSubmit={submit} className="p-5 space-y-4">
@@ -133,7 +134,7 @@ const ConfirmPaidModal = ({ donation, onClose, onSaved }) => {
           <div>
             <label className="text-xs text-ink-mute">Ảnh chứng từ</label>
             <div className="mt-1 flex items-center gap-2">
-              <label className="inline-flex items-center gap-2 px-3 py-2 border border-line text-ink-soft text-sm hover:bg-sunken cursor-pointer">
+              <label className="inline-flex items-center justify-center gap-2 cursor-pointer min-h-[44px] px-4 border-2 border-ink bg-card text-ink text-sm font-semibold hover:bg-ink hover:text-lamp">
                 {isUploading ? <Loader2 size={15} className="animate-spin" /> : <Send size={15} />}
                 {evidenceUrl ? 'Đổi ảnh' : 'Tải ảnh lên'}
                 <input type="file" accept="image/*" className="hidden" disabled={isUploading}
@@ -144,7 +145,7 @@ const ConfirmPaidModal = ({ donation, onClose, onSaved }) => {
           </div>
 
           <button type="submit" disabled={isBusy || isUploading}
-            className="w-full py-2.5 bg-ink text-lamp font-bold flex items-center justify-center gap-2 disabled:opacity-50">
+            className="w-full flex items-center justify-center gap-2 disabled:opacity-50 min-h-[44px] px-4 bg-ink text-lamp text-sm font-semibold hover:bg-board">
             {isBusy && <Loader2 size={16} className="animate-spin" />} Xác nhận đã chuyển
           </button>
         </form>
@@ -196,27 +197,19 @@ Không hoàn tiền, và lời nhắn gốc vẫn được lưu để đối chi
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-4xl text-ink mb-1">Tiền ủng hộ</h1>
+          <h1 className="text-4xl text-ink mb-1">Tiền ủng hộ nghệ sĩ</h1>
           <p className="text-ink-soft text-sm leading-relaxed">
             Đây là tiền khán giả tặng NGHỆ SĨ, phòng trà chỉ giữ hộ và chuyển tiếp — không phải doanh thu của bạn.
           </p>
         </div>
         <button type="button" onClick={load} disabled={ds.dangTaiLai}
-          className="flex items-center gap-1.5 px-3 py-1.5 border border-line text-ink-soft text-xs font-bold hover:bg-sunken disabled:opacity-50">
+          className="flex items-center gap-1.5 disabled:opacity-50 justify-center min-h-[44px] px-4 border-2 border-ink bg-card text-ink text-sm font-semibold hover:bg-ink hover:text-lamp">
           <RefreshCw size={14} className={ds.dangTaiLai ? 'animate-spin' : ''} /> Tải lại
         </button>
       </div>
 
-      <div className="flex flex-wrap gap-2">
-        {TABS.map((t) => (
-          <button type="button" key={t.key} onClick={() => ds.datBoLoc({ tab: t.key })} aria-pressed={tab === t.key}
-            className={`px-3 py-1.5 text-xs font-medium border transition-colors ${tab === t.key
-              ? 'bg-sunken border-ink/40 text-ink'
-              : 'bg-page border-line text-ink-soft hover:text-ink'}`}>
-            {t.label}
-          </button>
-        ))}
-      </div>
+      <NhomTab nhan="Lọc tiền ủng hộ" dangChon={tab} cacTab={TABS.map((t) => ({ khoa: t.key, nhan: t.label }))}
+        onChon={(k) => ds.datBoLoc({ tab: k })} />
 
       {isLoading ? (
         <div className="py-20 flex justify-center"><Loader2 size={32} className="animate-spin text-ink" /></div>
@@ -374,7 +367,7 @@ Không hoàn tiền, và lời nhắn gốc vẫn được lưu để đối chi
                   {/* Gỡ lời nhắn: chỉ hiện khi khoản này CÓ lời nhắn — nút không làm gì thì không bày ra */}
                   {d.message && (
                     <button onClick={() => goLoiNhan(d)} disabled={dangBan}
-                      className="flex items-center gap-2 px-4 py-2 border border-line text-ink-soft text-sm font-bold hover:bg-sunken disabled:opacity-50 order-last"
+                      className="flex items-center gap-2 disabled:opacity-50 order-last justify-center min-h-[44px] px-4 border-2 border-ink bg-card text-ink text-sm font-semibold hover:bg-ink hover:text-lamp"
                       title="Ẩn lời nhắn khỏi livestream; không hoàn tiền" aria-label="Ẩn lời nhắn khỏi livestream; không hoàn tiền">
                       <EyeOff size={15} /> Gỡ lời nhắn
                     </button>
@@ -392,7 +385,7 @@ Không hoàn tiền, và lời nhắn gốc vẫn được lưu để đối chi
                   ) : (
                     <button onClick={() => setTraNgheSi(d)} disabled={dangBan || chuaNhanTien}
                       title={chuaNhanTien ? 'Nền tảng chưa chuyển tiền về cho bạn' : undefined} aria-label={chuaNhanTien ? 'Nền tảng chưa chuyển tiền về cho bạn' : undefined}
-                      className="flex items-center gap-2 px-4 py-2 bg-ink text-lamp text-sm font-bold hover:bg-board disabled:opacity-40 disabled:cursor-not-allowed">
+                      className="flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed justify-center min-h-[44px] px-4 bg-ink text-lamp text-sm font-semibold hover:bg-board">
                       <Send size={15} /> Xác nhận đã trả nghệ sĩ
                     </button>
                   )}

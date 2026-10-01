@@ -35,7 +35,7 @@ const BankAccountReviewModal = ({ account, onClose, onDecision, isProcessing }) 
               {account.bankName} · {account.accountNumberMasked}
             </p>
           </div>
-          <button onClick={onClose} disabled={isProcessing} className="p-2 hover:bg-board text-ink-mute disabled:opacity-30" aria-label="Đóng">
+          <button onClick={onClose} disabled={isProcessing} className="inline-flex items-center justify-center w-11 h-11 flex-shrink-0 hover:bg-board text-ink-mute disabled:opacity-30" aria-label="Đóng">
             <X size={20} />
           </button>
         </div>
@@ -105,11 +105,11 @@ const BankAccountReviewModal = ({ account, onClose, onDecision, isProcessing }) 
         </div>
 
         {/* FOOTER — approve=true / reject=false theo contract BE */}
-        <div className="flex-none flex gap-3 p-5 border-t border-ink">
+        <div className="flex-none flex gap-3 p-5 border-t border-ink flex-wrap">
           <button
             onClick={() => onDecision(true, note)}
             disabled={!!isProcessing}
-            className="flex-1 py-3 bg-success text-lamp font-bold hover:bg-success transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1 bg-success flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px] px-4 border-2 border-success bg-success text-lamp text-sm font-semibold hover:bg-success/90"
           >
             {isProcessing === true
               ? <><Loader2 size={18} className="animate-spin" /> Đang xử lý…</>
@@ -118,7 +118,7 @@ const BankAccountReviewModal = ({ account, onClose, onDecision, isProcessing }) 
           <button
             onClick={() => onDecision(false, note)}
             disabled={!!isProcessing}
-            className="flex-1 py-3 bg-danger text-lamp font-bold hover:bg-danger transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1 bg-danger flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px] px-4 border-2 border-danger bg-danger text-lamp text-sm font-semibold hover:bg-danger/90"
           >
             {isProcessing === false
               ? <><Loader2 size={18} className="animate-spin" /> Đang xử lý…</>

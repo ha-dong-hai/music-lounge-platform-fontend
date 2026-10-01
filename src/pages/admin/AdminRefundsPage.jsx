@@ -81,7 +81,7 @@ const AdminRefundsPage = () => {
 
   return (
     <div>
-      <h1 className="text-4xl text-ink">Yêu cầu hoàn tiền</h1>
+      <h1 className="text-4xl text-ink">Hoàn tiền</h1>
       <p className="mt-2 max-w-[70ch] text-ink-soft">
         Duyệt sẽ gọi VNPay hoàn tiền thật cho người mua; hệ thống chỉ ghi sổ khi VNPay xác nhận thành công. Giao dịch quá
         hạn VNPay thì chỉ hoàn được bằng chuyển khoản, sau khi người mua đồng ý và khai tài khoản.

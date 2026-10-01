@@ -358,17 +358,17 @@ const OwnerShowSettingsPage = () => {
             <button onClick={taoPosterAi}
               disabled={busy !== null || !!donChoXuLy || goi === null}
               title={donChoXuLy ? 'Đang có đơn tạo poster chờ xử lý' : undefined} aria-label={donChoXuLy ? 'Đang có đơn tạo poster chờ xử lý' : undefined}
-              className="flex items-center gap-2 px-4 py-2 bg-ink text-lamp text-sm font-bold hover:bg-board disabled:opacity-40 disabled:cursor-not-allowed">
+              className="flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed justify-center min-h-[44px] px-4 bg-ink text-lamp text-sm font-semibold hover:bg-board">
               {busy === 'ai' ? <Loader2 size={15} className="animate-spin" /> : <Sparkles size={15} />} Tạo poster bằng AI
             </button>
-            <label className="inline-flex items-center gap-2 px-4 py-2 border border-line text-ink-soft text-sm font-bold hover:bg-sunken cursor-pointer">
+            <label className="inline-flex items-center gap-2 cursor-pointer justify-center min-h-[44px] px-4 border-2 border-ink bg-card text-ink text-sm font-semibold hover:bg-ink hover:text-lamp">
               {busy === 'upload' ? <Loader2 size={15} className="animate-spin" /> : <Upload size={15} />}
               Tự tải poster
               <input type="file" accept="image/*" className="hidden" disabled={busy !== null}
                 onChange={(e) => taiPosterRieng(e.target.files?.[0])} />
             </label>
             <button onClick={load} disabled={busy !== null}
-              className="flex items-center gap-1.5 px-3 py-2 border border-line text-ink-soft text-sm hover:bg-sunken disabled:opacity-50">
+              className="flex items-center justify-center gap-1.5 disabled:opacity-50 min-h-[44px] px-4 border-2 border-ink bg-card text-ink text-sm font-semibold hover:bg-ink hover:text-lamp">
               <RefreshCw size={14} /> Cập nhật
             </button>
           </div>
@@ -466,7 +466,7 @@ const OwnerShowSettingsPage = () => {
                               <p className="text-xs text-success">Đang dùng làm poster</p>
                             ) : (
                               <button onClick={() => dungAnhNay(h.imageUrl)} disabled={busy !== null}
-                                className="px-2.5 py-1.5 border border-line text-ink-soft text-xs font-bold hover:bg-sunken disabled:opacity-50">
+                                className="inline-flex disabled:opacity-50 items-center justify-center gap-2 min-h-[44px] px-4 border-2 border-ink bg-card text-ink text-sm font-semibold hover:bg-ink hover:text-lamp">
                                 Dùng ảnh này
                               </button>
                             )}
@@ -565,7 +565,7 @@ const OwnerShowSettingsPage = () => {
 
           {!xacNhanDoiLich ? (
             <button onClick={() => setXacNhanDoiLich(true)} disabled={busy !== null || !newStart}
-              className="flex items-center gap-2 px-4 py-2 border border-danger/40 text-danger text-sm font-bold hover:bg-danger/10 disabled:opacity-50">
+              className="flex items-center gap-2 disabled:opacity-50 justify-center min-h-[44px] px-4 border-2 border-danger bg-card text-danger text-sm font-semibold hover:bg-danger hover:text-lamp">
               <CalendarClock size={15} /> Dời lịch
             </button>
           ) : (
@@ -574,13 +574,13 @@ const OwnerShowSettingsPage = () => {
                 <AlertTriangle size={13} className="mt-px flex-shrink-0" />
                 Dời sang {dayjs(newStart).format('HH:mm DD/MM/YYYY')}? Người đã mua vé sẽ được thông báo.
               </p>
-              <div className="flex gap-2 mt-3">
+              <div className="flex gap-2 mt-3 flex-wrap">
                 <button onClick={() => setXacNhanDoiLich(false)} disabled={busy !== null}
-                  className="flex-1 py-2 border border-line-strong text-ink-soft text-sm font-medium hover:bg-sunken disabled:opacity-50">
+                  className="inline-flex flex-1 disabled:opacity-50 items-center justify-center gap-2 min-h-[44px] px-4 border-2 border-ink bg-card text-ink text-sm font-semibold hover:bg-ink hover:text-lamp">
                   Huỷ
                 </button>
                 <button onClick={doiLich} disabled={busy !== null}
-                  className="flex-1 py-2 bg-danger text-lamp text-sm font-bold hover:bg-danger flex items-center justify-center gap-2 disabled:opacity-50">
+                  className="flex-1 bg-danger flex items-center justify-center gap-2 disabled:opacity-50 min-h-[44px] px-4 border-2 border-danger bg-danger text-lamp text-sm font-semibold hover:bg-danger/90">
                   {busy === 'reschedule' && <Loader2 size={15} className="animate-spin" />} Xác nhận dời lịch
                 </button>
               </div>
@@ -609,7 +609,7 @@ const OwnerShowSettingsPage = () => {
           {newFormat !== show.format && (
             !xacNhanDoiHinhThuc ? (
               <button onClick={() => setXacNhanDoiHinhThuc(true)} disabled={busy !== null}
-                className="flex items-center gap-2 px-4 py-2 border border-danger/40 text-danger text-sm font-bold hover:bg-danger/10 disabled:opacity-50">
+                className="flex items-center gap-2 disabled:opacity-50 justify-center min-h-[44px] px-4 border-2 border-danger bg-card text-danger text-sm font-semibold hover:bg-danger hover:text-lamp">
                 <Radio size={15} /> Đổi hình thức
               </button>
             ) : (
@@ -618,13 +618,13 @@ const OwnerShowSettingsPage = () => {
                   <AlertTriangle size={13} className="mt-px flex-shrink-0" />
                   Người đã mua vé cho hình thức cũ có thể được hoàn 100% tiền vé. Vẫn đổi?
                 </p>
-                <div className="flex gap-2 mt-3">
+                <div className="flex gap-2 mt-3 flex-wrap">
                   <button onClick={() => setXacNhanDoiHinhThuc(false)} disabled={busy !== null}
-                    className="flex-1 py-2 border border-line-strong text-ink-soft text-sm font-medium hover:bg-sunken disabled:opacity-50">
+                    className="inline-flex flex-1 disabled:opacity-50 items-center justify-center gap-2 min-h-[44px] px-4 border-2 border-ink bg-card text-ink text-sm font-semibold hover:bg-ink hover:text-lamp">
                     Huỷ
                   </button>
                   <button onClick={doiHinhThuc} disabled={busy !== null}
-                    className="flex-1 py-2 bg-danger text-lamp text-sm font-bold hover:bg-danger flex items-center justify-center gap-2 disabled:opacity-50">
+                    className="flex-1 bg-danger flex items-center justify-center gap-2 disabled:opacity-50 min-h-[44px] px-4 border-2 border-danger bg-danger text-lamp text-sm font-semibold hover:bg-danger/90">
                     {busy === 'format' && <Loader2 size={15} className="animate-spin" />} Xác nhận đổi
                   </button>
                 </div>

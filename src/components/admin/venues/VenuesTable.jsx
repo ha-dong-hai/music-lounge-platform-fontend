@@ -62,7 +62,7 @@ const VenuesTable = ({ venues, isLoading, pagination, onPageChange, onViewDossie
                         nhưng nằm bên trong hồ sơ như việc phụ. */}
                     <button
                       onClick={() => onViewDossier?.(v)}
-                      className="inline-flex items-center gap-1.5 text-ink border border-ink/30 hover:bg-board/10 px-3 py-1.5 rounded-md text-xs font-bold transition-colors"
+                      className="inline-flex items-center gap-1.5 justify-center min-h-[44px] px-4 border-2 border-ink bg-card text-ink text-sm font-semibold hover:bg-ink hover:text-lamp"
                     >
                       <FileText size={12} /> Xem hồ sơ
                     </button>
@@ -72,13 +72,13 @@ const VenuesTable = ({ venues, isLoading, pagination, onPageChange, onViewDossie
                       <>
                         <button
                           onClick={() => onReview(v, 'Approved')}
-                          className="ml-2 inline-flex items-center gap-1.5 text-success border border-success/40 hover:bg-success/10 px-3 py-1.5 rounded-md text-xs font-bold transition-colors"
+                          className="ml-2 inline-flex items-center gap-1.5 justify-center min-h-[44px] px-4 border-2 border-success bg-card text-success text-sm font-semibold hover:bg-success hover:text-lamp"
                         >
                           Duyệt
                         </button>
                         <button
                           onClick={() => onReview(v, 'Rejected')}
-                          className="ml-2 inline-flex items-center gap-1.5 text-danger border border-danger/40 hover:bg-danger/10 px-3 py-1.5 rounded-md text-xs font-bold transition-colors"
+                          className="ml-2 inline-flex items-center gap-1.5 justify-center min-h-[44px] px-4 border-2 border-danger bg-card text-danger text-sm font-semibold hover:bg-danger hover:text-lamp"
                         >
                           Từ chối
                         </button>
@@ -89,7 +89,7 @@ const VenuesTable = ({ venues, isLoading, pagination, onPageChange, onViewDossie
                     {onPenalize && !['Pending', 'Rejected'].includes(v.status) && (
                       <button
                         onClick={() => onPenalize(v)}
-                        className="ml-2 inline-flex items-center gap-1.5 text-warning border border-warning/40 hover:bg-warning/10 px-3 py-1.5 rounded-md text-xs font-bold transition-colors"
+                        className="ml-2 inline-flex items-center gap-1.5 justify-center min-h-[44px] px-4 border-2 border-warning bg-card text-warning text-sm font-semibold hover:bg-warning hover:text-board"
                       >
                         <ShieldAlert size={12} /> Án phạt
                       </button>
@@ -113,19 +113,19 @@ const VenuesTable = ({ venues, isLoading, pagination, onPageChange, onViewDossie
       {!isLoading && venues.length > 0 && (
         <div className="flex items-center justify-between p-4 border-t border-line">
           <p className="text-sm text-ink-mute">
-            Trang {pagination.page} / {pagination.totalPages} (Tổng: {pagination.totalCount} venue)
+            Trang {pagination.page} / {pagination.totalPages} (Tổng: {pagination.totalCount} phòng trà)
           </p>
           <div className="flex gap-2">
             <button
               onClick={() => onPageChange(pagination.page - 1)}
               disabled={pagination.page === 1}
-              className="p-2 rounded-md border border-line text-ink-soft hover:border-ink hover:text-ink disabled:opacity-30 disabled:cursor-not-allowed transition-colors" aria-label="Trang trước">
+              className="inline-flex items-center justify-center w-11 h-11 flex-shrink-0 border border-line text-ink-soft hover:border-ink hover:text-ink disabled:opacity-30 disabled:cursor-not-allowed transition-colors" aria-label="Trang trước">
               <ChevronLeft size={18} />
             </button>
             <button
               onClick={() => onPageChange(pagination.page + 1)}
               disabled={pagination.page === pagination.totalPages}
-              className="p-2 rounded-md border border-line text-ink-soft hover:border-ink hover:text-ink disabled:opacity-30 disabled:cursor-not-allowed transition-colors" aria-label="Trang sau">
+              className="inline-flex items-center justify-center w-11 h-11 flex-shrink-0 border border-line text-ink-soft hover:border-ink hover:text-ink disabled:opacity-30 disabled:cursor-not-allowed transition-colors" aria-label="Trang sau">
               <ChevronRight size={18} />
             </button>
           </div>

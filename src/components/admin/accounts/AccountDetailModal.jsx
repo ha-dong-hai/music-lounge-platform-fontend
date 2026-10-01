@@ -33,7 +33,7 @@ const AccountDetailModal = ({ selectedAcc, isModalLoading, isUpdating, onClose, 
                   <p className="text-sm text-ink-mute">{selectedAcc.email}</p>
                 </div>
               </div>
-              <button onClick={onClose} className="p-2 hover:bg-sunken text-ink-soft" aria-label="Đóng"><X size={20} /></button>
+              <button onClick={onClose} className="inline-flex items-center justify-center w-11 h-11 flex-shrink-0 hover:bg-sunken text-ink-soft" aria-label="Đóng"><X size={20} /></button>
             </div>
 
             <div className="space-y-4 border-t border-line pt-4">

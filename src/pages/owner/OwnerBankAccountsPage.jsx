@@ -95,7 +95,7 @@ const AccountFormModal = ({ initial, chuSoHuu, onClose, onSaved }) => {
       <div className="relative bg-card border border-line w-full max-w-md shadow-soft">
         <div className="flex justify-between items-center p-5 border-b border-line">
           <h2 className="text-3xl text-ink">{isEdit ? 'Sửa tài khoản' : 'Thêm tài khoản nhận tiền'}</h2>
-          <button onClick={onClose} disabled={isBusy} className="p-2 hover:bg-sunken text-ink-soft disabled:opacity-30" aria-label="Đóng">
+          <button onClick={onClose} disabled={isBusy} className="inline-flex items-center justify-center w-11 h-11 flex-shrink-0 hover:bg-sunken text-ink-soft disabled:opacity-30" aria-label="Đóng">
             <X size={20} />
           </button>
         </div>
@@ -121,13 +121,13 @@ const AccountFormModal = ({ initial, chuSoHuu, onClose, onSaved }) => {
             Dùng làm tài khoản mặc định
           </label>
 
-          <div className="flex gap-3 pt-2">
+          <div className="flex gap-3 pt-2 flex-wrap">
             <button type="button" onClick={onClose} disabled={isBusy}
-              className="flex-1 py-2.5 border border-line-strong text-ink-soft font-medium hover:bg-sunken disabled:opacity-50">
+              className="inline-flex flex-1 disabled:opacity-50 items-center justify-center gap-2 min-h-[44px] px-4 border-2 border-ink bg-card text-ink text-sm font-semibold hover:bg-ink hover:text-lamp">
               Huỷ
             </button>
             <button type="submit" disabled={isBusy}
-              className="flex-1 py-2.5 bg-ink text-lamp font-bold hover:bg-board flex items-center justify-center gap-2 disabled:opacity-50">
+              className="flex-1 flex items-center justify-center gap-2 disabled:opacity-50 min-h-[44px] px-4 bg-ink text-lamp text-sm font-semibold hover:bg-board">
               {isBusy && <Loader2 size={16} className="animate-spin" />}
               {isBusy ? 'Đang lưu...' : 'Lưu'}
             </button>
@@ -211,34 +211,49 @@ const OwnerBankAccountsPage = () => {
     )
   }
 
-  const danhSachChuSoHuu = [
-    { type: 'Lounge', id: lounge.id, label: `${lounge.name} (phòng trà)` },
-    ...performers.map((p) => ({ type: 'Performer', id: p.id, label: `${p.name} (nghệ sĩ)` })),
-  ]
+  // Tên trùng (cùng một nghệ sĩ khai hai lần, hoặc hai người cùng nghệ danh) phải phân biệt được trong ô chọn:
+  // PerformerDto không có ngày tạo, nên kèm thể loại và mã hồ sơ.
+  const demTen = performers.reduce((m, p) => m.set(p.name, (m.get(p.name) ?? 0) + 1), new Map())
+  const nhanNgheSi = (p) => demTen.get(p.name) > 1
+    ? `${p.name} — ${p.genreNames?.length ? p.genreNames.join(', ') + ' · ' : ''}#${p.id}`
+    : p.name
 
   return (
     <div className="space-y-6 max-w-3xl">
       <div>
         <h1 className="text-4xl text-ink mb-1">Tài khoản nhận tiền</h1>
         <p className="text-ink-soft text-sm leading-relaxed">
-          Nơi hệ thống chuyển tiền quyết toán sau mỗi buổi diễn, và tiền donate trả cho nghệ sĩ.
+          Nơi hệ thống chuyển tiền quyết toán sau mỗi buổi diễn, và tiền ủng hộ trả cho nghệ sĩ.
           Chưa khai tài khoản thì tiền vẫn được ghi sổ nhưng chưa chuyển đi được.
         </p>
       </div>
 
-      {/* Chọn chủ sở hữu: tài khoản của phòng trà và của từng nghệ sĩ là những danh sách tách biệt */}
-      <div className="flex flex-wrap gap-2">
-        {danhSachChuSoHuu.map((o) => {
-          const dangChon = chuSoHuu?.type === o.type && chuSoHuu?.id === o.id
-          return (
-            <button key={`${o.type}-${o.id}`} onClick={() => setChuSoHuu(o)}
-              className={`px-3 py-1.5 text-xs font-medium border transition-colors ${dangChon
-                ? 'bg-sunken border-ink/40 text-ink'
-                : 'bg-page border-line text-ink-soft hover:text-ink'}`}>
-              {o.label}
-            </button>
-          )
-        })}
+      {/* Chọn chủ sở hữu: tài khoản của phòng trà và của từng nghệ sĩ là những danh sách tách biệt.
+          01/10/2026: bản trước bày mỗi nghệ sĩ một nút — 18 nghệ sĩ là một bức tường nút, càng nhiều nghệ sĩ càng dài, và
+          tên trùng không phân biệt được (DESIGN.md "Danh sách lựa chọn dài: thu gọn"). Nay: một nút cho phòng trà + ô chọn
+          nghệ sĩ (select gốc: gõ chữ cái để nhảy, trình đọc màn hình đọc được, không thêm thư viện). */}
+      <div role="group" aria-label="Chọn chủ tài khoản" className="flex flex-wrap items-end gap-3">
+        <button type="button" aria-pressed={chuSoHuu?.type === 'Lounge'}
+          onClick={() => setChuSoHuu({ type: 'Lounge', id: lounge.id, label: lounge.name })}
+          className={`inline-flex items-center gap-2 min-h-[44px] px-4 border-2 border-ink text-sm font-semibold ${chuSoHuu?.type === 'Lounge' ? 'bg-ink text-lamp' : 'bg-card text-ink hover:bg-sunken'}`}>
+          {lounge.name} (phòng trà)
+        </button>
+        {performers.length > 0 && (
+          <label className="block">
+            <span className="text-sm font-semibold">Nghệ sĩ do bạn tạo ({performers.length})</span>
+            <select value={chuSoHuu?.type === 'Performer' ? String(chuSoHuu.id) : ''}
+              onChange={(e) => {
+                const p = performers.find((x) => String(x.id) === e.target.value)
+                if (p) setChuSoHuu({ type: 'Performer', id: p.id, label: nhanNgheSi(p) })
+              }}
+              className={`mt-1 block min-h-[44px] w-full sm:w-80 px-3 border-2 text-ink ${chuSoHuu?.type === 'Performer' ? 'border-ink bg-sunken' : 'border-ink/40 bg-card'} focus:outline-none focus:ring-2 focus:ring-ink`}>
+              <option value="">— chọn nghệ sĩ —</option>
+              {[...performers].sort((a, b) => a.name.localeCompare(b.name, 'vi')).map((p) => (
+                <option key={p.id} value={String(p.id)}>{nhanNgheSi(p)}</option>
+              ))}
+            </select>
+          </label>
+        )}
       </div>
       <p className="text-xs text-ink-mute -mt-3">
         Chỉ hiện nghệ sĩ do bạn tạo — tài khoản nhận tiền của nghệ sĩ chỉ người tạo hồ sơ đó khai được.
@@ -249,7 +264,7 @@ const OwnerBankAccountsPage = () => {
         <div className="flex items-center justify-between mb-4">
           <h2 className="font-sans font-bold text-base text-ink">{chuSoHuu?.label}</h2>
           <button onClick={() => setEditing(null)}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-ink text-lamp text-xs font-bold hover:bg-board">
+            className="flex items-center gap-1.5 justify-center min-h-[44px] px-4 bg-ink text-lamp text-sm font-semibold hover:bg-board">
             <Plus size={14} /> Thêm tài khoản
           </button>
         </div>
@@ -294,7 +309,7 @@ const OwnerBankAccountsPage = () => {
                 </div>
 
                 <button onClick={() => setEditing(a)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 border border-line text-ink-soft text-xs font-bold hover:bg-sunken flex-shrink-0">
+                  className="flex items-center gap-1.5 flex-shrink-0 justify-center min-h-[44px] px-4 border-2 border-ink bg-card text-ink text-sm font-semibold hover:bg-ink hover:text-lamp">
                   <Pencil size={14} /> Sửa
                 </button>
               </li>

@@ -34,6 +34,7 @@ import { getLoungeFnbOrders, updateFnbOrderStatus } from '../../services/fnbServ
 import { useDanhSachMayChu } from '../../hooks/useDanhSachMayChu'
 import PhanTrang from '../../components/bang/PhanTrang'
 import NutXacNhan from '../../components/shared/NutXacNhan'
+import NhomTab from '../../components/bang/NhomTab'
 
 const fmtMoney = (v) => `${Number(v || 0).toLocaleString('vi-VN')}đ`
 
@@ -147,16 +148,8 @@ const OwnerFnbOrdersPage = () => {
         </button>
       </div>
 
-      <div className="flex flex-wrap gap-2" role="group" aria-label="Lọc đơn theo trạng thái">
-        {TAB.map((t) => (
-          <button key={t.key} type="button" onClick={() => ds.datBoLoc({ tab: t.key })} aria-pressed={tab === t.key}
-            className={`min-h-[44px] px-3 border-2 text-sm font-semibold transition-colors ${tab === t.key
-              ? 'border-ink bg-ink text-lamp'
-              : 'border-ink/30 text-ink-soft hover:border-ink hover:text-ink'}`}>
-            {t.label}
-          </button>
-        ))}
-      </div>
+      <NhomTab nhan="Lọc đơn theo trạng thái" dangChon={tab} cacTab={TAB.map((t) => ({ khoa: t.key, nhan: t.label }))}
+        onChon={(k) => ds.datBoLoc({ tab: k })} />
 
       <PhanTrang ds={ds} tenDonVi="đơn" idDanhSach="ds-don-mon" />
 
@@ -238,7 +231,7 @@ const OwnerFnbOrdersPage = () => {
                     return (
                       <button onClick={() => doiTrangThai(o, buocTiep)} disabled={dangBan || khoaThuTien}
                         title={khoaThuTien ? 'Khách đang có liên kết thanh toán online còn hạn' : undefined} aria-label={khoaThuTien ? 'Khách đang có liên kết thanh toán online còn hạn' : undefined}
-                        className="flex items-center gap-1.5 px-3 py-1.5 bg-ink text-lamp text-xs font-bold hover:bg-board disabled:opacity-40 disabled:cursor-not-allowed">
+                        className="flex items-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed justify-center min-h-[44px] px-4 bg-ink text-lamp text-sm font-semibold hover:bg-board">
                         {dangBan ? <Loader2 size={13} className="animate-spin" />
                           : buocTiep === 'Paid' ? <Banknote size={13} /> : <UtensilsCrossed size={13} />}
                         {nhanBuocTiep(buocTiep, o.isPaid)}

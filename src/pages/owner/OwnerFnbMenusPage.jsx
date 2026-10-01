@@ -17,6 +17,7 @@ import {
   createMenuItem, updateMenuItem, deleteMenuItem,
 } from '../../services/fnbServices'
 import ConfirmModal from '../../components/shared/ConfirmModal'
+import NhomTab from '../../components/bang/NhomTab'
 
 const fmtMoney = (v) => `${Number(v || 0).toLocaleString('vi-VN')}đ`
 const inputCls = 'mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink focus:outline-none focus:border-ink/50'
@@ -27,7 +28,7 @@ const Modal = ({ title, onClose, children }) => (
     <div className="relative bg-card border border-line w-full max-w-md shadow-soft max-h-[90vh] flex flex-col">
       <div className="flex justify-between items-center p-5 border-b border-line">
         <h2 className="text-3xl text-ink">{title}</h2>
-        <button onClick={onClose} className="p-2 hover:bg-sunken text-ink-soft" aria-label="Đóng"><X size={20} /></button>
+        <button onClick={onClose} className="inline-flex items-center justify-center w-11 h-11 flex-shrink-0 hover:bg-sunken text-ink-soft" aria-label="Đóng"><X size={20} /></button>
       </div>
       <div className="p-5 overflow-y-auto">{children}</div>
     </div>
@@ -92,7 +93,7 @@ const MenuFormModal = ({ initial, loungeId, onClose, onSaved }) => {
           </label>
         )}
         <button type="submit" disabled={isBusy}
-          className="w-full py-2.5 bg-ink text-lamp font-bold flex items-center justify-center gap-2 disabled:opacity-50">
+          className="w-full flex items-center justify-center gap-2 disabled:opacity-50 min-h-[44px] px-4 bg-ink text-lamp text-sm font-semibold hover:bg-board">
           {isBusy && <Loader2 size={16} className="animate-spin" />} Lưu
         </button>
       </form>
@@ -179,7 +180,7 @@ const ItemFormModal = ({ initial, menuId, onClose, onSaved }) => {
           </label>
         )}
         <button type="submit" disabled={isBusy}
-          className="w-full py-2.5 bg-ink text-lamp font-bold flex items-center justify-center gap-2 disabled:opacity-50">
+          className="w-full flex items-center justify-center gap-2 disabled:opacity-50 min-h-[44px] px-4 bg-ink text-lamp text-sm font-semibold hover:bg-board">
           {isBusy && <Loader2 size={16} className="animate-spin" />} Lưu
         </button>
       </form>
@@ -284,7 +285,7 @@ const OwnerFnbMenusPage = () => {
           <p className="text-ink-soft text-sm">Đây là thứ khách nhìn thấy khi đặt món tại bàn.</p>
         </div>
         <button onClick={() => setEditingMenu(null)}
-          className="flex items-center gap-1.5 px-3 py-1.5 bg-ink text-lamp text-xs font-bold hover:bg-board">
+          className="flex items-center gap-1.5 justify-center min-h-[44px] px-4 bg-ink text-lamp text-sm font-semibold hover:bg-board">
           <Plus size={14} /> Thêm thực đơn
         </button>
       </div>
@@ -296,17 +297,8 @@ const OwnerFnbMenusPage = () => {
         </div>
       ) : (
         <>
-          <div className="flex flex-wrap gap-2">
-            {menus.map((m) => (
-              <button key={m.id} onClick={() => setMenuId(m.id)}
-                className={`px-3 py-1.5 text-xs font-medium border transition-colors ${menuId === m.id
-                  ? 'bg-sunken border-ink/40 text-ink'
-                  : 'bg-page border-line text-ink-soft hover:text-ink'}`}>
-                {m.name}
-                {!m.isActive && <span className="ml-1.5 text-ink-mute">(đang tắt)</span>}
-              </button>
-            ))}
-          </div>
+          <NhomTab nhan="Chọn thực đơn" dangChon={menuId} onChon={setMenuId}
+            cacTab={menus.map((m) => ({ khoa: m.id, nhan: m.isActive ? m.name : `${m.name} (đang tắt)` }))} />
 
           {menuId && (
             <div className="bg-card border border-line p-6">
@@ -314,17 +306,17 @@ const OwnerFnbMenusPage = () => {
                 <h2 className="font-sans font-bold text-base text-ink">
                   {menus.find((m) => m.id === menuId)?.name}
                 </h2>
-                <div className="flex gap-2">
+                <div className="flex gap-2 flex-wrap">
                   <button onClick={() => setEditingItem(null)}
-                    className="flex items-center gap-1.5 px-3 py-1.5 bg-ink text-lamp text-xs font-bold hover:bg-board">
+                    className="flex items-center gap-1.5 justify-center min-h-[44px] px-4 bg-ink text-lamp text-sm font-semibold hover:bg-board">
                     <Plus size={14} /> Thêm món
                   </button>
                   <button onClick={() => setEditingMenu(menus.find((m) => m.id === menuId))}
-                    className="flex items-center gap-1.5 px-3 py-1.5 border border-line text-ink-soft text-xs font-bold hover:bg-sunken">
+                    className="flex items-center gap-1.5 justify-center min-h-[44px] px-4 border-2 border-ink bg-card text-ink text-sm font-semibold hover:bg-ink hover:text-lamp">
                     <Pencil size={14} /> Sửa thực đơn
                   </button>
                   <button onClick={() => setXoaTarget({ loai: 'menu', doiTuong: menus.find((m) => m.id === menuId) })}
-                    className="flex items-center gap-1.5 px-3 py-1.5 border border-line text-danger text-xs font-bold hover:bg-danger/10">
+                    className="flex items-center gap-1.5 justify-center min-h-[44px] px-4 border-2 border-danger bg-card text-danger text-sm font-semibold hover:bg-danger hover:text-lamp">
                     <Trash2 size={14} /> Xoá
                   </button>
                 </div>
@@ -356,10 +348,10 @@ const OwnerFnbMenusPage = () => {
                         </div>
                       </div>
                       <div className="flex gap-1 flex-shrink-0">
-                        <button onClick={() => setEditingItem(it)} className="p-2 text-ink-soft hover:bg-sunken" title="Sửa" aria-label="Sửa">
+                        <button onClick={() => setEditingItem(it)} className="inline-flex items-center justify-center w-11 h-11 flex-shrink-0 text-ink-soft hover:bg-sunken" title="Sửa" aria-label="Sửa">
                           <Pencil size={14} />
                         </button>
-                        <button onClick={() => setXoaTarget({ loai: 'item', doiTuong: it })} className="p-2 text-danger hover:bg-danger/10" title="Xoá" aria-label="Xoá">
+                        <button onClick={() => setXoaTarget({ loai: 'item', doiTuong: it })} className="inline-flex items-center justify-center w-11 h-11 flex-shrink-0 text-danger hover:bg-danger/10" title="Xoá" aria-label="Xoá">
                           <Trash2 size={14} />
                         </button>
                       </div>

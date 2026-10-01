@@ -11,7 +11,7 @@
 // Riêng loại buổi diễn: đường công khai chỉ trả mục đang bật, nên nếu đọc bằng nó thì tắt một mục
 // đi là không còn đường bật lại. Đường /admin trả cả mục đã tắt, nên bật lại được.
 import { useState, useEffect, useCallback } from 'react'
-import { Loader2, SlidersHorizontal } from 'lucide-react'
+import { Loader2 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { getFilterOptions } from '../../services/showServices' //  TÁI DÙNG service sẵn có
 import { getAdminEventCategories, getAdminGenres } from '../../services/adminServices'
@@ -20,10 +20,10 @@ import OptionTypeTab from '../../components/admin/filter-options/OptionTypeTab'
 // Cấu hình 4 tab — genres có nameEn, eventCategories có description, 2 loại kia chỉ có name.
 // `typeKey` phải trùng khoá trong FILTER_OPTION_TYPES ở adminServices.js.
 const TABS = [
-  { key: 'genres',          label: 'Thể loại',          typeLabel: 'Genre',          hasNameEn: true },
-  { key: 'moods',           label: 'Tâm trạng',           typeLabel: 'Mood',           hasNameEn: false },
-  { key: 'atmospheres',     label: 'Không gian',     typeLabel: 'Atmosphere',     hasNameEn: false },
-  { key: 'eventCategories', label: 'Loại buổi diễn',  typeLabel: 'Loại buổi diễn', hasNameEn: false, hasDescription: true, hasIsActive: true },
+  { key: 'genres',          label: 'Thể loại',          typeLabel: 'thể loại',          hasNameEn: true },
+  { key: 'moods',           label: 'Tâm trạng',           typeLabel: 'tâm trạng',           hasNameEn: false },
+  { key: 'atmospheres',     label: 'Không gian',     typeLabel: 'không gian',     hasNameEn: false },
+  { key: 'eventCategories', label: 'Loại buổi diễn',  typeLabel: 'loại buổi diễn', hasNameEn: false, hasDescription: true, hasIsActive: true },
 ]
 
 const AdminFilterOptionsPage = () => {
@@ -76,9 +76,8 @@ const AdminFilterOptionsPage = () => {
     <div>
       {/* HEADER */}
       <div className="flex items-center gap-3 mb-6">
-        <SlidersHorizontal size={28} className="text-ink" />
         <div>
-          <h1 className="text-4xl text-ink">Bộ lọc & phân loại</h1>
+          <h1 className="text-4xl text-ink">Danh mục phân loại</h1>
           <p className="text-ink-soft text-sm">
             Quản lý thể loại, tâm trạng, không gian và danh mục dùng trong bộ lọc buổi diễn trên toàn nền tảng.
           </p>

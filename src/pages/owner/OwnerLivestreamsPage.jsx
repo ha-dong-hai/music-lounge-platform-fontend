@@ -158,7 +158,7 @@ const ShowLivestreamRow = ({ show, onChanged }) => {
           <button
             onClick={handleCreate}
             disabled={isBusy}
-            className="flex items-center gap-1.5 px-3 py-2 bg-ink text-lamp text-xs font-bold hover:bg-board disabled:opacity-50"
+            className="flex items-center gap-1.5 disabled:opacity-50 justify-center min-h-[44px] px-4 bg-ink text-lamp text-sm font-semibold hover:bg-board"
           >
             <Radio size={14} /> Tạo livestream
           </button>
@@ -179,7 +179,7 @@ const ShowLivestreamRow = ({ show, onChanged }) => {
           <button
             onClick={handleStart}
             disabled={isBusy}
-            className="flex items-center gap-1.5 px-3 py-2 bg-danger/10 border border-danger/40 text-danger text-xs font-bold hover:bg-danger/20 disabled:opacity-50"
+            className="flex items-center gap-1.5 disabled:opacity-50 justify-center min-h-[44px] px-4 border-2 border-danger bg-card text-danger text-sm font-semibold hover:bg-danger hover:text-lamp"
           >
             <Play size={14} /> Bắt đầu phát
           </button>
@@ -192,14 +192,14 @@ const ShowLivestreamRow = ({ show, onChanged }) => {
             onXacNhan={handleEnd} tieuDe="Kết thúc phát trực tuyến?" nhanXacNhan="Kết thúc phát" nhanGiu="Chưa, tiếp tục phát"
             noiDung="Người đang xem bị ngắt ngay và buổi diễn được ghi nhận là đã diễn xong. Buổi phát này không bắt đầu lại được, và phần đã phát không được lưu để xem lại."
             disabled={isBusy}
-            className="flex items-center gap-1.5 px-3 py-2 bg-danger/10 border border-danger/40 text-danger text-xs font-bold hover:bg-danger/20 disabled:opacity-50"
+            className="flex items-center gap-1.5 disabled:opacity-50 justify-center min-h-[44px] px-4 border-2 border-danger bg-card text-danger text-sm font-semibold hover:bg-danger hover:text-lamp"
           >
             <Square size={14} className="fill-danger" /> Kết thúc phát
           </NutXacNhan>
           <button
             onClick={() => handleToggleChat(!(livestream.chatEnabled ?? true))}
             disabled={isBusy}
-            className="ml-2 inline-flex items-center gap-1.5 px-3 py-2 border border-line text-ink-soft text-xs font-bold hover:bg-sunken disabled:opacity-50"
+            className="ml-2 inline-flex items-center gap-1.5 disabled:opacity-50 justify-center min-h-[44px] px-4 border-2 border-ink bg-card text-ink text-sm font-semibold hover:bg-ink hover:text-lamp"
           >
             {(livestream.chatEnabled ?? true)
               ? <><MessageSquareOff size={14} /> Tắt khung chat</>
@@ -219,7 +219,7 @@ const ShowLivestreamRow = ({ show, onChanged }) => {
 
       {credentials && (
         <div className="mt-4 p-3 bg-page border border-warning/40">
-          <p className="text-warning text-xs font-bold mb-2">⚠ Không chia sẻ Stream Key cho ai khác</p>
+          <p className="text-warning text-xs font-bold mb-2">⚠ Không chia sẻ khoá phát (Stream Key) cho ai khác — ai có khoá này đều phát được lên buổi của bạn</p>
           <div className="space-y-1.5 text-xs font-mono">
             <div className="flex items-center justify-between gap-2">
               <span className="text-ink-soft truncate">RTMP: {credentials.rtmpUrl}</span>
@@ -258,13 +258,13 @@ const OwnerLivestreamsPage = () => {
 
   return (
     <div>
-      <h1 className="text-4xl text-ink mb-6">Vận hành Livestream</h1>
+      <h1 className="text-4xl text-ink mb-6">Phát trực tuyến</h1>
 
       {isLoading ? (
         <Loader2 size={24} className="animate-spin text-ink-mute" />
       ) : shows.length === 0 ? (
         <div className="bg-card border border-line p-8 text-center text-ink-mute">
-          Bạn chưa có buổi diễn nào ở định dạng Online (chỉ show Online mới có livestream).
+          Bạn chưa có buổi diễn trực tuyến nào. Chỉ buổi diễn có hình thức trực tuyến mới phát được.
         </div>
       ) : (
         <div className="space-y-4">

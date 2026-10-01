@@ -113,13 +113,13 @@ const OptionTypeTab = ({ typeKey, typeLabel, hasNameEn, hasDescription, hasIsAct
       {/* HEADER + NÚT ADD */}
       <div className="flex items-center justify-between">
         <p className="text-sm text-ink-mute">
-          {options.length} {typeLabel.toLowerCase()}{options.length !== 1 ? 's' : ''} in use
+          {options.length} {typeLabel} đang dùng
         </p>
         <button
           onClick={openCreate}
-          className="flex items-center gap-2 bg-ink text-lamp px-4 py-2.5 font-bold text-sm hover:bg-board transition-colors"
+          className="flex items-center gap-2 justify-center min-h-[44px] px-4 bg-ink text-lamp text-sm font-semibold hover:bg-board"
         >
-          <Plus size={16} /> Add {typeLabel}
+          <Plus size={16} aria-hidden="true" /> Thêm {typeLabel}
         </button>
       </div>
 
@@ -170,7 +170,7 @@ const OptionTypeTab = ({ typeKey, typeLabel, hasNameEn, hasDescription, hasIsAct
                       <div className="flex items-center justify-end gap-2">
                         <button
                           onClick={() => openEdit(opt)}
-                          className="p-2 bg-line/30 text-ink-soft hover:bg-line/50 hover:text-ink transition-colors"
+                          className="inline-flex items-center justify-center w-11 h-11 flex-shrink-0 bg-line/30 text-ink-soft hover:bg-line/50 hover:text-ink transition-colors"
                           title="Sửa" aria-label="Sửa"
                         >
                           <Pencil size={14} />
@@ -180,7 +180,7 @@ const OptionTypeTab = ({ typeKey, typeLabel, hasNameEn, hasDescription, hasIsAct
                             <button
                               onClick={() => doiTrangThai(opt, true)}
                               disabled={isHiding}
-                              className="p-2 bg-line/30 text-ink-soft hover:bg-line/50 hover:text-success transition-colors disabled:opacity-40"
+                              className="inline-flex items-center justify-center w-11 h-11 flex-shrink-0 bg-line/30 text-ink-soft hover:bg-line/50 hover:text-success transition-colors disabled:opacity-40"
                               title="Bật lại (hiện trong danh sách chọn)" aria-label="Bật lại (hiện trong danh sách chọn)"
                             >
                               <Eye size={14} />
@@ -188,7 +188,7 @@ const OptionTypeTab = ({ typeKey, typeLabel, hasNameEn, hasDescription, hasIsAct
                           ) : (
                             <button
                               onClick={() => setHideTarget(opt)}
-                              className="p-2 bg-line/30 text-ink-soft hover:bg-line/50 hover:text-warning transition-colors"
+                              className="inline-flex items-center justify-center w-11 h-11 flex-shrink-0 bg-line/30 text-ink-soft hover:bg-line/50 hover:text-warning transition-colors"
                               title="Tắt (ẩn khỏi danh sách chọn)" aria-label="Tắt (ẩn khỏi danh sách chọn)"
                             >
                               <EyeOff size={14} />
@@ -197,7 +197,7 @@ const OptionTypeTab = ({ typeKey, typeLabel, hasNameEn, hasDescription, hasIsAct
                         )}
                         <button
                           onClick={() => setDeleteTarget(opt)}
-                          className="p-2 bg-line/30 text-ink-soft hover:bg-danger/15 hover:text-danger transition-colors"
+                          className="inline-flex items-center justify-center w-11 h-11 flex-shrink-0 bg-line/30 text-ink-soft hover:bg-danger/15 hover:text-danger transition-colors"
                           title="Xoá" aria-label="Xoá"
                         >
                           <Trash2 size={14} />
@@ -210,7 +210,7 @@ const OptionTypeTab = ({ typeKey, typeLabel, hasNameEn, hasDescription, hasIsAct
                 <tr>
                   <td colSpan={3 + (hasNameEn ? 1 : 0) + (hasDescription ? 1 : 0) + (coTat ? 1 : 0)} className="p-10 text-center text-ink-mute">
                     <Music2 size="32" className="mx-auto mb-3 opacity-50" />
-                    No {typeLabel.toLowerCase()}s yet.
+                    Chưa có {typeLabel} nào.
                   </td>
                 </tr>
               )}
@@ -238,7 +238,7 @@ const OptionTypeTab = ({ typeKey, typeLabel, hasNameEn, hasDescription, hasIsAct
 
       <ConfirmModal
         isOpen={!!deleteTarget}
-        title={`Xoá ${typeLabel.toLowerCase()}?`}
+        title={`Xoá ${typeLabel}?`}
         // 01/10/2026: câu cũ nói "buổi diễn đang dùng có thể bị ảnh hưởng" — sai: Delete{MusicGenre,Mood,Atmosphere,EventCategory}
         // CommandHandler TỪ CHỐI (409) khi mục đang được buổi diễn, nghệ sĩ hoặc sở thích người dùng dùng, nên không ai bị ảnh hưởng.
         message={`"${deleteTarget?.name}" sẽ bị xoá hẳn khỏi hệ thống. Nếu đang có buổi diễn, nghệ sĩ hoặc người dùng nào chọn mục này, hệ thống sẽ từ chối và không xoá gì${coTat ? ' — khi đó hãy tắt mục này thay vì xoá' : ''}.`}

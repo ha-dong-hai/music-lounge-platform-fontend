@@ -81,7 +81,7 @@ const HotspotModal = ({ loungeId, scene, scenes, onClose, onSaved }) => {
       <div className="relative bg-card border border-line w-full max-w-md shadow-soft">
         <div className="flex justify-between items-center p-5 border-b border-line">
           <h2 className="text-3xl text-ink truncate">Điểm bấm của {scene.name || `điểm đứng #${scene.id}`}</h2>
-          <button onClick={onClose} className="p-2 hover:bg-sunken text-ink-soft flex-shrink-0" aria-label="Đóng"><X size={20} /></button>
+          <button onClick={onClose} className="inline-flex items-center justify-center w-11 h-11 flex-shrink-0 hover:bg-sunken text-ink-soft" aria-label="Đóng"><X size={20} /></button>
         </div>
 
         <div className="p-5 space-y-4">
@@ -112,7 +112,7 @@ const HotspotModal = ({ loungeId, scene, scenes, onClose, onSaved }) => {
                         toast.error(err.response?.data?.message || 'Chưa xoá được điểm bấm.')
                       }
                     }}
-                      className="p-2 text-danger hover:bg-danger/10 flex-shrink-0" title="Xoá" aria-label="Xoá">
+                      className="inline-flex items-center justify-center w-11 h-11 flex-shrink-0 text-danger hover:bg-danger/10" title="Xoá" aria-label="Xoá">
                       <Trash2 size={14} />
                     </button>
                   </li>
@@ -194,7 +194,7 @@ const HotspotModal = ({ loungeId, scene, scenes, onClose, onSaved }) => {
                 </div>
               </div>
               <button type="submit" disabled={isBusy}
-                className="w-full py-2 border border-line text-ink-soft text-sm font-bold hover:bg-sunken flex items-center justify-center gap-2 disabled:opacity-50">
+                className="w-full flex items-center justify-center gap-2 disabled:opacity-50 min-h-[44px] px-4 border-2 border-ink bg-card text-ink text-sm font-semibold hover:bg-ink hover:text-lamp">
                 {isBusy ? <Loader2 size={15} className="animate-spin" /> : <Plus size={15} />} Thêm hotspot
               </button>
             </form>
@@ -369,7 +369,7 @@ const OwnerTourPage = () => {
   if (!lounge) {
     return (
       <div className="max-w-2xl">
-        <h1 className="text-4xl text-ink mb-1">Tour 360°</h1>
+        <h1 className="text-4xl text-ink mb-1">Tham quan 360°</h1>
         <div className="mt-4 bg-card border border-line p-6">
           <p className="text-sm text-ink-soft">Hãy tạo hồ sơ phòng trà trước.</p>
         </div>
@@ -382,7 +382,7 @@ const OwnerTourPage = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-4xl text-ink mb-1">Tour 360° &amp; mô hình 3D</h1>
+        <h1 className="text-4xl text-ink mb-1">Tham quan 360°</h1>
         <p className="text-ink-soft text-sm leading-relaxed">
           Khán giả dùng tour này để xem trước không gian phòng trà trước khi mua vé.
         </p>
@@ -395,7 +395,7 @@ const OwnerTourPage = () => {
             <h2 className="font-sans font-bold text-base text-ink">Các điểm đứng</h2>
             <p className="text-xs text-ink-mute mt-0.5">Mỗi điểm đứng là một ảnh 360° chụp tại một vị trí trong phòng trà.</p>
           </div>
-          <label className="inline-flex items-center gap-2 px-3 py-1.5 bg-ink text-lamp text-xs font-bold hover:bg-board cursor-pointer flex-shrink-0">
+          <label className="inline-flex items-center gap-2 cursor-pointer flex-shrink-0 justify-center min-h-[44px] px-4 bg-ink text-lamp text-sm font-semibold hover:bg-board">
             {busy === 'scene' ? <Loader2 size={13} className="animate-spin" /> : <Plus size={13} />}
             Thêm ảnh 360° có sẵn
             <input type="file" accept="image/*" className="hidden" disabled={busy !== null}
@@ -416,7 +416,7 @@ const OwnerTourPage = () => {
               </p>
               {sceneDangDat && (
                 <button onClick={() => setSceneDangDat(null)}
-                  className="px-2.5 py-1 border border-line text-ink-soft text-xs font-bold hover:bg-sunken">
+                  className="inline-flex items-center justify-center gap-2 min-h-[44px] px-4 border-2 border-ink bg-card text-ink text-sm font-semibold hover:bg-ink hover:text-lamp">
                   Thôi đặt
                 </button>
               )}
@@ -476,13 +476,13 @@ const OwnerTourPage = () => {
                   <p className="text-xs text-ink-mute mt-0.5">
                     {(sc.hotspots?.length ?? 0)} hotspot
                   </p>
-                  <div className="mt-2 flex gap-2">
+                  <div className="mt-2 flex gap-2 flex-wrap">
                     <button onClick={() => setHotspotOf(sc)}
-                      className="flex items-center gap-1.5 px-2.5 py-1.5 border border-line text-ink-soft text-xs font-bold hover:bg-sunken">
+                      className="flex items-center gap-1.5 justify-center min-h-[44px] px-4 border-2 border-ink bg-card text-ink text-sm font-semibold hover:bg-ink hover:text-lamp">
                       <Link2 size={12} /> Hotspot
                     </button>
                     <button onClick={() => setXoaScene(sc)}
-                      className="flex items-center gap-1.5 px-2.5 py-1.5 border border-line text-danger text-xs font-bold hover:bg-danger/10">
+                      className="flex items-center gap-1.5 justify-center min-h-[44px] px-4 border-2 border-danger bg-card text-danger text-sm font-semibold hover:bg-danger hover:text-lamp">
                       <Trash2 size={12} /> Xoá
                     </button>
                   </div>
@@ -503,22 +503,18 @@ const OwnerTourPage = () => {
                         </div>
                       ))}
                       <button onClick={() => luuViTri(sc.id)} disabled={busyViTri === sc.id}
-                        className="flex items-center gap-1.5 px-2.5 py-1.5 border border-line text-ink-soft text-xs font-bold hover:bg-sunken disabled:opacity-50">
+                        className="flex items-center gap-1.5 disabled:opacity-50 justify-center min-h-[44px] px-4 border-2 border-ink bg-card text-ink text-sm font-semibold hover:bg-ink hover:text-lamp">
                         {busyViTri === sc.id ? <Loader2 size={12} className="animate-spin" /> : <Save size={12} />} Lưu
                       </button>
                       <button onClick={() => { doiViTri(sc.id, 'x', ''); doiViTri(sc.id, 'y', '') }}
                         disabled={busyViTri === sc.id}
                         title="Xoá trống cả hai ô rồi bấm Lưu để xoá chấm định vị" aria-label="Xoá trống cả hai ô rồi bấm Lưu để xoá chấm định vị"
-                        className="flex items-center gap-1.5 px-2.5 py-1.5 border border-line text-ink-mute text-xs font-bold hover:bg-sunken disabled:opacity-50">
+                        className="flex items-center gap-1.5 disabled:opacity-50 justify-center min-h-[44px] px-4 border-2 border-ink bg-card text-ink text-sm font-semibold hover:bg-ink hover:text-lamp">
                         <Eraser size={12} />
                       </button>
                       {tour?.floorPlanImageUrl && (
-                        <button onClick={() => setSceneDangDat(sceneDangDat === sc.id ? null : sc.id)}
-                          className={`flex items-center gap-1.5 px-2.5 py-1.5 border text-xs font-bold ${
-                            sceneDangDat === sc.id
-                              ? 'border-ink bg-ink/10 text-ink'
-                              : 'border-line text-ink-soft hover:bg-sunken'
-                          }`}>
+                        <button type="button" onClick={() => setSceneDangDat(sceneDangDat === sc.id ? null : sc.id)} aria-pressed={sceneDangDat === sc.id}
+                          className={`inline-flex items-center gap-1.5 min-h-[44px] px-3 border-2 text-sm font-semibold transition-colors ${sceneDangDat === sc.id ? 'bg-ink text-lamp border-ink' : 'bg-card border-ink/30 text-ink hover:border-ink'}`}>
                           <MapPin size={12} /> {sceneDangDat === sc.id ? 'Đang nhắm' : 'Đặt trên bản đồ'}
                         </button>
                       )}
@@ -548,7 +544,7 @@ const OwnerTourPage = () => {
             </p>
             {donGhep.errorMessage && <p className="text-xs text-danger mt-1">{donGhep.errorMessage}</p>}
             <button onClick={kiemTraDonGhep} disabled={busy !== null}
-              className="mt-3 flex items-center gap-1.5 px-3 py-1.5 border border-line text-ink-soft text-xs font-bold hover:bg-sunken disabled:opacity-50">
+              className="mt-3 flex items-center gap-1.5 disabled:opacity-50 justify-center min-h-[44px] px-4 border-2 border-ink bg-card text-ink text-sm font-semibold hover:bg-ink hover:text-lamp">
               {busy === 'check' ? <Loader2 size={13} className="animate-spin" /> : <RefreshCw size={13} />} Kiểm tra
             </button>
           </div>
@@ -566,16 +562,16 @@ const OwnerTourPage = () => {
               </div>
             )}
             <div className="flex flex-wrap gap-2">
-              <label className="inline-flex items-center gap-2 px-3 py-1.5 border border-line text-ink-soft text-xs font-bold hover:bg-sunken cursor-pointer">
+              <label className="inline-flex items-center gap-2 cursor-pointer justify-center min-h-[44px] px-4 border-2 border-ink bg-card text-ink text-sm font-semibold hover:bg-ink hover:text-lamp">
                 {busy === 'upload-ghep' ? <Loader2 size={13} className="animate-spin" /> : <Upload size={13} />}
                 Thêm ảnh nguồn
                 <input type="file" accept="image/*" className="hidden" disabled={busy !== null}
                   onChange={(e) => themAnhGhep(e.target.files?.[0])} />
               </label>
               <button onClick={ghepScene} disabled={busy !== null || anhGhep.length < 2}
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-ink text-lamp text-xs font-bold hover:bg-board disabled:opacity-40 disabled:cursor-not-allowed">
+                className="flex items-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed justify-center min-h-[44px] px-4 bg-ink text-lamp text-sm font-semibold hover:bg-board">
                 {busy === 'ghep' ? <Loader2 size={13} className="animate-spin" /> : <Layers size={13} />}
-                Ghép thành scene ({anhGhep.length} ảnh)
+                Ghép thành điểm đứng ({anhGhep.length} ảnh)
               </button>
             </div>
             {anhGhep.length === 1 && (
@@ -598,7 +594,7 @@ const OwnerTourPage = () => {
         {lounge.model3DUrl && (
           <p className="text-xs text-success mt-2">Đã có mô hình 3D.</p>
         )}
-        <label className="mt-3 inline-flex items-center gap-2 px-4 py-2 border border-line text-ink-soft text-sm font-medium hover:bg-sunken cursor-pointer">
+        <label className="mt-3 inline-flex items-center gap-2 cursor-pointer justify-center min-h-[44px] px-4 border-2 border-ink bg-card text-ink text-sm font-semibold hover:bg-ink hover:text-lamp">
           {busy === 'model' ? <Loader2 size={16} className="animate-spin" /> : <Upload size={16} />}
           {lounge.model3DUrl ? 'Đổi mô hình' : 'Tải mô hình lên'}
           <input type="file" accept=".glb,.gltf" className="hidden" disabled={busy !== null}

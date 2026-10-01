@@ -57,7 +57,7 @@ const AddStaffModal = ({ loungeId, onClose, onSaved }) => {
       <div className="relative bg-card border border-line w-full max-w-md shadow-soft">
         <div className="flex justify-between items-center p-5 border-b border-line">
           <h2 className="text-3xl text-ink">Thêm nhân viên</h2>
-          <button onClick={onClose} className="p-2 hover:bg-sunken text-ink-soft" aria-label="Đóng"><X size={20} /></button>
+          <button onClick={onClose} className="inline-flex items-center justify-center w-11 h-11 flex-shrink-0 hover:bg-sunken text-ink-soft" aria-label="Đóng"><X size={20} /></button>
         </div>
 
         <div className="p-5 space-y-4">
@@ -69,7 +69,7 @@ const AddStaffModal = ({ loungeId, onClose, onSaved }) => {
             <input aria-label="email@example.com" value={email} onChange={(e) => { setEmail(e.target.value); setNguoiTim(null) }}
               type="email" placeholder="email@example.com" autoFocus className={`flex-1 ${inputCls}`} />
             <button type="submit" disabled={busy !== null || !email.trim()}
-              className="flex items-center gap-1.5 px-4 py-2 border border-line text-ink-soft text-sm font-bold hover:bg-sunken disabled:opacity-50">
+              className="flex items-center gap-1.5 disabled:opacity-50 justify-center min-h-[44px] px-4 border-2 border-ink bg-card text-ink text-sm font-semibold hover:bg-ink hover:text-lamp">
               {busy === 'lookup' ? <Loader2 size={16} className="animate-spin" /> : <Search size={16} />} Tìm
             </button>
           </form>
@@ -79,7 +79,7 @@ const AddStaffModal = ({ loungeId, onClose, onSaved }) => {
               <p className="text-ink font-medium">{nguoiTim.fullName}</p>
               <p className="text-xs text-ink-mute mt-0.5">{nguoiTim.email}</p>
               <button onClick={gan} disabled={busy !== null}
-                className="mt-3 w-full flex items-center justify-center gap-2 py-2.5 bg-ink text-lamp font-bold text-sm hover:bg-board disabled:opacity-50">
+                className="mt-3 w-full flex items-center justify-center gap-2 disabled:opacity-50 min-h-[44px] px-4 bg-ink text-lamp text-sm font-semibold hover:bg-board">
                 {busy === 'assign' ? <Loader2 size={16} className="animate-spin" /> : <CheckCircle2 size={16} />}
                 Gán làm nhân viên phòng trà
               </button>
@@ -162,7 +162,7 @@ const OwnerStaffPage = () => {
           </p>
         </div>
         <button onClick={() => setDangThem(true)}
-          className="flex items-center gap-1.5 px-3 py-1.5 bg-ink text-lamp text-xs font-bold hover:bg-board">
+          className="flex items-center gap-1.5 justify-center min-h-[44px] px-4 bg-ink text-lamp text-sm font-semibold hover:bg-board">
           <UserPlus size={14} /> Thêm nhân viên
         </button>
       </div>
@@ -186,7 +186,7 @@ const OwnerStaffPage = () => {
                   </p>
                 </div>
                 <button onClick={() => setGoTarget(s)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 border border-line text-danger text-xs font-bold hover:bg-danger/10 flex-shrink-0">
+                  className="flex items-center gap-1.5 flex-shrink-0 justify-center min-h-[44px] px-4 border-2 border-danger bg-card text-danger text-sm font-semibold hover:bg-danger hover:text-lamp">
                   <UserX size={14} /> Ngừng phân công
                 </button>
               </li>

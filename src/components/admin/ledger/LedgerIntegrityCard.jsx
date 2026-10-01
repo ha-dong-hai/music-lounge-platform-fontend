@@ -16,7 +16,7 @@ const LedgerIntegrityCard = ({ issues, isChecking, lastCheckedAt, onRefresh }) =
     <div className="flex items-start justify-between gap-3 mb-1">
       <h2 className="font-sans font-bold text-sm text-ink-soft">Toàn vẹn bút toán</h2>
       <button onClick={onRefresh} disabled={isChecking}
-        className="flex items-center gap-1.5 px-3 py-1.5 border border-line text-ink-soft text-xs font-bold hover:bg-sunken disabled:opacity-50 flex-shrink-0">
+        className="flex items-center gap-1.5 disabled:opacity-50 flex-shrink-0 justify-center min-h-[44px] px-4 border-2 border-ink bg-card text-ink text-sm font-semibold hover:bg-ink hover:text-lamp">
         {isChecking ? <Loader2 size={13} className="animate-spin" /> : <RefreshCw size={13} />}
         Kiểm tra lại
       </button>

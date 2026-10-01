@@ -7,6 +7,7 @@ import toast from 'react-hot-toast'
 import dayjs from 'dayjs'
 import { getPlatformAnalytics, getAdminOverview, getRecommenderEvaluation, getAdminDashboard } from '../../services/analyticsServices'
 import { RevenueByMonthChart, RevenueShareDonut, TopShowsTable, GenreTrendingList } from '../../components/admin/dashboard/DashboardCharts'
+import NhomTab from '../../components/bang/NhomTab'
 
 const fmtMoney = (v) => `${Number(v || 0).toLocaleString('vi-VN')}đ`
 
@@ -103,7 +104,7 @@ const AdminDashboard = () => {
 
       {/* ===== HEADER (kiểu cũ) ===== */}
       <div>
-        <h1 className="text-4xl text-ink mb-1">Tổng quan hệ thống</h1>
+        <h1 className="text-4xl text-ink mb-1">Tổng quan</h1>
         <p className="text-ink-soft text-sm">Toàn bộ số liệu lấy trực tiếp từ hệ thống, không phải dữ liệu mẫu.</p>
       </div>
 
@@ -189,16 +190,8 @@ const AdminDashboard = () => {
           <div className="flex flex-wrap items-center justify-between gap-3">
             <h3 className="text-lg font-semibold text-ink">Doanh thu 6 tháng gần nhất</h3>
             {/* ⭐ SEGMENTED CONTROL từ bản mới */}
-            <div className="inline-flex border border-line p-0.5 bg-sunken/70" role="group" aria-label="Đại lượng doanh thu">
-              {MEASURES.map((m) => (
-                <button key={m.key} onClick={() => setMeasure(m.key)} aria-pressed={measure === m.key}
-                  className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
-                    measure === m.key ? 'bg-card text-ink' : 'text-ink-soft hover:text-ink'
-                  }`}>
-                  {m.label}
-                </button>
-              ))}
-            </div>
+            <NhomTab nhan="Đại lượng doanh thu" dangChon={measure} onChon={setMeasure}
+              cacTab={MEASURES.map((m) => ({ khoa: m.key, nhan: m.label }))} />
           </div>
 
           {/* Giải thích ý nghĩa 2 đại lượng — quan trọng để Admin không đọc sai số */}

@@ -361,7 +361,7 @@ const OwnerLoungePage = () => {
         </div>
 
         <button type="submit" disabled={isSaving}
-          className="flex items-center gap-2 px-5 py-2.5 bg-ink text-lamp font-bold hover:bg-board transition-colors disabled:opacity-50">
+          className="flex items-center gap-2 disabled:opacity-50 justify-center min-h-[44px] px-4 bg-ink text-lamp text-sm font-semibold hover:bg-board">
           {isSaving ? <Loader2 size={16} className="animate-spin" /> : isEdit ? <Save size={16} /> : <Store size={16} />}
           {isSaving ? 'Đang lưu...' : isEdit ? 'Lưu thay đổi' : 'Tạo phòng trà'}
         </button>
@@ -376,7 +376,7 @@ const OwnerLoungePage = () => {
             {lounge.primaryImageUrl && (
               <img src={lounge.primaryImageUrl} alt="" className="mt-3 w-full h-36 object-cover border border-line" />
             )}
-            <label className="mt-3 inline-flex items-center gap-2 px-4 py-2 border border-line text-ink-soft text-sm font-medium hover:bg-sunken cursor-pointer">
+            <label className="mt-3 inline-flex items-center gap-2 cursor-pointer justify-center min-h-[44px] px-4 border-2 border-ink bg-card text-ink text-sm font-semibold hover:bg-ink hover:text-lamp">
               {isUploading === 'image' ? <Loader2 size={16} className="animate-spin" /> : <Upload size={16} />}
               {lounge.primaryImageUrl ? 'Đổi ảnh' : 'Tải ảnh lên'}
               <input type="file" accept="image/*" className="hidden" disabled={isUploading !== null}
@@ -390,14 +390,14 @@ const OwnerLoungePage = () => {
               Chỉ bạn và Admin xem được. Tệp nằm ở vùng lưu riêng tư, không ai đoán đường dẫn mà tải về được.
             </p>
             <div className="mt-3 flex flex-wrap gap-2">
-              <label className="inline-flex items-center gap-2 px-4 py-2 border border-line text-ink-soft text-sm font-medium hover:bg-sunken cursor-pointer">
+              <label className="inline-flex items-center gap-2 cursor-pointer justify-center min-h-[44px] px-4 border-2 border-ink bg-card text-ink text-sm font-semibold hover:bg-ink hover:text-lamp">
                 {isUploading === 'license' ? <Loader2 size={16} className="animate-spin" /> : <FileText size={16} />}
                 Tải giấy phép lên
                 <input type="file" accept="image/*,.pdf" className="hidden" disabled={isUploading !== null}
                   onChange={(e) => handleUpload(e.target.files?.[0], 'license')} />
               </label>
               <button type="button" onClick={handleXemGiayPhep}
-                className="inline-flex items-center gap-2 px-4 py-2 border border-line text-ink-soft text-sm font-medium hover:bg-sunken">
+                className="inline-flex items-center gap-2 justify-center min-h-[44px] px-4 border-2 border-ink bg-card text-ink text-sm font-semibold hover:bg-ink hover:text-lamp">
                 <ExternalLink size={16} /> Xem giấy phép
               </button>
             </div>
@@ -414,7 +414,7 @@ const OwnerLoungePage = () => {
               <h3 className="text-base font-semibold text-ink">Thư viện ảnh</h3>
               <p className="text-xs text-ink-mute mt-0.5">Ảnh không gian phòng trà. Thứ tự bên dưới là thứ tự khán giả xem.</p>
             </div>
-            <label className="inline-flex items-center gap-2 px-4 py-2 border border-line text-ink-soft text-sm font-medium hover:bg-sunken cursor-pointer flex-shrink-0">
+            <label className="inline-flex items-center gap-2 cursor-pointer flex-shrink-0 justify-center min-h-[44px] px-4 border-2 border-ink bg-card text-ink text-sm font-semibold hover:bg-ink hover:text-lamp">
               {isUploading === 'gallery' ? <Loader2 size={16} className="animate-spin" /> : <Upload size={16} />}
               Thêm ảnh
               <input type="file" accept="image/*" className="hidden" disabled={isUploading !== null}
@@ -432,16 +432,16 @@ const OwnerLoungePage = () => {
                   <div className="absolute inset-x-0 bottom-0 flex justify-between items-center gap-1 p-1.5 bg-ink/70 opacity-0 group-hover:opacity-100 transition-opacity">
                     <div className="flex gap-1">
                       <button onClick={() => handleDoiThuTu(img.id, -1)} disabled={i === 0 || isUploading !== null}
-                        className="p-1 rounded text-ink-soft hover:text-ink disabled:opacity-30" title="Lùi lên trước" aria-label="Lùi lên trước">
+                        className="inline-flex items-center justify-center w-11 h-11 flex-shrink-0 text-ink-soft hover:text-ink disabled:opacity-30" title="Lùi lên trước" aria-label="Lùi lên trước">
                         <ArrowLeft size={13} />
                       </button>
                       <button onClick={() => handleDoiThuTu(img.id, 1)} disabled={i === arr.length - 1 || isUploading !== null}
-                        className="p-1 rounded text-ink-soft hover:text-ink disabled:opacity-30" title="Đẩy xuống sau" aria-label="Đẩy xuống sau">
+                        className="inline-flex items-center justify-center w-11 h-11 flex-shrink-0 text-ink-soft hover:text-ink disabled:opacity-30" title="Đẩy xuống sau" aria-label="Đẩy xuống sau">
                         <ArrowRight size={13} />
                       </button>
                     </div>
                     <button onClick={() => handleXoaAnhThuVien(img.id)} disabled={isUploading !== null}
-                      className="p-1 rounded text-danger hover:text-danger disabled:opacity-30" title="Xoá ảnh" aria-label="Xoá ảnh">
+                      className="inline-flex items-center justify-center w-11 h-11 flex-shrink-0 text-danger hover:text-danger disabled:opacity-30" title="Xoá ảnh" aria-label="Xoá ảnh">
                       <Trash2 size={13} />
                     </button>
                   </div>
@@ -466,7 +466,7 @@ const OwnerLoungePage = () => {
             hoạt động, đây không phải cách để dừng: hãy liên hệ Admin.
           </p>
           <button onClick={() => setMoXoa(true)} disabled={isSaving || isDeleting}
-            className="mt-4 flex items-center gap-2 px-4 py-2 border border-danger/40 text-danger text-sm font-bold hover:bg-danger/10 disabled:opacity-50">
+            className="mt-4 flex items-center gap-2 disabled:opacity-50 justify-center min-h-[44px] px-4 border-2 border-danger bg-card text-danger text-sm font-semibold hover:bg-danger hover:text-lamp">
             <Trash2 size={15} /> Xoá phòng trà
           </button>
         </div>
