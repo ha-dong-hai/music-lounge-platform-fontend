@@ -15,7 +15,7 @@
 // - PUT ghi đè toàn phần: form luôn gửi lại đủ name/type/genreIds/avatarUrl/bio/contactEmail.
 // - Liên kết mạng xã hội chỉ có THÊM và XOÁ, backend không có endpoint sửa — muốn đổi thì xoá rồi
 //   thêm lại. Đừng dựng nút "Sửa liên kết".
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { parseAsString } from 'nuqs'
 import { Loader2, Plus, Pencil, X, Music2, Mail, Link2, Trash2, AlertTriangle } from 'lucide-react'
 import toast from 'react-hot-toast'
@@ -26,6 +26,7 @@ import {
 import { getGenres } from '../../services/catalogServices'
 import { useAuthStore } from '../../store/useAuthStore'
 import { useDanhSachMayChu } from '../../hooks/useDanhSachMayChu'
+import { useOTimTre } from '../../hooks/useOTimTre'
 import PhanTrang from '../../components/bang/PhanTrang'
 
 const inputCls = 'mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink focus:outline-none focus:border-ink/50'
@@ -259,19 +260,7 @@ const OwnerPerformersPage = () => {
   const cuaToi = (p) => user?.id != null && String(p.createdByUserId) === String(user.id)
 
   // Ô tìm gõ tới đâu hiện tới đó, nhưng chỉ gửi lên máy chủ sau 300 ms ngừng gõ (không gọi API mỗi phím).
-  // Bấm Quay lại làm URL đổi → ô tìm theo URL (điều chỉnh state ngay lúc vẽ, không dùng effect — mẫu của React docs
-  // "Adjusting some state when a prop changes").
-  const timTrenUrl = ds.boLoc.tim
-  const [oTim, setOTim] = useState(timTrenUrl)
-  const [timDaDong, setTimDaDong] = useState(timTrenUrl)
-  if (timTrenUrl !== timDaDong) { setTimDaDong(timTrenUrl); setOTim(timTrenUrl) }
-  const datBoLoc = useRef(ds.datBoLoc)
-  useEffect(() => { datBoLoc.current = ds.datBoLoc })
-  useEffect(() => {
-    if (oTim === timTrenUrl) return undefined
-    const h = setTimeout(() => datBoLoc.current({ tim: oTim || null }), 300)
-    return () => clearTimeout(h)
-  }, [oTim, timTrenUrl])
+  const [oTim, setOTim] = useOTimTre(ds, 'tim')
 
   useEffect(() => {
     let conSong = true
