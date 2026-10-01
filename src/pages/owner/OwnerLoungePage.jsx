@@ -9,8 +9,9 @@
 // - Ảnh đại diện và giấy phép nhận URL chứ không nhận file: tải file lên /uploads/images trước rồi
 //   mới gửi URL. Riêng giấy phép kinh doanh được backend chuyển sang vùng lưu riêng tư, nên URL đó
 //   KHÔNG mở trực tiếp được — muốn xem phải gọi GET và nhận về blob.
-// - Không hỏi Quận/Huyện: cấp huyện đã bãi bỏ từ 01/07/2025. Trường district vẫn được gửi lại
-//   nguyên giá trị cũ khi sửa, để không xoá dữ liệu của những bản ghi tạo từ trước.
+// - Không hỏi Quận/Huyện: cấp huyện đã bãi bỏ từ 01/07/2025. MLACP-522: tỉnh và phường/xã CHỌN từ danh mục hành chính
+//   chính thức (QĐ 19/2025/QĐ-TTg, /catalog/provinces) và gửi MÃ — backend tự điền tên chuẩn và bỏ trống quận. Địa chỉ
+//   cũ gõ tay (chưa có mã) thì hiện lại chữ cũ làm gợi ý và bắt chọn lại: phường cũ có thể đã bị tách/gộp.
 // - LoungeDetailDto trả atmosphereName chứ không trả atmosphereId, nên khi sửa phải dò ngược tên
 //   sang id trong danh mục. Tên không khớp thì để trống và báo người dùng chọn lại, KHÔNG âm thầm
 //   gửi null (sẽ xoá mất không gian đang có).
@@ -26,7 +27,7 @@ import {
   setLoungeImage, setLoungeBusinessLicense, getLoungeBusinessLicense,
   addGalleryImage, removeGalleryImage, reorderGalleryImages, deleteLounge,
 } from '../../services/loungeServices'
-import { getAtmospheres } from '../../services/catalogServices'
+import { getAtmospheres, getProvinces, getWardsOfProvince } from '../../services/catalogServices'
 import { uploadImage } from '../../services/userServices'
 import { refreshSession } from '../../services/aServices'
 import { useAuthStore } from '../../store/useAuthStore'
@@ -46,7 +47,7 @@ const STATUS_VIEW = {
 
 const emptyForm = {
   name: '', description: '', atmosphereId: '',
-  street: '', ward: '', city: '', latitude: '', longitude: '',
+  street: '', provinceCode: '', wardCode: '', latitude: '', longitude: '',
 }
 
 // Nhãn NỐI với ô (htmlFor + id tự sinh, gợi ý qua aria-describedby) — bản cũ in nhãn cạnh ô mà không nối, nên cả 9 ô
@@ -74,7 +75,10 @@ const OwnerLoungePage = () => {
   const [isDeleting, setIsDeleting] = useState(false)
   const [atmospheres, setAtmospheres] = useState([])
   const [form, setForm] = useState(emptyForm)
-  const [districtGiuLai, setDistrictGiuLai] = useState(null) // không hiển thị, chỉ gửi lại
+  // MLACP-522: danh mục tỉnh, phường/xã của tỉnh đang chọn, và chữ địa chỉ cũ (chưa có mã) để gợi ý chọn lại.
+  const [provinces, setProvinces] = useState([])
+  const [wards, setWards] = useState([])
+  const [diaChiCu, setDiaChiCu] = useState({ city: null, ward: null })
   const [atmosphereKhongDoiDuoc, setAtmosphereKhongDoiDuoc] = useState(false)
 
   const [isLoading, setIsLoading] = useState(true)
@@ -85,6 +89,21 @@ const OwnerLoungePage = () => {
 
   const isEdit = !!lounge
   const set = (k, v) => setForm((p) => ({ ...p, [k]: v }))
+  // Đổi tỉnh thì phường/xã đã chọn không còn thuộc tỉnh mới — xoá.
+  const chonTinh = (code) => setForm((p) => ({ ...p, provinceCode: code, wardCode: '' }))
+
+  useEffect(() => {
+    getProvinces()
+      .then((r) => { if (r?.success) setProvinces(r.data) })
+      .catch(() => toast.error('Không tải được danh sách tỉnh/thành phố.'))
+  }, [])
+
+  useEffect(() => {
+    if (!form.provinceCode) return
+    getWardsOfProvince(form.provinceCode)
+      .then((r) => { if (r?.success) setWards(r.data) })
+      .catch(() => toast.error('Không tải được danh sách phường/xã.'))
+  }, [form.provinceCode])
 
   const load = useCallback(async () => {
     setIsLoading(true)
@@ -115,7 +134,7 @@ const OwnerLoungePage = () => {
       if (!chiTiet.success) throw new Error('detail')
       const d = chiTiet.data
       setLounge(d)
-      setDistrictGiuLai(d.district || null)
+      setDiaChiCu({ city: d.provinceCode ? null : d.city || null, ward: d.wardCode ? null : d.ward || null })
 
       const khop = dsKhongGian.find((a) => a.name === d.atmosphereName)
       setAtmosphereKhongDoiDuoc(!!d.atmosphereName && !khop)
@@ -124,8 +143,8 @@ const OwnerLoungePage = () => {
         description: d.description ?? '',
         atmosphereId: khop ? String(khop.id) : '',
         street: d.street ?? '',
-        ward: d.ward ?? '',
-        city: d.city ?? '',
+        provinceCode: d.provinceCode ?? '',
+        wardCode: d.wardCode ?? '',
         latitude: d.latitude ?? '',
         longitude: d.longitude ?? '',
       })
@@ -140,19 +159,24 @@ const OwnerLoungePage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    if (!form.name.trim() || !form.street.trim() || !form.ward.trim() || !form.city.trim()) {
-      toast.error('Cần điền tên phòng trà, số nhà/đường, phường và tỉnh/thành phố.')
+    if (!form.name.trim() || !form.street.trim() || !form.provinceCode || !form.wardCode) {
+      toast.error('Cần điền tên phòng trà, số nhà/đường và chọn tỉnh/thành phố, phường/xã.')
       return
     }
+    const tinh = provinces.find((p) => p.code === form.provinceCode)
+    const phuong = wards.find((w) => w.code === form.wardCode)
     const soHoacNull = (v) => (v === '' || v === null ? null : Number(v))
     const payload = {
       name: form.name.trim(),
       description: form.description.trim() || null,
       atmosphereId: form.atmosphereId === '' ? null : Number(form.atmosphereId),
       street: form.street.trim(),
-      ward: form.ward.trim(),
-      district: districtGiuLai,
-      city: form.city.trim(),
+      // Tên gửi kèm chỉ để giao diện cũ còn đọc được; backend lấy tên chuẩn theo MÃ.
+      ward: phuong?.name ?? null,
+      district: null,
+      city: tinh?.name ?? null,
+      provinceCode: form.provinceCode,
+      wardCode: form.wardCode,
       latitude: soHoacNull(form.latitude),
       longitude: soHoacNull(form.longitude),
     }
@@ -346,18 +370,29 @@ const OwnerLoungePage = () => {
           </select>
         </Field>
 
+        <Field label="Tỉnh / thành phố" required hint={diaChiCu.city && !form.provinceCode
+          ? `Địa chỉ cũ ghi "${diaChiCu.city}" — hãy chọn lại theo danh mục hành chính từ 01/7/2025.`
+          : undefined}>
+          <select value={form.provinceCode} onChange={(e) => chonTinh(e.target.value)} className={inputCls}>
+            <option value="">— chọn tỉnh/thành phố —</option>
+            {provinces.map((p) => <option key={p.code} value={p.code}>{p.name}</option>)}
+          </select>
+        </Field>
+
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Field label="Số nhà, đường" required>
             <input value={form.street} onChange={(e) => set('street', e.target.value)} className={inputCls} />
           </Field>
-          <Field label="Phường / xã" required>
-            <input value={form.ward} onChange={(e) => set('ward', e.target.value)} className={inputCls} />
+          <Field label="Phường / xã" required hint={diaChiCu.ward && !form.wardCode
+            ? `Địa chỉ cũ ghi "${diaChiCu.ward}" — phường cũ có thể đã sáp nhập, hãy chọn lại.`
+            : undefined}>
+            <select value={form.wardCode} onChange={(e) => set('wardCode', e.target.value)} className={inputCls}
+              disabled={!form.provinceCode}>
+              <option value="">{form.provinceCode ? '— chọn phường/xã —' : '— chọn tỉnh trước —'}</option>
+              {wards.filter((w) => w.provinceCode === form.provinceCode).map((w) => <option key={w.code} value={w.code}>{w.name}</option>)}
+            </select>
           </Field>
         </div>
-
-        <Field label="Tỉnh / thành phố" required>
-          <input value={form.city} onChange={(e) => set('city', e.target.value)} className={inputCls} />
-        </Field>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Field label="Vĩ độ" hint="Không bắt buộc. Có toạ độ thì khán giả xem được vị trí trên bản đồ.">
