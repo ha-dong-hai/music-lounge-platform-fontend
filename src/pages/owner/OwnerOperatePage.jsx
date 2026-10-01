@@ -105,9 +105,19 @@ const OwnerOperatePage = () => {
       // nhân viên nhận 403 và màn này hiện "chưa có buổi diễn" dù phòng trà có (đo 30/09 trên backend
       // chạy máy). ?mine=true đi qua OperatedShows (MLACP-466): nhân viên thấy buổi của phòng trà mình
       // vận hành, chủ thấy buổi của mình — đúng cách OwnerLivestreamsPage đang làm.
-      const res = await getShows({ mine: true, pageSize: 100 })
-      if (res.success) {
-        const items = res.data.items ?? []
+      // MLACP-498 (01/10/2026): buổi ĐANG DIỄN và ĐÃ MỞ BÁN là thứ người trực cần — lấy riêng bằng status (lọc phía
+      // máy chủ) để không bao giờ bị cắt ở trang 100 đầu tiên. Lượt không lọc vẫn giữ để ô chọn còn các buổi khác như cũ
+      // (vd. buổi vừa kết thúc, cần đối soát). Backend chưa có MLACP-498 bỏ qua `status` → ba lượt trả cùng một trang,
+      // gộp bỏ trùng thì y như bản cũ.
+      const [tatCa, loDangDien, loMoBan] = await Promise.all([
+        getShows({ mine: true, pageSize: 100 }),
+        getShows({ mine: true, status: 'Ongoing', pageSize: 100 }),
+        getShows({ mine: true, status: 'Published', pageSize: 100 }),
+      ])
+      if (tatCa.success) {
+        const gop = new Map()
+        for (const r of [loDangDien, loMoBan, tatCa]) for (const sh of (r?.success ? r.data.items ?? [] : [])) gop.set(sh.id, sh)
+        const items = [...gop.values()]
         setShows(items)
         // Ưu tiên buổi đang diễn, rồi tới buổi đã xuất bản gần nhất — đúng thứ người trực cần.
         const dangDien = items.find((s) => s.status === 'Ongoing')

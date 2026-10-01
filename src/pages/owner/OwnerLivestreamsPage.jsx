@@ -25,6 +25,7 @@ import {
   setChatEnabled,
 } from '../../services/livestreamServices'
 import NutXacNhan from '../../components/shared/NutXacNhan'
+import KhungTai from '../../components/bang/KhungTai'
 
 const StatusBadge = ({ status }) => {
   const styles = {
@@ -236,19 +237,28 @@ const ShowLivestreamRow = ({ show, onChanged }) => {
   )
 }
 
+// HÌNH THỨC CÓ PHÁT TRỰC TIẾP (01/10/2026): Online VÀ Hybrid. Bản cũ chỉ lọc 'Online' nên buổi Hybrid (vừa tại chỗ vừa
+// phát — HybridStreamLossTests phía backend) không bao giờ hiện ở đây; tab be phát hiện khi làm T-BE-09 (M-416).
+// GIỚI HẠN còn lại: vẫn tải 100 buổi rồi lọc phía trình duyệt. ĐƯỜNG NÂNG CẤP: khi MLACP-498 (PR #359, ?mine=true nhận
+// format) đã deploy thì chuyển sang useDanhSachMayChu + format phía máy chủ + PhanTrang. Chưa làm ngay vì backend cũ bỏ
+// qua `format` → dòng đếm "trên N buổi" sẽ đếm cả buổi không phát.
+const CO_PHAT = ['Online', 'Hybrid']
+
 const OwnerLivestreamsPage = () => {
   const [shows, setShows] = useState([])
   const [isLoading, setIsLoading] = useState(true)
+  const [loiTai, setLoiTai] = useState(false)
 
   const fetchShows = async () => {
     setIsLoading(true)
+    setLoiTai(false)
     try {
       const res = await getShows({ mine: true, pageSize: 100 })
-      if (res.success) {
-        setShows(res.data.items.filter((s) => s.format === 'Online'))
-      }
+      if (!res.success) throw new Error('shows')
+      setShows(res.data.items.filter((s) => CO_PHAT.includes(s.format)))
     } catch {
-      toast.error('Không tải được danh sách show.')
+      // Lỗi tải KHÔNG phải "chưa có buổi trực tuyến" — bản cũ bật toast rồi vẽ câu trống.
+      setLoiTai(true)
     } finally {
       setIsLoading(false)
     }
@@ -257,22 +267,17 @@ const OwnerLivestreamsPage = () => {
   useEffect(() => { const chay = async () => { await fetchShows() }; chay() }, []) // tải một lần khi mở trang
 
   return (
-    <div>
-      <h1 className="text-4xl text-ink mb-6">Phát trực tuyến</h1>
-
-      {isLoading ? (
-        <Loader2 size={24} className="animate-spin text-ink-mute" />
-      ) : shows.length === 0 ? (
-        <div className="bg-card border border-line p-8 text-center text-ink-mute">
-          Bạn chưa có buổi diễn trực tuyến nào. Chỉ buổi diễn có hình thức trực tuyến mới phát được.
-        </div>
-      ) : (
+    <div className="space-y-5">
+      <h1 className="text-4xl text-ink">Phát trực tuyến</h1>
+      <KhungTai dangTai={isLoading} loi={loiTai} taiLai={fetchShows} tenVung="danh sách buổi phát trực tuyến"
+        rong={shows.length === 0}
+        noiDungRong="Chưa có buổi diễn nào phát trực tuyến. Chỉ buổi có hình thức trực tuyến, hoặc tại chỗ kèm phát, mới phát được.">
         <div className="space-y-4">
           {shows.map((show) => (
             <ShowLivestreamRow key={show.id} show={show} onChanged={fetchShows} />
           ))}
         </div>
-      )}
+      </KhungTai>
     </div>
   )
 }
