@@ -52,7 +52,7 @@ const CO_TRANG = 20
 const FORMATS = [
   { value: 'Offline', label: 'Tại chỗ' },
   { value: 'Online', label: 'Trực tuyến' },
-  { value: 'Hybrid', label: 'Cả hai' },
+  { value: 'Hybrid', label: 'Tại chỗ và trực tuyến' },
 ]
 
 const emptyForm = {

@@ -27,16 +27,21 @@ import {
 import NutXacNhan from '../../components/shared/NutXacNhan'
 import KhungTai from '../../components/bang/KhungTai'
 
+// Đủ 6 trạng thái của LivestreamStatus (Domain/Enums/LivestreamStatus.cs), chữ tiếng Việt. Bản cũ in thẳng enum
+// ("Scheduled", "Live"…) và Reconnecting/Failed rơi về kiểu của Ended (01/10/2026, M-430).
+const TRANG_THAI_PHAT = {
+  Scheduled: { nhan: 'Chưa phát', lop: 'border-ink/40 text-ink' },
+  Live: { nhan: 'Đang phát', lop: 'border-danger text-danger' },
+  Reconnecting: { nhan: 'Mất tín hiệu, đang chờ nối lại', lop: 'border-warning text-warning' },
+  Failed: { nhan: 'Mất tín hiệu, đã dừng', lop: 'border-danger text-danger' },
+  Ended: { nhan: 'Đã kết thúc', lop: 'border-ink/30 text-ink-soft' },
+  Terminated: { nhan: 'Bị Admin cắt sóng', lop: 'border-danger text-danger' },
+}
 const StatusBadge = ({ status }) => {
-  const styles = {
-    Scheduled: 'bg-warning/10 text-warning border-warning/30',
-    Live: 'bg-danger/10 text-danger border-danger/30 animate-pulse',
-    Ended: 'bg-line-strong/10 text-ink-soft border-line-strong/30',
-    Terminated: 'bg-danger/20 text-danger border-danger/40',
-  }
+  const t = TRANG_THAI_PHAT[status] ?? { nhan: 'Không rõ trạng thái', lop: 'border-ink/30 text-ink-soft' }
   return (
-    <span className={`inline-flex items-center px-2.5 py-1 text-xs font-bold border ${styles[status] || styles.Ended}`}>
-      {status}
+    <span className={`inline-flex items-center px-2.5 py-1 text-xs font-bold border-2 ${t.lop}`}>
+      {t.nhan}
     </span>
   )
 }
@@ -72,10 +77,10 @@ const ShowLivestreamRow = ({ show, onChanged }) => {
     setIsBusy(true)
     try {
       await createLivestream({ showId: show.id })
-      toast.success('Đã tạo livestream, đang chờ Admin duyệt.')
+      toast.success('Đã tạo phiên phát trực tuyến, đang chờ Admin duyệt.')
       await loadLivestream()
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Không tạo được livestream.')
+      toast.error(err.response?.data?.message || 'Không tạo được phiên phát trực tuyến.')
     } finally {
       setIsBusy(false)
     }
@@ -161,7 +166,7 @@ const ShowLivestreamRow = ({ show, onChanged }) => {
             disabled={isBusy}
             className="flex items-center gap-1.5 disabled:opacity-50 justify-center min-h-[44px] px-4 bg-ink text-lamp text-sm font-semibold hover:bg-board"
           >
-            <Radio size={14} /> Tạo livestream
+            <Radio size={14} aria-hidden="true" /> Tạo phiên phát trực tuyến
           </button>
         ) : (
           <StatusBadge status={livestream.status} />
@@ -177,6 +182,14 @@ const ShowLivestreamRow = ({ show, onChanged }) => {
             reference={chiTiet?.operatorInfo?.vcpmcRoyaltyReference}
             onSaved={loadLivestream}
           />
+          {/* Lấy khoá phát TRƯỚC giờ diễn để cài sẵn OBS — backend cho lấy ở mọi trạng thái (chỉ kiểm quyền vận hành
+              phòng trà). Bản cũ chỉ hiện khoá sau khi bấm Bắt đầu phát (01/10/2026, M-430). */}
+          {!credentials && (
+            <button type="button" onClick={handleShowCredentials} disabled={isBusy}
+              className="inline-flex items-center gap-1.5 disabled:opacity-50 justify-center min-h-[44px] px-4 border-2 border-ink bg-card text-ink text-sm font-semibold hover:bg-ink hover:text-lamp mr-2">
+              Lấy RTMP và khoá phát để cài OBS
+            </button>
+          )}
           <button
             onClick={handleStart}
             disabled={isBusy}
@@ -210,9 +223,9 @@ const ShowLivestreamRow = ({ show, onChanged }) => {
             <button
               onClick={handleShowCredentials}
               disabled={isBusy}
-              className="ml-2 text-xs text-ink-soft underline hover:text-ink"
+              className="ml-2 inline-flex items-center min-h-[44px] text-sm text-ink-soft underline hover:text-ink"
             >
-              Xem lại RTMP/Stream Key
+              Xem lại RTMP và khoá phát
             </button>
           )}
         </div>
@@ -224,11 +237,11 @@ const ShowLivestreamRow = ({ show, onChanged }) => {
           <div className="space-y-1.5 text-xs font-mono">
             <div className="flex items-center justify-between gap-2">
               <span className="text-ink-soft truncate">RTMP: {credentials.rtmpUrl}</span>
-              <button onClick={() => copyToClipboard(credentials.rtmpUrl)} aria-label="Sao chép"><Copy size={12} className="text-ink-mute hover:text-ink" /></button>
+              <button type="button" onClick={() => copyToClipboard(credentials.rtmpUrl)} aria-label="Sao chép địa chỉ RTMP" className="inline-flex items-center justify-center w-11 h-11 flex-shrink-0 text-ink-mute hover:text-ink"><Copy size={14} aria-hidden="true" /></button>
             </div>
             <div className="flex items-center justify-between gap-2">
-              <span className="text-ink-soft truncate">Key: {credentials.streamKey}</span>
-              <button onClick={() => copyToClipboard(credentials.streamKey)} aria-label="Sao chép"><Copy size={12} className="text-ink-mute hover:text-ink" /></button>
+              <span className="text-ink-soft truncate">Khoá phát: {credentials.streamKey}</span>
+              <button type="button" onClick={() => copyToClipboard(credentials.streamKey)} aria-label="Sao chép khoá phát" className="inline-flex items-center justify-center w-11 h-11 flex-shrink-0 text-ink-mute hover:text-ink"><Copy size={14} aria-hidden="true" /></button>
             </div>
           </div>
         </div>

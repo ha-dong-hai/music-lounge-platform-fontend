@@ -48,6 +48,10 @@ const LivestreamWatchPage = () => {
   }, [])
 
   const [viewerCount, setViewerCount] = useState(0)
+  // Tín hiệu từ phòng trà (MLACP-191): 'reconnecting' khi encoder mất kết nối và hệ thống đang chờ nối lại
+  // (livestream_reconnect_timeout_minutes, mặc định 5 phút). Trước 01/10/2026 web không xử lý — video đứng hình mà
+  // người xem không biết vì sao.
+  const [tinHieu, setTinHieu] = useState(null)
   const [messages, setMessages] = useState([])
   const [donationAlerts, setDonationAlerts] = useState([])
   // Cắt sóng (chỉ Admin): hộp thoại riêng vì `reason` bắt buộc và hành động KHÔNG hoàn tác được.
@@ -91,6 +95,7 @@ const LivestreamWatchPage = () => {
         if (lsRes.success) {
           setLivestream(lsRes.data)
           setViewerCount(lsRes.data.viewerCount || 0)
+          if (lsRes.data.status === 'Reconnecting') setTinHieu('reconnecting')
         }
 
         try {
@@ -98,6 +103,7 @@ const LivestreamWatchPage = () => {
           if (chatRes.success) {
             setMessages(
               chatRes.data.items.map((m) => ({
+                chatId: m.messageId, // để ẩn đúng tin khi có ChatMessageHidden
                 user: { name: m.displayName, avatarUrl: null },
                 content: m.message,
                 type: 'chat',
@@ -134,6 +140,7 @@ const LivestreamWatchPage = () => {
         setMessages((prev) => [
           ...prev,
           {
+            chatId: msg.messageId,
             user: { name: msg.displayName, avatarUrl: null },
             content: msg.message,
             type: 'chat',
@@ -156,9 +163,18 @@ const LivestreamWatchPage = () => {
         setMessages((prev) => prev.filter((m) => m.id !== donationId))
         setDonationAlerts((prev) => prev.filter((a) => a.id !== donationId))
       },
+      onChatMessageHidden: ({ chatMessageId }) => setMessages((prev) => prev.filter((m) => m.chatId !== chatMessageId)),
       onViewerCountUpdated: ({ count }) => setViewerCount(count),
-      onTerminated: () => toast.error('Buổi livestream đã bị dừng bởi quản trị viên.'),
-      onFailed: () => toast.error('Kết nối livestream gặp sự cố.'),
+      // Các sự kiện dưới ĐỔI TRẠNG THÁI trang (không chỉ bật toast): bản cũ chỉ báo một dòng toast rồi để trình phát
+      // đứng nguyên tới khi người xem tự tải lại.
+      onReconnecting: () => setTinHieu('reconnecting'),
+      onReconnected: () => setTinHieu(null),
+      onEnded: () => { setTinHieu(null); setLivestream((p) => (p ? { ...p, status: 'Ended' } : p)) },
+      onFailed: () => { setTinHieu(null); setLivestream((p) => (p ? { ...p, status: 'Failed' } : p)) },
+      onTerminated: ({ reason } = {}) => {
+        setTinHieu(null)
+        setLivestream((p) => (p ? { ...p, status: 'Terminated', terminatedReason: reason ?? p.terminatedReason } : p))
+      },
     }
   )
 
@@ -305,9 +321,9 @@ const LivestreamWatchPage = () => {
     return (
       <div className="min-h-screen bg-page flex flex-col items-center justify-center text-ink px-4 text-center">
         <Lock size={40} className="text-ink mb-4" />
-        <p className="text-xl mb-2 font-bold">Bạn cần vé xem trực tuyến để vào buổi phát này</p>
+        <h1 className="text-xl mb-2 font-bold">Bạn cần vé xem trực tuyến để vào buổi phát này</h1>
         <p className="text-ink-soft mb-6">Hãy mua vé xem trực tuyến của buổi diễn này để mở khoá.</p>
-        <Link to={`/shows/${showId}`} className="text-ink underline flex items-center gap-2"><ArrowLeft size={16} /> Quay lại buổi diễn</Link>
+        <Link to={`/shows/${showId}`} className="text-ink underline inline-flex items-center gap-2 min-h-[44px]"><ArrowLeft size={16} aria-hidden="true" /> Quay lại buổi diễn</Link>
       </div>
     )
   }
@@ -341,7 +357,7 @@ const LivestreamWatchPage = () => {
         {user?.role === 'Admin' && livestream?.id && (
           <button
             onClick={() => setMoCatSong(true)}
-            className="flex-shrink-0 flex items-center gap-1.5 px-3 py-2 bg-danger/20 border border-danger text-danger text-xs font-bold hover:bg-danger/30 transition-colors"
+            className="flex-shrink-0 inline-flex items-center gap-1.5 min-h-[44px] px-3 border-2 border-danger bg-card text-danger text-sm font-semibold hover:bg-danger hover:text-lamp transition-colors"
             title="Admin dừng buổi phát vì vi phạm nội dung" aria-label="Admin dừng buổi phát vì vi phạm nội dung"
           >
             <ShieldOff size={12} /> Cắt sóng
@@ -357,11 +373,10 @@ const LivestreamWatchPage = () => {
           {/* BA TRẠNG THÁI KẾT THÚC KHÁC NHAU, TRƯỚC ĐÂY CHỈ CÓ MỘT.
               - Bị Admin cắt sóng: `terminatedReason` nói vì sao. Không hiện thì người xem chỉ thấy
                 một khung đen và không biết chuyện gì, còn thông báo tức thời thì đã trôi mất.
-              - Đã kết thúc và CÓ bản ghi lại: `recordingUrl`. Không đọc trường này thì bản ghi tồn
-                tại mà không ai xem được — trong khi giao diện từng HỨA CỨNG trong mã là "được xem
-                lại trong vòng 48h đối với vé VIP", một quy tắc không có ở đâu trong hệ thống. Lời
-                hứa bịa đó đã bị bỏ; đây là cơ chế thật thay cho nó.
-              - Đã kết thúc và KHÔNG có bản ghi: nói thẳng là không có, đừng để người ta chờ. */}
+              - Đã kết thúc: nói thẳng là KHÔNG có xem lại. Chủ dự án chốt hệ thống không có chức năng xem lại
+                (01/10/2026, M-430) — bản trước còn nút "Xem lại bản ghi" khi backend trả `recordingUrl`; đã bỏ.
+                Backend vẫn còn trường đó (MLACP-121) — đề nghị BE-2 trong kb/facts/fe/livestream-2026-10-01.md.
+              - Mất tín hiệu quá thời gian chờ (Failed): trạng thái cuối, nói rõ để người xem không ngồi chờ. */}
           {livestream?.status === 'Terminated' ? (
             <div className="absolute inset-0 flex items-center justify-center p-8">
               <div className="max-w-md text-center">
@@ -382,23 +397,19 @@ const LivestreamWatchPage = () => {
               <div className="max-w-md text-center">
                 <Square size={30} className="mx-auto text-ink-mute mb-4" />
                 <p className="text-lg font-bold text-ink">Buổi phát đã kết thúc</p>
-                {livestream.recordingUrl ? (
-                  <>
-                    <p className="text-sm text-ink-soft mt-2">Bạn xem lại được bản ghi.</p>
-                    <a
-                      href={livestream.recordingUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="mt-4 inline-flex items-center gap-2 px-5 py-2.5 bg-ink text-lamp text-sm font-bold hover:bg-board"
-                    >
-                      <Eye size={16} /> Xem lại bản ghi
-                    </a>
-                  </>
-                ) : (
-                  <p className="text-sm text-ink-mute mt-2 leading-relaxed">
-                    Buổi phát này không có bản ghi lại.
-                  </p>
-                )}
+                <p className="text-sm text-ink-soft mt-2 leading-relaxed">
+                  Hệ thống không lưu bản ghi để xem lại.
+                </p>
+              </div>
+            </div>
+          ) : livestream?.status === 'Failed' ? (
+            <div className="absolute inset-0 flex items-center justify-center p-8">
+              <div className="max-w-md text-center">
+                <AlertCircle size={30} className="mx-auto text-danger mb-4" aria-hidden="true" />
+                <p className="text-lg font-bold text-ink">Buổi phát mất tín hiệu</p>
+                <p className="text-sm text-ink-soft mt-2 leading-relaxed">
+                  Tín hiệu từ phòng trà bị gián đoạn quá lâu và không kết nối lại được. Buổi phát này dừng tại đây.
+                </p>
               </div>
             </div>
           ) : (
@@ -410,6 +421,14 @@ const LivestreamWatchPage = () => {
               hidden={immersive}
               onVideoReady={setVideoEl}
             />
+
+            {/* Mất tín hiệu tạm thời (Reconnecting): giữ trình phát để tự chạy tiếp khi nối lại, chỉ phủ một dải báo. */}
+            {tinHieu === 'reconnecting' && (
+              <div role="status" className="absolute inset-x-0 top-0 z-20 flex items-center gap-3 bg-ink/90 text-lamp px-4 py-3 text-sm">
+                <WifiOff size={18} aria-hidden="true" className="flex-shrink-0" />
+                Tín hiệu từ phòng trà đang gián đoạn. Hệ thống đang chờ kết nối lại — bạn không cần tải lại trang.
+              </div>
+            )}
 
             {immersive && videoEl && (
               <Suspense fallback={<div className="absolute inset-0 flex items-center justify-center text-lamp-mute"><Loader2 className="animate-spin" size={28} /></div>}>

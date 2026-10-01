@@ -274,6 +274,12 @@ const OwnerShowDetailPage = () => {
     } finally { setBusy(null) }
   }
 
+  // LOẠI HẠNG VÉ THEO HÌNH THỨC (01/10/2026, M-435 — backend MLACP-509/PR #370 chặn ở mọi trạng thái): buổi tại chỗ chỉ có
+  // vé vào xem tại chỗ, buổi trực tuyến chỉ có vé xem trực tuyến, buổi Hybrid chọn được cả hai. Backend đang chạy mới chỉ
+  // chặn sau khi đăng, nên giới hạn ở đây trước; khi PR #370 deploy thì hai bên khớp nhau.
+  const loaiVeHop = (chon) => (show?.format === 'Online' ? 'Livestream' : show?.format === 'Offline' ? 'Physical' : chon)
+  const loaiVe = loaiVeHop(tierForm.accessType)
+
   const handleCreateTier = async (e) => {
     e.preventDefault()
     const price = Number(tierForm.price)
@@ -285,11 +291,11 @@ const OwnerShowDetailPage = () => {
         showId: Number(id),
         name: tierForm.name.trim(),
         description: null,
-        accessType: tierForm.accessType,
+        accessType: loaiVe,
         // Gắn khu vực chỗ ngồi đã chọn. Trước đây chỗ này ghi cứng `null`, nên không hạng vé nào
         // từng có khu vực và sơ đồ chỗ ngồi bên phía khán giả không lọc ra được gì.
         // Vé xem trực tuyến thì luôn null — không có chỗ ngồi vật lý.
-        zoneId: tierForm.accessType === 'Physical' && tierForm.zoneId ? Number(tierForm.zoneId) : null,
+        zoneId: loaiVe === 'Physical' && tierForm.zoneId ? Number(tierForm.zoneId) : null,
         totalCapacity: tierForm.totalCapacity ? Number(tierForm.totalCapacity) : null,
         prices: [{
           name: tierForm.priceName.trim() || 'Vé thường',
@@ -747,10 +753,10 @@ const OwnerShowDetailPage = () => {
               </div>
               <div>
                 <label className="text-sm font-semibold text-ink">Loại</label>
-                <select aria-label="Loại" value={tierForm.accessType} onChange={(e) => setTierForm((p) => ({ ...p, accessType: e.target.value }))}
+                <select aria-label="Loại" value={loaiVe} onChange={(e) => setTierForm((p) => ({ ...p, accessType: e.target.value }))}
                   className="mt-1 w-full min-h-[44px] px-3 py-2 bg-card border-2 border-ink text-ink focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2">
-                  <option value="Physical">Vào xem tại chỗ</option>
-                  <option value="Livestream">Xem trực tuyến</option>
+                  {show.format !== 'Online' && <option value="Physical">Vào xem tại chỗ</option>}
+                  {show.format !== 'Offline' && <option value="Livestream">Xem trực tuyến</option>}
                 </select>
               </div>
             </div>
@@ -762,7 +768,7 @@ const OwnerShowDetailPage = () => {
                 kết đã có sẵn trong mô hình dữ liệu (TicketTier.ZoneId -> SeatingZone).
                 Chỉ hỏi với vé VÀO XEM TẠI CHỖ: vé xem trực tuyến không có chỗ ngồi vật lý, và
                 chính entity cũng ghi `null = online (no physical zone)`. */}
-            {tierForm.accessType === 'Physical' && (
+            {loaiVe === 'Physical' && (
               <div>
                 <label className="text-sm font-semibold text-ink">Khu vực chỗ ngồi</label>
                 <select aria-label="Khu vực chỗ ngồi" value={tierForm.zoneId}
