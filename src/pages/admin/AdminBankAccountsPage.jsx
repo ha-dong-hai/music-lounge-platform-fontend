@@ -131,7 +131,7 @@ const ReviewModal = ({ item, approve, onClose, onSaved }) => {
             </label>
             <textarea aria-label={approve ? "Ghi chú (không bắt buộc)" : "Ghi chú (bắt buộc)"} rows={3} value={note} onChange={(e) => setNote(e.target.value)}
               placeholder={approve ? 'Ghi chú nội bộ nếu cần' : 'VD: tên chủ tài khoản không khớp tên trên CCCD đã duyệt'}
-              className="mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink resize-none focus:outline-none focus:border-ink/50" />
+              className="mt-1 w-full resize-none min-h-[44px] px-3 py-2 bg-card border-2 border-ink text-ink focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2" />
           </div>
 
           <div className="flex gap-3">

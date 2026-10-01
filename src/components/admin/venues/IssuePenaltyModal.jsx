@@ -110,7 +110,7 @@ const IssuePenaltyModal = ({ venue, onClose, onSaved }) => {
               <label className="text-xs text-ink-mute">Số ngày đình chỉ <span className="text-danger">*</span></label>
               <input aria-label="Số ngày đình chỉ" type="number" min="1" value={suspensionDays}
                 onChange={(e) => setSuspensionDays(e.target.value)}
-                className="mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink focus:outline-none focus:border-ink/50 tabular-nums" />
+                className="mt-1 w-full tabular-nums min-h-[44px] px-3 py-2 bg-card border-2 border-ink text-ink focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2" />
             </div>
           )}
 
@@ -119,7 +119,7 @@ const IssuePenaltyModal = ({ venue, onClose, onSaved }) => {
             <textarea aria-label="Lý do" rows={4} value={reason} maxLength={1000}
               onChange={(e) => setReason(e.target.value)}
               placeholder="Nêu cụ thể việc đã xảy ra, ngày nào, buổi diễn nào — chủ phòng trà dùng đúng câu này để sửa hoặc để khiếu nại."
-              className="mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink resize-none focus:outline-none focus:border-ink/50" />
+              className="mt-1 w-full resize-none min-h-[44px] px-3 py-2 bg-card border-2 border-ink text-ink focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2" />
             <p className="text-xs text-ink-mute mt-1">{reason.length}/1000 ký tự</p>
           </div>
 
@@ -128,7 +128,7 @@ const IssuePenaltyModal = ({ venue, onClose, onSaved }) => {
             <input aria-label="Dẫn chứng (không bắt buộc)" value={evidenceRef} maxLength={500}
               onChange={(e) => setEvidenceRef(e.target.value)}
               placeholder="Mã báo cáo vi phạm, liên kết ảnh chụp, số biên bản..."
-              className="mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink focus:outline-none focus:border-ink/50" />
+              className="mt-1 w-full min-h-[44px] px-3 py-2 bg-card border-2 border-ink text-ink focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2" />
           </div>
 
           <p className="text-xs text-danger/90 flex items-start gap-1.5 leading-relaxed bg-danger/5 border border-danger/30 p-3">

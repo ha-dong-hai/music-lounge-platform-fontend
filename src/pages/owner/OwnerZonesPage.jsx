@@ -28,7 +28,7 @@ import ZoneSketchLayer from '../../components/owner/ZoneSketchLayer'
 import { TrangLoiTai } from '../../components/bang/KhungTai'
 import HopThoai, { TieuDeHop } from '../../components/shared/HopThoai'
 
-const inputCls = 'mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink focus:outline-none focus:border-ink/50'
+const inputCls = 'mt-1 w-full min-h-[44px] px-3 py-2 bg-card border-2 border-ink text-ink focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2'
 
 // Màu mặc định cho khu vực mới — lấy từ bảng màu đã kiểm của biểu đồ, vẫn thấy rõ cả khi tô mờ trên nền sáng.
 const MAU_MAC_DINH = ['#3987e5', '#d95926', '#199e70', '#c98500', '#9085e9', '#d55181']
@@ -518,7 +518,7 @@ const OwnerZonesPage = () => {
                           <label className="text-xs text-ink-mute">{label}</label>
                           <input aria-label={`${label} của ${z.name}`} type="number" value={o[key] ?? 0}
                             onChange={(e) => doiKichThuoc(z.id, key, e.target.value)}
-                            className="mt-1 w-full px-2 py-1.5 bg-page border border-line rounded-md text-xs text-ink focus:outline-none focus:border-ink/50 tabular-nums" />
+                            className="mt-1 w-full tabular-nums min-h-[44px] px-3 py-2 bg-card border-2 border-ink text-ink focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2" />
                         </div>
                       ))}
                       <div>
@@ -542,7 +542,7 @@ const OwnerZonesPage = () => {
                             <input aria-label={`Toạ độ ${truc.toUpperCase()} trong không gian 3D của ${z.name}`} type="number" step="any"
                               value={(layout3D[z.id] ?? {})[truc] ?? ''}
                               onChange={(e) => doiToaDo3D(z.id, truc, e.target.value)}
-                              className="mt-1 w-full px-2 py-1.5 bg-page border border-line rounded-md text-xs text-ink focus:outline-none focus:border-ink/50 tabular-nums" />
+                              className="mt-1 w-full tabular-nums min-h-[44px] px-3 py-2 bg-card border-2 border-ink text-ink focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2" />
                           </div>
                         ))}
                         <button onClick={() => luuToaDo3D(z.id)} disabled={busy3D === z.id}

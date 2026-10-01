@@ -76,7 +76,7 @@ const AllShowsTab = () => {
             placeholder="Tìm trong trang hiện tại…"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-page border border-line text-sm text-ink focus:outline-none focus:border-ink/50"
+            className="w-full pl-10 pr-4 min-h-[44px] px-3 py-2 bg-card border-2 border-ink text-ink focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2"
           />
         </div>
         <p className="text-sm text-ink-mute whitespace-nowrap">Tổng: {pagination.totalCount} buổi diễn</p>

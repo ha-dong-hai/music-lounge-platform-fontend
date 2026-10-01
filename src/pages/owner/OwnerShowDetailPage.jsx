@@ -507,7 +507,7 @@ const OwnerShowDetailPage = () => {
           <div className="flex gap-2">
             <input aria-label="Số văn bản chấp thuận biểu diễn" value={legalRef} onChange={(e) => setLegalRef(e.target.value)}
               placeholder={daKhaiVanBan ? 'Nhập số mới để thay giá trị đang khai' : 'VD: 1234/SVHTT-QLVH hoặc đường dẫn tới văn bản'}
-              className="flex-1 px-3 py-2 bg-page border border-line text-sm text-ink placeholder:text-ink-mute" />
+              className="flex-1 placeholder:text-ink-mute min-h-[44px] px-3 py-2 bg-card border-2 border-ink text-ink focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2" />
             <button onClick={handleSaveLegal} disabled={!legalRef.trim() || !!busy}
               className="inline-flex disabled:opacity-50 items-center justify-center gap-2 min-h-[44px] px-4 border-2 border-ink bg-card text-ink text-sm font-semibold hover:bg-ink hover:text-lamp">
               {daKhaiVanBan ? 'Thay' : 'Lưu'}
@@ -577,7 +577,7 @@ const OwnerShowDetailPage = () => {
                       <label className="text-xs text-ink-mute">Vai trò</label>
                       <select aria-label="Vai trò" value={suaTietMuc.role}
                         onChange={(e) => setSuaTietMuc((v) => ({ ...v, role: e.target.value }))}
-                        className="mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink">
+                        className="mt-1 w-full min-h-[44px] px-3 py-2 bg-card border-2 border-ink text-ink focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2">
                         {ROLES.map((r) => <option key={r.value} value={r.value}>{r.label}</option>)}
                       </select>
                     </div>
@@ -585,7 +585,7 @@ const OwnerShowDetailPage = () => {
                       <label className="text-xs text-ink-mute">Giờ diễn</label>
                       <input aria-label="Giờ diễn" type="time" value={suaTietMuc.setTime}
                         onChange={(e) => setSuaTietMuc((v) => ({ ...v, setTime: e.target.value }))}
-                        className="mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink" />
+                        className="mt-1 w-full min-h-[44px] px-3 py-2 bg-card border-2 border-ink text-ink focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2" />
                       <p className="text-[11px] text-ink-mute mt-1">Để trống nếu chưa chốt giờ.</p>
                     </div>
                     <div className="flex flex-col justify-between">
@@ -617,7 +617,7 @@ const OwnerShowDetailPage = () => {
           <div className="relative">
             <input aria-label="Gõ tên nghệ sĩ để tìm (từ 2 ký tự)" value={performerQuery} onChange={(e) => handleSearchPerformer(e.target.value)}
               placeholder="Gõ tên nghệ sĩ để tìm (từ 2 ký tự)"
-              className="w-full px-3 py-2 bg-page border border-line text-sm text-ink placeholder:text-ink-mute" />
+              className="w-full placeholder:text-ink-mute min-h-[44px] px-3 py-2 bg-card border-2 border-ink text-ink focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2" />
             {performerResults.length > 0 && (
               <div className="absolute left-0 right-0 mt-1 bg-card border border-line shadow-lift z-10 overflow-hidden">
                 {performerResults.map((p) => (
@@ -699,13 +699,13 @@ const OwnerShowDetailPage = () => {
                         <label className="text-xs text-ink-mute">Tên hạng vé *</label>
                         <input aria-label="Tên hạng vé" value={suaHangVe.name}
                           onChange={(e) => setSuaHangVe((v) => ({ ...v, name: e.target.value }))}
-                          className="mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink" />
+                          className="mt-1 w-full min-h-[44px] px-3 py-2 bg-card border-2 border-ink text-ink focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2" />
                       </div>
                       <div>
                         <label className="text-xs text-ink-mute">Sức chứa</label>
                         <input aria-label="Sức chứa" type="number" min="1" value={suaHangVe.totalCapacity}
                           onChange={(e) => setSuaHangVe((v) => ({ ...v, totalCapacity: e.target.value }))}
-                          className="mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink" />
+                          className="mt-1 w-full min-h-[44px] px-3 py-2 bg-card border-2 border-ink text-ink focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2" />
                         <p className="text-[11px] text-ink-mute mt-1">Để trống = không giới hạn.</p>
                       </div>
                     </div>
@@ -714,7 +714,7 @@ const OwnerShowDetailPage = () => {
                       <input aria-label="Mô tả" value={suaHangVe.description}
                         onChange={(e) => setSuaHangVe((v) => ({ ...v, description: e.target.value }))}
                         placeholder="VD: Ghế sát sân khấu, có nước uống"
-                        className="mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink" />
+                        className="mt-1 w-full min-h-[44px] px-3 py-2 bg-card border-2 border-ink text-ink focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2" />
                     </div>
                     <p className="text-[11px] text-ink-mute">
                       Giá vé không sửa ở đây — giá thuộc đợt giá riêng của hạng vé.
@@ -743,12 +743,12 @@ const OwnerShowDetailPage = () => {
                 <label className="text-xs text-ink-mute">Tên hạng vé *</label>
                 <input aria-label="Tên hạng vé" value={tierForm.name} onChange={(e) => setTierForm((p) => ({ ...p, name: e.target.value }))}
                   placeholder="VD: Ghế thường"
-                  className="mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink" />
+                  className="mt-1 w-full min-h-[44px] px-3 py-2 bg-card border-2 border-ink text-ink focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2" />
               </div>
               <div>
                 <label className="text-xs text-ink-mute">Loại</label>
                 <select aria-label="Loại" value={tierForm.accessType} onChange={(e) => setTierForm((p) => ({ ...p, accessType: e.target.value }))}
-                  className="mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink">
+                  className="mt-1 w-full min-h-[44px] px-3 py-2 bg-card border-2 border-ink text-ink focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2">
                   <option value="Physical">Vào xem tại chỗ</option>
                   <option value="Livestream">Xem trực tuyến</option>
                 </select>
@@ -767,7 +767,7 @@ const OwnerShowDetailPage = () => {
                 <label className="text-xs text-ink-mute">Khu vực chỗ ngồi</label>
                 <select aria-label="Khu vực chỗ ngồi" value={tierForm.zoneId}
                   onChange={(e) => setTierForm((p) => ({ ...p, zoneId: e.target.value }))}
-                  className="mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink">
+                  className="mt-1 w-full min-h-[44px] px-3 py-2 bg-card border-2 border-ink text-ink focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2">
                   <option value="">— Không gắn khu vực nào —</option>
                   {zones.map((z) => (
                     <option key={z.id} value={z.id}>
@@ -788,18 +788,18 @@ const OwnerShowDetailPage = () => {
                 <label className="text-xs text-ink-mute">Giá (đồng) *</label>
                 <input aria-label="Giá (đồng)" type="number" min="1" step="1" value={tierForm.price}
                   onChange={(e) => setTierForm((p) => ({ ...p, price: e.target.value }))}
-                  className="mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink" />
+                  className="mt-1 w-full min-h-[44px] px-3 py-2 bg-card border-2 border-ink text-ink focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2" />
               </div>
               <div>
                 <label className="text-xs text-ink-mute">Số lượng</label>
                 <input aria-label="Số lượng" type="number" min="1" value={tierForm.quota}
                   onChange={(e) => setTierForm((p) => ({ ...p, quota: e.target.value }))}
-                  className="mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink" />
+                  className="mt-1 w-full min-h-[44px] px-3 py-2 bg-card border-2 border-ink text-ink focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2" />
               </div>
               <div>
                 <label className="text-xs text-ink-mute">Kênh bán</label>
                 <select aria-label="Kênh bán" value={tierForm.purchaseChannel} onChange={(e) => setTierForm((p) => ({ ...p, purchaseChannel: e.target.value }))}
-                  className="mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink">
+                  className="mt-1 w-full min-h-[44px] px-3 py-2 bg-card border-2 border-ink text-ink focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2">
                   <option value="Both">Bán qua mạng và tại quầy</option>
                   <option value="Online">Chỉ bán qua mạng</option>
                   <option value="Offline">Chỉ bán tại quầy</option>

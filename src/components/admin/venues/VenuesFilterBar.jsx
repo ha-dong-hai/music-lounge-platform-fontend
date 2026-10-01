@@ -9,7 +9,7 @@ const VenuesFilterBar = ({ statusFilter, setStatusFilter }) => {
         <select aria-label="Lọc theo trạng thái"
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className="px-4 py-2.5 bg-page border border-line text-sm text-ink focus:outline-none focus:border-ink/50 cursor-pointer"
+          className="cursor-pointer min-h-[44px] px-3 py-2 bg-card border-2 border-ink text-ink focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2"
         >
           {Object.keys(VENUE_STATUS_CONFIG).map(key => (
             <option key={key} value={key}>{VENUE_STATUS_CONFIG[key].label}</option>

@@ -54,7 +54,7 @@ const VcpmcRoyaltyCard = ({ showId, declared, reference, onSaved }) => {
           value={ma}
           onChange={(e) => setMa(e.target.value)}
           placeholder={declared ? 'Nhập mã mới để thay mã đang khai' : 'Mã tham chiếu đã thanh toán tác quyền VCPMC'}
-          className="flex-1 px-3 py-2 bg-page border border-line text-sm text-ink placeholder:text-ink-mute"
+          className="flex-1 placeholder:text-ink-mute min-h-[44px] px-3 py-2 bg-card border-2 border-ink text-ink focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2"
         />
         <button
           onClick={luu}

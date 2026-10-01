@@ -29,7 +29,7 @@ import ConfirmModal from '../../components/shared/ConfirmModal'
 import { TrangLoiTai } from '../../components/bang/KhungTai'
 import HopThoai, { TieuDeHop } from '../../components/shared/HopThoai'
 
-const inputCls = 'mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink focus:outline-none focus:border-ink/50'
+const inputCls = 'mt-1 w-full min-h-[44px] px-3 py-2 bg-card border-2 border-ink text-ink focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2'
 
 // HOTSPOT CÓ HAI LOẠI, và `type` là TRƯỜNG BẮT BUỘC:
 //   Navigate — dẫn sang scene khác, phải có targetSceneId, và KHÔNG được trỏ về chính scene đó.
@@ -505,7 +505,7 @@ const OwnerTourPage = () => {
                           <input aria-label={`Vị trí ${truc.toUpperCase()} trên mặt bằng (%) của ${sc.name || `cảnh #${sc.id}`}`} type="number" step="any" min="0" max="100"
                             value={(viTri[sc.id] ?? {})[truc] ?? ''}
                             onChange={(e) => doiViTri(sc.id, truc, e.target.value)}
-                            className="mt-1 w-full px-2 py-1.5 bg-page border border-line rounded-md text-xs text-ink focus:outline-none focus:border-ink/50 tabular-nums" />
+                            className="mt-1 w-full tabular-nums min-h-[44px] px-3 py-2 bg-card border-2 border-ink text-ink focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2" />
                         </div>
                       ))}
                       <button onClick={() => luuViTri(sc.id)} disabled={busyViTri === sc.id}

@@ -25,7 +25,7 @@ import { Loader2, Plus, X, ListFilter, Pencil, Eye, EyeOff, Save } from 'lucide-
 import toast from 'react-hot-toast'
 import { getLoungeCustomCriteria, createCustomCriteria, updateCustomCriteria } from '../../services/customCriteriaServices'
 
-const inputCls = 'mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink focus:outline-none focus:border-ink/50'
+const inputCls = 'mt-1 w-full min-h-[44px] px-3 py-2 bg-card border-2 border-ink text-ink focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2'
 
 const DATA_TYPES = [
   { value: 'Select', label: 'Chọn một trong danh sách', optionsHint: 'Danh sách lựa chọn, ví dụ: ["Nhẹ","Vừa","Ồn"]' },
@@ -167,7 +167,7 @@ const CustomCriteriaSection = ({ loungeId }) => {
                         <div className="flex flex-wrap items-center gap-2">
                           <input aria-label="Tên tiêu chí" value={suaTen.name}
                             onChange={(e) => setSuaTen((v) => ({ ...v, name: e.target.value }))}
-                            className="flex-1 min-w-[10rem] px-2 py-1.5 bg-page border border-line rounded-md text-sm text-ink focus:outline-none focus:border-ink/50" />
+                            className="flex-1 min-w-[10rem] min-h-[44px] px-3 py-2 bg-card border-2 border-ink text-ink focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2" />
                           <button onClick={() => luuTen(c)} disabled={busyId === c.id}
                             className="flex items-center gap-1.5 disabled:opacity-50 justify-center min-h-[44px] px-4 bg-ink text-lamp text-sm font-semibold hover:bg-board">
                             {busyId === c.id ? <Loader2 size={13} className="animate-spin" /> : <Save size={13} />} Lưu

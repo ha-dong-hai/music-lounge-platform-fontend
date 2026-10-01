@@ -22,14 +22,14 @@ const ComplaintsFilterBar = ({
           placeholder="Tìm theo nội dung, số điện thoại, #mã (trong trang hiện tại)"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full pl-10 pr-4 py-2.5 bg-page border border-line text-sm text-ink focus:outline-none focus:border-ink/50"
+          className="w-full pl-10 pr-4 min-h-[44px] px-3 py-2 bg-card border-2 border-ink text-ink focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2"
         />
       </div>
 
       <select aria-label="Lọc theo loại vấn đề"
         value={categoryFilter}
         onChange={(e) => setCategoryFilter(e.target.value)}
-        className="w-full lg:w-auto px-4 py-2.5 bg-page border border-line text-sm text-ink focus:outline-none focus:border-ink/50 cursor-pointer"
+        className="w-full lg:w-auto cursor-pointer min-h-[44px] px-3 py-2 bg-card border-2 border-ink text-ink focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2"
       >
         <option value="all">Mọi phân loại</option>
         {Object.keys(CATEGORY_CONFIG).map(key => (
@@ -40,7 +40,7 @@ const ComplaintsFilterBar = ({
       <select aria-label="Lọc theo trạng thái"
         value={statusFilter}
         onChange={(e) => setStatusFilter(e.target.value)}
-        className="w-full lg:w-auto px-4 py-2.5 bg-page border border-line text-sm text-ink focus:outline-none focus:border-ink/50 cursor-pointer"
+        className="w-full lg:w-auto cursor-pointer min-h-[44px] px-3 py-2 bg-card border-2 border-ink text-ink focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2"
       >
         <option value="all">Mọi trạng thái</option>
         {/* Trang dùng GET /admin/complaints (mọi trạng thái) và gửi lựa chọn này lên server qua tham số status.

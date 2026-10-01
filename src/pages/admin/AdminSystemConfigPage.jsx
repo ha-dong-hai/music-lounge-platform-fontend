@@ -81,13 +81,13 @@ const EditModal = ({ config, onClose, onSaved }) => {
               <span className="text-ink-mute"> · kiểu {config.dataType}</span>
             </label>
             <input aria-label="Giá trị mới (bắt buộc)" value={configValue} onChange={(e) => setConfigValue(e.target.value)}
-              className="mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink focus:outline-none focus:border-ink/50 tabular-nums" />
+              className="mt-1 w-full tabular-nums min-h-[44px] px-3 py-2 bg-card border-2 border-ink text-ink focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2" />
           </div>
 
           <div>
             <label className="text-xs text-ink-mute">Lý do thay đổi <span className="text-danger">*</span></label>
             <textarea aria-label="Lý do thay đổi" value={note} onChange={(e) => setNote(e.target.value)} rows={3}
-              className="mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink focus:outline-none focus:border-ink/50 resize-none"
+              className="mt-1 w-full resize-none min-h-[44px] px-3 py-2 bg-card border-2 border-ink text-ink focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2"
               placeholder="Vì sao đổi, theo quyết định nào. Nội dung này lưu vĩnh viễn trong lịch sử." />
           </div>
 

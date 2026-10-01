@@ -60,7 +60,7 @@ import { Loader2, ListFilter, Save, EyeOff } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { getShowCustomValues, setShowCustomValues } from '../../services/customCriteriaServices'
 
-const inputCls = 'mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink focus:outline-none focus:border-ink/50'
+const inputCls = 'mt-1 w-full min-h-[44px] px-3 py-2 bg-card border-2 border-ink text-ink focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2'
 
 // BẢN SAO CHÍNH XÁC luật chuẩn hoá của máy chủ (CustomCriteriaValue.GoMotLopNhayKep + Trim).
 // Hai bên PHẢI khớp từng bước, nếu không thì màn này gắn nhãn "không có trong danh sách" lên một

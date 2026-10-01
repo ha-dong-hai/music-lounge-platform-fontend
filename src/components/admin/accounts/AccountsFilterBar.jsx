@@ -14,14 +14,14 @@ const AccountsFilterBar = ({
           placeholder="Tìm theo tên, email hoặc số điện thoại…"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full pl-10 pr-4 py-2.5 bg-page border border-line text-sm text-ink focus:outline-none focus:border-ink/50"
+          className="w-full pl-10 pr-4 min-h-[44px] px-3 py-2 bg-card border-2 border-ink text-ink focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2"
         />
       </div>
 
       <select aria-label="Lọc theo vai trò"
         value={roleFilter}
         onChange={(e) => setRoleFilter(e.target.value)}
-        className="w-full md:w-auto px-4 py-2.5 bg-page border border-line text-sm text-ink focus:outline-none focus:border-ink/50 cursor-pointer"
+        className="w-full md:w-auto cursor-pointer min-h-[44px] px-3 py-2 bg-card border-2 border-ink text-ink focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2"
       >
         <option value="all">Mọi vai trò</option>
         <option value="Audience">Khán giả</option>
@@ -33,7 +33,7 @@ const AccountsFilterBar = ({
       <select aria-label="Lọc theo trạng thái"
         value={statusFilter}
         onChange={(e) => setStatusFilter(e.target.value)}
-        className="w-full md:w-auto px-4 py-2.5 bg-page border border-line text-sm text-ink focus:outline-none focus:border-ink/50 cursor-pointer"
+        className="w-full md:w-auto cursor-pointer min-h-[44px] px-3 py-2 bg-card border-2 border-ink text-ink focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2"
       >
         <option value="all">Mọi trạng thái</option>
         <option value="active">Đang hoạt động</option>

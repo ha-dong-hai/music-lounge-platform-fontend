@@ -318,7 +318,7 @@ const OwnerOperatePage = () => {
       <div>
         <label className="text-xs text-ink-mute">Buổi diễn</label>
         <select aria-label="Buổi diễn" value={showId ?? ''} onChange={(e) => { chonBuoiDien(Number(e.target.value)); setVeTraCuu(null); setPriceId('') }}
-          className="mt-1 w-full max-w-xl px-3 py-2 bg-page border border-line text-sm text-ink focus:outline-none focus:border-ink/50">
+          className="mt-1 w-full max-w-xl min-h-[44px] px-3 py-2 bg-card border-2 border-ink text-ink focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2">
           {shows.map((s) => (
             <option key={s.id} value={s.id}>
               {s.name} — {dayjs(s.scheduledStart).format('HH:mm DD/MM/YYYY')} ({tenTrangThai(s.status)})
@@ -384,7 +384,7 @@ const OwnerOperatePage = () => {
           <form onSubmit={handleLookup} className="flex gap-2">
             <input aria-label="Quét hoặc nhập mã QR trên vé" value={qr} onChange={(e) => { setQr(e.target.value); setVeTraCuu(null) }}
               placeholder="Quét hoặc nhập mã QR trên vé" autoFocus
-              className="flex-1 px-3 py-2 bg-page border border-line text-sm text-ink focus:outline-none focus:border-ink/50" />
+              className="flex-1 min-h-[44px] px-3 py-2 bg-card border-2 border-ink text-ink focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2" />
             <button type="submit" disabled={busy !== null || !qr.trim()}
               className="flex items-center gap-1.5 disabled:opacity-50 justify-center min-h-[44px] px-4 border-2 border-ink bg-card text-ink text-sm font-semibold hover:bg-ink hover:text-lamp">
               {busy === 'lookup' ? <Loader2 size={16} className="animate-spin" /> : <Search size={16} />} Tra cứu
@@ -445,7 +445,7 @@ const OwnerOperatePage = () => {
               <div>
                 <label className="text-xs text-ink-mute">Hạng vé</label>
                 <select aria-label="Hạng vé" value={priceId} onChange={(e) => setPriceId(e.target.value)}
-                  className="mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink focus:outline-none focus:border-ink/50">
+                  className="mt-1 w-full min-h-[44px] px-3 py-2 bg-card border-2 border-ink text-ink focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2">
                   <option value="">— chọn hạng vé —</option>
                   {giaBanQuay.map((p) => (
                     <option key={p.priceId} value={p.priceId} disabled={p.conLai === 0}>
@@ -459,7 +459,7 @@ const OwnerOperatePage = () => {
                 <label className="text-xs text-ink-mute">Số lượng</label>
                 <input aria-label="Số lượng" type="number" min="1" step="1" value={quantity}
                   onChange={(e) => setQuantity(e.target.value)}
-                  className="mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink focus:outline-none focus:border-ink/50" />
+                  className="mt-1 w-full min-h-[44px] px-3 py-2 bg-card border-2 border-ink text-ink focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2" />
               </div>
               <button type="submit" disabled={busy !== null}
                 className="w-full flex items-center justify-center gap-2 disabled:opacity-50 min-h-[44px] px-4 bg-ink text-lamp text-sm font-semibold hover:bg-board">
