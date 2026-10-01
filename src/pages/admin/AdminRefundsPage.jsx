@@ -5,6 +5,7 @@ import { Loader2, Check, X, Clock, AlertTriangle, ChevronLeft, ChevronRight, Ban
 import dayjs from 'dayjs'
 import toast from 'react-hot-toast'
 import { getPendingRefundRequests, processRefundRequest } from '../../services/moneyServices'
+import { maNgan } from '../../utils/format'
 
 const fmtMoney = (v) => `${Number(v || 0).toLocaleString('vi-VN')}đ`
 
@@ -80,7 +81,7 @@ const AdminRefundsPage = () => {
                 <div className="flex items-start justify-between gap-4 flex-wrap">
                   <div className="min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-ink font-bold">#{r.id}</span>
+                      <span className="text-ink font-bold" title={String(r.id)}>#{maNgan(r.id)}</span>
                       <span className="text-brand-text font-bold">{fmtMoney(r.amountRequested)}</span>
                       {r.refundPercentage != null && (
                         <span className="px-2 py-0.5 rounded-md bg-sunken text-ink-soft text-xs">
@@ -95,7 +96,7 @@ const AdminRefundsPage = () => {
                     </div>
                     <p className="text-sm text-ink-soft mt-1.5 whitespace-normal">{r.reason}</p>
                     <p className="text-xs text-ink-mute mt-1">
-                      Tạo {dayjs(r.createdAt).format('HH:mm DD/MM/YYYY')} · Payment #{r.paymentId}
+                      Tạo {dayjs(r.createdAt).format('HH:mm DD/MM/YYYY')} · Payment #{maNgan(r.paymentId)}
                     </p>
 
                     {r.payoutAccountRequired && (

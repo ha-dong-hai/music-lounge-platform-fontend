@@ -4,6 +4,7 @@ import toast from 'react-hot-toast'
 import { createFilterOption, updateFilterOption, deleteFilterOption } from '../../../services/adminServices'
 import ConfirmModal from '../../shared/ConfirmModal'
 import OptionFormModal from './OptionFormModal'
+import { maNgan } from '../../../utils/format'
 
 
 const OptionTypeTab = ({ typeKey, typeLabel, hasNameEn, options, onRefresh }) => {
@@ -103,7 +104,7 @@ const OptionTypeTab = ({ typeKey, typeLabel, hasNameEn, options, onRefresh }) =>
               {options.length > 0 ? (
                 options.map(opt => (
                   <tr key={opt.id} className="hover:bg-gray-800/30 transition-colors group">
-                    <td className="p-4 text-xs text-gray-600 font-mono">#{opt.id}</td>
+                    <td className="p-4 text-xs text-gray-600 font-mono" title={String(opt.id)}>#{maNgan(opt.id)}</td>
                     <td className="p-4 text-sm text-white font-medium">{opt.name}</td>
                     {hasNameEn && (
                       <td className="p-4 text-sm text-gray-400">{opt.nameEn || <span className="text-gray-600 italic">—</span>}</td>
