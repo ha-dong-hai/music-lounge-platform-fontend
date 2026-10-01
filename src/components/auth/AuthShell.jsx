@@ -1,13 +1,5 @@
 // src/components/auth/AuthShell.jsx
-//
-// Khung chung cho các trang tài khoản (đăng nhập, đăng ký, quên/đặt lại mật khẩu).
-// Vì sao tách ra (docs/design/TRANG-CHU-BRIEF.md):
-// - Trước đây mỗi trang tự dựng header/footer riêng, mỗi nơi một kiểu (logo có biểu tượng, chữ "Phòng Trà Sài Gòn •
-//   MusicLounge", bóng đổ nặng shadow-2xl...). Khách đi qua 3-4 trang liên tiếp thấy như đổi sang app khác.
-// - Tấm ảnh/tấm bảng bên trái CHỈ hiện từ màn lớn (lg). Trên điện thoại, người ta vào trang này để làm MỘT việc — đăng
-//   nhập hay đăng ký — nên biểu mẫu phải lên ngay đầu màn hình, không bắt cuộn qua một tấm poster.
-// - Ba ý ở tấm bảng bên trái là chức năng CÓ THẬT của nền tảng (chọn ghế trên sơ đồ, ảnh 360° phòng trà, theo dõi phòng
-//   trà). Bản Stitch cũ ghi "Khởi lập 1972", "nhạc tờ nguyên bản", "Cà phê & Trà mạn ấm" — những điều nền tảng không có.
+
 import { Link } from 'react-router-dom'
 import { Armchair, Rotate3d, Heart } from 'lucide-react'
 

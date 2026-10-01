@@ -1,15 +1,5 @@
 // src/components/myshows/RefundRequestsTab.jsx
-//
-// GHI CHÚ CHO ĐỘI FE:
-// - Hai việc người mua PHẢI tự làm, nếu không tiền mắc lại:
-//   1. `payoutAccountRequired` = true: cổng thanh toán không hoàn được vào giao dịch gốc, nên phải
-//      khai tài khoản ngân hàng để nhận chuyển khoản tay. Không khai thì không ai chuyển được tiền.
-//   2. Vé bán tại quầy hoàn bằng TIỀN MẶT: sau khi nhận tiền ở quầy, người mua bấm xác nhận để
-//      đóng yêu cầu. Không bấm thì yêu cầu treo mãi.
-// - `consent` khi khai tài khoản là bắt buộc phải true — đó là sự đồng ý cho dùng thông tin ngân hàng
-//   để hoàn tiền, không phải một ô tuỳ chọn cho đẹp.
-// - `expectedResolutionBy` là hạn hệ thống phải trả lời. Quá hạn có tác vụ nền tự duyệt, nên yêu cầu
-//   có thể tự chuyển trạng thái mà không ai bấm.
+
 import { useState, useEffect, useCallback } from 'react'
 import { Loader2, Receipt, Landmark, HandCoins, AlertTriangle, CheckCircle2, Clock, X } from 'lucide-react'
 import dayjs from 'dayjs'

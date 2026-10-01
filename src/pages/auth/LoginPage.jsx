@@ -1,12 +1,5 @@
 // src/pages/auth/LoginPage.jsx
-//
-// GHI CHÚ CHO ĐỘI FE — làm lại theo docs/design/TRANG-CHU-BRIEF.md. Logic (react-hook-form + loginSchema, handleLogin,
-// handleGoogleSignIn, thông báo lỗi từ backend) GIỮ NGUYÊN; chỉ đổi giao diện và câu chữ:
-// - Tiêu đề rõ nghĩa ("Đăng nhập") thay cho "Đăng Nhập Khách Tri Âm", nút "Đăng nhập" thay cho "Đăng Nhập Đêm Nay":
-//   đây là khoảnh khắc giao dịch, người dùng phải hiểu ngay bấm vào đâu. Chất thơ để ở dòng phụ.
-// - Khung/ô nhập/hộp lỗi dùng chung (components/auth) để 4 trang tài khoản đồng bộ.
-// - Bỏ 3 điều bịa ở tấm bảng bên trái (xem AuthShell); bỏ mã hex cứng #120e0a, #BCAFA0.
-// - Lỗi từng ô (email/mật khẩu) gắn aria-invalid; hộp lỗi máy chủ không còn chữ trắng trên nền nhạt.
+
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useForm } from 'react-hook-form'

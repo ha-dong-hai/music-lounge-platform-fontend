@@ -1,8 +1,5 @@
 // src/components/auth/AuthAlert.jsx
-//
-// Hộp thông báo trong biểu mẫu tài khoản. Trước đây lỗi dùng `text-white` trên nền danger/10 (trắng trên nền đỏ nhạt =
-// gần như vô hình trên giao diện sáng) và thông báo thành công dùng nền xanh đậm mã hex cứng (#16301c) — một khối đen
-// lạc tông giữa trang sáng. Nay: tiêu đề/nội dung dùng màu chữ chính, chỉ biểu tượng và viền mang màu trạng thái.
+
 import { AlertCircle, CheckCircle2, Info } from 'lucide-react'
 
 const TONES = {

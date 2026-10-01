@@ -1,16 +1,5 @@
 // src/pages/user/NotificationsPage.jsx
-//
-// GHI CHÚ CHO ĐỘI FE:
-// - VÌ SAO CẦN TRANG NÀY dù đã có chuông: chuông chỉ lấy 15 thông báo mới nhất và không phân trang.
-//   Thông báo thứ 16 trở đi không có đường nào xem được — mà đó là chỗ nằm của những thứ người dùng
-//   cần tra lại: vé đã mua, kết quả duyệt, hạn chuyển tiền. Endpoint vốn đã nhận page/pageSize.
-// - LUẬT DẪN ĐƯỜNG dùng chung với chuông (notificationLink.js). Đừng chép lại: hai bản sẽ lệch, rồi
-//   cùng một thông báo bấm ở chuông và bấm ở đây lại ra hai trang khác nhau.
-// - Thông báo KHÔNG CÓ LINK là chuyện bình thường, không phải lỗi: có những loại chưa có màn tương
-//   ứng ở FE, và có loại mà vai trò đang đăng nhập không được vào. Lúc đó vẫn hiện nội dung và vẫn
-//   bấm được để đánh dấu đã đọc, chỉ là không đi đâu cả.
-// - Bấm vào một thông báo CHƯA ĐỌC thì đánh dấu đã đọc ngay tại chỗ thay vì tải lại cả danh sách:
-//   tải lại sẽ làm dòng vừa bấm đổi màu rồi nhảy vị trí ngay dưới tay người dùng.
+
 import { useState, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import { Bell, Loader2, CheckCheck, ArrowLeft, Inbox } from 'lucide-react'

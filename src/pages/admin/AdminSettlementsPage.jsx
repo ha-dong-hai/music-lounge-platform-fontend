@@ -1,16 +1,5 @@
 // src/pages/admin/AdminSettlementsPage.jsx
-//
-// GHI CHÚ CHO ĐỘI FE:
-// - Đây là tiền của phòng trà đang bị hệ thống GIỮ LẠI vì nghi buổi diễn không chạy đủ như đã hứa
-//   với người mua vé. Admin phải trả lời đúng một câu: buổi diễn có thật sự diễn ra đủ không.
-// - Backend trả kèm ĐÚNG bằng chứng đã khiến khoản tiền bị giữ (giờ dự kiến, giờ thật, tỉ lệ,
-//   ngưỡng đang áp) để Admin không phải tự đi tra rồi tính lại một con số có thể lệch. Vì vậy màn
-//   này hiển thị nguyên các con số đó, KHÔNG tự tính lại tỉ lệ ở FE.
-// - verdict='NeverStarted': buổi diễn đã đóng mà chưa từng được đánh dấu bắt đầu — nhiều khả năng
-//   không diễn ra, và khi đó người mua vé cần được hoàn tiền.
-//   verdict='Measured': có diễn nhưng ngắn hơn dự kiến, so ratio với threshold.
-// - Quyết định ở đây KHÔNG tự tạo hoàn tiền cho người mua — hoàn tiền là luồng riêng ở trang
-//   "Yêu cầu hoàn tiền". hasPendingRefund cảnh báo khoản này còn yêu cầu hoàn tiền chưa xử lý.
+
 import { useState, useEffect, useCallback } from 'react'
 import { Loader2, Check, Lock, AlertTriangle, ChevronLeft, ChevronRight } from 'lucide-react'
 import dayjs from 'dayjs'

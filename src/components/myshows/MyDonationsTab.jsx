@@ -1,13 +1,5 @@
 // src/components/myshows/MyDonationsTab.jsx
-//
-// GHI CHÚ CHO ĐỘI FE:
-// - Donate đi qua VNPay giống mua vé: tạo xong là ở trạng thái CHỜ THANH TOÁN, chỉ thành "đã trả"
-//   khi VNPay xác nhận. `paymentConfirmedAt` là mốc đó — chưa có nghĩa là tiền chưa vào.
-// - KHÔNG CÓ LUỒNG HOÀN DONATE. Đã xác nhận trả là xong, đừng dựng nút "yêu cầu hoàn donate".
-// - `performerId` nay có trong từng dòng, nên tên nghệ sĩ dẫn thẳng sang trang sao kê công khai của
-//   họ — đó chính là chỗ trả lời câu "tiền tôi tặng đã tới nghệ sĩ chưa". Dòng nào thiếu
-//   performerId (dữ liệu cũ) thì hiện tên trơn, KHÔNG đoán id từ tên.
-// - `isAnonymous` là ẩn danh VỚI NGƯỜI KHÁC, không phải ẩn với chính mình: dòng này vẫn hiện ở đây.
+
 import { useState, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import { Loader2, Heart, Clock, CheckCircle2, EyeOff, ExternalLink } from 'lucide-react'

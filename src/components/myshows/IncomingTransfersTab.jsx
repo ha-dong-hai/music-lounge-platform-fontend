@@ -1,9 +1,5 @@
 // src/components/myshows/IncomingTransfersTab.jsx
-//
-// GHI CHÚ CHO ĐỘI FE:
-// - Vé được người khác chuyển cho bạn KHÔNG tự vào ví vé: bạn phải đồng ý nhận. Trước khi bạn đồng ý,
-//   người gửi vẫn có thể huỷ lượt chuyển — nên đừng hiện những vé này lẫn vào danh sách vé của bạn.
-// - Endpoint trả MẢNG TRẦN (IReadOnlyList), không phải phong bì phân trang.
+
 import { useState, useEffect, useCallback } from 'react'
 import { Loader2, Inbox, CheckCircle2, Calendar, MapPin } from 'lucide-react'
 import dayjs from 'dayjs'

@@ -1,17 +1,5 @@
 // src/pages/admin/AdminContentReportsPage.jsx
-//
-// GHI CHÚ CHO ĐỘI FE:
-// - Hàng đợi này gom theo NỘI DUNG bị báo cáo, không phải theo từng lượt báo cáo: mỗi dòng là 1 nội
-//   dung kèm reportCount (bao nhiêu người đã báo) và latestReason. Vì vậy DTO không có id của báo
-//   cáo — xử lý là xử lý TẤT CẢ báo cáo đang mở của nội dung đó cùng lúc (targetType + targetId).
-// - slaDeadline là hạn gỡ bỏ theo NĐ 147/2024 (mặc định 48h kể từ báo cáo đầu tiên). Dòng quá hạn
-//   được tô đỏ để Admin thấy ngay.
-// - 4 loại nội dung: Show / Livestream / Rating / ChatMessage. ChatMessage (MLACP-456) là một tin nhắn cụ
-//   thể — targetId là mã tin nhắn, targetSummary là nội dung + tên người gửi + giờ gửi. Gỡ thì tin nhắn
-//   biến khỏi lịch sử chat và người xem nhận sự kiện SignalR ChatMessageHidden.
-// - showId có cho MỌI loại: Show là chính nó; Livestream / ChatMessage / Rating là buổi diễn chứa nó.
-//   Dùng nó để mở đúng ngữ cảnh — đừng dùng targetId: với Livestream đó là mã LIVESTREAM, còn route
-//   /livestream/:showId nhận mã buổi diễn; hai bảng đánh số riêng nên mã dễ trùng số mà sai buổi.
+
 import { useState, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import { Loader2, ShieldAlert, Trash2, CheckCircle2, Clock, ChevronLeft, ChevronRight } from 'lucide-react'

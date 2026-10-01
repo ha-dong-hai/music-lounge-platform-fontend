@@ -1,15 +1,5 @@
 // src/pages/admin/AdminRefundsPage.jsx
-//
-// GHI CHÚ CHO ĐỘI FE:
-// - Bấm "Duyệt hoàn" gọi VNPay hoàn tiền THẬT, không phải chỉ đổi trạng thái trong DB. Backend chỉ
-//   ghi sổ khi VNPay xác nhận thành công. Trên tài khoản sandbox VNPay khoá sẵn chức năng hoàn tiền,
-//   nên nút này rất có thể trả 503 — đó là giới hạn tài khoản, không phải lỗi code. Thông báo lỗi
-//   hiển thị nguyên văn để phân biệt được hai trường hợp.
-// - expectedResolutionBy là hạn phải trả lời người mua (tạo + refund_sla_hours, mặc định 72h).
-//   Quá hạn tô đỏ. Có job nền auto-approve-overdue-refunds tự duyệt khi quá hạn, nên hàng đợi này
-//   có thể tự vơi đi mà không ai bấm.
-// - payoutAccountRequired = true nghĩa là VNPay không hoàn được giao dịch gốc, phải chuyển khoản tay
-//   vào tài khoản người mua đã khai — khi đó nhập mã chuyển khoản vào ô ghi chú trước khi duyệt.
+
 import { useState, useEffect, useCallback } from 'react'
 import { Loader2, Check, X, Clock, AlertTriangle, ChevronLeft, ChevronRight, Banknote } from 'lucide-react'
 import dayjs from 'dayjs'

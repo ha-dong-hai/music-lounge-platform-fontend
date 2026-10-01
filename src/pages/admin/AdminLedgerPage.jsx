@@ -1,50 +1,31 @@
 // src/pages/admin/AdminLedgerPage.jsx
-//
-// GHI CHÚ CHO ĐỘI FE:
-// - Sidebar đã có link "Sổ cái (Ledger)" từ trước nhưng KHÔNG có route — bấm vào ra trang trắng.
-//   Trang này vá chỗ đó, không phải thêm mục mới.
-// - Backend chỉ có MỘT endpoint sổ cái: GET /admin/ledger/integrity-check. Không có API xem danh
-//   sách bút toán, không có API xem chi tiết một bút toán. Đừng dựng bảng sổ cái đầy đủ ở đây rồi
-//   chờ backend — muốn tra một bút toán cụ thể thì hiện phải vào cơ sở dữ liệu.
-// - Mỗi dòng trả về là MỘT BÚT TOÁN LỆCH: tổng Nợ khác tổng Có. Danh sách rỗng là kết quả TỐT.
-//   Rỗng và lỗi phải hiện khác nhau — trắng trang thì không ai biết là cân hay là gọi không được.
-// - CÓ DÒNG LỆCH LÀ CHUYỆN KẾ TOÁN, KHÔNG PHẢI LỖI GIAO DIỆN. Tuyệt đối không "xử lý" bằng cách
-//   ẩn dòng hay làm tròn số cho khớp; việc của trang này là nêu ra đúng như backend trả về.
-// - Khối tác vụ định kỳ nằm chung trang vì đây là nơi Admin tới khi số tiền trông sai: phần lớn
-//   job trong danh sách là job động vào tiền (quyết toán, hoàn tiền, án phạt quá hạn). Chạy lại một
-//   job là hành động THẬT trên dữ liệu thật, nên phải hỏi lại trước khi chạy.
 import { useState, useEffect, useCallback } from 'react'
-import {
-  Loader2, Receipt, RefreshCw, CheckCircle2, AlertTriangle, Clock, Play, ExternalLink,
-} from 'lucide-react'
+import { Receipt } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { getLedgerIntegrityCheck, getRecurringJobs, triggerRecurringJob } from '../../services/adminServices'
 import ConfirmModal from '../../components/shared/ConfirmModal'
-
-const fmtTien = (v) => `${Number(v || 0).toLocaleString('vi-VN')}đ`
-
-// Tên job của Hangfire là mã kỹ thuật (vd "settle-completed-shows"). Backend không trả tên hiển
-// thị, nên đổi dấu gạch thành khoảng trắng cho đọc được — KHÔNG dịch, vì id là thứ duy nhất khớp
-// với log và với dashboard Hangfire.
-const tenDocDuoc = (jobId) => jobId.replace(/[-_]/g, ' ')
+import LedgerIntegrityCard from '../../components/admin/ledger/LedgerIntegrityCard'
+import RecurringJobsCard from '../../components/admin/ledger/RecurringJobsCard'
 
 const AdminLedgerPage = () => {
-  const [issues, setIssues] = useState(null) // null = chưa có dữ liệu (lỗi), [] = đã kiểm và cân
+  // null = chưa có dữ liệu (lỗi) | [] = đã kiểm và cân — 2 trạng thái này PHẢI hiển thị khác nhau
+  const [issues, setIssues] = useState(null)
   const [isChecking, setIsChecking] = useState(true)
-  const [kiemLuc, setKiemLuc] = useState(null)
+  const [lastCheckedAt, setLastCheckedAt] = useState(null)
 
   const [jobs, setJobs] = useState([])
   const [isLoadingJobs, setIsLoadingJobs] = useState(true)
   const [jobXacNhan, setJobXacNhan] = useState(null)
   const [isTriggering, setIsTriggering] = useState(false)
 
+  // 1. KIỂM TRA TOÀN VẸN
   const kiemTra = useCallback(async () => {
     setIsChecking(true)
     try {
       const res = await getLedgerIntegrityCheck()
       if (res.success) {
         setIssues(res.data ?? [])
-        setKiemLuc(new Date())
+        setLastCheckedAt(new Date())
       } else {
         setIssues(null)
         toast.error(res.message || 'Không kiểm tra được sổ cái.')
@@ -57,6 +38,7 @@ const AdminLedgerPage = () => {
     }
   }, [])
 
+  // 2. TẢI DANH SÁCH JOB
   const taiJobs = useCallback(async () => {
     setIsLoadingJobs(true)
     try {
@@ -74,6 +56,7 @@ const AdminLedgerPage = () => {
     chay()
   }, [kiemTra, taiJobs])
 
+  // 3. CHẠY JOB — hành động THẬT trên dữ liệu thật (nhiều job động vào tiền), đã có ConfirmModal chặn
   const chayJob = async () => {
     if (!jobXacNhan) return
     setIsTriggering(true)
@@ -81,8 +64,8 @@ const AdminLedgerPage = () => {
       await triggerRecurringJob(jobXacNhan)
       toast.success(`Đã yêu cầu chạy "${jobXacNhan}".`)
       setJobXacNhan(null)
-      // Job động vào tiền → kiểm lại sổ cái ngay sau khi chạy. Job chạy nền nên kết quả có thể
-      // chưa kịp phản ánh, vì vậy vẫn để nút "Kiểm tra lại" cho Admin bấm thêm.
+      // Job động vào tiền → kiểm lại sổ cái ngay. Job chạy nền nên kết quả có thể chưa kịp
+      // phản ánh — vẫn để nút "Kiểm tra lại" cho Admin bấm thêm.
       await kiemTra()
     } catch (err) {
       toast.error(err.response?.data?.message || 'Không chạy được tác vụ.')
@@ -94,143 +77,33 @@ const AdminLedgerPage = () => {
   return (
     <div className="space-y-6">
       {/* HEADER */}
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <Receipt size={28} className="text-brand-text" />
-          <div>
-            <h1 className="text-2xl font-bold text-ink">Sổ cái</h1>
-            <p className="text-ink-soft text-sm">
-              Kiểm tra bút toán có cân không, và chạy lại tác vụ định kỳ khi cần.
-            </p>
-          </div>
+      <div className="flex items-center gap-3">
+        <Receipt size={28} className="text-brand-text" />
+        <div>
+          <h1 className="text-2xl font-bold text-ink">Sổ cái</h1>
+          <p className="text-ink-soft text-sm">
+            Kiểm tra bút toán có cân không, và chạy lại tác vụ định kỳ khi cần.
+          </p>
         </div>
-        <button onClick={kiemTra} disabled={isChecking}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg border border-line text-ink-soft text-sm font-bold hover:bg-sunken disabled:opacity-50">
-          {isChecking ? <Loader2 size={16} className="animate-spin" /> : <RefreshCw size={16} />}
-          Kiểm tra lại
-        </button>
       </div>
 
-      {/* KẾT QUẢ KIỂM TRA TOÀN VẸN */}
-      <div>
-        <h2 className="text-sm font-semibold text-ink-soft">Toàn vẹn bút toán</h2>
-        <p className="text-xs text-ink-mute mt-0.5 mb-3 leading-relaxed">
-          Mỗi bút toán phải có tổng Nợ bằng tổng Có. Dòng nào lệch sẽ hiện ở đây kèm số liệu thật —
-          đây là việc của kế toán xử lý, không phải lỗi hiển thị.
-        </p>
+      {/* KHỐI 1: TOÀN VẸN */}
+      <LedgerIntegrityCard
+        issues={issues}
+        isChecking={isChecking}
+        lastCheckedAt={lastCheckedAt}
+        onRefresh={kiemTra}
+      />
 
-        {isChecking ? (
-          <div className="bg-card border border-line rounded-xl py-16 flex justify-center">
-            <Loader2 size={26} className="animate-spin text-brand-text" />
-          </div>
-        ) : issues === null ? (
-          // Phân biệt rõ với trường hợp cân: không gọi được thì KHÔNG được hiện "sổ cái cân".
-          <div className="bg-card border border-yellow-500/30 rounded-xl p-6 flex items-start gap-3">
-            <AlertTriangle size={20} className="text-warning flex-shrink-0 mt-0.5" />
-            <div>
-              <p className="text-sm text-ink font-medium">Chưa kiểm tra được</p>
-              <p className="text-xs text-ink-soft mt-1 leading-relaxed">
-                Không gọi được endpoint kiểm tra. Đây KHÔNG có nghĩa là sổ cái cân — hãy bấm
-                &quot;Kiểm tra lại&quot;.
-              </p>
-            </div>
-          </div>
-        ) : issues.length === 0 ? (
-          <div className="bg-card border border-green-500/25 rounded-xl p-6 flex items-start gap-3">
-            <CheckCircle2 size={20} className="text-success flex-shrink-0 mt-0.5" />
-            <div>
-              <p className="text-sm text-ink font-medium">Sổ cái cân</p>
-              <p className="text-xs text-ink-soft mt-1 leading-relaxed">
-                Không có bút toán nào lệch.
-                {kiemLuc && ` Kiểm lúc ${kiemLuc.toLocaleTimeString('vi-VN')}.`}
-              </p>
-            </div>
-          </div>
-        ) : (
-          <div className="bg-card border border-red-500/30 rounded-xl overflow-hidden">
-            <div className="p-4 border-b border-line flex items-center gap-2">
-              <AlertTriangle size={18} className="text-danger flex-shrink-0" />
-              <p className="text-sm text-ink font-medium">
-                {issues.length} bút toán lệch — cần kế toán đối chiếu
-              </p>
-            </div>
-            <div className="overflow-x-auto">
-              <table className="w-full text-left whitespace-nowrap">
-                <thead className="bg-sunken/70 border-b border-line">
-                  <tr>
-                    <th className="p-4 text-xs font-semibold text-ink-soft uppercase tracking-wider">Loại lệch</th>
-                    <th className="p-4 text-xs font-semibold text-ink-soft uppercase tracking-wider">Mã bút toán</th>
-                    <th className="p-4 text-xs font-semibold text-ink-soft uppercase tracking-wider text-right">Tổng Nợ</th>
-                    <th className="p-4 text-xs font-semibold text-ink-soft uppercase tracking-wider text-right">Tổng Có</th>
-                    <th className="p-4 text-xs font-semibold text-ink-soft uppercase tracking-wider text-right">Chênh lệch</th>
-                    <th className="p-4 text-xs font-semibold text-ink-soft uppercase tracking-wider">Chi tiết</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-line">
-                  {issues.map((it, i) => (
-                    <tr key={`${it.journalId}-${i}`} className="hover:bg-sunken/30">
-                      <td className="p-4 text-sm text-ink">{it.issueType}</td>
-                      <td className="p-4 text-xs text-ink-soft font-mono">{it.journalId}</td>
-                      <td className="p-4 text-sm text-ink-soft text-right tabular-nums">{fmtTien(it.debitTotal)}</td>
-                      <td className="p-4 text-sm text-ink-soft text-right tabular-nums">{fmtTien(it.creditTotal)}</td>
-                      <td className="p-4 text-sm text-danger text-right tabular-nums font-medium">
-                        {fmtTien(Number(it.debitTotal || 0) - Number(it.creditTotal || 0))}
-                      </td>
-                      <td className="p-4 text-xs text-ink-mute max-w-xs whitespace-normal leading-relaxed">
-                        {it.detail || '—'}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-      </div>
+      {/* KHỐI 2: TÁC VỤ ĐỊNH KỲ */}
+      <RecurringJobsCard
+        jobs={jobs}
+        isLoading={isLoadingJobs}
+        isTriggering={isTriggering}
+        onTrigger={setJobXacNhan}
+      />
 
-      {/* TÁC VỤ ĐỊNH KỲ */}
-      <div>
-        <h2 className="text-sm font-semibold text-ink-soft flex items-center gap-2">
-          <Clock size={15} /> Tác vụ định kỳ
-        </h2>
-        <p className="text-xs text-ink-mute mt-0.5 mb-3 leading-relaxed">
-          Các job chạy theo lịch. Bấm chạy khi job lỡ nhịp, hoặc khi vừa sửa dữ liệu và muốn thấy kết
-          quả ngay. Backend chỉ trả về mã job — không có lần chạy gần nhất hay trạng thái, muốn xem
-          thì vào dashboard Hangfire.
-        </p>
-
-        {isLoadingJobs ? (
-          <div className="bg-card border border-line rounded-xl py-12 flex justify-center">
-            <Loader2 size={22} className="animate-spin text-brand-text" />
-          </div>
-        ) : jobs.length === 0 ? (
-          <div className="bg-card border border-line rounded-xl p-6">
-            <p className="text-sm text-ink-mute">Không có tác vụ định kỳ nào đang đăng ký.</p>
-          </div>
-        ) : (
-          <div className="bg-card border border-line rounded-xl divide-y divide-line">
-            {jobs.map((jobId) => (
-              <div key={jobId} className="p-4 flex flex-wrap items-center justify-between gap-3">
-                <div className="min-w-0">
-                  <p className="text-sm text-ink capitalize">{tenDocDuoc(jobId)}</p>
-                  <p className="text-xs text-ink-mute mt-0.5 font-mono break-all">{jobId}</p>
-                </div>
-                <button onClick={() => setJobXacNhan(jobId)} disabled={isTriggering}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-line text-ink-soft text-xs font-bold hover:bg-sunken disabled:opacity-50 flex-shrink-0">
-                  <Play size={13} /> Chạy ngay
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
-
-        <p className="text-xs text-ink-mute mt-3 flex items-start gap-1.5 leading-relaxed">
-          <ExternalLink size={12} className="mt-0.5 flex-shrink-0" />
-          Lịch chạy, lần chạy gần nhất và log chi tiết nằm ở dashboard Hangfire của backend, không
-          phải ở đây.
-        </p>
-      </div>
-
+      {/* XÁC NHẬN CHẠY JOB */}
       <ConfirmModal
         isOpen={!!jobXacNhan}
         title="Chạy tác vụ này ngay?"

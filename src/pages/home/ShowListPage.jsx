@@ -1,17 +1,5 @@
 // src/pages/home/ShowListPage.jsx
-//
-// GHI CHÚ CHO ĐỘI FE:
-// - TRANG NÀY TRƯỚC ĐÂY HỎNG THẬT: nó đọc một biến `HOME_DATA` không còn tồn tại (dữ liệu giả đã bị
-//   bỏ), nên mở /shows là trang trắng kèm lỗi "HOME_DATA is not defined". Không có chỗ nào trong
-//   giao diện dẫn tới nó nên lỗi không ai thấy — nhưng ai gõ URL hay mở bookmark cũ vẫn gặp.
-// - Nay dựng lại trên API thật: GET /lounge-shows (danh sách công khai, Published + Ongoing).
-//   Đây là trang XEM TẤT CẢ, không phải trang tìm kiếm — có lọc thì dùng /shows/search.
-// - `sortBy` nhận đúng 5 giá trị của backend: Newest | Popular | PriceAsc | PriceDesc | StartingSoon.
-//   Gửi tên khác là 400, nên danh sách sắp xếp lấy thẳng từ hằng số dưới đây.
-// - Hai tham số lọc theo thể loại / tâm trạng KHÔNG có ở endpoint này. Trước đây trang tự lọc bằng
-//   `ev.genre === 'Rock'` trên dữ liệu giả — không thể làm vậy với dữ liệu thật. Nếu URL còn mang
-//   ?genre= hoặc ?mood= (đường dẫn cũ), trang chuyển sang /shows/search để bộ lọc thật xử lý, thay
-//   vì im lặng bỏ qua rồi hiện danh sách sai.
+
 import { useState, useEffect, useCallback } from 'react'
 import { useSearchParams, useNavigate, Link } from 'react-router-dom'
 import { SlidersHorizontal, CalendarX2, ChevronDown } from 'lucide-react'

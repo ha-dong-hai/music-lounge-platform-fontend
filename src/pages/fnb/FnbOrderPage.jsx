@@ -1,16 +1,3 @@
-// src/pages/fnb/FnbOrderPage.jsx
-//
-// GHI CHÚ CHO ĐỘI FE:
-// - Trang này dựng tối giản để nối thông luồng đặt món, KHÔNG qua quy trình thiết kế Stitch — đây là
-//   màn khán giả nên nếu muốn đồng bộ thẩm mỹ với phần còn lại thì cần thiết kế lại.
-// - Quy tắc backend phải tôn trọng, đừng "tối ưu" đi:
-//     + Lúc TẠO đơn, paymentMethod bắt buộc là 'Cash'. Trả online là bước RIÊNG sau khi đã có đơn
-//       (POST /fnb-orders/{id}/pay), vì trước đó chưa tồn tại bản ghi Payment nào.
-//     + status (bếp làm tới đâu) TÁCH BIỆT với isPaid (đã trả tiền chưa). Đơn trả trước qua VNPay
-//       vẫn nằm ở Pending/Preparing cho tới khi phục vụ xong — không được suy isPaid từ status.
-//     + onlinePaymentLiveUntil != null nghĩa là đang có link VNPay còn hiệu lực; trong lúc đó backend
-//       từ chối thu tiền mặt và từ chối huỷ đơn.
-// - Chưa nối chọn khu vực (zoneId) vì chưa có UI chọn bàn/khu — hiện chỉ gửi ghi chú bàn dạng chữ.
 import { useState, useEffect, useMemo } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { Loader2, Plus, Minus, ShoppingCart, ArrowLeft, CreditCard, Receipt } from 'lucide-react'

@@ -1,13 +1,5 @@
 // src/components/auth/AuthField.jsx
-//
-// Một ô nhập cho biểu mẫu tài khoản — nhãn, biểu tượng, gợi ý, lỗi, nút hiện/ẩn mật khẩu.
-// Vì sao viết lại (docs/design/TRANG-CHU-BRIEF.md):
-// - Nhãn cũ viết HOA + giãn chữ ("ĐỊA CHỈ EMAIL") — với tiếng Việt có dấu, chữ hoa giãn cách khó đọc hơn và trông như
-//   biểu mẫu hành chính. Nhãn thường, đậm vừa, cỡ 14px.
-// - Ô cao 48px (đủ ngón tay); nút hiện/ẩn mật khẩu 44px và có aria-pressed (trước đây nút 20px, nhãn cố định
-//   "Bật tắt xem mật khẩu" không nói trạng thái).
-// - Lỗi gắn với ô bằng aria-invalid + aria-describedby để trình đọc màn hình đọc lỗi cùng ô đó.
-// - Màu placeholder dùng token thay cho mã hex cứng #BCAFA0.
+
 import { useState } from 'react'
 import { Eye, EyeOff } from 'lucide-react'
 

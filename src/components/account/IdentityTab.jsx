@@ -1,13 +1,5 @@
 // src/components/account/IdentityTab.jsx
-//
-// GHI CHÚ CHO ĐỘI FE:
-// - Ba việc gom chung một tab vì cùng phục vụ một mục đích: chứng minh bạn là ai trước khi nhận tiền.
-//   Xác thực số điện thoại · Định danh CCCD · Hồ sơ thuế.
-// - Ảnh CCCD: tải lên /uploads/images trước, rồi gửi URL. Backend chuyển ảnh sang vùng lưu RIÊNG TƯ
-//   ngay khi nhận, nên URL đó KHÔNG mở trực tiếp được — muốn xem lại phải gọi GET và nhận blob.
-// - Hồ sơ thuế CHỈ dành cho hộ/cá nhân kinh doanh (GTGT 5% + TNCN 2%). Người dùng thường không cần
-//   khai, nên phần này để trong khối riêng có giải thích, không bắt buộc ai cũng điền.
-// - Mã xác thực gửi tới SỐ ĐANG KHAI trong hồ sơ. Muốn đổi số thì sửa hồ sơ trước rồi mới gửi mã.
+
 import { useState, useEffect, useCallback } from 'react'
 import { Loader2, ShieldCheck, Upload, Phone, CheckCircle2, FileText, ExternalLink, AlertTriangle } from 'lucide-react'
 import toast from 'react-hot-toast'

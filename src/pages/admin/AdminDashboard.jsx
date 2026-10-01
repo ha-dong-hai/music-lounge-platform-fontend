@@ -1,28 +1,16 @@
 // src/pages/admin/AdminDashboard.jsx
-//
-// GHI CHÚ CHO ĐỘI FE — vì sao trang này ít biểu đồ hơn bản thiết kế ban đầu:
-// Bản cũ có 4 khối dữ liệu hardcode (doanh thu 6 tháng tách theo vé/gói/donate, tỷ trọng doanh thu
-// tháng, bảng Top shows, bảng thể loại thịnh hành). Đã rà toàn bộ AnalyticsController: backend
-// KHÔNG có endpoint nào cấp được 4 thứ đó ở phạm vi toàn nền tảng — chỉ có số luỹ kế
-// (/analytics/platform) và số theo kỳ (/analytics/admin-overview). Giữ biểu đồ với số bịa sẽ khiến
-// Admin ra quyết định dựa trên dữ liệu không tồn tại, nên đã bỏ hẳn thay vì để nguyên.
-// Muốn khôi phục 4 khối đó thì backend cần bổ sung trước:
-//   - doanh thu theo tháng, tách theo nguồn (vé / gói dịch vụ / donate) ở phạm vi nền tảng
-//   - xếp hạng buổi diễn theo doanh thu toàn nền tảng
-//   - thống kê thể loại theo lượt quan tâm / bán vé
-// (Owner đã có sẵn /analytics/revenue-report tách theo tháng, nhưng chỉ trong phạm vi 1 phòng trà.)
+// Data thật từ /analytics/* — layout theo dashboard cũ + giữ các tính năng hay của bản mới:
+// nút chuyển đại lượng doanh thu (GMV ↔ Platform Revenue), khối luỹ kế, khối recommender.
 import { useState, useEffect } from 'react'
 import { DollarSign, Ticket, Users, AlertCircle, Store, Music2, HeartHandshake, Loader2, Brain } from 'lucide-react'
 import toast from 'react-hot-toast'
 import dayjs from 'dayjs'
 import { getPlatformAnalytics, getAdminOverview, getRecommenderEvaluation, getAdminDashboard } from '../../services/analyticsServices'
-import {
-  RevenueByMonthChart, RevenueShareBar, TopShowsTable, GenreDemandChart,
-} from '../../components/admin/dashboard/DashboardCharts'
+import { RevenueByMonthChart, RevenueShareDonut, TopShowsTable, GenreTrendingList } from '../../components/admin/dashboard/DashboardCharts'
 
 const fmtMoney = (v) => `${Number(v || 0).toLocaleString('vi-VN')}đ`
 
-// Khoá = LoungeStatus của backend; thứ tự mảng = thứ tự hiển thị (đang hoạt động trước).
+// Khoá = LoungeStatus của backend; thứ tự = thứ tự hiển thị (đang hoạt động trước)
 const VENUE_STATUS_LABELS = [
   ['Approved', 'hoạt động'],
   ['Warned', 'bị cảnh cáo'],
@@ -39,31 +27,27 @@ const venueBreakdown = (byStatus) => {
   return parts.length ? parts.join(' · ') : null
 }
 
-// MỘT nút chuyển cho CẢ HAI khối doanh thu, đặt phía trên chúng — hai khối luôn cùng đại lượng.
+// ⭐ GIỮ TỪ BẢN MỚI: MỘT nút chuyển cho CẢ HAI khối doanh thu — hai khối luôn cùng đại lượng
 const MEASURES = [
   { key: 'platformRevenue', label: 'Doanh thu nền tảng' },
   { key: 'gmv', label: 'Tổng giá trị giao dịch (GMV)' },
 ]
 
-const ChartCard = ({ title, subtitle, children, className = '' }) => (
-  <div className={`bg-card border border-line rounded-xl p-6 ${className}`}>
-    <h3 className="text-base font-semibold text-ink">{title}</h3>
-    {subtitle && <p className="text-xs text-ink-mute mt-0.5">{subtitle}</p>}
-    <div className="mt-4">{children}</div>
-  </div>
-)
-
 const StatCard = ({ title, value, note, icon: Icon, color, bg }) => (
   <div className="bg-card border border-line rounded-xl p-5 flex items-start justify-between">
-    <div>
+    <div className="min-w-0">
       <p className="text-sm text-ink-mute mb-1">{title}</p>
       <p className="text-2xl font-bold text-ink">{value}</p>
       {note && <p className="text-xs mt-2 font-medium text-ink-mute">{note}</p>}
     </div>
-    <div className={`p-3 rounded-lg ${bg}`}>
+    <div className={`p-3 rounded-lg ${bg} flex-shrink-0`}>
       <Icon size={24} className={color} />
     </div>
   </div>
+)
+
+const SectionTitle = ({ children }) => (
+  <h2 className="text-sm font-semibold text-ink-soft mb-3">{children}</h2>
 )
 
 const AdminDashboard = () => {
@@ -78,9 +62,8 @@ const AdminDashboard = () => {
     const fetchAll = async () => {
       setIsLoading(true)
       try {
-        // Gọi song song: 3 endpoint độc lập, không cái nào cần kết quả của cái nào.
-        // allSettled chứ không phải all: với Promise.all, chỉ cần một endpoint lỗi (ví dụ
-        // admin-dashboard trả 404 khi backend chưa deploy) là mất luôn cả những thẻ đang chạy tốt.
+        // allSettled chứ không phải all: một endpoint lỗi (VD backend chưa deploy admin-dashboard)
+        // không làm mất các thẻ đang chạy tốt
         const ketQua = await Promise.allSettled([
           getPlatformAnalytics(),
           getAdminOverview(),
@@ -117,16 +100,18 @@ const AdminDashboard = () => {
 
   return (
     <div className="space-y-6">
+
+      {/* ===== HEADER (kiểu cũ) ===== */}
       <div>
-        <h1 className="text-2xl font-bold text-ink mb-1">Tổng quan hệ thống</h1>
-        <p className="text-ink-soft text-sm">Toàn bộ số liệu dưới đây lấy trực tiếp từ hệ thống, không phải dữ liệu mẫu.</p>
+        <h1 className="text-2xl font-bold text-ink mb-1">System Overview</h1>
+        <p className="text-ink-soft text-sm">Toàn bộ số liệu lấy trực tiếp từ hệ thống, không phải dữ liệu mẫu.</p>
       </div>
 
-      {/* === KỲ HIỆN TẠI === */}
+      {/* ===== KỲ HIỆN TẠI (data thật — giữ từ bản mới) ===== */}
       <div>
-        <h2 className="text-sm font-semibold text-ink-soft mb-3">
+        <SectionTitle>
           Trong kỳ {periodLabel && <span className="text-ink-mute">({periodLabel})</span>}
-        </h2>
+        </SectionTitle>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <StatCard
             title="Doanh thu nền tảng"
@@ -136,17 +121,15 @@ const AdminDashboard = () => {
           <StatCard
             title="Buổi diễn trong kỳ"
             value={overview?.eventsInPeriodCount ?? 0}
-            icon={Music2} color="text-sky-700" bg="bg-blue-500/10"
+            icon={Music2} color="text-sky-400" bg="bg-blue-500/10"
           />
           <StatCard
             title="Khán giả đăng ký mới"
             value={overview?.newAudienceSignupsInPeriod ?? 0}
-            icon={Users} color="text-purple-700" bg="bg-purple-500/10"
+            icon={Users} color="text-purple-400" bg="bg-purple-500/10"
           />
           <StatCard
             title="Phòng trà đang hoạt động"
-            // operatingVenues và activeVenuesCount cùng định nghĩa (Approved + Warned); ưu tiên cái
-            // đầu vì nó đi kèm venuesByStatus để giải thích chênh lệch. Cái sau là dự phòng cho bản BE cũ.
             value={platform?.operatingVenues ?? overview?.activeVenuesCount ?? 0}
             note="Tính tại thời điểm hiện tại, không theo kỳ"
             icon={Store} color="text-brand-text" bg="bg-brand/10"
@@ -154,9 +137,9 @@ const AdminDashboard = () => {
         </div>
       </div>
 
-      {/* === LUỸ KẾ === */}
+      {/* ===== LUỸ KẾ TOÀN HỆ THỐNG ===== */}
       <div>
-        <h2 className="text-sm font-semibold text-ink-soft mb-3">Luỹ kế toàn hệ thống</h2>
+        <SectionTitle>Luỹ kế toàn hệ thống</SectionTitle>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <StatCard
             title="Tổng giá trị giao dịch"
@@ -165,13 +148,13 @@ const AdminDashboard = () => {
           />
           <StatCard
             title="Vé đã bán"
-            value={platform?.totalTicketsSold ?? 0}
-            icon={Ticket} color="text-sky-700" bg="bg-blue-500/10"
+            value={(platform?.totalTicketsSold ?? 0).toLocaleString('vi-VN')}
+            icon={Ticket} color="text-sky-400" bg="bg-blue-500/10"
           />
           <StatCard
             title="Tổng donate"
             value={fmtMoney(platform?.totalDonationVolume)}
-            icon={HeartHandshake} color="text-pink-700" bg="bg-pink-500/10"
+            icon={HeartHandshake} color="text-pink-400" bg="bg-pink-500/10"
           />
           <StatCard
             title="Chờ duyệt thủ công"
@@ -194,62 +177,69 @@ const AdminDashboard = () => {
           />
           <StatCard
             title="Tổng người dùng"
-            value={platform?.totalUsers ?? 0}
-            icon={Users} color="text-purple-700" bg="bg-purple-500/10"
+            value={(platform?.totalUsers ?? 0).toLocaleString('vi-VN')}
+            icon={Users} color="text-purple-400" bg="bg-purple-500/10"
           />
         </div>
       </div>
 
-      {/* === DOANH THU 6 THÁNG — một nút chuyển đại lượng, áp cho cả hai khối bên dưới === */}
+      {/* ===== DOANH THU 6 THÁNG — nút chuyển đại lượng áp cho cả 2 khối ===== */}
       {dashboard ? (
         <div className="space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <h2 className="text-sm font-semibold text-ink-soft">Doanh thu 6 tháng gần nhất</h2>
+            <h3 className="text-lg font-semibold text-ink">Revenue over the last six months</h3>
+            {/* ⭐ SEGMENTED CONTROL từ bản mới */}
             <div className="inline-flex rounded-lg border border-line p-0.5 bg-sunken/70" role="group" aria-label="Đại lượng doanh thu">
               {MEASURES.map((m) => (
                 <button key={m.key} onClick={() => setMeasure(m.key)} aria-pressed={measure === m.key}
-                  className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${measure === m.key
-                    ? 'bg-sunken text-brand-text' : 'text-ink-soft hover:text-ink'}`}>
+                  className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
+                    measure === m.key ? 'bg-card text-brand-text' : 'text-ink-soft hover:text-ink'
+                  }`}>
                   {m.label}
                 </button>
               ))}
             </div>
           </div>
 
+          {/* Giải thích ý nghĩa 2 đại lượng — quan trọng để Admin không đọc sai số */}
           <p className="text-xs text-ink-mute leading-relaxed">
             {measure === 'platformRevenue'
               ? 'Phần nền tảng thực nhận: hoa hồng trên vé và donate, cộng toàn bộ phí gói dịch vụ. Không gồm tiền giữ hộ phòng trà chờ quyết toán; vé bán tại quầy bằng tiền mặt không đi qua nền tảng nên gần như không có ở đây.'
               : 'Tổng tiền người mua trả, GỒM cả vé bán tại quầy bằng tiền mặt. Đây KHÔNG phải doanh thu của nền tảng — phần lớn thuộc về phòng trà và nghệ sĩ.'}
           </p>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-            <ChartCard title="Theo tháng, tách theo nguồn" className="lg:col-span-2">
+          {/* Layout 2/3 + 1/3 — kiểu cũ */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2 bg-card border border-line rounded-xl p-6">
+              <h3 className="text-base font-semibold text-ink">Theo tháng, tách theo nguồn</h3>
+              <p className="text-xs text-ink-mute mt-0.5 mb-4">Cột chồng theo nguồn doanh thu.</p>
               <RevenueByMonthChart months={dashboard.months} measure={measure} />
-            </ChartCard>
-            <ChartCard
-              title="Cơ cấu tháng này"
-              subtitle={`Tháng ${dayjs(`${dashboard.months.at(-1)?.month}-01`).format('MM/YYYY')}, chưa trọn tháng`}
-            >
-              <RevenueShareBar month={dashboard.months.at(-1)} measure={measure} />
-            </ChartCard>
+            </div>
+            <div className="lg:col-span-1 bg-card border border-line rounded-xl p-6 flex flex-col">
+              <h3 className="text-base font-semibold text-ink">This month revenue</h3>
+              <p className="text-xs text-ink-mute mt-0.5 mb-2">
+                Tháng {dayjs(`${dashboard.months.at(-1)?.month}-01`).format('MM/YYYY')}, chưa trọn tháng
+              </p>
+              <RevenueShareDonut month={dashboard.months.at(-1)} measure={measure} />
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <ChartCard
-              title="Top buổi diễn theo doanh thu vé"
-              subtitle={`${dayjs(dashboard.periodFrom).format('DD/MM/YYYY')} – ${dayjs(dashboard.periodTo).format('DD/MM/YYYY')}`}
-            >
+          {/* Top shows + Trending genres — layout kiểu cũ */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2 bg-card border border-line rounded-xl overflow-hidden">
+              <div className="p-6 pb-4">
+                <h3 className="text-lg font-semibold text-ink">Top shows</h3>
+                <p className="text-ink-mute text-xs">
+                  Theo doanh thu vé · {dayjs(dashboard.periodFrom).format('DD/MM/YYYY')} – {dayjs(dashboard.periodTo).format('DD/MM/YYYY')}
+                </p>
+              </div>
               <TopShowsTable shows={dashboard.topShows} />
-            </ChartCard>
-            <ChartCard
-              title="Thể loại theo số vé bán"
-              subtitle={`${dayjs(dashboard.periodFrom).format('DD/MM/YYYY')} – ${dayjs(dashboard.periodTo).format('DD/MM/YYYY')}`}
-            >
-              <GenreDemandChart genres={dashboard.genres} />
-              <p className="text-xs text-ink-mute mt-3 leading-relaxed">
-                Một buổi diễn nhiều thể loại được tính vé cho từng thể loại, nên cộng các thanh sẽ lớn hơn tổng vé bán.
-              </p>
-            </ChartCard>
+            </div>
+            <div className="lg:col-span-1 bg-card border border-line rounded-xl p-6">
+              <h3 className="text-lg font-semibold text-ink mb-1">Trending genres</h3>
+              <p className="text-ink-mute text-xs mb-6">Xếp theo số vé bán trong kỳ</p>
+              <GenreTrendingList genres={dashboard.genres} />
+            </div>
           </div>
         </div>
       ) : (
@@ -259,7 +249,7 @@ const AdminDashboard = () => {
         </div>
       )}
 
-      {/* === CHẤT LƯỢNG MÔ HÌNH GỢI Ý === */}
+      {/* ===== CHẤT LƯỢNG MÔ HÌNH GỢI Ý (giữ từ bản mới) ===== */}
       {recommender && (
         <div className="bg-card border border-line rounded-xl p-6">
           <div className="flex items-start gap-3 mb-4">
@@ -272,8 +262,8 @@ const AdminDashboard = () => {
             </div>
           </div>
 
-          {/* Backend cố tình KHÔNG trả con số khi chưa đủ dữ liệu — phải hiển thị đúng như vậy,
-              không quy về 0% vì như thế người đọc sẽ tưởng mô hình đo được và đang sai. */}
+          {/* BE cố tình KHÔNG trả con số khi chưa đủ dữ liệu — hiển thị đúng như vậy,
+              không quy về 0% kẻo người đọc tưởng mô hình đo được và đang sai */}
           {recommender.status === 'NotEnoughHistory' ? (
             <div className="bg-yellow-500/5 border border-yellow-500/20 rounded-lg p-4">
               <p className="text-warning text-sm font-medium mb-1">Chưa đủ dữ liệu để đo</p>

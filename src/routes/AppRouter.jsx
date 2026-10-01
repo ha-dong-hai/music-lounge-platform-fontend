@@ -80,25 +80,20 @@ const AppRouter = createBrowserRouter([
       { path: 'notifications', element: <NotificationsPage /> },
       { path: 'my-shows/ticket/:ticketId', element: <TicketDetailPage /> },
       { path: 'lounges', element: <LoungeListPage /> },
-      { path: 'lounge/:id', element: <LoungeDetailPage /> }, 
+      { path: 'lounge/:id', element: <LoungeDetailPage /> },
       { path: 'lounge/:id/order', element: <FnbOrderPage /> },
     ],
   },
 
   { path: '/livestream/:showId', element: <LivestreamWatchPage /> },
 
-  // Trang cong khai: khach chua dang nhap cung gui khieu nai duoc
   { path: '/complaints', element: <ComplaintPage /> },
-  // Nghe si mo tu lien ket email, KHONG co tai khoan — khong duoc doi dang nhap
   { path: '/performer-confirmation', element: <PerformerConfirmationPage /> },
-  // Sao kê donate công khai — cố tình KHÔNG bọc ProtectedRoute: khán giả chưa đăng nhập phải xem được.
   { path: '/performers/:performerId', element: <PerformerPage /> },
   { path: '/performers/:performerId/donations', element: <PerformerDonationsPage /> },
   { path: '/login', element: <LoginPage /> },
   { path: '/register', element: <RegisterPage /> },
   { path: '/verify-email', element: <VerifyEmailPage /> },
-  // LoginPage da link san toi /forgot-password; duong dan trong email tro toi
-  // /reset-password?token=... (token o query string, khong phai path param).
   { path: '/forgot-password', element: <ForgotPasswordPage /> },
   { path: '/reset-password', element: <ResetPasswordPage /> },
 
@@ -109,18 +104,10 @@ const AppRouter = createBrowserRouter([
   {
     path: '/owner',
     element: (
-      // Chỉ livestream mới là RequireVenueOperator (Owner + Staff) ở backend, nên cổng ngoài
-      // cho cả hai vào, còn từng trang bên trong tự siết theo đúng policy của API nó gọi.
       <ProtectedRoute requiredRoles={['Owner', 'Staff']}>
         <OwnerLayout />
       </ProtectedRoute>
     ),
-    // CẢNH BÁO CHO NGƯỜI SỬA SAU: đừng gộp hết về một mức quyền ở cổng ngoài.
-    // Trước đây cả khối này chỉ có một guard ['Owner','Staff'], trong khi 3/4 trang gọi
-    // endpoint RequireOwner: /lounge-shows/mine, /ticket-tiers (POST/PUT/DELETE),
-    // /analytics/my-lounge, /analytics/revenue-report, /subscriptions/my. Hậu quả là tài khoản
-    // Staff đi qua được route rồi ăn 403 từ API — trang tải ra một lỗi chung, không ai hiểu
-    // vì sao. Giữ mức quyền ở đây khớp với policy của backend.
     children: [
       { index: true, element: <OwnerLivestreamsPage /> },
       { path: 'lounge', element: <ProtectedRoute requiredRoles={['Owner']}><OwnerLoungePage /></ProtectedRoute> },
@@ -147,7 +134,6 @@ const AppRouter = createBrowserRouter([
   {
     path: '/admin',
     element: (
-      // CHỈ CHO PHÉP ROLE 'Admin'
       <ProtectedRoute requiredRoles={['Admin']}>
         <AdminLayout />
       </ProtectedRoute>
@@ -173,15 +159,10 @@ const AppRouter = createBrowserRouter([
     ]
   },
 
-  // Trang thử nghiệm nội bộ, CHỈ tồn tại khi chạy `vite` (dev) — bản build production loại bỏ hẳn dòng này
-  // và cả trang, nên không lộ ra cho người dùng cuối. Xem pages/dev/Stage360Playground.jsx.
   ...(import.meta.env.DEV
     ? [{ path: '/__dev/stage360', lazy: async () => ({ Component: (await import('../pages/dev/Stage360Playground')).default }) }]
     : []),
 
-  // BẮT TẤT CẢ — phải nằm CUỐI CÙNG. Không có nó thì mọi URL sai ra trang trắng hoàn toàn:
-  // không chữ, không nút, không cách đi tiếp ngoài nút Back. Người dùng sẽ nghĩ hệ thống hỏng
-  // chứ không nghĩ mình gõ sai địa chỉ.
   { path: '*', element: <NotFoundPage /> },
 
 ])

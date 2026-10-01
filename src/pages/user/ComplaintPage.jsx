@@ -1,14 +1,5 @@
 // src/pages/user/ComplaintPage.jsx
-//
-// GHI CHÚ CHO ĐỘI FE:
-// - Trang CÔNG KHAI: khách chưa đăng nhập cũng gửi được khiếu nại, nhưng khi đó phải để lại số điện
-//   thoại — nếu không Admin không có cách nào liên hệ lại.
-// - `lookupReference` trả về sau khi gửi là thứ DUY NHẤT để khách không có tài khoản tra lại kết quả.
-//   Backend không gửi SMS, không có đường nào khác. Vì vậy màn này hiện mã đó thật to, có nút sao chép,
-//   và không cho nó biến mất khi người dùng bấm chỗ khác.
-// - Tra cứu bằng mã: backend trả CÙNG MỘT câu cho mã sai và mã không tồn tại (cố tình, để không thành
-//   công cụ dò mã). Đừng cố đoán và nói "mã không tồn tại".
-// - `evidenceUrls` gửi lên là MỘT CHUỖI chứa mảng JSON, không phải mảng.
+
 import { useState, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import {

@@ -7,8 +7,6 @@ const AdminLayout = () => {
   const logout = useAuthStore((s) => s.logout)
 
   const handleLogout = () => {
-    // Trước đây xoá key 'token'/'user' không khớp key thật ('musiclounge-auth') mà useAuthStore
-    // dùng — bấm Logout không thực sự xoá session, token cũ vẫn được axios gắn vào request sau đó.
     logout()
     navigate('/login')
   }
@@ -78,9 +76,6 @@ const AdminLayout = () => {
           <NavLink to="/admin/content-reports" className={linkClasses}>
             <ShieldAlert size={18} /> Báo cáo vi phạm
           </NavLink>
-          {/* LỐI RA — trước đây vào trang quản trị rồi thì chỉ còn Đăng xuất, bấm Back, hoặc tự
-              gõ URL mới ra được. Admin cần xem sản phẩm như khách thấy (kiểm một buổi diễn vừa
-              duyệt chẳng hạn) thì không có đường nào. */}
           <div className="pt-2 mt-2 border-t border-line space-y-2">
             <Link to="/account" className={linkClasses({ isActive: false })}>
               <UserCog size={18} /> Tài khoản của tôi

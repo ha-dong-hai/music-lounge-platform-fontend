@@ -1,20 +1,10 @@
 // src/components/admin/dashboard/DashboardCharts.jsx
-//
-// Các khối của Dashboard Admin dựng từ GET /analytics/admin-dashboard (MLACP-463).
-// Hợp đồng cần nhớ khi sửa:
-// - months LUÔN đủ 6 phần tử, tăng dần; phần tử cuối là tháng hiện tại CHƯA TRỌN (giờ VN); tháng
-//   không có giao dịch vẫn có mặt với số 0.
-// - Mỗi nguồn có HAI con số khác nhau, không bao giờ cộng lẫn hay vẽ chung một trục:
-//     gmv             = tiền người mua trả, GỒM cả vé bán tại quầy bằng tiền mặt
-//     platformRevenue = phần nền tảng thực nhận theo sổ cái (vé/donate: hoa hồng; gói: toàn bộ).
-//                       Tiền giữ hộ phòng trà KHÔNG phải doanh thu; đơn gọi món không thuộc nguồn nào.
-//   Tổng platformRevenue 3 nguồn của một tháng BẰNG platformRevenueInPeriod của /admin-overview cùng
-//   tháng — backend có test chặn hai con số này lệch nhau.
-// - topShows / genres theo kỳ from–to; không truyền thì backend lấy 6 tháng gần nhất.
-// - Một buổi nhiều thể loại thì vé của nó tính cho TỪNG thể loại → cộng các thanh sẽ lớn hơn tổng vé.
+// Dựng từ GET /analytics/admin-dashboard. Layout theo dashboard cũ:
+// cột chồng 6 tháng + doughnut tỷ trọng tháng này + bảng Top shows + list thể loại trending.
 import dayjs from 'dayjs'
 import { Link } from 'react-router-dom'
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LabelList } from 'recharts'
+import { Music2, TrendingUp } from 'lucide-react'
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LabelList, PieChart, Pie, Cell } from 'recharts'
 import { SURFACE, GRID, AXIS_TEXT, CURSOR, SOURCES, SINGLE_SERIES, fmtMoney, fmtCompact } from './chartTokens'
 
 const monthLabel = (m) => dayjs(`${m}-01`).format('MM/YYYY')
@@ -23,36 +13,17 @@ const Swatch = ({ color, size = 'w-2.5 h-2.5' }) => (
   <span className={`${size} rounded-sm flex-shrink-0`} style={{ backgroundColor: color }} />
 )
 
-// Chú giải luôn có khi từ 2 chuỗi trở lên. Chữ dùng màu chữ; ô màu bên cạnh mới mang danh tính nguồn.
-const SourceLegend = () => (
-  <div className="flex flex-wrap gap-4 text-xs text-ink-soft">
-    {SOURCES.map((s) => (
-      <span key={s.key} className="inline-flex items-center gap-1.5">
-        <Swatch color={s.color} /> {s.label}
-      </span>
-    ))}
-  </div>
-)
-
-const toRows = (months, measure) => months.map((m, i) => {
-  const row = { month: m.month, label: monthLabel(m.month), partial: i === months.length - 1 }
-  SOURCES.forEach((s) => { row[s.key] = Number(m[s.key]?.[measure] ?? 0) })
-  row.total = SOURCES.reduce((sum, s) => sum + row[s.key], 0)
-  return row
-})
-
+// ===== TOOLTIP kiểu cũ: nền card + viền line, mỗi nguồn một dòng kèm ô màu =====
 const RevenueTooltip = ({ active, payload }) => {
   if (!active || !payload?.length) return null
   const row = payload[0].payload
   return (
-    <div className="bg-card border border-line rounded-lg px-3 py-2 text-xs shadow-lg">
-      <p className="text-ink-soft font-medium mb-1.5">
-        Tháng {row.label}{row.partial && ' (chưa trọn tháng)'}
-      </p>
+    <div className="bg-card border border-line-strong p-3 rounded-lg shadow-xl text-xs">
+      <p className="text-ink font-bold mb-2">Tháng {row.label}{row.partial && ' (chưa trọn tháng)'}</p>
       {SOURCES.map((s) => (
         <div key={s.key} className="flex items-center justify-between gap-6 py-0.5">
-          <span className="inline-flex items-center gap-1.5 text-ink-soft"><Swatch color={s.color} size="w-2 h-2" />{s.label}</span>
-          <span className="text-ink tabular-nums">{fmtMoney(row[s.key])}</span>
+          <span className="inline-flex items-center gap-2 text-ink-soft"><Swatch color={s.color} size="w-2 h-2" />{s.label}</span>
+          <span className="text-ink font-medium tabular-nums">{fmtMoney(row[s.key])}</span>
         </div>
       ))}
       <div className="flex justify-between gap-6 pt-1.5 mt-1.5 border-t border-line">
@@ -63,18 +34,31 @@ const RevenueTooltip = ({ active, payload }) => {
   )
 }
 
-// Cột chồng 6 tháng, MỘT đại lượng mỗi lúc (measure do trang chọn) trên MỘT trục —
-// không vẽ gmv và platformRevenue chung một biểu đồ hai trục.
+const toRows = (months, measure) => months.map((m, i) => {
+  const row = { month: m.month, label: monthLabel(m.month), partial: i === months.length - 1 }
+  SOURCES.forEach((s) => { row[s.key] = Number(m[s.key]?.[measure] ?? 0) })
+  row.total = SOURCES.reduce((sum, s) => sum + row[s.key], 0)
+  return row
+})
+
+// ===== 1. CỘT CHỒNG 6 THÁNG — MỘT đại lượng mỗi lúc (measure do trang chọn) =====
 export const RevenueByMonthChart = ({ months, measure }) => {
   const rows = toRows(months, measure)
   return (
     <div className="space-y-3">
-      <SourceLegend />
-      {/* Chiều cao đã gồm dải nhãn trục X, để trục không bị cắt thành thanh cuộn con trong thẻ */}
-      <div className="h-64">
+      {/* Chú giải — chữ dùng màu chữ, ô màu mới mang danh tính nguồn */}
+      <div className="flex flex-wrap gap-4 text-xs text-ink-soft">
+        {SOURCES.map((s) => (
+          <span key={s.key} className="inline-flex items-center gap-1.5">
+            <Swatch color={s.color} /> {s.label}
+          </span>
+        ))}
+      </div>
+
+      <div className="h-[320px]">
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={rows} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
-            <CartesianGrid vertical={false} stroke={GRID} />
+          <BarChart data={rows} margin={{ top: 8, right: 10, left: 0, bottom: 0 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke={GRID} vertical={false} />
             <XAxis dataKey="label" axisLine={{ stroke: GRID }} tickLine={false}
               tick={{ fill: AXIS_TEXT, fontSize: 12 }}
               tickFormatter={(v, i) => (rows[i]?.partial ? `${v}*` : v)} />
@@ -82,7 +66,7 @@ export const RevenueByMonthChart = ({ months, measure }) => {
               tick={{ fill: AXIS_TEXT, fontSize: 12 }} tickFormatter={fmtCompact} />
             <Tooltip content={<RevenueTooltip />} cursor={{ fill: CURSOR, opacity: 0.6 }} />
             {SOURCES.map((s, i) => (
-              // Khe 2px màu nền giữa các đoạn: tách đoạn bằng khoảng trống, không vẽ viền màu khác.
+              // Khe 2px màu nền giữa các đoạn — tách bằng khoảng trống, không vẽ viền màu khác
               <Bar key={s.key} dataKey={s.key} stackId="rev" fill={s.color} maxBarSize={24}
                 stroke={SURFACE} strokeWidth={2} isAnimationActive={false}
                 radius={i === SOURCES.length - 1 ? [4, 4, 0, 0] : 0} />
@@ -91,7 +75,8 @@ export const RevenueByMonthChart = ({ months, measure }) => {
         </ResponsiveContainer>
       </div>
       <p className="text-xs text-ink-mute">* Tháng hiện tại, chưa trọn tháng.</p>
-      {/* Bảng là bản song song của biểu đồ: đọc được mọi giá trị không cần rê chuột, không cần phân biệt màu */}
+
+      {/* ⭐ Giữ từ bản mới: bản song song dạng bảng — đọc được mọi giá trị không cần rê chuột */}
       <details className="text-xs">
         <summary className="cursor-pointer text-ink-mute hover:text-ink-soft select-none">Xem dạng bảng</summary>
         <div className="overflow-x-auto mt-2">
@@ -119,67 +104,86 @@ export const RevenueByMonthChart = ({ months, measure }) => {
   )
 }
 
-// Tỷ trọng theo nguồn của MỘT tháng. Thanh chồng ngang thay cho biểu đồ tròn: ba giá trị có thể
-// sát nhau, mà mắt so độ dài chính xác hơn so góc. Số liệu và % luôn in ra, không phải rê chuột.
-export const RevenueShareBar = ({ month, measure }) => {
-  const parts = SOURCES.map((s) => ({ ...s, value: Number(month?.[s.key]?.[measure] ?? 0) }))
-  const total = parts.reduce((sum, p) => sum + p.value, 0)
+// ===== 2. DOUGHNUT TỶ TRỌNG THÁNG NÀY — kiểu cũ (tổng ở tâm + legend % bên dưới) =====
+export const RevenueShareDonut = ({ month, measure }) => {
+  const all = SOURCES.map((s) => ({ ...s, value: Number(month?.[s.key]?.[measure] ?? 0) }))
+  const total = all.reduce((sum, p) => sum + p.value, 0)
+
   if (total <= 0) {
-    return <p className="text-sm text-ink-mute py-8 text-center">Tháng này chưa phát sinh doanh thu.</p>
+    return <p className="text-sm text-ink-mute py-12 text-center">Tháng này chưa phát sinh doanh thu.</p>
   }
-  const pct = (v) => `${((v / total) * 100).toLocaleString('vi-VN', { maximumFractionDigits: 1 })}%`
+  const data = all.filter((p) => p.value > 0)
+
   return (
-    <div className="space-y-4">
-      {/* gap 2px trên nền thẻ = khe giữa các đoạn, giống cột chồng */}
-      <div className="flex h-3 gap-[2px] rounded-sm overflow-hidden">
-        {parts.filter((p) => p.value > 0).map((p) => (
-          <div key={p.key} style={{ width: `${(p.value / total) * 100}%`, backgroundColor: p.color }} />
-        ))}
+    <div className="flex flex-col h-full">
+      <div className="relative h-[200px] w-full mt-2">
+        <ResponsiveContainer width="100%" height="100%">
+          <PieChart>
+            <Pie data={data} dataKey="value" nameKey="label" cx="50%" cy="50%" innerRadius={55} outerRadius={80} paddingAngle={3}>
+              {data.map((entry, i) => (
+                <Cell key={`cell-${i}`} fill={entry.color} stroke="none" />
+              ))}
+            </Pie>
+            <Tooltip content={<RevenueTooltip />} />
+          </PieChart>
+        </ResponsiveContainer>
+        {/* Tổng ở giữa doughnut — kiểu cũ */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none">
+          <p className="text-xs text-ink-mute">Tổng</p>
+          <p className="text-lg font-bold text-ink">{fmtCompact(total)}đ</p>
+        </div>
       </div>
-      <ul className="space-y-2">
-        {parts.map((p) => (
-          <li key={p.key} className="flex items-center justify-between gap-3 text-sm">
-            <span className="inline-flex items-center gap-2 text-ink-soft"><Swatch color={p.color} />{p.label}</span>
-            <span className="text-ink tabular-nums">
-              {fmtMoney(p.value)} <span className="text-ink-mute ml-1">{pct(p.value)}</span>
+
+      {/* Legend % — kiểu cũ */}
+      <div className="mt-auto pt-4 space-y-2">
+        {all.map((p) => (
+          <div key={p.key} className="flex items-center justify-between text-sm">
+            <span className="flex items-center gap-2">
+              <Swatch color={p.color} />
+              <span className="text-ink-soft">{p.label}</span>
             </span>
-          </li>
+            <span className="text-ink font-medium">
+              {fmtMoney(p.value)} <span className="text-ink-mute ml-1">{((p.value / total) * 100).toFixed(1)}%</span>
+            </span>
+          </div>
         ))}
-      </ul>
-      <div className="flex justify-between pt-2 border-t border-line text-sm">
-        <span className="text-ink-soft">Tổng</span>
-        <span className="text-ink font-medium tabular-nums">{fmtMoney(total)}</span>
       </div>
     </div>
   )
 }
 
-// Xếp hạng có số cụ thể → bảng, không phải biểu đồ.
+// ===== 3. BẢNG TOP SHOWS — kiểu cũ (rank + badge vé + doanh thu vàng), dữ liệu thật =====
 export const TopShowsTable = ({ shows }) => {
-  if (!shows.length) {
-    return <p className="text-sm text-ink-mute py-8 text-center">Chưa có buổi diễn nào bán được vé trong kỳ.</p>
+  if (!shows?.length) {
+    return <p className="text-sm text-ink-mute py-10 text-center">Chưa có buổi diễn nào bán được vé trong kỳ.</p>
   }
   return (
     <div className="overflow-x-auto">
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="text-xs text-ink-mute border-b border-line">
-            <th className="text-left py-2 pr-3 font-medium w-8">#</th>
-            <th className="text-left py-2 pr-3 font-medium">Buổi diễn</th>
-            <th className="text-right py-2 pr-3 font-medium">Vé bán</th>
-            <th className="text-right py-2 font-medium">Doanh thu vé</th>
+      <table className="w-full text-left whitespace-nowrap">
+        <thead className="bg-page/60 border-y border-line">
+          <tr>
+            <th className="p-4 text-xs font-semibold text-ink-mute uppercase tracking-wider w-10">#</th>
+            <th className="p-4 text-xs font-semibold text-ink-mute uppercase tracking-wider">Buổi diễn</th>
+            <th className="p-4 text-xs font-semibold text-ink-mute uppercase tracking-wider">Vé bán</th>
+            <th className="p-4 text-xs font-semibold text-ink-mute uppercase tracking-wider text-right">Doanh thu vé</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody className="divide-y divide-line">
           {shows.map((s, i) => (
-            <tr key={s.showId} className="border-b border-line/60">
-              <td className="py-2.5 pr-3 text-ink-mute tabular-nums align-top">{i + 1}</td>
-              <td className="py-2.5 pr-3">
-                <Link to={`/shows/${s.showId}`} className="text-ink hover:text-brand-text transition-colors">{s.title}</Link>
+            <tr key={s.showId} className="hover:bg-sunken/40 transition-colors">
+              <td className="p-4 text-ink-mute tabular-nums text-sm">{i + 1}</td>
+              <td className="p-4">
+                <Link to={`/shows/${s.showId}`} className="text-sm text-ink font-medium hover:text-brand-text transition-colors">
+                  {s.title}
+                </Link>
                 <p className="text-xs text-ink-mute mt-0.5">{s.loungeName} · {dayjs(s.startTime).format('DD/MM/YYYY')}</p>
               </td>
-              <td className="py-2.5 pr-3 text-right text-ink-soft tabular-nums align-top">{s.ticketsSold.toLocaleString('vi-VN')}</td>
-              <td className="py-2.5 text-right text-ink tabular-nums align-top">{fmtMoney(s.ticketRevenue)}</td>
+              <td className="p-4">
+                <span className="text-sm text-ink bg-sunken px-2 py-1 rounded-md tabular-nums">
+                  {s.ticketsSold.toLocaleString('vi-VN')}
+                </span>
+              </td>
+              <td className="p-4 text-right text-sm font-bold text-brand-text tabular-nums">{fmtMoney(s.ticketRevenue)}</td>
             </tr>
           ))}
         </tbody>
@@ -188,41 +192,41 @@ export const TopShowsTable = ({ shows }) => {
   )
 }
 
-const GenreTooltip = ({ active, payload }) => {
-  if (!active || !payload?.length) return null
-  const g = payload[0].payload
-  return (
-    <div className="bg-card border border-line rounded-lg px-3 py-2 text-xs shadow-lg">
-      <p className="text-ink-soft font-medium mb-1">{g.genreName}</p>
-      <p className="text-ink-soft">Vé bán: <span className="text-ink tabular-nums">{g.ticketsSold.toLocaleString('vi-VN')}</span></p>
-      <p className="text-ink-soft">Số buổi diễn: <span className="text-ink tabular-nums">{g.showCount.toLocaleString('vi-VN')}</span></p>
-    </div>
-  )
-}
-
-// Một chuỗi → một màu, không có hộp chú giải (tiêu đề khối đã nói đang vẽ gì). Mọi thanh có số ở
-// đầu thanh nên ẩn trục giá trị.
-export const GenreDemandChart = ({ genres }) => {
-  if (!genres.length) {
-    return <p className="text-sm text-ink-mute py-8 text-center">Chưa có vé nào bán ra trong kỳ.</p>
+// ===== 4. TRENDING GENRES — kiểu cũ (rank + thanh progress), dữ liệu thật theo vé bán =====
+export const GenreTrendingList = ({ genres }) => {
+  if (!genres?.length) {
+    return <p className="text-sm text-ink-mute py-10 text-center">Chưa có vé nào bán ra trong kỳ.</p>
   }
   const rows = [...genres].sort((a, b) => b.ticketsSold - a.ticketsSold)
-  // Cao theo số thể loại thay vì cố định, để không thanh nào bị ép mỏng hay tràn khung
-  const height = rows.length * 36 + 8
+  const max = rows[0].ticketsSold || 1
+
   return (
-    <div style={{ height }}>
-      <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={rows} layout="vertical" margin={{ top: 4, right: 48, left: 0, bottom: 4 }}>
-          <XAxis type="number" hide />
-          <YAxis type="category" dataKey="genreName" width={120} axisLine={false} tickLine={false}
-            tick={{ fill: AXIS_TEXT, fontSize: 12 }} />
-          <Tooltip content={<GenreTooltip />} cursor={{ fill: CURSOR, opacity: 0.6 }} />
-          <Bar dataKey="ticketsSold" fill={SINGLE_SERIES} maxBarSize={16} radius={[0, 4, 4, 0]} isAnimationActive={false}>
-            <LabelList dataKey="ticketsSold" position="right" fill="#99a1af" fontSize={12}
-              formatter={(v) => Number(v).toLocaleString('vi-VN')} />
-          </Bar>
-        </BarChart>
-      </ResponsiveContainer>
+    <div className="space-y-4">
+      {rows.map((g, index) => (
+        <div key={g.genreName}>
+          <div className="flex items-center justify-between mb-1.5">
+            <div className="flex items-center gap-2">
+              <span className={`text-xs font-bold ${index === 0 ? 'text-brand-text' : 'text-ink-mute'}`}>#{index + 1}</span>
+              <span className="text-sm font-medium text-ink flex items-center gap-1.5">
+                <Music2 size={14} className="text-ink-mute" /> {g.genreName}
+              </span>
+            </div>
+            <div className="flex items-center gap-1 text-xs font-medium text-ink-soft tabular-nums">
+              <TrendingUp size={12} className="text-success" />
+              {g.ticketsSold.toLocaleString('vi-VN')} vé · {g.showCount} show
+            </div>
+          </div>
+          <div className="w-full h-1.5 bg-sunken rounded-full overflow-hidden">
+            <div
+              className={`h-full rounded-full ${index === 0 ? 'bg-gradient-to-r from-brand to-[#d4c87f]' : 'bg-brand/60'}`}
+              style={{ width: `${(g.ticketsSold / max) * 100}%` }}
+            />
+          </div>
+        </div>
+      ))}
+      <p className="text-xs text-ink-mute pt-1 leading-relaxed">
+        Xếp theo số vé bán trong kỳ. Một buổi diễn nhiều thể loại được tính vé cho từng thể loại.
+      </p>
     </div>
   )
 }

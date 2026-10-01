@@ -1,10 +1,5 @@
 // src/components/account/PrivacyTab.jsx
-//
-// GHI CHÚ CHO ĐỘI FE — HAI HÀNH ĐỘNG DƯỚI ĐÂY KHÔNG GIỐNG NHAU, ĐỪNG GỘP:
-//   Vô hiệu hoá tài khoản (DELETE /me)        — ngừng sử dụng, dữ liệu vẫn còn.
-//   Yêu cầu xoá dữ liệu (POST /me/data-erasure) — KHÔNG HOÀN TÁC, có thể cần mật khẩu để xác minh.
-// Gộp hai cái thành một nút là để người dùng xoá vĩnh viễn dữ liệu trong khi họ chỉ định nghỉ dùng.
-// Vì vậy mỗi cái một khối riêng, chữ giải thích riêng, và cái nặng hơn phải gõ chữ xác nhận.
+
 import { useState } from 'react'
 import { Loader2, Download, UserX, Trash2, AlertTriangle, Bell, BellOff } from 'lucide-react'
 import toast from 'react-hot-toast'

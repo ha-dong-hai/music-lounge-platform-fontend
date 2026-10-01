@@ -1,23 +1,8 @@
 // src/pages/payment/PaymentResultPage.jsx
-//
+
 // Trang trình duyệt của khách được backend Redirect() tới sau khi xử lý callback VNPay
-// (PaymentsController/DonationsController/FnbOrdersController/SubscriptionsController đều dùng
-// chung VnPayIpnProtocol.BuyerLandingUrl) — dùng chung cho cả 4 luồng thanh toán (vé/donate/F&B/
-// gói dịch vụ). Backend không đính kèm query param nào khi redirect (Redirect() chỉ trả URL cấu
-// hình sẵn trong Business:PaymentSuccessUrl/PaymentFailedUrl/PaymentProcessingUrl), nên trang này
-// thuần hiển thị theo route, không đọc state gì từ URL.
-//
-// "processing" là trạng thái thứ 3 cố ý khác "failed": VNPay xác nhận thành công nhưng quá muộn để
-// cấp vé (hold đã hết hạn/vé đã hết) — khách đã bị trừ tiền, không phải giao dịch thất bại.
-//
-// LÀM LẠI (docs/design/TRANG-CHU-BRIEF.md) — vì sao câu chữ đổi:
-// - Bản cũ nói "Vé của bạn đã được xác nhận" cho MỌI thanh toán thành công. Nhưng trang này phục vụ cả ủng hộ
-//   nghệ sĩ, gọi món và đăng ký gói dịch vụ: khách vừa ủng hộ hay trả tiền gói sẽ được báo là "vừa có vé" — thông
-//   tin SAI. Trang không biết mình đang ở luồng nào (backend không gửi kèm), nên câu chữ phải đúng với CẢ BỐN:
-//   xác nhận giao dịch chung, và chỉ nhắc "nếu bạn vừa mua vé thì xem ở Vé của tôi".
-//   ĐỀ NGHỊ CHO BACKEND: gắn thêm `?type=ticket|donation|fnb|subscription` vào các URL Business:Payment*Url để
-//   trang này nói đúng luồng và dẫn đúng nơi.
-// - "Khi thanh toán không thành công" khách cần một lối thoát: thêm liên kết tới trang khiếu nại công khai.
+// Dùng chung cho cả 4 luồng thanh toán (vé/donate/F&B/gói dịch vụ)
+
 import { Link } from 'react-router-dom'
 import { CheckCircle2, XCircle, Clock, ArrowLeft, LifeBuoy } from 'lucide-react'
 import Reveal from '../../components/shared/Reveal'

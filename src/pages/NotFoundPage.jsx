@@ -1,13 +1,5 @@
 // src/pages/NotFoundPage.jsx
-//
-// GHI CHÚ CHO ĐỘI FE:
-// - Trước đây router KHÔNG có route bắt-tất-cả, nên mọi URL sai đều ra TRANG TRẮNG HOÀN TOÀN —
-//   không chữ, không nút, không cách nào đi tiếp ngoài nút Back của trình duyệt. Người dùng gặp
-//   trang trắng sẽ nghĩ hệ thống hỏng, chứ không nghĩ mình gõ sai địa chỉ.
-// - Trang này cố tình KHÔNG đoán ý người dùng (kiểu "có phải bạn muốn tìm..."): đoán sai thì dẫn
-//   người ta đi xa hơn. Thay vào đó đưa vài lối vào chắc chắn đúng cho mọi vai trò.
-// - Lối vào bày ra THEO VAI TRÒ đang đăng nhập: đưa một khán giả tới trang quản trị là tạo một
-//   đường dẫn mà bấm vào sẽ bị đẩy về trang chủ — tức một trang trắng thứ hai, chỉ khác kiểu.
+
 import { Link } from 'react-router-dom'
 import { Compass, Home, Search, Ticket, LayoutDashboard, Store } from 'lucide-react'
 import { useAuthStore } from '../store/useAuthStore'

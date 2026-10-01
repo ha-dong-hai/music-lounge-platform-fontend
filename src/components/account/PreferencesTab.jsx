@@ -1,13 +1,5 @@
 // src/components/account/PreferencesTab.jsx
-//
-// GHI CHÚ CHO ĐỘI FE:
-// - PUT /me/preferences GHI ĐÈ toàn bộ: phải gửi lại đủ cả ba mảng mỗi lần lưu, bỏ trống mảng nào
-//   là xoá sạch lựa chọn cũ của mảng đó.
-// - `enableAiConsent` là sự ĐỒNG Ý cho hệ thống dùng lịch sử xem/mua để gợi ý. Tắt thì gợi ý chỉ dựa
-//   trên sở thích khai tay bên dưới. Đây là lựa chọn về dữ liệu cá nhân, nên nói rõ hệ quả chứ không
-//   để một công tắc trống không.
-// - Thể loại "không thích" khác với "không chọn": không chọn nghĩa là không ưu tiên, còn không thích
-//   là chủ động đẩy ra khỏi gợi ý.
+
 import { useState, useEffect, useCallback } from 'react'
 import { Loader2, Save, Sparkles } from 'lucide-react'
 import toast from 'react-hot-toast'
