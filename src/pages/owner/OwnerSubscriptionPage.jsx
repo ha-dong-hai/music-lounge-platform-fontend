@@ -21,6 +21,7 @@ import {
 } from '../../services/packageServices'
 import { ghiNhoThanhToan, LOAI_THANH_TOAN } from '../../utils/paymentContext'
 import NutXacNhan from '../../components/shared/NutXacNhan'
+import { TrangLoiTai } from '../../components/bang/KhungTai'
 
 const fmtMoney = (v) => `${Number(v || 0).toLocaleString('vi-VN')}đ`
 
@@ -28,19 +29,24 @@ const OwnerSubscriptionPage = () => {
   const [packages, setPackages] = useState([])
   const [current, setCurrent] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
+  // Lỗi tải dữ liệu nền: vẽ TrangLoiTai thay vì nhánh 'chưa có' (01/10/2026 — xem components/bang/KhungTai.jsx).
+  const [loiTai, setLoiTai] = useState(false)
   const [busy, setBusy] = useState(null)
 
   const load = async () => {
     setIsLoading(true)
+    setLoiTai(false)
     try {
       const [pkgRes, myRes] = await Promise.all([getPackages(true), getMySubscription()])
+      if (!pkgRes.success) throw new Error('packages')
       if (pkgRes.success) {
         const list = Array.isArray(pkgRes.data) ? pkgRes.data : pkgRes.data?.items || []
         setPackages(list)
       }
       if (myRes.success) setCurrent(myRes.data)
     } catch {
-      toast.error('Không tải được thông tin gói dịch vụ.')
+      // Bản cũ chỉ bật toast rồi vẽ trang như thể chưa đăng ký gói nào — chủ phòng trà có thể mua trùng gói.
+      setLoiTai(true)
     } finally {
       setIsLoading(false)
     }
@@ -91,6 +97,7 @@ const OwnerSubscriptionPage = () => {
       </div>
     )
   }
+  if (loiTai) return <TrangLoiTai tieuDe="Gói dịch vụ" tenVung="thông tin gói dịch vụ" taiLai={load} />
 
   const isExpiringSoon = current && dayjs(current.expiresAt).diff(dayjs(), 'day') <= 7
 

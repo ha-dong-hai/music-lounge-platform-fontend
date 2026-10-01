@@ -18,6 +18,7 @@ import {
 } from '../../services/fnbServices'
 import ConfirmModal from '../../components/shared/ConfirmModal'
 import NhomTab from '../../components/bang/NhomTab'
+import KhungTai, { TrangLoiTai } from '../../components/bang/KhungTai'
 
 const fmtMoney = (v) => `${Number(v || 0).toLocaleString('vi-VN')}đ`
 const inputCls = 'mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink focus:outline-none focus:border-ink/50'
@@ -196,6 +197,9 @@ const OwnerFnbMenusPage = () => {
 
   const [isLoading, setIsLoading] = useState(true)
   const [isLoadingItems, setIsLoadingItems] = useState(false)
+  // Lỗi tải dữ liệu nền: vẽ TrangLoiTai thay vì nhánh 'chưa có' (01/10/2026 — xem components/bang/KhungTai.jsx).
+  const [loiTai, setLoiTai] = useState(false)
+  const [loiMon, setLoiMon] = useState(false)
   const [editingMenu, setEditingMenu] = useState(undefined)
   const [editingItem, setEditingItem] = useState(undefined)
   const [xoaTarget, setXoaTarget] = useState(null) // { loai: 'menu'|'item', doiTuong }
@@ -203,21 +207,24 @@ const OwnerFnbMenusPage = () => {
 
   const loadMenus = useCallback(async (giuMenuId) => {
     setIsLoading(true)
+    setLoiTai(false)
     try {
       const res = await getLounges({ mine: true })
+      if (!res.success) throw new Error('lounges')
       const ds = res.success ? (Array.isArray(res.data) ? res.data : res.data?.items) : null
       const cuaToi = ds?.[0] ?? null
       setLounge(cuaToi)
       if (!cuaToi) return
 
       const mRes = await getMenus(cuaToi.id)
+      if (!mRes.success) throw new Error('menus')
       if (mRes.success) {
         const ds2 = Array.isArray(mRes.data) ? mRes.data : mRes.data?.items ?? []
         setMenus(ds2)
         setMenuId((cu) => giuMenuId ?? cu ?? ds2[0]?.id ?? null)
       }
-    } catch (err) {
-      toast.error(err.response?.data?.message || 'Không tải được thực đơn.')
+    } catch {
+      setLoiTai(true)
     } finally {
       setIsLoading(false)
     }
@@ -226,11 +233,14 @@ const OwnerFnbMenusPage = () => {
   const loadItems = useCallback(async () => {
     if (!menuId) { setItems([]); return }
     setIsLoadingItems(true)
+    setLoiMon(false)
     try {
       const res = await getMenuItems(menuId)
-      if (res.success) setItems(Array.isArray(res.data) ? res.data : res.data?.items ?? [])
-    } catch (err) {
-      toast.error(err.response?.data?.message || 'Không tải được danh sách món.')
+      if (!res.success) throw new Error('items')
+      setItems(Array.isArray(res.data) ? res.data : res.data?.items ?? [])
+    } catch {
+      // Bản cũ: toast rồi "Thực đơn này chưa có món nào" — chủ phòng trà tưởng món đã mất.
+      setLoiMon(true)
       setItems([])
     } finally {
       setIsLoadingItems(false)
@@ -265,6 +275,8 @@ const OwnerFnbMenusPage = () => {
   if (isLoading && !menus.length) {
     return <div className="py-20 flex justify-center"><Loader2 size={32} className="animate-spin text-ink" /></div>
   }
+
+  if (loiTai) return <TrangLoiTai tieuDe="Thực đơn" tenVung="thực đơn" taiLai={() => loadMenus()} />
 
   if (!lounge) {
     return (
@@ -324,6 +336,8 @@ const OwnerFnbMenusPage = () => {
 
               {isLoadingItems ? (
                 <div className="py-10 flex justify-center"><Loader2 size={24} className="animate-spin text-ink" /></div>
+              ) : loiMon ? (
+                <KhungTai loi tenVung="danh sách món" taiLai={loadItems} />
               ) : items.length === 0 ? (
                 <p className="py-10 text-center text-sm text-ink-mute">Thực đơn này chưa có món nào.</p>
               ) : (

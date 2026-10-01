@@ -23,6 +23,7 @@ import {
   getMyLoungeAnalytics, getRevenueReport, exportRevenueReport,
   getArtistDonationStats, getOwnerLivestreamHistory,
 } from '../../services/analyticsServices'
+import KhungTai, { TrangLoiTai } from '../../components/bang/KhungTai'
 
 const fmtMoney = (v) => `${Number(v || 0).toLocaleString('vi-VN')}đ`
 const fmtAxis = (v) => {
@@ -68,12 +69,19 @@ const OwnerAnalyticsPage = () => {
   const [livestreamHistory, setLivestreamHistory] = useState([])
   const [isExporting, setIsExporting] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+  // Lỗi tải dữ liệu nền: vẽ TrangLoiTai thay vì nhánh 'chưa có' (01/10/2026 — xem components/bang/KhungTai.jsx).
+  const [loiTai, setLoiTai] = useState(false)
+  // Nguồn số liệu nào lỗi — bản cũ để khối đó trống mà không nói gì.
+  const [nguonLoi, setNguonLoi] = useState([])
+  const [lanTai, setLanTai] = useState(0)
 
   useEffect(() => {
     const run = async () => {
       setIsLoading(true)
+      setLoiTai(false)
       try {
         const lRes = await getLounges({ mine: true })
+        if (!lRes.success) throw new Error('lounges')
         const list = lRes.data?.items || lRes.data || []
         if (!list.length) {
           setIsLoading(false)
@@ -95,14 +103,16 @@ const OwnerAnalyticsPage = () => {
         if (rData) setRevenue(rData)
         if (dData) setArtistDonations(dData)
         if (lData) setLivestreamHistory(lData.items ?? [])
+        setNguonLoi(['tổng quan', 'doanh thu theo tháng', 'tiền ủng hộ theo nghệ sĩ', 'lịch sử phát trực tiếp'].filter((_, i) => kq[i].status === 'rejected' || !kq[i].value?.success))
       } catch {
-        toast.error('Không tải được số liệu phòng trà.')
+        // Lỗi khi hỏi "phòng trà của tôi" KHÔNG phải "chưa sở hữu phòng trà" — bản cũ nói vậy.
+        setLoiTai(true)
       } finally {
         setIsLoading(false)
       }
     }
     run()
-  }, [])
+  }, [lanTai])
 
   // Xuat bao cao ra FILE: endpoint tra nhi phan nen phai xin blob, khong di qua duong JSON.
   const xuatBaoCao = async () => {
@@ -132,6 +142,8 @@ const OwnerAnalyticsPage = () => {
     )
   }
 
+  if (loiTai) return <TrangLoiTai tieuDe="Báo cáo doanh thu" tenVung="báo cáo doanh thu" taiLai={() => setLanTai((n) => n + 1)} />
+
   if (!lounge) {
     return (
       <div className="bg-card border border-line p-8 text-center text-ink-mute">
@@ -153,6 +165,7 @@ const OwnerAnalyticsPage = () => {
         <h1 className="text-4xl text-ink mb-1">Báo cáo doanh thu</h1>
         <p className="text-ink-soft text-sm">{lounge.name}</p>
       </div>
+      {nguonLoi.length > 0 && <KhungTai loi tenVung={`phần ${nguonLoi.join(', ')}`} taiLai={() => setLanTai((n) => n + 1)} />}
 
       {/* === TỔNG QUAN === */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
