@@ -10,10 +10,10 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Loader2, ShieldAlert, MessageSquareWarning, Music2, Award, Users, Heart, Star, Repeat, MousePointerClick, Ticket } from 'lucide-react'
 import dayjs from 'dayjs'
-import toast from 'react-hot-toast'
 import {
   getAdminContentOverview, getAudienceEngagement, getAiRecommendationPerformance,
 } from '../../services/analyticsServices'
+import KhungTai, { TrangLoiTai } from '../../components/bang/KhungTai'
 
 const fmtSo = (v) => Number(v || 0).toLocaleString('vi-VN')
 const fmtPhanTram = (v) => `${Number(v || 0).toLocaleString('vi-VN', { maximumFractionDigits: 1 })}%`
@@ -44,6 +44,8 @@ const AdminInsightsPage = () => {
   const [engagement, setEngagement] = useState(null)
   const [ai, setAi] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
+  // Nguồn số liệu nào lỗi (01/10/2026): bản cũ chỉ bật toast khi CẢ BA lỗi; một nguồn lỗi thì khối đó lặng lẽ trống.
+  const [nguonLoi, setNguonLoi] = useState([])
 
   const load = useCallback(async () => {
     setIsLoading(true)
@@ -56,7 +58,7 @@ const AdminInsightsPage = () => {
     setContent(c)
     setEngagement(e)
     setAi(a)
-    if (!c && !e && !a) toast.error('Không tải được số liệu thống kê.')
+    setNguonLoi(['việc cần xử lý', 'tương tác của khán giả', 'hiệu quả gợi ý'].filter((_, i) => ![c, e, a][i]))
     setIsLoading(false)
   }, [])
 
@@ -65,6 +67,7 @@ const AdminInsightsPage = () => {
   if (isLoading) {
     return <div className="py-20 flex justify-center"><Loader2 size={32} className="animate-spin text-ink" /></div>
   }
+  if (nguonLoi.length === 3) return <TrangLoiTai tieuDe="Nội dung và tương tác" tenVung="số liệu thống kê" taiLai={load} />
 
   const kyLabel = (d) => (d
     ? `${dayjs(d.periodFrom).format('DD/MM')} – ${dayjs(d.periodTo).format('DD/MM/YYYY')}`
@@ -76,6 +79,7 @@ const AdminInsightsPage = () => {
         <h1 className="text-4xl text-ink mb-1">Nội dung và tương tác</h1>
         <p className="text-ink-soft text-sm">Việc cần xử lý, mức tương tác của khán giả, và chất lượng gợi ý.</p>
       </div>
+      {nguonLoi.length > 0 && <KhungTai loi tenVung={`phần ${nguonLoi.join(', ')}`} taiLai={load} />}
 
       {/* === NỘI DUNG & GIÁM SÁT === */}
       {content ? (

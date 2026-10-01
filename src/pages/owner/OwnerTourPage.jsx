@@ -26,6 +26,7 @@ import {
 } from '../../services/loungeServices'
 import { uploadImage, uploadModel } from '../../services/userServices'
 import ConfirmModal from '../../components/shared/ConfirmModal'
+import { TrangLoiTai } from '../../components/bang/KhungTai'
 
 const inputCls = 'mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink focus:outline-none focus:border-ink/50'
 
@@ -209,6 +210,8 @@ const OwnerTourPage = () => {
   const [lounge, setLounge] = useState(null)
   const [tour, setTour] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
+  // Lỗi tải dữ liệu nền: vẽ TrangLoiTai thay vì nhánh 'chưa có' (01/10/2026 — xem components/bang/KhungTai.jsx).
+  const [loiTai, setLoiTai] = useState(false)
   const [busy, setBusy] = useState(null)
   // Chấm định vị của từng scene trên ảnh mặt bằng. Chuỗi rỗng = chưa đặt (khác với đặt ở 0,0).
   const [viTri, setViTri] = useState({}) // { [sceneId]: { x, y } }
@@ -222,13 +225,17 @@ const OwnerTourPage = () => {
 
   const load = useCallback(async () => {
     setIsLoading(true)
+    setLoiTai(false)
     try {
       const res = await getLounges({ mine: true })
+      if (!res.success) throw new Error('lounges')
       const ds = res.success ? (Array.isArray(res.data) ? res.data : res.data?.items) : null
       const cuaToi = ds?.[0] ?? null
       if (!cuaToi) { setLounge(null); return }
 
       const [ct, tRes] = await Promise.allSettled([getLoungeDetail(cuaToi.id), getLoungeTour(cuaToi.id)])
+      // 404 = phòng trà chưa có tour (trống thật); lỗi khác thì báo chưa tải được, không giả là trống.
+      if (tRes.status === 'rejected' && tRes.reason?.response?.status !== 404) throw tRes.reason
       setLounge(ct.status === 'fulfilled' && ct.value?.success ? ct.value.data : cuaToi)
       const duLieuTour = tRes.status === 'fulfilled' && tRes.value?.success ? tRes.value.data : null
       setTour(duLieuTour)
@@ -240,8 +247,8 @@ const OwnerTourPage = () => {
         nhapViTri[sc.id] = { x: sc.positionX ?? '', y: sc.positionY ?? '' }
       })
       setViTri(nhapViTri)
-    } catch (err) {
-      toast.error(err.response?.data?.message || 'Không tải được tour.')
+    } catch {
+      setLoiTai(true)
     } finally {
       setIsLoading(false)
     }
@@ -365,6 +372,7 @@ const OwnerTourPage = () => {
   if (isLoading) {
     return <div className="py-20 flex justify-center"><Loader2 size={32} className="animate-spin text-ink" /></div>
   }
+  if (loiTai) return <TrangLoiTai tieuDe="Tham quan 360°" tenVung="tham quan 360°" taiLai={load} />
 
   if (!lounge) {
     return (

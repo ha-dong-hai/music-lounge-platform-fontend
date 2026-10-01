@@ -18,6 +18,7 @@ import dayjs from 'dayjs'
 import toast from 'react-hot-toast'
 import { getLounges, getLoungeStaff, lookupUserByEmail, assignStaff, deactivateStaff } from '../../services/loungeServices'
 import ConfirmModal from '../../components/shared/ConfirmModal'
+import { TrangLoiTai } from '../../components/bang/KhungTai'
 
 const inputCls = 'px-3 py-2 bg-page border border-line text-sm text-ink focus:outline-none focus:border-ink/50'
 
@@ -95,23 +96,28 @@ const OwnerStaffPage = () => {
   const [lounge, setLounge] = useState(null)
   const [staff, setStaff] = useState([])
   const [isLoading, setIsLoading] = useState(true)
+  // Lỗi tải dữ liệu nền: vẽ TrangLoiTai thay vì nhánh 'chưa có' (01/10/2026 — xem components/bang/KhungTai.jsx).
+  const [loiTai, setLoiTai] = useState(false)
   const [dangThem, setDangThem] = useState(false)
   const [goTarget, setGoTarget] = useState(null)
   const [isRemoving, setIsRemoving] = useState(false)
 
   const load = useCallback(async () => {
     setIsLoading(true)
+    setLoiTai(false)
     try {
       const res = await getLounges({ mine: true })
+      if (!res.success) throw new Error('lounges')
       const ds = res.success ? (Array.isArray(res.data) ? res.data : res.data?.items) : null
       const cuaToi = ds?.[0] ?? null
       setLounge(cuaToi)
       if (!cuaToi) return
 
       const sRes = await getLoungeStaff(cuaToi.id)
-      if (sRes.success) setStaff(sRes.data ?? [])
-    } catch (err) {
-      toast.error(err.response?.data?.message || 'Không tải được danh sách nhân viên.')
+      if (!sRes.success) throw new Error('staff')
+      setStaff(sRes.data ?? [])
+    } catch {
+      setLoiTai(true)
     } finally {
       setIsLoading(false)
     }
@@ -136,6 +142,7 @@ const OwnerStaffPage = () => {
   if (isLoading) {
     return <div className="py-20 flex justify-center"><Loader2 size={32} className="animate-spin text-ink" /></div>
   }
+  if (loiTai) return <TrangLoiTai tieuDe="Nhân viên" tenVung="danh sách nhân viên" taiLai={load} />
 
   if (!lounge) {
     return (

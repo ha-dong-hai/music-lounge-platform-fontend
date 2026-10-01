@@ -20,6 +20,7 @@ import toast from 'react-hot-toast'
 import {
   getSystemConfigs, getSystemConfigHistory, updateSystemConfig, getConfigurationAudit,
 } from '../../services/adminServices'
+import { TrangLoiTai } from '../../components/bang/KhungTai'
 
 const EditModal = ({ config, onClose, onSaved }) => {
   const [configValue, setConfigValue] = useState(config.configValue ?? '')
@@ -185,6 +186,8 @@ const GapRow = ({ gap }) => {
 const AdminSystemConfigPage = () => {
   const [configs, setConfigs] = useState([])
   const [isLoading, setIsLoading] = useState(true)
+  // Lỗi tải dữ liệu nền: vẽ TrangLoiTai thay vì bảng rỗng (01/10/2026 — xem components/bang/KhungTai.jsx).
+  const [loiTai, setLoiTai] = useState(false)
   const [editing, setEditing] = useState(null)
   const [historyKey, setHistoryKey] = useState(null)
   // null = chưa soát được (gọi lỗi). [] = đã soát và không thiếu gì. Hai cái này KHÔNG được
@@ -193,12 +196,14 @@ const AdminSystemConfigPage = () => {
 
   const load = useCallback(async () => {
     setIsLoading(true)
+    setLoiTai(false)
     // Soát cấu hình chạy song song và độc lập: nó lỗi thì bảng tham số bên dưới vẫn phải hiện.
     const [cfg, audit] = await Promise.allSettled([getSystemConfigs(), getConfigurationAudit()])
     if (cfg.status === 'fulfilled' && cfg.value?.success) {
       setConfigs(cfg.value.data ?? [])
     } else {
-      toast.error(cfg.reason?.response?.data?.message || 'Không tải được cấu hình hệ thống.')
+      // Bảng tham số trống vì LỖI khác hẳn "không có tham số nào" — bản cũ chỉ bật toast rồi vẽ bảng rỗng.
+      setLoiTai(true)
     }
     setGaps(audit.status === 'fulfilled' && audit.value?.success ? (audit.value.data ?? []) : null)
     setIsLoading(false)
@@ -209,6 +214,7 @@ const AdminSystemConfigPage = () => {
   if (isLoading) {
     return <div className="py-20 flex justify-center"><Loader2 size={32} className="animate-spin text-ink" /></div>
   }
+  if (loiTai) return <TrangLoiTai tieuDe="Cấu hình hệ thống" tenVung="cấu hình hệ thống" taiLai={load} />
 
   const tienTe = configs.filter((c) => c.isMoneyRate)
   const conLai = configs.filter((c) => !c.isMoneyRate)

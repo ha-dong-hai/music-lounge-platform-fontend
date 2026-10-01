@@ -42,6 +42,7 @@ import { uploadImage } from '../../services/userServices'
 import { getMySubscription } from '../../services/packageServices'
 import ShowCustomValuesSection from '../../components/owner/ShowCustomValuesSection'
 import VcpmcRoyaltyCard from '../../components/owner/VcpmcRoyaltyCard'
+import { TrangLoiTai } from '../../components/bang/KhungTai'
 
 const inputCls = 'mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink focus:outline-none focus:border-ink/50'
 
@@ -80,6 +81,8 @@ const OwnerShowSettingsPage = () => {
   const [show, setShow] = useState(null)
   const [history, setHistory] = useState([])
   const [isLoading, setIsLoading] = useState(true)
+  // Lỗi tải dữ liệu nền: vẽ TrangLoiTai thay vì nhánh 'chưa có' (01/10/2026 — xem components/bang/KhungTai.jsx).
+  const [loiTai, setLoiTai] = useState(false)
   const [busy, setBusy] = useState(null)
 
   const [styleHint, setStyleHint] = useState('')
@@ -113,10 +116,13 @@ const OwnerShowSettingsPage = () => {
 
   const load = useCallback(async () => {
     setIsLoading(true)
+    setLoiTai(false)
     try {
       const [sRes, hRes, gRes] = await Promise.allSettled([
         getShowDetail(id), getAiPosterHistory(id), getMySubscription(),
       ])
+      // Chi tiết buổi diễn lỗi (không phải 404) thì báo chưa tải được, không giả "không tìm thấy".
+      if (sRes.status === 'rejected' && sRes.reason?.response?.status !== 404) throw sRes.reason
       if (sRes.status === 'fulfilled' && sRes.value?.success) {
         const d = sRes.value.data
         setShow(d)
@@ -128,8 +134,8 @@ const OwnerShowSettingsPage = () => {
       // Đọc gói thất bại thì để nguyên undefined: màn hình sẽ KHÔNG chặn nút nào cả, thà để máy chủ
       // từ chối còn hơn tự chặn oan vì một lần gọi lỗi.
       if (gRes.status === 'fulfilled' && gRes.value?.success) setGoi(gRes.value.data ?? null)
-    } catch (err) {
-      toast.error(err.response?.data?.message || 'Không tải được buổi diễn.')
+    } catch {
+      setLoiTai(true)
     } finally {
       setIsLoading(false)
     }
@@ -253,6 +259,7 @@ const OwnerShowSettingsPage = () => {
   if (isLoading) {
     return <div className="py-20 flex justify-center"><Loader2 size={32} className="animate-spin text-ink" /></div>
   }
+  if (loiTai) return <TrangLoiTai tieuDe="Cài đặt buổi diễn" tenVung="cài đặt buổi diễn" taiLai={load} />
 
   if (!show) {
     return (

@@ -25,6 +25,7 @@ import {
 import { uploadImage } from '../../services/userServices'
 import ConfirmModal from '../../components/shared/ConfirmModal'
 import ZoneSketchLayer from '../../components/owner/ZoneSketchLayer'
+import { TrangLoiTai } from '../../components/bang/KhungTai'
 
 const inputCls = 'mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink focus:outline-none focus:border-ink/50'
 
@@ -99,6 +100,8 @@ const OwnerZonesPage = () => {
   const [lounge, setLounge] = useState(null)
   const [zones, setZones] = useState([])
   const [isLoading, setIsLoading] = useState(true)
+  // Lỗi tải dữ liệu nền: vẽ TrangLoiTai thay vì nhánh 'chưa có' (01/10/2026 — xem components/bang/KhungTai.jsx).
+  const [loiTai, setLoiTai] = useState(false)
   const [editing, setEditing] = useState(undefined)
   const [ngungTarget, setNgungTarget] = useState(null)
   const [isBusy, setIsBusy] = useState(false)
@@ -121,8 +124,10 @@ const OwnerZonesPage = () => {
 
   const load = useCallback(async () => {
     setIsLoading(true)
+    setLoiTai(false)
     try {
       const res = await getLounges({ mine: true })
+      if (!res.success) throw new Error('lounges')
       const ds = res.success ? (Array.isArray(res.data) ? res.data : res.data?.items) : null
       const cuaToi = ds?.[0] ?? null
       if (!cuaToi) { setLounge(null); return }
@@ -131,6 +136,8 @@ const OwnerZonesPage = () => {
         getLoungeDetail(cuaToi.id),
         getLoungeZones(cuaToi.id, false), // false = lấy cả khu vực đã ngừng, để chủ còn thấy
       ])
+      // Danh sách khu vực lỗi thì KHÔNG coi là "chưa có khu vực" (allSettled nuốt lỗi — bản cũ báo trống).
+      if (zRes.status === 'rejected' || !zRes.value?.success) throw new Error('zones')
       setLounge(chiTiet.status === 'fulfilled' && chiTiet.value?.success ? chiTiet.value.data : cuaToi)
 
       const dsZone = zRes.status === 'fulfilled' && zRes.value?.success ? (zRes.value.data ?? []) : []
@@ -160,8 +167,8 @@ const OwnerZonesPage = () => {
         }
       })
       setLayout3D(nhap3D)
-    } catch (err) {
-      toast.error(err.response?.data?.message || 'Không tải được khu vực.')
+    } catch {
+      setLoiTai(true)
     } finally {
       setIsLoading(false)
     }
@@ -343,6 +350,7 @@ const OwnerZonesPage = () => {
   if (isLoading) {
     return <div className="py-20 flex justify-center"><Loader2 size={32} className="animate-spin text-ink" /></div>
   }
+  if (loiTai) return <TrangLoiTai tieuDe="Khu vực chỗ ngồi" tenVung="khu vực chỗ ngồi" taiLai={load} />
 
   if (!lounge) {
     return (

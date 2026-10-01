@@ -31,4 +31,14 @@ const KhungTai = ({ dangTai, loi, rong, taiLai, tenVung = 'dữ liệu', noiDung
   return children
 }
 
+// CẢ TRANG không tải được (dữ liệu nền như "phòng trà của tôi" lỗi): vẫn giữ tiêu đề trang để người dùng biết mình đang
+// ở đâu, và nói rõ là CHƯA TẢI ĐƯỢC. Bản cũ ở ~20 trang vận hành chỉ bật toast rồi vẽ tiếp nhánh "không có dữ liệu" — vd.
+// trang Nhân viên khi mất mạng bảo chủ phòng trà "Hãy tạo hồ sơ phòng trà trước" (01/10/2026).
+export const TrangLoiTai = ({ tieuDe, tenVung, taiLai }) => (
+  <div className="space-y-4 max-w-3xl">
+    <h1 className="text-4xl text-ink">{tieuDe}</h1>
+    <KhungTai loi tenVung={tenVung} taiLai={taiLai} />
+  </div>
+)
+
 export default KhungTai

@@ -45,6 +45,7 @@ import { getLoungeZones } from '../../services/loungeServices'
 import ShowAnalyticsSection from '../../components/owner/ShowAnalyticsSection'
 import { StatusBadge } from '../../components/admin/shows/ShowBadges'
 import { searchPerformers } from '../../services/catalogServices'
+import { TrangLoiTai } from '../../components/bang/KhungTai'
 
 const fmtMoney = (v) => `${Number(v || 0).toLocaleString('vi-VN')}đ`
 
@@ -71,6 +72,8 @@ const OwnerShowDetailPage = () => {
   const [show, setShow] = useState(null)
   const [tiers, setTiers] = useState([])
   const [isLoading, setIsLoading] = useState(true)
+  // Lỗi tải dữ liệu nền: vẽ TrangLoiTai thay vì nhánh 'chưa có' (01/10/2026 — xem components/bang/KhungTai.jsx).
+  const [loiTai, setLoiTai] = useState(false)
   const [busy, setBusy] = useState(null)
 
   const [legalRef, setLegalRef] = useState('')
@@ -88,8 +91,10 @@ const OwnerShowDetailPage = () => {
   const [zones, setZones] = useState([])
 
   const load = useCallback(async () => {
+    setLoiTai(false)
     try {
       const [sRes, tRes] = await Promise.all([getShowDetail(id), getTiers(id)])
+      if (!sRes.success) throw new Error('show')
       if (sRes.success) setShow(sRes.data)
       if (tRes.success) setTiers(tRes.data || [])
 
@@ -105,8 +110,9 @@ const OwnerShowDetailPage = () => {
           setZones([])
         }
       }
-    } catch {
-      toast.error('Không tải được buổi diễn.')
+    } catch (err) {
+      // 404 = thật sự không có buổi này (nhánh "Không tìm thấy" bên dưới); lỗi khác thì báo chưa tải được.
+      if (err?.response?.status !== 404) setLoiTai(true)
     }
   }, [id])
 
@@ -328,6 +334,7 @@ const OwnerShowDetailPage = () => {
   if (isLoading) {
     return <div className="py-20 flex justify-center"><Loader2 size={32} className="animate-spin text-ink" /></div>
   }
+  if (loiTai) return <TrangLoiTai tieuDe="Buổi diễn" tenVung="buổi diễn" taiLai={() => { setIsLoading(true); load().finally(() => setIsLoading(false)) }} />
   if (!show) {
     return <div className="text-ink-mute">Không tìm thấy buổi diễn.</div>
   }

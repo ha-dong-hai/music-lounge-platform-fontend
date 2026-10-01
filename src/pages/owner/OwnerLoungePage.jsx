@@ -32,6 +32,7 @@ import { refreshSession } from '../../services/aServices'
 import { useAuthStore } from '../../store/useAuthStore'
 import CustomCriteriaSection from '../../components/owner/CustomCriteriaSection'
 import ConfirmModal from '../../components/shared/ConfirmModal'
+import { TrangLoiTai } from '../../components/bang/KhungTai'
 
 // Trạng thái hồ sơ phòng trà — đúng 6 giá trị LoungeStatus của backend.
 const STATUS_VIEW = {
@@ -77,6 +78,8 @@ const OwnerLoungePage = () => {
   const [atmosphereKhongDoiDuoc, setAtmosphereKhongDoiDuoc] = useState(false)
 
   const [isLoading, setIsLoading] = useState(true)
+  // Lỗi tải dữ liệu nền: vẽ TrangLoiTai thay vì nhánh 'chưa có' (01/10/2026 — xem components/bang/KhungTai.jsx).
+  const [loiTai, setLoiTai] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const [isUploading, setIsUploading] = useState(null) // 'image' | 'license' | null
 
@@ -85,6 +88,7 @@ const OwnerLoungePage = () => {
 
   const load = useCallback(async () => {
     setIsLoading(true)
+    setLoiTai(false)
     try {
       const [dsRes, khongGianRes] = await Promise.allSettled([
         getLounges({ mine: true }),
@@ -94,6 +98,9 @@ const OwnerLoungePage = () => {
         ? khongGianRes.value.data : []
       setAtmospheres(dsKhongGian)
 
+      // Lỗi khi hỏi "phòng trà của tôi" KHÔNG phải "chưa có phòng trà" — bản cũ rơi vào form TẠO MỚI để trống,
+      // chủ phòng trà có thể gửi tạo thêm một phòng trà nữa.
+      if (dsRes.status === 'rejected' || !dsRes.value?.success) throw new Error('lounges')
       const ds = dsRes.status === 'fulfilled' && dsRes.value?.success ? dsRes.value.data : null
       const items = Array.isArray(ds) ? ds : ds?.items
       const cuaToi = items?.[0]
@@ -105,7 +112,7 @@ const OwnerLoungePage = () => {
 
       // Danh sách không có đủ trường để đổ vào form (thiếu street/ward/description...) — lấy bản chi tiết.
       const chiTiet = await getLoungeDetail(cuaToi.id)
-      if (!chiTiet.success) return
+      if (!chiTiet.success) throw new Error('detail')
       const d = chiTiet.data
       setLounge(d)
       setDistrictGiuLai(d.district || null)
@@ -122,8 +129,8 @@ const OwnerLoungePage = () => {
         latitude: d.latitude ?? '',
         longitude: d.longitude ?? '',
       })
-    } catch (err) {
-      toast.error(err.response?.data?.message || 'Không tải được hồ sơ phòng trà.')
+    } catch {
+      setLoiTai(true)
     } finally {
       setIsLoading(false)
     }
@@ -292,6 +299,7 @@ const OwnerLoungePage = () => {
   if (isLoading) {
     return <div className="py-20 flex justify-center"><Loader2 size={32} className="animate-spin text-ink" /></div>
   }
+  if (loiTai) return <TrangLoiTai tieuDe="Hồ sơ phòng trà" tenVung="hồ sơ phòng trà" taiLai={load} />
 
   const trangThai = lounge ? STATUS_VIEW[lounge.status] : null
 
