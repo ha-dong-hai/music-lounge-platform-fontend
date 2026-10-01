@@ -16,6 +16,12 @@ export const cancelHold = async (holdId) => {
   return axiosClient.delete(`/tickets/holds/${holdId}`);
 };
 
+//
+
+export const initiateTicketTransfer = async (ticketId, recipientEmail) => {
+  return axiosClient.post(`/tickets/${ticketId}/transfer`, { recipientEmail });
+};
+
 // Vé người khác đang chuyển cho TÔI, đang chờ tôi đồng ý nhận.
 export const getIncomingTicketTransfers = async () => {
   return axiosClient.get('/tickets/incoming-transfers');
@@ -23,6 +29,11 @@ export const getIncomingTicketTransfers = async () => {
 
 export const acceptTicketTransfer = async (ticketId) => {
   return axiosClient.post(`/tickets/${ticketId}/transfer/accept`);
+};
+
+// Người gửi huỷ lượt chuyển, khi người nhận chưa đồng ý.
+export const cancelTicketTransfer = async (ticketId) => {
+  return axiosClient.post(`/tickets/${ticketId}/transfer/cancel`);
 };
 
 // Tạo đơn hàng thật từ 1 hold còn hiệu lực — trả PaymentInitiationDto có paymentUrl VNPay thật
