@@ -40,7 +40,9 @@ const AdminShowDetailPage = () => {
       try {
         const [detailRes, pendingRes] = await Promise.all([
           getShowDetail(id),
-          getPendingModerations({ page: 1, pageSize: 100, targetType: 'Show' }).catch(() => null)
+          // targetId (MLACP-504, PR #365): backend mới trả đúng 0/1 bản của buổi này — bản cũ quét 100 bản chờ, quá 100 thì
+          // hộp duyệt không mở được. Backend chưa có MLACP-504 bỏ qua targetId → vẫn tìm theo id phía dưới như trước.
+          getPendingModerations({ page: 1, pageSize: 100, targetType: 'Show', targetId: id }).catch(() => null)
         ])
 
         if (detailRes.success) {
