@@ -28,14 +28,16 @@ import KhungTai, { TrangLoiTai } from '../../components/bang/KhungTai'
 // mình tạo nằm sau 50 hồ sơ đầu danh mục thì không bao giờ hiện. Nay lật từng trang 50 và chỉ giữ hồ sơ
 // createdByUserId = mình.
 // TRẦN: tối đa 10 trang (500 hồ sơ đầu danh mục) — quá trần thì báo rõ trên màn thay vì im lặng thiếu.
-// ĐƯỜNG NÂNG CẤP: backend thêm lọc "do tôi tạo" cho GET /performers (một task MLACP backend) → bỏ vòng lặp này.
+// ĐƯỜNG NÂNG CẤP: backend đã có createdByMe (MLACP-501, PR #362, chưa deploy) → bỏ vòng lặp này sau khi deploy.
 const TRAN_TRANG_NGHE_SI = 10
 const taiNgheSiDoToiTao = async (userId) => {
   const cuaToi = []
   let trang = 1
   let soTrang
   do {
-    const res = await getMyPerformers({ page: trang, pageSize: 50 })
+    // createdByMe (MLACP-501, PR #362): backend mới chỉ trả hồ sơ của người gọi → vòng này dừng ngay ở trang 1. Backend cũ
+    // bỏ qua tham số → lật danh mục chung như trước và lọc phía trình duyệt. GỠ vòng lặp + lọc sau khi #362 deploy.
+    const res = await getMyPerformers({ page: trang, pageSize: 50, createdByMe: true })
     if (!res?.success) throw new Error('performers')
     const d = res.data
     cuaToi.push(...((Array.isArray(d) ? d : d?.items) ?? []).filter((p) => String(p.createdByUserId) === String(userId)))
