@@ -11,7 +11,7 @@ import { Link } from 'react-router-dom'
 import DauMoc from './DauMoc'
 
 const CAM_KET = [
-  { tieuDe: 'Tiền vé được giữ hộ', cau: 'Tiền bạn trả online được nền tảng giữ, chỉ chuyển cho phòng trà sau khi buổi diễn diễn ra.', dau: 'GIỮ HỘ' },
+  { tieuDe: 'Tiền vé được giữ hộ', cau: 'Tiền bạn trả trực tuyến được nền tảng giữ, chỉ chuyển cho phòng trà sau khi buổi diễn diễn ra.', dau: 'GIỮ HỘ' },
   { tieuDe: 'Buổi diễn huỷ thì hoàn tiền', cau: 'Phòng trà huỷ buổi diễn thì vé của bạn được hoàn — theo dõi trạng thái ngay trong mục Vé của tôi.', dau: 'HOÀN VÉ' },
   { tieuDe: 'Tiền ủng hộ có sao kê', cau: 'Mỗi khoản ủng hộ nghệ sĩ được ghi lên sao kê công khai, ai cũng xem được tiền đã tới tay nghệ sĩ hay chưa.', dau: 'SAO KÊ', link: { to: '/minh-bach', nhan: 'Xem sao kê' } },
 ]

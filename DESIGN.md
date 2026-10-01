@@ -25,8 +25,8 @@ colors:
   brand-text: "#231A15"
   on-brand: "#F2EAE0"
   danger: "#B3261E"
-  success: "#2F7A4F"
-  warning: "#8A5A00"
+  success: "#266340"
+  warning: "#794F00"
 typography:
   display: { fontFamily: "'Anton', 'Be Vietnam Pro', sans-serif", fontSize: "clamp(3rem, 8vw, 6rem)", fontWeight: 400, lineHeight: 0.95, letterSpacing: "0" }
   headline: { fontFamily: "'Anton', 'Be Vietnam Pro', sans-serif", fontSize: "3rem", fontWeight: 400, lineHeight: 1.05, letterSpacing: "0" }

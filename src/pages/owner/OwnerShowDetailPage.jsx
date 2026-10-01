@@ -443,6 +443,13 @@ const OwnerShowDetailPage = () => {
         <div className="space-y-3">
           <ChecklistRow ok={hasTiers} label="Có ít nhất 1 hạng vé" hint="Thêm ở mục Hạng vé bên dưới" />
           <ChecklistRow ok={hasPerformers} label="Có ít nhất 1 nghệ sĩ trong line-up" hint="Thêm ở mục Line-up bên dưới" />
+          {/* Buổi trực tuyến / Hybrid, hoặc buổi có vé xem trực tuyến: backend từ chối gửi duyệt khi chưa có phiên phát
+              (422 "Event online hoặc có vé livestream phải được thiết lập Livestream trước khi nộp duyệt"). Chạy thật với Mux
+              01/10/2026: danh sách này không nhắc gì nên chủ phòng trà chỉ biết khi bấm Gửi duyệt và bị từ chối. */}
+          {(show.format !== 'Offline' || tiers.some((t) => t.accessType === 'Livestream')) && (
+            <ChecklistRow ok={!!show.livestreamId} label="Đã tạo phiên phát trực tuyến"
+              hint={<>Buổi có phát trực tuyến phải tạo phiên phát trước khi gửi duyệt — tạo ở <Link to="/owner/livestreams" className="underline font-semibold">Phát trực tuyến</Link>.</>} />
+          )}
           {/* Kiểm được THẬT khi đọc được operatorInfo (backend trả số văn bản đã khai). Trước đây
               mục này luôn là dấu hỏi vì FE không đọc giá trị đó, nên người dùng không biết mình đã
               khai hay chưa cho tới lúc bấm gửi và bị từ chối.

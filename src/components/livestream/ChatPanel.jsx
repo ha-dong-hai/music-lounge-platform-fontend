@@ -144,7 +144,7 @@ const ChatPanel = ({ messages, performers, onSendMessage, onSendDonation, onRepo
         )}
 
         <form onSubmit={handleSubmit} className="flex items-center gap-2">
-          <button type="button" onClick={() => setShowEmoji(!showEmoji)} className={`p-2 transition-colors flex-shrink-0 ${showEmoji ? 'text-ink bg-sunken' : 'text-ink-soft hover:text-ink'}`} aria-label="Chèn biểu tượng cảm xúc">
+          <button type="button" onClick={() => setShowEmoji(!showEmoji)} className={`inline-flex items-center justify-center w-11 h-11 transition-colors flex-shrink-0 ${showEmoji ? 'text-ink bg-sunken' : 'text-ink-soft hover:text-ink'}`} aria-label="Chèn biểu tượng cảm xúc" aria-expanded={showEmoji}>
             <Smile size={20} />
           </button>
           <input aria-label="Nhắn gì đó"
@@ -153,10 +153,10 @@ const ChatPanel = ({ messages, performers, onSendMessage, onSendDonation, onRepo
             value={text}
             onChange={e => setText(e.target.value)}
             placeholder="Nhắn gì đó…"
-            className="flex-1 min-w-0 bg-sunken text-ink text-sm px-3 py-2 focus:outline-none focus:ring-1 focus:ring-ink placeholder:text-ink-mute"
+            className="flex-1 min-w-0 min-h-[44px] bg-sunken text-ink text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-ink placeholder:text-ink-mute"
           />
           {/* NÚT SEND — donate chuyển sang phải của nó */}
-          <button type="submit" className="p-2 text-ink hover:text-ink transition-colors disabled:opacity-30 flex-shrink-0" disabled={!text.trim()} aria-label="Gửi">
+          <button type="submit" className="inline-flex items-center justify-center w-11 h-11 text-ink hover:bg-sunken transition-colors disabled:opacity-30 flex-shrink-0" disabled={!text.trim()} aria-label="Gửi">
             <Send size={20} />
           </button>
           {/* NÚT DONATE — vị trí mới */}

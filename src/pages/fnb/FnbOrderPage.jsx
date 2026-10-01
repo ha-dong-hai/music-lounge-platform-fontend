@@ -113,7 +113,7 @@ const FnbOrderPage = () => {
       }
       const res = await createFnbOrder(payload)
       if (res.success) {
-        toast.success('Đã gửi đơn tới quầy. Bạn có thể trả tiền mặt hoặc chuyển sang trả online.')
+        toast.success('Đã gửi đơn tới quầy. Bạn có thể trả tiền mặt hoặc thanh toán trực tuyến.')
         setCart({})
         setTableNote('')
         await loadOrders()
@@ -261,7 +261,7 @@ const FnbOrderPage = () => {
                     </p>
                   )}
                   <p className="text-sm text-ink-soft mt-2 leading-relaxed">
-                    Đơn gửi đi mặc định là trả tiền mặt tại quầy. Sau khi gửi, bạn có thể chọn trả online.
+                    Đơn gửi đi mặc định là trả tiền mặt tại quầy. Sau khi gửi, bạn có thể chọn thanh toán trực tuyến.
                   </p>
                 </>
               )}

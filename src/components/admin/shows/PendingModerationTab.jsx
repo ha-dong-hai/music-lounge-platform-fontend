@@ -6,6 +6,7 @@ import toast from 'react-hot-toast'
 import HopXacNhan from '../../shared/HopXacNhan'
 import { getPendingModerations, reviewLivestreamModeration, reviewTicketTier } from '../../../services/adminServices'
 import { FormatBadge } from './ShowBadges'
+import NhomTab from '../../bang/NhomTab'
 
 // Vòng tròn điểm AI (0 -> 100)
 const AIScoreCircle = ({ score }) => {
@@ -110,26 +111,10 @@ const PendingModerationTab = () => {
   return (
     <div>
       {/* TAB CHỌN LOẠI ĐANG CHỜ DUYỆT */}
-      <div className="flex gap-2 mb-4">
-        <button
-          onClick={() => handleTabChange('Show')}
-          className={`px-4 py-2 text-sm font-bold transition-colors ${targetType === 'Show' ? 'bg-ink text-lamp' : 'bg-card text-ink-soft hover:text-ink'}`}
-        >
-          Show
-        </button>
-        <button
-          onClick={() => handleTabChange('Livestream')}
-          className={`px-4 py-2 text-sm font-bold transition-colors ${targetType === 'Livestream' ? 'bg-ink text-lamp' : 'bg-card text-ink-soft hover:text-ink'}`}
-        >
-          Livestream
-        </button>
-        <button
-          onClick={() => handleTabChange('TicketTier')}
-          className={`px-4 py-2 text-sm font-bold transition-colors ${targetType === 'TicketTier' ? 'bg-ink text-lamp' : 'bg-card text-ink-soft hover:text-ink'}`}
-        >
-          Hạng vé
-        </button>
-      </div>
+      {/* NhomTab chung (01/10/2026): bản cũ cao ~36px, chữ tiếng Anh "Show"/"Livestream", không báo tab đang chọn.
+          Chạy thật luồng Mux mới mở tới tab này nên bản quét chất lượng (chỉ mở tab mặc định) không thấy. */}
+      <NhomTab className="mb-4" nhan="Loại nội dung chờ duyệt" dangChon={targetType} onChon={handleTabChange}
+        cacTab={[{ khoa: 'Show', nhan: 'Buổi diễn' }, { khoa: 'Livestream', nhan: 'Buổi phát' }, { khoa: 'TicketTier', nhan: 'Hạng vé' }]} />
 
       <div className="bg-card border border-line overflow-hidden">
         <div className="overflow-x-auto">

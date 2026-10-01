@@ -149,8 +149,8 @@ const OwnerAnalyticsPage = () => {
   const trend = (stats?.revenueTrend || []).map((m) => ({
     month: `T.${m.month}`,
     'Vé tại chỗ': m.offlineTicketRevenue,
-    'Vé online': m.onlineTicketRevenue,
-    'F&B': m.fnbRevenue,
+    'Vé trực tuyến': m.onlineTicketRevenue,
+    'Gọi món': m.fnbRevenue,
   }))
 
   return (
@@ -241,7 +241,7 @@ const OwnerAnalyticsPage = () => {
       {trend.length > 0 && (
         <div className="bg-card border border-line p-6">
           <h3 className="text-lg font-semibold text-ink mb-1">Doanh thu theo tháng</h3>
-          <p className="text-ink-mute text-xs mb-6">Tách theo vé tại chỗ, vé online và F&amp;B.</p>
+          <p className="text-ink-mute text-xs mb-6">Tách theo vé tại chỗ, vé trực tuyến và gọi món.</p>
           <div className="h-[320px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={trend} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
@@ -249,10 +249,11 @@ const OwnerAnalyticsPage = () => {
                 <XAxis dataKey="month" tick={{ fill: '#888', fontSize: 12 }} axisLine={{ stroke: '#333' }} tickLine={false} />
                 <YAxis tick={{ fill: '#888', fontSize: 12 }} axisLine={{ stroke: '#333' }} tickLine={false} tickFormatter={fmtAxis} />
                 <Tooltip content={<ChartTooltip />} cursor={{ fill: 'rgba(255,255,255,0.05)' }} />
-                <Legend wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }} />
+                {/* Chữ chú giải màu mực: mặc định Recharts tô chữ theo màu chuỗi — chuỗi sáng thì chữ không đọc được (đo 01/10: 2.22:1). */}
+                <Legend wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }} formatter={(v) => <span style={{ color: 'var(--color-ink)' }}>{v}</span>} />
                 <Bar dataKey="Vé tại chỗ" stackId="a" fill="var(--color-ink)" />
-                <Bar dataKey="Vé online" stackId="a" fill="var(--color-ember)" />
-                <Bar dataKey="F&B" stackId="a" fill="var(--color-ink-mute)" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="Vé trực tuyến" stackId="a" fill="var(--color-chart-2)" />
+                <Bar dataKey="Gọi món" stackId="a" fill="var(--color-chart-3)" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>

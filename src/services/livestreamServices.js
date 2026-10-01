@@ -1,7 +1,10 @@
 import axiosClient from '../config/axios';
 
-export const getLivestreamDetail = async (id) => {
-  return axiosClient.get(`/livestreams/${id}`);
+// viewingSessionId: mã phiên xem lần trước của CHÍNH trình duyệt này (MLACP-513, PR #373). Có mã thì backend dùng lại phiên
+// đó thay vì tính thêm một thiết bị — trước đây tải lại trang 2 lần là bị chặn "đang xem trên 2 thiết bị" (đo khi chạy Mux
+// thật 01/10/2026). Backend chưa có PR này thì bỏ qua tham số — gửi trước vô hại.
+export const getLivestreamDetail = async (id, viewingSessionId) => {
+  return axiosClient.get(`/livestreams/${id}`, { params: viewingSessionId ? { viewingSessionId } : undefined });
 };
 
 export const getChatHistory = async (id, params = {}) => {

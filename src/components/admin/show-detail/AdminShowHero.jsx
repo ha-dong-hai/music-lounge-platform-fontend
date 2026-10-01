@@ -30,7 +30,7 @@ const AdminShowHero = ({ data, moderation, onOpenModeration, onOpenShare }) => {
 
           <h1 className="text-4xl md:text-5xl leading-[1.05] mb-4 text-lamp">{data.title}</h1>
 
-          <div className="flex items-center gap-2 mb-4 text-lamp-mute">
+          <div className="flex items-center gap-2 mb-4 text-stock/90">
             <MapPin size={18} className="flex-shrink-0 text-stock" /><span className="text-lg">{data.address}</span>
           </div>
 
@@ -58,7 +58,7 @@ const AdminShowHero = ({ data, moderation, onOpenModeration, onOpenShare }) => {
           )}
 
           <div className="flex items-center gap-6">
-            <button type="button" onClick={onOpenShare} className="inline-flex items-center gap-2 min-h-[44px] text-lamp-mute hover:text-stock transition-colors">
+            <button type="button" onClick={onOpenShare} className="inline-flex items-center gap-2 min-h-[44px] text-stock/90 hover:text-stock transition-colors">
               <Share2 size={20} /><span className="font-medium text-sm md:text-base">Chia sẻ</span>
             </button>
             {moderation && (

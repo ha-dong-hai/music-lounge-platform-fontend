@@ -81,6 +81,11 @@ const DonateAlert = ({ alert, onEnd, duration = 5000 }) => {
 // để làm nguồn texture; không tạo luồng thứ hai (không tốn thêm băng thông hay phí phát).
 const StreamPlayer = ({ streamUrl, donationAlerts, onAlertEnd, hidden = false, onVideoReady }) => {
   const videoRef = useRef(null)
+  // Đang chờ tín hiệu: đã có địa chỉ HLS nhưng Mux chưa có (hoặc vừa mất) hình — vào trang TRƯỚC giờ phát, hay encoder
+  // của phòng trà rớt mạng. Đo khi chạy Mux thật 01/10/2026: bản cũ không nghe lỗi của hls.js nên màn hình đen mãi,
+  // người xem phải tải lại trang — mà mỗi lần tải lại backend mở thêm một phiên xem, tới lần thứ ba thì bị khoá
+  // "đang xem trên 2 thiết bị". Nay tự nạp lại mỗi 5 giây cho tới khi có hình.
+  const [choTinHieu, setChoTinHieu] = useState(false)
   useEffect(() => { if (videoRef.current) onVideoReady?.(videoRef.current) }, [onVideoReady])
 
   useEffect(() => {
@@ -89,13 +94,23 @@ const StreamPlayer = ({ streamUrl, donationAlerts, onAlertEnd, hidden = false, o
 
     if (Hls.isSupported()) {
       const hls = new Hls({ enableWorker: true, lowLatencyMode: true })
+      let henGio = null
       hls.loadSource(streamUrl)
       hls.attachMedia(video)
       hls.on(Hls.Events.MANIFEST_PARSED, () => {
+        setChoTinHieu(false)
         video.play().catch(() => {}) // trình duyệt chặn tự phát: người xem bấm nút phát
       })
-      return () => hls.destroy()
-    } 
+      hls.on(Hls.Events.ERROR, (_e, data) => {
+        if (!data?.fatal) return // hls.js tự xử lý lỗi không nặng
+        if (data.type === Hls.ErrorTypes.MEDIA_ERROR) { hls.recoverMediaError(); return }
+        // Lỗi mạng nặng (chưa có tín hiệu / mất tín hiệu): chờ rồi nạp lại danh sách phát.
+        setChoTinHieu(true)
+        clearTimeout(henGio)
+        henGio = setTimeout(() => hls.loadSource(streamUrl), 5000)
+      })
+      return () => { clearTimeout(henGio); hls.destroy() }
+    }
     // Fallback cho Safari native HLS
     else if (video.canPlayType('application/vnd.apple.mpegurl')) {
       video.src = streamUrl
@@ -120,6 +135,15 @@ const StreamPlayer = ({ streamUrl, donationAlerts, onAlertEnd, hidden = false, o
           <DonateAlert key={alert.id} alert={alert} onEnd={onAlertEnd} />
         ))}
       </div>
+
+      {/* ĐÃ CÓ ĐỊA CHỈ NHƯNG CHƯA CÓ HÌNH: tự kết nối lại, nói rõ để người xem không tải lại trang. */}
+      {streamUrl && choTinHieu && !hidden && (
+        <div role="status" className="absolute inset-0 flex flex-col items-center justify-center text-center px-6 z-10 bg-ink">
+          <Radio size={40} className="mb-3 text-lamp-mute animate-pulse motion-reduce:animate-none" aria-hidden="true" />
+          <p className="font-bold text-lg text-lamp">Đang chờ tín hiệu từ phòng trà…</p>
+          <p className="text-sm text-stock/90">Hình sẽ tự hiện khi có tín hiệu — bạn không cần tải lại trang.</p>
+        </div>
+      )}
 
       {/* PLACEHOLDER KHI CHƯA CÓ STREAM URL */}
       {!streamUrl && !hidden && (

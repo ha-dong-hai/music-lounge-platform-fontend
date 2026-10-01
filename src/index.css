@@ -31,8 +31,10 @@
 
 
   --color-danger: #B3261E;
-  --color-success: #2F7A4F;
-  --color-warning: #8A5A00;
+  /* 01/10/2026: lam toi de dat 4.5:1 (WCAG 1.4.3) tren ca nen the, nen lom va nen to nhat 10-15% cua chinh mau nay —
+     do may tren 192 luot quet: ban cu chi 3.51 (success) / 3.93 (warning) o nhan trang thai "Da duyet", "Cho Admin duyet". */
+  --color-success: #266340;
+  --color-warning: #794F00;
 
   /* ── TỪ VỰNG MỚI — thế giới tờ chương trình, bảng màu Sơn then và lụa ngà ── */
   --color-stock: #F3EEE6;         /* lụa ngà — phủ trang ở màn công khai (Persuade) */

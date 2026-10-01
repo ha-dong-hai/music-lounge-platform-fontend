@@ -91,7 +91,14 @@ const LivestreamWatchPage = () => {
           return
         }
 
-        const lsRes = await getLivestreamDetail(showRes.data.livestreamId)
+        // Giữ mã phiên xem trong sessionStorage (theo từng tab) để tải lại trang không bị tính là thiết bị mới (MLACP-513).
+        const khoaPhien = `phien-xem-${showRes.data.livestreamId}`
+        let phienCu = null
+        try { phienCu = sessionStorage.getItem(khoaPhien) } catch { /* trình duyệt chặn bộ nhớ: coi như chưa có */ }
+        const lsRes = await getLivestreamDetail(showRes.data.livestreamId, phienCu)
+        try {
+          if (lsRes.success && lsRes.data.viewingSessionId) sessionStorage.setItem(khoaPhien, lsRes.data.viewingSessionId)
+        } catch { /* không lưu được thì lần sau mở phiên mới như cũ */ }
         if (lsRes.success) {
           setLivestream(lsRes.data)
           setViewerCount(lsRes.data.viewerCount || 0)
@@ -114,8 +121,13 @@ const LivestreamWatchPage = () => {
         } catch {
           // Lịch sử chat không tải được không nên chặn cả trang — vẫn xem được livestream/chat mới.
         }
-      } catch {
-        setError('Không kết nối được máy chủ. Vui lòng thử lại.')
+      } catch (err) {
+        // Máy chủ CÓ trả lời (4xx kèm câu tiếng Việt) thì in đúng câu đó — vd. 422 "Vé này đang được xem trên 2 thiết bị
+        // — vui lòng đóng bớt…". Bản cũ gộp mọi lỗi thành "Không kết nối được máy chủ" nên người xem tưởng hệ thống hỏng
+        // và không biết phải đóng bớt thiết bị (đo khi chạy Mux thật 01/10/2026). Chỉ lỗi mạng mới là "không kết nối".
+        setError(err?.response?.data?.message || (err?.response
+          ? 'Chưa mở được buổi phát. Vui lòng thử lại.'
+          : 'Không kết nối được máy chủ. Vui lòng thử lại.'))
       } finally {
         setIsLoading(false)
       }

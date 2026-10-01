@@ -347,7 +347,7 @@ const OwnerPerformersPage = () => {
               )}
 
               {!p.contactEmail && (
-                <p className="mt-3 text-xs text-warning/80 flex items-start gap-1.5 leading-relaxed">
+                <p className="mt-3 text-xs text-warning flex items-start gap-1.5 leading-relaxed">
                   <AlertTriangle size={12} className="mt-0.5 flex-shrink-0" />
                   Chưa có email liên lạc — nghệ sĩ này không tự xác nhận được tiền ủng hộ.
                 </p>

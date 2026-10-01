@@ -101,7 +101,7 @@ const ShowIntro = ({ data, isFollowing, onToggleFollow }) => {
         {/* Dấu mộc chỉ nói về tiền, và chỉ đóng trên giấy sáng (DESIGN.md: Stamp-Is-Money, No-Stamp-On-Navy). */}
         <div className="flex items-center gap-4 pt-5 mt-1 border-t-2 border-ink">
           <DauMoc vongNgoai="MUSICLOUNGE · TIỀN VÉ GIỮ HỘ · " giua={'GIỮ HỘ\nTỚI KHI DIỄN'} size={84} xoay={-10} className="flex-shrink-0" />
-          <p className="text-sm text-ink-soft">Tiền vé trả online được nền tảng giữ hộ, chỉ chuyển cho phòng trà sau khi buổi diễn diễn ra.</p>
+          <p className="text-sm text-ink-soft">Tiền vé trả trực tuyến được nền tảng giữ hộ, chỉ chuyển cho phòng trà sau khi buổi diễn diễn ra.</p>
         </div>
       </aside>
     </div>
