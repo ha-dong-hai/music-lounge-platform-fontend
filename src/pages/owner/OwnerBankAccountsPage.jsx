@@ -20,6 +20,7 @@ import { getBankAccounts, createBankAccount, updateBankAccount } from '../../ser
 import { getLounges } from '../../services/loungeServices'
 import { useAuthStore } from '../../store/useAuthStore'
 import { getMyPerformers } from '../../services/performerServices'
+import KhungTai, { TrangLoiTai } from '../../components/bang/KhungTai'
 
 // NGHỆ SĨ NÀO ĐƯỢC CHỌN (sửa 01/10/2026): GET /performers là danh mục DÙNG CHUNG của mọi phòng trà, sắp theo Id, kẹp
 // 50/trang. Bản cũ lấy một trang pageSize 100 (nhận 50) và cho chọn TẤT CẢ: chọn hồ sơ phòng trà khác tạo thì backend trả
@@ -142,6 +143,11 @@ const OwnerBankAccountsPage = () => {
   const [lounge, setLounge] = useState(null)
   const [performers, setPerformers] = useState([])
   const [ngheSiVuotTran, setNgheSiVuotTran] = useState(false)
+  // Ba chỗ lỗi tải (01/10/2026) — bản cũ toast rồi vẽ "chưa có": phòng trà lỗi → "chưa có phòng trà"; danh sách tài khoản
+  // lỗi → "Chưa có tài khoản nào" (chủ phòng trà có thể khai TRÙNG); nghệ sĩ lỗi → ô chọn lặng lẽ trống.
+  const [loiTai, setLoiTai] = useState(false)
+  const [loiNgheSi, setLoiNgheSi] = useState(false)
+  const [loiTaiKhoan, setLoiTaiKhoan] = useState(false)
   const userId = useAuthStore((st) => st.user?.id)
   const [chuSoHuu, setChuSoHuu] = useState(null)   // { type, id, label }
   const [accounts, setAccounts] = useState([])
@@ -153,11 +159,14 @@ const OwnerBankAccountsPage = () => {
   // Bước 1: biết mình sở hữu phòng trà nào và có những nghệ sĩ nào — tài khoản luôn gắn với một trong hai.
   const loadChuSoHuu = useCallback(async () => {
     setIsLoading(true)
+    setLoiTai(false)
     try {
       const [loungeRes, performerRes] = await Promise.allSettled([
         getLounges({ mine: true }),
         taiNgheSiDoToiTao(userId),
       ])
+      if (loungeRes.status === 'rejected' || !loungeRes.value?.success) throw new Error('lounges')
+      setLoiNgheSi(performerRes.status === 'rejected')
       const ds = loungeRes.status === 'fulfilled' && loungeRes.value?.success ? loungeRes.value.data : null
       const cuaToi = (Array.isArray(ds) ? ds : ds?.items)?.[0] ?? null
       setLounge(cuaToi)
@@ -167,8 +176,8 @@ const OwnerBankAccountsPage = () => {
       setNgheSiVuotTran(Boolean(pds?.vuotTran))
 
       if (cuaToi) setChuSoHuu({ type: 'Lounge', id: cuaToi.id, label: cuaToi.name })
-    } catch (err) {
-      toast.error(err.response?.data?.message || 'Không tải được thông tin phòng trà.')
+    } catch {
+      setLoiTai(true)
     } finally {
       setIsLoading(false)
     }
@@ -180,11 +189,13 @@ const OwnerBankAccountsPage = () => {
   const loadAccounts = useCallback(async () => {
     if (!chuSoHuu) return
     setIsLoadingList(true)
+    setLoiTaiKhoan(false)
     try {
       const res = await getBankAccounts(chuSoHuu.type, chuSoHuu.id)
-      if (res.success) setAccounts(res.data ?? [])
-    } catch (err) {
-      toast.error(err.response?.data?.message || 'Không tải được danh sách tài khoản.')
+      if (!res.success) throw new Error('accounts')
+      setAccounts(res.data ?? [])
+    } catch {
+      setLoiTaiKhoan(true)
       setAccounts([])
     } finally {
       setIsLoadingList(false)
@@ -196,6 +207,8 @@ const OwnerBankAccountsPage = () => {
   if (isLoading) {
     return <div className="py-20 flex justify-center"><Loader2 size={32} className="animate-spin text-ink" /></div>
   }
+
+  if (loiTai) return <TrangLoiTai tieuDe="Tài khoản nhận tiền" tenVung="thông tin phòng trà" taiLai={loadChuSoHuu} />
 
   if (!lounge) {
     return (
@@ -258,6 +271,7 @@ const OwnerBankAccountsPage = () => {
       <p className="text-xs text-ink-mute -mt-3">
         Chỉ hiện nghệ sĩ do bạn tạo — tài khoản nhận tiền của nghệ sĩ chỉ người tạo hồ sơ đó khai được.
         {ngheSiVuotTran && ' Danh mục nghệ sĩ đã quá 500 hồ sơ nên có thể thiếu nghệ sĩ bạn tạo gần đây; báo quản trị viên nếu không thấy.'}
+        {loiNgheSi && <span role="alert" className="block text-danger mt-1">Chưa tải được danh sách nghệ sĩ — tải lại trang để thử lại.</span>}
       </p>
 
       <div className="bg-card border border-line p-6">
@@ -271,6 +285,8 @@ const OwnerBankAccountsPage = () => {
 
         {isLoadingList ? (
           <div className="py-10 flex justify-center"><Loader2 size={24} className="animate-spin text-ink" /></div>
+        ) : loiTaiKhoan ? (
+          <KhungTai loi tenVung="danh sách tài khoản" taiLai={loadAccounts} />
         ) : accounts.length === 0 ? (
           <p className="py-10 text-center text-sm text-ink-mute">Chưa có tài khoản nào cho mục này.</p>
         ) : (
