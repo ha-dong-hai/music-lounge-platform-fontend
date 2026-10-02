@@ -32,6 +32,7 @@ import { uploadImage } from '../../services/userServices'
 import { refreshSession } from '../../services/aServices'
 import { useAuthStore } from '../../store/useAuthStore'
 import CustomCriteriaSection from '../../components/owner/CustomCriteriaSection'
+import ThePhongTra from '../../components/program/ThePhongTra'
 import ConfirmModal from '../../components/shared/ConfirmModal'
 import { TrangLoiTai } from '../../components/bang/KhungTai'
 
@@ -327,8 +328,25 @@ const OwnerLoungePage = () => {
 
   const trangThai = lounge ? STATUS_VIEW[lounge.status] : null
 
+  // Thẻ xem trước dựng từ NỘI DUNG ĐANG SỬA, đúng các trường ThePhongTra đọc (ô "Phòng trà trên sàn" ở trang chủ và
+  // trang danh sách phòng trà). Địa chỉ theo mã thì backend bỏ trống quận và điền tên tỉnh chuẩn — làm y như vậy.
+  const tinhDangChon = provinces.find((p) => p.code === form.provinceCode)
+  const theXemTruoc = lounge && {
+    id: lounge.id,
+    name: form.name.trim() || lounge.name,
+    primaryImageUrl: lounge.primaryImageUrl,
+    street: form.street,
+    district: form.provinceCode ? '' : lounge.district,
+    city: tinhDangChon?.name ?? lounge.city,
+    upcomingShowCount: lounge.upcomingShowCount ?? 0,
+  }
+
   return (
-    <div className="space-y-6 max-w-3xl">
+    // Màn rộng (≥1280px): form bên trái + cột "Khán giả sẽ thấy" bên phải, dính khi cuộn (chủ dự án 02/10/2026: form
+    // neo trái để trống nửa màn hình). Form vẫn giữ một cột ~768px — trải ô nhập ra nhiều cột làm người điền bỏ sót ô.
+    // Màn hẹp: cột xem trước xuống dưới form.
+    <div className="xl:flex xl:justify-center xl:items-start xl:gap-10">
+    <div className="space-y-6 max-w-3xl mx-auto xl:mx-0 xl:flex-1 min-w-0">
       <div>
         <h1 className="text-4xl text-ink mb-1">Hồ sơ phòng trà</h1>
         <p className="text-ink-soft text-sm">
@@ -526,6 +544,20 @@ const OwnerLoungePage = () => {
         onClose={() => setMoXoa(false)}
         onConfirm={handleXoa}
       />
+    </div>
+
+    {theXemTruoc && (
+      <aside aria-labelledby="xem-truoc-td" className="mt-8 xl:mt-0 max-w-3xl mx-auto xl:mx-0 xl:w-80 xl:shrink-0 xl:sticky xl:top-0">
+        <h2 id="xem-truoc-td" className="text-sm font-semibold text-ink-soft mb-3">Khán giả sẽ thấy</h2>
+        {/* inert: chỉ để nhìn — không bấm nhầm "Theo dõi"/liên kết, không lọt vào thứ tự Tab. */}
+        <div inert className="max-w-xs">
+          <ThePhongTra l={theXemTruoc} />
+        </div>
+        <p className="text-xs text-ink-mute mt-3 leading-relaxed">
+          Cập nhật theo nội dung bạn đang sửa. Khán giả chỉ thấy thay đổi sau khi bạn bấm <strong>Lưu thay đổi</strong>.
+        </p>
+      </aside>
+    )}
     </div>
   )
 }

@@ -263,7 +263,7 @@ const OwnerShowSettingsPage = () => {
 
   if (!show) {
     return (
-      <div className="max-w-2xl">
+      <div className="max-w-2xl mx-auto">
         <Link to="/owner/shows" className="inline-flex items-center gap-1.5 text-sm text-ink-mute hover:text-ink mb-4">
           <ArrowLeft size={16} /> Về danh sách buổi diễn
         </Link>
@@ -296,7 +296,7 @@ const OwnerShowSettingsPage = () => {
     && history.some((h) => h.imageUrl === show.coverImageUrl)
 
   return (
-    <div className="space-y-6 max-w-3xl">
+    <div className="space-y-6 max-w-3xl mx-auto">
       <div>
         <Link to={`/owner/shows/${id}`} className="inline-flex items-center gap-1.5 min-h-[44px] text-sm text-ink-mute hover:text-ink mb-1">
           <ArrowLeft size={16} aria-hidden="true" /> Về buổi diễn

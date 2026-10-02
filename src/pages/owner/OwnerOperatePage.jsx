@@ -295,7 +295,7 @@ const OwnerOperatePage = () => {
 
   if (shows.length === 0) {
     return (
-      <div className="max-w-2xl">
+      <div className="max-w-2xl mx-auto">
         <h1 className="text-4xl text-ink mb-1">Vận hành đêm diễn</h1>
         <div className="mt-4 bg-card border border-line p-6">
           <p className="text-sm text-ink-soft">Chưa có buổi diễn nào để vận hành.</p>

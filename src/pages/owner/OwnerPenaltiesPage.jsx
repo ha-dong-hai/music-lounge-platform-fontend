@@ -102,7 +102,7 @@ const OwnerPenaltiesPage = () => {
   }
 
   return (
-    <div className="space-y-6 max-w-3xl">
+    <div className="space-y-6 max-w-3xl mx-auto">
       <div>
         <h1 className="text-4xl text-ink mb-1">Án phạt</h1>
         <p className="text-ink-soft text-sm">Các án phạt đã áp lên phòng trà của bạn, và kết quả khiếu nại.</p>

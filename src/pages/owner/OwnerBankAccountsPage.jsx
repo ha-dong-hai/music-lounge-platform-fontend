@@ -213,7 +213,7 @@ const OwnerBankAccountsPage = () => {
 
   if (!lounge) {
     return (
-      <div className="max-w-2xl">
+      <div className="max-w-2xl mx-auto">
         <h1 className="text-4xl text-ink mb-1">Tài khoản nhận tiền</h1>
         <div className="mt-4 bg-card border border-line p-6">
           <p className="text-sm text-ink-soft">
@@ -233,7 +233,7 @@ const OwnerBankAccountsPage = () => {
     : p.name
 
   return (
-    <div className="space-y-6 max-w-3xl">
+    <div className="space-y-6 max-w-3xl mx-auto">
       <div>
         <h1 className="text-4xl text-ink mb-1">Tài khoản nhận tiền</h1>
         <p className="text-ink-soft text-sm leading-relaxed">

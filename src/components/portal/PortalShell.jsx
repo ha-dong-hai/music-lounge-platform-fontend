@@ -128,7 +128,10 @@ const PortalShell = ({ portalName, nhom = [], loiRa = [], footer, headerRight, c
           {headerRight && <div className="ml-auto flex-shrink-0">{headerRight}</div>}
         </header>
 
-        <main className="lg:flex-1 lg:overflow-y-auto p-4 sm:p-6 lg:p-8 bg-page min-w-0">{children}</main>
+        <main className="lg:flex-1 lg:overflow-y-auto p-4 sm:p-6 lg:p-8 bg-page min-w-0">
+          {/* Khung trang tối đa 1440px căn giữa (DESIGN.md › Bố cục) — trước không giới hạn nên trang biểu mẫu neo trái để trống cả nửa màn rộng. */}
+          <div className="max-w-[1440px] mx-auto">{children}</div>
+        </main>
       </div>
     </div>
   )

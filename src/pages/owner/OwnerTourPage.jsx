@@ -375,7 +375,7 @@ const OwnerTourPage = () => {
 
   if (!lounge) {
     return (
-      <div className="max-w-2xl">
+      <div className="max-w-2xl mx-auto">
         <h1 className="text-4xl text-ink mb-1">Tham quan 360°</h1>
         <div className="mt-4 bg-card border border-line p-6">
           <p className="text-sm text-ink-soft">Hãy tạo hồ sơ phòng trà trước.</p>

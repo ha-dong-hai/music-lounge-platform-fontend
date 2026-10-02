@@ -127,7 +127,7 @@ const OwnerFnbOrdersPage = () => {
 
   if (!lounge) {
     return (
-      <div className="max-w-2xl">
+      <div className="max-w-2xl mx-auto">
         <h1 className="text-4xl text-ink mb-1">Đơn gọi món</h1>
         <div className="mt-4 bg-card border border-line p-6">
           <p className="text-sm text-ink-soft">Chưa có phòng trà nào để nhận đơn.</p>

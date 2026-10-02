@@ -144,7 +144,7 @@ const OwnerStaffPage = () => {
 
   if (!lounge) {
     return (
-      <div className="max-w-2xl">
+      <div className="max-w-2xl mx-auto">
         <h1 className="text-4xl text-ink mb-1">Nhân viên</h1>
         <div className="mt-4 bg-card border border-line p-6">
           <p className="text-sm text-ink-soft">Hãy tạo hồ sơ phòng trà trước — nhân viên được gán vào phòng trà.</p>
@@ -157,7 +157,7 @@ const OwnerStaffPage = () => {
   const daNgung = staff.filter((s) => !s.isActive)
 
   return (
-    <div className="space-y-6 max-w-3xl">
+    <div className="space-y-6 max-w-3xl mx-auto">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h1 className="text-4xl text-ink mb-1">Nhân viên</h1>
