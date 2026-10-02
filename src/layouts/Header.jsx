@@ -4,6 +4,7 @@ import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../store/useAuthStore'
 import toast from 'react-hot-toast'
 import NotificationBell from '../components/notifications/NotificationBell'
+import { getMyProfile } from '../services/userServices'
 import { getShowSuggestions, getTrendingShows, getRecommendedShows } from '../services/showServices'
 import Wordmark from '../components/brand/Wordmark'
 
@@ -27,6 +28,20 @@ const MENU_CHINH = [
 const Header = () => {
   const { user, logout } = useAuthStore()
   const navigate = useNavigate() //
+
+  // Ảnh đại diện không nằm trong kết quả đăng nhập (AuthResultDto) — chưa biết (undefined) thì hỏi /me/profile MỘT lần
+  // rồi ghi vào kho phiên; null nghĩa là đã hỏi và người dùng chưa đặt ảnh, nên không hỏi lại.
+  useEffect(() => {
+    if (!user?.id || user.avatarUrl !== undefined) return
+    let huy = false
+    getMyProfile()
+      .then((res) => {
+        if (huy || !res?.success) return
+        useAuthStore.setState((s) => (s.user?.id === user.id ? { user: { ...s.user, avatarUrl: res.data?.avatarUrl ?? null } } : {}))
+      })
+      .catch(() => {})
+    return () => { huy = true }
+  }, [user?.id, user?.avatarUrl])
   
   const [localSearch, setLocalSearch] = useState('')
   const [goiY, setGoiY] = useState([])

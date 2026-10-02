@@ -8,13 +8,15 @@
 //  2. CHÍNH SÁCH HOÀN VÉ in ngay ở đây, dùng NGUYÊN VĂN câu `refundPolicy.summary` của backend — frontend không tự
 //     diễn đạt lại lời hứa về tiền (diễn đạt lại là có thể hứa khác đi).
 //  3. BỎ ảnh đại diện lấy từ api.dicebear.com: gọi sang dịch vụ ngoài mỗi lần mở trang, và vòng tròn chữ cái nền xanh
-//     lục không thuộc thế giới này. Nghệ sĩ có ảnh thật thì in ảnh vuông; không có thì chỉ in tên.
+//     lục không thuộc thế giới này. Nghệ sĩ có ảnh thật thì in ảnh vuông 64px; không có thì in ô "Chưa có ảnh" của
+//     trang (CoverFallback) — 02/10/2026 chủ dự án: chỉ in tên thì line-up toàn chữ, kém trực quan.
 //
 // Dùng chung cho hai trang nên mọi trường mới đều có dự phòng: `data.tags ?? data.moodTags`, nút Theo dõi chỉ hiện khi
 // trang truyền `onToggleFollow` (trang Admin không truyền).
 import { Link } from 'react-router-dom'
 import { Check, Plus } from 'lucide-react'
 import DauMoc from '../program/DauMoc'
+import CoverFallback from '../shared/CoverFallback'
 
 const VAI = { Main: 'Hát chính', Guest: 'Khách mời', Host: 'Dẫn chương trình' }
 const gioTietMuc = (setTime) => (typeof setTime === 'string' && setTime.length >= 5 ? setTime.slice(0, 5) : null)
@@ -48,7 +50,11 @@ const ShowIntro = ({ data, isFollowing, onToggleFollow }) => {
                 {/* Giờ lên sân khấu — dữ liệu, nên chữ mono. Chưa có giờ thì in gạch, không bịa giờ. */}
                 {coGio && <span className="font-mono text-lg text-ink pt-1">{gioTietMuc(p.setTime) ?? '—'}</span>}
                 <div className="flex items-start gap-3 min-w-0">
-                  {p.avatarUrl && <img src={p.avatarUrl} alt="" loading="lazy" className="w-12 h-12 object-cover border border-ink flex-shrink-0" />}
+                  <div className="w-16 h-16 flex-shrink-0 border border-ink overflow-hidden">
+                    {p.avatarUrl
+                      ? <img src={p.avatarUrl} alt="" loading="lazy" className="w-full h-full object-cover" />
+                      : <CoverFallback />}
+                  </div>
                   <div className="min-w-0">
                     {/* Mỗi nghệ sĩ dẫn sang trang riêng: lịch diễn của họ + sao kê tiền ủng hộ công khai. */}
                     <Link to={`/performers/${p.id}`} className="font-display text-2xl leading-none text-ink hover:underline underline-offset-4 break-words">{p.name}</Link>

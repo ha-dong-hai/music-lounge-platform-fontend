@@ -9,7 +9,8 @@
 // QUYẾT ĐỊNH:
 //  - Danh sách dọc, gần nhất trước, không có nút sắp xếp (DICE, Ticketmaster đều vậy ở trang địa điểm).
 //  - KHÔNG băng chuyền ngang: NN/g ghi nhận người dùng bỏ sau vài lần vuốt và không trông đợi cuộn ngang trên máy tính.
-//  - Mỗi dòng là DongBuoiDien (dùng chung với trang Buổi diễn), tắt ảnh và tên phòng trà vì đang ở trang của chính nó.
+//  - Mỗi dòng là DongBuoiDien (dùng chung với trang Buổi diễn), tắt tên phòng trà vì đang ở trang của chính nó.
+//    ẢNH BẬT LẠI (chủ dự án 02/10/2026: dòng chỉ toàn chữ trông mờ nhạt): ảnh bìa của buổi, chưa có thì ảnh phòng trà.
 //  - Chưa có buổi nào: nói thật + mời theo dõi (DICE: "Follow this venue to find out when they have events").
 //    Không in buổi giả, không in "sắp ra mắt".
 //  - Lỗi tải là trạng thái RIÊNG có nút thử lại — bản cũ nuốt lỗi rồi ẩn cả khối, người xem tưởng phòng trà không diễn.
@@ -23,7 +24,7 @@ import { chiaLichPhongTra, catLich, SO_DA_DIEN_HIEN } from '../../utils/lichPhon
 
 const NUT_MO = 'inline-flex items-center gap-1.5 min-h-[44px] text-sm font-semibold text-ink underline underline-offset-4 decoration-2 hover:text-board'
 
-const LichDienPhongTra = ({ ds, tong = 0, loi = false, onThuLai, tenPhongTra = '', theoDoi = null }) => {
+const LichDienPhongTra = ({ ds, tong = 0, loi = false, onThuLai, tenPhongTra = '', theoDoi = null, anhPhongTra = null }) => {
   const id = useId()
   const [moHet, setMoHet] = useState(false)
   const [mucDaDien, setMucDaDien] = useState('dong') // 'dong' | 'it' | 'het'
@@ -56,7 +57,7 @@ const LichDienPhongTra = ({ ds, tong = 0, loi = false, onThuLai, tenPhongTra = '
       ) : (
         <>
           <ol id={`${id}-sap`} className="border-y-2 border-ink">
-            {dangIn.map((b) => <DongBuoiDien key={b.id} b={b} hienPhongTra={false} hienAnh={false} />)}
+            {dangIn.map((b) => <DongBuoiDien key={b.id} b={b} hienPhongTra={false} anhDuPhong={anhPhongTra} />)}
           </ol>
           {an.length > 0 && (
             <button type="button" onClick={() => setMoHet((v) => !v)} aria-expanded={moHet} aria-controls={`${id}-sap`} className={`${NUT_MO} mt-2`}>

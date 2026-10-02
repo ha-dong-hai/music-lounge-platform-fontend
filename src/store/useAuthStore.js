@@ -21,8 +21,15 @@ export const useAuthStore = create(
       expiresAt: null,
 
       login: (authResult) => {
+        // AuthResultDto KHÔNG có avatarUrl. Trước đây mỗi lần đăng nhập/làm mới phiên là user bị thay mới và mất ảnh
+        // đại diện → góc phải luôn hiện hình mặc định (02/10/2026). Làm mới phiên của CÙNG người thì giữ ảnh cũ;
+        // còn lại để undefined = "chưa biết" — Header tự lấy /me/profile một lần (null = đã hỏi, không có ảnh).
+        const cu = get().user
         set({
-          user: mapAuthResultToUser(authResult),
+          user: {
+            ...mapAuthResultToUser(authResult),
+            avatarUrl: cu && cu.id === authResult.userId ? cu.avatarUrl : undefined,
+          },
           token: authResult.token,
           refreshToken: authResult.refreshToken ?? null,
           expiresAt: authResult.expiresAt ?? null,

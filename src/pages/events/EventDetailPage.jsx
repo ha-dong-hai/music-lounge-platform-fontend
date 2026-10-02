@@ -48,6 +48,8 @@ const EventDetailPage = () => {
             ...beData,
             title: beData.name,
             posterImage: beData.coverImageUrl,
+            // Ảnh thật của phòng trà — dùng khi buổi diễn chưa có ảnh bìa (vẫn là ảnh thật, không phải ảnh kho).
+            loungeImage: beData.lounge?.primaryImageUrl ?? null,
             loungeName: beData.lounge?.name,
             loungeId: beData.lounge?.id,
             address: beData.lounge?.fullAddress,
@@ -210,8 +212,10 @@ const EventDetailPage = () => {
       <section className="bg-board text-lamp" aria-labelledby="ten-buoi-dien">
         <div className="max-w-[1440px] mx-auto grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
           <div className="relative order-first lg:order-last min-h-[240px] lg:min-h-[520px] bg-board-soft">
-            {data.posterImage
-              ? <img src={data.posterImage} alt={`Ảnh buổi diễn ${data.title}`} className="absolute inset-0 w-full h-full object-cover" />
+            {/* Chưa có ảnh bìa: dùng ảnh thật của phòng trà thay vì khuông nhạc trống (chủ dự án 02/10/2026: nửa đầu
+                trang trống trông như "bị che"). Không có cả hai mới rơi về CoverFallback. */}
+            {data.posterImage || data.loungeImage
+              ? <img src={data.posterImage || data.loungeImage} alt={data.posterImage ? `Ảnh buổi diễn ${data.title}` : `Ảnh ${data.loungeName}`} className="absolute inset-0 w-full h-full object-cover" />
               : <CoverFallback />}
           </div>
 

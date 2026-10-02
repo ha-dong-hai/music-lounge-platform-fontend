@@ -15,6 +15,7 @@
 // - Ảnh là trang trí ở đây (alt rỗng): tên buổi đã là chữ ngay bên cạnh. Không có ảnh thì in ô "Chưa có ảnh" của trang.
 // - Không nhãn khan hiếm ("sắp hết", "bán chạy"): cổng kiem-ap-luc cấm, và API không trả số liệu nào để nói vậy.
 // - `hienPhongTra`: tắt ở trang của chính phòng trà (in lại tên phòng trà ở mọi dòng là thừa).
+// - `anhDuPhong`: ảnh thật dùng khi buổi chưa có ảnh bìa (trang phòng trà truyền ảnh của chính phòng trà).
 // - `onDoiLuu`: có thì in nút Lưu / Đã lưu (chỉ truyền khi đã đăng nhập — chưa đăng nhập bấm vào chỉ nhận một lỗi).
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
@@ -30,7 +31,7 @@ const giaIn = (b) => {
   return b.minPrice != null && b.maxPrice != null && b.maxPrice > b.minPrice ? `từ ${gia}` : gia
 }
 
-const DongBuoiDien = ({ b, hienPhongTra = true, hienAnh = true, daLuu = false, dangLuu = false, onDoiLuu }) => {
+const DongBuoiDien = ({ b, hienPhongTra = true, hienAnh = true, anhDuPhong = null, daLuu = false, dangLuu = false, onDoiLuu }) => {
   const [anhHong, setAnhHong] = useState(false)
   const nguoiHat = b.performerNames ?? []
   const noi = [b.loungeName, b.loungeDistrict || b.loungeCity].filter(Boolean).join(' · ')
@@ -41,8 +42,8 @@ const DongBuoiDien = ({ b, hienPhongTra = true, hienAnh = true, daLuu = false, d
     <li className={`relative grid gap-x-6 gap-y-1.5 py-5 border-t border-ink/20 first:border-t-0 hover:bg-card transition-colors ${hienAnh ? 'grid-cols-[5rem_minmax(0,1fr)] sm:grid-cols-[7.5rem_minmax(0,1fr)] lg:grid-cols-[7.5rem_13rem_minmax(0,1fr)_auto]' : 'md:grid-cols-[14rem_minmax(0,1fr)_auto]'} lg:items-center`}>
       {hienAnh && (
         <div className="row-span-3 lg:row-span-1 aspect-[4/3] w-full self-start overflow-hidden border border-ink bg-board">
-          {b.coverImageUrl && !anhHong
-            ? <img src={b.coverImageUrl} alt="" loading="lazy" width="240" height="180" onError={() => setAnhHong(true)} className="w-full h-full object-cover" />
+          {(b.coverImageUrl || anhDuPhong) && !anhHong
+            ? <img src={b.coverImageUrl || anhDuPhong} alt="" loading="lazy" width="240" height="180" onError={() => setAnhHong(true)} className="w-full h-full object-cover" />
             : <CoverFallback />}
         </div>
       )}

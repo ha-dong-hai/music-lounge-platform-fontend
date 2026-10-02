@@ -257,7 +257,7 @@ const LoungeDetailPage = () => {
             {coLich && <p className="font-mono text-sm text-ink-mute">{soSapToi} đêm diễn sắp tới</p>}
           </div>
           <LichDienPhongTra ds={buoiDien} tong={tongBuoi} loi={loiLich} onThuLai={() => taiLich(lounge.id)}
-            tenPhongTra={lounge.name} theoDoi={nutTheoDoi(NUT_VIEN_GIAY)} />
+            tenPhongTra={lounge.name} theoDoi={nutTheoDoi(NUT_VIEN_GIAY)} anhPhongTra={lounge.primaryImageUrl ?? null} />
         </section>
 
         {/* ===== GIỚI THIỆU + CHỖ NGỒI ===== */}

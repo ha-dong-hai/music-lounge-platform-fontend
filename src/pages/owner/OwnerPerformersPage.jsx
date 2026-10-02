@@ -17,7 +17,8 @@
 //   thêm lại. Đừng dựng nút "Sửa liên kết".
 import { useState, useEffect } from 'react'
 import { parseAsString } from 'nuqs'
-import { Loader2, Plus, Pencil, X, Music2, Mail, Link2, Trash2, AlertTriangle } from 'lucide-react'
+import { Loader2, Plus, Pencil, X, Music2, Mail, Link2, Trash2, AlertTriangle, Upload } from 'lucide-react'
+import { uploadImage } from '../../services/userServices'
 import toast from 'react-hot-toast'
 import {
   getMyPerformers, getPerformerDetail, createPerformer, updatePerformer,
@@ -49,7 +50,20 @@ const PerformerFormModal = ({ initial, genres, onClose, onSaved }) => {
     genreIds: initial?.genreIds ?? [],
   })
   const [isBusy, setIsBusy] = useState(false)
+  const [dangTaiAnh, setDangTaiAnh] = useState(false)
   const set = (k, v) => setForm((p) => ({ ...p, [k]: v }))
+  const taiAnh = async (file) => {
+    if (!file) return
+    setDangTaiAnh(true)
+    try {
+      const up = await uploadImage(file)
+      if (!up.success) throw new Error(up.message)
+      set('avatarUrl', up.data?.url ?? up.data)
+      toast.success('Đã tải ảnh — bấm Lưu để ghi vào hồ sơ nghệ sĩ.')
+    } catch (err) {
+      toast.error(err.response?.data?.message || err.message || 'Không tải được ảnh.')
+    } finally { setDangTaiAnh(false) }
+  }
   const toggleGenre = (id) => setForm((p) => ({
     ...p,
     genreIds: p.genreIds.includes(id) ? p.genreIds.filter((x) => x !== id) : [...p.genreIds, id],
@@ -120,8 +134,20 @@ const PerformerFormModal = ({ initial, genres, onClose, onSaved }) => {
           </div>
 
           <div>
-            <label className="text-sm font-semibold text-ink">Đường dẫn ảnh đại diện</label>
-            <input aria-label="Đường dẫn ảnh đại diện" value={form.avatarUrl} onChange={(e) => set('avatarUrl', e.target.value)} className={inputCls} placeholder="https://..." />
+            {/* 02/10/2026: trước chỉ có ô dán đường dẫn, nên trên dữ liệu thật không nghệ sĩ nào có ảnh và line-up toàn
+                chữ. Nay tải ảnh lên như ảnh phòng trà (uploadImage) — ảnh vào form, bấm Lưu mới ghi. Ô đường dẫn vẫn
+                giữ cho ai đã có sẵn link ảnh. */}
+            <label className="text-sm font-semibold text-ink">Ảnh đại diện</label>
+            <div className="mt-1 flex items-center gap-3">
+              {form.avatarUrl && <img src={form.avatarUrl} alt="" className="w-16 h-16 object-cover border border-ink flex-shrink-0" />}
+              <label className="inline-flex items-center gap-2 cursor-pointer justify-center min-h-[44px] px-4 border-2 border-ink bg-card text-ink text-sm font-semibold hover:bg-ink hover:text-lamp">
+                {dangTaiAnh ? <Loader2 size={16} className="animate-spin" /> : <Upload size={16} />}
+                {form.avatarUrl ? 'Đổi ảnh' : 'Tải ảnh lên'}
+                <input type="file" accept="image/*" className="hidden" disabled={dangTaiAnh}
+                  onChange={(e) => taiAnh(e.target.files?.[0])} />
+              </label>
+            </div>
+            <input aria-label="Đường dẫn ảnh đại diện" value={form.avatarUrl} onChange={(e) => set('avatarUrl', e.target.value)} className={inputCls} placeholder="hoặc dán đường dẫn ảnh https://..." />
           </div>
 
           <div>
