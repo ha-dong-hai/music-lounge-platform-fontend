@@ -15,7 +15,7 @@ import { getShowSuggestions, getTrendingShows, getRecommendedShows } from '../se
 // - Bấm vào một gợi ý là đi THẲNG tới buổi diễn đó (/shows/:id), không phải đi tới trang tìm kiếm.
 const DO_TRE_GOI_Y = 300
 
-// ⭐ BỎ PROPS searchQuery, setSearchQuery ĐI
+// BỎ PROPS searchQuery, setSearchQuery ĐI
 const Header = () => {
   const { user, logout } = useAuthStore()
   const navigate = useNavigate() //

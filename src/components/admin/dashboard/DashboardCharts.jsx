@@ -76,9 +76,9 @@ export const RevenueByMonthChart = ({ months, measure }) => {
       </div>
       <p className="text-xs text-ink-mute">* Tháng hiện tại, chưa trọn tháng.</p>
 
-      {/* ⭐ Giữ từ bản mới: bản song song dạng bảng — đọc được mọi giá trị không cần rê chuột */}
+      {/* Giữ từ bản mới: bản song song dạng bảng — đọc được mọi giá trị không cần rê chuột */}
       <details className="text-xs">
-        <summary className="cursor-pointer text-ink-mute hover:text-ink-soft select-none">Xem dạng bảng</summary>
+        <summary className="cursor-pointer text-ink-soft hover:text-brand-text select-none">Xem dạng bảng</summary>
         <div className="overflow-x-auto mt-2">
           <table className="w-full tabular-nums">
             <thead>

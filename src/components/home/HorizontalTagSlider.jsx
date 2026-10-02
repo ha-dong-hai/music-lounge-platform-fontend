@@ -29,13 +29,13 @@ const HorizontalTagSlider = ({ label, options, selectedItems, onSelect, onRemove
 
   return (
     <div className="space-y-2">
-      <label className="block text-sm font-semibold text-gray-900">{label}</label>
+      <label className="block text-sm font-semibold text-gray-300">{label}</label>
       
       <div className="relative group/slider">
         {canScrollLeft && (
           <button 
             onClick={() => scroll('left')}
-            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-7 h-7 rounded-full bg-espresso text-cream shadow-md border border-gray-200 flex items-center justify-center opacity-0 group-hover/slider:opacity-100 transition-opacity"
+            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-7 h-7 rounded-full bg-[#1a1a1a] text-[#C3B665] shadow-md border border-[#C3B665]/30 flex items-center justify-center opacity-0 group-hover/slider:opacity-100 transition-opacity hover:bg-[#C3B665] hover:text-black"
           >
             <ChevronLeft size={16} />
           </button>
@@ -47,7 +47,6 @@ const HorizontalTagSlider = ({ label, options, selectedItems, onSelect, onRemove
           className="flex gap-2 overflow-x-auto scroll-smooth py-1 px-1 hide-scrollbar"
         >
           {options.map((opt) => {
-            // ⭐ SỬA Ở ĐÂY: Thêm opt.name
             const value = typeof opt === 'string' ? opt : (opt.name || opt.label)
             const isSelected = selectedItems.includes(value)
             
@@ -57,8 +56,8 @@ const HorizontalTagSlider = ({ label, options, selectedItems, onSelect, onRemove
                 onClick={() => isSelected ? onRemove(value) : onSelect(value)}
                 className={`flex-shrink-0 px-4 py-1.5 rounded-full border text-sm font-medium transition-all ${
                   isSelected 
-                    ? 'bg-card text-ink border-line' 
-                    : 'bg-card text-ink-mute border-gray-300 hover:border-line-strong hover:bg-gray-50'
+                    ? 'bg-[#C3B665] text-black border-[#C3B665] font-bold' 
+                    : 'bg-black/30 text-gray-300 border-gray-700 hover:border-[#C3B665] hover:text-[#C3B665]'
                 }`}
               >
                 {value}
@@ -70,7 +69,7 @@ const HorizontalTagSlider = ({ label, options, selectedItems, onSelect, onRemove
         {canScrollRight && (
           <button 
             onClick={() => scroll('right')}
-            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-7 h-7 rounded-full bg-espresso text-cream shadow-md border border-gray-200 flex items-center justify-center opacity-0 group-hover/slider:opacity-100 transition-opacity"
+            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-7 h-7 rounded-full bg-[#1a1a1a] text-[#C3B665] shadow-md border border-[#C3B665]/30 flex items-center justify-center opacity-0 group-hover/slider:opacity-100 transition-opacity hover:bg-[#C3B665] hover:text-black"
           >
             <ChevronRight size={16} />
           </button>
@@ -80,9 +79,9 @@ const HorizontalTagSlider = ({ label, options, selectedItems, onSelect, onRemove
       {selectedItems.length > 0 && (
         <div className="flex flex-wrap gap-1.5 pt-1">
           {selectedItems.map(item => (
-            <span key={item} className="inline-flex items-center gap-1 px-2.5 py-1 bg-gray-100 rounded-md text-xs font-medium text-gray-800 border border-gray-200">
+            <span key={item} className="inline-flex items-center gap-1 px-2.5 py-1 bg-[#C3B665]/10 rounded-md text-xs font-medium text-[#C3B665] border border-[#C3B665]/30">
               {item}
-              <button onClick={() => onRemove(item)} className="hover:text-danger ml-0.5"><X size={12}/></button>
+              <button onClick={() => onRemove(item)} className="hover:text-red-500 ml-0.5"><X size={12}/></button>
             </span>
           ))}
         </div>

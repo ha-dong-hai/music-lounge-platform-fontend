@@ -22,7 +22,7 @@ const AdminLayout = () => {
 
       {/* SIDEBAR */}
       <aside className="w-64 bg-gray-950 text-white flex flex-col h-full flex-shrink-0 border-r border-gray-900">
-        <div className="h-16 flex items-center px-6 border-b border-gray-900">
+        <div className="h-16 flex items-center px-6 border-b border-gray-800">
           <h1 className="text-xl font-bold tracking-wider text-[#C3B665]">ADMIN PORTAL</h1>
         </div>
 
@@ -77,17 +77,16 @@ const AdminLayout = () => {
           <NavLink to="/admin/penalty-appeals" className={linkClasses}>
             <Gavel size={18} /> Khiếu nại án phạt
           </NavLink>
-
-          <div className="pt-2 mt-2 border-t border-line space-y-2">
-            <Link to="/account" className={linkClasses({ isActive: false })}>
-              <UserCog size={18} /> Tài khoản của tôi
-            </Link>
-            <Link to="/" className={linkClasses({ isActive: false })}>
-              <ExternalLink size={18} /> Về trang công khai
-            </Link>
-          </div>
-
         </nav>
+
+        <div className="pt-2 mt-2 border-t border-[#C3B665]/40 space-y-2 ">
+          <Link to="/account" className={linkClasses({ isActive: false })}>
+            <UserCog size={18} /> Tài khoản của tôi
+          </Link>
+          <Link to="/" className={linkClasses({ isActive: false })}>
+            <ExternalLink size={18} /> Về trang công khai
+          </Link>
+        </div>
 
         <div className="p-4 border-t border-gray-900">
           <button
