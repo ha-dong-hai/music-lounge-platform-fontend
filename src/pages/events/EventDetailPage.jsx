@@ -3,7 +3,7 @@ import { useState, useRef, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { MapPin, Heart, Share2, Check, X, Copy, Star } from 'lucide-react'
 import toast from 'react-hot-toast'
-import CoverFallback from '../../components/shared/CoverFallback'
+import BiaDia from '../../components/program/BiaDia'
 import { thuVietHoa, ngayDayDu, gioTrongNgay } from '../../utils/ngayVietNam'
 import DongBuoiDien from '../../components/program/DongBuoiDien'
 import ShowMap from '../../components/mshow-detail/ShowMap'
@@ -215,9 +215,14 @@ const EventDetailPage = () => {
           <div className="relative order-first lg:order-last min-h-[240px] lg:min-h-[520px] bg-board-soft">
             {/* Chưa có ảnh bìa: dùng ảnh thật của phòng trà thay vì khuông nhạc trống (chủ dự án 02/10/2026: nửa đầu
                 trang trống trông như "bị che"). Không có cả hai mới rơi về CoverFallback. */}
-            {data.posterImage || data.loungeImage
-              ? <img src={data.posterImage || data.loungeImage} alt={data.posterImage ? `Ảnh buổi diễn ${data.title}` : `Ảnh ${data.loungeName}`} className="absolute inset-0 w-full h-full object-cover" />
-              : <CoverFallback />}
+            {/* 03/10/2026: ảnh in thành BÌA ĐĨA, đĩa than 3D (three.js, tải lười) ló ra sau bìa — kéo để quay, đang diễn
+                thì tự quay. Không có WebGL thì chỉ còn bìa, như ảnh tĩnh trước đây. */}
+            <BiaDia
+              anh={data.posterImage || data.loungeImage || null}
+              alt={data.posterImage ? `Ảnh buổi diễn ${data.title}` : `Ảnh ${data.loungeName}`}
+              ten={data.title} phongTra={data.loungeName} ngay={data.dateStr}
+              soTietMuc={data.performers?.length ?? 0} dangDien={Boolean(data.isOngoing)} />
+
           </div>
 
           <div className="px-4 sm:px-8 py-10 lg:py-14 flex flex-col items-start">

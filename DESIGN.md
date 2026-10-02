@@ -146,6 +146,16 @@ Giấy `card`, viền 4% ba cạnh + dải đáy dày, góc VUÔNG (Cut-Paper Ru
 tấm lộ mép; kéo ngang > 110px hoặc vuốt nhanh để sang ảnh; chạm để lật; mọi thao tác có nút tương đương (Ảnh trước/sau,
 "Lật xem chữ sau ảnh" aria-pressed). Giảm chuyển động: không bay, không xoay lật — đổi tức thì.
 
+### Bìa đĩa + đĩa than 3D (03/10/2026)
+Đầu trang buổi diễn: ảnh buổi diễn (hoặc ảnh phòng trà) là BÌA ĐĨA vuông HTML (`BiaDia`, hiện ngay); đĩa than three.js
+(`DiaThanCanvas`, tải lười, gói riêng) nằm sau bìa, ló nửa nhãn ra. Nhãn đĩa giấy `lamp` in tên buổi (Anton), phòng trà,
+ngày giờ (mono) — vẽ bằng canvas 2D; KHÔNG dán ảnh lên đĩa (Firebase Storage không trả CORS → WebGL không đọc được ảnh).
+Số dải rãnh = số tiết mục. Ánh đèn: hai vệt quạt đứng yên trên mặt đĩa (đĩa quay bên dưới), lớp bóng clearcoat, nghiêng
+nghỉ nhẹ. Tương tác: kéo ngang = quay có quán tính (ma sát theo THỜI GIAN, tối đa 30 rad/s); rê chuột = đĩa trượt ra + nghiêng
+theo con trỏ; nút "Quay/Dừng đĩa" (aria-pressed). Đang diễn: tự quay 33⅓ vòng/phút + viền vàng thếp quanh nhãn — nút đó là
+nút DỪNG của WCAG 2.2.2. Giảm chuyển động: không tự quay/trượt/nghiêng; kéo vẫn quay. Chỉ vẽ khi có chuyển động, dừng
+khi khuất hoặc tab ẩn. Không có WebGL → chỉ còn bìa.
+
 ## Layout
 
 Khung trang `max-w-[1440px]`, lề 16px điện thoại / 32px từ sm; đầu trang 40px → 56px, cuối 80px. Các khối cách
