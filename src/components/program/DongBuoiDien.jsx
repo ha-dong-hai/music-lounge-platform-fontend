@@ -6,6 +6,11 @@
 // Thay cho ShowCard cũ (thẻ bo tròn, rê chuột 0,6 giây thì cả thẻ phình thành áp phích có lớp chuyển sắc, nút yêu
 // thích vô hình trên điện thoại) và ShowCarousel (băng chuyền cuộn ngang).
 //
+// BỐ CỤC (02/10/2026, chủ dự án chụp màn /shows): bản cũ có cột ngày riêng 13rem + lg:items-center → ảnh ở +20px,
+// ngày +80px, tên +20px, cuống +66px (đo bằng getBoundingClientRect), tên bị bóp còn 426px và gãy "Thành phố Hồ Chí /
+// Minh". Nay ngày in NGAY TRÊN tên (như tờ chương trình), ảnh + chữ bám mép trên, cụm cuống + Lưu căn giữa ở cột phải;
+// nút Lưu 48px viền 2px cho bằng cuống đặt vé.
+//
 // MỖI DÒNG TRẢ LỜI NĂM CÂU HỎI THEO THỨ TỰ NGƯỜI TA HỎI: khi nào → diễn gì, ai hát → ở đâu → bao nhiêu tiền → đi tiếp.
 // (Đọc DICE, Eventbrite, Ticketmaster 30/09/2026: không trang nào in đủ cả ngày, giờ, địa điểm, giá trên một dòng —
 // ở đây in đủ, vì đó là bốn thứ quyết định có bấm vào hay không.)
@@ -40,9 +45,9 @@ const DongBuoiDien = ({ b, hienPhongTra = true, hienAnh = true, anhDuPhong = nul
   const dangDien = b.status === 'Ongoing'
 
   return (
-    <li className={`group/dong relative grid gap-x-6 gap-y-1.5 py-5 border-t border-ink/20 first:border-t-0 hover:bg-card transition-colors ${hienAnh ? 'grid-cols-[5rem_minmax(0,1fr)] sm:grid-cols-[7.5rem_minmax(0,1fr)] lg:grid-cols-[7.5rem_13rem_minmax(0,1fr)_auto]' : 'md:grid-cols-[14rem_minmax(0,1fr)_auto]'} lg:items-center`}>
+    <li className={`group/dong relative grid gap-x-6 gap-y-1.5 py-5 border-t border-ink/20 first:border-t-0 hover:bg-card transition-colors ${hienAnh ? 'grid-cols-[5rem_minmax(0,1fr)] sm:grid-cols-[7.5rem_minmax(0,1fr)] lg:grid-cols-[7.5rem_minmax(0,1fr)_auto]' : 'md:grid-cols-[14rem_minmax(0,1fr)_auto]'} items-start`}>
       {hienAnh && (
-        <div className="row-span-3 lg:row-span-1 aspect-[4/3] w-full self-start overflow-hidden border border-ink bg-board">
+        <div className="row-span-3 lg:row-span-2 aspect-[4/3] w-full self-start overflow-hidden border border-ink bg-board">
           {(b.coverImageUrl || anhDuPhong) && !anhHong
             ? <img src={b.coverImageUrl || anhDuPhong} alt="" loading="lazy" width="240" height="180" onError={() => setAnhHong(true)} className="w-full h-full object-cover" />
             : <CoverFallback />}
@@ -62,7 +67,7 @@ const DongBuoiDien = ({ b, hienPhongTra = true, hienAnh = true, anhDuPhong = nul
         {hienPhongTra && noi && <p className="text-ink mt-0.5">{noi}</p>}
         {phu.length > 0 && <p className="text-sm text-ink-mute mt-0.5">{phu.join(' · ')}</p>}
       </div>
-      <div className={`flex flex-wrap items-center gap-x-5 gap-y-1 lg:justify-end ${hienAnh ? '' : 'md:justify-end'}`}>
+      <div className={`flex flex-wrap items-center gap-x-3 gap-y-2 lg:justify-end ${hienAnh ? 'lg:col-start-3 lg:row-start-1 lg:row-span-2 lg:self-center' : 'md:justify-end'}`}>
         {/* Giá + hành động in thành MỘT cuống vé (CuongDatVe) thay chữ gạch dưới "Xem và đặt" — 02/10/2026. Đã diễn hoặc đang diễn thì
             không in giá: buổi đã bắt đầu, câu hỏi lúc này là "đang diễn" chứ không phải giá — và cuống có giá + nhãn
             "Xem buổi diễn" tràn ngang màn 390px (đo 02/10: scrollWidth 414). */}
@@ -70,7 +75,7 @@ const DongBuoiDien = ({ b, hienPhongTra = true, hienAnh = true, anhDuPhong = nul
         {onDoiLuu && (
           <button type="button" onClick={() => onDoiLuu(b)} disabled={dangLuu} aria-pressed={daLuu}
             aria-label={daLuu ? `Bỏ lưu ${b.name}` : `Lưu ${b.name}`}
-            className="relative z-10 inline-flex items-center gap-1.5 min-h-[44px] px-3 border border-ink text-sm font-semibold hover:bg-ink hover:text-lamp transition-colors disabled:opacity-60">
+            className="relative z-10 inline-flex items-center gap-1.5 min-h-[48px] px-3 border-2 border-ink text-sm font-semibold hover:bg-ink hover:text-lamp transition-colors disabled:opacity-60">
             <Heart size={16} className={daLuu ? 'fill-current' : ''} aria-hidden="true" /> {daLuu ? 'Đã lưu' : 'Lưu'}
           </button>
         )}
