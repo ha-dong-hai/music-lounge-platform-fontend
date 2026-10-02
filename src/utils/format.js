@@ -71,3 +71,20 @@ export const mocUtc = (chuoi) => {
   if (/(Z|[+-]\d{2}:?\d{2})$/.test(chuoi)) return chuoi
   return `${chuoi}Z`
 }
+/**
+ * MLACP-516: backend đổi mọi id sang GUID (MLACP-515). GUID dài 36 ký tự nên chỉ HIỂN THỊ 8 ký tự hex cuối, in hoa
+ * ("#00000047"); mã đầy đủ để ở tooltip (title) cho ai cần đối chiếu.
+ * Vì sao 8 ký tự CUỐI: backend đặt bộ đếm thời gian (id cũ, hoặc mili-giây khi tạo) ở nhóm cuối nên nó khác nhau
+ * giữa các bản ghi; nhóm giữa của mọi bản ghi cũ trong cùng một bảng lại GIỐNG HỆT nhau — lấy nhóm đó thì mọi mã trùng.
+ * Đây chỉ là mã để NHÌN, không dùng để tra cứu hay gửi lên API (gửi lên luôn dùng id đầy đủ).
+ */
+export const maNgan = (id) => {
+  if (id === null || id === undefined || id === '') return ''
+  const s = String(id)
+  return s.length > 8 ? s.slice(-8).toUpperCase() : s.toUpperCase()
+}
+
+const DANG_GUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
+/** MLACP-516: kiểm mã người dùng tự dán (vd ô "Mã buổi diễn" của form khiếu nại) có đúng dạng GUID không. */
+export const laGuid = (chuoi) => typeof chuoi === 'string' && DANG_GUID.test(chuoi.trim())

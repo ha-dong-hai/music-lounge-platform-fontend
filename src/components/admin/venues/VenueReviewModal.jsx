@@ -4,6 +4,7 @@ import dayjs from 'dayjs'
 import { VenueStatusBadge, LicenseBadge } from './VenueBadges'
 import { anhChuCai } from '../../../utils/anhChuCai'
 import HopThoai, { TieuDeHop } from '../../shared/HopThoai'
+import { maNgan } from '../../../utils/format'
 
 
 const VenueReviewModal = ({ venue, onClose, onDecision, isProcessing }) => {
@@ -21,7 +22,7 @@ const VenueReviewModal = ({ venue, onClose, onDecision, isProcessing }) => {
           </div>
           <div className="flex-1 min-w-0">
             <TieuDeHop><h2 className="text-3xl text-lamp">Duyệt phòng trà</h2></TieuDeHop>
-            <p className="text-sm text-ink-soft truncate">#{venue.loungeId} · {venue.name}</p>
+            <p className="text-sm text-ink-soft truncate">#{maNgan(venue.loungeId)} · {venue.name}</p>
           </div>
           <button onClick={onClose} disabled={isProcessing} className="inline-flex items-center justify-center w-11 h-11 flex-shrink-0 hover:bg-board text-ink-mute disabled:opacity-30" aria-label="Đóng">
             <X size={20} />

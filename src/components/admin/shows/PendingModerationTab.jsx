@@ -7,6 +7,7 @@ import HopXacNhan from '../../shared/HopXacNhan'
 import { getPendingModerations, reviewLivestreamModeration, reviewTicketTier } from '../../../services/adminServices'
 import { FormatBadge } from './ShowBadges'
 import NhomTab from '../../bang/NhomTab'
+import { maNgan } from '../../../utils/format'
 
 // Vòng tròn điểm AI (0 -> 100)
 const AIScoreCircle = ({ score }) => {
@@ -140,7 +141,7 @@ const PendingModerationTab = () => {
                 items.map(item => (
                   <tr key={item.id} className="border-b border-line hover:bg-card/50 transition-colors">
                     <td className="p-4 text-ink font-medium">
-                      {{ Show: 'Buổi diễn', Livestream: 'Buổi phát', TicketTier: 'Hạng vé' }[targetType] ?? targetType} #{item.targetId}
+                      {{ Show: 'Buổi diễn', Livestream: 'Buổi phát', TicketTier: 'Hạng vé' }[targetType] ?? targetType} #{maNgan(item.targetId)}
                       <p className="text-xs text-ink-mute mt-1">Tạo lúc {dayjs(item.createdAt).format('HH:mm DD/MM/YYYY')}</p>
                     </td>
                     <td className="p-4"><FormatBadge format={item.format} /></td>
@@ -238,7 +239,7 @@ const PendingModerationTab = () => {
         )}
       </div>
       <HopXacNhan mo={!!tuChoi} dangXuLy={busyId != null} nhanGiu="Không, quay lại"
-        tieuDe={tuChoi?.loai === 'tier' ? `Từ chối hạng vé #${tuChoi?.id}?` : `Từ chối buổi phát #${tuChoi?.id}?`}
+        tieuDe={tuChoi?.loai === 'tier' ? `Từ chối hạng vé #${maNgan(tuChoi?.id)}?` : `Từ chối buổi phát #${maNgan(tuChoi?.id)}?`}
         nhanXacNhan="Từ chối" onDong={() => setTuChoi(null)} onXacNhan={guiTuChoi}>
         <label htmlFor="ly-do-tu-choi" className="block font-semibold text-ink">Lý do <span className="text-danger" aria-hidden="true">*</span><span className="sr-only"> (bắt buộc)</span></label>
         <p id="ly-do-tu-choi-goi-y" className="text-sm">Gửi nguyên văn cho chủ phòng trà.</p>

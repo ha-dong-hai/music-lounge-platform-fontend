@@ -28,6 +28,7 @@ import toast from 'react-hot-toast'
 import { getLoungeBusinessLicense } from '../../../services/loungeServices'
 import { VenueStatusBadge, LicenseBadge } from './VenueBadges'
 import HopThoai, { TieuDeHop } from '../../shared/HopThoai'
+import { maNgan } from '../../../utils/format'
 
 const Dong = ({ icon: Icon, nhan, children }) => (
   <div className="flex items-start gap-3 py-3 border-b border-line last:border-b-0">
@@ -66,7 +67,7 @@ const VenueDossierModal = ({ venue, onClose, onReview }) => {
         <div className="flex-none flex justify-between items-start gap-4 p-5 border-b border-line">
           <div className="min-w-0">
             <TieuDeHop><h2 className="text-3xl text-ink truncate">Hồ sơ phòng trà đã nộp</h2></TieuDeHop>
-            <p className="text-xs text-ink-mute mt-0.5">#{venue.loungeId} · {venue.name}</p>
+            <p className="text-xs text-ink-mute mt-0.5">#{maNgan(venue.loungeId)} · {venue.name}</p>
           </div>
           <button onClick={onClose} aria-label="Đóng hồ sơ" className="inline-flex items-center justify-center w-11 h-11 flex-shrink-0 hover:bg-sunken text-ink-soft">
             <X size={20} />

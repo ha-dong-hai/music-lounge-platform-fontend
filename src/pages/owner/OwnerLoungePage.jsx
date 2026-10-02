@@ -169,7 +169,7 @@ const OwnerLoungePage = () => {
     const payload = {
       name: form.name.trim(),
       description: form.description.trim() || null,
-      atmosphereId: form.atmosphereId === '' ? null : Number(form.atmosphereId),
+      atmosphereId: form.atmosphereId === '' ? null : form.atmosphereId, // MLACP-516: GUID, không ép số
       street: form.street.trim(),
       // Tên gửi kèm chỉ để giao diện cũ còn đọc được; backend lấy tên chuẩn theo MÃ.
       ward: phuong?.name ?? null,

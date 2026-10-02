@@ -1,6 +1,7 @@
 import { Eye, Loader2, MessageSquareWarning } from 'lucide-react'
 import dayjs from 'dayjs'
 import { CategoryBadge, StatusBadge, TARGET_TYPE_LABELS } from './ComplaintBadges'
+import { maNgan } from '../../../utils/format'
 
 // Component thuần UI: nhận data đã lọc + callbacks từ cha
 const ComplaintsTable = ({ complaints, isLoading, onViewDetail }) => {
@@ -30,14 +31,14 @@ const ComplaintsTable = ({ complaints, isLoading, onViewDetail }) => {
             ) : complaints.length > 0 ? (
               complaints.map(c => (
                 <tr key={c.id} className="hover:bg-sunken/30 transition-colors cursor-pointer" onClick={() => onViewDetail(c)}>
-                  <td className="p-4 font-mono text-xs text-ink">#{c.id}</td>
+                  <td className="p-4 font-mono text-xs text-ink">#{maNgan(c.id)}</td>
                   <td className="p-4"><CategoryBadge category={c.category} /></td>
                   <td className="p-4 max-w-[280px]">
                     <p className="text-sm text-ink-soft truncate">{c.description || '—'}</p>
                   </td>
                   <td className="p-4">
                     <p className="text-sm text-ink-soft">
-                      {TARGET_TYPE_LABELS[c.targetType] || c.targetType} <span className="text-ink-mute">#{c.targetId}</span>
+                      {TARGET_TYPE_LABELS[c.targetType] || c.targetType} <span className="text-ink-mute">#{maNgan(c.targetId)}</span>
                     </p>
                   </td>
                   <td className="p-4 text-sm text-ink-soft font-mono">{c.contactPhone || '—'}</td>
@@ -46,7 +47,7 @@ const ComplaintsTable = ({ complaints, isLoading, onViewDetail }) => {
                   <td className="p-4 text-center">
                     {/* Cả hàng bấm được bằng chuột, nhưng <tr> không nhận focus: nút này là lối vào cho bàn phím và trình đọc màn
                         hình. Bản cũ là một nút KHÔNG có onClick (chỉ ăn theo sự kiện của hàng) và không có tên. */}
-                    <button type="button" onClick={(e) => { e.stopPropagation(); onViewDetail(c) }} aria-label={`Xem khiếu nại #${c.id}`} className="w-11 h-11 border-2 border-ink text-ink hover:bg-ink hover:text-lamp transition-colors inline-flex items-center justify-center">
+                    <button type="button" onClick={(e) => { e.stopPropagation(); onViewDetail(c) }} aria-label={`Xem khiếu nại #${maNgan(c.id)}`} className="w-11 h-11 border-2 border-ink text-ink hover:bg-ink hover:text-lamp transition-colors inline-flex items-center justify-center">
                       <Eye size={16} />
                     </button>
                   </td>

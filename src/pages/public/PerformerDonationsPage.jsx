@@ -32,6 +32,7 @@ import { getDonationEvidence } from '../../services/adminServices'
 import { useAuthStore } from '../../store/useAuthStore'
 import NhanTrangThai from '../../components/shared/NhanTrangThai'
 import { ngayDayDu, gioTrongNgay } from '../../utils/ngayVietNam'
+import { maNgan } from '../../utils/format'
 
 const fmtTien = (v) => `${Number(v || 0).toLocaleString('vi-VN')} đ`
 const fmtPhanTram = (r) => `${(Number(r || 0) * 100).toLocaleString('vi-VN', { maximumFractionDigits: 2 })}%`
@@ -78,7 +79,7 @@ const HopNhatKy = ({ donationId, onClose }) => {
     <dialog ref={ref} aria-labelledby="nhat-ky-td" onClose={onClose}
       className="bg-card text-ink border-2 border-ink shadow-lift w-[calc(100vw-2rem)] max-w-3xl max-h-[90vh] p-0 m-auto backdrop:bg-board/80">
       <div className="sticky top-0 bg-card flex items-start justify-between gap-4 p-5 border-b-2 border-ink">
-        <h2 id="nhat-ky-td" className="text-3xl">Nhật ký bằng chứng · khoản #{donationId}</h2>
+        <h2 id="nhat-ky-td" className="text-3xl">Nhật ký bằng chứng · khoản #{maNgan(donationId)}</h2>
         <button type="button" autoFocus onClick={() => ref.current?.close()} aria-label="Đóng nhật ký"
           className="inline-flex items-center justify-center w-11 h-11 border-2 border-ink hover:bg-ink hover:text-lamp flex-shrink-0">
           <X size={20} aria-hidden="true" />
@@ -122,7 +123,7 @@ const HopNhatKy = ({ donationId, onClose }) => {
                     </div>
                     <dl className="mt-2 grid grid-cols-[auto_minmax(0,1fr)] gap-x-4 gap-y-1 text-sm">
                       {e.amount != null && <><dt className="text-ink-mute">Số tiền</dt><dd className="font-mono">{fmtTien(e.amount)}</dd></>}
-                      {e.actorUserId != null && <><dt className="text-ink-mute">Người thực hiện</dt><dd className="font-mono">#{e.actorUserId}</dd></>}
+                      {e.actorUserId != null && <><dt className="text-ink-mute">Người thực hiện</dt><dd className="font-mono">#{maNgan(e.actorUserId)}</dd></>}
                       {e.reference && <><dt className="text-ink-mute">Mã tham chiếu</dt><dd className="font-mono break-all">{e.reference}</dd></>}
                       {e.evidenceUrl && (
                         <><dt className="text-ink-mute">Chứng từ</dt><dd>
@@ -406,7 +407,7 @@ const PerformerDonationsPage = () => {
                   </div>
 
                   {/* DÒNG THỜI GIAN CỦA MỘT KHOẢN — mốc nào chưa có thì không hiện, không hiện "—" */}
-                  <ul className="mt-3 flex flex-wrap gap-x-6 gap-y-1 text-sm text-ink-mute" aria-label={`Các mốc của khoản #${d.id}`}>
+                  <ul className="mt-3 flex flex-wrap gap-x-6 gap-y-1 text-sm text-ink-mute" aria-label={`Các mốc của khoản #${maNgan(d.id)}`}>
                     {d.paidAt && <li>Thanh toán {ngayDayDu(d.paidAt)}</li>}
                     {d.platformPaidVenueAt && <li>Nền tảng chuyển phòng trà {ngayDayDu(d.platformPaidVenueAt)}</li>}
                     {d.venueAcknowledgedAt && <li>Phòng trà xác nhận {ngayDayDu(d.venueAcknowledgedAt)}{d.venueAcknowledgedAutomatically && ' (tự động)'}</li>}

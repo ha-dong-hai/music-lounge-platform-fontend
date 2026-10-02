@@ -288,14 +288,15 @@ const OwnerShowDetailPage = () => {
     setBusy('tier')
     try {
       await createTier({
-        showId: Number(id),
+        // MLACP-516: id là GUID (chuỗi) — ép Number ra NaN và backend trả 400.
+        showId: id,
         name: tierForm.name.trim(),
         description: null,
         accessType: loaiVe,
         // Gắn khu vực chỗ ngồi đã chọn. Trước đây chỗ này ghi cứng `null`, nên không hạng vé nào
         // từng có khu vực và sơ đồ chỗ ngồi bên phía khán giả không lọc ra được gì.
         // Vé xem trực tuyến thì luôn null — không có chỗ ngồi vật lý.
-        zoneId: loaiVe === 'Physical' && tierForm.zoneId ? Number(tierForm.zoneId) : null,
+        zoneId: loaiVe === 'Physical' && tierForm.zoneId ? tierForm.zoneId : null,
         totalCapacity: tierForm.totalCapacity ? Number(tierForm.totalCapacity) : null,
         prices: [{
           name: tierForm.priceName.trim() || 'Vé thường',

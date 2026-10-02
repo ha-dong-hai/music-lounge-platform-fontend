@@ -30,6 +30,7 @@ import NhanTrangThai from '../../components/shared/NhanTrangThai'
 import { useDanhSachMayChu } from '../../hooks/useDanhSachMayChu'
 import PhanTrang from '../../components/bang/PhanTrang'
 import { ngayDayDu, gioTrongNgay } from '../../utils/ngayVietNam'
+import { maNgan } from '../../utils/format'
 
 const tien = (v) => `${Number(v || 0).toLocaleString('vi-VN')} đ`
 const moc = (v) => (v ? `${gioTrongNgay(v)} ${ngayDayDu(v)}` : '—')
@@ -106,9 +107,9 @@ const AdminSettlementsPage = () => {
                       <NhanTrangThai sacThai={sacThai}>{nhanPX}</NhanTrangThai>
                       {s.hasPendingRefund && <NhanTrangThai sacThai="cho">Còn yêu cầu hoàn tiền chờ xử lý</NhanTrangThai>}
                     </div>
-                    <p className="mt-2 font-display text-2xl leading-tight break-words">{s.showName || `Buổi diễn #${s.showId ?? '—'}`}</p>
+                    <p className="mt-2 font-display text-2xl leading-tight break-words">{s.showName || `Buổi diễn #${s.showId ? maNgan(s.showId) : '—'}`}</p>
                     <p className="text-sm text-ink-mute">
-                      Quyết toán #{s.settlementId} · {DOT[s.releaseType] ?? s.releaseType} · lên lịch <span className="font-mono">{moc(s.scheduledAt)}</span>
+                      Quyết toán #{maNgan(s.settlementId)} · {DOT[s.releaseType] ?? s.releaseType} · lên lịch <span className="font-mono">{moc(s.scheduledAt)}</span>
                     </p>
 
                     {/* Bằng chứng do backend trả — không tự tính lại ở FE */}

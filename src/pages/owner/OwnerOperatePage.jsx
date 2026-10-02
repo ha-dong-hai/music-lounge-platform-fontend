@@ -272,7 +272,8 @@ const OwnerOperatePage = () => {
     setBusy('sell')
     try {
       const res = await sellWalkInTicket({
-        priceId: Number(priceId),
+        // MLACP-516: id là GUID (chuỗi) — ép Number ra NaN và backend trả 400.
+        priceId,
         quantity: Number(quantity),
         clientRequestId: clientRequestIdRef.current,
       })
@@ -318,7 +319,7 @@ const OwnerOperatePage = () => {
 
       <div>
         <label className="text-sm font-semibold text-ink">Buổi diễn</label>
-        <select aria-label="Buổi diễn" value={showId ?? ''} onChange={(e) => { chonBuoiDien(Number(e.target.value)); setVeTraCuu(null); setPriceId('') }}
+        <select aria-label="Buổi diễn" value={showId ?? ''} onChange={(e) => { chonBuoiDien(e.target.value || null); setVeTraCuu(null); setPriceId('') }}
           className="mt-1 w-full max-w-xl min-h-[44px] px-3 py-2 bg-card border-2 border-ink text-ink focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2">
           {shows.map((s) => (
             <option key={s.id} value={s.id}>

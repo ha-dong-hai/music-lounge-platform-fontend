@@ -1,5 +1,6 @@
 import { Pencil, EyeOff, Ticket, Sparkles, Box, X } from 'lucide-react'
 import { formatCurrency } from '../../../utils/format'
+import { maNgan } from '../../../utils/format'
 
 // 30/09/2026: chữ trên thẻ về tiếng Việt (bản cũ in "Monthly", "Ticket / Show", "Do not suport Poster AI", "Unhide");
 // bỏ quầng sáng mờ trang trí và đổ bóng phát sáng khi rê chuột; nút sửa/ẩn LUÔN hiện (bản cũ chỉ hiện khi rê chuột —
@@ -91,7 +92,7 @@ export const PackageCard = ({ pkg, onEdit, onToggleStatus }) => {
 
       {/* ===== FOOTER: chỉ còn #ID góc phải, gọn gàng ===== */}
       <div className="relative z-[1] -mx-6 -mb-6 mt-6 px-6 py-2.5 border-t border-line bg-sunken/40 flex justify-end">
-        <span className="text-[10px] text-ink-mute font-mono">#{pkg.id}</span>
+        <span className="text-[10px] text-ink-mute font-mono">#{maNgan(pkg.id)}</span>
       </div>
     </div>
   )
@@ -116,7 +117,7 @@ export const HiddenPackageCard = ({ pkg, onEdit, onRestore }) => {
         <div className="min-w-0">
           <h4 className="text-base font-bold text-ink-soft truncate">{pkg.name}</h4>
           <p className="text-xs text-ink-mute">
-            {pkg.price > 0 ? `${formatCurrency(pkg.price)}đ / ${chuKy(pkg.billingCycle)}` : 'Miễn phí'} · #{pkg.id}
+            {pkg.price > 0 ? `${formatCurrency(pkg.price)}đ / ${chuKy(pkg.billingCycle)}` : 'Miễn phí'} · #{maNgan(pkg.id)}
           </p>
         </div>
       </div>

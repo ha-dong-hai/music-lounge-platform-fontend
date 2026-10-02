@@ -22,6 +22,7 @@ import { useAuthStore } from '../../store/useAuthStore'
 import { getMyPerformers } from '../../services/performerServices'
 import KhungTai, { TrangLoiTai } from '../../components/bang/KhungTai'
 import HopThoai, { TieuDeHop } from '../../components/shared/HopThoai'
+import { maNgan } from '../../utils/format'
 
 // NGHỆ SĨ NÀO ĐƯỢC CHỌN (sửa 01/10/2026): GET /performers là danh mục DÙNG CHUNG của mọi phòng trà, sắp theo Id, kẹp
 // 50/trang. Bản cũ lấy một trang pageSize 100 (nhận 50) và cho chọn TẤT CẢ: chọn hồ sơ phòng trà khác tạo thì backend trả
@@ -228,7 +229,7 @@ const OwnerBankAccountsPage = () => {
   // PerformerDto không có ngày tạo, nên kèm thể loại và mã hồ sơ.
   const demTen = performers.reduce((m, p) => m.set(p.name, (m.get(p.name) ?? 0) + 1), new Map())
   const nhanNgheSi = (p) => demTen.get(p.name) > 1
-    ? `${p.name} — ${p.genreNames?.length ? p.genreNames.join(', ') + ' · ' : ''}#${p.id}`
+    ? `${p.name} — ${p.genreNames?.length ? p.genreNames.join(', ') + ' · ' : ''}#${maNgan(p.id)}`
     : p.name
 
   return (

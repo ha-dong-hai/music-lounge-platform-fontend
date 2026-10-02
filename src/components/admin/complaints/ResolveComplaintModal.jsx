@@ -14,6 +14,7 @@ import { Loader2, X, AlertTriangle } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { resolveComplaint } from '../../../services/complaintServices'
 import HopThoai, { TieuDeHop } from '../../shared/HopThoai'
+import { maNgan } from '../../../utils/format'
 
 const inputCls = 'mt-1 w-full min-h-[44px] px-3 py-2 bg-card border-2 border-ink text-ink focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2'
 
@@ -78,8 +79,8 @@ const ResolveComplaintModal = ({ complaint, onClose, onSaved }) => {
     <HopThoai onDong={onClose} className="max-w-lg max-h-[90vh] flex flex-col">
         <div className="flex justify-between items-center p-5 border-b border-line">
           <div>
-            <TieuDeHop><h2 className="text-3xl text-ink">Xử lý khiếu nại #{complaint.id}</h2></TieuDeHop>
-            <p className="text-xs text-ink-mute mt-0.5">{complaint.targetType} #{complaint.targetId}</p>
+            <TieuDeHop><h2 className="text-3xl text-ink">Xử lý khiếu nại #{maNgan(complaint.id)}</h2></TieuDeHop>
+            <p className="text-xs text-ink-mute mt-0.5">{complaint.targetType} #{maNgan(complaint.targetId)}</p>
           </div>
           <button onClick={onClose} disabled={isBusy} className="inline-flex items-center justify-center w-11 h-11 flex-shrink-0 hover:bg-sunken text-ink-soft disabled:opacity-30" aria-label="Đóng">
             <X size={20} />

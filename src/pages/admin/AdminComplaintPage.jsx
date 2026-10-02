@@ -26,6 +26,7 @@ import ResolveComplaintModal from '../../components/admin/complaints/ResolveComp
 import { useDanhSachMayChu } from '../../hooks/useDanhSachMayChu'
 import PhanTrang from '../../components/bang/PhanTrang'
 import KhungTai from '../../components/bang/KhungTai'
+import { maNgan } from '../../utils/format'
 
 const BO_LOC = { trangThai: parseAsStringLiteral(Object.keys(STATUS_CONFIG)) }
 const goiKhieuNai = ({ trangThai, ...q }) => getComplaintHistory({ ...q, status: trangThai ? [trangThai] : undefined })
@@ -64,7 +65,7 @@ const AdminComplaintPage = () => {
         const rows = filteredComplaints.map(c => [
             c.id,
             CATEGORY_CONFIG[c.category]?.label || c.category,
-            `${TARGET_TYPE_LABELS[c.targetType] || c.targetType} #${c.targetId}`,
+            `${TARGET_TYPE_LABELS[c.targetType] || c.targetType} #${maNgan(c.targetId)}`,
             (c.description || '').replace(/"/g, '""'),
             c.contactPhone || '',
             STATUS_CONFIG[c.status]?.label || c.status,

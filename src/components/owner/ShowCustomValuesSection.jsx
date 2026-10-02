@@ -258,7 +258,7 @@ const ShowCustomValuesSection = ({ showId }) => {
     // Chỉ gửi ô có điền: backend bắt value NotEmpty, gửi kèm ô rỗng là 422 cho cả lượt.
     const values = Object.entries(giaTri)
       .filter(([, v]) => String(v ?? '').trim() !== '')
-      .map(([criteriaId, v]) => ({ criteriaId: Number(criteriaId), value: String(v).trim() }))
+      .map(([criteriaId, v]) => ({ criteriaId, value: String(v).trim() }))
 
     // Ghi là thay thế toàn bộ, nên gửi danh sách rỗng là XOÁ HẾT giá trị — đó có thể là ý thật của
     // người dùng, không phải lỗi nhập liệu. Nhưng phải hỏi lại, vì bấm nhầm là mất sạch.

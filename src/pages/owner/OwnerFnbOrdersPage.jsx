@@ -35,6 +35,7 @@ import { useDanhSachMayChu } from '../../hooks/useDanhSachMayChu'
 import PhanTrang from '../../components/bang/PhanTrang'
 import NutXacNhan from '../../components/shared/NutXacNhan'
 import NhomTab from '../../components/bang/NhomTab'
+import { maNgan } from '../../utils/format'
 
 const fmtMoney = (v) => `${Number(v || 0).toLocaleString('vi-VN')}đ`
 
@@ -103,7 +104,7 @@ const OwnerFnbOrdersPage = () => {
     lamMoiMoi: 30_000,
   })
   const tab = ds.boLoc.tab
-  const hienThi = BEP.includes(tab) ? [...ds.items].sort((a, b) => a.id - b.id) : ds.items
+  const hienThi = BEP.includes(tab) ? [...ds.items].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt)) /* MLACP-516: id GUID không trừ được — đơn cũ lên trước theo giờ đặt */ : ds.items
 
   useEffect(() => { const chay = async () => { await loadLounge() }; chay() }, [loadLounge])
 
@@ -111,7 +112,7 @@ const OwnerFnbOrdersPage = () => {
     setBusyId(order.id)
     try {
       await updateFnbOrderStatus(order.id, status)
-      toast.success(`Đã chuyển đơn #${order.id} sang “${TAB.find((t) => t.key === status)?.label ?? status}”.`)
+      toast.success(`Đã chuyển đơn #${maNgan(order.id)} sang “${TAB.find((t) => t.key === status)?.label ?? status}”.`)
       await ds.taiLai()
     } catch (err) {
       toast.error(err.response?.data?.message || 'Không cập nhật được đơn.')
@@ -176,7 +177,7 @@ const OwnerFnbOrdersPage = () => {
               <div key={o.id} className="bg-card border border-line p-5 flex flex-col">
                 <div className="flex items-start justify-between gap-2">
                   <div>
-                    <p className="text-ink font-bold">#{o.id}</p>
+                    <p className="text-ink font-bold">#{maNgan(o.id)}</p>
                     <p className="text-xs text-ink-mute mt-0.5">
                       {o.tableNote ? `Bàn: ${o.tableNote}` : 'Không ghi bàn'} · {dayjs(o.createdAt).format('HH:mm DD/MM')}
                     </p>
@@ -242,12 +243,12 @@ const OwnerFnbOrdersPage = () => {
                     // Huỷ là trạng thái cuối (không lùi được); đơn đã trả online thì backend tạo yêu cầu hoàn 100%
                     // (UpdateFnbOrderStatusCommandHandler, MLACP-351) — hỏi lại và nói đúng hậu quả.
                     <NutXacNhan onXacNhan={() => doiTrangThai(o, 'Cancelled')} disabled={dangBan || conLinkOnline}
-                      tieuDe={`Huỷ đơn #${o.id}?`} nhanXacNhan="Huỷ đơn" nhanGiu="Không, giữ đơn"
+                      tieuDe={`Huỷ đơn #${maNgan(o.id)}?`} nhanXacNhan="Huỷ đơn" nhanGiu="Không, giữ đơn"
                       noiDung={o.isPaid
                         ? 'Khách đã trả tiền online cho đơn này: hệ thống tạo yêu cầu hoàn 100% và báo cho khách. Không hoàn tác được.'
                         : 'Đơn chuyển sang Đã huỷ và khách được báo. Không hoàn tác được.'}
                       title={conLinkOnline ? 'Không huỷ được khi khách còn liên kết thanh toán online' : undefined}
-                      aria-label={conLinkOnline ? 'Không huỷ được khi khách còn liên kết thanh toán online' : `Huỷ đơn #${o.id}`}
+                      aria-label={conLinkOnline ? 'Không huỷ được khi khách còn liên kết thanh toán online' : `Huỷ đơn #${maNgan(o.id)}`}
                       className="flex items-center gap-1.5 min-h-[44px] px-3 border-2 border-ink/40 text-ink-soft text-sm font-semibold hover:border-danger hover:text-danger disabled:opacity-40 disabled:cursor-not-allowed">
                       <XCircle size={14} aria-hidden="true" /> Huỷ đơn
                     </NutXacNhan>

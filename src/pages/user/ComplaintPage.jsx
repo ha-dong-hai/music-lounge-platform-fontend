@@ -22,11 +22,12 @@ import NhanTrangThai from '../../components/shared/NhanTrangThai'
 import { useDanhSachMayChu } from '../../hooks/useDanhSachMayChu'
 import PhanTrang from '../../components/bang/PhanTrang'
 import { ngayDayDu, gioTrongNgay } from '../../utils/ngayVietNam'
+import { laGuid, maNgan } from '../../utils/format'
 
 // Đúng 6 giá trị targetType backend nhận.
 const TARGET_TYPES = [
-  { value: 'show', label: 'Buổi diễn', hint: 'Số ở cuối đường dẫn trang buổi diễn, ví dụ …/shows/27 thì mã là 27.' },
-  { value: 'venue', label: 'Phòng trà', hint: 'Số ở cuối đường dẫn trang phòng trà, ví dụ …/lounge/1 thì mã là 1.' },
+  { value: 'show', label: 'Buổi diễn', hint: 'Dãy mã ở cuối đường dẫn trang buổi diễn (…/shows/<mã>) — sao chép nguyên dãy.' },
+  { value: 'venue', label: 'Phòng trà', hint: 'Dãy mã ở cuối đường dẫn trang phòng trà (…/lounge/<mã>) — sao chép nguyên dãy.' },
   { value: 'ticket', label: 'Vé', hint: 'Mã vé nằm ở mục “Chi tiết vé” trong trang vé của bạn.' },
   { value: 'donation', label: 'Lượt ủng hộ', hint: '' },
   { value: 'livestream', label: 'Buổi phát trực tuyến', hint: '' },
@@ -130,7 +131,8 @@ const ComplaintPage = () => {
   const kiemForm = () => {
     const l = {}
     const loai = TARGET_TYPES.find((t) => t.value === form.targetType)
-    if (!/^\d+$/.test(String(form.targetId).trim())) l.targetId = `Nhập mã ${loai.label.toLowerCase()} (chỉ gồm chữ số).`
+    // MLACP-516: mã là GUID dài, người dùng dán từ đường dẫn — báo rõ khi dán thiếu/sai thay vì để backend trả 400.
+    if (!laGuid(String(form.targetId))) l.targetId = `Dán nguyên mã ${loai.label.toLowerCase()} (dạng 00000000-0000-0000-0000-000000000000) từ đường dẫn.`
     if (form.description.trim().length < MO_TA_TOI_THIEU) l.description = `Mô tả sự việc cần ít nhất ${MO_TA_TOI_THIEU} ký tự.`
     if (!user && !form.contactPhone.trim()) l.contactPhone = 'Bạn chưa đăng nhập, nên cần để lại số điện thoại để chúng tôi liên hệ lại.'
     return l
@@ -150,7 +152,7 @@ const ComplaintPage = () => {
     try {
       const res = await createComplaint({
         targetType: form.targetType,
-        targetId: Number(form.targetId),
+        targetId: String(form.targetId).trim(),
         category: form.category,
         description: form.description.trim(),
         // Backend lưu nguyên chuỗi JSON, không nhận mảng.
@@ -254,7 +256,7 @@ const ComplaintPage = () => {
                 )}
               </OTruong>
               <OTruong nhan={`Mã ${loaiHienTai?.label.toLowerCase()}`} batBuoc goiY={loaiHienTai?.hint || undefined} loi={loi.targetId}>
-                {(p) => <input {...p} inputMode="numeric" value={form.targetId} onChange={(e) => set('targetId', e.target.value.replace(/[^\d]/g, ''))} className={`${p.className} font-mono`} />}
+                {(p) => <input {...p} value={form.targetId} onChange={(e) => set('targetId', e.target.value)} placeholder="Dán mã từ đường dẫn" spellCheck={false} autoComplete="off" className={`${p.className} font-mono`} />}
               </OTruong>
             </div>
 
@@ -357,7 +359,7 @@ const ComplaintPage = () => {
                     <div className="min-w-0">
                       <h2 className="font-sans font-bold text-lg">Số {c.id} · {CATEGORIES.find((x) => x.value === c.category)?.label ?? c.category}</h2>
                       <p className="text-sm text-ink-soft mt-0.5">
-                        {TARGET_TYPES.find((t) => t.value === c.targetType)?.label ?? c.targetType} mã {c.targetId}
+                        {TARGET_TYPES.find((t) => t.value === c.targetType)?.label ?? c.targetType} mã {maNgan(c.targetId)}
                       </p>
                     </div>
                     <NhanKhieuNai status={c.status} />

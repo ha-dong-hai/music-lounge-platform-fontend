@@ -6,6 +6,7 @@ import ConfirmModal from '../../shared/ConfirmModal'
 import OptionFormModal from './OptionFormModal'
 import KhungTai from '../../bang/KhungTai'
 import { HEP } from '../../bang/lopBangHep'
+import { maNgan } from '../../../utils/format'
 
 
 const OptionTypeTab = ({ typeKey, typeLabel, hasNameEn, hasDescription, hasIsActive, options, onRefresh, loi }) => {
@@ -152,7 +153,7 @@ const OptionTypeTab = ({ typeKey, typeLabel, hasNameEn, hasDescription, hasIsAct
               {options.length > 0 ? (
                 options.map(opt => (
                   <tr key={opt.id} role="row" className={`hover:bg-sunken/30 transition-colors group ${HEP.dong}`}>
-                    <td role="cell" data-nhan="ID" className={`p-4 text-xs text-ink-mute font-mono ${HEP.o}`}>#{opt.id}</td>
+                    <td role="cell" data-nhan="ID" className={`p-4 text-xs text-ink-mute font-mono ${HEP.o}`}>#{maNgan(opt.id)}</td>
                     <td role="cell" className={`p-4 text-sm text-ink font-semibold ${HEP.oTron}`}>{opt.name}</td>
                     {hasNameEn && (
                       <td role="cell" data-nhan="Tên tiếng Anh" className={`p-4 text-sm text-ink-soft ${HEP.o}`}>{opt.nameEn || <span className="text-ink-mute italic">—</span>}</td>
