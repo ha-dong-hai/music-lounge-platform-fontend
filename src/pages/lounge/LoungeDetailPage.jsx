@@ -15,7 +15,7 @@
 //
 // MỘT CON SỐ, MỘT NGUỒN: số đêm diễn sắp tới in ở tiêu đề "Lịch diễn" là số dòng THẬT của danh sách bên dưới, không
 // lấy `upcomingShowCount` của API chi tiết — hai nguồn đếm theo hai cách thì cùng một trang sẽ in hai con số khác nhau.
-import { useState, useEffect, useCallback, lazy, Suspense } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useParams, Link, useLocation } from 'react-router-dom'
 import { MapPin, Share2 } from 'lucide-react'
 import toast from 'react-hot-toast'
@@ -31,7 +31,7 @@ import LienKetMuiTen from '../../components/shared/LienKetMuiTen'
 
 // Trình xem 360° kéo theo three.js (~500KB) — chỉ tải khi phòng trà THẬT SỰ có tour, không làm nặng
 // bundle chính của mọi trang.
-const PanoramaViewer = lazy(() => import('../../components/lounge/PanoramaViewer'))
+import KhongGianPhongTra from '../../components/lounge/KhongGianPhongTra'
 
 const NUT_DAC = 'inline-flex items-center justify-center min-h-[52px] px-7 bg-stock text-ink font-display text-2xl hover:bg-lamp transition-colors disabled:opacity-60'
 const NUT_VIEN = 'inline-flex items-center justify-center min-h-[52px] px-7 border-2 border-lamp text-lamp font-semibold hover:bg-lamp hover:text-board transition-colors disabled:opacity-60'
@@ -261,16 +261,8 @@ const LoungeDetailPage = () => {
         {/* ===== GIỚI THIỆU + CHỖ NGỒI ===== */}
         <div className="pt-16"><LoungeAbout lounge={lounge} zones={zones} /></div>
 
-        {/* ===== THAM QUAN 360° ===== */}
-        {tourScenes.length > 0 && (
-          <section aria-labelledby="tour-360-title" className="pt-16">
-            <h2 id="tour-360-title" className="text-4xl mb-2">Tham quan không gian 360°</h2>
-            <p className="text-ink-soft mb-5">Nhìn quanh phòng trà trước khi chọn chỗ ngồi: kéo để xoay, cuộn để phóng to.</p>
-            <Suspense fallback={<div className="w-full aspect-video border-2 border-ink/20 bg-ink/5 animate-pulse" aria-busy="true" aria-label="Đang tải trình xem 360°" />}>
-              <PanoramaViewer scenes={tourScenes} className="w-full aspect-video border-2 border-ink" />
-            </Suspense>
-          </section>
-        )}
+        {/* ===== KHÔNG GIAN VÀ CHỖ NGỒI: khách tự chọn Sơ đồ 3D hoặc Tham quan 360° (03/10/2026) ===== */}
+        <KhongGianPhongTra zones={zones} tourScenes={tourScenes} tenPhongTra={lounge.name} />
       </div>
     </div>
   )

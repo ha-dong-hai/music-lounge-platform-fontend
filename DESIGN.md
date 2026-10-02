@@ -146,6 +146,13 @@ Giấy `card`, viền 4% ba cạnh + dải đáy dày, góc VUÔNG (Cut-Paper Ru
 tấm lộ mép; kéo ngang > 110px hoặc vuốt nhanh để sang ảnh; chạm để lật; mọi thao tác có nút tương đương (Ảnh trước/sau,
 "Lật xem chữ sau ảnh" aria-pressed). Giảm chuyển động: không bay, không xoay lật — đổi tức thì.
 
+### Không gian và chỗ ngồi: Sơ đồ 3D ⇄ Tham quan 360° (03/10/2026)
+Trang phòng trà, một khối, KHÁCH TỰ CHỌN cách xem (`KhongGianPhongTra`): tablist APG (mũi tên/Home/End, roving tabindex),
+nút chuyển dạng phân đoạn viền mực 2px, đang chọn = khối mực chữ lamp. Chỉ in cách xem có dữ liệu; một cách xem thì không
+in nút chuyển. Mỗi lúc chỉ dựng MỘT cảnh WebGL. Sơ đồ 3D (`SoDoCho3D`): dựng nổi từ sơ đồ 2D của chủ phòng trà (mặt sàn
+16:9), bục màu layoutColor, số ghế = sức chứa (tối đa 80 vẽ), nhãn tên khu HTML bám bục, kéo xoay/cuộn phóng to (không lật
+xuống sàn), chạm bục = chọn khu; danh sách khu dạng nút aria-pressed bên cạnh là đường tương đương + thẻ sức chứa/mô tả.
+
 ### Bìa đĩa + đĩa than 3D (03/10/2026)
 Đầu trang buổi diễn: ảnh buổi diễn (hoặc ảnh phòng trà) là BÌA ĐĨA vuông HTML (`BiaDia`, hiện ngay); đĩa than three.js
 (`DiaThanCanvas`, tải lười, gói riêng) nằm sau bìa, ló nửa nhãn ra. Nhãn đĩa giấy `lamp` in tên buổi (Anton), phòng trà,
