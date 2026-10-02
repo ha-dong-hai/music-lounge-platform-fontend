@@ -203,6 +203,9 @@ lamp 10–15% cho dòng bảng và vạch chia trên nền mực. Cuống vé c�
   dấu luyến (`MuiTenLuyen`: nét cong thuôn như dấu luyến trên khuông nhạc), rê chuột thì trượt tới êm 0,3s. Không đóng ô:
   ô vuông viền + mũi tên thẳng bị chủ dự án chê "cứng nhắc" (02/10). Ngoài trang → mũi tên chéo + "(mở ở thẻ mới)" sr-only.
 
+**The Hover-Row-Has-Gutter Rule.** Hàng nào đổi nền khi rê chuột (hover:bg-*) phải có lề ngang (tối thiểu px-3, sm:px-4)
+— không thì ảnh và nút chạm mép nền, trông dính sát (chủ dự án 03/10/2026). Bảng thì lề nằm ở ô (p-4).
+
 **The Underline-Is-For-Prose Rule.** Gạch dưới CHỈ cho liên kết nằm trong câu văn (WCAG 2.2 G183). Hành động đứng riêng
 không bao giờ là chữ gạch dưới: dẫn tới tiền → Cuống đặt vé; điều hướng → Liên kết mũi tên; `<button>` mở/thu gọn → nút
 Viền. Căn cứ + trang thật đã đối chiếu: `reports/Nút hành động thay chữ gạch dưới.md` (repo backend). Mới áp cho trang

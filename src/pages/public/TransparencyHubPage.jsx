@@ -134,7 +134,7 @@ const TransparencyHubPage = () => {
             ) : (
               <ul className="border-y-2 border-ink divide-y divide-ink/20">
                 {ngheSi.map((p) => (
-                  <li key={p.id} className="relative flex items-center gap-4 py-4 hover:bg-card">
+                  <li key={p.id} className="relative flex items-center gap-4 py-4 px-3 sm:px-4 hover:bg-card">
                     <img src={p.avatarUrl || anhChuCai(p.name)} alt="" loading="lazy" width="56" height="56" className="w-14 h-14 object-cover border border-ink flex-shrink-0" />
                     <div className="min-w-0 flex-1">
                       <Link to={`/performers/${p.id}/donations`} className="font-display text-2xl leading-tight break-words after:absolute after:inset-0 hover:underline underline-offset-4 decoration-1">

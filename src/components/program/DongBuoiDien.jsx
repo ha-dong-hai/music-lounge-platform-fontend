@@ -10,6 +10,10 @@
 // ngày +80px, tên +20px, cuống +66px (đo bằng getBoundingClientRect), tên bị bóp còn 426px và gãy "Thành phố Hồ Chí /
 // Minh". Nay ngày in NGAY TRÊN tên (như tờ chương trình), ảnh + chữ bám mép trên, cụm cuống + Lưu căn giữa ở cột phải;
 // nút Lưu 48px viền 2px cho bằng cuống đặt vé.
+// LỀ NGANG px-3/sm:px-4 (03/10/2026): hàng có nền khi rê chuột (hover:bg-card) mà không có lề ngang thì ảnh chạm mép trái,
+// cuống Đặt vé chạm mép phải của nền — chủ dự án: "nằm sát rạt". Hàng nào đổi nền khi rê đều phải có lề ngang.
+// Điện thoại: cụm cuống + Lưu xuống dòng riêng trải HAI cột (col-span-2) — cuống rộng ~250px, cột chữ cạnh ảnh 80px chỉ còn
+// ~230px ở màn 390 (đo 03/10: cuống tràn 8px ra ngoài hàng).
 //
 // MỖI DÒNG TRẢ LỜI NĂM CÂU HỎI THEO THỨ TỰ NGƯỜI TA HỎI: khi nào → diễn gì, ai hát → ở đâu → bao nhiêu tiền → đi tiếp.
 // (Đọc DICE, Eventbrite, Ticketmaster 30/09/2026: không trang nào in đủ cả ngày, giờ, địa điểm, giá trên một dòng —
@@ -45,7 +49,7 @@ const DongBuoiDien = ({ b, hienPhongTra = true, hienAnh = true, anhDuPhong = nul
   const dangDien = b.status === 'Ongoing'
 
   return (
-    <li className={`group/dong relative grid gap-x-6 gap-y-1.5 py-5 border-t border-ink/20 first:border-t-0 hover:bg-card transition-colors ${hienAnh ? 'grid-cols-[5rem_minmax(0,1fr)] sm:grid-cols-[7.5rem_minmax(0,1fr)] lg:grid-cols-[7.5rem_minmax(0,1fr)_auto]' : 'md:grid-cols-[14rem_minmax(0,1fr)_auto]'} items-start`}>
+    <li className={`group/dong relative grid gap-x-6 gap-y-1.5 py-5 px-3 sm:px-4 border-t border-ink/20 first:border-t-0 hover:bg-card transition-colors ${hienAnh ? 'grid-cols-[5rem_minmax(0,1fr)] sm:grid-cols-[7.5rem_minmax(0,1fr)] lg:grid-cols-[7.5rem_minmax(0,1fr)_auto]' : 'md:grid-cols-[14rem_minmax(0,1fr)_auto]'} items-start`}>
       {hienAnh && (
         <div className="row-span-3 lg:row-span-2 aspect-[4/3] w-full self-start overflow-hidden border border-ink bg-board">
           {(b.coverImageUrl || anhDuPhong) && !anhHong
@@ -67,7 +71,7 @@ const DongBuoiDien = ({ b, hienPhongTra = true, hienAnh = true, anhDuPhong = nul
         {hienPhongTra && noi && <p className="text-ink mt-0.5">{noi}</p>}
         {phu.length > 0 && <p className="text-sm text-ink-mute mt-0.5">{phu.join(' · ')}</p>}
       </div>
-      <div className={`flex flex-wrap items-center gap-x-6 gap-y-2 lg:justify-end ${hienAnh ? 'lg:col-start-3 lg:row-start-1 lg:row-span-2 lg:self-center' : 'md:justify-end'}`}>
+      <div className={`flex flex-wrap items-center gap-x-6 gap-y-2 lg:justify-end ${hienAnh ? 'col-span-2 sm:col-span-1 lg:col-start-3 lg:row-start-1 lg:row-span-2 lg:self-center' : 'md:justify-end'}`}>
         {/* Giá + hành động in thành MỘT cuống vé (CuongDatVe) thay chữ gạch dưới "Xem và đặt" — 02/10/2026. Đã diễn hoặc đang diễn thì
             không in giá: buổi đã bắt đầu, câu hỏi lúc này là "đang diễn" chứ không phải giá — và cuống có giá + nhãn
             "Xem buổi diễn" tràn ngang màn 390px (đo 02/10: scrollWidth 414). */}
