@@ -24,6 +24,7 @@ import { MapPin, LogIn, RotateCcw } from 'lucide-react'
 import KyTuLat from './KyTuLat'
 import CoverFallback from '../shared/CoverFallback'
 import { gioTrongNgay } from '../../utils/ngayVietNam'
+import CuongDatVe from './CuongDatVe'
 
 const CAU_GIA = 'Giá vé vào cửa. Phòng trà có thể yêu cầu gọi thêm đồ uống — xem trang buổi diễn.'
 
@@ -152,10 +153,11 @@ const DongBang = ({ dong, mo, onMo, onRoi, chiSo, daDangNhap }) => {
                             kết thì tên bị cắt còn "[…" (đo 30/09). Từ sm trở lên giữ một hàng như cũ — PHẢI là sm:basis-0, không phải
                             basis-auto: basis-auto ghi đè basis 0 của flex-1, tên dài đòi đủ chỗ và đẩy "Xem và đặt" xuống dòng. */}
                         <span className="order-last basis-full sm:order-none sm:basis-0 flex-1 min-w-0 sm:truncate text-lamp">{b.title}</span>
-                        <span className="font-mono text-sm text-lamp-mute ml-auto sm:ml-0">{b.price}</span>
+                        {/* Buổi khác đêm nay: cuống đặt vé bản giấy trên bảng tối (02/10/2026). Buổi sớm nhất đã có nút Đặt
+                            chỗ lớn phía trên nên chỉ in giá + nhãn. */}
                         {b.id === buoi.id
-                          ? <span className="inline-flex items-center min-h-[44px] px-3 text-sm text-lamp-mute">Buổi sớm nhất</span>
-                          : <Link to={`/shows/${b.id}`} className="inline-flex items-center min-h-[44px] px-3 font-semibold text-lamp underline underline-offset-4">Xem và đặt</Link>}
+                          ? <><span className="font-mono text-sm text-lamp-mute ml-auto sm:ml-0">{b.price}</span><span className="inline-flex items-center min-h-[44px] px-3 text-sm text-lamp-mute">Buổi sớm nhất</span></>
+                          : <CuongDatVe nen="muc" to={`/shows/${b.id}`} gia={b.price || null} className="ml-auto sm:ml-0" />}
                       </li>
                     ))}
                   </ul>
@@ -233,7 +235,7 @@ const BangGioDien = ({ dong = [], dangTai, loi, onThuLai, daDangNhap, demGanNhat
           {demGanNhat ? (
             <p className="text-lamp-mute mt-4">
               Đêm gần nhất có diễn: <span className="text-lamp">{demGanNhat.nhan}</span>, {demGanNhat.soBuoi} buổi.{' '}
-              <a href="#lich-tuan" className="underline text-lamp">Xem lịch tuần này</a>
+              <a href="#lich-tuan" className="group/lk inline-flex items-center gap-2 min-h-[44px] font-semibold text-lamp align-middle">Xem lịch tuần này <span aria-hidden="true" className="inline-flex items-center justify-center w-7 h-7 border-2 border-lamp/70 group-hover/lk:bg-lamp group-hover/lk:text-board transition-colors">↓</span></a>
             </p>
           ) : (
             <p className="text-lamp-mute mt-4">Chưa có buổi diễn nào mở bán trong những ngày tới. Theo dõi phòng trà bên dưới để được báo khi có đêm mới.</p>

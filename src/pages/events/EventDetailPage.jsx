@@ -1,7 +1,7 @@
 // src/pages/events/EventDetailPage.jsx
 import { useState, useRef, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { MapPin, Heart, Share2, ArrowLeft, Check, X, Copy, Star } from 'lucide-react'
+import { MapPin, Heart, Share2, Check, X, Copy, Star } from 'lucide-react'
 import toast from 'react-hot-toast'
 import CoverFallback from '../../components/shared/CoverFallback'
 import { thuVietHoa, ngayDayDu, gioTrongNgay } from '../../utils/ngayVietNam'
@@ -17,6 +17,7 @@ import { getFollowedLounges, toggleWishlist, toggleFollowLounge } from '../../se
 import { useAuthStore } from '../../store/useAuthStore'
 import { formatMinPrice } from '../../utils/formatPrice'
 import HopThoai, { TieuDeHop } from '../../components/shared/HopThoai'
+import LienKetMuiTen from '../../components/shared/LienKetMuiTen'
 
 const EventDetailPage = () => {
   const { id } = useParams()
@@ -194,7 +195,7 @@ const EventDetailPage = () => {
     return (
       <div className="min-h-screen bg-stock flex flex-col items-center justify-center text-ink px-4 text-center">
         <h1 className="text-4xl mb-4">{apiError || 'Không tìm thấy buổi diễn'}</h1>
-        <Link to="/shows" className="inline-flex items-center gap-2 min-h-[44px] font-semibold underline underline-offset-4"><ArrowLeft size={18} aria-hidden="true" /> Xem các buổi diễn khác</Link>
+        <LienKetMuiTen to="/shows" lui>Xem các buổi diễn khác</LienKetMuiTen>
       </div>
     )
   }
@@ -226,7 +227,7 @@ const EventDetailPage = () => {
             </div>
             <h1 id="ten-buoi-dien" className="mt-4 text-[clamp(2.5rem,5vw,4.5rem)] leading-[0.98] text-lamp break-words">{data.title}</h1>
             <p className="mt-5">
-              <Link to={`/lounge/${data.loungeId}`} className="font-display text-2xl leading-none text-lamp underline underline-offset-4 decoration-1 hover:decoration-2">{data.loungeName}</Link>
+              <LienKetMuiTen to={`/lounge/${data.loungeId}`} nen="muc" className="font-display text-2xl leading-none">{data.loungeName}</LienKetMuiTen>
             </p>
             {data.address && (
               <p className="mt-2 flex items-start gap-2 text-lamp-mute">

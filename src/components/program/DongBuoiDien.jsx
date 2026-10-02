@@ -21,6 +21,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Heart } from 'lucide-react'
 import CoverFallback from '../shared/CoverFallback'
+import CuongDatVe from './CuongDatVe'
 import { ngayTrongLich, gioTrongNgay } from '../../utils/ngayVietNam'
 import { formatMinPrice } from '../../utils/formatPrice'
 
@@ -39,7 +40,7 @@ const DongBuoiDien = ({ b, hienPhongTra = true, hienAnh = true, anhDuPhong = nul
   const dangDien = b.status === 'Ongoing'
 
   return (
-    <li className={`relative grid gap-x-6 gap-y-1.5 py-5 border-t border-ink/20 first:border-t-0 hover:bg-card transition-colors ${hienAnh ? 'grid-cols-[5rem_minmax(0,1fr)] sm:grid-cols-[7.5rem_minmax(0,1fr)] lg:grid-cols-[7.5rem_13rem_minmax(0,1fr)_auto]' : 'md:grid-cols-[14rem_minmax(0,1fr)_auto]'} lg:items-center`}>
+    <li className={`group/dong relative grid gap-x-6 gap-y-1.5 py-5 border-t border-ink/20 first:border-t-0 hover:bg-card transition-colors ${hienAnh ? 'grid-cols-[5rem_minmax(0,1fr)] sm:grid-cols-[7.5rem_minmax(0,1fr)] lg:grid-cols-[7.5rem_13rem_minmax(0,1fr)_auto]' : 'md:grid-cols-[14rem_minmax(0,1fr)_auto]'} lg:items-center`}>
       {hienAnh && (
         <div className="row-span-3 lg:row-span-1 aspect-[4/3] w-full self-start overflow-hidden border border-ink bg-board">
           {(b.coverImageUrl || anhDuPhong) && !anhHong
@@ -55,17 +56,17 @@ const DongBuoiDien = ({ b, hienPhongTra = true, hienAnh = true, anhDuPhong = nul
       </p>
       <div className="min-w-0">
         <h3 className="font-display font-normal text-2xl leading-tight tracking-normal break-words">
-          <Link to={`/shows/${b.id}`} className="after:absolute after:inset-0 hover:underline underline-offset-4 decoration-1">{b.name}</Link>
+          <Link to={`/shows/${b.id}`} className="after:absolute after:inset-0">{b.name}</Link>
         </h3>
         {nguoiHat.length > 0 && <p className="text-ink-soft mt-1">{nguoiHat.join(', ')}</p>}
         {hienPhongTra && noi && <p className="text-ink mt-0.5">{noi}</p>}
         {phu.length > 0 && <p className="text-sm text-ink-mute mt-0.5">{phu.join(' · ')}</p>}
       </div>
       <div className={`flex flex-wrap items-center gap-x-5 gap-y-1 lg:justify-end ${hienAnh ? '' : 'md:justify-end'}`}>
-        <span className="font-mono whitespace-nowrap">{giaIn(b)}</span>
-        <span className="font-semibold underline underline-offset-4 decoration-2 whitespace-nowrap" aria-hidden="true">
-          {dangDien ? 'Xem buổi diễn' : b.status === 'Ended' ? 'Xem lại trang buổi diễn' : 'Xem và đặt'}
-        </span>
+        {/* Giá + hành động in thành MỘT cuống vé (CuongDatVe) thay chữ gạch dưới "Xem và đặt" — 02/10/2026. Đã diễn hoặc đang diễn thì
+            không in giá: buổi đã bắt đầu, câu hỏi lúc này là "đang diễn" chứ không phải giá — và cuống có giá + nhãn
+            "Xem buổi diễn" tràn ngang màn 390px (đo 02/10: scrollWidth 414). */}
+        <CuongDatVe gia={b.status === 'Ended' || dangDien ? null : giaIn(b)} trangThai={dangDien ? 'DangDien' : b.status === 'Ended' ? 'DaDien' : 'MoBan'} />
         {onDoiLuu && (
           <button type="button" onClick={() => onDoiLuu(b)} disabled={dangLuu} aria-pressed={daLuu}
             aria-label={daLuu ? `Bỏ lưu ${b.name}` : `Lưu ${b.name}`}

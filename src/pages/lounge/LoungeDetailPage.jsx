@@ -17,7 +17,7 @@
 // lấy `upcomingShowCount` của API chi tiết — hai nguồn đếm theo hai cách thì cùng một trang sẽ in hai con số khác nhau.
 import { useState, useEffect, useCallback, lazy, Suspense } from 'react'
 import { useParams, Link, useLocation } from 'react-router-dom'
-import { ArrowLeft, ExternalLink, MapPin, Share2 } from 'lucide-react'
+import { MapPin, Share2 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import BoAnh from '../../components/lounge/BoAnh'
 import LichDienPhongTra from '../../components/lounge/LichDienPhongTra'
@@ -27,6 +27,7 @@ import { getLoungeDetail, getLoungeZones, getLoungeTour } from '../../services/l
 import { getShowsByLounge } from '../../services/showServices'
 import { getFollowedLounges, toggleFollowLounge } from '../../services/interactionServices'
 import { chiaLichPhongTra, TRAN_TAI } from '../../utils/lichPhongTra'
+import LienKetMuiTen from '../../components/shared/LienKetMuiTen'
 
 // Trình xem 360° kéo theo three.js (~500KB) — chỉ tải khi phòng trà THẬT SỰ có tour, không làm nặng
 // bundle chính của mọi trang.
@@ -179,7 +180,7 @@ const LoungeDetailPage = () => {
     return (
       <div className="min-h-[70vh] bg-stock flex flex-col items-center justify-center text-ink px-4 text-center">
         <h1 className="text-4xl mb-4">{apiError || 'Không tìm thấy phòng trà này.'}</h1>
-        <Link to="/lounges" className="inline-flex items-center gap-2 min-h-[44px] font-semibold underline underline-offset-4"><ArrowLeft size={18} aria-hidden="true" /> Xem các phòng trà trên sàn</Link>
+        <LienKetMuiTen to="/lounges" lui>Xem các phòng trà trên sàn</LienKetMuiTen>
       </div>
     )
   }
@@ -216,7 +217,7 @@ const LoungeDetailPage = () => {
           </div>
 
           <div className="px-4 sm:px-8 py-8 lg:py-14 flex flex-col items-start">
-            <p><Link to="/lounges" className="text-sm text-lamp-mute underline underline-offset-4 decoration-1 hover:text-lamp">Phòng trà trên sàn</Link></p>
+            <LienKetMuiTen to="/lounges" lui nen="muc" nho>Phòng trà trên sàn</LienKetMuiTen>
             <h1 id="ten-phong-tra" className="mt-3 text-[clamp(2.5rem,5vw,4.5rem)] leading-[1.1] text-lamp break-words">{lounge.name}</h1>
             {lounge.atmosphereName && <p className="mt-4 text-lg text-lamp">Không gian {lounge.atmosphereName.toLowerCase()}</p>}
 
@@ -226,10 +227,7 @@ const LoungeDetailPage = () => {
               </p>
             )}
             {banDo && (
-              <a href={banDo} target="_blank" rel="noreferrer"
-                className="ml-[26px] inline-flex items-center gap-1.5 min-h-[44px] text-lamp font-semibold underline underline-offset-4 decoration-1 hover:decoration-2">
-                Chỉ đường <ExternalLink size={14} aria-hidden="true" /><span className="sr-only">(mở Google Maps ở thẻ mới)</span>
-              </a>
+              <LienKetMuiTen href={banDo} nen="muc" nho className="ml-[26px]" aria-label="Chỉ đường (mở Google Maps ở thẻ mới)">Chỉ đường</LienKetMuiTen>
             )}
 
             <div className="mt-6 flex flex-wrap items-center gap-3 w-full">

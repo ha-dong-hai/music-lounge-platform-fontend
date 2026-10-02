@@ -173,6 +173,17 @@ lamp 10–15% cho dòng bảng và vạch chia trên nền mực. Cuống vé c�
 - **Viền** (viền mực 2px, trong suốt): Vé của tôi, Tìm và lọc, Theo dõi. Hover lật thành khối mực chữ cream.
 - **Đặt chỗ** (stock / ink, Anton, 44px; bản lớn 52px trong hộp đèn): chỉ trên nền mực. Hover sang lamp. Chưa đăng nhập thì kèm dòng 11px "Cần đăng nhập để đặt".
 - **Focus**: viền 2px mực, lệch 2px (toàn cục); trên nền mực dùng outline lamp. Mọi đích bấm ≥ 44px.
+- **Cuống đặt vé** (`CuongDatVe`, 02/10/2026): hành động đặt vé trên MỘT DÒNG buổi diễn (danh sách, lịch tuần, các buổi
+  đêm nay trên bảng). Nửa giá (mono, giấy viền 2px) + đường xé (khuyết bán nguyệt 6px trên/dưới bằng mask, vạch đứt màu
+  mực) + nửa hành động (Anton, khối mực; trên bảng tối thì khối giấy). Đang diễn → nửa vàng thếp "Xem buổi diễn", không
+  giá. Đã diễn → nút viền mảnh, không giá, không răng cưa. Cao 48px.
+- **Liên kết mũi tên** (`LienKetMuiTen`): liên kết ĐỨNG RIÊNG ("Mọi phòng trà", quay lại, "Chỉ đường"): chữ 600 + ô vuông
+  32px viền 2px chứa mũi tên, rê/focus thì ô lật thành khối mực. Ngoài trang → mũi tên chéo + "(mở ở thẻ mới)" sr-only.
+
+**The Underline-Is-For-Prose Rule.** Gạch dưới CHỈ cho liên kết nằm trong câu văn (WCAG 2.2 G183). Hành động đứng riêng
+không bao giờ là chữ gạch dưới: dẫn tới tiền → Cuống đặt vé; điều hướng → Liên kết mũi tên; `<button>` mở/thu gọn → nút
+Viền. Căn cứ + trang thật đã đối chiếu: `reports/Nút hành động thay chữ gạch dưới.md` (repo backend). Mới áp cho trang
+chủ, trang phòng trà, trang buổi diễn (02/10); các chỗ còn lại chờ chủ dự án duyệt bản mẫu.
 
 ### Chips
 Tìm theo gu: nền card, viền mực 2px, cao 40px, chữ 500; số đếm mono. Hover lật thành khối mực.

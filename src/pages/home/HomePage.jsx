@@ -21,6 +21,7 @@ import LichTuanNay from '../../components/program/LichTuanNay'
 import NhomGu from '../../components/program/NhomGu'
 import DauMoc from '../../components/program/DauMoc'
 import CuongVeCamKet from '../../components/program/CuongVeCamKet'
+import LienKetMuiTen from '../../components/shared/LienKetMuiTen'
 import { getShows, getFilterOptions } from '../../services/showServices'
 import { formatMinPrice } from '../../utils/formatPrice'
 import { ngayDayDu, thuVietHoa } from '../../utils/ngayVietNam'
@@ -164,14 +165,14 @@ const HomePage = () => {
         </section>
 
         <section aria-labelledby="phong-tra-tren-san" className="mt-24">
-          <TieuDeKhoi id="phong-tra-tren-san" phu={<Link to="/lounges" className="font-semibold underline">Mọi phòng trà</Link>}>
+          <TieuDeKhoi id="phong-tra-tren-san" phu={<LienKetMuiTen to="/lounges">Mọi phòng trà</LienKetMuiTen>}>
             Phòng trà trên sàn
           </TieuDeKhoi>
           <PhongTraTrenSan daDangNhap={daDangNhap} phongTraSangDen={phongTraSangDen} onTai={khiTaiPhongTra} />
         </section>
 
         <section aria-labelledby="lich-tuan-td" id="lich-tuan" className="mt-24 scroll-mt-24">
-          <TieuDeKhoi id="lich-tuan-td" phu={<Link to="/shows" className="font-semibold underline">Mọi buổi diễn</Link>}>
+          <TieuDeKhoi id="lich-tuan-td" phu={<LienKetMuiTen to="/shows">Mọi buổi diễn</LienKetMuiTen>}>
             Lịch diễn bảy ngày tới
           </TieuDeKhoi>
           <LichTuanNay buoiDien={sapToi} dangTai={dangTai} />
@@ -214,7 +215,7 @@ const HomePage = () => {
         )}
 
         <section aria-labelledby="tien-di-dau" className="mt-24">
-          <TieuDeKhoi id="tien-di-dau" phu={<Link to="/minh-bach" className="font-semibold underline">Trang minh bạch</Link>}>
+          <TieuDeKhoi id="tien-di-dau" phu={<LienKetMuiTen to="/minh-bach">Trang minh bạch</LienKetMuiTen>}>
             Tiền của bạn đi đâu
           </TieuDeKhoi>
           <CuongVeCamKet />

@@ -3,8 +3,9 @@
 // LỊCH DIỄN TUẦN NÀY — trục thời gian HẠ XUỐNG thứ cấp (venue-first §7.1 khối 4), in như trang trong của tờ chương
 // trình: một bảng thẳng cột, gom theo ngày. Giờ bằng chữ số dạng bảng (kỷ luật "lưới số cố định").
 // Dữ liệu là CÙNG mảng trang chủ đã tải (sortBy StartingSoon), bỏ đêm nay (đã có ở bảng giờ diễn), lấy 7 ngày tới.
-import { Link } from 'react-router-dom'
 import dayjs from 'dayjs'
+import CuongDatVe from './CuongDatVe'
+import LienKetMuiTen from '../shared/LienKetMuiTen'
 import { thuVietHoa, ngayGon, gioTrongNgay } from '../../utils/ngayVietNam'
 
 const LichTuanNay = ({ buoiDien = [], dangTai }) => {
@@ -17,14 +18,14 @@ const LichTuanNay = ({ buoiDien = [], dangTai }) => {
 
   if (dangTai) return <div className="h-64 border-2 border-ink/20 bg-ink/5 animate-pulse" aria-busy="true" aria-label="Đang tải lịch tuần" />
   if (ds.length === 0) {
-    return <p className="border-2 border-ink p-5">Bảy ngày tới chưa có buổi diễn nào mở bán. <Link to="/shows" className="underline font-semibold">Xem mọi buổi diễn</Link></p>
+    return <div className="border-2 border-ink p-5 flex flex-wrap items-center gap-x-6 gap-y-2"><p>Bảy ngày tới chưa có buổi diễn nào mở bán.</p><LienKetMuiTen to="/shows">Xem mọi buổi diễn</LienKetMuiTen></div>
   }
 
   return (
     // `relative` là BẮT BUỘC: bảng có nhãn sr-only (position: absolute). Khung cuộn không phải khối chứa của nó thì
     // nhãn thoát khỏi vùng cắt overflow và kéo CẢ TRANG rộng ra (đo 30/09: 530px trên màn 390px — chỉ lộ khi bảng có dữ liệu).
     <div className="relative border-2 border-ink overflow-x-auto">
-      <table className="w-full min-w-[640px] text-left">
+      <table className="w-full min-w-[760px] text-left">
         <caption className="sr-only">Lịch diễn bảy ngày tới, theo ngày và giờ</caption>
         <thead className="bg-ink text-lamp text-sm">
           <tr>
@@ -32,7 +33,7 @@ const LichTuanNay = ({ buoiDien = [], dangTai }) => {
             <th scope="col" className="font-semibold px-4 py-3">Phòng trà</th>
             <th scope="col" className="font-semibold px-4 py-3">Buổi diễn</th>
             <th scope="col" className="font-semibold px-4 py-3 w-24">Giờ</th>
-            <th scope="col" className="px-4 py-3 w-36"><span className="sr-only">Đặt vé</span></th>
+            <th scope="col" className="px-4 py-3 w-56"><span className="sr-only">Đặt vé</span></th>
           </tr>
         </thead>
         <tbody>
@@ -55,8 +56,9 @@ const LichTuanNay = ({ buoiDien = [], dangTai }) => {
                 </td>
                 <td className="px-4 py-3 font-mono">{gioTrongNgay(b.start_date)}</td>
                 <td className="px-4 py-3 text-right">
-                  {/* whitespace-nowrap + cột w-36: cột w-28 làm "Xem và đặt" gãy thành hai dòng. */}
-                  <Link to={`/shows/${b.id}`} className="whitespace-nowrap font-semibold underline underline-offset-4 decoration-2 hover:text-board">Xem và đặt</Link>
+                  {/* Cuống đặt vé (giá + "Đặt vé") thay chữ gạch dưới "Xem và đặt" — 02/10/2026. Cột w-56 + bảng tối thiểu
+                      760px để cuống không gãy dòng; ở màn hẹp bảng đã cuộn ngang trong khung riêng. */}
+                  <CuongDatVe to={`/shows/${b.id}`} gia={b.price || null} />
                 </td>
               </tr>
             )
