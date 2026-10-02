@@ -642,7 +642,8 @@ const OwnerShowSettingsPage = () => {
       </Card>
 
       {/* TIÊU CHÍ RIÊNG — đây là chỗ đã hứa ở CustomCriteriaSection (màn Hồ sơ phòng trà) */}
-      <ShowCustomValuesSection showId={id} />
+      {/* loungeId: để ghép danh sách tiêu chí của phòng trà — endpoint giá trị chỉ trả tiêu chí ĐÃ gán (xem section). */}
+      <ShowCustomValuesSection showId={id} loungeId={show?.lounge?.id} />
     </div>
   )
 }

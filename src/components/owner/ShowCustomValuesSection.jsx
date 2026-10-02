@@ -3,9 +3,10 @@
 // GHI CHÚ CHO ĐỘI FE:
 // - Gán giá trị cho các TIÊU CHÍ RIÊNG mà chính chủ phòng trà đã định nghĩa (xem
 //   CustomCriteriaSection ở màn Hồ sơ phòng trà). Danh mục chung do Admin quản là chuyện khác.
-// - GET /custom-criteria/shows/{showId}/values trả CẢ định nghĩa tiêu chí LẪN giá trị đã gán
-//   ({criteriaId, name, key, dataType, options, criteriaIsActive, value}), nên màn này chỉ cần MỘT
-//   lời gọi — không phải lấy danh sách tiêu chí rồi tự ghép giá trị.
+// - GET /custom-criteria/shows/{showId}/values trả định nghĩa + giá trị, NHƯNG CHỈ cho tiêu chí ĐÃ CÓ giá trị
+//   ở buổi diễn đó (buổi diễn chưa gán gì → []). Muốn có ô để gán giá trị ĐẦU TIÊN thì phải lấy thêm danh sách
+//   tiêu chí của phòng trà (GET /custom-criteria?loungeId=&includeInactive=true) rồi ghép — xem
+//   ghepTieuChiVaGiaTri(). (Bản trước ghi "chỉ cần MỘT lời gọi" — sai, làm cả chức năng không dùng được; 02/10/2026.)
 // - GHI LÀ THAY THẾ TOÀN BỘ danh sách. Vì vậy form nạp sẵn mọi giá trị đang có và gửi lại tất cả:
 //   bỏ sót một dòng là xoá mất giá trị của dòng đó.
 // - `criteriaIsActive = false` LÀ TRẠNG THÁI THẬT: chủ phòng trà tắt được tiêu chí ở màn Hồ sơ
@@ -58,7 +59,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Loader2, ListFilter, Save, EyeOff } from 'lucide-react'
 import toast from 'react-hot-toast'
-import { getShowCustomValues, setShowCustomValues } from '../../services/customCriteriaServices'
+import { getShowCustomValues, setShowCustomValues, getLoungeCustomCriteria } from '../../services/customCriteriaServices'
 
 const inputCls = 'mt-1 w-full min-h-[44px] px-3 py-2 bg-card border-2 border-ink text-ink focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2'
 
@@ -213,7 +214,23 @@ const loiCuaDong = (c, giaTriHienTai, giaTriGoc, loiMayChu) => {
   return kiemTraGiaTri(c, giaTriHienTai)
 }
 
-const ShowCustomValuesSection = ({ showId }) => {
+// Ghép DANH SÁCH TIÊU CHÍ của phòng trà với GIÁ TRỊ đã gán cho buổi diễn (xem ghi chú đầu tệp):
+// - tiêu chí ĐANG BẬT luôn có một dòng (giá trị rỗng nếu chưa gán);
+// - tiêu chí ĐÃ TẮT chỉ có dòng khi còn giá trị — dòng có giá trị phải nạp lại, nếu không lần Lưu sau xoá mất
+//   (ghi là thay thế toàn bộ); tắt mà chưa có giá trị thì ẩn, đúng nghĩa "tắt".
+const ghepTieuChiVaGiaTri = (daGan, tieuChi) => {
+  const theoId = new Map(daGan.map((d) => [d.criteriaId, d]))
+  for (const c of tieuChi) {
+    if (theoId.has(c.id) || !c.isActive) continue
+    theoId.set(c.id, {
+      criteriaId: c.id, name: c.name, key: c.key, dataType: c.dataType, options: c.options,
+      criteriaIsActive: c.isActive, value: null, validationError: null,
+    })
+  }
+  return [...theoId.values()].sort((a, b) => String(a.name).localeCompare(String(b.name), 'vi'))
+}
+
+const ShowCustomValuesSection = ({ showId, loungeId }) => {
   const [criteria, setCriteria] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [giaTri, setGiaTri] = useState({}) // { [criteriaId]: string } — giá trị đang trên form
@@ -227,9 +244,12 @@ const ShowCustomValuesSection = ({ showId }) => {
     if (!showId) return
     setIsLoading(true)
     try {
-      const res = await getShowCustomValues(showId)
+      const [res, dsTieuChi] = await Promise.all([
+        getShowCustomValues(showId),
+        loungeId ? getLoungeCustomCriteria(loungeId, true) : Promise.resolve(null),
+      ])
       if (res.success) {
-        const ds = res.data ?? []
+        const ds = ghepTieuChiVaGiaTri(res.data ?? [], dsTieuChi?.success ? (dsTieuChi.data ?? []) : [])
         setCriteria(ds)
         // Nạp sẵn giá trị đang có. Phải nạp CẢ dòng của tiêu chí đã tắt, nếu không thì lần lưu sau
         // sẽ xoá mất giá trị của chúng (ghi là thay thế toàn bộ).
@@ -248,7 +268,7 @@ const ShowCustomValuesSection = ({ showId }) => {
     } finally {
       setIsLoading(false)
     }
-  }, [showId])
+  }, [showId, loungeId])
 
   useEffect(() => { const chay = async () => { await load() }; chay() }, [load])
 

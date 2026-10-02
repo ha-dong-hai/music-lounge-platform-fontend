@@ -34,6 +34,29 @@ const DATA_TYPES = [
   { value: 'Text', label: 'Chữ tự do', optionsHint: '' },
 ]
 
+// Kiểm ô "Tuỳ chọn" TRƯỚC khi gửi, khớp từng luật của CreateCustomCriteriaCommandValidator.cs (máy chủ vẫn là chỗ
+// chặn thật). Vì sao (E2E 02/10/2026): chủ phòng trà gõ danh sách kiểu thường ngày "Yên tĩnh, Vừa phải, Sôi động"
+// thì máy chủ trả 400 với câu chung "Dữ liệu gửi lên không hợp lệ." — không biết sai ở đâu. Trả về câu lỗi, hoặc null.
+const kiemOptions = (dataType, tho) => {
+  const s = (tho ?? '').trim()
+  if (dataType !== 'Select' && dataType !== 'Range') return null
+  if (!s) return 'Kiểu dữ liệu này cần ô Tuỳ chọn.'
+  let v
+  try { v = JSON.parse(s) } catch {
+    return dataType === 'Select'
+      ? 'Tuỳ chọn phải viết dạng danh sách có ngoặc vuông và nháy kép, ví dụ: ["Yên tĩnh","Vừa phải","Sôi động"].'
+      : 'Tuỳ chọn phải viết dạng {"min":0,"max":100}.'
+  }
+  if (dataType === 'Select') {
+    if (!Array.isArray(v) || v.length === 0 || !v.every((x) => typeof x === 'string'))
+      return 'Tuỳ chọn phải là danh sách chữ, ví dụ: ["Yên tĩnh","Vừa phải","Sôi động"].'
+    return null
+  }
+  if (v === null || typeof v !== 'object' || Array.isArray(v)) return 'Tuỳ chọn phải viết dạng {"min":0,"max":100}.'
+  if (typeof v.min === 'number' && typeof v.max === 'number' && v.min > v.max) return 'Giá trị min đang lớn hơn max.'
+  return null
+}
+
 const CustomCriteriaSection = ({ loungeId }) => {
   const [items, setItems] = useState([])
   const [isLoading, setIsLoading] = useState(true)
@@ -98,6 +121,8 @@ const CustomCriteriaSection = ({ loungeId }) => {
       toast.error('Cần điền tên hiển thị và mã tiêu chí.')
       return
     }
+    const loiOptions = kiemOptions(form.dataType, form.options)
+    if (loiOptions) { toast.error(loiOptions); return }
     setIsBusy(true)
     try {
       await createCustomCriteria({
@@ -112,7 +137,9 @@ const CustomCriteriaSection = ({ loungeId }) => {
       setMoForm(false)
       await load()
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Không thêm được tiêu chí.')
+      // 400 của máy chủ chỉ có message chung ("Dữ liệu gửi lên không hợp lệ."); lý do thật nằm trong `errors`.
+      const chiTiet = Object.values(err.response?.data?.errors ?? {}).flat()[0]
+      toast.error(chiTiet || err.response?.data?.message || 'Không thêm được tiêu chí.')
     } finally { setIsBusy(false) }
   }
 
