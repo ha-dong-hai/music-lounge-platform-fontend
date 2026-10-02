@@ -11,7 +11,8 @@ import dayjs from 'dayjs'
 import { formatMinPrice } from '../../utils/formatPrice'
 
 const initialFilterState = {
-  selectedProvince: null,
+  // MLACP-522: tỉnh/phường theo danh mục hành chính — tên để hiện nhãn, mã để gửi lên tìm kiếm.
+  selectedProvince: null, selectedProvinceCode: null, selectedWard: null, selectedWardCode: null,
   selectedGenres: [], selectedSpaces: [], selectedMoods: [],
   minPrice: '', maxPrice: '',
 }
@@ -115,7 +116,9 @@ const ShowSearchPage = () => {
           const params = {
             ...commonParams,
             keyword: keyword || undefined,
-            city: appliedFilters.selectedProvince || undefined,
+            // MLACP-522: lọc theo MÃ tỉnh/phường (QĐ 19/2025) thay cho chuỗi tên thành phố.
+            provinceCode: appliedFilters.selectedProvinceCode || undefined,
+            wardCode: appliedFilters.selectedWardCode || undefined,
             dateFrom: startDate ? dayjs(startDate).toISOString() : undefined,
             dateTo: endDate ? dayjs(endDate).toISOString() : undefined,
             minPrice: appliedFilters.minPrice || undefined,
@@ -219,7 +222,8 @@ const ShowSearchPage = () => {
 
         {isFiltering && (
           <div className="flex flex-wrap gap-2 items-center pb-4">
-            {appliedFilters.selectedProvince && (<RemovableTag label={appliedFilters.selectedProvince} onRemove={() => setAppliedFilters(prev => ({ ...prev, selectedProvince: null }))} />)}
+            {appliedFilters.selectedProvince && (<RemovableTag label={appliedFilters.selectedProvince} onRemove={() => setAppliedFilters(prev => ({ ...prev, selectedProvince: null, selectedProvinceCode: null, selectedWard: null, selectedWardCode: null }))} />)}
+            {appliedFilters.selectedWard && (<RemovableTag label={appliedFilters.selectedWard} onRemove={() => setAppliedFilters(prev => ({ ...prev, selectedWard: null, selectedWardCode: null }))} />)}
             {appliedFilters.selectedGenres.map(g => (<RemovableTag key={g} label={g} onRemove={() => removeFromFilterArray('selectedGenres', g)} />))}
             {appliedFilters.selectedSpaces.map(s => (<RemovableTag key={s} label={s} onRemove={() => removeFromFilterArray('selectedSpaces', s)} />))}
             {appliedFilters.selectedMoods.map(m => (<RemovableTag key={m} label={m} onRemove={() => removeFromFilterArray('selectedMoods', m)} />))}
