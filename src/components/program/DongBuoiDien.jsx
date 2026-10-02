@@ -67,16 +67,21 @@ const DongBuoiDien = ({ b, hienPhongTra = true, hienAnh = true, anhDuPhong = nul
         {hienPhongTra && noi && <p className="text-ink mt-0.5">{noi}</p>}
         {phu.length > 0 && <p className="text-sm text-ink-mute mt-0.5">{phu.join(' · ')}</p>}
       </div>
-      <div className={`flex flex-wrap items-center gap-x-3 gap-y-2 lg:justify-end ${hienAnh ? 'lg:col-start-3 lg:row-start-1 lg:row-span-2 lg:self-center' : 'md:justify-end'}`}>
+      <div className={`flex flex-wrap items-center gap-x-6 gap-y-2 lg:justify-end ${hienAnh ? 'lg:col-start-3 lg:row-start-1 lg:row-span-2 lg:self-center' : 'md:justify-end'}`}>
         {/* Giá + hành động in thành MỘT cuống vé (CuongDatVe) thay chữ gạch dưới "Xem và đặt" — 02/10/2026. Đã diễn hoặc đang diễn thì
             không in giá: buổi đã bắt đầu, câu hỏi lúc này là "đang diễn" chứ không phải giá — và cuống có giá + nhãn
             "Xem buổi diễn" tràn ngang màn 390px (đo 02/10: scrollWidth 414). */}
         <CuongDatVe gia={b.status === 'Ended' || dangDien ? null : giaIn(b)} trangThai={dangDien ? 'DangDien' : b.status === 'Ended' ? 'DaDien' : 'MoBan'} />
+        {/* Lưu là hành động PHỤ → nút nhấn mạnh thấp: không viền, không lật khối mực (Carbon: hành động phụ trong danh
+            sách dùng ghost). Bản trước là khối viền 2px cách cuống 12px, rê chuột lật đen ngay cạnh khối mực "Đặt vé" —
+            chủ dự án 02/10: "sát rạt, xấu". Rê chuột: trái tim tô đầy + chữ đậm màu; đã lưu thì tim đặc sẵn. */}
         {onDoiLuu && (
           <button type="button" onClick={() => onDoiLuu(b)} disabled={dangLuu} aria-pressed={daLuu}
             aria-label={daLuu ? `Bỏ lưu ${b.name}` : `Lưu ${b.name}`}
-            className="relative z-10 inline-flex items-center gap-1.5 min-h-[48px] px-3 border-2 border-ink text-sm font-semibold hover:bg-ink hover:text-lamp transition-colors disabled:opacity-60">
-            <Heart size={16} className={daLuu ? 'fill-current' : ''} aria-hidden="true" /> {daLuu ? 'Đã lưu' : 'Lưu'}
+            className="group/luu relative z-10 inline-flex items-center gap-2 min-h-[48px] px-2 text-sm font-semibold text-ink-soft hover:text-ink transition-colors disabled:opacity-60">
+            <Heart size={20} strokeWidth={1.75} aria-hidden="true"
+              className={`transition-[fill,transform] duration-300 motion-safe:group-hover/luu:scale-110 ${daLuu ? 'fill-current text-ink' : 'group-hover/luu:fill-current'}`} />
+            {daLuu ? 'Đã lưu' : 'Lưu'}
           </button>
         )}
       </div>
