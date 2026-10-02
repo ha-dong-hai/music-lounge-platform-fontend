@@ -22,18 +22,21 @@
 // diễn) · `DaDien` → bản viền mảnh, không giá, không răng cưa (vé không còn bán, không nên trông như lời mời trả tiền).
 // `nen`: 'giay' (trên giấy sáng, cuống mực) | 'muc' (trên bảng giờ diễn tối, cuống giấy — như nút Đặt chỗ).
 import { Link } from 'react-router-dom'
-import { ArrowRight } from 'lucide-react'
+import MuiTenLuyen from '../shared/MuiTenLuyen'
 
-const BAN_KINH = 6 // px — khuyết đường xé; nhỏ hơn răng cưa cuống cam kết (7px) vì cuống này chỉ cao 48px
+// 9px (bản đầu 6px): khuyết to hơn đọc thành vết bấm tròn mềm; 6px trông như góc bị cắt (chủ dự án 02/10: "cứng nhắc").
+const BAN_KINH = 9
 
 const khuyet = (canh) => {
   const x = canh === 'phai' ? '100%' : '0'
   const v = `radial-gradient(circle ${BAN_KINH}px at ${x} 0, #0000 98%, #000) top/100% 51% no-repeat, radial-gradient(circle ${BAN_KINH}px at ${x} 100%, #0000 98%, #000) bottom/100% 51% no-repeat`
   return { WebkitMask: v, mask: v }
 }
-// Vạch xé là viền phải NÉT ĐỨT màu mực của nửa giá, sát khối mực: đứt quãng trên nền mực đọc thành mép răng cưa. Bản đầu
-// đặt vạch đứt màu sáng ở mép nửa mực → nhìn như một khe hở tách cuống làm hai mảnh (ảnh chụp 02/10).
-const KHUYET_PHAI = { ...khuyet('phai'), borderRightStyle: 'dashed' }
+// Đường xé = hàng LỖ ĐỤC CHẤM TRÒN (đường kính ~3px, bước 7px) ở mép phải nửa giá, màu theo chữ (currentColor) — thay
+// vạch đứt: vạch đứt góc cạnh, lỗ tròn là cách vé giấy thật được đục để xé, và mềm hơn (phương án D, 02/10/2026).
+// Lịch sử: bản đầu đặt vạch đứt màu sáng ở mép nửa mực → nhìn như khe hở tách cuống làm hai mảnh.
+const KHUYET_PHAI = khuyet('phai')
+const LO_DUC = { background: 'radial-gradient(circle 1.6px, currentColor 95%, #0000) 0 0/4px 7px repeat-y' }
 const KHUYET_TRAI = khuyet('trai')
 
 // Đang diễn KHÔNG ghi "Vào xem": buổi có thể chỉ diễn tại phòng trà, không phát trực tuyến — nhãn đó hứa điều không có.
@@ -41,12 +44,12 @@ const NHAN = { MoBan: 'Đặt vé', DangDien: 'Xem buổi diễn', DaDien: 'Xem 
 
 const MAU = {
   giay: {
-    gia: 'bg-card text-ink border-2 border-ink',
+    gia: 'bg-card text-ink border-2 border-r-0 border-ink',
     hanhDong: 'bg-ink text-lamp',
     vien: 'border-2 border-ink text-ink hover:bg-ink hover:text-lamp',
   },
   muc: {
-    gia: 'text-lamp border-2 border-lamp/60',
+    gia: 'text-lamp border-2 border-r-0 border-lamp/60',
     hanhDong: 'bg-stock text-ink',
     vien: 'border-2 border-lamp/60 text-lamp hover:bg-lamp hover:text-board',
   },
@@ -60,7 +63,7 @@ const CuongDatVe = ({ gia, trangThai = 'MoBan', nen = 'giay', to, className = ''
 
   if (trangThai === 'DaDien') {
     return (
-      <Goc {...goc} className={`inline-flex items-center gap-2 min-h-[44px] px-4 text-sm font-semibold whitespace-nowrap transition-colors ${mau.vien} ${className}`}>
+      <Goc {...goc} className={`inline-flex items-center gap-2 min-h-[44px] px-4 text-sm font-semibold whitespace-nowrap rounded-[3px] transition-colors ${mau.vien} ${className}`}>
         <span aria-hidden={laLink ? undefined : true}>{NHAN.DaDien}</span>
       </Goc>
     )
@@ -70,15 +73,18 @@ const CuongDatVe = ({ gia, trangThai = 'MoBan', nen = 'giay', to, className = ''
   return (
     // group/cuong: tự rê chuột lên cuống; group-hover/dong: rê lên CẢ DÒNG (DongBuoiDien đặt group/dong) — cả hai đều
     // làm cuống nhấc lên và mũi tên tiến một bước. motion-safe: người đã tắt chuyển động thì chỉ đổi bóng.
-    <Goc {...goc} className={`group/cuong inline-flex items-stretch min-h-[48px] whitespace-nowrap transition-[transform,filter] motion-safe:group-hover/dong:-translate-y-0.5 motion-safe:hover:-translate-y-0.5 group-hover/dong:drop-shadow-[0_6px_10px_rgb(35_26_21/0.25)] hover:drop-shadow-[0_6px_10px_rgb(35_26_21/0.25)] ${className}`}>
+    <Goc {...goc} className={`group/cuong inline-flex items-stretch min-h-[48px] whitespace-nowrap transition-[transform,filter] duration-300 ease-[cubic-bezier(.22,1,.36,1)] motion-safe:group-hover/dong:-translate-y-0.5 motion-safe:hover:-translate-y-0.5 group-hover/dong:drop-shadow-[0_6px_10px_rgb(35_26_21/0.25)] hover:drop-shadow-[0_6px_10px_rgb(35_26_21/0.25)] ${className}`}>
       {gia && (
-        <span className={`inline-flex items-center pl-3.5 pr-3 font-mono text-sm ${mau.gia}`} style={KHUYET_PHAI}>{gia}</span>
+        <span className={`relative inline-flex items-center pl-3.5 pr-4 font-mono text-sm rounded-l-[3px] ${mau.gia}`} style={KHUYET_PHAI}>
+          {gia}
+          <span aria-hidden="true" className="absolute right-0.5 top-[13px] bottom-[13px] w-1" style={LO_DUC} />
+        </span>
       )}
       <span aria-hidden={laLink ? undefined : true}
-        className={`inline-flex items-center gap-2 pl-4 pr-4 font-display text-xl leading-none ${hanhDong}`}
+        className={`inline-flex items-center gap-2.5 pl-4 pr-4 font-display text-xl leading-none ${gia ? 'rounded-r-[3px]' : 'rounded-[3px]'} ${hanhDong}`}
         style={gia ? KHUYET_TRAI : undefined}>
         {NHAN[trangThai] ?? NHAN.MoBan}
-        <ArrowRight size={18} aria-hidden="true" className="motion-safe:transition-transform motion-safe:group-hover/cuong:translate-x-1 motion-safe:group-hover/dong:translate-x-1" />
+        <MuiTenLuyen rong={34} />
       </span>
     </Goc>
   )

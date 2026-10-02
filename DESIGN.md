@@ -174,11 +174,12 @@ lamp 10–15% cho dòng bảng và vạch chia trên nền mực. Cuống vé c�
 - **Đặt chỗ** (stock / ink, Anton, 44px; bản lớn 52px trong hộp đèn): chỉ trên nền mực. Hover sang lamp. Chưa đăng nhập thì kèm dòng 11px "Cần đăng nhập để đặt".
 - **Focus**: viền 2px mực, lệch 2px (toàn cục); trên nền mực dùng outline lamp. Mọi đích bấm ≥ 44px.
 - **Cuống đặt vé** (`CuongDatVe`, 02/10/2026): hành động đặt vé trên MỘT DÒNG buổi diễn (danh sách, lịch tuần, các buổi
-  đêm nay trên bảng). Nửa giá (mono, giấy viền 2px) + đường xé (khuyết bán nguyệt 6px trên/dưới bằng mask, vạch đứt màu
-  mực) + nửa hành động (Anton, khối mực; trên bảng tối thì khối giấy). Đang diễn → nửa vàng thếp "Xem buổi diễn", không
+  đêm nay trên bảng). Nửa giá (mono, giấy viền 2px) + đường xé (khuyết bán nguyệt 9px trên/dưới bằng mask, hàng lỗ đục
+  chấm tròn) + nửa hành động (Anton + mũi tên dấu luyến, khối mực; trên bảng tối thì khối giấy). Góc ngoài bo 3px. Đang diễn → nửa vàng thếp "Xem buổi diễn", không
   giá. Đã diễn → nút viền mảnh, không giá, không răng cưa. Cao 48px.
-- **Liên kết mũi tên** (`LienKetMuiTen`): liên kết ĐỨNG RIÊNG ("Mọi phòng trà", quay lại, "Chỉ đường"): chữ 600 + ô vuông
-  32px viền 2px chứa mũi tên, rê/focus thì ô lật thành khối mực. Ngoài trang → mũi tên chéo + "(mở ở thẻ mới)" sr-only.
+- **Liên kết mũi tên** (`LienKetMuiTen`): liên kết ĐỨNG RIÊNG ("Mọi phòng trà", quay lại, "Chỉ đường"): chữ 600 + mũi tên
+  dấu luyến (`MuiTenLuyen`: nét cong thuôn như dấu luyến trên khuông nhạc), rê chuột thì trượt tới êm 0,3s. Không đóng ô:
+  ô vuông viền + mũi tên thẳng bị chủ dự án chê "cứng nhắc" (02/10). Ngoài trang → mũi tên chéo + "(mở ở thẻ mới)" sr-only.
 
 **The Underline-Is-For-Prose Rule.** Gạch dưới CHỈ cho liên kết nằm trong câu văn (WCAG 2.2 G183). Hành động đứng riêng
 không bao giờ là chữ gạch dưới: dẫn tới tiền → Cuống đặt vé; điều hướng → Liên kết mũi tên; `<button>` mở/thu gọn → nút
@@ -231,7 +232,7 @@ Mọi đường cong dùng ease-out-soft; không nảy. `prefers-reduced-motion`
 - **Do** in giá kèm câu nói rõ giá gồm gì; số tiền bằng JetBrains Mono.
 
 ### Don't:
-- **Don't** dùng gradient trang trí (ngoại lệ duy nhất: mask răng cưa cuống vé, không hiện thành dải màu).
+- **Don't** dùng gradient trang trí (ngoại lệ duy nhất: mask răng cưa / lỗ đục của cuống vé, không hiện thành dải màu).
 - **Don't** dùng kính mờ, `backdrop-blur` hay nền trong suốt nhoè.
 - **Don't** đặt nhãn chữ hoa giãn chữ (kicker/eyebrow) trên tiêu đề.
 - **Don't** in con số trong cam kết mà hệ thống không hứa ("100%", "24 giờ"), hay số gây áp lực ("còn N vé", đếm ngược).
