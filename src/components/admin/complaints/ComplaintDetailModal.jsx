@@ -3,6 +3,7 @@
 import { X, Phone, Paperclip, User, ShieldCheck, Clock } from 'lucide-react'
 import dayjs from 'dayjs'
 import { CategoryBadge, StatusBadge, TARGET_TYPE_LABELS } from './ComplaintBadges'
+import { maNgan } from '../../../utils/format'
 
 // Component thuần UI: nhận complaint + onClose từ cha
 const ComplaintDetailModal = ({ complaint, onClose }) => {
@@ -20,7 +21,7 @@ const ComplaintDetailModal = ({ complaint, onClose }) => {
         <div className="flex-none flex justify-between items-start p-6 border-b border-gray-800">
           <div>
             <p className="text-sm text-gray-500 mb-1">Report detail</p>
-            <h2 className="text-xl font-bold text-white font-mono">#{c.id}</h2>
+            <h2 className="text-xl font-bold text-white font-mono" title={String(c.id)}>#{maNgan(c.id)}</h2>
           </div>
           <button onClick={onClose} className="p-2 hover:bg-gray-800 rounded-full text-gray-400">
             <X size={20} />
@@ -33,7 +34,7 @@ const ComplaintDetailModal = ({ complaint, onClose }) => {
             <div>
               <p className="text-xs text-gray-500 mb-1.5">Complaint Target</p>
               <p className="text-sm text-white font-medium">
-                {TARGET_TYPE_LABELS[c.targetType] || c.targetType} <span className="text-gray-500">#{c.targetId}</span>
+                {TARGET_TYPE_LABELS[c.targetType] || c.targetType} <span className="text-gray-500" title={String(c.targetId)}>#{maNgan(c.targetId)}</span>
               </p>
             </div>
             <div>

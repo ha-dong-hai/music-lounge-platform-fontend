@@ -16,7 +16,8 @@ import { getLounges } from '../../services/loungeServices'
 import { formatMinPrice } from '../../utils/formatPrice'
 
 const initialFilterState = {
-  selectedProvince: null, selectedDistricts: [], selectedWards: [],
+  // MLACP-522: tỉnh/phường theo danh mục hành chính 2 cấp (không còn quận/huyện).
+  selectedProvince: null, selectedProvinceCode: null, selectedWard: null, selectedWardCode: null,
   selectedGenres: [], selectedSubGenres: [], selectedSpaces: [], selectedMoods: [],
   minPrice: '', maxPrice: '',
 }

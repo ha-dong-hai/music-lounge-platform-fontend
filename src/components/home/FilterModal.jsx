@@ -4,6 +4,7 @@ import { X } from 'lucide-react'
 import SearchableDropdown from '../shared/SearchableDropdown'
 import HorizontalTagSlider from './HorizontalTagSlider'
 import { getFilterOptions } from '../../services/showServices'
+import { getProvinces, getWardsOfProvince } from '../../services/catalogServices'
 
 const baseButtonClasses = "px-4 py-2 rounded-lg border text-sm font-medium transition-all"
 const activeBtnClasses = "bg-[#C3B665] text-black border-[#C3B665] font-bold"
@@ -14,6 +15,10 @@ const FilterModal = ({ isOpen, onClose, initialFilters, onApply }) => {
   
   // STATE CHỨA DATA TỪ BE
   const [options, setOptions] = useState({ genres: [], moods: [], atmospheres: [], cities: [] })
+  // MLACP-522: tỉnh và phường/xã lấy từ danh mục hành chính chính thức (không còn cấp quận/huyện). Lưu cả TÊN (để hiện
+  // nhãn) lẫn MÃ (để gửi lên tìm kiếm) — tìm theo mã thì "TP.HCM" và "Thành phố Hồ Chí Minh" không còn là hai nơi.
+  const [provinces, setProvinces] = useState([])
+  const [wards, setWards] = useState([])
 
   // GỌI API LẤY FILTER OPTIONS LẦN ĐẦU
   useEffect(() => {
@@ -29,6 +34,20 @@ const FilterModal = ({ isOpen, onClose, initialFilters, onApply }) => {
     }
     fetchOptions()
   }, [])
+
+  useEffect(() => {
+    getProvinces()
+      .then(res => { if (res.success) setProvinces(res.data) })
+      .catch(err => console.error('Error loading provinces:', err))
+  }, [])
+
+  // Chọn tỉnh xong mới tải phường/xã của tỉnh đó.
+  useEffect(() => {
+    if (!localFilters.selectedProvinceCode) return
+    getWardsOfProvince(localFilters.selectedProvinceCode)
+      .then(res => { if (res.success) setWards(res.data) })
+      .catch(err => console.error('Error loading wards:', err))
+  }, [localFilters.selectedProvinceCode])
 
   useEffect(() => {
     if (isOpen) {
@@ -61,7 +80,7 @@ const FilterModal = ({ isOpen, onClose, initialFilters, onApply }) => {
 
   const handleReset = () => {
     setLocalFilters({
-      selectedProvince: null,
+      selectedProvince: null, selectedProvinceCode: null, selectedWard: null, selectedWardCode: null,
       selectedGenres: [], selectedSpaces: [], selectedMoods: [],
       minPrice: '', maxPrice: ''
     })
@@ -90,12 +109,29 @@ const FilterModal = ({ isOpen, onClose, initialFilters, onApply }) => {
           
           <section className="space-y-4 relative">
             <SearchableDropdown
-              label="Thành phố"
-              options={options.cities}
+              label="Tỉnh/Thành phố"
+              options={provinces.map(p => p.name)}
               selectedItems={localFilters.selectedProvince ? [localFilters.selectedProvince] : []}
-              onAdd={(val) => setLocalFilters(prev => ({ ...prev, selectedProvince: val }))}
-              onRemove={() => setLocalFilters(prev => ({ ...prev, selectedProvince: null }))}
-              placeholder="Thành phố"
+              onAdd={(val) => setLocalFilters(prev => ({
+                ...prev, selectedProvince: val, selectedProvinceCode: provinces.find(p => p.name === val)?.code ?? null,
+                selectedWard: null, selectedWardCode: null,
+              }))}
+              onRemove={() => setLocalFilters(prev => ({
+                ...prev, selectedProvince: null, selectedProvinceCode: null, selectedWard: null, selectedWardCode: null,
+              }))}
+              placeholder="Tỉnh/Thành phố"
+              multiSelect={false}
+            />
+            <SearchableDropdown
+              label="Phường/Xã"
+              options={localFilters.selectedProvinceCode ? wards.map(w => w.name) : []}
+              selectedItems={localFilters.selectedWard ? [localFilters.selectedWard] : []}
+              onAdd={(val) => setLocalFilters(prev => ({
+                ...prev, selectedWard: val, selectedWardCode: wards.find(w => w.name === val)?.code ?? null,
+              }))}
+              onRemove={() => setLocalFilters(prev => ({ ...prev, selectedWard: null, selectedWardCode: null }))}
+              placeholder="Phường/Xã"
+              isDisabled={!localFilters.selectedProvinceCode}
               multiSelect={false}
             />
           </section>

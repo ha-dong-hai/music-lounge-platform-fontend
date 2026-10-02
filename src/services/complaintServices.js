@@ -1,3 +1,5 @@
+// MLACP-525: thiếu dòng import này thì cả ba hàm dưới ném ReferenceError — gửi/tra cứu/xem khiếu nại đều hỏng.
+import axiosClient from '../config/axios';
 
 // KHÁCH CHƯA ĐĂNG NHẬP GỬI ĐƯỢC — khi đó phải để lại số điện thoại liên hệ.
 export const createComplaint = async ({ targetType, targetId, category, description, evidenceUrls = null, contactPhone = null }) => {

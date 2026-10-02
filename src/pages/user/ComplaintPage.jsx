@@ -10,6 +10,7 @@ import toast from 'react-hot-toast'
 import { createComplaint, lookupComplaint, getMyComplaints } from '../../services/complaintServices'
 import { uploadImage } from '../../services/userServices'
 import { useAuthStore } from '../../store/useAuthStore'
+import { laGuid, maNgan } from '../../utils/format'
 
 const inputCls = 'mt-1 w-full px-3 py-2.5 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-brand/50'
 
@@ -111,6 +112,11 @@ const ComplaintPage = () => {
       toast.error('Cần nhập mã đối tượng và mô tả sự việc (ít nhất 10 ký tự).')
       return
     }
+    // MLACP-516: mã là GUID dài — người dùng dán từ đường dẫn; báo rõ khi dán thiếu/sai thay vì để backend trả 400.
+    if (!laGuid(form.targetId)) {
+      toast.error('Mã chưa đúng. Hãy sao chép nguyên mã (dạng 00000000-0000-0000-0000-000000000000) từ đường dẫn của trang.')
+      return
+    }
     if (!user && !form.contactPhone.trim()) {
       toast.error('Bạn chưa đăng nhập, nên cần để lại số điện thoại để chúng tôi liên hệ lại.')
       return
@@ -119,7 +125,7 @@ const ComplaintPage = () => {
     try {
       const res = await createComplaint({
         targetType: form.targetType,
-        targetId: Number(form.targetId),
+        targetId: form.targetId.trim(),
         category: form.category,
         description: form.description.trim(),
         // Backend lưu nguyên chuỗi JSON, không nhận mảng.
@@ -195,7 +201,7 @@ const ComplaintPage = () => {
               <div>
                 <p className="font-semibold text-ink">Đã gửi khiếu nại</p>
                 <p className="text-sm text-ink-soft mt-1">
-                  Khiếu nại số #{ketQua.id}. Chúng tôi sẽ xem xét và phản hồi.
+                  Khiếu nại số #{maNgan(ketQua.id)}. Chúng tôi sẽ xem xét và phản hồi.
                 </p>
               </div>
             </div>
@@ -233,7 +239,8 @@ const ComplaintPage = () => {
               </div>
               <div>
                 <label className="text-xs text-ink-mute">Mã {loaiHienTai?.label.toLowerCase()} <span className="text-danger">*</span></label>
-                <input type="number" value={form.targetId} onChange={(e) => set('targetId', e.target.value)} className={inputCls} />
+                <input type="text" value={form.targetId} onChange={(e) => set('targetId', e.target.value)} className={inputCls}
+                  placeholder="Dán mã từ đường dẫn" spellCheck={false} autoComplete="off" />
                 {loaiHienTai?.hint && <p className="text-xs text-ink-mute mt-1">{loaiHienTai.hint}</p>}
               </div>
             </div>
@@ -311,7 +318,7 @@ const ComplaintPage = () => {
 
             {ketQuaTraCuu && (
               <div className="bg-card border border-line rounded-xl p-6">
-                <p className="text-ink font-semibold">Khiếu nại #{ketQuaTraCuu.id}</p>
+                <p className="text-ink font-semibold">Khiếu nại #{maNgan(ketQuaTraCuu.id)}</p>
                 <p className="text-sm text-ink-soft mt-1">
                   {STATUS_LABELS[ketQuaTraCuu.status] ?? ketQuaTraCuu.status}
                 </p>
@@ -357,9 +364,9 @@ const ComplaintPage = () => {
                 <li key={c.id} className="bg-card border border-line rounded-xl p-5">
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="min-w-0">
-                      <p className="text-ink font-semibold">#{c.id} · {CATEGORIES.find((x) => x.value === c.category)?.label ?? c.category}</p>
+                      <p className="text-ink font-semibold">#{maNgan(c.id)} · {CATEGORIES.find((x) => x.value === c.category)?.label ?? c.category}</p>
                       <p className="text-xs text-ink-mute mt-0.5">
-                        {TARGET_TYPES.find((t) => t.value === c.targetType)?.label ?? c.targetType} #{c.targetId}
+                        {TARGET_TYPES.find((t) => t.value === c.targetType)?.label ?? c.targetType} #{maNgan(c.targetId)}
                         {' · '}{dayjs(c.createdAt).format('DD/MM/YYYY')}
                       </p>
                     </div>

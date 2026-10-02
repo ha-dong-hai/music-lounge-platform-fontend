@@ -1,4 +1,5 @@
-import { Outlet, NavLink, useNavigate, Link } from 'react-router-dom'
+// MLACP-525: Link dùng ở 2 nút cuối thanh bên (tài khoản, về trang công khai) — thiếu import thì cả khu /admin sập.
+import { Outlet, NavLink, Link, useNavigate } from 'react-router-dom'
 import { LayoutDashboard, Music, Package, LogOut, Users, Receipt, MessageSquareWarning, SlidersHorizontal, Landmark, TrendingUp, ShieldCheck, Gavel, Banknote, ShieldAlert, Settings2, UserCog, ExternalLink } from 'lucide-react'
 
 const AdminLayout = () => {

@@ -3,6 +3,7 @@
 import { Eye, Loader2, ChevronLeft, ChevronRight, MessageSquareWarning } from 'lucide-react'
 import dayjs from 'dayjs'
 import { CategoryBadge, StatusBadge, TARGET_TYPE_LABELS } from './ComplaintBadges'
+import { maNgan } from '../../../utils/format'
 
 // Component thuần UI: nhận data đã lọc + callbacks từ cha
 const ComplaintsTable = ({ complaints, isLoading, pagination, onViewDetail, onPageChange }) => {
@@ -32,14 +33,14 @@ const ComplaintsTable = ({ complaints, isLoading, pagination, onViewDetail, onPa
             ) : complaints.length > 0 ? (
               complaints.map(c => (
                 <tr key={c.id} className="hover:bg-gray-800/30 transition-colors cursor-pointer" onClick={() => onViewDetail(c)}>
-                  <td className="p-4 font-mono text-xs text-[#C3B665]">#{c.id}</td>
+                  <td className="p-4 font-mono text-xs text-[#C3B665]" title={String(c.id)}>#{maNgan(c.id)}</td>
                   <td className="p-4"><CategoryBadge category={c.category} /></td>
                   <td className="p-4 max-w-[280px]">
                     <p className="text-sm text-gray-300 truncate">{c.description || '—'}</p>
                   </td>
                   <td className="p-4">
                     <p className="text-sm text-gray-400">
-                      {TARGET_TYPE_LABELS[c.targetType] || c.targetType} <span className="text-gray-600">#{c.targetId}</span>
+                      {TARGET_TYPE_LABELS[c.targetType] || c.targetType} <span className="text-gray-600" title={String(c.targetId)}>#{maNgan(c.targetId)}</span>
                     </p>
                   </td>
                   <td className="p-4 text-sm text-gray-400 font-mono">{c.contactPhone || '—'}</td>
