@@ -1,7 +1,7 @@
 // src/components/admin/packages/PackageCard.jsx
 
 import { Pencil, EyeOff, Ticket, Sparkles, Box, X } from 'lucide-react'
-import { formatCurrency } from '../../../utils/format'
+import { formatCurrency, maNgan } from '../../../utils/format'
 
 // Kiểu hiển thị 1 feature
 const Feature = ({ icon: Icon, label, enabled }) => (
@@ -95,7 +95,7 @@ export const PackageCard = ({ pkg, onEdit, onToggleStatus }) => {
 
       {/* ===== FOOTER: chỉ còn #ID góc phải, gọn gàng ===== */}
       <div className="relative z-[1] -mx-6 -mb-6 mt-6 px-6 py-2.5 border-t border-gray-800 bg-black/20 flex justify-end">
-        <span className="text-[10px] text-gray-600 font-mono">#{pkg.id}</span>
+        <span className="text-[10px] text-gray-600 font-mono" title={String(pkg.id)}>#{maNgan(pkg.id)}</span>
       </div>
     </div>
   )
@@ -120,7 +120,7 @@ export const HiddenPackageCard = ({ pkg, onEdit, onRestore }) => {
         <div className="min-w-0">
           <h4 className="text-base font-bold text-gray-300 truncate">{pkg.name}</h4>
           <p className="text-xs text-gray-600">
-            {pkg.price > 0 ? `${formatCurrency(pkg.price)}đ / ${pkg.billingCycle === 'Yearly' ? 'Yearly' : 'Monthly'}` : 'Free'} · #{pkg.id}
+            {pkg.price > 0 ? `${formatCurrency(pkg.price)}đ / ${pkg.billingCycle === 'Yearly' ? 'Yearly' : 'Monthly'}` : 'Free'} · #{maNgan(pkg.id)}
           </p>
         </div>
       </div>

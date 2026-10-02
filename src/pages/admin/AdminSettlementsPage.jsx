@@ -5,6 +5,7 @@ import { Loader2, Check, Lock, AlertTriangle, ChevronLeft, ChevronRight } from '
 import dayjs from 'dayjs'
 import toast from 'react-hot-toast'
 import { getSettlementsPendingReview, reviewSettlement } from '../../services/moneyServices'
+import { maNgan } from '../../utils/format'
 
 const fmtMoney = (v) => `${Number(v || 0).toLocaleString('vi-VN')}đ`
 const fmtTime = (v) => (v ? dayjs(v).format('HH:mm DD/MM/YYYY') : '—')
@@ -80,7 +81,7 @@ const AdminSettlementsPage = () => {
                 <div className="flex items-start justify-between gap-4 flex-wrap">
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-ink font-bold">#{s.settlementId}</span>
+                      <span className="text-ink font-bold" title={String(s.settlementId)}>#{maNgan(s.settlementId)}</span>
                       <span className="text-brand-text font-bold">{fmtMoney(s.netAmount)}</span>
                       <span className="text-xs text-ink-mute">(gộp {fmtMoney(s.grossAmount)})</span>
                       <span className={`px-2 py-0.5 rounded-full text-xs font-bold border ${neverStarted

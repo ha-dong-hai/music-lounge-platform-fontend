@@ -111,7 +111,7 @@ const ShowSearchPage = () => {
           // Thể loại đến từ hai nguồn: tham số genreId trên URL, và lựa chọn trong modal.
           // Gộp lại và bỏ trùng để không gửi một id hai lần.
           const genreIdsFromModal = namesToIds(appliedFilters.selectedGenres, filterOptions.genres) || []
-          const genreIds = [...new Set([...(genreId ? [Number(genreId)] : []), ...genreIdsFromModal])]
+          const genreIds = [...new Set([...(genreId ? [genreId] : []), ...genreIdsFromModal])]
 
           const params = {
             ...commonParams,
