@@ -19,9 +19,9 @@
 //  - KHÔNG có lọc theo quận: cấp quận/huyện đã bỏ từ 01/07/2025 và API không trả danh sách quận.
 //  - Thành phố chỉ hiện khi sàn có từ hai thành phố trở lên.
 import { useId, useState } from 'react'
-import { Minus, Plus } from 'lucide-react'
 import { HINH_THUC, MOC_NGAY, loiKhoangGia, loiKhoangNgay } from '../../utils/boLocBuoiDien'
 import { SO_HIEN, NGUONG_KHONG_CAT } from '../../utils/nhomGu'
+import IconMoRong from '../shared/IconMoRong'
 
 const O_CHON = 'flex items-center gap-2.5 min-h-[40px] cursor-pointer'
 const O_TICH = 'w-5 h-5 flex-shrink-0 accent-ink'
@@ -49,8 +49,8 @@ const NhomTich = ({ tieuDe, ds = [], chon = [], onDoi }) => {
       </div>
       {cat && (
         <button type="button" onClick={() => setMoHet((v) => !v)} aria-expanded={moHet} aria-controls={`${id}-ds`}
-          className="inline-flex items-center gap-1.5 min-h-[44px] text-sm font-semibold text-ink underline underline-offset-4 decoration-2">
-          {moHet ? <><Minus size={16} aria-hidden="true" /> Thu gọn</> : <><Plus size={16} aria-hidden="true" /> Xem thêm {an} {tieuDe.toLowerCase()}</>}
+          className="inline-flex items-center gap-1.5 min-h-[44px] text-sm font-semibold text-ink hover:text-board">
+          {moHet ? <><IconMoRong mo /> Thu gọn</> : <><IconMoRong /> Xem thêm {an} {tieuDe.toLowerCase()}</>}
         </button>
       )}
     </fieldset>

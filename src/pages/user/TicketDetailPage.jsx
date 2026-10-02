@@ -21,7 +21,7 @@
 // tải lại trang là mất dấu, gửi lần nữa thì backend từ chối và câu từ chối được in nguyên văn.
 import { useState, useEffect, useCallback } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { ArrowLeft, Loader2 } from 'lucide-react'
+import { Loader2 } from 'lucide-react'
 import QRCode from 'react-qr-code'
 import dayjs from 'dayjs'
 import toast from 'react-hot-toast'
@@ -30,6 +30,7 @@ import HopXacNhan from '../../components/shared/HopXacNhan'
 import { getTicketDetail, cancelTicket, initiateTicketTransfer, cancelTicketTransfer } from '../../services/ticketServices'
 import { thuVietHoa, ngayDayDu, ngayGon, gioTrongNgay } from '../../utils/ngayVietNam'
 import { TRANG_THAI_VE, laVeTrucTuyen } from '../../utils/trangThaiVe'
+import LienKetMuiTen from '../../components/shared/LienKetMuiTen'
 
 const tien = (n) => `${Number(n ?? 0).toLocaleString('vi-VN')}đ`
 const NUT_VIEN = 'inline-flex items-center justify-center gap-2 min-h-[48px] px-5 border-2 border-ink font-semibold hover:bg-ink hover:text-lamp transition-colors disabled:opacity-60'
@@ -151,7 +152,7 @@ const TicketDetailPage = () => {
         {apiError === 'Vé chưa tải được.' && (
           <button type="button" onClick={() => setLanTai((n) => n + 1)} className={`${NUT_DAC} mb-3`}>Thử lại</button>
         )}
-        <Link to="/my-shows" className="inline-flex items-center gap-2 min-h-[44px] font-semibold underline underline-offset-4"><ArrowLeft size={18} aria-hidden="true" /> Về Vé của tôi</Link>
+        <LienKetMuiTen to="/my-shows" lui>Về Vé của tôi</LienKetMuiTen>
       </div>
     )
   }
@@ -169,7 +170,7 @@ const TicketDetailPage = () => {
   return (
     <div className="min-h-[70vh] bg-stock text-ink pb-24">
       <div className="max-w-3xl mx-auto px-4 sm:px-8 pt-8">
-        <p><Link to="/my-shows" className="inline-flex items-center gap-2 min-h-[44px] text-ink-soft underline underline-offset-4 hover:text-ink"><ArrowLeft size={18} aria-hidden="true" /> Vé của tôi</Link></p>
+        <p><LienKetMuiTen to="/my-shows" lui nho>Vé của tôi</LienKetMuiTen></p>
 
         {/* ===== TẤM VÉ: cuống tối ghi ngày giờ, thân vé ghi buổi diễn — cùng khuôn với danh sách Vé của tôi ===== */}
         <article className="mt-3 grid sm:grid-cols-[11rem_minmax(0,1fr)] border-2 border-ink bg-card shadow-lift">

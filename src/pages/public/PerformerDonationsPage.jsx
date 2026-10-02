@@ -33,6 +33,7 @@ import { useAuthStore } from '../../store/useAuthStore'
 import NhanTrangThai from '../../components/shared/NhanTrangThai'
 import { ngayDayDu, gioTrongNgay } from '../../utils/ngayVietNam'
 import { maNgan } from '../../utils/format'
+import LienKetMuiTen from '../../components/shared/LienKetMuiTen'
 
 const fmtTien = (v) => `${Number(v || 0).toLocaleString('vi-VN')} đ`
 const fmtPhanTram = (r) => `${(Number(r || 0) * 100).toLocaleString('vi-VN', { maximumFractionDigits: 2 })}%`
@@ -127,9 +128,7 @@ const HopNhatKy = ({ donationId, onClose }) => {
                       {e.reference && <><dt className="text-ink-mute">Mã tham chiếu</dt><dd className="font-mono break-all">{e.reference}</dd></>}
                       {e.evidenceUrl && (
                         <><dt className="text-ink-mute">Chứng từ</dt><dd>
-                          <a href={e.evidenceUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 underline underline-offset-4">
-                            <FileCheck2 size={14} aria-hidden="true" /> Xem chứng từ
-                          </a>
+                          <LienKetMuiTen href={e.evidenceUrl} nho>Xem chứng từ</LienKetMuiTen>
                         </dd></>
                       )}
                     </dl>
@@ -233,9 +232,9 @@ const PerformerDonationsPage = () => {
     <div className="min-h-[70vh] bg-stock text-ink pb-24">
       <div className="max-w-5xl mx-auto px-4 sm:px-8 pt-10">
         <p className="text-ink-soft">
-          <Link to={`/performers/${performerId}`} className="inline-flex items-center min-h-[44px] underline underline-offset-4">
+          <LienKetMuiTen to={`/performers/${performerId}`} lui nho>
             {summary?.performerName ? `Trang nghệ sĩ ${summary.performerName}` : 'Trang nghệ sĩ'}
-          </Link>
+          </LienKetMuiTen>
         </p>
         <h1 className="text-[clamp(2.5rem,5vw,4rem)] leading-[1.05] mt-2">
           Sao kê tiền ủng hộ{summary?.performerName ? <><br /><span className="text-ink-soft">{summary.performerName}</span></> : null}
@@ -251,7 +250,7 @@ const PerformerDonationsPage = () => {
           <p className="font-mono text-sm text-ink-mute" aria-live="polite">
             {capNhatLuc ? `Cập nhật lúc ${gioTrongNgay(capNhatLuc)}:${String(capNhatLuc.getSeconds()).padStart(2, '0')} · tự làm mới mỗi 45 giây` : 'Đang chờ số liệu…'}
           </p>
-          <button type="button" onClick={() => load(true)} className="inline-flex items-center gap-1.5 min-h-[44px] px-1 font-semibold underline underline-offset-4">
+          <button type="button" onClick={() => load(true)} className="inline-flex items-center gap-1.5 min-h-[44px] px-1 font-semibold hover:text-ink-soft">
             <RefreshCw size={15} aria-hidden="true" /> Làm mới ngay
           </button>
         </div>

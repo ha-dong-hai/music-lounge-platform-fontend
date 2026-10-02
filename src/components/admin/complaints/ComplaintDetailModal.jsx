@@ -3,6 +3,7 @@ import dayjs from 'dayjs'
 import { CategoryBadge, StatusBadge, TARGET_TYPE_LABELS } from './ComplaintBadges'
 import HopThoai, { TieuDeHop } from '../../shared/HopThoai'
 import { maNgan } from '../../../utils/format'
+import LienKetMuiTen from '../../shared/LienKetMuiTen'
 
 // Component thuần UI: nhận complaint + onClose từ cha
 const ComplaintDetailModal = ({ complaint, onClose, onResolve }) => {
@@ -89,10 +90,7 @@ const ComplaintDetailModal = ({ complaint, onClose, onResolve }) => {
               </p>
               <div className="space-y-1.5">
                 {evidences.map((url, i) => (
-                  <a key={i} href={url} target="_blank" rel="noreferrer"
-                     className="block text-sm text-ink underline truncate hover:text-ink">
-                    {url}
-                  </a>
+                  <LienKetMuiTen key={i} href={url} nho className="max-w-full"><span className="block truncate">{url}</span></LienKetMuiTen>
                 ))}
               </div>
             </div>

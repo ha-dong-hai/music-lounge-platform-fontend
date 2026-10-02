@@ -18,8 +18,9 @@
 //  - Trên ~20 mục, khi đã mở thì có ô "Tìm trong danh sách" (tìm không cần gõ dấu).
 import { useId, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Minus, Plus, Search } from 'lucide-react'
+import { Search } from 'lucide-react'
 import { chiaNhomGu, locTheoTen, NGUONG_TIM } from '../../utils/nhomGu'
+import IconMoRong from '../shared/IconMoRong'
 
 const Nhan = ({ x }) => (
   <li>
@@ -76,11 +77,11 @@ const NhomGu = ({ tieuDe, ds = [] }) => {
           onClick={doi}
           aria-expanded={moRong}
           aria-controls={`${id}-ds`}
-          className="inline-flex items-center gap-1.5 min-h-[44px] mt-1 text-sm font-semibold text-ink underline underline-offset-4 decoration-2 hover:text-board"
+          className="inline-flex items-center gap-1.5 min-h-[44px] mt-1 text-sm font-semibold text-ink hover:text-board"
         >
           {moRong
-            ? <><Minus size={16} aria-hidden="true" /> Thu gọn</>
-            : <><Plus size={16} aria-hidden="true" /> Xem thêm {an.length} {tieuDe.toLowerCase()}</>}
+            ? <><IconMoRong mo /> Thu gọn</>
+            : <><IconMoRong /> Xem thêm {an.length} {tieuDe.toLowerCase()}</>}
         </button>
       )}
     </div>

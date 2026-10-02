@@ -23,8 +23,8 @@ const ChipBoLoc = ({ cacChip, onXoaTatCa, className = '' }) => {
         ))}
       </ul>
       {cacChip.length > 1 && (
-        <button type="button" onClick={onXoaTatCa} className="min-h-[44px] px-2 text-sm font-semibold underline underline-offset-4 hover:text-ink-soft">
-          Xoá tất cả
+        <button type="button" onClick={onXoaTatCa} className="inline-flex items-center gap-1.5 min-h-[44px] px-2 text-sm font-semibold hover:text-ink-soft">
+          <X size={16} strokeWidth={1.75} aria-hidden="true" /> Xoá tất cả
         </button>
       )}
     </div>

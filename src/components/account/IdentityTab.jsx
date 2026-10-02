@@ -317,7 +317,7 @@ const IdentityTab = () => {
                     <span className="font-semibold">{label}</span>
                     {url && (
                       <button type="button" onClick={() => xemAnhCccd(side)} aria-label={`Xem cỡ lớn ảnh ${label.toLowerCase()}`}
-                        className="inline-flex items-center gap-1 min-h-[44px] underline underline-offset-4">
+                        className="inline-flex items-center gap-1.5 min-h-[44px] font-semibold hover:text-ink-soft">
                         <ExternalLink size={14} aria-hidden="true" /> Xem cỡ lớn
                       </button>
                     )}

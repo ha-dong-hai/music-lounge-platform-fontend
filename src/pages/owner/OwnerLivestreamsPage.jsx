@@ -223,7 +223,7 @@ const ShowLivestreamRow = ({ show, onChanged }) => {
             <button
               onClick={handleShowCredentials}
               disabled={isBusy}
-              className="ml-2 inline-flex items-center min-h-[44px] text-sm text-ink-soft underline hover:text-ink"
+              className="ml-2 inline-flex items-center gap-1.5 min-h-[44px] text-sm font-semibold text-ink-soft hover:text-ink"
             >
               Xem lại RTMP và khoá phát
             </button>

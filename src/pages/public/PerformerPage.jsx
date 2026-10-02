@@ -13,11 +13,12 @@
 // - Lịch diễn dùng DongBuoiDien (dòng dùng chung), không còn lưới thẻ phóng ảnh khi rê chuột; ngày giờ qua ngayVietNam.
 // - Giới thiệu dài được cắt bằng DoanVanDai. Nút lọc có aria-pressed.
 import { useState, useEffect, useCallback } from 'react'
-import { useParams, Link } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import { getShowsByPerformer } from '../../services/showServices'
 import { anhChuCai } from '../../utils/anhChuCai'
 import DongBuoiDien from '../../components/program/DongBuoiDien'
 import DoanVanDai from '../../components/shared/DoanVanDai'
+import LienKetMuiTen from '../../components/shared/LienKetMuiTen'
 
 const CO_TRANG = 12
 const NUT_VIEN = 'inline-flex items-center justify-center min-h-[44px] px-4 border-2 border-ink font-semibold hover:bg-ink hover:text-lamp transition-colors disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-ink'
@@ -55,7 +56,7 @@ const PerformerPage = () => {
       <div className="min-h-[70vh] bg-stock flex flex-col items-center justify-center text-ink px-4 text-center">
         <h1 className="text-4xl mb-4">{loi === 'khong-co' ? 'Không tìm thấy nghệ sĩ này.' : 'Trang nghệ sĩ chưa tải được.'}</h1>
         {loi === 'tai' && <button type="button" onClick={load} className={`${NUT_VIEN} mb-3`}>Thử lại</button>}
-        <Link to="/shows" className="inline-flex items-center min-h-[44px] font-semibold underline underline-offset-4">Xem các buổi diễn</Link>
+        <LienKetMuiTen to="/shows">Xem các buổi diễn</LienKetMuiTen>
       </div>
     )
   }
@@ -77,9 +78,7 @@ const PerformerPage = () => {
               <p className="mt-3 text-lamp-mute">{data.genres.map((g) => g.name).join(' · ')}</p>
             )}
             <p className="mt-4">
-              <Link to={`/performers/${performerId}/donations`} className="inline-flex items-center min-h-[44px] font-semibold text-lamp underline underline-offset-4 decoration-1 hover:decoration-2">
-                Xem sao kê tiền ủng hộ
-              </Link>
+              <LienKetMuiTen to={`/performers/${performerId}/donations`} nen="muc">Xem sao kê tiền ủng hộ</LienKetMuiTen>
             </p>
           </div>
         </div>

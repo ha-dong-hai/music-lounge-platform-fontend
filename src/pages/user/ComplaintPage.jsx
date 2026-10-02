@@ -23,6 +23,7 @@ import { useDanhSachMayChu } from '../../hooks/useDanhSachMayChu'
 import PhanTrang from '../../components/bang/PhanTrang'
 import { ngayDayDu, gioTrongNgay } from '../../utils/ngayVietNam'
 import { laGuid, maNgan } from '../../utils/format'
+import LienKetMuiTen from '../../components/shared/LienKetMuiTen'
 
 // Đúng 6 giá trị targetType backend nhận.
 const TARGET_TYPES = [
@@ -202,7 +203,7 @@ const ComplaintPage = () => {
   return (
     <div className="min-h-[70vh] bg-stock text-ink">
       <div className="max-w-2xl mx-auto px-4 sm:px-8 py-10">
-        <p><Link to="/" className="inline-flex items-center min-h-[44px] text-ink-soft underline underline-offset-4 hover:text-ink">Về trang chủ</Link></p>
+        <p><LienKetMuiTen to="/" lui nho>Về trang chủ</LienKetMuiTen></p>
 
         <h1 className="text-5xl mt-2">Khiếu nại và báo cáo</h1>
         <p className="text-ink-soft mt-2 mb-7">

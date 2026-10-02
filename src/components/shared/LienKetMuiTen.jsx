@@ -22,7 +22,8 @@ const LienKetMuiTen = ({ to, href, lui = false, nen = 'giay', nho = false, class
   // tuỳ thứ tự CSS, và Anton bị ép đậm giả trông nén lại (ảnh chụp 02/10).
   const dam = /font-(display|normal)/.test(className) ? '' : 'font-semibold'
   const lop = `group/lk inline-flex items-center gap-2.5 min-h-[44px] ${dam} ${nho ? 'text-sm' : ''} ${MAU[nen] ?? MAU.giay} ${className}`
-  const noiDung = <>{lui && muiTen}<span>{children}</span>{!lui && muiTen}</>
+  // min-w-0: cho phép chữ bên trong tự cắt (truncate) khi liên kết nằm trong cột hẹp — vd danh sách đường dẫn chứng từ.
+  const noiDung = <>{lui && muiTen}<span className="min-w-0">{children}</span>{!lui && muiTen}</>
 
   return ngoai
     ? <a href={href} target="_blank" rel="noreferrer" className={lop} {...rest}>{noiDung}<span className="sr-only"> (mở ở thẻ mới)</span></a>

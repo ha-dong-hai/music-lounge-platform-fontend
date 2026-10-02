@@ -8,9 +8,9 @@
 //
 // Khu vực dùng cùng luật "danh sách dài thì thu gọn" của DESIGN.md (tới 8 mục in hết, nhiều hơn hiện 6 + ghi số ẩn).
 import { useId, useState } from 'react'
-import { Minus, Plus } from 'lucide-react'
 import DoanVanDai from '../shared/DoanVanDai'
 import { SO_HIEN, NGUONG_KHONG_CAT } from '../../utils/nhomGu'
+import IconMoRong from '../shared/IconMoRong'
 
 const LoungeAbout = ({ lounge, zones = [] }) => {
   const id = useId()
@@ -54,8 +54,8 @@ const LoungeAbout = ({ lounge, zones = [] }) => {
               </ul>
               {catKhuVuc && (
                 <button type="button" onClick={() => setMoHet((v) => !v)} aria-expanded={moHet} aria-controls={`${id}-ds`}
-                  className="inline-flex items-center gap-1.5 min-h-[44px] mt-1 text-sm font-semibold text-ink underline underline-offset-4 decoration-2 hover:text-board">
-                  {moHet ? <><Minus size={16} aria-hidden="true" /> Thu gọn</> : <><Plus size={16} aria-hidden="true" /> Xem thêm {zones.length - SO_HIEN} khu vực</>}
+                  className="inline-flex items-center gap-1.5 min-h-[44px] mt-1 text-sm font-semibold text-ink hover:text-board">
+                  {moHet ? <><IconMoRong mo /> Thu gọn</> : <><IconMoRong /> Xem thêm {zones.length - SO_HIEN} khu vực</>}
                 </button>
               )}
             </>

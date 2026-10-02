@@ -7,8 +7,8 @@
 //   2. Huỷ thì hoàn: phòng trà huỷ buổi diễn thì vé được hoàn (Cancel show → refund).
 //   3. Sao kê: tiền ủng hộ nghệ sĩ có sao kê công khai từng khoản (/minh-bach, /performers/:id/donations).
 // Răng cưa cuống vé vẽ bằng mask CSS (radial-gradient lặp) — không phải ảnh, không phải clip-path đa giác.
-import { Link } from 'react-router-dom'
 import DauMoc from './DauMoc'
+import LienKetMuiTen from '../shared/LienKetMuiTen'
 
 const CAM_KET = [
   { tieuDe: 'Tiền vé được giữ hộ', cau: 'Tiền bạn trả trực tuyến được nền tảng giữ, chỉ chuyển cho phòng trà sau khi buổi diễn diễn ra.', dau: 'GIỮ HỘ' },
@@ -30,7 +30,7 @@ const CuongVeCamKet = () => (
         <h3 className="font-display text-3xl leading-none">{c.tieuDe}</h3>
         <p className="mt-3 text-ink-soft max-w-prose">{c.cau}</p>
         <div className="mt-auto pt-3 flex items-end justify-between gap-4">
-          {c.link ? <Link to={c.link.to} className="inline-flex items-center min-h-[44px] font-semibold underline">{c.link.nhan}</Link> : <span />}
+          {c.link ? <LienKetMuiTen to={c.link.to}>{c.link.nhan}</LienKetMuiTen> : <span />}
           <DauMoc vongNgoai="MUSICLOUNGE · CAM KẾT · " giua={c.dau} size={84} xoay={-14} className="shrink-0 opacity-90" />
         </div>
       </li>

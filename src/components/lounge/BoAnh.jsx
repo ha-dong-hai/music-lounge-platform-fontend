@@ -95,7 +95,7 @@ const BoAnh = ({ anh = [], ten = '' }) => {
         <p className="font-mono text-sm text-lamp" aria-hidden="true">{i + 1} / {n}</p>
         {anh[i].caption && <p className="text-sm text-lamp-mute min-w-0 flex-1 basis-40">{anh[i].caption}</p>}
         <button type="button" onClick={moTatCa}
-          className={`ml-auto inline-flex items-center gap-2 min-h-[48px] text-sm font-semibold text-lamp underline underline-offset-4 decoration-1 hover:decoration-2 ${soAn > 0 ? '' : 'sm:hidden'}`}>
+          className={`ml-auto inline-flex items-center gap-2 min-h-[48px] text-sm font-semibold text-lamp hover:text-stock ${soAn > 0 ? '' : 'sm:hidden'}`}>
           <Images size={18} aria-hidden="true" /> Xem tất cả {n} ảnh
         </button>
       </div>

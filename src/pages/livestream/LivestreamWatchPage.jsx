@@ -16,6 +16,7 @@ import HopXacNhan from '../../components/shared/HopXacNhan'
 import { formatCompactNumber } from '../../utils/format'
 import { getLoungeTour } from '../../services/loungeServices'
 import { ghiNhoThanhToan, LOAI_THANH_TOAN } from '../../utils/paymentContext'
+import LienKetMuiTen from '../../components/shared/LienKetMuiTen'
 
 // Chế độ "ngồi tại phòng trà" kéo theo three.js (~500KB) — chỉ tải khi người xem BẬT nó.
 const PanoramaViewer = lazy(() => import('../../components/lounge/PanoramaViewer'))
@@ -324,7 +325,7 @@ const LivestreamWatchPage = () => {
         <AlertCircle size={40} className="text-danger mb-4" />
         {/* Trang lỗi cũng cần một h1 — trình đọc màn hình nhảy theo tiêu đề (quét 01/10/2026: 0 h1). */}
         <h1 className="text-xl mb-4 px-4 text-center">{error}</h1>
-        <Link to="/" className="text-ink underline inline-flex items-center gap-2 min-h-[44px]"><ArrowLeft size={16} aria-hidden="true" /> Về trang chủ</Link>
+        <LienKetMuiTen to="/" lui>Về trang chủ</LienKetMuiTen>
       </div>
     )
   }
@@ -335,7 +336,7 @@ const LivestreamWatchPage = () => {
         <Lock size={40} className="text-ink mb-4" />
         <h1 className="text-xl mb-2 font-bold">Bạn cần vé xem trực tuyến để vào buổi phát này</h1>
         <p className="text-ink-soft mb-6">Hãy mua vé xem trực tuyến của buổi diễn này để mở khoá.</p>
-        <Link to={`/shows/${showId}`} className="text-ink underline inline-flex items-center gap-2 min-h-[44px]"><ArrowLeft size={16} aria-hidden="true" /> Quay lại buổi diễn</Link>
+        <LienKetMuiTen to={`/shows/${showId}`} lui>Quay lại buổi diễn</LienKetMuiTen>
       </div>
     )
   }

@@ -36,7 +36,10 @@ const khuyet = (canh) => {
 // vạch đứt: vạch đứt góc cạnh, lỗ tròn là cách vé giấy thật được đục để xé, và mềm hơn (phương án D, 02/10/2026).
 // Lịch sử: bản đầu đặt vạch đứt màu sáng ở mép nửa mực → nhìn như khe hở tách cuống làm hai mảnh.
 const KHUYET_PHAI = khuyet('phai')
-const LO_DUC = { background: 'radial-gradient(circle 1.6px, currentColor 95%, #0000) 0 0/4px 7px repeat-y' }
+// Vẽ bằng MASK trên một dải tô màu chữ, KHÔNG bằng nền radial-gradient: cổng kiem-the-gioi cấm nền chuyển sắc, DESIGN.md
+// chỉ cho phép mask răng cưa/lỗ đục của cuống vé (bản đầu dùng background → cổng đỏ 02/10).
+const MASK_LO = 'radial-gradient(circle 1.6px, #000 95%, #0000) 0 0/4px 7px repeat-y'
+const LO_DUC = { backgroundColor: 'currentColor', WebkitMask: MASK_LO, mask: MASK_LO }
 const KHUYET_TRAI = khuyet('trai')
 
 // Đang diễn KHÔNG ghi "Vào xem": buổi có thể chỉ diễn tại phòng trà, không phát trực tuyến — nhãn đó hứa điều không có.

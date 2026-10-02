@@ -168,7 +168,7 @@ const ShowSearchPage = () => {
                   </li>
                 ))}
                 <li>
-                  <button type="button" onClick={xoaHet} className="min-h-[40px] px-2 text-sm font-semibold underline underline-offset-4 decoration-2">Xoá tất cả</button>
+                  <button type="button" onClick={xoaHet} className="inline-flex items-center gap-1.5 min-h-[40px] px-2 text-sm font-semibold hover:text-ink-soft"><X size={16} strokeWidth={1.75} aria-hidden="true" /> Xoá tất cả</button>
                 </li>
               </ul>
             )}

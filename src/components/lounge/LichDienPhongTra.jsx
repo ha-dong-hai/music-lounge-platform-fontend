@@ -17,12 +17,12 @@
 //  - Đêm đã diễn nằm trong một khối đóng sẵn: là lối vào để đánh giá, không phải thứ người mới cần thấy trước.
 import { useId, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Minus, Plus } from 'lucide-react'
 import { ngayDayDu } from '../../utils/ngayVietNam'
 import DongBuoiDien from '../program/DongBuoiDien'
 import { chiaLichPhongTra, catLich, SO_DA_DIEN_HIEN } from '../../utils/lichPhongTra'
+import IconMoRong from '../shared/IconMoRong'
 
-const NUT_MO = 'inline-flex items-center gap-1.5 min-h-[44px] text-sm font-semibold text-ink underline underline-offset-4 decoration-2 hover:text-board'
+const NUT_MO = 'inline-flex items-center gap-1.5 min-h-[44px] text-sm font-semibold text-ink hover:text-board'
 
 const LichDienPhongTra = ({ ds, tong = 0, loi = false, onThuLai, tenPhongTra = '', theoDoi = null, anhPhongTra = null }) => {
   const id = useId()
@@ -62,8 +62,8 @@ const LichDienPhongTra = ({ ds, tong = 0, loi = false, onThuLai, tenPhongTra = '
           {an.length > 0 && (
             <button type="button" onClick={() => setMoHet((v) => !v)} aria-expanded={moHet} aria-controls={`${id}-sap`} className={`${NUT_MO} mt-2`}>
               {moHet
-                ? <><Minus size={16} aria-hidden="true" /> Thu gọn lịch diễn</>
-                : <><Plus size={16} aria-hidden="true" /> Xem thêm {an.length} buổi diễn</>}
+                ? <><IconMoRong mo /> Thu gọn lịch diễn</>
+                : <><IconMoRong /> Xem thêm {an.length} buổi diễn</>}
             </button>
           )}
         </>
@@ -73,7 +73,7 @@ const LichDienPhongTra = ({ ds, tong = 0, loi = false, onThuLai, tenPhongTra = '
         <div className="mt-8">
           <button type="button" onClick={() => setMucDaDien((m) => (m === 'dong' ? 'it' : 'dong'))}
             aria-expanded={mucDaDien !== 'dong'} aria-controls={`${id}-da`} className={NUT_MO}>
-            {mucDaDien === 'dong' ? <Plus size={16} aria-hidden="true" /> : <Minus size={16} aria-hidden="true" />}
+            <IconMoRong mo={mucDaDien !== 'dong'} />
             Các đêm đã diễn ({daDien.length})
           </button>
           <div id={`${id}-da`}>
@@ -90,7 +90,7 @@ const LichDienPhongTra = ({ ds, tong = 0, loi = false, onThuLai, tenPhongTra = '
                 </ul>
                 {mucDaDien === 'it' && daDien.length > SO_DA_DIEN_HIEN && (
                   <button type="button" onClick={() => setMucDaDien('het')} className={`${NUT_MO} mt-1`}>
-                    <Plus size={16} aria-hidden="true" /> Xem thêm {daDien.length - SO_DA_DIEN_HIEN} đêm đã diễn
+                    <IconMoRong /> Xem thêm {daDien.length - SO_DA_DIEN_HIEN} đêm đã diễn
                   </button>
                 )}
                 {mucDaDien === 'het' && tong > ds.length && (

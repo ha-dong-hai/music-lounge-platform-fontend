@@ -20,7 +20,7 @@
 // GIỚI HẠN ĐÃ BIẾT: chỉ dùng cho chữ thuần. Đoạn có liên kết bên trong thì không được cắt kiểu này (Primer: không
 // cắt chữ chứa phần tử bấm được) — liên kết nằm trong vùng bị cắt vẫn nhận focus mà không nhìn thấy.
 import { useId, useLayoutEffect, useRef, useState } from 'react'
-import { Minus, Plus } from 'lucide-react'
+import IconMoRong from './IconMoRong'
 
 export const SO_DONG = 6
 export const AN_TOI_THIEU = 3
@@ -56,8 +56,8 @@ const DoanVanDai = ({ children, nhanMo = 'Đọc tiếp', nhanDong = 'Thu gọn'
       <p id={id} ref={ref} style={canCat && !mo ? KEP : undefined} className={`whitespace-pre-line ${className}`}>{children}</p>
       {canCat && (
         <button type="button" onClick={() => setMo((v) => !v)} aria-expanded={mo} aria-controls={id}
-          className="inline-flex items-center gap-1.5 min-h-[44px] mt-1 text-sm font-semibold text-ink underline underline-offset-4 decoration-2 hover:text-board">
-          {mo ? <><Minus size={16} aria-hidden="true" /> {nhanDong}</> : <><Plus size={16} aria-hidden="true" /> {nhanMo}</>}
+          className="inline-flex items-center gap-1.5 min-h-[44px] mt-1 text-sm font-semibold text-ink hover:text-board">
+          {mo ? <><IconMoRong mo /> {nhanDong}</> : <><IconMoRong /> {nhanMo}</>}
         </button>
       )}
     </div>

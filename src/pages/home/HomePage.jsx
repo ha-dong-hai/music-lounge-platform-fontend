@@ -13,7 +13,7 @@
 import { useState, useEffect, useMemo, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import dayjs from 'dayjs'
-import { SlidersHorizontal, Plus, Minus } from 'lucide-react'
+import { SlidersHorizontal } from 'lucide-react'
 import BangGioDien from '../../components/program/BangGioDien'
 import { gomTheoPhongTra } from '../../utils/bangGioDien'
 import PhongTraTrenSan from '../../components/program/PhongTraTrenSan'
@@ -27,6 +27,7 @@ import { formatMinPrice } from '../../utils/formatPrice'
 import { ngayDayDu, thuVietHoa } from '../../utils/ngayVietNam'
 import { timDemGanNhat, locDemNay } from '../../utils/lichDien'
 import { useAuthStore } from '../../store/useAuthStore'
+import IconMoRong from '../../components/shared/IconMoRong'
 
 const SO_BUOI_TAI = 50
 
@@ -188,11 +189,11 @@ const HomePage = () => {
                   onClick={() => setMoGu((v) => !v)}
                   aria-expanded={moGu}
                   aria-controls="theo-gu-noi-dung"
-                  className="inline-flex items-center gap-1.5 min-h-[44px] text-sm font-semibold text-ink underline underline-offset-4 decoration-2 hover:text-board"
+                  className="inline-flex items-center gap-1.5 min-h-[44px] text-sm font-semibold text-ink hover:text-board"
                 >
                   {moGu
-                    ? <><Minus size={16} aria-hidden="true" /> Thu gọn</>
-                    : <><Plus size={16} aria-hidden="true" /> Xem các gu ({dongNhac.length + gu.moods.length + gu.atmospheres.length} lựa chọn)</>}
+                    ? <><IconMoRong mo /> Thu gọn</>
+                    : <><IconMoRong /> Xem các gu ({dongNhac.length + gu.moods.length + gu.atmospheres.length} lựa chọn)</>}
                 </button>
               }
             >

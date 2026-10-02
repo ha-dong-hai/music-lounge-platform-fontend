@@ -10,9 +10,10 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import toast from 'react-hot-toast'
-import { BellOff, Bell } from 'lucide-react'
+import { BellOff, Bell, Undo2 } from 'lucide-react'
 import { getFollowedLounges, toggleFollowLounge, getMutedLounges, muteLounge, unmuteLounge } from '../../services/interactionServices'
 import { anhChuCai } from '../../utils/anhChuCai'
+import LienKetMuiTen from '../shared/LienKetMuiTen'
 
 const NUT = 'inline-flex items-center justify-center gap-1.5 min-h-[44px] px-3 border-2 text-sm font-semibold transition-colors disabled:opacity-60'
 
@@ -92,7 +93,7 @@ const FollowedLoungesTab = () => {
       toast((t) => (
         <span className="flex items-center gap-3">
           Đã bỏ theo dõi {lounge.name}.
-          <button type="button" className="underline font-semibold min-h-[44px]" onClick={() => { toast.dismiss(t.id); theoDoiLai(lounge, viTri) }}>Hoàn tác</button>
+          <button type="button" className="inline-flex items-center gap-1.5 font-semibold min-h-[44px]" onClick={() => { toast.dismiss(t.id); theoDoiLai(lounge, viTri) }}><Undo2 size={16} strokeWidth={1.75} aria-hidden="true" /> Hoàn tác</button>
         </span>
       ), { duration: 8000 })
     } catch (err) {
@@ -109,7 +110,7 @@ const FollowedLoungesTab = () => {
         <h2 id="theo-doi-td" className="text-4xl">
           Phòng trà đang theo dõi{!isLoading && !loiTai && <span className="font-mono text-xl text-ink-mute"> · {ds.length}</span>}
         </h2>
-        <Link to="/lounges" className="inline-flex items-center min-h-[44px] font-semibold underline underline-offset-4">Tìm phòng trà khác</Link>
+        <LienKetMuiTen to="/lounges">Tìm phòng trà khác</LienKetMuiTen>
       </div>
 
       {isLoading ? (
@@ -122,7 +123,7 @@ const FollowedLoungesTab = () => {
       ) : ds.length === 0 ? (
         <div className="border-2 border-ink p-6">
           <p>Bạn chưa theo dõi phòng trà nào. Theo dõi một phòng trà để được báo khi họ đăng buổi diễn mới.</p>
-          <Link to="/lounges" className="inline-flex items-center min-h-[44px] mt-2 font-semibold underline underline-offset-4">Xem các phòng trà</Link>
+          <LienKetMuiTen to="/lounges" className="mt-2">Xem các phòng trà</LienKetMuiTen>
         </div>
       ) : (
         <>

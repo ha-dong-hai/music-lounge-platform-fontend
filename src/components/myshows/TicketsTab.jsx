@@ -16,6 +16,7 @@ import DauMoc from '../program/DauMoc'
 import { getMyTickets } from '../../services/ticketServices'
 import { thuVietHoa, ngayGon, gioTrongNgay, ngayDayDu } from '../../utils/ngayVietNam'
 import { TRANG_THAI_VE, laVeTrucTuyen } from '../../utils/trangThaiVe'
+import LienKetMuiTen from '../shared/LienKetMuiTen'
 
 const ITEMS_PER_PAGE = 10
 
@@ -275,9 +276,7 @@ const TicketsTab = () => {
 
                     {/* Lối sang trang buổi diễn: từ đây mới xem được chương trình, đánh giá sau khi kết thúc, và các buổi
                         tương tự. Chi tiết VÉ không có đường nào sang đó vì TicketDetailDto không trả showId. */}
-                    <Link to={`/shows/${ev.showId}`} className="relative z-10 self-start inline-flex items-center min-h-[44px] -my-2 text-sm font-semibold text-ink underline underline-offset-4">
-                      Xem trang buổi diễn
-                    </Link>
+                    <LienKetMuiTen to={`/shows/${ev.showId}`} nho className="relative z-10 self-start -my-2">Xem trang buổi diễn</LienKetMuiTen>
                   </div>
                 </li>
               )
@@ -290,8 +289,8 @@ const TicketsTab = () => {
         <div className="bg-card border-2 border-dashed border-ink p-8">
           <p className="text-ink">Không có vé nào khớp bộ lọc trong trang này.</p>
           <p className="text-ink-soft text-sm mt-1">Thử đổi từ khoá hoặc bỏ bộ lọc.</p>
-          <button type="button" onClick={resetFilters} className="inline-flex items-center min-h-[44px] mt-3 font-semibold underline underline-offset-4">
-            Xoá mọi bộ lọc
+          <button type="button" onClick={resetFilters} className="inline-flex items-center gap-1.5 min-h-[44px] mt-3 font-semibold hover:text-ink-soft">
+            <X size={16} strokeWidth={1.75} aria-hidden="true" /> Xoá mọi bộ lọc
           </button>
         </div>
       )}

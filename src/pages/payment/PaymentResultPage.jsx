@@ -34,6 +34,7 @@ import { CheckCircle2, XCircle, Clock } from 'lucide-react'
 import DauMoc from '../../components/program/DauMoc'
 import Wordmark from '../../components/brand/Wordmark'
 import { layThanhToan, xoaThanhToan, LOAI_THANH_TOAN } from '../../utils/paymentContext'
+import LienKetMuiTen from '../../components/shared/LienKetMuiTen'
 
 // Bản chữ chung — dùng khi không biết khách vừa trả tiền cho cái gì.
 const VARIANTS = {
@@ -170,9 +171,7 @@ const PaymentResultPage = ({ status }) => {
             <Link to={variant.primary.to} className="inline-flex items-center justify-center min-h-[52px] px-7 bg-ink text-lamp font-display text-2xl hover:bg-board transition-colors">
               {variant.primary.label}
             </Link>
-            <Link to={variant.secondary.to} className="inline-flex items-center justify-center min-h-[44px] font-semibold underline underline-offset-4 decoration-2">
-              {variant.secondary.label}
-            </Link>
+            <LienKetMuiTen to={variant.secondary.to} className="justify-center">{variant.secondary.label}</LienKetMuiTen>
           </div>
         </div>
       </main>

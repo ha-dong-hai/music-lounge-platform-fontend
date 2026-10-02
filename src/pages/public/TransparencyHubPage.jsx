@@ -35,6 +35,8 @@ import { useState, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import { getShows, getShowDetail } from '../../services/showServices'
 import { anhChuCai } from '../../utils/anhChuCai'
+import LienKetMuiTen from '../../components/shared/LienKetMuiTen'
+import MuiTenLuyen from '../../components/shared/MuiTenLuyen'
 
 // Quét bao nhiêu buổi diễn gần nhất để gom nghệ sĩ. Mỗi buổi là một yêu cầu chi tiết, nên con số
 // này là đánh đổi giữa "đủ nghệ sĩ để trang không trống" và "đừng bắn quá nhiều yêu cầu".
@@ -127,7 +129,7 @@ const TransparencyHubPage = () => {
             ) : ngheSi.length === 0 ? (
               <div className="border-2 border-ink p-6">
                 <p>Chưa có nghệ sĩ nào nhận tiền ủng hộ trong các buổi diễn gần đây. Bạn vẫn mở được sao kê của bất kỳ nghệ sĩ nào từ phần Nghệ sĩ trong trang buổi diễn.</p>
-                <Link to="/shows" className="inline-flex items-center min-h-[44px] mt-2 font-semibold underline underline-offset-4">Xem các buổi diễn</Link>
+                <LienKetMuiTen to="/shows" className="mt-2">Xem các buổi diễn</LienKetMuiTen>
               </div>
             ) : (
               <ul className="border-y-2 border-ink divide-y divide-ink/20">
@@ -140,7 +142,7 @@ const TransparencyHubPage = () => {
                       </Link>
                       {p.buoiGanNhat && <p className="text-ink-mute truncate">Gần nhất: {p.buoiGanNhat}</p>}
                     </div>
-                    <span className="font-semibold underline underline-offset-4 decoration-2 whitespace-nowrap" aria-hidden="true">Xem sao kê</span>
+                    <span className="inline-flex items-center gap-2.5 font-semibold whitespace-nowrap" aria-hidden="true">Xem sao kê <MuiTenLuyen rong={36} /></span>
                   </li>
                 ))}
               </ul>
