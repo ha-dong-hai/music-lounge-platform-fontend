@@ -130,14 +130,14 @@ const DateRangeCalendar = ({ initialStartDate = '', initialEndDate = '', onConfi
           onClick={() => { setStartDate(''); setEndDate(''); setHoverDate(null) }} 
           className="text-xs text-gray-400 hover:text-red-400 transition-colors"
         >
-          Remove date
+          Xoá ngày
         </button>
         {/* BẤM XONG 1 LẦN DUY NHẤT - TRUYỀN TRỰC TIẾP GIÁ TRỊ NHÁP HIỆN TẠI */}
         <button 
           onClick={() => onConfirm(startDate, endDate)} 
           className="text-xs bg-[#C3B665] text-black px-3 py-1 rounded-md font-bold hover:bg-[#d4c87f] transition-colors"
         >
-          Confirm
+          Xong
         </button>
       </div>
     </div>

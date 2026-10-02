@@ -10,7 +10,7 @@ import { getShowSuggestions, getTrendingShows, getRecommendedShows } from '../se
 //   về không theo thứ tự sẽ làm danh sách nhảy. Mỗi lần gõ mới huỷ luôn lượt chờ cũ.
 const DO_TRE_GOI_Y = 300
 
-// ⭐ BỎ PROPS searchQuery, setSearchQuery ĐI
+// BỎ PROPS searchQuery, setSearchQuery ĐI
 const Header = () => {
   const { user, logout } = useAuthStore()
   const navigate = useNavigate() //
