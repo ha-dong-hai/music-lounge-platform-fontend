@@ -1,3 +1,4 @@
+// src/components/home/ShowCarousel.jsx
 import { useState, useRef, useEffect } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import ShowCard from './ShowCard'

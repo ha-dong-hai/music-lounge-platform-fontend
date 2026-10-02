@@ -1,16 +1,4 @@
-// src/pages/home/ShowSearchPage.jsx
-//
-// GHI CHÚ CHO ĐỘI FE — làm lại bố cục theo docs/design/TRANG-CHU-BRIEF.md; logic tìm kiếm GIỮ NGUYÊN (từ khoá, genreId,
-// bộ lọc modal, khoảng ngày, phân trang, đổi tên → id). Những gì đổi và vì sao:
-// - Trước đây đang tải hoặc gặp lỗi thì CẢ TRANG bị thay bằng khung chờ / thông báo lỗi: thanh lọc và các thẻ lọc biến mất.
-//   Hậu quả thật: nhập khoảng giá sai (max < min) → backend trả 400 → khách bị kẹt ở màn lỗi chỉ còn nút "Về trang chủ",
-//   không sửa được bộ lọc; và `apiError` không bao giờ được xoá nên đổi bộ lọc cũng không thoát. Nay đầu trang + bộ lọc luôn
-//   ở đó, chỉ vùng kết quả đổi trạng thái, và `apiError` được xoá mỗi lần tải lại.
-// - Bỏ chuỗi tiếng Anh còn sót ("Oops!", "Unable to connect to backend.", "Data loading error", "From/To") và màu cứng
-//   text-gray-800 (trên nền sáng thì đọc được, nhưng lệch token).
-// - Thẻ lọc đang bật là nút cả viên (44px, có tên "Bỏ lọc …") thay cho nút X 12px; thêm "Xoá tất cả bộ lọc".
-// - Trạng thái rỗng nói khác nhau khi ĐANG lọc (gợi ý nới bộ lọc, có nút xoá) và khi không lọc.
-// - Nút phân trang có tên và vùng chạm 44px; sang trang thì cuộn về đầu danh sách.
+// src/pages/home/EventSearchPage.jsx
 import { useState, useEffect, useMemo } from 'react'
 import { useSearchParams, useLocation, Link } from 'react-router-dom'
 import { ChevronLeft, ChevronRight, X, CalendarDays, SearchX, AlertCircle } from 'lucide-react'
@@ -23,7 +11,8 @@ import dayjs from 'dayjs'
 import { formatMinPrice } from '../../utils/formatPrice'
 
 const initialFilterState = {
-  selectedProvince: null,
+  // MLACP-522: tỉnh/phường theo danh mục hành chính — tên để hiện nhãn, mã để gửi lên tìm kiếm.
+  selectedProvince: null, selectedProvinceCode: null, selectedWard: null, selectedWardCode: null,
   selectedGenres: [], selectedSpaces: [], selectedMoods: [],
   minPrice: '', maxPrice: '',
 }
@@ -122,12 +111,14 @@ const ShowSearchPage = () => {
           // Thể loại đến từ hai nguồn: tham số genreId trên URL, và lựa chọn trong modal.
           // Gộp lại và bỏ trùng để không gửi một id hai lần.
           const genreIdsFromModal = namesToIds(appliedFilters.selectedGenres, filterOptions.genres) || []
-          const genreIds = [...new Set([...(genreId ? [Number(genreId)] : []), ...genreIdsFromModal])]
+          const genreIds = [...new Set([...(genreId ? [genreId] : []), ...genreIdsFromModal])]
 
           const params = {
             ...commonParams,
             keyword: keyword || undefined,
-            city: appliedFilters.selectedProvince || undefined,
+            // MLACP-522: lọc theo MÃ tỉnh/phường (QĐ 19/2025) thay cho chuỗi tên thành phố.
+            provinceCode: appliedFilters.selectedProvinceCode || undefined,
+            wardCode: appliedFilters.selectedWardCode || undefined,
             dateFrom: startDate ? dayjs(startDate).toISOString() : undefined,
             dateTo: endDate ? dayjs(endDate).toISOString() : undefined,
             minPrice: appliedFilters.minPrice || undefined,
@@ -231,7 +222,8 @@ const ShowSearchPage = () => {
 
         {isFiltering && (
           <div className="flex flex-wrap gap-2 items-center pb-4">
-            {appliedFilters.selectedProvince && (<RemovableTag label={appliedFilters.selectedProvince} onRemove={() => setAppliedFilters(prev => ({ ...prev, selectedProvince: null }))} />)}
+            {appliedFilters.selectedProvince && (<RemovableTag label={appliedFilters.selectedProvince} onRemove={() => setAppliedFilters(prev => ({ ...prev, selectedProvince: null, selectedProvinceCode: null, selectedWard: null, selectedWardCode: null }))} />)}
+            {appliedFilters.selectedWard && (<RemovableTag label={appliedFilters.selectedWard} onRemove={() => setAppliedFilters(prev => ({ ...prev, selectedWard: null, selectedWardCode: null }))} />)}
             {appliedFilters.selectedGenres.map(g => (<RemovableTag key={g} label={g} onRemove={() => removeFromFilterArray('selectedGenres', g)} />))}
             {appliedFilters.selectedSpaces.map(s => (<RemovableTag key={s} label={s} onRemove={() => removeFromFilterArray('selectedSpaces', s)} />))}
             {appliedFilters.selectedMoods.map(m => (<RemovableTag key={m} label={m} onRemove={() => removeFromFilterArray('selectedMoods', m)} />))}

@@ -1,3 +1,5 @@
+// src/components/admin/complaints/ComplaintsFilterBar.jsx
+
 import { Search, Download } from 'lucide-react'
 import { CATEGORY_CONFIG } from './ComplaintBadges'
 

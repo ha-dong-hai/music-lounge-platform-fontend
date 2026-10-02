@@ -1,3 +1,5 @@
+// src/pages/admin/AdminShowDetailPage.jsx
+
 import { useState, useEffect } from 'react'
 import { useParams, useLocation, Link } from 'react-router-dom'
 import { ArrowLeft } from 'lucide-react'

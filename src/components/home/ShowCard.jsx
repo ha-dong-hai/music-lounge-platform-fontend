@@ -1,4 +1,4 @@
-// src/components/home/EventCard.jsx
+// src/components/home/ShowCard.jsx
 import { CalendarDays, Heart, MapPin } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import dayjs from 'dayjs'

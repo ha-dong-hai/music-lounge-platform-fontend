@@ -1,3 +1,5 @@
+// src/pages/admin/AdminComplaintPage.jsx
+
 import { useState, useEffect, useMemo } from 'react'
 import dayjs from 'dayjs'
 import toast from 'react-hot-toast'
@@ -6,6 +8,7 @@ import { CATEGORY_CONFIG, STATUS_CONFIG, TARGET_TYPE_LABELS } from '../../compon
 import ComplaintsTable from '../../components/admin/complaints/ComplaintsTable'
 import ComplaintDetailModal from '../../components/admin/complaints/ComplaintDetailModal'
 import ComplaintsFilterBar from '../../components/admin/complaints/ComplaintsFilterBar'
+import { maNgan } from '../../utils/format'
 
 
 const AdminComplaintPage = () => {
@@ -71,7 +74,7 @@ const AdminComplaintPage = () => {
         const rows = filteredComplaints.map(c => [
             c.id,
             CATEGORY_CONFIG[c.category]?.label || c.category,
-            `${TARGET_TYPE_LABELS[c.targetType] || c.targetType} #${c.targetId}`,
+            `${TARGET_TYPE_LABELS[c.targetType] || c.targetType} #${maNgan(c.targetId)}`,
             (c.description || '').replace(/"/g, '""'),
             c.contactPhone || '',
             STATUS_CONFIG[c.status]?.label || c.status,

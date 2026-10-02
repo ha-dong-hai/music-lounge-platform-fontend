@@ -1,3 +1,4 @@
+// src/components/home/HorizontalTagSlider.jsx
 import { useState, useRef, useEffect } from 'react'
 import { ChevronLeft, ChevronRight, X } from 'lucide-react'
 

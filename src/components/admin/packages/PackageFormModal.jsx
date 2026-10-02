@@ -1,3 +1,5 @@
+// src/components/admin/packages/PackageFormModal.jsx
+
 import { useState, useEffect } from 'react'
 import { X, Sparkles, Box, Loader2 } from 'lucide-react'
 import toast from 'react-hot-toast'

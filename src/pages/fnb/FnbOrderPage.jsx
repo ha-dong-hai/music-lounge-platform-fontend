@@ -1,3 +1,5 @@
+// src/pages/fnb/FnbOrderPage.jsx
+
 import { useState, useEffect, useMemo } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { Loader2, Plus, Minus, ShoppingCart, ArrowLeft, CreditCard, Receipt } from 'lucide-react'
@@ -6,6 +8,7 @@ import toast from 'react-hot-toast'
 import { getLoungeDetail } from '../../services/loungeServices'
 import { getMenus, getMenuItems, createFnbOrder, getMyFnbOrders, payFnbOrder } from '../../services/fnbServices'
 import { useAuthStore } from '../../store/useAuthStore'
+import { maNgan } from '../../utils/format'
 
 const fmtMoney = (v) => `${Number(v || 0).toLocaleString('vi-VN')}đ`
 
@@ -100,10 +103,11 @@ const FnbOrderPage = () => {
     setBusy('submit')
     try {
       const payload = {
-        loungeId: Number(loungeId),
+        // MLACP-516: id là GUID (chuỗi) — ép Number ra NaN và backend trả 400.
+        loungeId,
         tableNote: tableNote.trim() || null,
         items: Object.entries(cart).map(([menuItemId, quantity]) => ({
-          menuItemId: Number(menuItemId), quantity, note: null,
+          menuItemId, quantity, note: null,
         })),
       }
       const res = await createFnbOrder(payload)
@@ -260,7 +264,7 @@ const FnbOrderPage = () => {
                   {orders.map((o) => (
                     <div key={o.id} className="border border-line rounded-lg p-3">
                       <div className="flex items-center justify-between mb-1">
-                        <span className="text-sm font-medium">#{o.id}</span>
+                        <span className="text-sm font-medium" title={String(o.id)}>#{maNgan(o.id)}</span>
                         <span className="text-xs px-2 py-0.5 rounded-full bg-sunken text-ink-soft">
                           {STATUS_LABELS[o.status] || o.status}
                         </span>

@@ -1,3 +1,5 @@
+// src/components/admin/complaints/ComplaintBadges.jsx
+
 // ===== CONFIGS (dùng chung toàn hệ thống complaints) =====
 export const CATEGORY_CONFIG = {
   EventMisrepresentation: { label: 'Show Misrepresentation', cls: 'bg-blue-500/15 text-sky-700 border-blue-500/30' },

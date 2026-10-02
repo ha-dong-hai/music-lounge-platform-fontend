@@ -1,3 +1,5 @@
+// src/components/admin/shows/PendingModerationTab.jsx
+
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { AlertTriangle, Check, X, Eye, Loader2, ChevronLeft, ChevronRight } from 'lucide-react'

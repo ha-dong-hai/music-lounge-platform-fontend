@@ -1,3 +1,5 @@
+// src/components/admin/accounts/AccountsFilterBar.jsx
+
 import { Search } from 'lucide-react'
 
 const AccountsFilterBar = ({ 

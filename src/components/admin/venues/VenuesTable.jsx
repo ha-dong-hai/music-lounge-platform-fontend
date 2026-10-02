@@ -1,7 +1,10 @@
+// src/components/admin/venues/VenuesTable.jsx
+
 import { Loader2, ChevronLeft, ChevronRight, Building2, ExternalLink, ShieldCheck } from 'lucide-react'
 import dayjs from 'dayjs'
 import { Link } from 'react-router-dom'
 import { VenueStatusBadge, LicenseBadge } from './VenueBadges'
+import { maNgan } from '../../../utils/format'
 
 // Component thuần UI: nhận data đã lọc + callbacks từ cha
 const VenuesTable = ({ venues, isLoading, pagination, onViewPublicPage, onPageChange, onReview }) => {
@@ -39,7 +42,7 @@ const VenuesTable = ({ venues, isLoading, pagination, onViewPublicPage, onPageCh
                       />
                       <div className="min-w-0">
                         <p className="text-sm text-white font-medium truncate">{v.name}</p>
-                        <p className="text-xs text-gray-600">#{v.loungeId}</p>
+                        <p className="text-xs text-gray-600" title={String(v.loungeId)}>#{maNgan(v.loungeId)}</p>
                       </div>
                     </div>
                   </td>

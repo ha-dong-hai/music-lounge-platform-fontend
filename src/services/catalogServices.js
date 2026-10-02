@@ -7,6 +7,11 @@ export const getMoods = async () => axiosClient.get('/catalog/moods');
 export const getAtmospheres = async () => axiosClient.get('/catalog/venue-atmospheres');
 export const getEventCategories = async () => axiosClient.get('/catalog/event-categories');
 
+// MLACP-522: danh mục hành chính 2 cấp từ 01/7/2025 (34 tỉnh, 3.321 phường/xã — QĐ 19/2025/QĐ-TTg). Không còn cấp
+// quận/huyện, nên không có "danh sách quận": chọn tỉnh rồi chọn phường/xã. Mỗi mục: { code, name, divisionType }.
+export const getProvinces = async () => axiosClient.get('/catalog/provinces');
+export const getWardsOfProvince = async (provinceCode) => axiosClient.get(`/catalog/provinces/${provinceCode}/wards`);
+
 // Nghệ sĩ có sẵn hồ sơ, dùng cho ô chọn line-up. CÓ phân trang (khác các danh mục ở trên).
 // Nghệ sĩ KHÔNG có tài khoản đăng nhập — hồ sơ do phòng trà quản lý.
 export const searchPerformers = async (params = {}) => {

@@ -1,4 +1,4 @@
-// src/components/mshow-detail/EventIntro.jsx
+// src/components/mshow-detail/ShowIntro.jsx
 import { Plus, Link as LinkIcon, Check, Star } from 'lucide-react'
 import { Link } from 'react-router-dom'
 

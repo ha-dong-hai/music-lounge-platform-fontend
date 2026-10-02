@@ -1,3 +1,5 @@
+// src/components/admin/venues/VenueBadges.jsx
+
 // ===== CONFIG: 6 TRẠNG THÁI VENUE (nguồn sự thật duy nhất) =====
 export const VENUE_STATUS_CONFIG = {
   Pending:   { label: 'Pending',    cls: 'bg-yellow-500/15 text-warning border-yellow-500/30', dot: 'bg-yellow-400' },

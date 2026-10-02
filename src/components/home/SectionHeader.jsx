@@ -1,11 +1,4 @@
 // src/components/home/SectionHeader.jsx
-//
-// Thanh công cụ lọc (nút "Bộ lọc" + chọn khoảng ngày) dùng ở trang chủ và trang tìm kiếm buổi diễn.
-// Sửa so với bản trước (docs/design/TRANG-CHU-BRIEF.md):
-// - Nút xoá ngày trước đây là <span onClick> nằm TRONG <button>: bàn phím không tới được, trình đọc màn hình không thấy,
-//   vùng bấm 22px. Nay là hai nút anh em trong cùng một "viên thuốc", nút xoá cao 44px và có tên.
-// - Nút "Bộ lọc" chỉ sáng lên khi chọn tỉnh/thể loại/giá — chọn TÂM TRẠNG hoặc KHÔNG GIAN thì không sáng, khách tưởng
-//   bộ lọc chưa áp dụng. Nay tính đủ cả năm nhóm và hiện số lượng đang bật.
 import { useState, useRef, useEffect } from 'react'
 import { SlidersHorizontal, CalendarDays, X } from 'lucide-react'
 import dayjs from 'dayjs'

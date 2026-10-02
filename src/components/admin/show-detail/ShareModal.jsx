@@ -1,3 +1,5 @@
+// src/components/admin/show-detail/ShareModal.jsx
+
 import { useState } from 'react'
 import { X, Check, Copy } from 'lucide-react'
 

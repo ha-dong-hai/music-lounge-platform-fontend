@@ -1,3 +1,5 @@
+// src/components/account/ProfileTab.jsx
+
 import { useState, useEffect, useRef } from 'react'
 import { Camera, Save, Loader2 } from 'lucide-react'
 import { useForm } from 'react-hook-form'
