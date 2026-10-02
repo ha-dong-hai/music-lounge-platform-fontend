@@ -23,21 +23,26 @@
 //  - Lớp phủ dùng <dialog>.showModal() của trình duyệt: tự giữ focus bên trong, Esc đóng, trả focus về nút đã mở.
 //  - Không có ảnh: ô "Chưa có ảnh" của chính trang, KHÔNG ảnh kho, không điều khiển nào.
 //
+// XẤP POLAROID (02/10/2026): khung xem in thành xấp ảnh chụp lấy liền (XapPolaroid) — kéo tấm trên cùng để sang ảnh
+// khác, chạm để lật xem chú thích viết tay. Thay vuốt tự bắt bằng onTouchStart/End của bản trước (thao tác kéo của
+// framer-motion đã gồm vuốt). Chú thích chuyển lên tấm ảnh nên thanh điều khiển không in lại. Mọi thao tác kéo/lật đều
+// có nút tương đương ở thanh dưới.
+//
 // GIỚI HẠN ĐÃ BIẾT:
 //  - Chữ thay thế: chủ phòng trà thường không nhập chú thích, khi đó alt chỉ ĐỊNH DANH ("ảnh 3 trên 12") chứ không mô
 //    tả nội dung — chưa chắc đạt "mục đích tương đương" của SC 1.1.1. Đường nâng cấp: bắt nhập chú thích lúc tải ảnh.
 //  - Ảnh phòng trà tải lên có tỉ lệ bất kỳ; khung cố định 4:3 và cắt theo object-cover. Lớp phủ in ảnh không cắt.
 import { useRef, useState } from 'react'
-import { ChevronLeft, ChevronRight, Images, X } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Images, RotateCcw, X } from 'lucide-react'
 import CoverFallback from '../shared/CoverFallback'
+import XapPolaroid from './XapPolaroid'
 
 export const NGUONG_HIEN_HET = 10
-const VUOT_TOI_THIEU = 40 // px — ngắn hơn thì coi là chạm, không phải vuốt
 
 const BoAnh = ({ anh = [], ten = '' }) => {
   const [viTri, setViTri] = useState(0)
+  const [lat, setLat] = useState(false) // đang xem mặt sau của tấm trên cùng
   const hopRef = useRef(null)
-  const chamBatDau = useRef(null)
   const n = anh.length
 
   if (n === 0) {
@@ -46,11 +51,13 @@ const BoAnh = ({ anh = [], ten = '' }) => {
 
   const i = Math.min(viTri, n - 1)
   const moTa = (k) => anh[k].caption || `Không gian ${ten}, ảnh ${k + 1} trên ${n}`
-  const lui = () => setViTri((v) => (Math.min(v, n - 1) - 1 + n) % n)
-  const toi = () => setViTri((v) => (Math.min(v, n - 1) + 1) % n)
+  // Đổi ảnh thì luôn quay về mặt trước — tấm mới lên xấp không thể đang "lật sẵn".
+  const lui = () => { setLat(false); setViTri((v) => (Math.min(v, n - 1) - 1 + n) % n) }
+  const toi = () => { setLat(false); setViTri((v) => (Math.min(v, n - 1) + 1) % n) }
+  const doiLat = () => setLat((v) => !v)
 
   const moTatCa = () => hopRef.current?.showModal()
-  const chon = (k) => { setViTri(k); hopRef.current?.close() }
+  const chon = (k) => { setLat(false); setViTri(k); hopRef.current?.close() }
 
   const anhNho = n <= NGUONG_HIEN_HET ? anh : anh.slice(0, NGUONG_HIEN_HET - 1)
   const soAn = n - anhNho.length
@@ -58,10 +65,9 @@ const BoAnh = ({ anh = [], ten = '' }) => {
   if (n === 1) {
     return (
       <figure className="w-full">
-        <div className="aspect-[4/3] w-full bg-board-soft">
-          <img src={anh[0].url} alt={moTa(0)} width="1200" height="900" fetchPriority="high" className="w-full h-full object-cover" />
-        </div>
-        {anh[0].caption && <figcaption className="px-4 sm:px-0 py-3 text-sm text-lamp-mute">{anh[0].caption}</figcaption>}
+        <XapPolaroid anh={anh} i={0} ten={ten} moTa={moTa} onToi={() => {}} onLui={() => {}} lat={lat} onLat={doiLat} />
+        {anh[0].caption && <figcaption className="sr-only">{anh[0].caption}</figcaption>}
+        {anh[0].caption && <div className="px-4 sm:px-0 pt-3"><NutLat lat={lat} onLat={doiLat} /></div>}
       </figure>
     )
   }
@@ -70,21 +76,9 @@ const BoAnh = ({ anh = [], ten = '' }) => {
 
   return (
     <section role="group" aria-roledescription="bộ ảnh" aria-label={`Ảnh không gian ${ten}`} className="w-full">
-      <div
-        className="aspect-[4/3] w-full bg-board-soft touch-pan-y"
-        aria-live="polite"
-        onTouchStart={(e) => { chamBatDau.current = e.touches[0].clientX }}
-        onTouchEnd={(e) => {
-          if (chamBatDau.current == null) return
-          const dx = e.changedTouches[0].clientX - chamBatDau.current
-          chamBatDau.current = null
-          if (Math.abs(dx) >= VUOT_TOI_THIEU) (dx < 0 ? toi : lui)()
-        }}
-      >
-        {/* Ảnh đầu là phần tử lớn nhất của khung nhìn đầu → ưu tiên tải, không lazy (web.dev). key đổi theo ảnh để
-            trình duyệt không giữ ảnh cũ trong lúc ảnh mới đang tải. */}
-        <img key={anh[i].url} src={anh[i].url} alt={moTa(i)} width="1200" height="900"
-          fetchPriority={i === 0 ? 'high' : 'auto'} className="w-full h-full object-cover" />
+      {/* Ảnh đầu là phần tử lớn nhất của khung nhìn đầu → XapPolaroid ưu tiên tải ảnh 0, không lazy (web.dev). */}
+      <div aria-live="polite">
+        <XapPolaroid anh={anh} i={i} ten={ten} moTa={moTa} onToi={toi} onLui={lui} lat={lat} onLat={doiLat} />
       </div>
 
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2 px-4 sm:px-0 pt-3">
@@ -93,7 +87,7 @@ const BoAnh = ({ anh = [], ten = '' }) => {
           <button type="button" onClick={toi} aria-label="Ảnh sau" className={NUT}><ChevronRight size={22} aria-hidden="true" /></button>
         </div>
         <p className="font-mono text-sm text-lamp" aria-hidden="true">{i + 1} / {n}</p>
-        {anh[i].caption && <p className="text-sm text-lamp-mute min-w-0 flex-1 basis-40">{anh[i].caption}</p>}
+        {anh[i].caption && <NutLat lat={lat} onLat={doiLat} />}
         <button type="button" onClick={moTatCa}
           className={`ml-auto inline-flex items-center gap-2 min-h-[48px] text-sm font-semibold text-lamp hover:text-stock ${soAn > 0 ? '' : 'sm:hidden'}`}>
           <Images size={18} aria-hidden="true" /> Xem tất cả {n} ảnh
@@ -144,6 +138,16 @@ const BoAnh = ({ anh = [], ten = '' }) => {
         </ul>
       </dialog>
     </section>
+  )
+}
+
+// Nút lật tương đương thao tác chạm vào ảnh — cho bàn phím và trình đọc màn hình (aria-pressed = đang xem mặt sau).
+function NutLat({ lat, onLat }) {
+  return (
+    <button type="button" onClick={onLat} aria-pressed={lat}
+      className="inline-flex items-center gap-2 min-h-[48px] text-sm font-semibold text-lamp hover:text-stock">
+      <RotateCcw size={18} strokeWidth={1.75} aria-hidden="true" /> {lat ? 'Xem mặt ảnh' : 'Lật xem chữ sau ảnh'}
+    </button>
   )
 }
 

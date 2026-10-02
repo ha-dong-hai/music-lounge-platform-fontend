@@ -52,6 +52,9 @@
   --font-sans: 'Be Vietnam Pro', ui-sans-serif, system-ui, sans-serif;
   --font-display: 'Anton', 'Be Vietnam Pro', sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, monospace;  /* chỉ cho giờ, số tiền, số sê-ri — dữ liệu, không trang trí */
+  /* Chữ viết tay — CHỈ cho chú thích trên ảnh Polaroid (02/10/2026, chủ dự án chọn trong 8 font có dấu tiếng Việt).
+     Không dùng Caveat: Google Fonts không có phân vùng tiếng Việt cho nó, chữ có dấu rơi về font dự phòng giữa chữ. */
+  --font-hand: 'Patrick Hand', 'Be Vietnam Pro', cursive;
 
   /* Góc in: giấy cắt vuông. Ghi đè thang bo góc của Tailwind để các lớp rounded-lg/xl/2xl rải khắp mã cũ vuông lại
      theo thế giới mới; rounded-full (ảnh đại diện, chấm) giữ nguyên. */

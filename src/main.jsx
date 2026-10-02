@@ -1,8 +1,10 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 // Font tự host (có phân vùng tiếng Việt) — không phụ thuộc Google Fonts lúc chạy.
-// Anton: tiêu đề khối hẹp của tờ chương trình · Be Vietnam Pro: chữ thân · JetBrains Mono: giờ, số tiền, số sê-ri.
+// Anton: tiêu đề khối hẹp của tờ chương trình · Be Vietnam Pro: chữ thân · JetBrains Mono: giờ, số tiền, số sê-ri ·
+// Patrick Hand: chú thích viết tay trên ảnh Polaroid.
 import '@fontsource/anton/400.css'
+import '@fontsource/patrick-hand/400.css'
 import '@fontsource/be-vietnam-pro/400.css'
 import '@fontsource/be-vietnam-pro/500.css'
 import '@fontsource/be-vietnam-pro/600.css'

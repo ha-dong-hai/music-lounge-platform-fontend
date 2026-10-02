@@ -117,8 +117,10 @@ Hai vật liệu (giấy và mực) cộng ba tín hiệu có chủ quyền riê
 **Display Font:** Anton (fallback Be Vietnam Pro) — tiêu đề khối hẹp của tờ chương trình, chỉ một độ đậm 400.
 **Body Font:** Be Vietnam Pro 400/500/600/700 — chữ thân, nhãn, nút chức năng, h3.
 **Label/Mono Font:** JetBrains Mono 400/600 — giờ, số tiền, số sê-ri, ngày trong bảng. Dữ liệu, không trang trí.
+**Hand Font:** Patrick Hand 400 (`font-hand`, 02/10/2026) — CHỈ chữ viết trên ảnh Polaroid (chú thích, mặt sau ảnh).
+Chủ dự án chọn trong 8 font có phân vùng tiếng Việt; Caveat bị loại vì không có dấu.
 
-Cả ba tự host qua @fontsource trong `src/main.jsx` (có phân vùng tiếng Việt), không gọi Google Fonts lúc chạy.
+Cả bốn tự host qua @fontsource trong `src/main.jsx` (có phân vùng tiếng Việt), không gọi Google Fonts lúc chạy.
 
 ### Hierarchy
 - **Display** (Anton 400, clamp(3rem, 8vw, 6rem), 0.95): một tiêu đề trang duy nhất, ví dụ "Đêm nay ở Sài Gòn".
@@ -133,6 +135,16 @@ Cả ba tự host qua @fontsource trong `src/main.jsx` (có phân vùng tiếng 
 **The Size-Not-Weight Rule.** Anton chỉ có một độ đậm; phân cấp bằng cỡ. Dưới ~20px không dùng Anton (chữ khối hẹp bết lại) — chuyển sang Be Vietnam Pro 700.
 
 **The Mono-Is-Data Rule.** JetBrains Mono chỉ cho giá trị đo được (giờ, tiền, ngày, số đếm). Không dùng làm "phong cách" cho câu chữ.
+
+**The Hand-Is-On-Photo Rule.** Chữ viết tay chỉ xuất hiện TRÊN tấm ảnh Polaroid (người ta ghi lên ảnh thật). Không dùng cho
+tiêu đề, nút, nhãn, giá — ở đó nó chỉ là trang trí và khó đọc.
+
+### Ảnh Polaroid (02/10/2026)
+Giấy `card`, viền 4% ba cạnh + dải đáy dày, góc VUÔNG (Cut-Paper Rule), `shadow-lift`, nghiêng cố định theo vị trí ảnh
+(-2,5° / 3° / -4° / 1,8° — không ngẫu nhiên). Chữ trên dải đáy: `font-hand`, một dòng. Mặt sau: giấy `stock`, chú thích
+đầy đủ + tên nơi + số thứ tự mono; chỉ có khi có chú thích. Xấp (`XapPolaroid`, khung xem của BoAnh): tấm trên cùng + 2
+tấm lộ mép; kéo ngang > 110px hoặc vuốt nhanh để sang ảnh; chạm để lật; mọi thao tác có nút tương đương (Ảnh trước/sau,
+"Lật xem chữ sau ảnh" aria-pressed). Giảm chuyển động: không bay, không xoay lật — đổi tức thì.
 
 ## Layout
 
