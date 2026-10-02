@@ -13,7 +13,7 @@
 import { useState, useEffect, useMemo, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import dayjs from 'dayjs'
-import { SlidersHorizontal } from 'lucide-react'
+import { SlidersHorizontal, Plus, Minus } from 'lucide-react'
 import BangGioDien from '../../components/program/BangGioDien'
 import { gomTheoPhongTra } from '../../utils/bangGioDien'
 import PhongTraTrenSan from '../../components/program/PhongTraTrenSan'
@@ -64,6 +64,10 @@ const HomePage = () => {
   const [dangDien, setDangDien] = useState([])
   const [anhPhongTra, setAnhPhongTra] = useState({})
   const [gu, setGu] = useState({ moods: [], atmospheres: [] })
+  // Khối "Tìm theo gu" mặc định THU GỌN (chủ dự án 02/10/2026): trang chủ ưu tiên lịch diễn và phòng trà; ai muốn
+  // duyệt theo gu thì bấm mở. Cùng mẫu disclosure với NhomGu (button aria-expanded + aria-controls, chữ gạch chân
+  // kèm dấu +/−, ghi SỐ lựa chọn đang ẩn để không bị tưởng là hết); khi thu gọn nội dung không dựng ra DOM.
+  const [moGu, setMoGu] = useState(false)
 
   useEffect(() => {
     let huy = false
@@ -175,18 +179,37 @@ const HomePage = () => {
 
         {(gu.moods.length > 0 || gu.atmospheres.length > 0 || dongNhac.length > 0) && (
           <section aria-labelledby="theo-gu" className="mt-24">
-            <TieuDeKhoi id="theo-gu">Tìm theo gu</TieuDeKhoi>
-            <div className="grid gap-8 md:grid-cols-3">
-              {[
-                // Bộ lọc đi qua ĐỊA CHỈ theo ID (src/utils/boLocBuoiDien.js): bấm Quay lại, tải lại hay gửi đường dẫn đều giữ nguyên.
-                ['Dòng nhạc', dongNhac.map(([id, v]) => ({ key: id, ten: v.ten, so: v.so, to: `/shows?the=${id}` }))],
-                ['Tâm trạng', gu.moods.map((m) => ({ key: m.id, ten: m.name, to: `/shows?tam=${m.id}` }))],
-                ['Không gian', gu.atmospheres.map((a) => ({ key: a.id, ten: a.name, to: `/shows?kg=${a.id}` }))],
-              ].filter(([, ds]) => ds.length > 0).map(([tieuDe, ds]) => (
-                // Mỗi nhóm tự thu gọn khi dài (NhomGu): chỉ hiện các mục đáng thấy nhất, "Xem thêm N" mở phần còn lại.
-                <NhomGu key={tieuDe} tieuDe={tieuDe} ds={ds} />
-              ))}
-            </div>
+            <TieuDeKhoi
+              id="theo-gu"
+              phu={
+                <button
+                  type="button"
+                  onClick={() => setMoGu((v) => !v)}
+                  aria-expanded={moGu}
+                  aria-controls="theo-gu-noi-dung"
+                  className="inline-flex items-center gap-1.5 min-h-[44px] text-sm font-semibold text-ink underline underline-offset-4 decoration-2 hover:text-board"
+                >
+                  {moGu
+                    ? <><Minus size={16} aria-hidden="true" /> Thu gọn</>
+                    : <><Plus size={16} aria-hidden="true" /> Xem các gu ({dongNhac.length + gu.moods.length + gu.atmospheres.length} lựa chọn)</>}
+                </button>
+              }
+            >
+              Tìm theo gu
+            </TieuDeKhoi>
+            {moGu && (
+              <div id="theo-gu-noi-dung" className="grid gap-8 md:grid-cols-3">
+                {[
+                  // Bộ lọc đi qua ĐỊA CHỈ theo ID (src/utils/boLocBuoiDien.js): bấm Quay lại, tải lại hay gửi đường dẫn đều giữ nguyên.
+                  ['Dòng nhạc', dongNhac.map(([id, v]) => ({ key: id, ten: v.ten, so: v.so, to: `/shows?the=${id}` }))],
+                  ['Tâm trạng', gu.moods.map((m) => ({ key: m.id, ten: m.name, to: `/shows?tam=${m.id}` }))],
+                  ['Không gian', gu.atmospheres.map((a) => ({ key: a.id, ten: a.name, to: `/shows?kg=${a.id}` }))],
+                ].filter(([, ds]) => ds.length > 0).map(([tieuDe, ds]) => (
+                  // Mỗi nhóm tự thu gọn khi dài (NhomGu): chỉ hiện các mục đáng thấy nhất, "Xem thêm N" mở phần còn lại.
+                  <NhomGu key={tieuDe} tieuDe={tieuDe} ds={ds} />
+                ))}
+              </div>
+            )}
           </section>
         )}
 
