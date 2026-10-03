@@ -29,6 +29,7 @@ import { Link } from 'react-router-dom'
 import { useAuthStore } from '../../store/useAuthStore'
 import IconMoRong from '../shared/IconMoRong'
 import CuongDatVe from './CuongDatVe'
+import CoverFallback from '../shared/CoverFallback'
 import { getRecommendedShows } from '../../services/showServices'
 import { getMyProfile } from '../../services/userServices'
 import { docBuoiVuaXem, xoaBuoiVuaXem } from '../../utils/buoiVuaXem'
@@ -45,14 +46,44 @@ const laTrending = (b) => (b.recommendationSource ? b.recommendationSource === '
 // Tên gọi tiếng Việt là TỪ CUỐI ("Hà Đông Hải" → "Hải").
 const tenGoi = (ten) => String(ten ?? '').trim().split(/\s+/).pop() || ''
 
+// ẢNH TIẾT MỤC (MLACP-580, 03/10/2026) — chủ dự án: "những buổi hòa nhạc này không có hình ảnh thì thật thiếu sự trực
+// quan". Bản 3 chỉ có chữ. Thứ tự nguồn giống khối "Đêm đã qua", chú thích GHI RÕ NGUỒN để không ai tưởng ảnh phòng trà là
+// poster của đêm đó:
+//   1. poster / ảnh bìa đêm diễn (coverImageUrl)      → không chú thích
+//   2. ảnh đại diện phòng trà (loungeImageUrl, MLACP-580 backend) → "Ảnh phòng trà"
+//   3. không còn gì / ảnh hỏng                         → CoverFallback (khuông nhạc, "Chưa có ảnh")
+// Ảnh hỏng (onError) lùi xuống nguồn kế. Khung cố định 4:3 nên các dòng thẳng hàng dù ảnh gốc dọc hay ngang.
+const AnhTietMuc = ({ b }) => {
+  const nguon = [
+    b.coverImageUrl && { url: b.coverImageUrl, chuThich: null },
+    b.loungeImageUrl && { url: b.loungeImageUrl, chuThich: 'Ảnh phòng trà' },
+  ].filter(Boolean)
+  const [soHong, setSoHong] = useState(0)
+  const anh = nguon[soHong] ?? null
+  return (
+    <figure className="m-0">
+      <div className="aspect-[4/3] overflow-hidden border border-ink/25 bg-sunken">
+        {anh ? (
+          <img key={anh.url} src={anh.url} alt="" loading="lazy" width="400" height="300"
+            onError={() => setSoHong((n) => n + 1)}
+            className="w-full h-full object-cover transition-transform duration-300 group-hover/dong:scale-[1.03] motion-reduce:transition-none motion-reduce:group-hover/dong:scale-100" />
+        ) : <CoverFallback />}
+      </div>
+      {anh?.chuThich && <figcaption className="font-mono text-xs text-ink-mute mt-1.5">{anh.chuThich}</figcaption>}
+    </figure>
+  )
+}
+
 const TietMuc = ({ b, so }) => {
   const laAi = b.recommendationSource === 'Ai'
   const gia = formatMinPrice(b)
   return (
     <li className="group/dong relative grid gap-x-8 gap-y-3 py-6 border-t border-ink/25 first:border-t-0 lg:grid-cols-[minmax(0,1fr)_17rem]">
-      <div className="grid grid-cols-[3.25rem_minmax(0,1fr)] sm:grid-cols-[4.5rem_minmax(0,1fr)] gap-x-4">
+      {/* Điện thoại: số | (ảnh trên, chữ dưới). Từ sm: số | ảnh 11rem | chữ. */}
+      <div className="grid grid-cols-[3.25rem_minmax(0,1fr)] sm:grid-cols-[4.5rem_11rem_minmax(0,1fr)] gap-x-4 sm:gap-x-6 gap-y-4">
         <span aria-hidden="true" className="font-display text-4xl sm:text-5xl leading-none text-ink-mute">{String(so).padStart(2, '0')}</span>
-        <div className="min-w-0">
+        <div className="col-start-2 sm:col-start-auto max-w-[20rem] sm:max-w-none"><AnhTietMuc b={b} /></div>
+        <div className="min-w-0 col-start-2 sm:col-start-auto">
           {/* Tên đêm — dòng chấm — ngày giờ: đúng ngữ pháp bảng giờ diễn của tờ chương trình. */}
           <div className="flex items-baseline gap-3">
             <h3 className="font-display font-normal text-2xl sm:text-3xl leading-tight min-w-0 break-words">
@@ -69,7 +100,7 @@ const TietMuc = ({ b, so }) => {
         </div>
       </div>
       {/* GHI CHÚ BÊN LỀ. Lời riêng (gu / AI) viết tay; thịnh hành không ai "ghi" nên in chữ máy chữ nhỏ. */}
-      <div className="lg:border-l lg:border-ink/25 lg:pl-6 pl-[4.25rem] sm:pl-[5.5rem] lg:pt-1">
+      <div className="lg:border-l lg:border-ink/25 lg:pl-6 pl-[4.25rem] sm:pl-[18.5rem] lg:pt-1">
         {b.recommendationReason && !laTrending(b) ? (
           <>
             <p className="font-hand text-[1.35rem] leading-snug text-ink -rotate-1 origin-left">{b.recommendationReason}</p>
