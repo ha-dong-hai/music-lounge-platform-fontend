@@ -63,10 +63,15 @@ const CuongDatVe = ({ gia, trangThai = 'MoBan', nen = 'giay', to, className = ''
   const laLink = Boolean(to)
   const Goc = laLink ? Link : 'span'
   const goc = laLink ? { to } : {}
+  // Không có `to` = cuống chỉ là HÌNH; cả dòng bấm được nhờ liên kết phủ kín dòng (DongBuoiDien: after:absolute
+  // after:inset-0 ở tên buổi). Cuống nhấc lên khi rê bằng transform + drop-shadow → tạo lớp vẽ mới ĐÈ lên lớp liên kết,
+  // nên đúng lúc bấm, cú bấm rơi vào span và không đi đâu (chủ dự án 03/10: "bắt đặt vé không được" — hỏng ở cả 4 nơi
+  // dùng DongBuoiDien). Cho cú bấm xuyên qua tới liên kết; hiệu ứng vẫn chạy nhờ group-hover/dong.
+  const xuyen = laLink ? '' : 'pointer-events-none'
 
   if (trangThai === 'DaDien') {
     return (
-      <Goc {...goc} className={`inline-flex items-center gap-2 min-h-[44px] px-4 text-sm font-semibold whitespace-nowrap rounded-[3px] transition-colors ${mau.vien} ${className}`}>
+      <Goc {...goc} className={`inline-flex items-center gap-2 min-h-[44px] px-4 text-sm font-semibold whitespace-nowrap rounded-[3px] transition-colors ${mau.vien} ${xuyen} ${className}`}>
         <span aria-hidden={laLink ? undefined : true}>{NHAN.DaDien}</span>
       </Goc>
     )
@@ -76,7 +81,7 @@ const CuongDatVe = ({ gia, trangThai = 'MoBan', nen = 'giay', to, className = ''
   return (
     // group/cuong: tự rê chuột lên cuống; group-hover/dong: rê lên CẢ DÒNG (DongBuoiDien đặt group/dong) — cả hai đều
     // làm cuống nhấc lên và mũi tên tiến một bước. motion-safe: người đã tắt chuyển động thì chỉ đổi bóng.
-    <Goc {...goc} className={`group/cuong inline-flex items-stretch min-h-[48px] whitespace-nowrap transition-[transform,filter] duration-300 ease-[cubic-bezier(.22,1,.36,1)] motion-safe:group-hover/dong:-translate-y-0.5 motion-safe:hover:-translate-y-0.5 group-hover/dong:drop-shadow-[0_6px_10px_rgb(35_26_21/0.25)] hover:drop-shadow-[0_6px_10px_rgb(35_26_21/0.25)] ${className}`}>
+    <Goc {...goc} className={`group/cuong inline-flex items-stretch min-h-[48px] whitespace-nowrap transition-[transform,filter] duration-300 ease-[cubic-bezier(.22,1,.36,1)] motion-safe:group-hover/dong:-translate-y-0.5 motion-safe:hover:-translate-y-0.5 group-hover/dong:drop-shadow-[0_6px_10px_rgb(35_26_21/0.25)] hover:drop-shadow-[0_6px_10px_rgb(35_26_21/0.25)] ${xuyen} ${className}`}>
       {gia && (
         <span className={`relative inline-flex items-center pl-3.5 pr-4 font-mono text-sm rounded-l-[3px] ${mau.gia}`} style={KHUYET_PHAI}>
           {gia}
