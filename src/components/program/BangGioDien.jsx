@@ -235,8 +235,8 @@ const BangGioDien = ({ dong = [], dangTai, loi, onThuLai, daDangNhap, demGanNhat
           <KyTuLat chu="ĐÊM NAY CHƯA CÓ PHÒNG TRÀ NÀO LÊN ĐÈN" lat={false} className="text-sm sm:text-base flex-wrap" />
           {demGanNhat ? (
             <p className="text-lamp-mute mt-4">
-              Đêm gần nhất có diễn: <span className="text-lamp">{demGanNhat.nhan}</span>, {demGanNhat.soBuoi} buổi.{' '}
-              <a href="#lich-tuan" className="group/lk inline-flex items-center gap-2 min-h-[44px] font-semibold text-lamp align-middle">Xem lịch tuần này <span aria-hidden="true" className="inline-flex items-center justify-center w-7 h-7 border-2 border-lamp/70 group-hover/lk:bg-lamp group-hover/lk:text-board transition-colors">↓</span></a>
+              Đêm gần nhất có diễn: <span className="text-lamp">{demGanNhat.nhan} {demGanNhat.ngay}</span>, {demGanNhat.soBuoi} buổi.{' '}
+              <a href="#sap-len-den-khoi" className="group/lk inline-flex items-center gap-2 min-h-[44px] font-semibold text-lamp align-middle">Xem các đêm sắp diễn <span aria-hidden="true" className="inline-flex items-center justify-center w-7 h-7 border-2 border-lamp/70 group-hover/lk:bg-lamp group-hover/lk:text-board transition-colors">↓</span></a>
             </p>
           ) : (
             <p className="text-lamp-mute mt-4">Chưa có buổi diễn nào mở bán trong những ngày tới. Theo dõi phòng trà bên dưới để được báo khi có đêm mới.</p>

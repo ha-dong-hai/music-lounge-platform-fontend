@@ -25,7 +25,11 @@ const KHU_CANH = [
   // 30/09: bốn file trang chủ cũ (MangSet, ChuongTrinhDemNay, DongBuoiDien, NhungDemSapToi) đã XOÁ cùng thế giới
   // cũ; phần canh CHUYỂN sang các linh kiện thay chỗ chúng — không phải bớt khu canh.
   'src/components/program/BangGioDien.jsx',
-  'src/components/program/LichTuanNay.jsx',
+  // 03/10: LichTuanNay đã XOÁ (khối "Lịch diễn bảy ngày tới" bỏ khỏi trang chủ, chủ dự án chọn phương án A); phần canh
+  // CHUYỂN sang các khối trang chủ thay chỗ nó.
+  'src/components/program/SapLenDen.jsx',
+  'src/components/program/TheGu.jsx',
+  'src/components/program/DemDaQua.jsx',
   'src/components/program/PhongTraTrenSan.jsx',
   'src/components/program/CuongVeCamKet.jsx',
   'src/components/program/KyTuLat.jsx',

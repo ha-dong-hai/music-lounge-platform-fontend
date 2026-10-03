@@ -2,8 +2,10 @@
 //
 // TRANG CHỦ — "Đêm nay ở Sài Gòn", thế giới TỜ CHƯƠNG TRÌNH CA NHẠC (chủ dự án chốt 30/09; hợp đồng hướng thiết kế ở
 // .impeccable/surfaces/src-pages-home-homepage-jsx.md; ảnh mẫu Stitch ở .impeccable/mocks/stitch/).
-// Kiến trúc venue-first 23/09 (YEU-CAU-THIET-KE-LAI-TRANG-CHU.md §7.1): tiêu đề đêm nay → BẢNG GIỜ DIỄN (mỗi dòng một
-// phòng trà) → phòng trà trên sàn (không bao giờ trống) → lịch tuần → tìm theo gu → tiền của bạn đi đâu → lối ra.
+// Thứ tự (chủ dự án chốt 03/10/2026, phương án A): đêm nay (BẢNG GIỜ DIỄN) → sắp lên đèn (buổi gần nhất + tiếp theo) →
+// tìm theo gu → phòng trà trên sàn → đêm đã qua → tiền của bạn đi đâu. "Khi nào đi" đứng liền nhau ở trên; khối "Lịch diễn
+// bảy ngày tới" BỎ khỏi trang chủ: trùng "Tiếp theo" của Sắp lên đèn, và tuần trống thì chỉ còn một hộp trống (đo 03/10).
+// Bảng đầy đủ vẫn ở /shows. (Bản 23/09 venue-first: đêm nay → phòng trà → lịch tuần → gu → tiền.)
 // Khối "gợi ý cá nhân" và "khối biên tập" của bản cũ bị bỏ khỏi trang chủ theo §7.1 (đa số lượt vào không thấy gì).
 //
 // Tầng DỮ LIỆU giữ nguyên từ bản cũ (đã kiểm): sortBy='StartingSoon' — KHÔNG dùng 'Newest' vì ở backend đó là
@@ -17,7 +19,6 @@ import { SlidersHorizontal } from 'lucide-react'
 import BangGioDien from '../../components/program/BangGioDien'
 import { gomTheoPhongTra } from '../../utils/bangGioDien'
 import PhongTraTrenSan from '../../components/program/PhongTraTrenSan'
-import LichTuanNay from '../../components/program/LichTuanNay'
 import NhomGu from '../../components/program/NhomGu'
 import DauMoc from '../../components/program/DauMoc'
 import CuongVeCamKet from '../../components/program/CuongVeCamKet'
@@ -177,27 +178,13 @@ const HomePage = () => {
         </section>
 
         {sapLenDen.length > 0 && (
-          <section aria-labelledby="sap-len-den" className="mt-24">
+          <section aria-labelledby="sap-len-den" id="sap-len-den-khoi" className="mt-24 scroll-mt-24">
             <TieuDeKhoi id="sap-len-den" phu={<LienKetMuiTen to="/shows">Mọi buổi diễn</LienKetMuiTen>}>
               Sắp lên đèn
             </TieuDeKhoi>
             <SapLenDen buoi={sapLenDen} anhPhongTra={anhPhongTra} />
           </section>
         )}
-
-        <section aria-labelledby="phong-tra-tren-san" className="mt-24">
-          <TieuDeKhoi id="phong-tra-tren-san" phu={<LienKetMuiTen to="/lounges">Mọi phòng trà</LienKetMuiTen>}>
-            Phòng trà trên sàn
-          </TieuDeKhoi>
-          <PhongTraTrenSan daDangNhap={daDangNhap} phongTraSangDen={phongTraSangDen} onTai={khiTaiPhongTra} />
-        </section>
-
-        <section aria-labelledby="lich-tuan-td" id="lich-tuan" className="mt-24 scroll-mt-24">
-          <TieuDeKhoi id="lich-tuan-td" phu={<LienKetMuiTen to="/shows">Mọi buổi diễn</LienKetMuiTen>}>
-            Lịch diễn bảy ngày tới
-          </TieuDeKhoi>
-          <LichTuanNay buoiDien={sapToi} dangTai={dangTai} />
-        </section>
 
         {(soLocThem > 0 || coDongNhac) && (
           <section aria-labelledby="theo-gu" className="mt-24">
@@ -235,6 +222,13 @@ const HomePage = () => {
             )}
           </section>
         )}
+
+        <section aria-labelledby="phong-tra-tren-san" className="mt-24">
+          <TieuDeKhoi id="phong-tra-tren-san" phu={<LienKetMuiTen to="/lounges">Mọi phòng trà</LienKetMuiTen>}>
+            Phòng trà trên sàn
+          </TieuDeKhoi>
+          <PhongTraTrenSan daDangNhap={daDangNhap} phongTraSangDen={phongTraSangDen} onTai={khiTaiPhongTra} />
+        </section>
 
         <DemDaQua phongTra={dsPhongTra} className="mt-24"
           dau={<TieuDeKhoi id="dem-da-qua" phu={<LienKetMuiTen to="/shows">Mọi buổi diễn</LienKetMuiTen>}>Đêm đã qua</TieuDeKhoi>} />

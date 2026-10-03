@@ -58,6 +58,12 @@ kiem('qua tháng: 30/09 -> 01/10',
   timDemGanNhat([buoi('2026-10-01T20:00:00')], dayjs('2026-09-30T10:00:00')),
   { nhan: 'Ngày mai', ngay: '01/10', soBuoi: 1 })
 
+// 03/10/2026: hộp đèn in "Đêm gần nhất có diễn: Thứ năm" cho buổi 22/10 (19 ngày nữa) — dễ đọc thành thứ năm tuần này.
+// Nay hộp đèn in cả ngày; khác năm thì ngày có năm ("15/01" của năm sau đọc thành tháng Một vừa qua).
+kiem('đêm gần nhất ở NĂM SAU: ngày có năm',
+  timDemGanNhat([buoi('2027-01-15T20:00:00')], dayjs('2026-12-20T10:00:00')),
+  { nhan: 'Thứ sáu', ngay: '15/01/2027', soBuoi: 1 })
+
 // LƯU Ý VỀ CA NÀY: nó chứng minh hàm KHÔNG VỠ khi gặp ngày rác, nhưng KHÔNG chứng minh được
 // guard `isValid()` trong `.find` là cần thiết — đã đo: dayjs trả isAfter()=false cho mọi đầu vào
 // hỏng ('khong-phai-ngay', null, ''), nên bỏ guard đi bộ kiểm vẫn xanh. Guard giữ lại để phòng

@@ -9,7 +9,7 @@
 import dayjs from 'dayjs'
 // Đuôi .js tường minh: file này được bộ kiểm chạy bằng node ESM thuần, mà node không tự thêm đuôi
 // như Vite. Vite hiểu cả hai cách, nên viết rõ đuôi là cách duy nhất chạy được ở CẢ HAI nơi.
-import { nhanNgay, ngayGon } from './ngayVietNam.js'
+import { nhanNgay, ngayGon, ngayDayDu } from './ngayVietNam.js'
 
 // Tìm đêm diễn gần nhất SAU ngày hôm nay, và đếm số buổi diễn trong chính đêm đó.
 //
@@ -35,7 +35,8 @@ export const timDemGanNhat = (danhSach, moc = dayjs()) => {
   const ngayDo = dayjs(ev.start_date)
   return {
     nhan: nhanNgay(ngayDo, moc),
-    ngay: ngayGon(ngayDo),
+    // Khác năm với mốc thì in đủ năm (như ngayTrongLich): "15/01" của năm sau dễ đọc thành tháng Một vừa qua.
+    ngay: ngayDo.isSame(dayjs(moc), 'year') ? ngayGon(ngayDo) : ngayDayDu(ngayDo),
     // Đếm trong CHÍNH đêm đó. Con số này là DỒI DÀO (còn nhiều thứ để xem), không phải khan hiếm —
     // ranh giới đó là luật §9 của đặc tả trang chủ và có cổng máy canh (scripts/kiem-ap-luc.mjs).
     soBuoi: ds.filter((e) => {

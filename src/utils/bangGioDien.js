@@ -19,7 +19,7 @@ export const gomTheoPhongTra = (buoiDien, anhPhongTra = {}) => {
         anh: anhPhongTra[dau.loungeName] || dau.thumbnail || null,
         buoi: dau,
         // Mọi buổi đêm nay ở phòng trà này, theo giờ — hộp đèn liệt kê từng buổi để "+N buổi nữa" không thành ngõ cụt
-        // (bảng tuần LichTuanNay bỏ qua đêm nay, nên ngoài hộp đèn không nơi nào khác trên trang chủ dẫn tới các buổi đó).
+        // (Sắp lên đèn bỏ qua đêm nay, nên ngoài hộp đèn không nơi nào khác trên trang chủ dẫn tới các buổi đó).
         tatCa: sx,
         soBuoiThem: sx.length - 1,
         dangDien: sx.some((x) => x.status === 'Ongoing'),
