@@ -1,4 +1,4 @@
-import { Search, User, ChevronDown, LogOut, Ticket, Settings, X, Menu, Languages, Check, Loader2, Store, LayoutDashboard, Bell, MessageSquareWarning } from 'lucide-react'
+import { Search, User, ChevronDown, LogOut, Ticket, Settings, X, Menu, Languages, Check, Store, LayoutDashboard, Bell, MessageSquareWarning } from 'lucide-react'
 import { useState, useEffect, useRef } from 'react'
 import { Link, NavLink, useNavigate } from 'react-router-dom' 
 import { useAuthStore } from '../store/useAuthStore'
@@ -7,6 +7,7 @@ import NotificationBell from '../components/notifications/NotificationBell'
 import { getMyProfile } from '../services/userServices'
 import { getShowSuggestions, getTrendingShows, getRecommendedShows } from '../services/showServices'
 import Wordmark from '../components/brand/Wordmark'
+import KhungGoiYTimKiem from '../components/shared/KhungGoiYTimKiem'
 
 // GỢI Ý TÌM KIẾM — GHI CHÚ CHO ĐỘI FE:
 // - Gọi /lounge-shows/suggestions, trả về { id, name, coverImageUrl }. Chỉ có tên và ảnh, KHÔNG có
@@ -140,19 +141,23 @@ const Header = () => {
 
   // Điều hướng bằng bàn phím: mũi tên lên/xuống chọn, Enter mở, Esc đóng. Không có phần này thì
   // người dùng bàn phím không với tới được danh sách.
+  // Danh sách đang hiện: gợi ý theo chữ gõ (≥ 2 ký tự) hoặc gợi ý mặc định. Bản trước chỉ đi được bằng phím ở danh sách
+  // theo chữ gõ; danh sách mặc định không với tới được bằng bàn phím.
+  const tuKhoaGoiY = localSearch.trim()
+  const dsDangHien = tuKhoaGoiY.length >= 2 ? (dangTaiGoiY ? [] : goiY) : goiYMacDinh.items
+  const coKhungGoiY = moGoiY && (tuKhoaGoiY.length >= 2 || goiYMacDinh.items.length > 0)
   const handleKeyDown = (e) => {
-    if (!moGoiY || goiY.length === 0) return
+    if (e.key === 'Escape') { setMoGoiY(false); return }
+    if (!moGoiY || dsDangHien.length === 0) return
     if (e.key === 'ArrowDown') {
       e.preventDefault()
-      setChiSoChon((i) => (i + 1) % goiY.length)
+      setChiSoChon((i) => (i + 1) % dsDangHien.length)
     } else if (e.key === 'ArrowUp') {
       e.preventDefault()
-      setChiSoChon((i) => (i <= 0 ? goiY.length - 1 : i - 1))
-    } else if (e.key === 'Enter' && chiSoChon >= 0) {
+      setChiSoChon((i) => (i <= 0 ? dsDangHien.length - 1 : i - 1))
+    } else if (e.key === 'Enter' && chiSoChon >= 0 && chiSoChon < dsDangHien.length) {
       e.preventDefault()
-      chonGoiY(goiY[chiSoChon])
-    } else if (e.key === 'Escape') {
-      setMoGoiY(false)
+      chonGoiY(dsDangHien[chiSoChon])
     }
   }
 
@@ -192,6 +197,8 @@ const Header = () => {
             </button>
             <input aria-label="Tìm đêm nhạc, phòng trà, nghệ sĩ"
               type="text"
+              role="combobox" aria-autocomplete="list" aria-expanded={coKhungGoiY && dsDangHien.length > 0}
+              aria-controls="o-tim-goi-y" aria-activedescendant={coKhungGoiY && chiSoChon >= 0 ? `o-tim-goi-y-${chiSoChon}` : undefined}
               value={localSearch}
               onChange={e => {
                 setLocalSearch(e.target.value)
@@ -199,7 +206,7 @@ const Header = () => {
                 setChiSoChon(-1)
                 setDangTaiGoiY(e.target.value.trim().length >= 2)
               }}
-              onFocus={() => setMoGoiY(true)}
+              onFocus={() => { setMoGoiY(true); setChiSoChon(-1) }}
               onKeyDown={handleKeyDown}
               autoComplete="off"
               placeholder="Tìm đêm nhạc, phòng trà, nghệ sĩ…"
@@ -211,66 +218,10 @@ const Header = () => {
               </button>
             )}
 
-            {/* DANH SÁCH GỢI Ý */}
-            {moGoiY && localSearch.trim().length >= 2 && (
-              <div className="absolute top-full left-0 right-0 mt-2 bg-card border-2 border-ink shadow-lift overflow-hidden z-50">
-                {dangTaiGoiY ? (
-                  <div className="py-6 flex justify-center">
-                    <Loader2 size={20} className="animate-spin text-ink" />
-                  </div>
-                ) : goiY.length === 0 ? (
-                  <p className="px-4 py-4 text-sm text-ink-mute">
-                    Không có buổi diễn nào khớp. Nhấn Enter để tìm rộng hơn.
-                  </p>
-                ) : (
-                  <ul>
-                    {goiY.map((item, i) => (
-                      <li key={item.id}>
-                        <button type="button" onClick={() => chonGoiY(item)}
-                          onMouseEnter={() => setChiSoChon(i)}
-                          className={`w-full flex items-center gap-3 px-3 py-2.5 text-left transition-colors ${i === chiSoChon ? 'bg-sunken' : 'hover:bg-sunken/60'}`}>
-                          {item.coverImageUrl ? (
-                            <img src={item.coverImageUrl} alt="" className="w-10 h-10 rounded-md object-cover flex-shrink-0" />
-                          ) : (
-                            <div className="w-10 h-10 rounded-md bg-sunken flex-shrink-0" />
-                          )}
-                          <span className="text-sm text-ink truncate">{item.name}</span>
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-            )}
-            {/* GỢI Ý MẶC ĐỊNH — hiện khi bấm vào ô mà chưa gõ đủ 2 ký tự */}
-            {moGoiY && localSearch.trim().length < 2 && goiYMacDinh.items.length > 0 && (
-              <div className="absolute top-full left-0 right-0 mt-2 bg-card border-2 border-ink shadow-lift overflow-hidden z-50">
-                <p className="px-4 pt-3 pb-1 text-sm font-semibold text-ink-mute">
-                  {goiYMacDinh.kieu === 'ca-nhan' ? 'Gợi ý riêng cho bạn' : 'Đang được quan tâm'}
-                </p>
-                <ul>
-                  {goiYMacDinh.items.map((item) => (
-                    <li key={item.id}>
-                      <button type="button" onClick={() => chonGoiY(item)}
-                        className="w-full flex items-center gap-3 px-3 py-2.5 text-left hover:bg-sunken/60 transition-colors">
-                        {item.coverImageUrl ? (
-                          <img src={item.coverImageUrl} alt="" className="w-10 h-10 rounded-md object-cover flex-shrink-0" />
-                        ) : (
-                          <div className="w-10 h-10 rounded-md bg-sunken flex-shrink-0" />
-                        )}
-                        <span className="min-w-0">
-                          <span className="block text-sm text-ink truncate">{item.name}</span>
-                          {(item.recommendationReason || item.loungeName) && (
-                            <span className="block text-xs text-ink-mute truncate">
-                              {item.recommendationReason || item.loungeName}
-                            </span>
-                          )}
-                        </span>
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+            {/* KHUNG GỢI Ý — theo chữ gõ (≥ 2 ký tự) hoặc mặc định khi chưa gõ. Xem chú thích ở KhungGoiYTimKiem. */}
+            {coKhungGoiY && (
+              <KhungGoiYTimKiem idKhung="o-tim-goi-y" tuKhoa={tuKhoaGoiY} dangTai={dangTaiGoiY} goiY={goiY} macDinh={goiYMacDinh}
+                chiSoChon={chiSoChon} setChiSoChon={setChiSoChon} onChon={chonGoiY} onDong={() => setMoGoiY(false)} />
             )}
           </form>
 
