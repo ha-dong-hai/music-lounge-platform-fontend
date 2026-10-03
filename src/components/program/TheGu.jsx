@@ -1,20 +1,22 @@
 // src/components/program/TheGu.jsx
 //
 // THẺ GU (trang chủ, 03/10/2026) — mỗi dòng nhạc đang có buổi sắp diễn là một tấm thẻ ảnh lớn + số đêm + các đêm gần nhất;
-// bấm là sang /shows lọc đúng dòng nhạc đó. Hiện LUÔN (không gập), đặt trên danh sách gu đầy đủ (vẫn gập như cũ).
+// bấm là sang /shows lọc đúng dòng nhạc đó. Hiện LUÔN (không gập), đặt trên phần lọc phụ tâm trạng/không gian (gập).
 // Vì sao: khối "Tìm theo gu" bản cũ gập kín — trang chủ chỉ thấy mỗi tiêu đề. Kệ theo chủ đề của Candlelight/Fever và
 // duyệt theo thể loại của Songkick (reports/Trang chủ - buổi diễn nổi bật.md).
 //
 // - Đếm theo MỌI thể loại của buổi (một buổi gắn Bolero + Trữ tình được đếm ở cả hai), không chỉ thể loại đầu.
 // - Ảnh: ưu tiên mỗi thẻ một buổi KHÁC nhau (bản xem thử 03/10: Sài Gòn Đêm Mưa gắn 3 dòng nhạc → 3 thẻ cùng một ảnh).
 //   Hết buổi chưa dùng thì mới lặp; buổi không ảnh bìa thì ảnh phòng trà; không có gì thì CoverFallback.
-// - Tối đa SO_THE thẻ (dòng nhiều buổi nhất trước); phần còn lại vẫn ở danh sách gu đầy đủ bên dưới.
+// - Đây là chỗ DUY NHẤT trang chủ in dòng nhạc (danh sách chữ "Dòng nhạc" đã bỏ — trùng và đếm lệch). Tối đa SO_THE
+//   thẻ, dòng nhiều buổi nhất trước; quá SO_THE thì phần còn lại vẫn tìm được ở /shows (bộ lọc dòng nhạc).
+// - Lưới tự chia đều theo số thẻ (auto-fit), thẻ nằm ngang: bản 4 cột cố định với 3 thẻ đứng để trống một góc và cao ~390px.
 import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { ngayGon } from '../../utils/ngayVietNam'
 import CoverFallback from '../shared/CoverFallback'
 
-const SO_THE = 4
+const SO_THE = 8
 
 const TheGu = ({ buoi = [], anhPhongTra = {} }) => {
   const the = useMemo(() => {
@@ -40,10 +42,10 @@ const TheGu = ({ buoi = [], anhPhongTra = {} }) => {
   if (the.length === 0) return null
 
   return (
-    <ul className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 mb-10">
+    <ul className="grid gap-4 grid-cols-[repeat(auto-fit,minmax(min(100%,15rem),1fr))] mb-10">
       {the.map((t) => (
         <li key={t.id}>
-          <Link to={`/shows?the=${t.id}`} className="group block relative aspect-[4/5] overflow-hidden border-2 border-ink bg-board">
+          <Link to={`/shows?the=${t.id}`} className="group block relative aspect-[4/3] overflow-hidden border-2 border-ink bg-board">
             {t.anh
               ? <img src={t.anh} alt="" loading="lazy" width="480" height="600" className="absolute inset-0 w-full h-full object-cover opacity-60 transition-[opacity,transform] duration-500 group-hover:opacity-75 motion-safe:group-hover:scale-[1.03]" />
               : <CoverFallback className="absolute inset-0" />}

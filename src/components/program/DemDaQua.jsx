@@ -10,14 +10,23 @@
 // GIỚI HẠN ĐÃ BIẾT: backend chỉ có đánh giá THEO TỪNG BUỔI (GET /lounge-shows/{id}/ratings) → gọi lịch theo từng phòng
 // trà rồi đánh giá theo từng đêm đã diễn (tối đa SO_DEM_XET đêm gần nhất). Trần: vài chục đêm. Đường nâng cấp: một API
 // "đánh giá công khai gần đây" ở backend trả thẳng N lời mới nhất kèm tên buổi/phòng trà.
-import { useEffect, useState } from 'react'
+// GIỚI HẠN TẦN SUẤT (đo 03/10/2026): backend chặn 100 yêu cầu/phút/IP. Bản đầu tải khối này ngay khi mở trang + gọi chi
+// tiết cả 5 phòng trà → trang chủ 31 yêu cầu/lần (dev), tải lại 3 lần là 429 và "Sắp lên đèn" mất câu giới thiệu, số vé.
+// Nay: (1) chỉ tải khi khối sắp vào màn hình; (2) nhớ kết quả 5 phút trong sessionStorage (tiện ích từng người xem — mất
+// thì tải lại, không sai); (3) chỉ lấy thư viện ảnh của MỘT phòng trà (nơi có lời đầu tiên).
+import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { getShowsByLounge, getShowRatings } from '../../services/showServices'
+import { getLoungeDetail } from '../../services/loungeServices'
 import { ngayDayDu } from '../../utils/ngayVietNam'
 
 const SO_DEM_XET = 12
 const SO_LOI = 3
 const XOAY = [-3, 2.5, -1.5, 3]
+const KHOA_NHO = 'ml-dem-da-qua-v1'
+const NHO_MS = 5 * 60 * 1000
+const docNho = () => { try { const v = JSON.parse(sessionStorage.getItem(KHOA_NHO)); return v && Date.now() - v.luc < NHO_MS ? v.duLieu : null } catch { return null } }
+const ghiNho = (duLieu) => { try { sessionStorage.setItem(KHOA_NHO, JSON.stringify({ luc: Date.now(), duLieu })) } catch { /* trình duyệt chặn lưu — bỏ qua */ } }
 
 const Sao = ({ diem }) => (
   <span className="font-mono text-sm tracking-[0.15em] text-lamp">
@@ -27,11 +36,21 @@ const Sao = ({ diem }) => (
 )
 
 // `dau` (tiêu đề khối) do trang truyền vào và chỉ in CÙNG nội dung: không có lời nào thì cả khối biến mất, không để lại tiêu đề trơ.
-const DemDaQua = ({ phongTra = [], chiTiet = {}, dau = null, className = '' }) => {
-  const [loi, setLoi] = useState(null) // null = đang tải; [] = không có
+const DemDaQua = ({ phongTra = [], dau = null, className = '' }) => {
+  const [duLieu, setDuLieu] = useState(docNho) // null = chưa tải; { loi: [], anh: [] }
+  const [gan, setGan] = useState(false)
+  const moc = useRef(null)
 
   useEffect(() => {
-    if (phongTra.length === 0) return undefined
+    const el = moc.current
+    if (!el || gan || duLieu) return undefined
+    const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setGan(true); io.disconnect() } }, { rootMargin: '400px' })
+    io.observe(el)
+    return () => io.disconnect()
+  }, [gan, duLieu])
+
+  useEffect(() => {
+    if (!gan || duLieu || phongTra.length === 0) return undefined
     let huy = false
     const tai = async () => {
       const lich = await Promise.allSettled(phongTra.map((l) => getShowsByLounge(l.id, { page: 1, pageSize: 50 })))
@@ -42,17 +61,25 @@ const DemDaQua = ({ phongTra = [], chiTiet = {}, dau = null, className = '' }) =
       const ds = dg.flatMap((r, i) => (r.status === 'fulfilled' && r.value?.success ? r.value.data?.items?.items ?? [] : [])
         .filter((x) => x.comment?.trim()).map((x) => ({ ...x, buoi: daDien[i] })))
         .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, SO_LOI)
-      if (!huy) setLoi(ds)
+      // Ảnh: thư viện của phòng trà có lời đầu tiên (đúng nơi người ta đã ngồi) — một lượt gọi, không phải cả 5 phòng trà.
+      let anh = []
+      if (ds.length > 0) {
+        const ct = await getLoungeDetail(ds[0].buoi.phongTra.id).catch(() => null)
+        anh = (ct?.success ? ct.data?.galleryImages ?? [] : []).slice().sort((a, b) => a.orderIndex - b.orderIndex)
+          .slice(0, 4).map((g) => ({ url: g.imageUrl, chuThich: g.caption }))
+      }
+      const kq = { loi: ds.map(({ buoi, ...r }) => ({ ...r, buoi: { id: buoi.id, name: buoi.name, scheduledStart: buoi.scheduledStart, phongTra: { id: buoi.phongTra.id, name: buoi.phongTra.name } } })), anh }
+      ghiNho(kq)
+      if (!huy) setDuLieu(kq)
     }
-    tai().catch(() => { if (!huy) setLoi([]) })
+    tai().catch(() => { if (!huy) setDuLieu({ loi: [], anh: [] }) })
     return () => { huy = true }
-  }, [phongTra])
+  }, [gan, duLieu, phongTra])
 
-  if (!loi || loi.length === 0) return null
-
-  // Ảnh: thư viện của phòng trà có lời đầu tiên (đúng nơi người ta đã ngồi), có chú thích thì in dưới ảnh như Polaroid.
-  const lDau = loi[0].buoi.phongTra
-  const anh = (chiTiet[lDau.id]?.thuVien ?? []).slice(0, 4)
+  // Mốc vô hình để biết khi nào sắp cuộn tới — chưa có dữ liệu thì chỉ in mốc, không in tiêu đề trơ.
+  if (!duLieu) return <div ref={moc} aria-hidden="true" />
+  const { loi, anh } = duLieu
+  if (loi.length === 0) return null
 
   return (
     <section aria-labelledby="dem-da-qua" className={className}>

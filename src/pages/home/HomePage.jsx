@@ -31,7 +31,6 @@ import IconMoRong from '../../components/shared/IconMoRong'
 import SapLenDen from '../../components/program/SapLenDen'
 import TheGu from '../../components/program/TheGu'
 import DemDaQua from '../../components/program/DemDaQua'
-import { getLoungeDetail } from '../../services/loungeServices'
 
 const SO_BUOI_TAI = 50
 
@@ -72,10 +71,7 @@ const HomePage = () => {
   const [anhPhongTra, setAnhPhongTra] = useState({})
   const [gu, setGu] = useState({ moods: [], atmospheres: [] })
   const [dsPhongTra, setDsPhongTra] = useState([])
-  // Thư viện ảnh từng phòng trà cho Đêm đã qua (DemDaQua) — danh sách /lounges không trả ảnh thư viện nên gọi chi tiết
-  // từng phòng trà (5 = 5 lượt, song song). Trần: vài chục phòng trà; nâng cấp: backend trả ảnh kèm lời bình.
-  // (Khối bản đồ phòng trà đã làm rồi BỎ theo chủ dự án 03/10/2026 — MLACP-559.)
-  const [chiTietPhongTra, setChiTietPhongTra] = useState({})
+  // Danh sách phòng trà (từ PhongTraTrenSan) — Đêm đã qua (DemDaQua) dùng để tìm các đêm đã diễn.
   // Khối "Tìm theo gu" mặc định THU GỌN (chủ dự án 02/10/2026): trang chủ ưu tiên lịch diễn và phòng trà; ai muốn
   // duyệt theo gu thì bấm mở. Cùng mẫu disclosure với NhomGu (button aria-expanded + aria-controls, chữ gạch chân
   // kèm dấu +/−, ghi SỐ lựa chọn đang ẩn để không bị tưởng là hết); khi thu gọn nội dung không dựng ra DOM.
@@ -117,21 +113,6 @@ const HomePage = () => {
     setDsPhongTra(items)
   }, [])
 
-  useEffect(() => {
-    if (dsPhongTra.length === 0) return undefined
-    let huy = false
-    Promise.allSettled(dsPhongTra.map((l) => getLoungeDetail(l.id))).then((kq) => {
-      if (huy) return
-      setChiTietPhongTra(Object.fromEntries(kq.map((r, i) => {
-        const d = r.status === 'fulfilled' && r.value?.success ? r.value.data : null
-        return [dsPhongTra[i].id, {
-          thuVien: (d?.galleryImages ?? []).slice().sort((a, b) => a.orderIndex - b.orderIndex).map((g) => ({ url: g.imageUrl, chuThich: g.caption })),
-        }]
-      })))
-    })
-    return () => { huy = true }
-  }, [dsPhongTra])
-
   const buoiDemNay = useMemo(() => {
     const ids = new Set(dangDien.map((x) => x.id))
     return [...dangDien, ...locDemNay(sapToi).filter((x) => !ids.has(x.id))]
@@ -152,11 +133,10 @@ const HomePage = () => {
       ? `${thuVietHoa(homNay)} ${ngayDayDu(homNay)}, ${dongBang.length} phòng trà sáng đèn`
       : `${thuVietHoa(homNay)} ${ngayDayDu(homNay)}, chưa phòng trà nào lên đèn`
 
-  const dongNhac = useMemo(() => {
-    const dem = new Map()
-    sapToi.forEach((b) => { if (b.genreId) dem.set(b.genreId, { ten: b.genre, so: (dem.get(b.genreId)?.so || 0) + 1 }) })
-    return [...dem.entries()].sort((a, b) => b[1].so - a[1].so)
-  }, [sapToi])
+  // Dòng nhạc chỉ còn MỘT chỗ là thẻ ảnh (TheGu). Bản 03/10 in hai lần — thẻ đếm mọi thể loại (Bolero 2), nhóm chữ
+  // "Dòng nhạc" bên dưới chỉ đếm thể loại ĐẦU của mỗi buổi (Bolero 1, thiếu luôn Acoustic) — chủ dự án: "đang hơi bị loạn".
+  const coDongNhac = sapToi.some((b) => (b.genres ?? []).length > 0)
+  const soLocThem = gu.moods.length + gu.atmospheres.length
 
   return (
     <div className="bg-stock text-ink">
@@ -219,11 +199,11 @@ const HomePage = () => {
           <LichTuanNay buoiDien={sapToi} dangTai={dangTai} />
         </section>
 
-        {(gu.moods.length > 0 || gu.atmospheres.length > 0 || dongNhac.length > 0) && (
+        {(soLocThem > 0 || coDongNhac) && (
           <section aria-labelledby="theo-gu" className="mt-24">
             <TieuDeKhoi
               id="theo-gu"
-              phu={
+              phu={soLocThem > 0 && (
                 <button
                   type="button"
                   onClick={() => setMoGu((v) => !v)}
@@ -233,19 +213,18 @@ const HomePage = () => {
                 >
                   {moGu
                     ? <><IconMoRong mo /> Thu gọn</>
-                    : <><IconMoRong /> Xem các gu ({dongNhac.length + gu.moods.length + gu.atmospheres.length} lựa chọn)</>}
+                    : <><IconMoRong /> Lọc thêm theo tâm trạng, không gian ({soLocThem})</>}
                 </button>
-              }
+              )}
             >
               Tìm theo gu
             </TieuDeKhoi>
-            {/* Thẻ gu luôn hiện (TheGu); danh sách đầy đủ ba nhóm vẫn gập bên dưới. */}
+            {/* Dòng nhạc = thẻ ảnh, luôn hiện (TheGu). Tâm trạng + không gian là lọc phụ, gập bên dưới. */}
             <TheGu buoi={sapToi} anhPhongTra={anhPhongTra} />
             {moGu && (
-              <div id="theo-gu-noi-dung" className="grid gap-8 md:grid-cols-3">
+              <div id="theo-gu-noi-dung" className="grid gap-8 md:grid-cols-2">
                 {[
                   // Bộ lọc đi qua ĐỊA CHỈ theo ID (src/utils/boLocBuoiDien.js): bấm Quay lại, tải lại hay gửi đường dẫn đều giữ nguyên.
-                  ['Dòng nhạc', dongNhac.map(([id, v]) => ({ key: id, ten: v.ten, so: v.so, to: `/shows?the=${id}` }))],
                   ['Tâm trạng', gu.moods.map((m) => ({ key: m.id, ten: m.name, to: `/shows?tam=${m.id}` }))],
                   ['Không gian', gu.atmospheres.map((a) => ({ key: a.id, ten: a.name, to: `/shows?kg=${a.id}` }))],
                 ].filter(([, ds]) => ds.length > 0).map(([tieuDe, ds]) => (
@@ -257,7 +236,7 @@ const HomePage = () => {
           </section>
         )}
 
-        <DemDaQua phongTra={dsPhongTra} chiTiet={chiTietPhongTra} className="mt-24"
+        <DemDaQua phongTra={dsPhongTra} className="mt-24"
           dau={<TieuDeKhoi id="dem-da-qua" phu={<LienKetMuiTen to="/shows">Mọi buổi diễn</LienKetMuiTen>}>Đêm đã qua</TieuDeKhoi>} />
 
         <section aria-labelledby="tien-di-dau" className="mt-24">
