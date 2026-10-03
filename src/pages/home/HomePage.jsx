@@ -28,6 +28,11 @@ import { ngayDayDu, thuVietHoa } from '../../utils/ngayVietNam'
 import { timDemGanNhat, locDemNay } from '../../utils/lichDien'
 import { useAuthStore } from '../../store/useAuthStore'
 import IconMoRong from '../../components/shared/IconMoRong'
+import SapLenDen from '../../components/program/SapLenDen'
+import TheGu from '../../components/program/TheGu'
+import BanDoPhongTra from '../../components/program/BanDoPhongTra'
+import DemDaQua from '../../components/program/DemDaQua'
+import { getLoungeDetail } from '../../services/loungeServices'
 
 const SO_BUOI_TAI = 50
 
@@ -44,6 +49,7 @@ const doiSangDong = (show) => ({
   performers: show.performerNames ?? [],
   genre: show.genres?.[0]?.name || 'Khác',
   genreId: show.genres?.[0]?.id || null,
+  genres: show.genres ?? [], // TheGu đếm theo MỌI dòng nhạc của buổi, không chỉ dòng đầu
   price: formatMinPrice(show),
   format: show.format,
   status: show.status,
@@ -66,6 +72,10 @@ const HomePage = () => {
   const [dangDien, setDangDien] = useState([])
   const [anhPhongTra, setAnhPhongTra] = useState({})
   const [gu, setGu] = useState({ moods: [], atmospheres: [] })
+  const [dsPhongTra, setDsPhongTra] = useState([])
+  // Chi tiết từng phòng trà (toạ độ, địa chỉ đủ, thư viện ảnh) — danh sách /lounges không trả mấy thứ này. Tải MỘT lần,
+  // dùng chung cho bản đồ (BanDoPhongTra) và Đêm đã qua (DemDaQua). Trần + đường nâng cấp: xem đầu BanDoPhongTra.
+  const [chiTietPhongTra, setChiTietPhongTra] = useState({})
   // Khối "Tìm theo gu" mặc định THU GỌN (chủ dự án 02/10/2026): trang chủ ưu tiên lịch diễn và phòng trà; ai muốn
   // duyệt theo gu thì bấm mở. Cùng mẫu disclosure với NhomGu (button aria-expanded + aria-controls, chữ gạch chân
   // kèm dấu +/−, ghi SỐ lựa chọn đang ẩn để không bị tưởng là hết); khi thu gọn nội dung không dựng ra DOM.
@@ -104,7 +114,24 @@ const HomePage = () => {
   // Ảnh không gian của phòng trà (DTO buổi diễn không có loungeId nên ghép theo TÊN; không khớp thì dùng ảnh bìa buổi diễn).
   const khiTaiPhongTra = useCallback((items) => {
     setAnhPhongTra(Object.fromEntries(items.filter((l) => l.primaryImageUrl).map((l) => [l.name, l.primaryImageUrl])))
+    setDsPhongTra(items)
   }, [])
+
+  useEffect(() => {
+    if (dsPhongTra.length === 0) return undefined
+    let huy = false
+    Promise.allSettled(dsPhongTra.map((l) => getLoungeDetail(l.id))).then((kq) => {
+      if (huy) return
+      setChiTietPhongTra(Object.fromEntries(kq.map((r, i) => {
+        const d = r.status === 'fulfilled' && r.value?.success ? r.value.data : null
+        return [dsPhongTra[i].id, {
+          lat: d?.latitude ?? null, lng: d?.longitude ?? null, diaChi: d?.fullAddress || null,
+          thuVien: (d?.galleryImages ?? []).slice().sort((a, b) => a.orderIndex - b.orderIndex).map((g) => ({ url: g.imageUrl, chuThich: g.caption })),
+        }]
+      })))
+    })
+    return () => { huy = true }
+  }, [dsPhongTra])
 
   const buoiDemNay = useMemo(() => {
     const ids = new Set(dangDien.map((x) => x.id))
@@ -113,6 +140,11 @@ const HomePage = () => {
   const dongBang = useMemo(() => gomTheoPhongTra(buoiDemNay, anhPhongTra), [buoiDemNay, anhPhongTra])
   const phongTraSangDen = useMemo(() => new Set(dongBang.map((d) => d.tenPhongTra)), [dongBang])
   const demGanNhat = useMemo(() => timDemGanNhat(sapToi), [sapToi])
+  // Sắp lên đèn: buổi đã mở bán, KHÔNG phải tối nay (khối Đêm nay đã in) — gần nhất trước (sapToi đã sắp StartingSoon).
+  const sapLenDen = useMemo(() => {
+    const demNay = new Set(buoiDemNay.map((x) => x.id))
+    return sapToi.filter((x) => !demNay.has(x.id))
+  }, [sapToi, buoiDemNay])
 
   const homNay = dayjs()
   const dongPhu = dangTai
@@ -165,12 +197,30 @@ const HomePage = () => {
           </div>
         </section>
 
+        {sapLenDen.length > 0 && (
+          <section aria-labelledby="sap-len-den" className="mt-24">
+            <TieuDeKhoi id="sap-len-den" phu={<LienKetMuiTen to="/shows">Mọi buổi diễn</LienKetMuiTen>}>
+              Sắp lên đèn
+            </TieuDeKhoi>
+            <SapLenDen buoi={sapLenDen} anhPhongTra={anhPhongTra} />
+          </section>
+        )}
+
         <section aria-labelledby="phong-tra-tren-san" className="mt-24">
           <TieuDeKhoi id="phong-tra-tren-san" phu={<LienKetMuiTen to="/lounges">Mọi phòng trà</LienKetMuiTen>}>
             Phòng trà trên sàn
           </TieuDeKhoi>
           <PhongTraTrenSan daDangNhap={daDangNhap} phongTraSangDen={phongTraSangDen} onTai={khiTaiPhongTra} />
         </section>
+
+        {dsPhongTra.length > 0 && (
+          <section aria-labelledby="ban-do-td" className="mt-24">
+            <TieuDeKhoi id="ban-do-td" phu={<LienKetMuiTen to="/lounges">Mọi phòng trà</LienKetMuiTen>}>
+              Phòng trà trên bản đồ
+            </TieuDeKhoi>
+            <BanDoPhongTra phongTra={dsPhongTra} buoi={sapToi} chiTiet={chiTietPhongTra} />
+          </section>
+        )}
 
         <section aria-labelledby="lich-tuan-td" id="lich-tuan" className="mt-24 scroll-mt-24">
           <TieuDeKhoi id="lich-tuan-td" phu={<LienKetMuiTen to="/shows">Mọi buổi diễn</LienKetMuiTen>}>
@@ -199,6 +249,8 @@ const HomePage = () => {
             >
               Tìm theo gu
             </TieuDeKhoi>
+            {/* Thẻ gu luôn hiện (TheGu); danh sách đầy đủ ba nhóm vẫn gập bên dưới. */}
+            <TheGu buoi={sapToi} anhPhongTra={anhPhongTra} />
             {moGu && (
               <div id="theo-gu-noi-dung" className="grid gap-8 md:grid-cols-3">
                 {[
@@ -214,6 +266,9 @@ const HomePage = () => {
             )}
           </section>
         )}
+
+        <DemDaQua phongTra={dsPhongTra} chiTiet={chiTietPhongTra} className="mt-24"
+          dau={<TieuDeKhoi id="dem-da-qua" phu={<LienKetMuiTen to="/shows">Mọi buổi diễn</LienKetMuiTen>}>Đêm đã qua</TieuDeKhoi>} />
 
         <section aria-labelledby="tien-di-dau" className="mt-24">
           <TieuDeKhoi id="tien-di-dau" phu={<LienKetMuiTen to="/minh-bach">Trang minh bạch</LienKetMuiTen>}>

@@ -521,3 +521,15 @@ thì đỏ). CHƯA kiểm được: phát HLS thật, trò chuyện SignalR th�
 
 **Cách làm để không phải làm lại:** một trang mẫu cho mỗi loại trang → chủ dự án duyệt trên ảnh chụp thật → mới nhân
 rộng. Không đổi hướng thị giác giữa chừng một đợt nhân rộng; ý mới ghi lại và áp ở đợt sau.
+
+### Trang chủ: Sắp lên đèn · Bản đồ · Thẻ gu · Đêm đã qua (03/10/2026)
+Nghiên cứu: `reports/Trang chủ - buổi diễn nổi bật.md` (repo backend). Chủ dự án chọn ý tưởng 1·5·7·10, bỏ "ban biên tập chọn".
+- **Sắp lên đèn** (`SapLenDen`): buổi gần nhất KHÔNG phải tối nay in lớn trên khối sơn then (ảnh bìa, ai hát + một câu giới
+  thiệu, nơi diễn, "N khu · còn X vé" từ sơ đồ khu, cuống Đặt vé), dưới là tối đa 4 buổi "Tiếp theo". Lý do chọn in ngay
+  dòng đầu ("Gần nhất"). Không có buổi nào thì không in khối.
+- **Phòng trà trên bản đồ** (`BanDoPhongTra`): OpenStreetMap + Leaflet, tải lười; ô bản đồ ngả màu giấy; ghim là mảnh giấy
+  viền mực, có đêm sắp diễn thì đảo khối mực; tắt phóng bằng con lăn. Danh sách bên cạnh là đường bàn phím và chỗ cho
+  phòng trà chưa có toạ độ. Nhãn ghim không được nằm dưới nút +/−.
+- **Thẻ gu** (`TheGu`): tối đa 4 dòng nhạc đang có buổi, luôn hiện; mỗi thẻ một ảnh khác nhau khi có thể (gán thẻ ít lựa
+  chọn trước). Danh sách gu đầy đủ vẫn gập.
+- **Đêm đã qua** (`DemDaQua`): chỉ in khi có ít nhất một lời bình THẬT; sao màu lamp (vàng thếp `ember` chỉ cho đang diễn).
