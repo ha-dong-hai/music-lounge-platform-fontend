@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useMemo, lazy, Suspense } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { ArrowLeft, Loader2, AlertCircle, WifiOff, Eye, Square, Lock, ShieldOff, Sofa, Theater } from 'lucide-react'
+import { ArrowLeft, Loader2, AlertCircle, WifiOff, Square, Lock, ShieldOff, Sofa, Theater } from 'lucide-react'
 import toast from 'react-hot-toast'
 import StreamPlayer from '../../components/livestream/StreamPlayer'
 import ChatPanel from '../../components/livestream/ChatPanel'
@@ -13,10 +13,10 @@ import { useLivestreamHub } from '../../hooks/useLivestreamHub'
 
 import RatingModal from '../../components/livestream/RatingModal'
 import HopXacNhan from '../../components/shared/HopXacNhan'
-import { formatCompactNumber } from '../../utils/format'
 import { getLoungeTour } from '../../services/loungeServices'
 import { ghiNhoThanhToan, LOAI_THANH_TOAN } from '../../utils/paymentContext'
 import LienKetMuiTen from '../../components/shared/LienKetMuiTen'
+import BoDemNguoiXem from '../../components/livestream/BoDemNguoiXem'
 
 // Chế độ "ngồi tại phòng trà" kéo theo three.js (~500KB) — chỉ tải khi người xem BẬT nó.
 const PanoramaViewer = lazy(() => import('../../components/lounge/PanoramaViewer'))
@@ -354,7 +354,8 @@ const LivestreamWatchPage = () => {
           <p className="text-xs text-ink-soft flex items-center gap-2 flex-wrap">
             {/* Vàng thếp (ember) là màu DUY NHẤT của "đang diễn" trong thế giới này; không nhấp nháy. */}
             <span className="inline-flex items-center px-1.5 bg-ember text-board font-semibold">Đang phát</span>
-            <span className="flex items-center gap-1"><Eye size={12} aria-hidden="true" /> {formatCompactNumber(viewerCount)} <span className="sr-only">người đang xem</span></span>
+            {/* D2 (03/10/2026): bộ đếm ô chữ lật, lật mỗi khi SignalR báo số người xem đổi. */}
+            <BoDemNguoiXem so={viewerCount} />
             {connectionState !== 'connected' && (
               <span className="flex items-center gap-1 text-warning">
                 <WifiOff size={11} /> {connectionState === 'reconnecting' ? 'Đang kết nối lại…' : 'Đang kết nối…'}
