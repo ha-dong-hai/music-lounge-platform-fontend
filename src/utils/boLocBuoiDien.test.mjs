@@ -4,15 +4,24 @@ import dayjs from 'dayjs'
 import { docBoLoc, ghiBoLoc, thamSoApi, boLocDangAp, khoangCuaMoc, loiKhoangGia, loiKhoangNgay, BO_LOC_RONG, CO_TRANG } from './boLocBuoiDien.js'
 
 const doc = (s) => docBoLoc(new URLSearchParams(s))
+// Mã danh mục là GUID từ MLACP-516 (đúng dạng Azure trả). Bản trước kiểm bằng số nguyên 1, 4… nên XANH trong khi trên
+// web thật bộ lọc dòng nhạc/tâm trạng/không gian không chạy: parseInt('00000000-03ed-…') = 0 → bị bỏ (đo 03/10/2026).
+const G1 = '00000000-03e9-81b5-8b05-0000000003e9', G3 = '00000000-03eb-81b5-8b05-0000000003eb'
+const G4 = '00000000-03ec-81b5-8b05-0000000003ec', G5 = '00000000-03ed-81b5-8b05-0000000003ed'
+const M1 = '00000000-0001-8e3f-9a1c-000000000001', M3 = '00000000-0003-8e3f-9a1c-000000000003', K2 = '00000000-0002-8f00-9b2d-000000000002'
+
+// --- mã GUID thật (Acoustic trên Azure 03/10) phải đọc được
+assert.deepEqual(doc(`the=${G5}`).the, [G5], 'GUID thật của Azure đọc được')
+assert.deepEqual(doc(`the=${G5.toUpperCase()}`).the, [G5], 'GUID viết hoa (sửa tay) vẫn nhận, đưa về chữ thường')
 
 // --- đọc: mặc định, giá trị hỏng bị bỏ, tương thích đường dẫn cũ
 assert.deepEqual(doc(''), BO_LOC_RONG, 'địa chỉ trơn = bộ lọc rỗng')
-assert.deepEqual(doc('the=1,abc,4,-2&tam=x&sap=LungTung&trang=0&ht=Khac&ngay=bua&tu=2026-13-99&giaTu=-5&giaDen=1.5'), { ...BO_LOC_RONG, the: [1, 4] }, 'giá trị hỏng bị bỏ, không ném lỗi')
+assert.deepEqual(doc(`the=${G1},abc,${G4},-2,7&tam=x&sap=LungTung&trang=0&ht=Khac&ngay=bua&tu=2026-13-99&giaTu=-5&giaDen=1.5`), { ...BO_LOC_RONG, the: [G1, G4] }, 'giá trị hỏng (kể cả số nguyên kiểu cũ) bị bỏ, không ném lỗi')
 assert.equal(doc('keyword=trinh').q, 'trinh', '?keyword= cũ vẫn đọc được')
-assert.deepEqual(doc('genreId=3&the=3,5').the, [3, 5], '?genreId= cũ gộp vào, bỏ trùng')
+assert.deepEqual(doc(`genreId=${G3}&the=${G3},${G5}`).the, [G3, G5], '?genreId= cũ gộp vào, bỏ trùng')
 
 // --- ghi rồi đọc lại phải ra đúng bộ lọc; bộ lọc rỗng ghi ra chuỗi rỗng
-const b = { ...BO_LOC_RONG, q: 'nhạc trịnh', the: [4], tam: [1, 3], kg: [2], tp: 'TP.HCM', ht: 'Hybrid', tu: '2026-10-03', den: '2026-10-05', giaTu: 200000, giaDen: 500000, sap: 'PriceAsc', trang: 3 }
+const b = { ...BO_LOC_RONG, q: 'nhạc trịnh', the: [G4], tam: [M1, M3], kg: [K2], tp: 'TP.HCM', ht: 'Hybrid', tu: '2026-10-03', den: '2026-10-05', giaTu: 200000, giaDen: 500000, sap: 'PriceAsc', trang: 3 }
 assert.deepEqual(docBoLoc(ghiBoLoc(b)), b, 'ghi → đọc là đồng nhất')
 assert.equal(ghiBoLoc(BO_LOC_RONG).toString(), '', 'bộ lọc rỗng → địa chỉ trơn')
 assert.equal(ghiBoLoc({ ...BO_LOC_RONG, ngay: 'cuoi-tuan', tu: '2026-10-03' }).has('tu'), false, 'đã chọn mốc nhanh thì không ghi khoảng ngày tay')
@@ -35,7 +44,7 @@ assert.equal(khoangCuaMoc('', thuTu), null)
 const p = thamSoApi(b, thuTu)
 assert.equal(p.pageSize, CO_TRANG)
 assert.deepEqual([p.keyword, p.genreIds, p.moodIds, p.atmosphereIds, p.city, p.format, p.minPrice, p.maxPrice, p.sortBy, p.page],
-  ['nhạc trịnh', [4], [1, 3], [2], 'TP.HCM', 'Hybrid', 200000, 500000, 'PriceAsc', 3])
+  ['nhạc trịnh', [G4], [M1, M3], [K2], 'TP.HCM', 'Hybrid', 200000, 500000, 'PriceAsc', 3])
 assert.equal(dayjs(p.dateFrom).format('YYYY-MM-DD HH:mm'), '2026-10-03 00:00')
 assert.equal(dayjs(p.dateTo).format('YYYY-MM-DD HH:mm'), '2026-10-05 23:59', 'ngày "đến" tính hết ngày')
 assert.deepEqual(Object.keys(thamSoApi(BO_LOC_RONG)).sort(), ['includeSoldOut', 'page', 'pageSize', 'sortBy'], 'bộ lọc rỗng không gửi tham số thừa')
@@ -50,11 +59,11 @@ assert.ok(loiKhoangNgay(ngaySai))
 assert.equal('dateFrom' in thamSoApi(ngaySai), false)
 
 // --- nút gỡ
-const dm = { genres: [{ id: 4, name: 'Bolero' }], moods: [{ id: 1, name: 'Hoài niệm' }], atmospheres: [] }
+const dm = { genres: [{ id: G4, name: 'Bolero' }], moods: [{ id: M1, name: 'Hoài niệm' }], atmospheres: [] }
 const ap = boLocDangAp(b, dm)
 assert.deepEqual(ap.map((x) => x.nhan), ['“nhạc trịnh”', '03/10/2026 đến 05/10/2026', 'Bolero', 'Hoài niệm', 'mục đã gỡ', 'mục đã gỡ', 'Tại chỗ và trực tuyến', 'TP.HCM', '200.000đ đến 500.000đ'])
-const sauGo = ap.find((x) => x.khoa === 'tam-3').go(b)
-assert.deepEqual(sauGo.tam, [1], 'gỡ một mục chỉ bỏ đúng mục đó')
+const sauGo = ap.find((x) => x.khoa === `tam-${M3}`).go(b)
+assert.deepEqual(sauGo.tam, [M1], 'gỡ một mục chỉ bỏ đúng mục đó')
 assert.equal(boLocDangAp(BO_LOC_RONG, dm).length, 0)
 assert.equal(boLocDangAp({ ...BO_LOC_RONG, ngay: 'hom-nay' }, dm)[0].nhan, 'Hôm nay')
 

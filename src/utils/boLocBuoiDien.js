@@ -58,7 +58,11 @@ export const khoangCuaMoc = (moc, bayGio = dayjs()) => {
   return null
 }
 
-const dsSo = (chuoi) => String(chuoi ?? '').split(',').map((x) => Number.parseInt(x, 10)).filter((x) => Number.isInteger(x) && x > 0)
+// Mã danh mục (dòng nhạc, tâm trạng, không gian) là GUID từ MLACP-516. Bản trước đọc bằng parseInt và chỉ giữ số nguyên
+// dương: parseInt('00000000-03ed-…') = 0 → MỌI mã bị bỏ, nên tích một ô dòng nhạc là ô tự bỏ tích, đường dẫn từ thẻ gu
+// trang chủ không lọc gì (đo 03/10/2026). Nhận đúng dạng GUID, đưa về chữ thường (khớp chuỗi id API trả).
+const GUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
+const dsMa = (chuoi) => String(chuoi ?? '').split(',').map((x) => x.trim().toLowerCase()).filter((x) => GUID.test(x))
 // dayjs nhận cả '2026-13-99' (tự tràn sang tháng sau) nên isValid() không đủ: phải in ngược lại và so với chuỗi gốc.
 const laNgay = (s) => /^\d{4}-\d{2}-\d{2}$/.test(s ?? '') && dayjs(s).format('YYYY-MM-DD') === s
 const soTien = (s) => { const n = Number(s); return s !== '' && s != null && Number.isFinite(n) && n >= 0 && Number.isInteger(n) ? n : null }
@@ -74,9 +78,9 @@ export const docBoLoc = (ts) => {
   const trang = Number.parseInt(lay('trang'), 10)
   return {
     q: (lay('q') || lay('keyword')).trim(),
-    the: [...new Set([...dsSo(lay('the')), ...dsSo(lay('genreId'))])],
-    tam: dsSo(lay('tam')),
-    kg: dsSo(lay('kg')),
+    the: [...new Set([...dsMa(lay('the')), ...dsMa(lay('genreId'))])],
+    tam: dsMa(lay('tam')),
+    kg: dsMa(lay('kg')),
     tp: lay('tp'),
     ht: HINH_THUC.some((h) => h.value === ht) ? ht : '',
     ngay: MOC_NGAY.some((m) => m.value === ngay) ? ngay : '',
