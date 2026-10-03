@@ -30,6 +30,7 @@ const KHU_CANH = [
   'src/components/program/SapLenDen.jsx',
   'src/components/program/TheGu.jsx',
   'src/components/program/DemDaQua.jsx',
+  'src/components/program/BangLuotLoiBinh.jsx',
   'src/components/program/PhongTraTrenSan.jsx',
   'src/components/program/CuongVeCamKet.jsx',
   'src/components/program/KyTuLat.jsx',
