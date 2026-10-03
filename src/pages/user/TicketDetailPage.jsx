@@ -31,6 +31,7 @@ import { getTicketDetail, cancelTicket, initiateTicketTransfer, cancelTicketTran
 import { thuVietHoa, ngayDayDu, ngayGon, gioTrongNgay } from '../../utils/ngayVietNam'
 import { TRANG_THAI_VE, laVeTrucTuyen } from '../../utils/trangThaiVe'
 import LienKetMuiTen from '../../components/shared/LienKetMuiTen'
+import DemNguocGioDien from '../../components/shared/DemNguocGioDien'
 
 const tien = (n) => `${Number(n ?? 0).toLocaleString('vi-VN')}đ`
 const NUT_VIEN = 'inline-flex items-center justify-center gap-2 min-h-[48px] px-5 border-2 border-ink font-semibold hover:bg-ink hover:text-lamp transition-colors disabled:opacity-60'
@@ -200,6 +201,9 @@ const TicketDetailPage = () => {
           </div>
         )}
 
+        {/* D3: đếm ngược tới giờ diễn — CHỈ vé đã thanh toán (sau khi mua), buổi chưa diễn. Không bao giờ ở trang bán. */}
+        {ticket.status === 'Confirmed' && <DemNguocGioDien batDau={batDau} className="mt-8" />}
+
         {/* ===== LỐI VÀO: mã QR (vé tại chỗ đã thanh toán) / xem trực tuyến / lời giải thích ===== */}
         <section aria-labelledby="loi-vao-td" className="mt-8 border-2 border-ink bg-card p-5 sm:p-8">
           {coMaVaoCua ? (
@@ -207,8 +211,10 @@ const TicketDetailPage = () => {
               <h2 id="loi-vao-td" className="text-3xl">Mã vào cửa</h2>
               <p className="text-ink-soft mt-1">Đưa mã này cho nhân viên soát vé ở cửa phòng trà.</p>
               {/* Nền TRẮNG thuần và lề 24px quanh mã: máy quét cần ô đậm trên nền sáng và một vùng trống bao quanh. */}
-              <div className="mt-5 p-6 bg-white border border-ink">
+              {/* Vạch quét (D3): 3 lượt rồi tắt — xem .vach-quet trong index.css. relative để vạch chạy trong khung mã. */}
+              <div className="mt-5 p-6 bg-white border border-ink relative overflow-hidden">
                 <QRCode value={maQr} size={220} level="M" fgColor="#000000" bgColor="#FFFFFF" title={`Mã QR vào cửa của vé ${ticket.showName}`} />
+                <span aria-hidden="true" className="vach-quet" />
               </div>
               <p className="mt-4 text-sm text-ink-soft">Máy quét không đọc được? Đọc dãy mã này cho nhân viên:</p>
               <p className="font-mono text-sm break-all mt-1 select-all">{maQr}</p>

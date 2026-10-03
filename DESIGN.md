@@ -153,6 +153,17 @@ in nút chuyển. Mỗi lúc chỉ dựng MỘT cảnh WebGL. Sơ đồ 3D (`SoD
 16:9), bục màu layoutColor, số ghế = sức chứa (tối đa 80 vẽ), nhãn tên khu HTML bám bục, kéo xoay/cuộn phóng to (không lật
 xuống sàn), chạm bục = chọn khu; danh sách khu dạng nút aria-pressed bên cạnh là đường tương đương + thẻ sức chứa/mô tả.
 
+### Thành phần kỹ thuật số (03/10/2026)
+Mặt chữ "bảng điện" DUY NHẤT là ô chữ lật `KyTuLat` — không dựng chữ chấm LED (cần mask gradient trang trí).
+- **Nhãn Đang diễn** (`NhanDangDien`, 3 cỡ): khối vàng thếp + sóng âm 4 thanh, nhảy 4 nhịp (~4,4 giây) rồi đứng yên.
+- **Đang lên sân khấu** (`BangLenSanKhau`): chỉ buổi Ongoing; ai đang hát / kế tiếp theo setTime thật, cập nhật 30 giây;
+  không tiết mục nào có giờ thì không in.
+- **Bộ đếm người xem** (`BoDemNguoiXem`): CHỈ trang xem trực tuyến, lật khi SignalR báo đổi; không aria-live.
+- **Đếm ngược tới giờ diễn** (`DemNguocGioDien`): CHỈ vé đã thanh toán, cập nhật mỗi phút. Vạch quét QR (`.vach-quet`) 3 lượt rồi tắt.
+
+**The No-Pressure-Clock Rule.** Đồng hồ đếm ngược và số người đang xem KHÔNG BAO GIỜ ở trang bán vé (fake urgency) —
+chỉ sau khi mua hoặc trong trang xem. Mọi chuyển động tự chạy dừng trước 5 giây hoặc có nút dừng (WCAG 2.2.2).
+
 ### Bìa đĩa + đĩa than 3D (03/10/2026)
 Đầu trang buổi diễn: ảnh buổi diễn (hoặc ảnh phòng trà) là BÌA ĐĨA vuông HTML (`BiaDia`, hiện ngay); đĩa than three.js
 (`DiaThanCanvas`, tải lười, gói riêng) nằm sau bìa, ló nửa nhãn ra. Nhãn đĩa giấy `lamp` in tên buổi (Anton), phòng trà,

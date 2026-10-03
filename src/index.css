@@ -192,3 +192,26 @@
 @media (prefers-reduced-motion: reduce) {
   .song-am > span { animation: none; }
 }
+
+/* VẠCH QUÉT trên mã QR vé (D3 "vé điện tử sống", 03/10/2026): 3 lượt (~4,5 giây) rồi tắt hẳn — dưới ngưỡng 5 giây của
+   WCAG 2.2.2, và không đè lên mã lâu khi nhân viên đang quét (vạch 2px, QR mức M chịu được che khuất nhỏ).
+   Giảm chuyển động: không có vạch. */
+@keyframes vach-quet {
+  0% { top: 0; opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { top: calc(100% - 2px); opacity: 0; }
+}
+.vach-quet {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: var(--color-ember);
+  pointer-events: none;
+  opacity: 0;
+  animation: vach-quet 1.5s ease-in-out 3;
+}
+@media (prefers-reduced-motion: reduce) {
+  .vach-quet { display: none; }
+}
