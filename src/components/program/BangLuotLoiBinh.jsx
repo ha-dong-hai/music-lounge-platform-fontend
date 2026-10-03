@@ -20,23 +20,19 @@
 //  Thiết kế cho "nhiều và dài" mà bỏ sót "ít và ngắn".
 // KHÔNG CÒN ẢNH NÀO (cả ba nguồn đều thiếu/hỏng): lượt chỉ có chữ và THU GỌN theo nội dung — không giữ chiều cao tối thiểu.
 // LỜI NGẮN (dưới 80 ký tự) in chữ to hơn: một câu ngắn ở cỡ chữ thường trông lạc lõng cạnh tấm ảnh.
+// CỠ (bản 3, 03/10/2026): chủ dự án "bên Review nhỏ quá" → ảnh Polaroid 17rem/24rem (trước 14/19), lời dài text-3xl ở lg,
+// dòng nguồn text-base, đệm khối lg:p-16; sao điểm là SaoPhaLe (pha lê sâm-panh, bản D chủ dự án chọn) thay ký tự ★ cỡ 14px.
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import useEmblaCarousel from 'embla-carousel-react'
 import { ArrowLeft, ArrowRight } from 'lucide-react'
 import { ngayDayDu } from '../../utils/ngayVietNam'
+import SaoPhaLe from '../shared/SaoPhaLe'
 
 // Chữ do khán giả gõ: giữ xuống dòng của họ, ngắt được chuỗi dài không dấu cách (đo 03/10: một đường dẫn dài làm cả
 // trang chủ cuộn ngang tới 1.814px).
 const CHU_NGUOI_VIET = 'whitespace-pre-line [overflow-wrap:anywhere]'
 const NUT = 'inline-flex items-center justify-center w-11 h-11 border-2 border-lamp/60 text-lamp transition-colors hover:bg-lamp hover:text-board disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-lamp disabled:cursor-not-allowed'
-
-const Sao = ({ diem }) => (
-  <span className="font-mono text-sm tracking-[0.15em] text-lamp">
-    <span aria-hidden="true">{'★'.repeat(diem)}{'☆'.repeat(5 - diem)}</span>
-    <span className="sr-only">{diem} trên 5 sao</span>
-  </span>
-)
 
 const LuotLoi = ({ r }) => {
   const ten = r.userName || 'Khán giả'
@@ -67,18 +63,18 @@ const LuotLoi = ({ r }) => {
   return (
     <div className={`w-full grid gap-8 lg:gap-12 items-center ${anh ? 'lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]' : ''}`}>
       {anh && (
-        <figure className="m-0 mx-auto w-[min(100%,14rem)] lg:w-[min(100%,19rem)] bg-card text-ink p-3 pb-4 -rotate-2 shadow-[0_10px_22px_rgb(0_0_0/0.4)]">
+        <figure className="m-0 mx-auto w-[min(100%,17rem)] lg:w-[min(100%,24rem)] bg-card text-ink p-3.5 pb-5 -rotate-2 shadow-[0_18px_40px_rgb(0_0_0/0.5)]">
           <div className="aspect-square lg:aspect-[4/5] overflow-hidden bg-sunken">
             <img key={anh.url} src={anh.url} alt={anh.alt} loading="lazy" width="400" height="500"
               onError={() => setSoHong((n) => n + 1)} className="w-full h-full object-cover" />
           </div>
-          <figcaption className="font-hand text-lg leading-tight mt-2.5 [overflow-wrap:anywhere]">{anh.chuThich}</figcaption>
+          <figcaption className="font-hand text-xl leading-tight mt-3 [overflow-wrap:anywhere]">{anh.chuThich}</figcaption>
         </figure>
       )}
 
       <div className={anh ? '' : 'max-w-[52rem] w-full'}>
-        <Sao diem={r.score} />
-        <blockquote ref={loi} className={`font-hand mt-3 ${CHU_NGUOI_VIET} ${ngan ? 'text-4xl sm:text-5xl leading-[1.15]' : anh ? 'text-2xl leading-snug line-clamp-6' : 'text-[1.75rem] sm:text-4xl leading-[1.25] line-clamp-5'}`}>
+        <SaoPhaLe diem={r.score} className="w-7 h-7 sm:w-9 sm:h-9" />
+        <blockquote ref={loi} className={`font-hand mt-4 ${CHU_NGUOI_VIET} ${ngan ? 'text-4xl sm:text-5xl leading-[1.15]' : anh ? 'text-2xl lg:text-3xl leading-snug line-clamp-6' : 'text-[1.75rem] sm:text-4xl leading-[1.25] line-clamp-5'}`}>
           “{r.comment}”
         </blockquote>
         {biCat && !ngan && (
@@ -86,7 +82,7 @@ const LuotLoi = ({ r }) => {
             Đọc trọn lời này ở trang buổi diễn
           </Link>
         )}
-        <p className="text-sm text-lamp-mute mt-5 [overflow-wrap:anywhere]">
+        <p className="text-base text-lamp-mute mt-6 [overflow-wrap:anywhere]">
           — <span className="text-lamp font-semibold">{ten}</span> · <Link to={`/shows/${r.buoi.id}`} className="underline underline-offset-2 hover:text-lamp">{r.buoi.name}</Link>
           <br />{r.buoi.phongTra.name} · {ngayDayDu(r.buoi.scheduledStart)}
         </p>
@@ -120,7 +116,7 @@ const BangLuotLoiBinh = ({ loi }) => {
     // trong). Khung viền chỉ hiện khi đi bằng bàn phím.
     <div role="region" aria-roledescription="carousel" onKeyDown={n > 1 ? phim : undefined} tabIndex={n > 1 ? 0 : undefined}
       aria-label={n > 1 ? 'Lời khán giả sau những đêm đã diễn. Dùng phím mũi tên trái phải để sang lời khác.' : 'Lời khán giả sau những đêm đã diễn'}
-      className="bg-board text-lamp p-5 sm:p-8 lg:p-12 focus:outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink">
+      className="bg-board text-lamp p-5 sm:p-10 lg:p-16 focus:outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink">
       <div ref={khung} className="overflow-hidden">
         {/* aria-live polite: băng KHÔNG tự chạy nên đổi lượt là do người dùng bấm — đọc lượt mới cho trình đọc màn hình (APG). */}
         <div className="flex touch-pan-y" aria-live="polite">

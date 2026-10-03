@@ -215,3 +215,28 @@
 @media (prefers-reduced-motion: reduce) {
   .vach-quet { display: none; }
 }
+
+/* SAO PHA LÊ (SaoPhaLe, 03/10/2026) — 5 sắc độ pha lê ánh sâm-panh, chủ dự án chọn bản D. Bộ màu RIÊNG cho hàng sao điểm
+   đánh giá, không phải ember: ember vẫn chỉ mang nghĩa "đang diễn". Lấp lánh 2 lượt (~1,9 giây) rồi tắt — dưới ngưỡng
+   5 giây của WCAG 2.2.2. Giảm chuyển động: không lấp lánh. */
+:root {
+  --pha-le-1: #FFF6E0;
+  --pha-le-2: #F3DFAE;
+  --pha-le-3: #E2C27A;
+  --pha-le-4: #CDA75F;
+  --pha-le-5: #B48C45;
+}
+@keyframes sao-loe {
+  0%, 40% { opacity: 0; transform: scale(.4) rotate(0deg); }
+  70% { opacity: 1; transform: scale(1) rotate(45deg); }
+  100% { opacity: 0; transform: scale(.4) rotate(90deg); }
+}
+.sao-loe {
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: sao-loe .95s ease-in-out 2 both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .sao-loe { animation: none; }
+}

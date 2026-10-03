@@ -537,7 +537,9 @@ Nghiên cứu: `reports/Trang chủ - buổi diễn nổi bật.md` (repo backen
 "thẩm mỹ AI"). Gắn nhãn AI bằng chữ rõ nghĩa, đặt ngay cạnh thứ AI đã làm.
 - **Thẻ gu** (`TheGu`): tối đa 4 dòng nhạc đang có buổi, luôn hiện; mỗi thẻ một ảnh khác nhau khi có thể (gán thẻ ít lựa
   chọn trước). Danh sách gu đầy đủ vẫn gập.
-- **Đêm đã qua** (`DemDaQua`): chỉ in khi có ít nhất một lời bình THẬT; sao màu lamp (vàng thếp `ember` chỉ cho đang diễn).
+- **Đêm đã qua** (`DemDaQua`): chỉ in khi có ít nhất một lời bình THẬT. Sao điểm là `SaoPhaLe` — pha lê cắt mặt ánh
+  sâm-panh (biến `--pha-le-1..5`, KHÔNG phải token `ember`), lấp lánh 2 lượt rồi đứng yên. Ngoại lệ chủ dự án duyệt
+  03/10/2026 (bản D trong 4 bản mẫu), thay luật cũ "sao màu lamp". Vàng thếp `ember` vẫn chỉ cho đang diễn.
 
 ### Thanh lọc ngang trang Buổi diễn (03/10/2026)
 Nghiên cứu: `reports/Bộ lọc trang Buổi diễn.md` (repo backend). Chủ dự án chọn phương án A (thanh ngang) thay cột lọc trái.
