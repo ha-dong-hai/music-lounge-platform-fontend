@@ -530,3 +530,12 @@ Nghiên cứu: `reports/Trang chủ - buổi diễn nổi bật.md` (repo backen
 - **Thẻ gu** (`TheGu`): tối đa 4 dòng nhạc đang có buổi, luôn hiện; mỗi thẻ một ảnh khác nhau khi có thể (gán thẻ ít lựa
   chọn trước). Danh sách gu đầy đủ vẫn gập.
 - **Đêm đã qua** (`DemDaQua`): chỉ in khi có ít nhất một lời bình THẬT; sao màu lamp (vàng thếp `ember` chỉ cho đang diễn).
+
+### Thanh lọc ngang trang Buổi diễn (03/10/2026)
+Nghiên cứu: `reports/Bộ lọc trang Buổi diễn.md` (repo backend). Chủ dự án chọn phương án A (thanh ngang) thay cột lọc trái.
+- Mốc ngày bấm thẳng (nút `aria-pressed`); bốn nút thả: Dòng nhạc · Giá · Hình thức · Thêm bộ lọc. Nhãn nút in thứ đang
+  chọn ("Dòng nhạc · 2", "Dưới 300.000đ"); đang có lọc thì nút là khối mực.
+- Số buổi cạnh mỗi lựa chọn (`demLuaChon`, đếm đúng luật lọc backend); 0 buổi thì mờ, không bấm được, xếp cuối. Đang lọc
+  theo từ khoá/giá/tâm trạng/không gian thì ẩn số (không in số sai).
+- Giá có mức gợi ý + ô tự nhập kèm nút "Áp dụng". Dải "đang lọc" + × + "Xoá tất cả" ngay trên kết quả.
+- Nút thả là disclosure (không phải menu ARIA): Esc đóng và trả focus, bấm ra ngoài đóng. Điện thoại giữ hộp lọc phủ.

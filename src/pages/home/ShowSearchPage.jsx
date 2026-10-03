@@ -9,7 +9,8 @@
 // NHỮNG THỨ ĐỔI VÀ VÌ SAO (reports/Form lọc vé và màn vận hành.md ở repo backend):
 //  - BỘ LỌC NẰM TRONG ĐỊA CHỈ TRANG (src/utils/boLocBuoiDien.js): Quay lại, tải lại, gửi đường dẫn đều giữ nguyên.
 //  - Mặc định xếp theo NGÀY DIỄN GẦN NHẤT (bản cũ: theo lúc đăng).
-//  - Màn lớn: bộ lọc là cột bên trái luôn mở (Baymard: thanh lọc ngang chỉ ổn tới 6–8 loại bộ lọc; ở đây có 7).
+//  - Màn lớn: THANH LỌC NGANG trên kết quả (ThanhLocNgang, 03/10/2026 — chủ dự án chọn phương án A; bản 30/09 là cột trái
+//    luôn mở: 7 nhóm / 52 lựa chọn, cột cao ~1.400px cạnh 2 kết quả — "quá bất tiện"). Mỗi lựa chọn ghi số buổi.
 //    Màn nhỏ: nút "Bộ lọc (n)" mở hộp phủ <dialog>, đóng bằng nút "Xem N buổi diễn".
 //  - Bộ lọc đang áp in thành hàng nút gỡ phía trên kết quả + "Xoá tất cả" (Baymard: 28% trang thiếu phần này, người
 //    dùng quên mình đang lọc và tưởng trang ít hàng).
@@ -25,10 +26,11 @@ import { Search, SlidersHorizontal, X } from 'lucide-react'
 import toast from 'react-hot-toast'
 import DongBuoiDien from '../../components/program/DongBuoiDien'
 import BoLocBuoiDien from '../../components/program/BoLocBuoiDien'
+import ThanhLocNgang from '../../components/program/ThanhLocNgang'
 import { searchShows, getFilterOptions } from '../../services/showServices'
 import { toggleWishlist } from '../../services/interactionServices'
 import { useAuthStore } from '../../store/useAuthStore'
-import { BO_LOC_RONG, CACH_SAP, boLocDangAp, docBoLoc, ghiBoLoc, thamSoApi } from '../../utils/boLocBuoiDien'
+import { BO_LOC_RONG, CACH_SAP, boLocDangAp, demLuaChon, docBoLoc, ghiBoLoc, thamSoApi } from '../../utils/boLocBuoiDien'
 
 const DANH_MUC_RONG = { genres: [], moods: [], atmospheres: [], cities: [] }
 const NUT_VIEN = 'inline-flex items-center justify-center gap-2 min-h-[48px] px-5 border-2 border-ink bg-card font-semibold hover:bg-ink hover:text-lamp transition-colors disabled:opacity-40 disabled:hover:bg-card disabled:hover:text-ink disabled:cursor-not-allowed'
@@ -40,6 +42,8 @@ const ShowSearchPage = () => {
   const boLoc = useMemo(() => docBoLoc(new URLSearchParams(chuoiThamSo)), [chuoiThamSo])
 
   const [danhMuc, setDanhMuc] = useState(DANH_MUC_RONG)
+  // Toàn bộ buổi sắp diễn (MỘT lượt, ≤100 — trần ở demLuaChon) để ghi số buổi cạnh mỗi lựa chọn của thanh lọc.
+  const [tatCa, setTatCa] = useState(null)
   const [kq, setKq] = useState(null) // null = đang tải; { items, tong, soTrang }
   const [loi, setLoi] = useState(null)
   const [lanTai, setLanTai] = useState(0)
@@ -71,7 +75,11 @@ const ShowSearchPage = () => {
     getFilterOptions()
       .then((res) => { if (res?.success) setDanhMuc({ ...DANH_MUC_RONG, ...res.data }) })
       .catch(() => {}) // không có danh mục thì cột lọc chỉ còn ngày, hình thức, giá — danh sách vẫn dùng được
+    searchShows({ page: 1, pageSize: 100, sortBy: 'StartingSoon', includeSoldOut: true })
+      .then((res) => { if (res?.success) setTatCa(res.data?.items ?? []) })
+      .catch(() => {}) // không đếm được thì thanh lọc vẫn chạy, chỉ không ghi số
   }, [])
+  const dem = useMemo(() => (tatCa ? demLuaChon(tatCa, boLoc) : null), [tatCa, boLoc])
 
   useEffect(() => {
     let huy = false
@@ -124,12 +132,7 @@ const ShowSearchPage = () => {
           {boLoc.q ? <>Kết quả cho “{boLoc.q}”</> : 'Buổi diễn'}
         </h1>
 
-        <div className="mt-8 grid gap-x-12 lg:grid-cols-[17rem_minmax(0,1fr)]">
-          {/* CỘT LỌC — màn lớn */}
-          <aside aria-label="Bộ lọc buổi diễn" className="hidden lg:block border-t-2 border-ink pt-5">
-            <BoLocBuoiDien boLoc={boLoc} danhMuc={danhMuc} onDoi={doi} />
-          </aside>
-
+        <div className="mt-8">
           <div className="min-w-0">
             {/* THANH TRÊN: tìm, mở bộ lọc (màn nhỏ), sắp xếp */}
             <div className="flex flex-wrap items-end gap-3 border-t-2 border-ink pt-5">
@@ -155,6 +158,11 @@ const ShowSearchPage = () => {
                 </select>
               </label>
             </div>
+
+            {/* THANH LỌC NGANG — màn lớn */}
+            <section aria-label="Bộ lọc buổi diễn" className="hidden lg:block mt-5">
+              <ThanhLocNgang boLoc={boLoc} danhMuc={danhMuc} dem={dem} onDoi={doi} />
+            </section>
 
             {/* BỘ LỌC ĐANG ÁP */}
             {dangAp.length > 0 && (

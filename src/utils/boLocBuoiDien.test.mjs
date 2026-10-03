@@ -1,7 +1,7 @@
 // node src/utils/boLocBuoiDien.test.mjs
 import assert from 'node:assert/strict'
 import dayjs from 'dayjs'
-import { docBoLoc, ghiBoLoc, thamSoApi, boLocDangAp, khoangCuaMoc, loiKhoangGia, loiKhoangNgay, BO_LOC_RONG, CO_TRANG } from './boLocBuoiDien.js'
+import { docBoLoc, ghiBoLoc, thamSoApi, boLocDangAp, khoangCuaMoc, loiKhoangGia, loiKhoangNgay, demLuaChon, BO_LOC_RONG, CO_TRANG } from './boLocBuoiDien.js'
 
 const doc = (s) => docBoLoc(new URLSearchParams(s))
 // Mã danh mục là GUID từ MLACP-516 (đúng dạng Azure trả). Bản trước kiểm bằng số nguyên 1, 4… nên XANH trong khi trên
@@ -66,5 +66,28 @@ const sauGo = ap.find((x) => x.khoa === `tam-${M3}`).go(b)
 assert.deepEqual(sauGo.tam, [M1], 'gỡ một mục chỉ bỏ đúng mục đó')
 assert.equal(boLocDangAp(BO_LOC_RONG, dm).length, 0)
 assert.equal(boLocDangAp({ ...BO_LOC_RONG, ngay: 'hom-nay' }, dm)[0].nhan, 'Hôm nay')
+
+// --- đếm số buổi từng lựa chọn (thanh lọc ngang, 03/10/2026). Mốc: thứ Tư 30/09/2026.
+const ds3 = [
+  { id: 'a', scheduledStart: '2026-10-02T13:00:00Z', format: 'Offline', loungeCity: 'TP.HCM', genres: [{ id: G4.toUpperCase() }, { id: G1 }] }, // thứ Sáu
+  { id: 'b', scheduledStart: '2026-10-20T13:00:00Z', format: 'Offline', loungeCity: 'TP.HCM', genres: [{ id: G4 }] },
+  { id: 'c', scheduledStart: '2026-10-03T13:00:00Z', format: 'Hybrid', loungeCity: 'Hà Nội', genres: [{ id: G5 }] }, // thứ Bảy
+]
+const d0 = demLuaChon(ds3, BO_LOC_RONG, thuTu)
+assert.equal(d0.chinhXac, true)
+assert.deepEqual([d0.ngay[''], d0.ngay['cuoi-tuan'], d0.ngay['7-ngay'], d0.ngay['hom-nay']], [3, 2, 2, 0], 'đếm theo mốc ngày')
+assert.deepEqual([d0.the[G4], d0.the[G1], d0.the[G5]], [2, 1, 1], 'đếm theo dòng nhạc, GUID viết hoa vẫn khớp')
+assert.equal(d0.coTrongSan.has(G3), false, 'dòng nhạc không có buổi nào → không có trong sàn (giao diện làm mờ)')
+assert.deepEqual([d0.ht.Offline, d0.ht.Hybrid, d0.ht.Online], [2, 1, 0])
+assert.deepEqual(d0.tp, { 'TP.HCM': 2, 'Hà Nội': 1 })
+// Số của MỘT nhóm tính cùng bộ lọc của nhóm KHÁC: đang chọn cuối tuần → Bolero (G4) còn 1 (buổi b ngày 20/10 rớt)
+const d1 = demLuaChon(ds3, { ...BO_LOC_RONG, ngay: 'cuoi-tuan' }, thuTu)
+assert.equal(d1.the[G4], 1, 'đếm dòng nhạc tính cả bộ lọc ngày đang áp')
+assert.equal(d1.ngay[''], 3, '"mọi ngày" bỏ qua bộ lọc ngày')
+// ... nhưng KHÔNG tự lọc theo chính nhóm của nó: đang chọn G5, số của G4 vẫn là 2
+assert.equal(demLuaChon(ds3, { ...BO_LOC_RONG, the: [G5] }, thuTu).the[G4], 2)
+assert.equal(demLuaChon(ds3, { ...BO_LOC_RONG, the: [G5] }, thuTu).ht.Offline, 0, 'nhóm khác thì tính dòng nhạc đang chọn')
+// Lọc theo thứ trình duyệt không tự tính được → không chính xác (giao diện ẩn số)
+for (const x of [{ q: 'bolero' }, { giaTu: 100000 }, { tam: [M1] }, { kg: [K2] }]) assert.equal(demLuaChon(ds3, { ...BO_LOC_RONG, ...x }, thuTu).chinhXac, false)
 
 console.log('boLocBuoiDien: DAT')

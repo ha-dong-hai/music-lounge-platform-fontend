@@ -173,3 +173,51 @@ export const boLocDangAp = (b, danhMuc = {}) => {
   }
   return kq
 }
+
+// MỨC GIÁ GỢI Ý (thanh lọc ngang, 03/10/2026): hai ô "Từ/Đến" trống không gợi ý gì — người ta nghĩ theo mức ("dưới
+// 300 nghìn"). Mức theo giá vé phòng trà thường gặp; vẫn còn ô tự nhập cho khoảng khác.
+export const MUC_GIA = [
+  { khoa: 'duoi-300', label: 'Dưới 300.000đ', giaTu: null, giaDen: 300000 },
+  { khoa: '300-500', label: '300.000đ – 500.000đ', giaTu: 300000, giaDen: 500000 },
+  { khoa: '500-1tr', label: '500.000đ – 1.000.000đ', giaTu: 500000, giaDen: 1000000 },
+  { khoa: 'tren-1tr', label: 'Trên 1.000.000đ', giaTu: 1000000, giaDen: null },
+]
+
+// SỐ BUỔI CỦA TỪNG LỰA CHỌN — đếm ở trình duyệt trên MỘT lượt tải toàn bộ buổi sắp diễn (`ds`: dòng /lounge-shows/search).
+// Đếm theo ĐÚNG luật lọc của backend (LoungeShowRepository.SearchAsync): dòng nhạc = buổi có ÍT NHẤT một dòng đã chọn;
+// ngày = ScheduledStart trong khoảng; hình thức/thành phố = bằng. Số của một nhóm tính cùng bộ lọc của các NHÓM KHÁC đang
+// áp (cách đếm facet chuẩn) → số in ra bằng số kết quả nếu bấm vào.
+// KHÔNG đếm chính xác được khi đang lọc theo từ khoá (backend tìm cả mô tả; dòng danh sách không có), giá (backend xét TỪNG
+// hạng vé; dòng danh sách chỉ có min/max) hay tâm trạng/không gian (dòng danh sách không có) → `chinhXac: false`, giao diện
+// ẩn số thay vì in số sai. `coTrongSan` (dòng nhạc có ≥1 buổi trên toàn sàn) thì luôn đúng → lựa chọn 0 buổi luôn mờ.
+// TRẦN: một lượt tải tối đa 100 buổi (backend kẹp pageSize ≤ 100). Đường nâng cấp: backend trả số đếm theo mục kèm kết quả.
+export const demLuaChon = (ds = [], b = BO_LOC_RONG, bayGio = dayjs()) => {
+  const chinhXac = !b.q && b.giaTu == null && b.giaDen == null && b.tam.length === 0 && b.kg.length === 0
+  const theNho = (x) => (x.genres ?? []).map((g) => String(g.id).toLowerCase())
+  // ngay: undefined = theo bộ lọc đang áp; null = BỎ QUA ngày; chuỗi = mốc nhanh đó.
+  const khopNgay = (x, ngay) => {
+    if (ngay === null) return true
+    const k = ngay ? khoangCuaMoc(ngay, bayGio)
+      : b.ngay ? khoangCuaMoc(b.ngay, bayGio)
+        : (b.tu || b.den) ? [b.tu ? dayjs(b.tu).startOf('day') : null, b.den ? dayjs(b.den).endOf('day') : null] : null
+    if (!k) return true
+    const t = dayjs(x.scheduledStart)
+    return (!k[0] || !t.isBefore(k[0])) && (!k[1] || !t.isAfter(k[1]))
+  }
+  const khop = (x, { ngay, the = b.the, ht = b.ht, tp = b.tp } = {}) => khopNgay(x, ngay)
+    && (the.length === 0 || theNho(x).some((id) => the.includes(id)))
+    && (!ht || x.format === ht)
+    && (!tp || x.loungeCity === tp)
+  const dem = (f) => ds.filter(f).length
+
+  const coTrongSan = new Set(ds.flatMap(theNho))
+  const ngay = { '': dem((x) => khop(x, { ngay: null })) }
+  MOC_NGAY.forEach((m) => { ngay[m.value] = dem((x) => khop(x, { ngay: m.value })) })
+  const the = {}
+  coTrongSan.forEach((id) => { the[id] = dem((x) => khop(x, { the: [id] })) })
+  const ht = { '': dem((x) => khop(x, { ht: '' })) }
+  HINH_THUC.forEach((h) => { ht[h.value] = dem((x) => khop(x, { ht: h.value })) })
+  const tp = {}
+  new Set(ds.map((x) => x.loungeCity).filter(Boolean)).forEach((c) => { tp[c] = dem((x) => khop(x, { tp: c })) })
+  return { chinhXac, coTrongSan, ngay, the, ht, tp }
+}
