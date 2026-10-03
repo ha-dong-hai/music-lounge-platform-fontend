@@ -1,20 +1,32 @@
 // src/components/account/PreferencesTab.jsx
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { Loader2, Save, Sparkles } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { getMyProfile, updatePreferences } from '../../services/userServices'
 import { getGenres, getMoods, getAtmospheres } from '../../services/catalogServices'
 
+const EMPTY_FORM = { genreIds: [], moodIds: [], atmosphereIds: [], dislikedGenreIds: [], enableAiConsent: true }
+
+// So sánh theo String: BE trả GUID dạng string, phòng trường hợp catalog trả id dạng number —
+// `selected.includes(o.id)` lệch kiểu sẽ không bao giờ khớp và chip không sáng.
+const isSelected = (selected, id) => selected.some((x) => String(x) === String(id))
+
 const ChipGroup = ({ label, hint, options, selected, onToggle, accent = false }) => (
   <div>
-    <label className="text-sm font-medium text-ink">{label}</label>
+    <label className="text-sm font-medium text-ink">
+      {label}
+      {/* Số mục đang bật — nhìn label là biết có bao nhiêu lựa chọn đã lưu, khỏi phải đếm chip */}
+      {selected.length > 0 && (
+        <span className="ml-2 text-xs font-bold text-brand-text">{selected.length}</span>
+      )}
+    </label>
     {hint && <p className="text-xs text-ink-mute mt-0.5">{hint}</p>}
     <div className="mt-2 flex flex-wrap gap-2">
       {options.map((o) => {
-        const chon = selected.includes(o.id)
+        const chon = isSelected(selected, o.id)
         return (
-          <button key={o.id} type="button" onClick={() => onToggle(o.id)}
+          <button key={o.id} type="button" onClick={() => onToggle(o.id)} aria-pressed={chon}
             className={`px-3 py-1.5 rounded-lg border text-xs font-medium transition-colors ${chon
               ? accent
                 ? 'bg-red-500/10 border-red-500/40 text-danger'
@@ -30,20 +42,41 @@ const ChipGroup = ({ label, hint, options, selected, onToggle, accent = false })
 
 const PreferencesTab = () => {
   const [catalog, setCatalog] = useState({ genres: [], moods: [], atmospheres: [] })
-  const [form, setForm] = useState({
-    genreIds: [], moodIds: [], atmosphereIds: [], dislikedGenreIds: [], enableAiConsent: true,
-  })
+  const [form, setForm] = useState(EMPTY_FORM)
+  // Bản chốt sau lần lưu gần nhất — để biết còn thay đổi nào chưa được lưu hay không.
+  const [savedForm, setSavedForm] = useState(EMPTY_FORM)
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
 
-  const toggle = (key, id) => setForm((p) => ({
-    ...p,
-    [key]: p[key].includes(id) ? p[key].filter((x) => x !== id) : [...p[key], id],
-  }))
+  const toggle = (key, id) => setForm((p) => {
+    // ⚠️ CHẮN XUNG ĐỘT: một thể loại không thể vừa "yêu thích" vừa "không muốn thấy" —
+    // hai nhóm này dùng chung catalog.genres nên người dùng dễ chọn trùng mà không để ý.
+    // (Nếu backend đã tự xử lý trùng thì xoá block này, chỉ giữ phần return bên dưới.)
+    if (key === 'genreIds' && !p.genreIds.includes(id) && p.dislikedGenreIds.includes(id)) {
+      toast.error('Thể loại này đang nằm trong "không muốn thấy" — bỏ nó khỏi đó trước.')
+      return p
+    }
+    if (key === 'dislikedGenreIds' && !p.dislikedGenreIds.includes(id) && p.genreIds.includes(id)) {
+      toast.error('Thể loại này đang nằm trong "yêu thích" — bỏ nó khỏi đó trước.')
+      return p
+    }
+    return {
+      ...p,
+      [key]: p[key].includes(id) ? p[key].filter((x) => x !== id) : [...p[key], id],
+    }
+  })
+
+  // Có thay đổi chưa lưu không? So JSON là đủ vì form chỉ chứa mảng id + boolean.
+  const isDirty = useMemo(
+    () => JSON.stringify(form) !== JSON.stringify(savedForm),
+    [form, savedForm]
+  )
 
   const load = useCallback(async () => {
     setIsLoading(true)
     try {
+      // Danh mục và hồ sơ là 2 nguồn ĐỘC LẬP (allSettled): danh mục lỗi thì vẫn sửa được
+      // phần AI consent, hồ sơ lỗi thì tab không trắng trang mà hiện danh mục rỗng.
       const [g, m, a, me] = await Promise.allSettled([
         getGenres(), getMoods(), getAtmospheres(), getMyProfile(),
       ])
@@ -52,13 +85,17 @@ const PreferencesTab = () => {
 
       if (me.status === 'fulfilled' && me.value?.success) {
         const d = me.value.data
-        setForm({
-          genreIds: d.preferredGenreIds ?? d.genreIds ?? [],
-          moodIds: d.preferredMoodIds ?? d.moodIds ?? [],
-          atmosphereIds: d.preferredAtmosphereIds ?? d.atmosphereIds ?? [],
+        // ĐỌC THEO TÊN THẬT CỦA GET /me (favourite*) — fallback tên cũ giữ lại
+        // phòng khi BE sau này đồng bộ tên với PUT.
+        const formTuBe = {
+          genreIds: d.favouriteGenreIds ?? d.preferredGenreIds ?? d.genreIds ?? [],
+          moodIds: d.favouriteMoodIds ?? d.preferredMoodIds ?? d.moodIds ?? [],
+          atmosphereIds: d.favouriteAtmosphereIds ?? d.preferredAtmosphereIds ?? d.atmosphereIds ?? [],
           dislikedGenreIds: d.dislikedGenreIds ?? [],
           enableAiConsent: d.aiConsent ?? d.enableAiConsent ?? true,
-        })
+        }
+        setForm(formTuBe)
+        setSavedForm(formTuBe)
       }
     } catch (err) {
       toast.error(err.response?.data?.message || 'Không tải được sở thích.')
@@ -71,9 +108,12 @@ const PreferencesTab = () => {
 
   const luu = async (e) => {
     e.preventDefault()
+    if (!isDirty || isSaving) return
     setIsSaving(true)
     try {
+      // PUT /me/preferences nhận genreIds/moodIds/... — đúng contract, service không đổi.
       await updatePreferences(form)
+      setSavedForm(form)
       toast.success('Đã lưu sở thích.')
     } catch (err) {
       toast.error(err.response?.data?.message || 'Không lưu được sở thích.')
@@ -119,8 +159,10 @@ const PreferencesTab = () => {
           selected={form.dislikedGenreIds} onToggle={(id) => toggle('dislikedGenreIds', id)} />
       </div>
 
-      <button type="submit" disabled={isSaving}
-        className="flex items-center gap-2 px-5 py-2.5 bg-brand text-on-brand rounded-lg font-bold hover:bg-brand-hover disabled:opacity-50">
+      {/* Lưu chỉ bật khi có thay đổi — không gửi PUT thừa, và người dùng không tưởng
+          mình đã lưu trong khi chẳng có gì được gửi đi. */}
+      <button type="submit" disabled={isSaving || !isDirty}
+        className="flex items-center gap-2 px-5 py-2.5 bg-brand text-on-brand rounded-lg font-bold hover:bg-brand-hover disabled:opacity-50 disabled:cursor-not-allowed">
         {isSaving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />} Lưu sở thích
       </button>
     </form>

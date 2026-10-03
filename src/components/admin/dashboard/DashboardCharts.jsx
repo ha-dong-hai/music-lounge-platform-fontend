@@ -74,7 +74,7 @@ export const RevenueByMonthChart = ({ months, measure }) => {
           </BarChart>
         </ResponsiveContainer>
       </div>
-      <p className="text-xs text-ink-mute">* Tháng hiện tại, chưa trọn tháng.</p>
+      <p className="text-xs text-ink-mute">* Tháng hiện tại.</p>
 
       {/* Giữ từ bản mới: bản song song dạng bảng — đọc được mọi giá trị không cần rê chuột */}
       <details className="text-xs">

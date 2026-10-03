@@ -7,7 +7,7 @@ import { useAuthStore } from '../store/useAuthStore';
 import { authService } from '../services/authService';
 import './auth.css';
 
-export default function HomePage() {
+export default function HomePageD() {
   const { user, isAuthenticated, logout, setUser } = useAuthStore();
   const navigate = useNavigate();
   const [isLoadingProfile, setIsLoadingProfile] = useState(false);
