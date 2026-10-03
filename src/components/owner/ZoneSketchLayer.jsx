@@ -38,9 +38,18 @@ const ZoneSketchLayer = ({ enabled, frameRef, onRecognized, onRejected }) => {
     drawing.current = false
     const r = frameRef.current.getBoundingClientRect()
     const shape = recognizeShape(points)
+    const net = points
     setPoints([])
-    if (shape) onRecognized(shape, { width: r.width, height: r.height })
-    else onRejected?.()
+    if (shape) { onRecognized(shape, { width: r.width, height: r.height }); return }
+    // 03/10/2026 — chủ dự án gặp hai thông báo "Chưa nhận ra hình" liền nhau khi chỉ BẤM vào sơ đồ (đang bật vẽ phác):
+    // một cú bấm là "nét" vài điểm, bộ nhận dạng trả null và trang báo lỗi như vẽ hỏng. Bấm/chấm nhỏ thì bỏ qua im lặng;
+    // còn lại báo ĐÚNG lý do để người vẽ biết sửa gì (nét hở là lý do hay gặp nhất — thả chuột trước khi khép hình).
+    const xs = net.map((p) => p.x), ys = net.map((p) => p.y)
+    const cheo = net.length ? Math.hypot(Math.max(...xs) - Math.min(...xs), Math.max(...ys) - Math.min(...ys)) : 0
+    if (net.length < 8 || cheo < 12) return
+    const dai = net.reduce((s, p, i) => (i ? s + Math.hypot(p.x - net[i - 1].x, p.y - net[i - 1].y) : 0), 0)
+    const ho = Math.hypot(net[0].x - net.at(-1).x, net[0].y - net.at(-1).y)
+    onRejected?.(ho >= dai * 0.22 ? 'ho' : 'khac')
   }
 
   return (

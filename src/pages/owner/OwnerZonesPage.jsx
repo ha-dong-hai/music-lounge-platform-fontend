@@ -477,7 +477,9 @@ const OwnerZonesPage = () => {
                 enabled={veMode && !!veZoneId}
                 frameRef={khungRef}
                 onRecognized={apDungHinhVe}
-                onRejected={() => toast.error('Chưa nhận ra hình. Hãy vẽ một nét liền và khép kín, ví dụ một ô vuông.')}
+                onRejected={(lyDo) => toast.error(lyDo === 'ho'
+                  ? 'Nét vẽ chưa khép kín. Giữ chuột, vẽ vòng quanh khu vực và quay về gần điểm bắt đầu rồi mới thả.'
+                  : 'Chưa nhận ra hình. Hãy vẽ một nét liền, khép kín, các cạnh tương đối thẳng — ví dụ một ô chữ nhật.', { id: 've-phac' })}
               />
             </div>
           </div>
