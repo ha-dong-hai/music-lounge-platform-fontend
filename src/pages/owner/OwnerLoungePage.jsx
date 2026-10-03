@@ -87,6 +87,10 @@ const OwnerLoungePage = () => {
   const [loiTai, setLoiTai] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const [isUploading, setIsUploading] = useState(null) // 'image' | 'license' | null
+  // Chú thích cho ảnh SẮP thêm vào thư viện. Phải nhập TRƯỚC khi chọn tệp: backend chỉ nhận chú thích lúc thêm ảnh
+  // (POST /lounges/{id}/gallery), không có lệnh sửa chú thích. Trước 03/10 trang này không gửi chú thích nên ảnh
+  // nào chủ phòng trà thêm cũng không lật được ở xấp Polaroid trang phòng trà (XapPolaroid chỉ lật ảnh có chú thích).
+  const [chuThichMoi, setChuThichMoi] = useState('')
 
   const isEdit = !!lounge
   const set = (k, v) => setForm((p) => ({ ...p, [k]: v }))
@@ -269,8 +273,9 @@ const OwnerLoungePage = () => {
     try {
       const up = await uploadImage(file)
       if (!up.success) throw new Error(up.message)
-      await addGalleryImage(lounge.id, { imageUrl: up.data?.url ?? up.data })
+      await addGalleryImage(lounge.id, { imageUrl: up.data?.url ?? up.data, caption: chuThichMoi.trim() || null })
       toast.success('Đã thêm ảnh vào thư viện.')
+      setChuThichMoi('') // chú thích đi với ảnh vừa thêm — không để dính sang ảnh sau
       await load()
     } catch (err) {
       toast.error(err.response?.data?.message || 'Không thêm được ảnh.')
@@ -475,12 +480,27 @@ const OwnerLoungePage = () => {
               <h3 className="text-base font-semibold text-ink">Thư viện ảnh</h3>
               <p className="text-xs text-ink-mute mt-0.5">Ảnh không gian phòng trà. Thứ tự bên dưới là thứ tự khán giả xem.</p>
             </div>
+          </div>
+
+          <div className="mt-4 grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
+            <div>
+              <div className="flex items-baseline justify-between gap-3 mb-1.5">
+                <label htmlFor="chu-thich-anh" className="text-sm font-medium text-ink">Chú thích cho ảnh sắp thêm <span className="font-normal text-ink-mute">(không bắt buộc)</span></label>
+                <span className="font-mono text-xs text-ink-mute" aria-hidden="true">{chuThichMoi.length}/255</span>
+              </div>
+              <input id="chu-thich-anh" value={chuThichMoi} onChange={(e) => setChuThichMoi(e.target.value)} maxLength={255}
+                aria-describedby="chu-thich-anh-goi-y" placeholder="Ví dụ: Bàn sát sân khấu, nhìn thẳng vào ca sĩ" className={inputCls} />
+            </div>
             <label className="inline-flex items-center gap-2 cursor-pointer flex-shrink-0 justify-center min-h-[44px] px-4 border-2 border-ink bg-card text-ink text-sm font-semibold hover:bg-ink hover:text-lamp">
               {isUploading === 'gallery' ? <Loader2 size={16} className="animate-spin" /> : <Upload size={16} />}
-              Thêm ảnh
+              Chọn ảnh để thêm
               <input type="file" accept="image/*" className="hidden" disabled={isUploading !== null}
-                onChange={(e) => handleThemAnhThuVien(e.target.files?.[0])} />
+                onChange={(e) => { handleThemAnhThuVien(e.target.files?.[0]); e.target.value = '' }} />
             </label>
+            <p id="chu-thich-anh-goi-y" className="sm:col-span-2 text-xs text-ink-mute">
+              Khán giả đọc chú thích ở mép ảnh và khi lật ảnh ra mặt sau. Ảnh không có chú thích thì không lật được.
+              Chú thích không sửa được sau khi thêm — muốn đổi thì xoá ảnh rồi thêm lại.
+            </p>
           </div>
 
           {(lounge.galleryImages?.length ?? 0) === 0 ? (
@@ -488,24 +508,29 @@ const OwnerLoungePage = () => {
           ) : (
             <ul className="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-3">
               {[...lounge.galleryImages].sort((a, b) => a.orderIndex - b.orderIndex).map((img, i, arr) => (
-                <li key={img.id} className="relative group">
-                  <img src={img.imageUrl} alt={img.caption ?? ''} className="w-full h-28 object-cover border border-line" />
-                  <div className="absolute inset-x-0 bottom-0 flex justify-between items-center gap-1 p-1.5 bg-ink/70 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <div className="flex gap-1">
-                      <button onClick={() => handleDoiThuTu(img.id, -1)} disabled={i === 0 || isUploading !== null}
-                        className="inline-flex items-center justify-center w-11 h-11 flex-shrink-0 text-ink-soft hover:text-ink disabled:opacity-30" title="Lùi lên trước" aria-label="Lùi lên trước">
-                        <ArrowLeft size={13} />
-                      </button>
-                      <button onClick={() => handleDoiThuTu(img.id, 1)} disabled={i === arr.length - 1 || isUploading !== null}
-                        className="inline-flex items-center justify-center w-11 h-11 flex-shrink-0 text-ink-soft hover:text-ink disabled:opacity-30" title="Đẩy xuống sau" aria-label="Đẩy xuống sau">
-                        <ArrowRight size={13} />
+                <li key={img.id} className="group">
+                  <div className="relative">
+                    <img src={img.imageUrl} alt={img.caption ?? ''} className="w-full h-28 object-cover border border-line" />
+                    <div className="absolute inset-x-0 bottom-0 flex justify-between items-center gap-1 p-1.5 bg-ink/70 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="flex gap-1">
+                        <button onClick={() => handleDoiThuTu(img.id, -1)} disabled={i === 0 || isUploading !== null}
+                          className="inline-flex items-center justify-center w-11 h-11 flex-shrink-0 text-ink-soft hover:text-ink disabled:opacity-30" title="Lùi lên trước" aria-label="Lùi lên trước">
+                          <ArrowLeft size={13} />
+                        </button>
+                        <button onClick={() => handleDoiThuTu(img.id, 1)} disabled={i === arr.length - 1 || isUploading !== null}
+                          className="inline-flex items-center justify-center w-11 h-11 flex-shrink-0 text-ink-soft hover:text-ink disabled:opacity-30" title="Đẩy xuống sau" aria-label="Đẩy xuống sau">
+                          <ArrowRight size={13} />
+                        </button>
+                      </div>
+                      <button onClick={() => handleXoaAnhThuVien(img.id)} disabled={isUploading !== null}
+                        className="inline-flex items-center justify-center w-11 h-11 flex-shrink-0 text-danger hover:text-danger disabled:opacity-30" title="Xoá ảnh" aria-label="Xoá ảnh">
+                        <Trash2 size={13} />
                       </button>
                     </div>
-                    <button onClick={() => handleXoaAnhThuVien(img.id)} disabled={isUploading !== null}
-                      className="inline-flex items-center justify-center w-11 h-11 flex-shrink-0 text-danger hover:text-danger disabled:opacity-30" title="Xoá ảnh" aria-label="Xoá ảnh">
-                      <Trash2 size={13} />
-                    </button>
                   </div>
+                  <p className={`mt-1.5 text-xs line-clamp-2 ${img.caption ? 'text-ink-soft' : 'text-ink-mute italic'}`}>
+                    {img.caption || 'Chưa có chú thích'}
+                  </p>
                 </li>
               ))}
             </ul>
