@@ -1,6 +1,8 @@
 // src/components/program/SapLenDen.jsx
 //
-// SẮP LÊN ĐÈN (trang chủ, 03/10/2026) — buổi gần nhất CHƯA diễn tối nay in thật lớn, bên dưới là vài buổi kế tiếp.
+// SẮP LÊN ĐÈN (trang chủ, 03/10/2026) — MỘT buổi gần nhất CHƯA diễn tối nay, in thật lớn.
+// Bỏ phần "Tiếp theo" (03/10, chủ dự án chọn phương án A khi thêm khối Dành cho bạn / Đang được quan tâm): các buổi còn lại
+// nằm ở khối đó, xếp theo gu hoặc độ quan tâm — mỗi buổi chỉ in MỘT lần trên trang (GoiYChoBan loại buổi này ra).
 // Vì sao: trang chủ chỉ có "Đêm nay" và "Lịch bảy ngày tới"; ngày 03/10 Azure có 2 buổi đang bán (22/10, 15/01) đều ngoài
 // 7 ngày → trang chủ hiện 0 buổi diễn dù có vé bán. Mẫu "một nghệ sĩ nổi bật + danh sách theo ngày" của Village Vanguard
 // và "Appearing tonight / Upcoming" của Blue Note (reports/Trang chủ - buổi diễn nổi bật.md) hợp khi số buổi còn ít.
@@ -15,15 +17,12 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { getShowDetail, getShowSeatingMap } from '../../services/showServices'
-import { thuVietHoa, ngayDayDu, gioTrongNgay, ngayGon } from '../../utils/ngayVietNam'
+import { thuVietHoa, ngayDayDu, gioTrongNgay } from '../../utils/ngayVietNam'
 import CuongDatVe from './CuongDatVe'
 import CoverFallback from '../shared/CoverFallback'
 
-const SO_TIEP_THEO = 4
-
 const SapLenDen = ({ buoi = [], anhPhongTra = {} }) => {
   const noiBat = buoi[0] ?? null
-  const tiepTheo = buoi.slice(1, 1 + SO_TIEP_THEO)
   const [chiTiet, setChiTiet] = useState(null) // { id, nguoiHat: [{ten, gioiThieu}], diaChi, conVe, soKhu }
 
   useEffect(() => {
@@ -80,25 +79,6 @@ const SapLenDen = ({ buoi = [], anhPhongTra = {} }) => {
         </div>
       </div>
 
-      {tiepTheo.length > 0 && (
-        <div className="mt-9 border-t border-lamp/20 pt-4">
-          <p className="font-mono text-xs tracking-[0.2em] text-lamp-mute">TIẾP THEO</p>
-          <ul>
-            {tiepTheo.map((b) => (
-              <li key={b.id} className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3 py-4 border-b border-lamp/10 last:border-b-0">
-                <div className="min-w-0 flex gap-4 sm:gap-6 items-baseline">
-                  <span className="font-mono text-sm whitespace-nowrap">{ngayGon(b.start_date)} · {gioTrongNgay(b.start_date)}</span>
-                  <span className="min-w-0">
-                    <Link to={`/shows/${b.id}`} className="font-semibold text-lg hover:text-stock break-words">{b.title}</Link>
-                    <span className="block text-sm text-lamp-mute">{[b.performers.join(', '), b.loungeName].filter(Boolean).join(' · ')}</span>
-                  </span>
-                </div>
-                <CuongDatVe nen="muc" to={`/shows/${b.id}`} gia={b.price || null} />
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
     </div>
   )
 }

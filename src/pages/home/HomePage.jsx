@@ -2,8 +2,10 @@
 //
 // TRANG CHỦ — "Đêm nay ở Sài Gòn", thế giới TỜ CHƯƠNG TRÌNH CA NHẠC (chủ dự án chốt 30/09; hợp đồng hướng thiết kế ở
 // .impeccable/surfaces/src-pages-home-homepage-jsx.md; ảnh mẫu Stitch ở .impeccable/mocks/stitch/).
-// Thứ tự (chủ dự án chốt 03/10/2026, phương án A): đêm nay (BẢNG GIỜ DIỄN) → sắp lên đèn (buổi gần nhất + tiếp theo) →
-// tìm theo gu → phòng trà trên sàn → đêm đã qua → tiền của bạn đi đâu. "Khi nào đi" đứng liền nhau ở trên; khối "Lịch diễn
+// Thứ tự (chủ dự án chốt 03/10/2026): đêm nay (BẢNG GIỜ DIỄN) → sắp lên đèn (MỘT buổi gần nhất) → dành cho bạn / đang được
+// quan tâm (gợi ý cá nhân hoặc thịnh hành, GoiYChoBan) → tìm theo gu → phòng trà trên sàn → đêm đã qua → tiền của bạn đi đâu.
+// Mạch đọc: khi nào → hợp mình → tự tìm → ở đâu → bằng chứng → tin cậy. Ba khối buổi diễn đầu KHÔNG in trùng một buổi
+// (reports/Trang chủ - gợi ý cá nhân và thịnh hành.md). "Khi nào đi" đứng liền nhau ở trên; khối "Lịch diễn
 // bảy ngày tới" BỎ khỏi trang chủ: trùng "Tiếp theo" của Sắp lên đèn, và tuần trống thì chỉ còn một hộp trống (đo 03/10).
 // Bảng đầy đủ vẫn ở /shows. (Bản 23/09 venue-first: đêm nay → phòng trà → lịch tuần → gu → tiền.)
 // Khối "gợi ý cá nhân" và "khối biên tập" của bản cũ bị bỏ khỏi trang chủ theo §7.1 (đa số lượt vào không thấy gì).
@@ -30,6 +32,7 @@ import { timDemGanNhat, locDemNay } from '../../utils/lichDien'
 import { useAuthStore } from '../../store/useAuthStore'
 import IconMoRong from '../../components/shared/IconMoRong'
 import SapLenDen from '../../components/program/SapLenDen'
+import GoiYChoBan from '../../components/program/GoiYChoBan'
 import TheGu from '../../components/program/TheGu'
 import DemDaQua from '../../components/program/DemDaQua'
 
@@ -184,6 +187,13 @@ const HomePage = () => {
             </TieuDeKhoi>
             <SapLenDen buoi={sapLenDen} anhPhongTra={anhPhongTra} />
           </section>
+        )}
+
+        {/* DÀNH CHO BẠN / ĐANG ĐƯỢC QUAN TÂM — loại mọi buổi đã in ở hai khối trên (mỗi buổi một lần trên trang). Chờ danh
+            sách buổi tải xong mới dựng, nếu không khối này kịp in buổi mà "Sắp lên đèn" sắp in. */}
+        {!dangTai && (
+          <GoiYChoBan className="mt-24" daDangNhap={daDangNhap} anhPhongTra={anhPhongTra}
+            loaiTru={[...buoiDemNay.map((x) => x.id), ...(sapLenDen[0] ? [sapLenDen[0].id] : [])]} />
         )}
 
         {(soLocThem > 0 || coDongNhac) && (

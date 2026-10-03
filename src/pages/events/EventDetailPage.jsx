@@ -12,6 +12,7 @@ import ShowRatings from '../../components/mshow-detail/ShowRatings'
 import Skeleton from '../../components/shared/Skeleton'
 import RatingModal from '../../components/livestream/RatingModal'
 import { getShowDetail, getSimilarShows, rateShow } from '../../services/showServices'
+import { nhoBuoiVuaXem } from '../../utils/buoiVuaXem'
 import { getFollowedLounges, toggleWishlist, toggleFollowLounge } from '../../services/interactionServices'
 
 import { useAuthStore } from '../../store/useAuthStore'
@@ -51,6 +52,8 @@ const EventDetailPage = () => {
 
         if (detailRes.success) {
           const beData = detailRes.data
+          // Nhớ buổi vừa xem TRÊN MÁY NÀY cho gợi ý của khách ở trang chủ (utils/buoiVuaXem.js — không gửi đi đâu khác).
+          nhoBuoiVuaXem(beData.id)
           const mappedData = {
             ...beData,
             title: beData.name,

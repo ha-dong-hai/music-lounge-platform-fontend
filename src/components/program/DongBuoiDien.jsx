@@ -26,9 +26,10 @@
 // - `hienPhongTra`: tắt ở trang của chính phòng trà (in lại tên phòng trà ở mọi dòng là thừa).
 // - `anhDuPhong`: ảnh thật dùng khi buổi chưa có ảnh bìa (trang phòng trà truyền ảnh của chính phòng trà).
 // - `onDoiLuu`: có thì in nút Lưu / Đã lưu (chỉ truyền khi đã đăng nhập — chưa đăng nhập bấm vào chỉ nhận một lỗi).
+// - `lyDo`: lý do gợi ý (khối Dành cho bạn / Đang được quan tâm, 03/10/2026) — in ĐÚNG chuỗi backend trả, dưới tên buổi.
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Heart } from 'lucide-react'
+import { Heart, Sparkles } from 'lucide-react'
 import CoverFallback from '../shared/CoverFallback'
 import CuongDatVe from './CuongDatVe'
 import { ngayTrongLich, gioTrongNgay } from '../../utils/ngayVietNam'
@@ -42,7 +43,7 @@ const giaIn = (b) => {
   return b.minPrice != null && b.maxPrice != null && b.maxPrice > b.minPrice ? `từ ${gia}` : gia
 }
 
-const DongBuoiDien = ({ b, hienPhongTra = true, hienAnh = true, anhDuPhong = null, daLuu = false, dangLuu = false, onDoiLuu }) => {
+const DongBuoiDien = ({ b, hienPhongTra = true, hienAnh = true, anhDuPhong = null, daLuu = false, dangLuu = false, onDoiLuu, lyDo = null }) => {
   const [anhHong, setAnhHong] = useState(false)
   const nguoiHat = b.performerNames ?? []
   const noi = [b.loungeName, b.loungeDistrict || b.loungeCity].filter(Boolean).join(' · ')
@@ -71,6 +72,7 @@ const DongBuoiDien = ({ b, hienPhongTra = true, hienAnh = true, anhDuPhong = nul
         {nguoiHat.length > 0 && <p className="text-ink-soft mt-1">{nguoiHat.join(', ')}</p>}
         {hienPhongTra && noi && <p className="text-ink mt-0.5">{noi}</p>}
         {phu.length > 0 && <p className="text-sm text-ink-mute mt-0.5">{phu.join(' · ')}</p>}
+        {lyDo && <p className="inline-flex items-center gap-1.5 text-sm font-semibold text-ink-soft mt-1.5"><Sparkles size={14} strokeWidth={1.75} aria-hidden="true" />{lyDo}</p>}
       </div>
       <div className={`flex flex-wrap items-center gap-x-6 gap-y-2 lg:justify-end ${hienAnh ? 'col-span-2 sm:col-span-1 lg:col-start-3 lg:row-start-1 lg:row-span-2 lg:self-center' : 'md:justify-end'}`}>
         {/* Giá + hành động in thành MỘT cuống vé (CuongDatVe) thay chữ gạch dưới "Xem và đặt" — 02/10/2026. Đã diễn hoặc đang diễn thì

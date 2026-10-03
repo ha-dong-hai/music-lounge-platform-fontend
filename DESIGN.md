@@ -524,9 +524,14 @@ rộng. Không đổi hướng thị giác giữa chừng một đợt nhân r�
 
 ### Trang chủ: Sắp lên đèn · Thẻ gu · Đêm đã qua (03/10/2026)
 Nghiên cứu: `reports/Trang chủ - buổi diễn nổi bật.md` (repo backend). Chủ dự án chọn ý tưởng 1·5·10; bỏ "ban biên tập chọn" (cần backend) và bản đồ phòng trà (đã làm rồi bỏ, 03/10).
-- **Sắp lên đèn** (`SapLenDen`): buổi gần nhất KHÔNG phải tối nay in lớn trên khối sơn then (ảnh bìa, ai hát + một câu giới
-  thiệu, nơi diễn, "N khu · còn X vé" từ sơ đồ khu, cuống Đặt vé), dưới là tối đa 4 buổi "Tiếp theo". Lý do chọn in ngay
-  dòng đầu ("Gần nhất"). Không có buổi nào thì không in khối.
+- **Sắp lên đèn** (`SapLenDen`): MỘT buổi gần nhất KHÔNG phải tối nay, in lớn trên khối sơn then (ảnh bìa, ai hát + một câu
+  giới thiệu, nơi diễn, "N khu · còn X vé" từ sơ đồ khu, cuống Đặt vé). Phần "Tiếp theo" đã bỏ (03/10): các buổi còn lại ở
+  khối Dành cho bạn / Đang được quan tâm.
+- **Dành cho bạn / Đang được quan tâm** (`GoiYChoBan`, ngay sau Sắp lên đèn): GET /recommendations (đăng nhập: gu tự khai +
+  phòng trà theo dõi; khách: buổi vừa xem trên máy — `utils/buoiVuaXem.js`, hoặc thịnh hành = vé bán + lượt lưu). Luật:
+  mỗi buổi một lần trên trang (loại buổi đã in ở Đêm nay + Sắp lên đèn); tiêu đề nói thật ("Dành cho bạn" chỉ khi có buổi
+  xếp theo gu thật); mỗi dòng in lý do backend trả; "Vì sao tôi thấy những buổi này?" giải thích tiêu chí + Chỉnh gu / Xoá
+  lịch sử xem; mời chọn gu chỉ khi máy chủ không có gì cá nhân hoá. Còn 0 buổi thì không in khối.
 - **Thẻ gu** (`TheGu`): tối đa 4 dòng nhạc đang có buổi, luôn hiện; mỗi thẻ một ảnh khác nhau khi có thể (gán thẻ ít lựa
   chọn trước). Danh sách gu đầy đủ vẫn gập.
 - **Đêm đã qua** (`DemDaQua`): chỉ in khi có ít nhất một lời bình THẬT; sao màu lamp (vàng thếp `ember` chỉ cho đang diễn).
