@@ -262,7 +262,7 @@ const SoDoCho3D = ({ zones, chon, onChon, lanDatLai = 0, onKhongHoTro, diem360 =
               nhom.add(quay)
             }
           }
-          bucs.push({ id: z.id, ten: z.name, nhom, thamMat, mauGoc, tam: new Vector3(cx, 0.9, cz) })
+          bucs.push({ id: z.id, ten: z.nhan ?? z.name, nhom, thamMat, mauGoc, tam: new Vector3(cx, 0.9, cz) })
         })
         const hop = new Box3(); bucs.forEach((b) => hop.expandByObject(b.nhom))
         if (!hop.isEmpty()) {

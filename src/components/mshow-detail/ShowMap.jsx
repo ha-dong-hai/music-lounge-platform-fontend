@@ -1,5 +1,5 @@
 // src/components/mshow-detail/EventMap.jsx
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { MapPin, Check, Lock, Loader2, Minus, Plus, Ticket, Timer, Info } from 'lucide-react'
 import { gioTrongNgay, ngayDayDu } from '../../utils/ngayVietNam'
@@ -31,9 +31,11 @@ const ShowMap = ({ showData }) => {
   const [isProcessing, setIsProcessing] = useState(false)
   const [hold, setHold] = useState(null) // { holdId, expiresAt, priceId, quantity }
   const [secondsLeft, setSecondsLeft] = useState(0)
-  // Khu vực đang chọn trên sơ đồ — chỉ để LỌC danh sách hạng vé bên dưới, không tham gia vào việc
-  // giữ chỗ hay thanh toán. null = xem tất cả khu vực.
+  // KHU ĐANG CHỌN TRÊN SƠ ĐỒ. MLACP-589 (chủ dự án 04/10/2026): mỗi khu gắn đúng MỘT hạng vé, nên chạm khu = chọn luôn
+  // hạng vé của khu đó (không còn "lọc danh sách rồi chọn tiếp"). Ngược lại, chọn một mức giá trong danh sách thì khu của
+  // hạng vé đó sáng lên trên sơ đồ — hai chỗ luôn nói cùng một lựa chọn. null = chưa chọn khu.
   const [zoneDangChon, setZoneDangChon] = useState(null)
+  const [tenKhu, setTenKhu] = useState({}) // { [zoneId]: tên khu } — SeatingMapView báo lên, để ghi khu vào đơn
   const countdownRef = useRef(null)
 
   const showId = showData?.id
@@ -86,22 +88,37 @@ const ShowMap = ({ showData }) => {
     return () => clearInterval(countdownRef.current)
   }, [hold])
 
-  // Lọc theo khu vực chọn trên sơ đồ. TicketTierSummaryDto có zoneId, nên lọc được ngay ở FE
-  // không cần gọi lại API. Hạng vé không gắn khu vực nào (zoneId null) chỉ hiện khi xem tất cả —
-  // hiện nó trong lúc đang lọc một khu vực là nói sai rằng nó thuộc khu đó.
-  const allPrices = tiers
-    .filter((tier) => zoneDangChon == null || tier.zoneId === zoneDangChon)
-    .flatMap((tier) =>
-      (tier.prices || [])
-        .filter((p) => p.purchaseChannel !== 'Offline')
-        .map((p) => ({ ...p, tierName: tier.name, tierId: tier.id }))
-    )
+  // Danh sách LUÔN in đủ mọi hạng vé bán trực tuyến (không lọc theo khu nữa): chọn ở sơ đồ hay ở danh sách đều ra cùng
+  // một lựa chọn. Hạng vé không có khu (xem trực tuyến, hoặc hạng vé cũ chưa gắn khu) chỉ chọn được ở danh sách.
+  const allPrices = tiers.flatMap((tier) =>
+    (tier.prices || [])
+      .filter((p) => p.purchaseChannel !== 'Offline')
+      .map((p) => ({ ...p, tierName: tier.name, tierId: tier.id, zoneId: tier.zoneId ?? null }))
+  )
   const selectedPrice = allPrices.find((p) => p.id === selectedPriceId) || null
+  const conVe = (p) => p.availableSlots == null || p.availableSlots > 0
+  // Tên hạng vé + giá của từng khu — in ngay trên sơ đồ để khán giả thấy "khu này là vé gì, bao nhiêu" trước khi chạm.
+  // useMemo: object mới mỗi lần vẽ sẽ làm sơ đồ 3D dựng lại từ đầu — mà màn này vẽ lại MỖI GIÂY khi đang đếm ngược giữ chỗ.
+  const hangVeTheoKhu = useMemo(() => Object.fromEntries(tiers.filter((t) => t.zoneId).map((t) => [t.zoneId, t.name])), [tiers])
 
   const handleSelectPrice = (price) => {
     if (hold) return // đang giữ chỗ dở dang thì không đổi lựa chọn
     setSelectedPriceId(price.id)
+    setZoneDangChon(price.zoneId)
     setQuantity(1)
+  }
+
+  // Chạm một khu = chọn hạng vé của khu đó: lấy mức giá còn vé đầu tiên (hạng vé nhiều mức giá thì đổi mức ở danh sách).
+  const chonKhu = (id) => {
+    // Đang giữ chỗ dở dang thì không cho đổi: đổi là lựa chọn hiện tại biến mất trong khi vé vẫn đang bị giữ.
+    if (hold) { toast.error('Đang giữ chỗ — hãy hoàn tất hoặc huỷ trước khi đổi khu vực.'); return }
+    setZoneDangChon(id)
+    if (id == null) { setSelectedPriceId(null); return }
+    const gia = allPrices.filter((p) => p.zoneId === id)
+    const chon = gia.find(conVe) ?? null
+    setSelectedPriceId(chon?.id ?? null)
+    setQuantity(1)
+    if (!chon) toast.error(gia.length ? 'Khu này đã hết vé.' : 'Khu này không bán vé trực tuyến.')
   }
 
   const maxQuantity = selectedPrice?.availableSlots ?? 10
@@ -178,13 +195,9 @@ const ShowMap = ({ showData }) => {
           loungeId={showData?.lounge?.id}
           tenPhongTra={showData?.lounge?.name ?? ''}
           selectedZoneId={zoneDangChon}
-          onSelectZone={(id) => {
-            // Đang giữ chỗ dở dang thì không cho đổi khu vực: đổi là lựa chọn hiện tại biến khỏi
-            // danh sách trong khi vé vẫn đang bị giữ.
-            if (hold) { toast.error('Đang giữ chỗ — hãy hoàn tất hoặc huỷ trước khi đổi khu vực.'); return }
-            setZoneDangChon(id)
-            setSelectedPriceId(null)
-          }}
+          hangVeTheoKhu={hangVeTheoKhu}
+          onTaiKhu={setTenKhu}
+          onSelectZone={chonKhu}
         />
       </div>
 
@@ -208,11 +221,7 @@ const ShowMap = ({ showData }) => {
           ) : allPrices.length === 0 ? (
             <div className="flex flex-col items-center justify-center text-center py-16">
               <MapPin size={40} className="text-ink-mute mb-4" />
-              <p className="text-ink-mute font-medium">
-                {zoneDangChon != null
-                  ? 'Khu vực này không còn hạng vé nào bán trực tuyến.'
-                  : 'Buổi diễn này chưa mở bán vé.'}
-              </p>
+              <p className="text-ink-mute font-medium">Buổi diễn này chưa mở bán vé.</p>
             </div>
           ) : (
             <div className="flex flex-col gap-3">
@@ -236,6 +245,7 @@ const ShowMap = ({ showData }) => {
                       <p className="text-ink font-semibold truncate">{price.tierName === price.name ? price.name : `${price.tierName} — ${price.name}`}</p>
                       <p className="text-ink-mute text-xs mt-1">
                         {isSoldOut ? 'Hết vé' : price.availableSlots != null ? `Còn ${price.availableSlots}` : 'Còn vé'}
+                        {price.zoneId && tenKhu[price.zoneId] && ` · ${tenKhu[price.zoneId]}`}
                       </p>
                     </div>
                     <div className="flex items-center gap-3 flex-shrink-0">
@@ -257,13 +267,16 @@ const ShowMap = ({ showData }) => {
             <div className="flex-1 flex flex-col items-center justify-center text-center">
               <MapPin size={40} className="text-ink-mute mb-4" />
               <p className="text-ink-mute font-medium">Chưa chọn vé</p>
-              <p className="text-ink-mute text-sm mt-1">Chọn một hạng vé ở bên trái.</p>
+              <p className="text-ink-mute text-sm mt-1">Chạm một khu trên sơ đồ, hoặc chọn một hạng vé ở bên trái.</p>
             </div>
           ) : (
             <div className="flex-1 flex flex-col gap-5">
               <div>
                 <p className="text-ink font-semibold">{selectedPrice.tierName}</p>
                 {selectedPrice.name !== selectedPrice.tierName && <p className="text-ink-mute text-sm">{selectedPrice.name}</p>}
+                {selectedPrice.zoneId && tenKhu[selectedPrice.zoneId] && (
+                  <p className="text-ink-soft text-sm mt-1 flex items-center gap-1.5"><MapPin size={14} aria-hidden="true" /> {tenKhu[selectedPrice.zoneId]}</p>
+                )}
               </div>
 
               <div className="flex items-center justify-between">

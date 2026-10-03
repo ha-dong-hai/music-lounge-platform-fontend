@@ -42,6 +42,7 @@ import {
 } from '../../services/showServices'
 import { getTiers, createTier, deleteTier, updateTier, assignTierZone } from '../../services/ticketTierServices'
 import { getLoungeZones } from '../../services/loungeServices'
+import ChonKhuTrenSoDo from '../../components/owner/ChonKhuTrenSoDo'
 import ShowAnalyticsSection from '../../components/owner/ShowAnalyticsSection'
 import { StatusBadge } from '../../components/admin/shows/ShowBadges'
 import { searchPerformers } from '../../services/catalogServices'
@@ -285,6 +286,8 @@ const OwnerShowDetailPage = () => {
     const price = Number(tierForm.price)
     if (!tierForm.name.trim() || !price) { toast.error('Cần tên hạng vé và giá.'); return }
     if (!Number.isInteger(price)) { toast.error('Giá vé phải là số nguyên đồng.'); return }
+    // MLACP-589: hạng vé vào cửa bắt buộc gắn một khu (backend cũng từ chối) — báo sớm, đúng chỗ.
+    if (loaiVe === 'Physical' && !tierForm.zoneId) { toast.error('Hãy bấm chọn một khu trên sơ đồ cho hạng vé vào cửa này.'); return }
     setBusy('tier')
     try {
       await createTier({
@@ -319,6 +322,8 @@ const OwnerShowDetailPage = () => {
   // MLACP-545: gắn khu cho hạng vé (kể cả buổi đã mở bán, nếu hạng vé chưa có khu). Không gắn khu thì sơ đồ chỗ ngồi
   // của khán giả không có khu nào để chọn.
   const [khuChon, setKhuChon] = useState({}) // { [tierId]: zoneId đang chọn trong ô }
+  // Khu đã thuộc hạng vé KHÁC của buổi này → { [zoneId]: tên hạng vé } (bỏ qua hạng vé đang sửa).
+  const khuDaGan = (boQuaTierId) => Object.fromEntries(tiers.filter((x) => x.zoneId && x.id !== boQuaTierId).map((x) => [x.zoneId, x.name]))
   const handleAssignZone = async (tierId) => {
     const zoneId = khuChon[tierId]
     if (!zoneId) return
@@ -734,15 +739,11 @@ const OwnerShowDetailPage = () => {
                 {t.accessType !== 'Livestream' && zones.length > 0 && !['Ended', 'Cancelled'].includes(show.status)
                   && (isDraft || !t.zoneId) && (
                   <div className="mt-3 pt-3 border-t border-line flex flex-wrap items-center gap-2">
-                    <label htmlFor={`gan-khu-${t.id}`} className="text-xs text-ink-soft">{t.zoneId ? 'Đổi khu ghế' : 'Gắn khu ghế'}</label>
-                    <select id={`gan-khu-${t.id}`} value={khuChon[t.id] ?? ''}
-                      onChange={(e) => setKhuChon((p) => ({ ...p, [t.id]: e.target.value }))}
-                      className="min-h-[44px] px-3 border-2 border-ink bg-card text-sm">
-                      <option value="">Chọn khu…</option>
-                      {zones.filter((z) => z.isActive !== false && z.id !== t.zoneId).map((z) => (
-                        <option key={z.id} value={z.id}>{z.name} ({z.capacity} chỗ)</option>
-                      ))}
-                    </select>
+                    <p className="basis-full text-sm font-semibold text-ink">{t.zoneId ? 'Đổi khu ghế' : 'Gắn khu ghế'} — bấm vào một khu trên sơ đồ</p>
+                    <div className="basis-full max-w-xl">
+                      <ChonKhuTrenSoDo zones={zones} daGan={khuDaGan(t.id)} value={khuChon[t.id] ?? ''} tenNhom={`Khu ghế của hạng vé ${t.name}`}
+                        onChange={(zid) => setKhuChon((p) => ({ ...p, [t.id]: zid }))} />
+                    </div>
                     <button type="button" onClick={() => handleAssignZone(t.id)} disabled={!khuChon[t.id] || !!busy}
                       className="inline-flex items-center min-h-[44px] px-4 bg-ink text-lamp text-sm font-semibold disabled:opacity-50">
                       {busy === `zone-${t.id}` ? 'Đang gắn…' : 'Gắn khu'}
@@ -824,22 +825,13 @@ const OwnerShowDetailPage = () => {
                 chính entity cũng ghi `null = online (no physical zone)`. */}
             {loaiVe === 'Physical' && (
               <div>
-                <label className="text-sm font-semibold text-ink">Khu vực chỗ ngồi</label>
-                <select aria-label="Khu vực chỗ ngồi" value={tierForm.zoneId}
-                  onChange={(e) => setTierForm((p) => ({ ...p, zoneId: e.target.value }))}
-                  className="mt-1 w-full min-h-[44px] px-3 py-2 bg-card border-2 border-ink text-ink focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2">
-                  <option value="">— Không gắn khu vực nào —</option>
-                  {zones.map((z) => (
-                    <option key={z.id} value={z.id}>
-                      {z.name}{z.capacity ? ` · ${z.capacity} chỗ` : ''}
-                    </option>
-                  ))}
-                </select>
-                <p className="text-[11px] text-ink-mute mt-1 leading-relaxed">
-                  {zones.length === 0
-                    ? 'Phòng trà chưa khai báo khu vực nào. Tạo ở mục Khu vực chỗ ngồi trước, rồi quay lại gắn cho hạng vé.'
-                    : 'Gắn khu vực thì khán giả bấm vào khu đó trên sơ đồ sẽ lọc ra đúng hạng vé này. Để trống thì hạng vé chỉ hiện ở danh sách chung.'}
+                {/* MLACP-589: bấm khu ngay trên sơ đồ thay ô xổ xuống; BẮT BUỘC với vé vào cửa, mỗi khu một hạng vé. */}
+                <p className="text-sm font-semibold text-ink">Khu ghế của hạng vé này <span className="text-danger">*</span></p>
+                <p className="text-xs text-ink-mute mt-0.5 mb-2 leading-relaxed">
+                  Khán giả chạm vào khu này trên sơ đồ là chọn đúng hạng vé này.
                 </p>
+                <ChonKhuTrenSoDo zones={zones} daGan={khuDaGan(null)} value={tierForm.zoneId}
+                  onChange={(zid) => setTierForm((p) => ({ ...p, zoneId: zid }))} />
               </div>
             )}
 
