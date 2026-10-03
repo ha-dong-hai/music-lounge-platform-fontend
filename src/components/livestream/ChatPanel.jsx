@@ -8,6 +8,7 @@ import DonateModal from './DonateModal'
 import ReportModal from './ReportModal'
 import TopDonorsBar from './TopDonorsBar'
 import { anhChuCai } from '../../utils/anhChuCai'
+import { khoaTin } from '../../utils/chatTrucTiep'
 
 const ChatPanel = ({ messages, performers, onSendMessage, onSendDonation, onReport }) => {
   const [text, setText] = useState('')
@@ -92,7 +93,7 @@ const ChatPanel = ({ messages, performers, onSendMessage, onSendDonation, onRepo
         >
           {messages.map((msg, idx) => (
             msg.type === 'donate' ? (
-              <div key={idx} className="flex items-start gap-2 bg-ink/10 border border-ink/20 p-2">
+              <div key={khoaTin(msg, idx)} className="flex items-start gap-2 bg-ink/10 border border-ink/20 p-2">
                 <img src={msg.user?.avatarUrl || anhChuCai(msg.user?.name)} className="w-6 h-6 flex-shrink-0" alt="" />
                 <div className="min-w-0">
                   <p className="text-xs font-bold text-ink truncate">
@@ -102,7 +103,7 @@ const ChatPanel = ({ messages, performers, onSendMessage, onSendDonation, onRepo
                 </div>
               </div>
             ) : (
-              <div key={idx} className="flex items-start gap-2">
+              <div key={khoaTin(msg, idx)} className="flex items-start gap-2">
                 <img src={msg.user?.avatarUrl || anhChuCai(msg.user?.name)} className="w-6 h-6 flex-shrink-0 border border-line" alt="" />
                 <div className="min-w-0">
                   <p className={`text-xs font-semibold truncate ${msg.isMine ? 'text-ink' : 'text-ink-soft'}`}>

@@ -4,6 +4,7 @@ import { ArrowLeft, Loader2, AlertCircle, WifiOff, Square, Lock, ShieldOff, Sofa
 import toast from 'react-hot-toast'
 import StreamPlayer from '../../components/livestream/StreamPlayer'
 import ChatPanel from '../../components/livestream/ChatPanel'
+import { themTin, tuLichSu } from '../../utils/chatTrucTiep'
 import { getShowDetail, rateShow } from '../../services/showServices'
 import { getLivestreamDetail, getChatHistory, sendHeartbeat, terminateLivestream } from '../../services/livestreamServices'
 import { createDonation } from '../../services/donationServices'
@@ -108,17 +109,8 @@ const LivestreamWatchPage = () => {
 
         try {
           const chatRes = await getChatHistory(showRes.data.livestreamId, { pageSize: 50 })
-          if (chatRes.success) {
-            setMessages(
-              chatRes.data.items.map((m) => ({
-                chatId: m.messageId, // để ẩn đúng tin khi có ChatMessageHidden
-                user: { name: m.displayName, avatarUrl: null },
-                content: m.message,
-                type: 'chat',
-                isMine: m.userId === user?.id,
-              }))
-            )
-          }
+          // API trả MỚI → CŨ; khung chat xếp CŨ → MỚI (xem utils/chatTrucTiep — đo 03/10: bản trước in ngược).
+          if (chatRes.success) setMessages(tuLichSu(chatRes.data.items, user?.id))
         } catch {
           // Lịch sử chat không tải được không nên chặn cả trang — vẫn xem được livestream/chat mới.
         }
@@ -150,16 +142,13 @@ const LivestreamWatchPage = () => {
     livestream?.userHasAccess ? livestream.id : null,
     {
       onReceiveMessage: (msg) => {
-        setMessages((prev) => [
-          ...prev,
-          {
-            chatId: msg.messageId,
-            user: { name: msg.displayName, avatarUrl: null },
-            content: msg.message,
-            type: 'chat',
-            isMine: msg.userId === user?.id,
-          },
-        ])
+        setMessages((prev) => themTin(prev, {
+          chatId: msg.messageId,
+          user: { name: msg.displayName, avatarUrl: null },
+          content: msg.message,
+          type: 'chat',
+          isMine: msg.userId === user?.id,
+        }))
       },
       onDonationAlert: (donation) => {
         // DonationAlertDto thật: { donorName, amount, message, donationId } — không có tên nghệ sĩ.
@@ -169,7 +158,7 @@ const LivestreamWatchPage = () => {
           amount: donation.amount,
           message: donation.message,
         }
-        setMessages((prev) => [...prev, { ...entry, type: 'donate' }])
+        setMessages((prev) => themTin(prev, { ...entry, type: 'donate' }))
         setDonationAlerts((prev) => [...prev.slice(-4), entry])
       },
       onDonationMessageHidden: ({ donationId }) => {
