@@ -116,8 +116,11 @@ const BangLuotLoiBinh = ({ loi }) => {
   }
 
   return (
-    <div role="region" aria-roledescription="carousel" aria-label="Lời khán giả sau những đêm đã diễn" onKeyDown={n > 1 ? phim : undefined}
-      className="bg-board text-lamp p-5 sm:p-8 lg:p-12">
+    // tabIndex 0 khi có hơn một lượt: Tab tới được CẢ BĂNG rồi dùng ← → (bản trước phím chỉ ăn khi đang đứng ở một nút bên
+    // trong). Khung viền chỉ hiện khi đi bằng bàn phím.
+    <div role="region" aria-roledescription="carousel" onKeyDown={n > 1 ? phim : undefined} tabIndex={n > 1 ? 0 : undefined}
+      aria-label={n > 1 ? 'Lời khán giả sau những đêm đã diễn. Dùng phím mũi tên trái phải để sang lời khác.' : 'Lời khán giả sau những đêm đã diễn'}
+      className="bg-board text-lamp p-5 sm:p-8 lg:p-12 focus:outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink">
       <div ref={khung} className="overflow-hidden">
         {/* aria-live polite: băng KHÔNG tự chạy nên đổi lượt là do người dùng bấm — đọc lượt mới cho trình đọc màn hình (APG). */}
         <div className="flex touch-pan-y" aria-live="polite">
@@ -135,6 +138,7 @@ const BangLuotLoiBinh = ({ loi }) => {
           <p className="font-mono text-sm text-lamp-mute" aria-hidden="true">
             <span className="text-lamp">{String(chon + 1).padStart(2, '0')}</span> / {String(n).padStart(2, '0')}
           </p>
+          <p className="hidden sm:block text-sm text-lamp-mute ml-auto">Kéo, hoặc dùng phím ← →</p>
           <div className="flex gap-2">
             <button type="button" onClick={truoc} disabled={chon === 0} aria-label="Lời trước" className={NUT}><ArrowLeft size={20} aria-hidden="true" /></button>
             <button type="button" onClick={sau} disabled={chon === n - 1} aria-label="Lời sau" className={NUT}><ArrowRight size={20} aria-hidden="true" /></button>
