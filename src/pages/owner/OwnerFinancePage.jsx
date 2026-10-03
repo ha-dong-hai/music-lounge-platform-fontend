@@ -24,6 +24,7 @@ import NhomTab from '../../components/bang/NhomTab'
 import KhungTai from '../../components/bang/KhungTai'
 import PhanTrang from '../../components/bang/PhanTrang'
 import { useDanhSachMayChu } from '../../hooks/useDanhSachMayChu'
+import { loiKhoangNgay } from '../../utils/boLocBuoiDien'
 import OChiSo from '../../components/bang/OChiSo'
 
 const fmtTien = (v) => `${Number(v || 0).toLocaleString('vi-VN')}đ`
@@ -62,7 +63,12 @@ const BO_LOC = {
   den: parseAsString.withDefault(''),
 }
 // Ô ngày trả về "YYYY-MM-DD"; backend nhận DateTimeOffset nên gửi nguyên chuỗi là đủ.
-const goiGiaoDich = ({ loai, tu, den, ...q }) => getMyTransactions({ ...q, type: loai || undefined, from: tu || undefined, to: den || undefined })
+// "Từ" sau "Đến" (gõ tay hoặc sửa địa chỉ) thì KHÔNG gửi khoảng ngày — gửi đi là nhận về danh sách rỗng trông như "không có
+// giao dịch"; giao diện báo lỗi ngay dưới hai ô (rà soát 03/10: bản trước im lặng).
+const goiGiaoDich = ({ loai, tu, den, ...q }) => {
+  const sai = Boolean(loiKhoangNgay({ tu, den }))
+  return getMyTransactions({ ...q, type: loai || undefined, from: (!sai && tu) || undefined, to: (!sai && den) || undefined })
+}
 const O_NGAY = 'mt-1 min-h-[44px] px-3 bg-card border-2 border-ink text-ink focus:outline-none focus:ring-2 focus:ring-ink'
 
 const OwnerFinancePage = () => {
@@ -75,6 +81,7 @@ const OwnerFinancePage = () => {
   const { loai, tu: tuNgay, den: denNgay } = ds.boLoc
   const rows = ds.items
   const coLoc = Boolean(loai || tuNgay || denNgay)
+  const loiNgay = loiKhoangNgay({ tu: tuNgay, den: denNgay })
 
   if (tongQuan.isPending && ds.dangTai) {
     return <div className="py-20 flex justify-center"><Loader2 size={32} className="animate-spin text-ink" /></div>
@@ -154,11 +161,13 @@ const OwnerFinancePage = () => {
             onChon={(v) => ds.datBoLoc({ loai: v || null })} />
           <label className="block">
             <span className="text-sm font-semibold">Từ ngày</span>
-            <input type="date" value={tuNgay} onChange={(e) => ds.datBoLoc({ tu: e.target.value || null })} className={`block ${O_NGAY}`} />
+            <input type="date" value={tuNgay} max={denNgay || undefined} onChange={(e) => ds.datBoLoc({ tu: e.target.value || null })}
+              aria-invalid={loiNgay ? 'true' : undefined} aria-describedby={loiNgay ? 'loi-ngay-tai-chinh' : undefined} className={`block ${O_NGAY}`} />
           </label>
           <label className="block">
             <span className="text-sm font-semibold">Đến ngày</span>
-            <input type="date" value={denNgay} onChange={(e) => ds.datBoLoc({ den: e.target.value || null })} className={`block ${O_NGAY}`} />
+            <input type="date" value={denNgay} min={tuNgay || undefined} onChange={(e) => ds.datBoLoc({ den: e.target.value || null })}
+              aria-invalid={loiNgay ? 'true' : undefined} aria-describedby={loiNgay ? 'loi-ngay-tai-chinh' : undefined} className={`block ${O_NGAY}`} />
           </label>
           {coLoc && (
             <button type="button" onClick={() => ds.xoaBoLoc()}
@@ -167,6 +176,7 @@ const OwnerFinancePage = () => {
             </button>
           )}
         </div>
+        {loiNgay && <p id="loi-ngay-tai-chinh" role="alert" className="mt-2 text-sm font-semibold text-danger">{loiNgay} Danh sách đang hiện mọi ngày.</p>}
 
         <div className="mt-5">
         <KhungTai dangTai={ds.dangTai} loi={ds.loi} taiLai={ds.taiLai} tenVung="danh sách giao dịch" rong={rows.length === 0}

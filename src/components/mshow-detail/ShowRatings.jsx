@@ -1,13 +1,23 @@
 // src/components/mshow-detail/ShowRatings.jsx
+//
+// KHI NHIỀU DỮ LIỆU (đo 03/10/2026, giả lập 237 đánh giá, bình luận tới 1.000 ký tự = giới hạn cột Comment):
+//   - Chuỗi không dấu cách (đường dẫn, "aaaa…") đẩy CẢ TRANG trên điện thoại 390px cuộn ngang tới 1.286px
+//     → ngắt ở bất kỳ đâu khi cần (overflow-wrap: anywhere).
+//   - Xuống dòng người viết gõ bị gộp thành một đoạn → giữ xuống dòng (white-space: pre-line).
+//   - Bấm "Sau": cả khối thay bằng vòng xoay, trang co từ ~3.170px xuống ~1.740px nên vị trí đọc nhảy
+//     → giữ danh sách cũ (mờ đi, aria-busy) tới khi trang mới về, rồi đưa đầu danh sách vào tầm nhìn.
+import { useState, useEffect, useCallback, useRef } from 'react'
 
-import { useState, useEffect, useCallback } from 'react'
 import { Loader2, Star, MessageSquare, Trash2, X } from 'lucide-react'
-import dayjs from 'dayjs'
+import { ngayDayDu } from '../../utils/ngayVietNam'
 import toast from 'react-hot-toast'
 import { getShowRatings } from '../../services/showServices'
 import { removeRating } from '../../services/adminServices'
 import { useAuthStore } from '../../store/useAuthStore'
 import HopThoai, { TieuDeHop } from '../shared/HopThoai'
+
+// Chữ do khán giả gõ: giữ xuống dòng của họ, và ngắt được cả chuỗi dài không dấu cách (đường dẫn) để không tràn khung.
+const CHU_NGUOI_VIET = 'whitespace-pre-line [overflow-wrap:anywhere]'
 
 const SaoHang = ({ score, size = 14 }) => (
   <span className="inline-flex items-center gap-0.5" aria-label={`${score} trên 5 sao`}>
@@ -48,7 +58,7 @@ const RemoveModal = ({ rating, onClose, onDone }) => {
         <form onSubmit={submit} className="p-5 space-y-4">
           <div className="p-3 bg-sunken/80 border border-line">
             <SaoHang score={rating.score} />
-            {rating.comment && <p className="text-sm text-ink-soft mt-1.5 leading-relaxed">{rating.comment}</p>}
+            {rating.comment && <p className={`text-sm text-ink-soft mt-1.5 leading-relaxed ${CHU_NGUOI_VIET}`}>{rating.comment}</p>}
           </div>
           <div>
             <label className="text-xs text-ink-mute">Lý do gỡ <span className="text-danger">*</span></label>
@@ -82,12 +92,18 @@ const ShowRatings = ({ showId }) => {
   const [isLoading, setIsLoading] = useState(true)
   const [page, setPage] = useState(1)
   const [removing, setRemoving] = useState(null)
+  const dauDanhSach = useRef(null)
+  const daChuyenTrang = useRef(false)
 
   const load = useCallback(async () => {
     setIsLoading(true)
     try {
       const res = await getShowRatings(showId, { page, pageSize: 10 })
       if (res.success) setData(res.data)
+      // Sang trang khác: đưa đầu danh sách vào tầm nhìn nếu nó đang khuất (người đọc vừa bấm nút ở CUỐI danh sách).
+      if (daChuyenTrang.current && dauDanhSach.current && dauDanhSach.current.getBoundingClientRect().top < 0) {
+        dauDanhSach.current.scrollIntoView({ block: 'start' })
+      }
     } catch (err) {
       toast.error(err.response?.data?.message || 'Không tải được đánh giá.')
     } finally {
@@ -97,7 +113,8 @@ const ShowRatings = ({ showId }) => {
 
   useEffect(() => { const chay = async () => { await load() }; chay() }, [load])
 
-  if (isLoading) {
+  // Vòng xoay toàn khối CHỈ lần tải đầu; chuyển trang thì giữ danh sách cũ (xem chú thích đầu file).
+  if (isLoading && !data) {
     return <div className="py-16 flex justify-center"><Loader2 size={28} className="animate-spin text-ink" /></div>
   }
 
@@ -150,16 +167,17 @@ const ShowRatings = ({ showId }) => {
       </div>
 
       {/* NHẬN XÉT */}
-      <div className="bg-card border border-line divide-y divide-line">
+      <div ref={dauDanhSach} aria-busy={isLoading || undefined}
+        className={`bg-card border border-line divide-y divide-line scroll-mt-24 transition-opacity ${isLoading ? 'opacity-50' : ''}`}>
         {items.map((r) => (
           <div key={r.id} className="p-5 flex items-start justify-between gap-4">
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2">
-                <p className="text-sm font-semibold text-ink">{r.userName || 'Khán giả'}</p>
+                <p className="text-sm font-semibold text-ink [overflow-wrap:anywhere]">{r.userName || 'Khán giả'}</p>
                 <SaoHang score={r.score} />
               </div>
-              {r.comment && <p className="text-sm text-ink-soft mt-2 leading-relaxed">{r.comment}</p>}
-              <p className="text-xs text-ink-mute mt-2">{dayjs(r.createdAt).format('DD/MM/YYYY')}</p>
+              {r.comment && <p className={`text-sm text-ink-soft mt-2 leading-relaxed ${CHU_NGUOI_VIET}`}>{r.comment}</p>}
+              <p className="text-xs text-ink-mute mt-2">{ngayDayDu(r.createdAt)}</p>
             </div>
             {laAdmin && (
               <button onClick={() => setRemoving(r)} title="Gỡ đánh giá" aria-label="Gỡ đánh giá"
@@ -173,12 +191,12 @@ const ShowRatings = ({ showId }) => {
 
       {totalPages > 1 && (
         <div className="flex items-center justify-center gap-3">
-          <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page <= 1}
+          <button onClick={() => { daChuyenTrang.current = true; setPage((p) => Math.max(1, p - 1)) }} disabled={page <= 1 || isLoading}
             className="px-4 py-2 border border-line text-sm text-ink-soft hover:bg-sunken disabled:opacity-40">
             Trước
           </button>
           <span className="text-sm text-ink-mute">Trang {page}/{totalPages}</span>
-          <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page >= totalPages}
+          <button onClick={() => { daChuyenTrang.current = true; setPage((p) => Math.min(totalPages, p + 1)) }} disabled={page >= totalPages || isLoading}
             className="px-4 py-2 border border-line text-sm text-ink-soft hover:bg-sunken disabled:opacity-40">
             Sau
           </button>

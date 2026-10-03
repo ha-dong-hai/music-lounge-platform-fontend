@@ -39,6 +39,7 @@ const KHU_CANH = [
   'src/components/program/ThanhLocNgang.jsx',
   'src/components/program/LichChonNgay.jsx',
   'src/components/shared/KhungGoiYTimKiem.jsx',
+  'src/components/mshow-detail/ShowRatings.jsx',
   'src/pages/home/ShowSearchPage.jsx',
   'src/components/lounge/LichDienPhongTra.jsx',
   'src/pages/lounge/LoungeDetailPage.jsx',

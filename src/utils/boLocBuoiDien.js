@@ -13,6 +13,7 @@
 // Tương thích đường dẫn cũ: ?keyword= và ?genreId= vẫn đọc được.
 import dayjs from 'dayjs'
 import { khoaNgay, ngayDayDu, ngayGon, ngayTrongLich } from './ngayVietNam.js'
+import { chuanHoaKhoangLoc } from './rangBuocNgay.js'
 
 export const CO_TRANG = 20
 
@@ -70,7 +71,8 @@ const soTien = (s) => { const n = Number(s); return s !== '' && s != null && Num
 export const BO_LOC_RONG = { q: '', the: [], tam: [], kg: [], tp: '', ht: '', ngay: '', tu: '', den: '', giaTu: null, giaDen: null, sap: SAP_MAC_DINH, trang: 1 }
 
 // Đọc bộ lọc từ URLSearchParams. Giá trị hỏng bị BỎ (không ném lỗi): địa chỉ là thứ người dùng sửa tay được.
-export const docBoLoc = (ts) => {
+// Khoảng ngày đã qua (đường dẫn cũ được lưu/gửi lại) cũng bị bỏ hoặc cắt về hôm nay — xem chuanHoaKhoangLoc.
+export const docBoLoc = (ts, bayGio = dayjs()) => {
   const lay = (k) => ts.get(k) ?? ''
   const sap = lay('sap')
   const ngay = lay('ngay')
@@ -84,8 +86,7 @@ export const docBoLoc = (ts) => {
     tp: lay('tp'),
     ht: HINH_THUC.some((h) => h.value === ht) ? ht : '',
     ngay: MOC_NGAY.some((m) => m.value === ngay) ? ngay : '',
-    tu: laNgay(lay('tu')) ? lay('tu') : '',
-    den: laNgay(lay('den')) ? lay('den') : '',
+    ...chuanHoaKhoangLoc({ tu: laNgay(lay('tu')) ? lay('tu') : '', den: laNgay(lay('den')) ? lay('den') : '' }, bayGio),
     giaTu: soTien(ts.get('giaTu')),
     giaDen: soTien(ts.get('giaDen')),
     sap: CACH_SAP.some((c) => c.value === sap) ? sap : SAP_MAC_DINH,

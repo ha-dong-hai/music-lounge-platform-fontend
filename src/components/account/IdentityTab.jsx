@@ -29,6 +29,7 @@ import {
 } from '../../services/userServices'
 import OTruong from '../shared/OTruong'
 import NhanTrangThai from '../shared/NhanTrangThai'
+import { loiNgaySinh, ngaySinhToiDa } from '../../utils/rangBuocNgay'
 
 const NUT_VIEN = 'inline-flex items-center justify-center gap-2 min-h-[44px] px-4 border-2 border-ink font-semibold hover:bg-ink hover:text-lamp transition-colors disabled:opacity-60'
 const NUT_DAC = 'inline-flex items-center justify-center gap-2 min-h-[48px] px-5 bg-ink text-lamp font-semibold hover:bg-board transition-colors disabled:opacity-60'
@@ -184,6 +185,8 @@ const IdentityTab = () => {
     const thieu = {}
     if (!cccd.citizenCardNumber.trim()) thieu.so = 'Nhập số CCCD.'
     if (!cccd.dateOfBirth) thieu.ngaySinh = 'Nhập ngày sinh như trên CCCD.'
+    // SubmitCitizenCardCommandValidator: ngày sinh < hôm nay. Rà soát 03/10: ô cho chọn ngày tương lai, chỉ biết khi gửi.
+    else if (loiNgaySinh(cccd.dateOfBirth)) thieu.ngaySinh = loiNgaySinh(cccd.dateOfBirth)
     if (!cccd.frontImageUrl) thieu.front = 'Tải ảnh mặt trước.'
     if (!cccd.backImageUrl) thieu.back = 'Tải ảnh mặt sau.'
     setLoiCccd(thieu)
@@ -342,7 +345,7 @@ const IdentityTab = () => {
                   onChange={(e) => setCccd((c) => ({ ...c, citizenCardNumber: e.target.value }))} />}
               </OTruong>
               <OTruong nhan="Ngày sinh (như trên CCCD)" batBuoc loi={loiCccd.ngaySinh}>
-                {(p) => <input {...p} type="date" value={cccd.dateOfBirth} autoComplete="bday"
+                {(p) => <input {...p} type="date" value={cccd.dateOfBirth} max={ngaySinhToiDa()} autoComplete="bday"
                   onChange={(e) => setCccd((c) => ({ ...c, dateOfBirth: e.target.value }))} />}
               </OTruong>
             </div>

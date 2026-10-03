@@ -33,6 +33,7 @@ import {
   AlertTriangle, RefreshCw, CheckCircle2, XCircle, Clock,
 } from 'lucide-react'
 import dayjs from 'dayjs'
+import { giaTriGioCucBo, loiDoiLich } from '../../utils/rangBuocNgay'
 import toast from 'react-hot-toast'
 import {
   getShowDetail, generateAiPoster, getAiPosterHistory, setShowPoster,
@@ -220,8 +221,10 @@ const OwnerShowSettingsPage = () => {
     } finally { setBusy(null) }
   }
 
+  const loiGioMoi = show ? loiDoiLich(newStart, show.scheduledStart) : null
   const doiLich = async () => {
-    if (!newStart) return
+    // Cùng luật RescheduleLoungeShowCommandValidator (giờ mới > hiện tại). Rà soát 03/10: bản trước gửi cả giờ đã qua.
+    if (!newStart || loiDoiLich(newStart, show?.scheduledStart)) return
     setBusy('reschedule')
     try {
       await rescheduleShow(id, new Date(newStart).toISOString())
@@ -564,14 +567,16 @@ const OwnerShowSettingsPage = () => {
           <div>
             <label className="text-sm font-semibold text-ink">Giờ bắt đầu mới</label>
             <input aria-label="Giờ bắt đầu mới" type="datetime-local" value={newStart} onChange={(e) => { setNewStart(e.target.value); setXacNhanDoiLich(false) }}
+              min={giaTriGioCucBo(dayjs())} aria-invalid={loiGioMoi ? 'true' : undefined} aria-describedby={loiGioMoi ? 'loi-gio-moi' : undefined}
               className={inputCls} />
+            {loiGioMoi && <p id="loi-gio-moi" role="alert" className="mt-1 text-sm font-semibold text-danger">{loiGioMoi}</p>}
             <p className="text-xs text-ink-mute mt-1">
               Hiện tại: {dayjs(show.scheduledStart).format('HH:mm DD/MM/YYYY')}
             </p>
           </div>
 
           {!xacNhanDoiLich ? (
-            <button onClick={() => setXacNhanDoiLich(true)} disabled={busy !== null || !newStart}
+            <button onClick={() => setXacNhanDoiLich(true)} disabled={busy !== null || !newStart || Boolean(loiGioMoi)}
               className="flex items-center gap-2 disabled:opacity-50 justify-center min-h-[44px] px-4 border-2 border-danger bg-card text-danger text-sm font-semibold hover:bg-danger hover:text-lamp">
               <CalendarClock size={15} /> Dời lịch
             </button>

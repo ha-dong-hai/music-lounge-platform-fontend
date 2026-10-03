@@ -28,6 +28,7 @@ import HopXacNhan from '../../components/shared/HopXacNhan'
 import { StatusBadge, FormatBadge } from '../../components/admin/shows/ShowBadges'
 import { ngayDayDu, gioTrongNgay } from '../../utils/ngayVietNam'
 import dayjs from 'dayjs'
+import { giaTriGioCucBo, loiLichBuoiDien } from '../../utils/rangBuocNgay'
 import toast from 'react-hot-toast'
 import {
   getMyShows, getShowDetail, createShow, updateShow, submitShow, cancelShow, deleteShow,
@@ -125,6 +126,10 @@ const ShowFormModal = ({ initial, loungeId, catalog, onClose, onSaved }) => {
   // trả trường này thì cảnh báo tự biến mất.
   const isCategoryUnknown = isEdit && initial.categoryId === undefined
   const [isBusy, setIsBusy] = useState(false)
+  // Giờ bắt đầu phải sau hiện tại, kết thúc phải sau bắt đầu — CÙNG luật Create/UpdateLoungeShowCommandValidator. Rà soát
+  // 03/10: bản trước không kiểm gì ngoài "đã nhập chưa", nên vẫn gửi POST với bắt đầu 01/09 và kết thúc trước bắt đầu.
+  const loiLich = loiLichBuoiDien({ batDau: form.scheduledStart, ketThuc: form.scheduledEnd })
+  const gioToiThieu = giaTriGioCucBo(dayjs())
 
   const set = (k, v) => setForm((p) => ({ ...p, [k]: v }))
   const toggle = (k, id) => setForm((p) => ({
@@ -135,6 +140,10 @@ const ShowFormModal = ({ initial, loungeId, catalog, onClose, onSaved }) => {
     e.preventDefault()
     if (!form.name.trim() || !form.description.trim() || !form.scheduledStart) {
       toast.error('Cần điền tên, mô tả và thời gian bắt đầu.')
+      return
+    }
+    if (loiLich.batDau || loiLich.ketThuc) {
+      toast.error(loiLich.batDau || loiLich.ketThuc)
       return
     }
     setIsBusy(true)
@@ -205,12 +214,16 @@ const ShowFormModal = ({ initial, loungeId, catalog, onClose, onSaved }) => {
             <div>
               <label className="text-sm font-semibold text-ink">Bắt đầu *</label>
               <input aria-label="Bắt đầu" type="datetime-local" value={form.scheduledStart} onChange={(e) => set('scheduledStart', e.target.value)}
+                min={gioToiThieu} aria-invalid={loiLich.batDau ? 'true' : undefined} aria-describedby={loiLich.batDau ? 'loi-bat-dau' : undefined}
                 className="mt-1 w-full min-h-[44px] px-3 py-2 bg-card border-2 border-ink text-ink focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2" />
+              {loiLich.batDau && <p id="loi-bat-dau" role="alert" className="mt-1 text-sm font-semibold text-danger">{loiLich.batDau}</p>}
             </div>
             <div>
               <label className="text-sm font-semibold text-ink">Kết thúc</label>
               <input aria-label="Kết thúc" type="datetime-local" value={form.scheduledEnd} onChange={(e) => set('scheduledEnd', e.target.value)}
+                min={form.scheduledStart || gioToiThieu} aria-invalid={loiLich.ketThuc ? 'true' : undefined} aria-describedby={loiLich.ketThuc ? 'loi-ket-thuc' : undefined}
                 className="mt-1 w-full min-h-[44px] px-3 py-2 bg-card border-2 border-ink text-ink focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2" />
+              {loiLich.ketThuc && <p id="loi-ket-thuc" role="alert" className="mt-1 text-sm font-semibold text-danger">{loiLich.ketThuc}</p>}
             </div>
           </div>
 

@@ -24,7 +24,10 @@ assert.deepEqual(doc(`genreId=${G3}&the=${G3},${G5}`).the, [G3, G5], '?genreId= 
 
 // --- ghi rồi đọc lại phải ra đúng bộ lọc; bộ lọc rỗng ghi ra chuỗi rỗng
 const b = { ...BO_LOC_RONG, q: 'nhạc trịnh', the: [G4], tam: [M1, M3], kg: [K2], tp: 'TP.HCM', ht: 'Hybrid', tu: '2026-10-03', den: '2026-10-05', giaTu: 200000, giaDen: 500000, sap: 'PriceAsc', trang: 3 }
-assert.deepEqual(docBoLoc(ghiBoLoc(b)), b, 'ghi → đọc là đồng nhất')
+const MOC = dayjs('2026-10-01T10:00:00') // ghim mốc: khoảng ngày đã qua bị bỏ khi đọc (chuanHoaKhoangLoc)
+assert.deepEqual(docBoLoc(ghiBoLoc(b), MOC), b, 'ghi → đọc là đồng nhất')
+assert.deepEqual([docBoLoc(new URLSearchParams('tu=2026-09-01&den=2026-09-05'), MOC).tu, docBoLoc(new URLSearchParams('tu=2026-09-01&den=2026-09-05'), MOC).den], ['', ''], 'đường dẫn cũ có khoảng đã qua → bỏ (đo 03/10: ra 0 buổi không giải thích)')
+assert.equal(docBoLoc(new URLSearchParams('tu=2026-09-25&den=2026-10-25'), MOC).tu, '2026-10-01', 'khoảng cắt qua hôm nay → từ hôm nay')
 assert.equal(ghiBoLoc(BO_LOC_RONG).toString(), '', 'bộ lọc rỗng → địa chỉ trơn')
 assert.equal(ghiBoLoc({ ...BO_LOC_RONG, ngay: 'cuoi-tuan', tu: '2026-10-03' }).has('tu'), false, 'đã chọn mốc nhanh thì không ghi khoảng ngày tay')
 
