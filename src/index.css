@@ -215,14 +215,3 @@
 @media (prefers-reduced-motion: reduce) {
   .vach-quet { display: none; }
 }
-
-/* BẢN ĐỒ PHÒNG TRÀ (BanDoPhongTra, 03/10/2026) — ô OpenStreetMap ngả màu giấy cho hợp tờ chương trình; nhãn ghim là
-   mảnh giấy viền mực (có đêm sắp diễn thì đảo thành khối mực). Không chuyển sắc, góc vuông. */
-.ban-do-giay .leaflet-tile-pane { filter: sepia(0.3) saturate(0.7) contrast(0.95); }
-.ban-do-giay.leaflet-container { background: var(--color-sunken); font-family: var(--font-sans); }
-.ghim-phong-tra {
-  display: inline-block; transform: translate(-50%, -100%); white-space: nowrap; cursor: pointer;
-  background: var(--color-card); color: var(--color-ink); border: 2px solid var(--color-ink);
-  padding: 2px 8px; font-size: 12px; font-weight: 700; line-height: 1.5;
-}
-.ghim-phong-tra.co-dem { background: var(--color-ink); color: var(--color-lamp); }

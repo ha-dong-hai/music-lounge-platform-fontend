@@ -30,7 +30,6 @@ import { useAuthStore } from '../../store/useAuthStore'
 import IconMoRong from '../../components/shared/IconMoRong'
 import SapLenDen from '../../components/program/SapLenDen'
 import TheGu from '../../components/program/TheGu'
-import BanDoPhongTra from '../../components/program/BanDoPhongTra'
 import DemDaQua from '../../components/program/DemDaQua'
 import { getLoungeDetail } from '../../services/loungeServices'
 
@@ -73,8 +72,9 @@ const HomePage = () => {
   const [anhPhongTra, setAnhPhongTra] = useState({})
   const [gu, setGu] = useState({ moods: [], atmospheres: [] })
   const [dsPhongTra, setDsPhongTra] = useState([])
-  // Chi tiết từng phòng trà (toạ độ, địa chỉ đủ, thư viện ảnh) — danh sách /lounges không trả mấy thứ này. Tải MỘT lần,
-  // dùng chung cho bản đồ (BanDoPhongTra) và Đêm đã qua (DemDaQua). Trần + đường nâng cấp: xem đầu BanDoPhongTra.
+  // Thư viện ảnh từng phòng trà cho Đêm đã qua (DemDaQua) — danh sách /lounges không trả ảnh thư viện nên gọi chi tiết
+  // từng phòng trà (5 = 5 lượt, song song). Trần: vài chục phòng trà; nâng cấp: backend trả ảnh kèm lời bình.
+  // (Khối bản đồ phòng trà đã làm rồi BỎ theo chủ dự án 03/10/2026 — MLACP-559.)
   const [chiTietPhongTra, setChiTietPhongTra] = useState({})
   // Khối "Tìm theo gu" mặc định THU GỌN (chủ dự án 02/10/2026): trang chủ ưu tiên lịch diễn và phòng trà; ai muốn
   // duyệt theo gu thì bấm mở. Cùng mẫu disclosure với NhomGu (button aria-expanded + aria-controls, chữ gạch chân
@@ -125,7 +125,6 @@ const HomePage = () => {
       setChiTietPhongTra(Object.fromEntries(kq.map((r, i) => {
         const d = r.status === 'fulfilled' && r.value?.success ? r.value.data : null
         return [dsPhongTra[i].id, {
-          lat: d?.latitude ?? null, lng: d?.longitude ?? null, diaChi: d?.fullAddress || null,
           thuVien: (d?.galleryImages ?? []).slice().sort((a, b) => a.orderIndex - b.orderIndex).map((g) => ({ url: g.imageUrl, chuThich: g.caption })),
         }]
       })))
@@ -212,15 +211,6 @@ const HomePage = () => {
           </TieuDeKhoi>
           <PhongTraTrenSan daDangNhap={daDangNhap} phongTraSangDen={phongTraSangDen} onTai={khiTaiPhongTra} />
         </section>
-
-        {dsPhongTra.length > 0 && (
-          <section aria-labelledby="ban-do-td" className="mt-24">
-            <TieuDeKhoi id="ban-do-td" phu={<LienKetMuiTen to="/lounges">Mọi phòng trà</LienKetMuiTen>}>
-              Phòng trà trên bản đồ
-            </TieuDeKhoi>
-            <BanDoPhongTra phongTra={dsPhongTra} buoi={sapToi} chiTiet={chiTietPhongTra} />
-          </section>
-        )}
 
         <section aria-labelledby="lich-tuan-td" id="lich-tuan" className="mt-24 scroll-mt-24">
           <TieuDeKhoi id="lich-tuan-td" phu={<LienKetMuiTen to="/shows">Mọi buổi diễn</LienKetMuiTen>}>
