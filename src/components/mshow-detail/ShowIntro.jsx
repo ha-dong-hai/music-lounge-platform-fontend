@@ -17,6 +17,7 @@ import { Link } from 'react-router-dom'
 import { Check, Plus } from 'lucide-react'
 import DauMoc from '../program/DauMoc'
 import CoverFallback from '../shared/CoverFallback'
+import BangLenSanKhau from './BangLenSanKhau'
 
 const VAI = { Main: 'Hát chính', Guest: 'Khách mời', Host: 'Dẫn chương trình' }
 const XOAY_ANH = ['-rotate-2', 'rotate-[1.5deg]', '-rotate-1', 'rotate-2'] // nghiêng cố định theo vị trí tấm ảnh
@@ -43,6 +44,8 @@ const ShowIntro = ({ data, isFollowing, onToggleFollow }) => {
   return (
     <div className="grid gap-10 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]">
       <div>
+        {/* D1 (03/10/2026): buổi ĐANG diễn thì bảng ô chữ lật báo ai đang hát / kế tiếp, theo giờ tiết mục thật. */}
+        {data.isOngoing && <BangLenSanKhau performers={lineUp} batDau={data.scheduledStart} />}
         <h2 className="text-3xl sm:text-4xl text-ink border-b-2 border-ink pb-3">Chương trình</h2>
         {lineUp.length > 0 ? (
           // LINE-UP POLAROID (03/10/2026, chủ dự án chọn P3): mỗi nghệ sĩ một tấm ảnh chụp lấy liền — ảnh vuông, TÊN viết

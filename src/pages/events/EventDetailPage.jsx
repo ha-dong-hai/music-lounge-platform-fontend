@@ -78,6 +78,7 @@ const EventDetailPage = () => {
             // Ba trường quyết định lối đi của khán giả theo trạng thái show
             status: beData.status,
             isOngoing: beData.isOngoing,
+            scheduledStart: beData.scheduledStart, // giờ gốc cho bảng "đang lên sân khấu" (BangLenSanKhau)
             userHasTicket: beData.userHasTicket,
             userHasRated: beData.userHasRated,
             description: beData.description || 'Chưa có mô tả cho buổi diễn này.',
