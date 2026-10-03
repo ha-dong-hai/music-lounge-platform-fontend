@@ -27,7 +27,12 @@ const CHO = (
   <div className="absolute inset-0 grid place-items-center bg-board text-lamp-mute text-sm" aria-busy="true">Đang dựng không gian…</div>
 )
 
-const KhongGianPhongTra = ({ zones = [], tourScenes = [], tenPhongTra = '' }) => {
+// NỐI 3D ↔ 360 (03/10/2026, chủ dự án: "chưa thấy được sự liên kết của view 360 với sơ đồ khu vực"): cảnh 360 nào chủ
+// phòng trà đã đặt vị trí trên mặt bằng (positionX/Y, cùng hệ % với Layout2D) thì (1) hiện GHIM trên sơ đồ 3D — bấm mở
+// tab 360 đúng cảnh đó; (2) trong 360 có BẢN ĐỒ NHỎ (PanoramaViewer › BanDoNho) chỉ chỗ đang đứng giữa các khu.
+// Cảnh chưa đặt vị trí vẫn xem được ở tab 360, chỉ không có ghim.
+const MAU_KHU = ['#C9A45C', '#8C7A6B', '#B3A899', '#6E5E50']
+const KhongGianPhongTra = ({ zones = [], tourScenes = [], tenPhongTra = '', anhMatBang = null }) => {
   const khu = useMemo(() => zones.filter((z) => z.isActive !== false && coSoDo2D(z))
     .sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0)), [zones])
   const cachXem = useMemo(() => [
@@ -36,6 +41,14 @@ const KhongGianPhongTra = ({ zones = [], tourScenes = [], tenPhongTra = '' }) =>
   ].filter(Boolean), [khu.length, tourScenes.length])
 
   const [dangXem, setDangXem] = useState(null)
+  const [canhMo, setCanhMo] = useState(null) // cảnh 360 mở từ ghim trên sơ đồ 3D
+  const diem360 = useMemo(() => tourScenes.filter((s) => s.positionX != null && s.positionY != null)
+    .map((s, i) => ({ id: s.id, ten: s.name || `Cảnh ${i + 1}`, x: s.positionX, y: s.positionY })), [tourScenes])
+  const banDoNho = useMemo(() => ({
+    anhMatBang,
+    khu: khu.map((z, i) => ({ id: z.id, ten: z.name, x: z.layout2DX, y: z.layout2DY, w: z.layout2DWidth ?? 12, h: z.layout2DHeight ?? 12, mau: z.layoutColor || MAU_KHU[i % MAU_KHU.length] })),
+  }), [anhMatBang, khu])
+  const moCanh = useCallback((id) => { setCanhMo(id); setDangXem('360') }, [])
   const [chon, setChon] = useState(null)
   const [lanDatLai, setLanDatLai] = useState(0)
   const [co3D, setCo3D] = useState(true)
@@ -76,7 +89,8 @@ const KhongGianPhongTra = ({ zones = [], tourScenes = [], tenPhongTra = '' }) =>
             <div className="relative w-full aspect-[4/3] sm:aspect-video border-2 border-ink bg-board overflow-hidden">
               {co3D ? (
                 <Suspense fallback={CHO}>
-                  <SoDoCho3D zones={khu} chon={chon} onChon={setChon} lanDatLai={lanDatLai} onKhongHoTro={khongHoTro} />
+                  <SoDoCho3D zones={khu} chon={chon} onChon={setChon} lanDatLai={lanDatLai} onKhongHoTro={khongHoTro}
+                    diem360={diem360} onChonDiem={moCanh} />
                 </Suspense>
               ) : (
                 <p className="absolute inset-0 grid place-items-center p-6 text-center text-lamp-mute text-sm">
@@ -99,13 +113,28 @@ const KhongGianPhongTra = ({ zones = [], tourScenes = [], tenPhongTra = '' }) =>
                     <button type="button" aria-pressed={z.id === chon} onClick={() => setChon((v) => (v === z.id ? null : z.id))}
                       className={`w-full flex items-center gap-3 min-h-[48px] px-3 text-left transition-colors ${z.id === chon ? 'bg-ink text-lamp' : 'hover:bg-card'}`}>
                       <span aria-hidden="true" className="w-4 h-4 flex-shrink-0 border border-ink/30"
-                        style={{ backgroundColor: z.layoutColor || ['#C9A45C', '#8C7A6B', '#B3A899', '#6E5E50'][i % 4] }} />
+                        style={{ backgroundColor: z.layoutColor || MAU_KHU[i % MAU_KHU.length] }} />
                       <span className="flex-1 min-w-0 truncate font-semibold">{z.name}</span>
                       <span className="font-mono text-sm whitespace-nowrap">{z.capacity} chỗ</span>
                     </button>
                   </li>
                 ))}
               </ul>
+              {diem360.length > 0 && (
+                <div className="mt-5">
+                  <h3 className="text-base font-bold mb-2">Đứng tại chỗ xem 360°</h3>
+                  <ul className="flex flex-wrap gap-2">
+                    {diem360.map((d) => (
+                      <li key={d.id}>
+                        <button type="button" onClick={() => moCanh(d.id)}
+                          className="inline-flex items-center gap-1.5 min-h-[44px] px-3 border-2 border-ink text-sm font-semibold hover:bg-ink hover:text-lamp">
+                          <Rotate3d size={16} strokeWidth={1.75} aria-hidden="true" /> {d.ten}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
               {khuChon && (
                 <div className="mt-4 border-2 border-ink bg-card p-4" aria-live="polite">
                   <p className="font-display text-2xl leading-tight">{khuChon.name}</p>
@@ -121,7 +150,7 @@ const KhongGianPhongTra = ({ zones = [], tourScenes = [], tenPhongTra = '' }) =>
 
         {hienTai.khoa === '360' && (
           <Suspense fallback={<div className="w-full aspect-video border-2 border-ink/20 bg-ink/5 animate-pulse" aria-busy="true" aria-label="Đang tải trình xem 360°" />}>
-            <PanoramaViewer scenes={tourScenes} className="w-full aspect-video border-2 border-ink" />
+            <PanoramaViewer key={canhMo ?? 'dau'} scenes={tourScenes} initialSceneId={canhMo} banDoNho={banDoNho} className="w-full aspect-video border-2 border-ink" />
           </Suspense>
         )}
       </div>

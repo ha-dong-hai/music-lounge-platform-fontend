@@ -48,6 +48,7 @@ const LoungeDetailPage = () => {
   const [lounge, setLounge] = useState(null)
   const [zones, setZones] = useState([])
   const [tourScenes, setTourScenes] = useState([])
+  const [anhMatBang, setAnhMatBang] = useState(null)
   // Lịch diễn có vòng đời RIÊNG: null = đang tải, mảng = đã có; lỗi thì hiện nút thử lại tại chỗ chứ không ẩn cả khối.
   const [buoiDien, setBuoiDien] = useState(null)
   const [tongBuoi, setTongBuoi] = useState(0)
@@ -114,7 +115,11 @@ const LoungeDetailPage = () => {
           .then((r) => { if (!huy && r?.success && Array.isArray(r.data)) setZones(r.data) })
           .catch(() => {})
         getLoungeTour(beData.id)
-          .then((r) => { if (!huy && r?.success) setTourScenes((r.data?.scenes ?? []).filter((sc) => sc.imageUrl)) })
+          .then((r) => {
+            if (huy || !r?.success) return
+            setTourScenes((r.data?.scenes ?? []).filter((sc) => sc.imageUrl))
+            setAnhMatBang(r.data?.floorPlanImageUrl ?? null)
+          })
           .catch(() => {})
       } catch (err) {
         if (huy) return
@@ -262,7 +267,7 @@ const LoungeDetailPage = () => {
         <div className="pt-16"><LoungeAbout lounge={lounge} zones={zones} /></div>
 
         {/* ===== KHÔNG GIAN VÀ CHỖ NGỒI: khách tự chọn Sơ đồ 3D hoặc Tham quan 360° (03/10/2026) ===== */}
-        <KhongGianPhongTra zones={zones} tourScenes={tourScenes} tenPhongTra={lounge.name} />
+        <KhongGianPhongTra zones={zones} tourScenes={tourScenes} tenPhongTra={lounge.name} anhMatBang={anhMatBang ?? lounge.areaLayoutImageUrl ?? null} />
       </div>
     </div>
   )

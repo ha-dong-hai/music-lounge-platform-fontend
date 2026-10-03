@@ -6,9 +6,14 @@
 // BẢN 2 (03/10/2026) — chủ dự án: "mấy cái khu xấu quá… 3D vậy không được". Bản 1 là khối màu bão hoà + cột trụ làm ghế
 // (trông như đồ chơi xếp hình). Nay in như MỘT PHÒNG TRÀ THẬT nhìn từ trên xuống (tham khảo sơ đồ nhà hàng isometric —
 // icograms.com/templates/1188): mỗi khu là một TẤM THẢM mang màu khu (đã làm dịu), trên đó bàn ghế thật:
-//  - khu tên có "bar"  → quầy bar + ghế cao, mỗi ghế 1 chỗ;
-//  - khu tên có "sofa" → bàn trà + 2 sofa đối diện, mỗi bộ 6 chỗ;
-//  - còn lại           → bàn tròn + 4 ghế nệm, mỗi bộ 4 chỗ.
+//  - khu tên có "bar"/"quầy"                    → quầy bar + ghế cao, mỗi ghế 1 chỗ;
+//  - khu tên có "sofa"                          → bàn trà + 2 sofa đối diện, mỗi bộ 6 chỗ;
+//  - "hàng"/"khán phòng"/"rạp"                  → hàng ghế quay về phía sân khấu (phía TRÊN sơ đồ), mỗi ghế 1 chỗ;
+//  - "đôi"/"cặp"                                → bàn nhỏ + 2 ghế đối diện, mỗi bộ 2 chỗ;
+//  - "nhóm"/"tiệc"/"bàn dài"/"gia đình"         → bàn chữ nhật + 8 ghế, mỗi bộ 8 chỗ;
+//  - "vip"                                      → bàn trải khăn + 4 ghế bọc + đèn bàn, mỗi bộ 4 chỗ;
+//  - còn lại                                    → bàn tròn + 4 ghế nệm, mỗi bộ 4 chỗ.
+//  Thứ tự xét như trên (03/10/2026, chủ dự án chọn 4 kiểu mới): "Hàng A–C VIP" ra HÀNG GHẾ, "Khu VIP" ra bàn khăn trải.
 //  Số bộ = sức chứa ÷ chỗ mỗi bộ, giới hạn bởi số bộ VỪA tấm thảm (không chồng lên nhau). Sức chứa thật luôn in ở danh
 //  sách khu bên cạnh — hình là minh hoạ bố cục, không phải đếm từng ghế.
 // Nội thất: Kenney Furniture Kit 2.0, CC0 (public/models/noi-that/LICENSE-Kenney-CC0.txt), ~100 KB, ghi đè vật liệu
@@ -30,21 +35,26 @@ import {
 } from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
+import { kieuKhu } from '../../utils/kieuKhu3D'
 
 const SAN_RONG = 16, SAN_SAU = 9 // mặt sàn 16:9, khớp khung soạn sơ đồ của chủ phòng trà
 const TL = 0.62 // tỉ lệ nội thất Kenney (≈ 1 đơn vị = 1 m) so với mặt sàn sơ đồ
 const MAU_MAC_DINH = ['#C9A45C', '#8C7A6B', '#B3A899', '#6E5E50']
 const VI_TRI_DAU = new Vector3(0, 9.5, 11.5)
 const DUONG_MO_HINH = '/models/noi-that/'
-const MO_HINH = ['tableRound', 'chairCushion', 'loungeSofa', 'tableCoffee', 'stoolBar', 'kitchenBar', 'rugRounded']
+const MO_HINH = ['tableRound', 'chairCushion', 'loungeSofa', 'tableCoffee', 'stoolBar', 'kitchenBar', 'rugRounded',
+  'tableCrossCloth', 'chairModernFrameCushion', 'lampRoundTable', 'chairModernCushion', 'table']
 
 // Kiểu khu đoán theo TÊN chủ phòng trà đặt (dữ liệu thật) — không khớp thì bàn tròn.
 const KIEU = {
   bar: { moiBo: 1, rong: 0.45, sau: 0.95 },
   sofa: { moiBo: 6, rong: 1.75, sau: 1.45 },
+  hang: { moiBo: 1, rong: 0.62, sau: 0.8 },
+  doi: { moiBo: 2, rong: 1.0, sau: 1.35 },
+  nhom: { moiBo: 8, rong: 2.5, sau: 1.75 },
+  vip: { moiBo: 4, rong: 1.6, sau: 1.6 },
   ban: { moiBo: 4, rong: 1.3, sau: 1.3 },
 }
-const kieuKhu = (ten = '') => (/\bbar\b|quầy/i.test(ten) ? 'bar' : /sofa/i.test(ten) ? 'sofa' : 'ban')
 
 // Sàn gỗ tối: ván dọc, sắc độ lệch nhẹ từng ván (seed cố định theo vị trí — hình không đổi giữa các lần dựng).
 const veSan = () => {
@@ -60,10 +70,16 @@ const veSan = () => {
   return c
 }
 
-const SoDoCho3D = ({ zones, chon, onChon, lanDatLai = 0, onKhongHoTro }) => {
+// diem360: [{ id, ten, x, y }] — cảnh tham quan 360° đã được chủ phòng trà đặt trên mặt bằng (x, y: % như Layout2D).
+// In thành GHIM (nút HTML bám theo vị trí 3D, bấm được bằng bàn phím); onChonDiem(id) mở cảnh đó.
+// Mặc định phải là MỘT mảng cố định: `diem360 = []` tạo mảng mới mỗi lần vẽ → effect dựng cảnh (phụ thuộc diem360) chạy
+// lại vô hạn ("Maximum update depth exceeded" — lộ ra khi chạy đột biến 03/10 với nơi gọi không truyền ghim).
+const KHONG_GHIM = []
+const SoDoCho3D = ({ zones, chon, onChon, lanDatLai = 0, onKhongHoTro, diem360 = KHONG_GHIM, onChonDiem }) => {
   const khungRef = useRef(null)
   const ref = useRef({})
   const [nhan, setNhan] = useState([])
+  const [ghim, setGhim] = useState([])
   useEffect(() => { ref.current.onChon = onChon }, [onChon])
 
   useEffect(() => {
@@ -140,12 +156,13 @@ const SoDoCho3D = ({ zones, chon, onChon, lanDatLai = 0, onKhongHoTro }) => {
 
     const bucs = [] // { id, ten, nhom, thamMat, mauGoc, tam }
     let huy = false
+    // Điểm đứng 360° trên sàn (cùng quy đổi % → mặt sàn như khu). Chỉ là toạ độ — hình ghim là nút HTML ở dưới.
+    const diemSan = diem360.map((d) => ({ ...d, v: new Vector3((d.x / 100) * SAN_RONG - SAN_RONG / 2, 1.1, (d.y / 100) * SAN_SAU - SAN_SAU / 2) }))
     const veNhan = () => {
       const r = khung.getBoundingClientRect()
-      setNhan(bucs.map((b) => {
-        const p = b.tam.clone().project(camera)
-        return { id: b.id, ten: b.ten, x: (p.x * 0.5 + 0.5) * r.width, y: (-p.y * 0.5 + 0.5) * r.height, an: p.z > 1 }
-      }))
+      const chieu = (v) => { const p = v.clone().project(camera); return { x: (p.x * 0.5 + 0.5) * r.width, y: (-p.y * 0.5 + 0.5) * r.height, an: p.z > 1 } }
+      setNhan(bucs.map((b) => ({ id: b.id, ten: b.ten, ...chieu(b.tam) })))
+      setGhim(diemSan.map((d) => ({ id: d.id, ten: d.ten, ...chieu(d.v) })))
     }
     const ve = () => { renderer.render(scene, camera); veNhan() }
 
@@ -155,8 +172,10 @@ const SoDoCho3D = ({ zones, chon, onChon, lanDatLai = 0, onKhongHoTro }) => {
         if (huy) return
         // Mô hình Kenney đặt gốc toạ độ ở GÓC, không ở tâm (đo 03/10: bản đầu bàn ghế lệch khỏi thảm) → bọc lại cho tâm
         // đáy nằm ở (0,0,0); mọi phép đặt bên dưới tính theo tâm.
+        const kt = {} // kích thước thật của từng mẫu (m, trước khi thu theo TL) — đặt đèn lên đúng mặt bàn
         const goc = Object.fromEntries(ds.map(([ten, s]) => {
           const hop = new Box3().setFromObject(s); const c = hop.getCenter(new Vector3())
+          kt[ten] = hop.getSize(new Vector3())
           s.position.set(-c.x, -hop.min.y, -c.z)
           const boc = new Group(); boc.add(s); return [ten, boc]
         }))
@@ -198,6 +217,10 @@ const SoDoCho3D = ({ zones, chon, onChon, lanDatLai = 0, onKhongHoTro }) => {
           const k = KIEU[kieu]
           const cot = Math.max(1, Math.floor((w * 0.9) / (k.rong * TL)))
           const hang = kieu === 'bar' ? 1 : Math.max(1, Math.floor((d * 0.9) / (k.sau * TL)))
+          // Ghế quanh bàn: mặt ghế Kenney hướng +z → xoay để quay vào tâm bàn.
+          const gheQuanh = (bo, ten, ds) => ds.forEach(([gx, gz]) => {
+            const g = tao(ten); g.position.set(gx * TL, 0, gz * TL); g.rotation.y = Math.atan2(-gx, -gz); bo.add(g)
+          })
           const soBo = Math.max(1, Math.min(Math.ceil((z.capacity || 1) / k.moiBo), cot * hang))
           const cotDung = Math.min(cot, soBo), hangDung = Math.ceil(soBo / cotDung)
           for (let b = 0; b < soBo; b++) {
@@ -207,11 +230,20 @@ const SoDoCho3D = ({ zones, chon, onChon, lanDatLai = 0, onKhongHoTro }) => {
             const bo = new Group(); bo.position.set(x, 0.01, kieu === 'bar' ? d * 0.08 : zz)
             if (kieu === 'ban') {
               bo.add(tao('tableRound'))
-              for (const [gx, gz] of [[0, -0.55], [0, 0.55], [-0.55, 0], [0.55, 0]]) {
-                const ghe = tao('chairCushion'); ghe.position.set(gx * TL, 0, gz * TL)
-                ghe.rotation.y = Math.atan2(-gx, -gz) // mặt ghế (+z) quay vào bàn
-                bo.add(ghe)
-              }
+              gheQuanh(bo, 'chairCushion', [[0, -0.55], [0, 0.55], [-0.55, 0], [0.55, 0]])
+            } else if (kieu === 'vip') {
+              bo.add(tao('tableCrossCloth'))
+              const den = tao('lampRoundTable'); den.position.y = (kt.tableCrossCloth?.y ?? 0.75) * TL; bo.add(den)
+              gheQuanh(bo, 'chairModernFrameCushion', [[0, -0.62], [0, 0.62], [-0.62, 0], [0.62, 0]])
+            } else if (kieu === 'doi') {
+              const ban = tao('tableRound'); ban.scale.multiplyScalar(0.75); bo.add(ban)
+              gheQuanh(bo, 'chairCushion', [[0, -0.48], [0, 0.48]])
+            } else if (kieu === 'nhom') {
+              const ban = tao('table'); ban.scale.set(TL * (1.9 / (kt.table?.x || 1)), TL, TL * (0.85 / (kt.table?.z || 1))); bo.add(ban)
+              gheQuanh(bo, 'chairCushion', [[-0.65, -0.68], [0, -0.68], [0.65, -0.68], [-0.65, 0.68], [0, 0.68], [0.65, 0.68], [-1.2, 0], [1.2, 0]])
+            } else if (kieu === 'hang') {
+              // Ghế khán phòng quay về phía trên sơ đồ (sân khấu thường vẽ ở mép trên): mặt ghế +z → xoay 180°.
+              const ghe = tao('chairModernCushion'); ghe.rotation.y = Math.PI; bo.add(ghe)
             } else if (kieu === 'sofa') {
               bo.add(tao('tableCoffee'))
               const s1 = tao('loungeSofa'); s1.position.set(0, 0, -0.55 * TL); bo.add(s1)
@@ -313,13 +345,23 @@ const SoDoCho3D = ({ zones, chon, onChon, lanDatLai = 0, onKhongHoTro }) => {
       for (const t of new Set(taiNguyen)) t.dispose?.()
       renderer.dispose(); renderer.domElement.remove()
     }
-  }, [zones, onKhongHoTro])
+  }, [zones, onKhongHoTro, diem360])
 
   useEffect(() => { ref.current.toChon?.(chon) }, [chon])
   useEffect(() => { if (lanDatLai) ref.current.datLai?.() }, [lanDatLai])
 
   return (
     <div ref={khungRef} className="absolute inset-0 touch-none">
+      {/* GHIM 360° — nút thật (Tab tới được), bám theo điểm đứng trên sàn. Bấm = mở Tham quan 360° tại cảnh đó. */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden z-10">
+        {ghim.filter((g) => !g.an).map((g) => (
+          <button key={g.id} type="button" onClick={() => onChonDiem?.(g.id)} style={{ left: g.x, top: g.y }}
+            aria-label={`Xem 360° tại ${g.ten}`}
+            className="pointer-events-auto absolute -translate-x-1/2 -translate-y-full inline-flex items-center gap-1 min-h-[32px] px-2 bg-ember text-board text-xs font-bold border-2 border-board shadow-lift hover:bg-lamp focus-visible:outline-lamp">
+            <span aria-hidden="true">◉ 360°</span><span className="max-w-[7rem] truncate font-semibold">{g.ten}</span>
+          </button>
+        ))}
+      </div>
       {/* Nhãn khu: HTML bám theo khu (chữ sắc nét, đúng font trang). aria-hidden — danh sách khu bên cạnh đã có tên. */}
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
         {nhan.filter((n) => !n.an).map((n) => (

@@ -50,7 +50,11 @@ const lerpAngle = (a, b, t) => {
 // ĐIỂM "KHU" (MLACP-555): hotspot type 'Zone' trỏ tới một khu ghế. Chỉ vẽ khi trang có ngữ cảnh chọn khu
 // (onChonKhu) — tức tab mua vé của buổi diễn; ở trang phòng trà không có gì để chọn nên ẩn. khuBan (Set zoneId)
 // lọc tiếp: khu không bán trong buổi diễn này thì không vẽ, chạm vào sẽ ra danh sách hạng vé rỗng.
-const PanoramaViewer = ({ scenes = [], initialSceneId = null, className = '', videoScreen = null, autoRotate = true, onChonKhu = null, khuDangChon = null, khuBan = null }) => {
+// banDoNho (03/10/2026, chủ dự án: "chưa thấy liên kết của view 360 với sơ đồ khu vực"): { anhMatBang, khu: [{ id, ten,
+// x, y, w, h, mau }] } — mặt bằng thu nhỏ ở góc: các khu (cùng toạ độ % với Layout2D), chấm từng cảnh đã đặt vị trí,
+// chấm đang đứng nổi bật; bấm chấm khác = sang cảnh đó. Không vẽ HƯỚNG NHÌN: góc 0° của ảnh 360 không gắn với hướng nào
+// trên mặt bằng (dữ liệu không có), vẽ vào là đoán.
+const PanoramaViewer = ({ scenes = [], initialSceneId = null, className = '', videoScreen = null, autoRotate = true, onChonKhu = null, khuDangChon = null, khuBan = null, banDoNho = null }) => {
   const containerRef = useRef(null)
   const mountRef = useRef(null)
   const hotspotEls = useRef(new Map())
@@ -481,6 +485,10 @@ const PanoramaViewer = ({ scenes = [], initialSceneId = null, className = '', vi
         </button>
       )}
 
+      {banDoNho && scenes.some((s) => s.positionX != null && s.positionY != null) && (
+        <BanDoNho banDo={banDoNho} scenes={scenes} dangDung={scene.id} onDen={goToScene} coDaiNut={scenes.length > 1} />
+      )}
+
       {scenes.length > 1 && (
         <div className="absolute left-4 right-4 bottom-4 z-10 flex gap-2 overflow-x-auto hide-scrollbar" role="tablist" aria-label="Các điểm đứng trong phòng trà">
           {scenes.map((s, i) => (
@@ -489,6 +497,47 @@ const PanoramaViewer = ({ scenes = [], initialSceneId = null, className = '', vi
               {s.name || `Cảnh ${i + 1}`}
             </button>
           ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+// BẢN ĐỒ NHỎ — mặt bằng 16:9 thu nhỏ. Ảnh mặt bằng chủ phòng trà tải lên (nếu có) làm nền, khu vẽ mờ phía trên để thấy
+// "đang đứng gần khu nào"; chấm cảnh là nút thật (Tab tới được). Thu gọn được để không che ảnh 360 trên điện thoại.
+function BanDoNho({ banDo, scenes, dangDung, onDen, coDaiNut }) {
+  const [mo, setMo] = useState(() => typeof window === 'undefined' || !window.matchMedia?.('(max-width: 639px)').matches)
+  const diem = scenes.filter((s) => s.positionX != null && s.positionY != null)
+  return (
+    <div className={`absolute left-4 z-10 ${coDaiNut ? 'bottom-14' : 'bottom-4'}`}>
+      <button type="button" onClick={() => setMo((v) => !v)} aria-expanded={mo}
+        className="mb-1 h-8 px-2.5 bg-ink/80 text-lamp text-xs font-semibold hover:bg-ink">
+        {mo ? 'Ẩn mặt bằng' : 'Mặt bằng'}
+      </button>
+      {mo && (
+        <div className="relative w-44 sm:w-60 aspect-video border-2 border-lamp/70 bg-board/85 overflow-hidden shadow-lift" role="group" aria-label="Mặt bằng phòng trà — các điểm đứng 360°">
+          {banDo.anhMatBang && <img src={banDo.anhMatBang} alt="" className="absolute inset-0 w-full h-full object-cover opacity-70" />}
+          {banDo.khu?.map((z) => (
+            <span key={z.id} aria-hidden="true" title={z.ten}
+              className="absolute border border-lamp/70"
+              style={{ left: `${z.x}%`, top: `${z.y}%`, width: `${z.w}%`, height: `${z.h}%`, backgroundColor: `${z.mau}55` }} />
+          ))}
+          {diem.map((s) => {
+            const dang = s.id === dangDung
+            return (
+              <button key={s.id} type="button" onClick={() => onDen(s.id)} aria-current={dang ? 'location' : undefined}
+                aria-label={dang ? `Bạn đang ở: ${s.name || 'cảnh này'}` : `Đến ${s.name || 'cảnh này'}`} title={s.name || undefined}
+                style={{ left: `${s.positionX}%`, top: `${s.positionY}%` }}
+                className="absolute -translate-x-1/2 -translate-y-1/2 grid place-items-center w-7 h-7">
+                <span aria-hidden="true" className={`block rotate-45 border-2 ${dang ? 'w-4 h-4 bg-ember border-board ring-4 ring-ember/40' : 'w-3 h-3 bg-lamp border-board hover:bg-ember'}`} />
+              </button>
+            )
+          })}
+          {diem.find((s) => s.id === dangDung) && (
+            <p className="absolute left-1 bottom-1 px-1.5 bg-board/90 text-lamp text-[11px] font-semibold max-w-[95%] truncate">
+              Bạn đang ở: {diem.find((s) => s.id === dangDung).name}
+            </p>
+          )}
         </div>
       )}
     </div>
