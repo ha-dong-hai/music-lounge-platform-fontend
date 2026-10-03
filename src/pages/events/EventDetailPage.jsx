@@ -18,11 +18,16 @@ import { useAuthStore } from '../../store/useAuthStore'
 import { formatMinPrice } from '../../utils/formatPrice'
 import HopThoai, { TieuDeHop } from '../../components/shared/HopThoai'
 import LienKetMuiTen from '../../components/shared/LienKetMuiTen'
+import usePhimTab from '../../hooks/usePhimTab'
+
+const KHOA_TAB = ['intro', 'map', 'ratings'] // phải khớp TAB trong trang
 
 const EventDetailPage = () => {
   const { id } = useParams()
   const { user } = useAuthStore()
   const [activeTab, setActiveTab] = useState('intro')
+  // Bàn phím cho tablist (APG): gọi TRƯỚC mọi return sớm của trang — luật hook.
+  const phimTab = usePhimTab(KHOA_TAB, activeTab, setActiveTab)
   const tabsRef = useRef(null)
 
   const [isShareModalOpen, setIsShareModalOpen] = useState(false)
@@ -291,7 +296,7 @@ const EventDetailPage = () => {
         <div className="flex gap-6 sm:gap-10 overflow-x-auto hide-scrollbar" role="tablist" aria-label="Nội dung buổi diễn">
           {TAB.map(([khoa, nhan]) => (
             <button key={khoa} type="button" role="tab" id={`tab-${khoa}`} aria-selected={activeTab === khoa} aria-controls="noi-dung-tab"
-              onClick={() => setActiveTab(khoa)}
+              {...phimTab(khoa)} onClick={() => setActiveTab(khoa)}
               className={`min-h-[48px] pb-3 text-lg font-semibold whitespace-nowrap border-b-4 -mb-[2px] transition-colors ${activeTab === khoa ? 'border-ink text-ink' : 'border-transparent text-ink-mute hover:text-ink'}`}>
               {nhan}
             </button>

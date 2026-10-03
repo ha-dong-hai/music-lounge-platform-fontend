@@ -15,6 +15,7 @@ import WishlistTab from '../../components/myshows/WishlistTab'
 import IncomingTransfersTab from '../../components/myshows/IncomingTransfersTab'
 import RefundRequestsTab from '../../components/myshows/RefundRequestsTab'
 import MyDonationsTab from '../../components/myshows/MyDonationsTab'
+import usePhimTab from '../../hooks/usePhimTab'
 
 const TAB = [
   ['shows', 'Vé'],
@@ -23,6 +24,7 @@ const TAB = [
   ['refunds', 'Hoàn tiền'],
   ['donations', 'Ủng hộ'],
 ]
+const KHOA_TAB = TAB.map(([khoa]) => khoa)
 
 const MUC = parseAsStringLiteral(TAB.map(([khoa]) => khoa)).withDefault('shows')
 
@@ -30,6 +32,8 @@ const MyShowsPage = () => {
   const { user } = useAuthStore()
   const location = useLocation()
   const [activeMainTab, setActiveMainTab] = useQueryState('muc', MUC.withOptions({ history: 'push' }))
+  // Bàn phím cho tablist (APG). Tab 'shows' là mặc định nên ghi null lên URL — giữ đúng quy ước của onClick.
+  const phimTab = usePhimTab(KHOA_TAB, activeMainTab, (k) => setActiveMainTab(k === 'shows' ? null : k))
 
   return (
     <div className="min-h-[60vh] bg-stock text-ink pb-20">
@@ -49,7 +53,7 @@ const MyShowsPage = () => {
               <div className="flex gap-6 sm:gap-10 overflow-x-auto hide-scrollbar" role="tablist" aria-label="Các mục của tôi">
                 {TAB.map(([khoa, nhan]) => (
                   <button key={khoa} type="button" role="tab" id={`tab-cua-toi-${khoa}`} aria-selected={activeMainTab === khoa} aria-controls="noi-dung-cua-toi"
-                    onClick={() => setActiveMainTab(khoa === 'shows' ? null : khoa)}
+                    {...phimTab(khoa)} onClick={() => setActiveMainTab(khoa === 'shows' ? null : khoa)}
                     className={`min-h-[48px] pb-3 text-lg font-semibold whitespace-nowrap border-b-4 -mb-[2px] transition-colors ${activeMainTab === khoa ? 'border-ink text-ink' : 'border-transparent text-ink-mute hover:text-ink'}`}>
                     {nhan}
                   </button>

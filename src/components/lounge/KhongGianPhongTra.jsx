@@ -9,13 +9,14 @@
 //  - Chỉ in những cách xem CÓ dữ liệu: khu nào có vị trí 2D mới dựng 3D; tour cần ít nhất một cảnh. Một cách xem → không
 //    in nút chuyển (chọn một trong một là thừa). Không cách xem nào → không in khối.
 //  - Nút chuyển là tablist theo WAI-ARIA APG (Tabs, kích hoạt tự động): mũi tên trái/phải, Home/End; chỉ tab đang chọn
-//    nhận Tab (roving tabindex). Tablist có sẵn ở EventDetailPage chưa có phím mũi tên — chưa sửa ở đây.
+//    nhận Tab (roving tabindex) — dùng chung hook usePhimTab với trang buổi diễn và Vé của tôi.
 //  - Mỗi lúc chỉ dựng MỘT cách xem: hai cảnh WebGL cùng lúc là gấp đôi bộ nhớ GPU cho thứ khách không nhìn.
 //  - Cả hai đều tải lười: three.js chỉ tải khi khối này hiện trên trang.
 //  - Danh sách khu bên cạnh sơ đồ 3D là đường tương đương bàn phím/trình đọc màn hình (canvas aria-hidden), và là chỗ
 //    duy nhất ghi đủ sức chứa + mô tả của khu.
-import { lazy, Suspense, useCallback, useMemo, useRef, useState } from 'react'
+import { lazy, Suspense, useCallback, useMemo, useState } from 'react'
 import { Armchair, Rotate3d, RotateCcw } from 'lucide-react'
+import usePhimTab from '../../hooks/usePhimTab'
 
 const SoDoCho3D = lazy(() => import('./SoDoCho3D'))
 const PanoramaViewer = lazy(() => import('./PanoramaViewer'))
@@ -39,20 +40,14 @@ const KhongGianPhongTra = ({ zones = [], tourScenes = [], tenPhongTra = '' }) =>
   const [chon, setChon] = useState(null)
   const [lanDatLai, setLanDatLai] = useState(0)
   const [co3D, setCo3D] = useState(true)
-  const tabRef = useRef({})
   const khongHoTro = useCallback(() => setCo3D(false), [])
+  const dsKhoa = useMemo(() => cachXem.map((c) => c.khoa), [cachXem])
+  const khoaHienTai = cachXem.find((c) => c.khoa === dangXem)?.khoa ?? dsKhoa[0]
+  const phimTab = usePhimTab(dsKhoa, khoaHienTai, setDangXem) // gọi trước return sớm — luật hook
 
   if (cachXem.length === 0) return null
-  const hienTai = cachXem.find((c) => c.khoa === dangXem) ?? cachXem[0]
+  const hienTai = cachXem.find((c) => c.khoa === khoaHienTai)
   const khuChon = khu.find((z) => z.id === chon)
-
-  const phim = (e, i) => {
-    const n = cachXem.length
-    const toi = { ArrowRight: (i + 1) % n, ArrowLeft: (i - 1 + n) % n, Home: 0, End: n - 1 }[e.key]
-    if (toi == null) return
-    e.preventDefault()
-    setDangXem(cachXem[toi].khoa); tabRef.current[cachXem[toi].khoa]?.focus()
-  }
 
   return (
     <section aria-labelledby="khong-gian-title" className="pt-16">
@@ -60,12 +55,12 @@ const KhongGianPhongTra = ({ zones = [], tourScenes = [], tenPhongTra = '' }) =>
         <h2 id="khong-gian-title" className="text-4xl">Không gian và chỗ ngồi</h2>
         {cachXem.length > 1 && (
           <div role="tablist" aria-label="Cách xem không gian" className="inline-flex border-2 border-ink">
-            {cachXem.map((c, i) => {
+            {cachXem.map((c) => {
               const dang = c.khoa === hienTai.khoa
               return (
-                <button key={c.khoa} ref={(el) => { tabRef.current[c.khoa] = el }} type="button" role="tab"
-                  id={`xem-${c.khoa}`} aria-selected={dang} aria-controls="khong-gian-panel" tabIndex={dang ? 0 : -1}
-                  onClick={() => setDangXem(c.khoa)} onKeyDown={(e) => phim(e, i)}
+                <button key={c.khoa} type="button" role="tab" {...phimTab(c.khoa)}
+                  id={`xem-${c.khoa}`} aria-selected={dang} aria-controls="khong-gian-panel"
+                  onClick={() => setDangXem(c.khoa)}
                   className={`inline-flex items-center gap-2 min-h-[48px] px-4 text-sm font-semibold transition-colors ${dang ? 'bg-ink text-lamp' : 'text-ink hover:bg-card'}`}>
                   <c.Icon size={18} strokeWidth={1.75} aria-hidden="true" /> {c.nhan}
                 </button>
