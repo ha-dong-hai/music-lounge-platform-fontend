@@ -116,6 +116,21 @@ export const ghiBoLoc = (b) => {
 }
 
 // Khoảng giá vô lý (đến < từ) thì KHÔNG gửi lên máy chủ: backend trả 400 và người dùng thấy một trang lỗi vì một ô gõ dở.
+// Ô GIÁ TỰ NHẬP (03/10/2026). Bản trước dùng <input type="number" step="1000">: người Việt gõ "300.000" thì trình duyệt
+// coi là 300,000 (ba trăm phẩy không), lệch bước 1.000 → CHẶN NGẦM việc gửi form, chỉ hiện bong bóng tiếng Anh "Please
+// enter a valid value" — bấm "Áp dụng" không có gì xảy ra (chủ dự án báo; đo: "300.000" và "250500" đều bị chặn).
+// Nay ô là chữ: chỉ giữ CHỮ SỐ (bỏ dấu chấm, phẩy, cách, "đ"), hiện lại có dấu chấm ngăn nghìn. Tiền đồng không có số lẻ
+// nên dấu chấm/phẩy không bao giờ là dấu thập phân.
+export const chuSoTien = (chuoi) => String(chuoi ?? '').replace(/\D/g, '').replace(/^0+(?=\d)/, '').slice(0, 10)
+export const docTienGo = (chuoi) => { const s = chuSoTien(chuoi); return s === '' ? null : Number(s) }
+export const inTienGo = (chuoi) => { const n = docTienGo(chuoi); return n == null ? '' : n.toLocaleString('vi-VN') }
+// Nhãn nút "Giá" khi đang lọc theo khoảng tự nhập — in luôn khoảng, không in "tự chọn" chung chung.
+export const nhanGiaTuNhap = ({ giaTu, giaDen }) => {
+  const t = (n) => `${Number(n).toLocaleString('vi-VN')}đ`
+  if (giaTu != null && giaDen != null) return `${t(giaTu)} – ${t(giaDen)}`
+  return giaTu != null ? `Từ ${t(giaTu)}` : giaDen != null ? `Đến ${t(giaDen)}` : 'Giá'
+}
+
 export const loiKhoangGia = (b) => (b.giaTu != null && b.giaDen != null && b.giaDen < b.giaTu ? 'Giá "đến" phải lớn hơn hoặc bằng giá "từ".' : null)
 export const loiKhoangNgay = (b) => (!b.ngay && b.tu && b.den && b.den < b.tu ? 'Ngày "đến" phải sau hoặc trùng ngày "từ".' : null)
 

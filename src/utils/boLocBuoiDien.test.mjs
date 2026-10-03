@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict'
 import dayjs from 'dayjs'
 import 'dayjs/locale/vi.js'  // trên web main.jsx nạp sẵn; node chạy test thì phải nạp tay
-import { docBoLoc, ghiBoLoc, thamSoApi, boLocDangAp, khoangCuaMoc, loiKhoangGia, loiKhoangNgay, demLuaChon, buocChonNgay, nhanKhoangNgay, BO_LOC_RONG, CO_TRANG } from './boLocBuoiDien.js'
+import { docBoLoc, ghiBoLoc, thamSoApi, boLocDangAp, khoangCuaMoc, loiKhoangGia, loiKhoangNgay, demLuaChon, buocChonNgay, nhanKhoangNgay, chuSoTien, docTienGo, inTienGo, nhanGiaTuNhap, BO_LOC_RONG, CO_TRANG } from './boLocBuoiDien.js'
 
 dayjs.locale('vi')
 const doc = (s) => docBoLoc(new URLSearchParams(s))
@@ -116,3 +116,23 @@ assert.equal(nhanKhoangNgay(R0, BN), '', 'chưa chọn = rỗng')
 assert.equal(boLocDangAp({ ...BO_LOC_RONG, tu: '2026-10-22', den: '2026-10-22' })[0].nhan, 'Ngày 22/10/2026', 'nhãn gỡ cho một ngày không lặp "X đến X"')
 
 console.log('chonNgay OK')
+
+// --- Ô GIÁ TỰ NHẬP: người Việt gõ "300.000"; ô kiểu số của trình duyệt chặn ngầm cách viết này (đo 03/10)
+assert.equal(docTienGo('300.000'), 300000, 'dấu chấm ngăn nghìn')
+assert.equal(docTienGo('300,000'), 300000, 'dấu phẩy ngăn nghìn')
+assert.equal(docTienGo(' 1 200 000đ '), 1200000, 'dấu cách và chữ "đ"')
+assert.equal(docTienGo('250500'), 250500, 'không cần tròn nghìn')
+assert.equal(docTienGo(''), null, 'trống = không giới hạn')
+assert.equal(docTienGo('abc'), null, 'không có chữ số nào = trống')
+assert.equal(docTienGo('0'), 0)
+assert.equal(docTienGo('000500'), 500, 'bỏ số 0 đứng đầu')
+assert.equal(chuSoTien('1.2e9-5'), '1295', 'chỉ giữ chữ số — không có số âm, số mũ')
+assert.equal(chuSoTien('9'.repeat(30)).length, 10, 'chặn độ dài (tối đa 10 chữ số)')
+assert.equal(inTienGo('300000'), '300.000', 'hiện lại có dấu chấm ngăn nghìn')
+assert.equal(inTienGo(''), '')
+assert.equal(nhanGiaTuNhap({ giaTu: 200000, giaDen: 500000 }), '200.000đ – 500.000đ')
+assert.equal(nhanGiaTuNhap({ giaTu: 300000, giaDen: null }), 'Từ 300.000đ')
+assert.equal(nhanGiaTuNhap({ giaTu: null, giaDen: 300000 }), 'Đến 300.000đ')
+assert.equal(nhanGiaTuNhap({ giaTu: null, giaDen: null }), 'Giá')
+
+console.log('giaTuNhap OK')

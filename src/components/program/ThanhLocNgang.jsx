@@ -16,7 +16,7 @@
 //   fieldset. Esc đóng và trả focus về nút; bấm ra ngoài đóng.
 import { useEffect, useId, useRef, useState } from 'react'
 import { ChevronDown } from 'lucide-react'
-import { HINH_THUC, MOC_NGAY, MUC_GIA, loiKhoangGia, loiKhoangNgay, nhanKhoangNgay } from '../../utils/boLocBuoiDien'
+import { HINH_THUC, MOC_NGAY, MUC_GIA, docTienGo, inTienGo, chuSoTien, loiKhoangGia, loiKhoangNgay, nhanGiaTuNhap, nhanKhoangNgay } from '../../utils/boLocBuoiDien'
 import LichChonNgay from './LichChonNgay'
 
 const O_CHON = 'flex items-center gap-2.5 min-h-[40px] cursor-pointer'
@@ -69,9 +69,14 @@ const ThanhLocNgang = ({ boLoc, danhMuc, dem, onDoi }) => {
   const [giaDen, setGiaDen] = useState(boLoc.giaDen ?? '')
   const [gocGia, setGocGia] = useState([boLoc.giaTu, boLoc.giaDen])
   if (gocGia[0] !== boLoc.giaTu || gocGia[1] !== boLoc.giaDen) { setGocGia([boLoc.giaTu, boLoc.giaDen]); setGiaTu(boLoc.giaTu ?? ''); setGiaDen(boLoc.giaDen ?? '') }
-  const soTien = (v) => (v === '' || v == null ? null : Math.max(0, Math.trunc(Number(v)) || 0))
-  const loiGia = loiKhoangGia({ giaTu: soTien(giaTu), giaDen: soTien(giaDen) })
-  const apGia = () => { if (!loiGia) onDoi({ ...boLoc, giaTu: soTien(giaTu), giaDen: soTien(giaDen) }) }
+  const loiGia = loiKhoangGia({ giaTu: docTienGo(giaTu), giaDen: docTienGo(giaDen) })
+  // Áp xong thì ĐÓNG khung: bản trước lọc xong khung vẫn mở, số buổi lại thường không đổi → trông như nút không chạy.
+  const apGia = (dong) => {
+    if (loiGia) return
+    const moi = { giaTu: docTienGo(giaTu), giaDen: docTienGo(giaDen) }
+    if (moi.giaTu !== boLoc.giaTu || moi.giaDen !== boLoc.giaDen) onDoi({ ...boLoc, ...moi })
+    dong()
+  }
   const mucDang = MUC_GIA.find((m) => m.giaTu === boLoc.giaTu && m.giaDen === boLoc.giaDen)?.khoa ?? ''
   const coGia = boLoc.giaTu != null || boLoc.giaDen != null
 
@@ -83,7 +88,7 @@ const ThanhLocNgang = ({ boLoc, danhMuc, dem, onDoi }) => {
   })
   const theChon = boLoc.the
   const soThem = boLoc.tam.length + boLoc.kg.length + (boLoc.tp ? 1 : 0)
-  const nhanGia = mucDang ? MUC_GIA.find((m) => m.khoa === mucDang).label : coGia ? 'Giá · tự chọn' : 'Giá'
+  const nhanGia = mucDang ? MUC_GIA.find((m) => m.khoa === mucDang).label : nhanGiaTuNhap(boLoc)
 
   const nutMoc = (gt, nhan, dang, n, onBam) => (
     // Mốc 0 buổi thì mờ, không bấm được (trừ khi đang chọn): bấm vào chỉ ra danh sách rỗng — ngõ cụt.
@@ -142,7 +147,8 @@ const ThanhLocNgang = ({ boLoc, danhMuc, dem, onDoi }) => {
           </NutTha>
         )}
 
-        <NutTha nhan={nhanGia} dang={coGia} rong="w-80">
+        <NutTha nhan={nhanGia} dang={coGia} rong="w-80" nhanAria={coGia ? `Giá: ${nhanGia}. Đổi mức giá` : undefined}>
+          {(dong) => (<>
           <fieldset>
             <legend className="font-semibold mb-1">Giá vé</legend>
             {[{ khoa: '', label: 'Giá nào cũng được', giaTu: null, giaDen: null }, ...MUC_GIA].map((m) => (
@@ -153,15 +159,16 @@ const ThanhLocNgang = ({ boLoc, danhMuc, dem, onDoi }) => {
               </label>
             ))}
           </fieldset>
-          <form className="mt-3 pt-3 border-t border-ink/20" onSubmit={(e) => { e.preventDefault(); apGia() }}>
+          <form noValidate className="mt-3 pt-3 border-t border-ink/20" onSubmit={(e) => { e.preventDefault(); apGia(dong) }}>
             <p className="text-sm font-semibold mb-1.5">Hoặc tự nhập (đồng)</p>
             <div className="grid grid-cols-2 gap-2">
-              <label className="text-sm">Từ<input type="number" inputMode="numeric" min="0" step="1000" value={giaTu} onChange={(e) => setGiaTu(e.target.value)} placeholder="0" aria-invalid={loiGia ? 'true' : undefined} className={`${O_NHAP} no-spin mt-1 font-mono`} /></label>
-              <label className="text-sm">Đến<input type="number" inputMode="numeric" min="0" step="1000" value={giaDen} onChange={(e) => setGiaDen(e.target.value)} placeholder="không giới hạn" aria-invalid={loiGia ? 'true' : undefined} className={`${O_NHAP} no-spin mt-1 font-mono`} /></label>
+              <label className="text-sm">Từ<input type="text" inputMode="numeric" autoComplete="off" value={inTienGo(giaTu)} onChange={(e) => setGiaTu(chuSoTien(e.target.value))} placeholder="0" aria-invalid={loiGia ? 'true' : undefined} className={`${O_NHAP} no-spin mt-1 font-mono`} /></label>
+              <label className="text-sm">Đến<input type="text" inputMode="numeric" autoComplete="off" value={inTienGo(giaDen)} onChange={(e) => setGiaDen(chuSoTien(e.target.value))} placeholder="không giới hạn" aria-invalid={loiGia ? 'true' : undefined} className={`${O_NHAP} no-spin mt-1 font-mono`} /></label>
             </div>
             {loiGia && <p role="alert" className="mt-1.5 text-sm font-semibold text-danger">{loiGia}</p>}
             <button type="submit" disabled={Boolean(loiGia)} className="mt-3 w-full min-h-[44px] bg-ink text-lamp font-semibold hover:bg-board disabled:opacity-40">Áp dụng</button>
           </form>
+          </>)}
         </NutTha>
 
         <NutTha nhan={boLoc.ht ? HINH_THUC.find((h) => h.value === boLoc.ht).label : 'Hình thức'} dang={Boolean(boLoc.ht)}>

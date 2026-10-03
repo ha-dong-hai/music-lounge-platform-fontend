@@ -20,7 +20,7 @@
 //  - KHÔNG có lọc theo quận: cấp quận/huyện đã bỏ từ 01/07/2025 và API không trả danh sách quận.
 //  - Thành phố chỉ hiện khi sàn có từ hai thành phố trở lên.
 import { useId, useState } from 'react'
-import { HINH_THUC, MOC_NGAY, loiKhoangGia, loiKhoangNgay } from '../../utils/boLocBuoiDien'
+import { HINH_THUC, MOC_NGAY, chuSoTien, docTienGo, inTienGo, loiKhoangGia, loiKhoangNgay } from '../../utils/boLocBuoiDien'
 import LichChonNgay from './LichChonNgay'
 import { SO_HIEN, NGUONG_KHONG_CAT } from '../../utils/nhomGu'
 import IconMoRong from '../shared/IconMoRong'
@@ -66,7 +66,8 @@ const BoLocBuoiDien = ({ boLoc, danhMuc, onDoi, ngayCoDien = null }) => {
   // Ô giá giữ chữ đang gõ ở đây; chỉ đẩy lên bộ lọc khi rời ô / Enter. Bộ lọc đổi từ ngoài (bấm nút gỡ) thì đồng bộ lại —
   // nhưng CHỈ ô nào thật sự đổi ở phía trên và khác với thứ đang gõ. Bản đầu đồng bộ cả hai ô mỗi lần: gõ "Từ" rồi sang
   // gõ "Đến" thì lượt áp của ô "Từ" quay về và XOÁ ô "Đến" đang gõ dở (bài kiểm trình duyệt bắt được, lúc có lúc không).
-  const so = (v) => (v === '' || v == null ? null : Math.max(0, Math.trunc(Number(v)) || 0))
+  // docTienGo: ô giá là chữ, hiểu "300.000" / "300,000" (xem utils — ô kiểu số của trình duyệt chặn ngầm cách viết này).
+  const so = docTienGo
   const [giaTu, setGiaTu] = useState(boLoc.giaTu ?? '')
   const [giaDen, setGiaDen] = useState(boLoc.giaDen ?? '')
   const [goc, setGoc] = useState([boLoc.giaTu, boLoc.giaDen])
@@ -125,12 +126,12 @@ const BoLocBuoiDien = ({ boLoc, danhMuc, onDoi, ngayCoDien = null }) => {
         <legend className={LEGEND}>Giá vé (đồng)</legend>
         <div className="grid grid-cols-2 gap-3">
           <label className="block text-sm">Từ
-            <input type="number" inputMode="numeric" min="0" step="1000" value={giaTu} onChange={(e) => setGiaTu(e.target.value)} onBlur={apGia}
+            <input type="text" inputMode="numeric" autoComplete="off" value={inTienGo(giaTu)} onChange={(e) => setGiaTu(chuSoTien(e.target.value))} onBlur={apGia}
               onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); apGia() } }}
               aria-invalid={loiGia ? 'true' : undefined} aria-describedby={loiGia ? `${id}-loi-gia` : undefined} className={`${O_NHAP} no-spin mt-1 font-mono`} />
           </label>
           <label className="block text-sm">Đến
-            <input type="number" inputMode="numeric" min="0" step="1000" value={giaDen} onChange={(e) => setGiaDen(e.target.value)} onBlur={apGia}
+            <input type="text" inputMode="numeric" autoComplete="off" value={inTienGo(giaDen)} onChange={(e) => setGiaDen(chuSoTien(e.target.value))} onBlur={apGia}
               onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); apGia() } }}
               aria-invalid={loiGia ? 'true' : undefined} aria-describedby={loiGia ? `${id}-loi-gia` : undefined} className={`${O_NHAP} no-spin mt-1 font-mono`} />
           </label>
