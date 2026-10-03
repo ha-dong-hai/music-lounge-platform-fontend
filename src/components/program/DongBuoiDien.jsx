@@ -33,6 +33,7 @@ import CoverFallback from '../shared/CoverFallback'
 import CuongDatVe from './CuongDatVe'
 import { ngayTrongLich, gioTrongNgay } from '../../utils/ngayVietNam'
 import { formatMinPrice } from '../../utils/formatPrice'
+import NhanDangDien from './NhanDangDien'
 
 const HINH_THUC = { Online: 'Trực tuyến', Hybrid: 'Tại chỗ và trực tuyến' }
 
@@ -59,7 +60,7 @@ const DongBuoiDien = ({ b, hienPhongTra = true, hienAnh = true, anhDuPhong = nul
       )}
       <p className="font-mono text-sm text-ink whitespace-nowrap">
         {dangDien
-          ? <span className="inline-flex items-center px-2 min-h-[24px] bg-ember text-board font-sans font-semibold text-xs">Đang diễn</span>
+          ? <NhanDangDien co="nho" />
           : b.status === 'Ended' ? <span className="text-ink-mute">Đã diễn {ngayTrongLich(b.scheduledStart)}</span>
             : <>{ngayTrongLich(b.scheduledStart)}<span className="text-ink-mute"> · </span>{gioTrongNgay(b.scheduledStart)}</>}
       </p>

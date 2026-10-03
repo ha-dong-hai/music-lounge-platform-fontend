@@ -19,6 +19,7 @@ import { formatMinPrice } from '../../utils/formatPrice'
 import HopThoai, { TieuDeHop } from '../../components/shared/HopThoai'
 import LienKetMuiTen from '../../components/shared/LienKetMuiTen'
 import usePhimTab from '../../hooks/usePhimTab'
+import NhanDangDien from '../../components/program/NhanDangDien'
 
 const KHOA_TAB = ['intro', 'map', 'ratings'] // phải khớp TAB trong trang
 
@@ -233,7 +234,7 @@ const EventDetailPage = () => {
           <div className="px-4 sm:px-8 py-10 lg:py-14 flex flex-col items-start">
             <div className="flex flex-wrap items-center gap-3">
               {data.dateStr && <p className="font-mono text-sm sm:text-base text-lamp-mute">{data.dateStr}</p>}
-              {data.isOngoing && <span className="inline-flex items-center px-2.5 min-h-[28px] bg-ember text-board font-display text-base leading-none">Đang diễn</span>}
+              {data.isOngoing && <NhanDangDien co="vua" />}
             </div>
             <h1 id="ten-buoi-dien" className="mt-4 text-[clamp(2.5rem,5vw,4.5rem)] leading-[0.98] text-lamp break-words">{data.title}</h1>
             <p className="mt-5">

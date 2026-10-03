@@ -25,6 +25,7 @@ import KyTuLat from './KyTuLat'
 import CoverFallback from '../shared/CoverFallback'
 import { gioTrongNgay } from '../../utils/ngayVietNam'
 import CuongDatVe from './CuongDatVe'
+import NhanDangDien from './NhanDangDien'
 
 const CAU_GIA = 'Giá vé vào cửa. Phòng trà có thể yêu cầu gọi thêm đồ uống — xem trang buổi diễn.'
 
@@ -88,7 +89,7 @@ const DongBang = ({ dong, mo, onMo, onRoi, chiSo, daDangNhap }) => {
         {/* Trạng thái là NHÃN khối chữ lớn chứ không phải ô chữ lật: ở cỡ nhỏ vạch ngang giữa ô cắt ngang chữ, khó đọc. */}
         <div className="order-2 md:order-none justify-self-end md:justify-self-start">
           {dong.dangDien
-            ? <span className="inline-flex items-center px-2.5 min-h-[30px] bg-ember text-board font-display text-lg leading-none">Đang diễn</span>
+            ? <NhanDangDien co="lon" />
             : <span className="inline-flex items-center px-2.5 min-h-[30px] border border-lamp/60 text-lamp font-display text-lg leading-none">Mở bán</span>}
         </div>
 
