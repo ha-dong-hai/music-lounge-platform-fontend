@@ -22,7 +22,7 @@ import toast from 'react-hot-toast'
 import {
   getLounges, getLoungeDetail, getLoungeTour, addTourScene, stitchTourScene,
   getTourStitchAttempt, removeTourScene, addTourHotspot, removeTourHotspot, setLoungeModel3D,
-  setTourScenePosition,
+  setTourScenePosition, getLoungeZones,
 } from '../../services/loungeServices'
 import { uploadImage, uploadModel } from '../../services/userServices'
 import ConfirmModal from '../../components/shared/ConfirmModal'
@@ -32,28 +32,33 @@ import { maNgan } from '../../utils/format'
 
 const inputCls = 'mt-1 w-full min-h-[44px] px-3 py-2 bg-card border-2 border-ink text-ink focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2'
 
-// HOTSPOT CÓ HAI LOẠI, và `type` là TRƯỜNG BẮT BUỘC:
+// HOTSPOT CÓ BA LOẠI, và `type` là TRƯỜNG BẮT BUỘC:
 //   Navigate — dẫn sang scene khác, phải có targetSceneId, và KHÔNG được trỏ về chính scene đó.
 //   Info     — hiện một chú thích tĩnh, dùng infoText, KHÔNG cần scene thứ hai.
+//   Zone     — (MLACP-555) trỏ tới một khu ghế đang mở (zoneId). Ở tab mua vé của buổi diễn, khách chạm điểm này
+//              để chọn khu, giống chạm khu trên sơ đồ 2D/3D. Ở trang phòng trà điểm này ẩn (không có gì để mua).
 // LỖI CŨ Ở ĐÂY: form không gửi `type` bao giờ. Backend bắt buộc có (validator đòi Type parse được
 // thành Navigate hoặc Info), nên MỌI lần thêm hotspot đều bị 422 — tính năng này chưa từng chạy.
 // Giới hạn của backend, chặn sẵn ở form để không ai phải đoán từ một câu 422:
 //   yaw -180..180, pitch -90..90, label ≤ 100 ký tự, infoText ≤ 2000 ký tự.
 const LOAI_HOTSPOT = [
   { value: 'Navigate', ten: 'Dẫn sang điểm đứng khác', mo: 'Khách bấm vào để nhảy sang điểm đứng khác.' },
+  { value: 'Zone', ten: 'Khu ghế', mo: 'Đánh dấu một khu ghế nhìn thấy trong ảnh. Khi mua vé, khách chạm vào đây để chọn khu đó.' },
   { value: 'Info', ten: 'Chú thích', mo: 'Hiện một đoạn chữ tại điểm đó, không dẫn đi đâu. Đặt tên là "Sân khấu" để màn hình livestream nằm đúng chỗ này khi khán giả chọn "Ngồi tại phòng trà".' },
 ]
 
-const HotspotModal = ({ loungeId, scene, scenes, onClose, onSaved }) => {
-  const [form, setForm] = useState({ type: 'Navigate', targetSceneId: '', label: '', infoText: '', yaw: 0, pitch: 0 })
+const HotspotModal = ({ loungeId, scene, scenes, zones = [], onClose, onSaved }) => {
+  const [form, setForm] = useState({ type: 'Navigate', targetSceneId: '', zoneId: '', label: '', infoText: '', yaw: 0, pitch: 0 })
   const [isBusy, setIsBusy] = useState(false)
   const set = (k, v) => setForm((p) => ({ ...p, [k]: v }))
   const laDanDuong = form.type === 'Navigate'
+  const laKhu = form.type === 'Zone'
 
   const them = async (e) => {
     e.preventDefault()
     if (laDanDuong && !form.targetSceneId) { toast.error('Chọn điểm đứng mà điểm bấm này dẫn tới.'); return }
-    if (!laDanDuong && !form.infoText.trim()) { toast.error('Nhập nội dung chú thích.'); return }
+    if (laKhu && !form.zoneId) { toast.error('Chọn khu ghế mà điểm bấm này đánh dấu.'); return }
+    if (form.type === 'Info' && !form.infoText.trim()) { toast.error('Nhập nội dung chú thích.'); return }
     const yaw = Number(form.yaw) || 0
     const pitch = Number(form.pitch) || 0
     if (yaw < -180 || yaw > 180) { toast.error('Hướng ngang phải từ -180 đến 180.'); return }
@@ -64,8 +69,10 @@ const HotspotModal = ({ loungeId, scene, scenes, onClose, onSaved }) => {
         type: form.type,
         // Chỉ gửi trường thuộc về loại đang chọn; gửi thừa là gửi thứ backend không đọc.
         targetSceneId: laDanDuong ? form.targetSceneId : null, // MLACP-516: GUID, không ép số
-        infoText: laDanDuong ? null : form.infoText.trim(),
-        label: form.label.trim() || null,
+        infoText: form.type === 'Info' ? form.infoText.trim() : null,
+        zoneId: laKhu ? form.zoneId : null,
+        // Điểm khu không nhãn thì lấy tên khu — khách cần đọc được đó là khu nào trước khi chạm.
+        label: form.label.trim() || (laKhu ? zones.find((z) => z.id === form.zoneId)?.name ?? null : null),
         yaw,
         pitch,
       })
@@ -96,7 +103,9 @@ const HotspotModal = ({ loungeId, scene, scenes, onClose, onSaved }) => {
                       <p className="text-sm text-ink truncate">{h.label || 'Không nhãn'}</p>
                       {/* Hai loại hotspot hiện khác nhau: loại chú thích không dẫn đi đâu nên hiện
                           nội dung chữ, đừng in ra "→ scene #null". */}
-                      {h.type === 'Info' ? (
+                      {h.type === 'Zone' ? (
+                        <p className="text-xs text-ink-mute">Khu ghế: {zones.find((z) => z.id === h.zoneId)?.name || 'khu đang tạm ngưng'}</p>
+                      ) : h.type === 'Info' ? (
                         <p className="text-xs text-ink-mute whitespace-normal leading-relaxed">
                           {h.infoText || '(chú thích trống)'}
                         </p>
@@ -142,7 +151,7 @@ const HotspotModal = ({ loungeId, scene, scenes, onClose, onSaved }) => {
 
               <div>
                 <label className="text-sm font-semibold text-ink">Loại điểm bấm</label>
-                <div className="mt-1 grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <div className="mt-1 grid grid-cols-1 gap-2">
                   {LOAI_HOTSPOT.map((l) => (
                     <button key={l.value} type="button" onClick={() => set('type', l.value)}
                       className={`text-left p-2.5 border transition-colors ${
@@ -166,6 +175,19 @@ const HotspotModal = ({ loungeId, scene, scenes, onClose, onSaved }) => {
                     Danh sách đã bỏ chính scene này — hotspot không trỏ về nơi chứa nó được.
                   </p>
                 </div>
+              ) : laKhu ? (
+                <div>
+                  <label htmlFor="diem-khu" className="text-sm font-semibold text-ink">Khu ghế <span className="text-danger">*</span></label>
+                  {zones.length === 0 ? (
+                    <p className="text-sm text-ink-mute mt-1">Phòng trà chưa có khu ghế đang mở — tạo khu ở trang Khu vực chỗ ngồi trước.</p>
+                  ) : (
+                    <select id="diem-khu" value={form.zoneId} onChange={(e) => set('zoneId', e.target.value)} className={inputCls}>
+                      <option value="">— chọn khu —</option>
+                      {zones.map((z) => <option key={z.id} value={z.id}>{z.name} ({z.capacity} chỗ)</option>)}
+                    </select>
+                  )}
+                  <p className="text-[11px] text-ink-mute mt-1">Xoay ảnh tới chỗ thấy khu đó, rồi nhập hướng ngang/dọc bên dưới.</p>
+                </div>
               ) : (
                 <div>
                   <label className="text-sm font-semibold text-ink">Nội dung chú thích <span className="text-danger">*</span></label>
@@ -180,7 +202,7 @@ const HotspotModal = ({ loungeId, scene, scenes, onClose, onSaved }) => {
               <div>
                 <label className="text-sm font-semibold text-ink">Nhãn hiển thị</label>
                 <input aria-label="Nhãn hiển thị" value={form.label} maxLength={100} onChange={(e) => set('label', e.target.value)} className={inputCls}
-                  placeholder={laDanDuong ? 'VD: Sang khu sân khấu' : 'VD: Cây piano'} />
+                  placeholder={laDanDuong ? 'VD: Sang khu sân khấu' : laKhu ? 'Để trống thì dùng tên khu' : 'VD: Cây piano'} />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
@@ -219,6 +241,7 @@ const OwnerTourPage = () => {
   const [sceneDangDat, setSceneDangDat] = useState(null)
   const [xoaScene, setXoaScene] = useState(null)
   const [hotspotOf, setHotspotOf] = useState(null)
+  const [khu, setKhu] = useState([]) // khu đang mở — cho điểm bấm loại Khu ghế
   const [donGhep, setDonGhep] = useState(null) // { id, status }
   const [anhGhep, setAnhGhep] = useState([])
 
@@ -232,7 +255,8 @@ const OwnerTourPage = () => {
       const cuaToi = ds?.[0] ?? null
       if (!cuaToi) { setLounge(null); return }
 
-      const [ct, tRes] = await Promise.allSettled([getLoungeDetail(cuaToi.id), getLoungeTour(cuaToi.id)])
+      const [ct, tRes, kRes] = await Promise.allSettled([getLoungeDetail(cuaToi.id), getLoungeTour(cuaToi.id), getLoungeZones(cuaToi.id, true)])
+      setKhu(kRes.status === 'fulfilled' && kRes.value?.success ? kRes.value.data ?? [] : [])
       // 404 = phòng trà chưa có tour (trống thật); lỗi khác thì báo chưa tải được, không giả là trống.
       if (tRes.status === 'rejected' && tRes.reason?.response?.status !== 404) throw tRes.reason
       setLounge(ct.status === 'fulfilled' && ct.value?.success ? ct.value.data : cuaToi)
@@ -610,7 +634,7 @@ const OwnerTourPage = () => {
       </div>
 
       {hotspotOf && (
-        <HotspotModal loungeId={lounge.id} scene={hotspotOf} scenes={scenes}
+        <HotspotModal loungeId={lounge.id} scene={hotspotOf} scenes={scenes} zones={khu}
           onClose={() => setHotspotOf(null)} onSaved={load} />
       )}
       {xoaScene && (

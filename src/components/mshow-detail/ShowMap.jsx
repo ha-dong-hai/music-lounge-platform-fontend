@@ -175,6 +175,7 @@ const ShowMap = ({ showData }) => {
       <div className="mb-6">
         <SeatingMapView
           showId={showId}
+          loungeId={showData?.lounge?.id}
           selectedZoneId={zoneDangChon}
           onSelectZone={(id) => {
             // Đang giữ chỗ dở dang thì không cho đổi khu vực: đổi là lựa chọn hiện tại biến khỏi

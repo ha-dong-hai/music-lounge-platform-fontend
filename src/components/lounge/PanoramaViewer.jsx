@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback } from 'react'
 import * as THREE from 'three'
-import { Maximize2, Minimize2, Info, ArrowUpRight, Loader2, ImageOff, X, Tv } from 'lucide-react'
+import { Maximize2, Minimize2, Info, ArrowUpRight, Loader2, ImageOff, X, Tv, Armchair } from 'lucide-react'
 import {
   viewLimits, directionFromYawPitch, dragToAngles, clampPitch, blackBorderCrop,
 } from '../../utils/panoramaMath'
@@ -47,7 +47,10 @@ const lerpAngle = (a, b, t) => {
   return a + d * t
 }
 
-const PanoramaViewer = ({ scenes = [], initialSceneId = null, className = '', videoScreen = null, autoRotate = true }) => {
+// ĐIỂM "KHU" (MLACP-555): hotspot type 'Zone' trỏ tới một khu ghế. Chỉ vẽ khi trang có ngữ cảnh chọn khu
+// (onChonKhu) — tức tab mua vé của buổi diễn; ở trang phòng trà không có gì để chọn nên ẩn. khuBan (Set zoneId)
+// lọc tiếp: khu không bán trong buổi diễn này thì không vẽ, chạm vào sẽ ra danh sách hạng vé rỗng.
+const PanoramaViewer = ({ scenes = [], initialSceneId = null, className = '', videoScreen = null, autoRotate = true, onChonKhu = null, khuDangChon = null, khuBan = null }) => {
   const containerRef = useRef(null)
   const mountRef = useRef(null)
   const hotspotEls = useRef(new Map())
@@ -429,22 +432,28 @@ const PanoramaViewer = ({ scenes = [], initialSceneId = null, className = '', vi
       )}
 
       {/* Hotspot — vị trí do vòng lặp dựng hình cập nhật */}
-      {!loading && scene.hotspots?.map((h) => (
-        <button
-          key={h.id}
-          ref={(node) => { if (node) hotspotEls.current.set(h.id, node); else hotspotEls.current.delete(h.id) }}
-          type="button"
-          onPointerDown={(e) => e.stopPropagation()}
-          onClick={() => (h.type === 'Navigate' ? goToScene(h.targetSceneId) : setOpenInfo(h.id === openInfo ? null : h.id))}
-          aria-label={h.label || (h.type === 'Navigate' ? 'Sang cảnh khác' : 'Xem chú thích')}
-          title={h.label || undefined}
-          className="absolute left-0 top-0 z-10 flex items-center gap-2 bg-card/95 text-ink border border-line-strong shadow-lift pl-2 pr-3 py-1.5 text-xs font-semibold hover:bg-ink hover:text-lamp transition-colors opacity-0"
-          style={{ willChange: 'transform' }}
-        >
-          {h.type === 'Navigate' ? <ArrowUpRight size={15} /> : <Info size={15} />}
-          {h.label && <span className="max-w-[10rem] truncate">{h.label}</span>}
-        </button>
-      ))}
+      {!loading && scene.hotspots?.filter((h) => h.type !== 'Zone' || (onChonKhu && h.zoneId && (!khuBan || khuBan.has(h.zoneId)))).map((h) => {
+        const laKhu = h.type === 'Zone'
+        const dangChon = laKhu && h.zoneId === khuDangChon
+        return (
+          <button
+            key={h.id}
+            ref={(node) => { if (node) hotspotEls.current.set(h.id, node); else hotspotEls.current.delete(h.id) }}
+            type="button"
+            onPointerDown={(e) => e.stopPropagation()}
+            onClick={() => (laKhu ? onChonKhu(h.zoneId) : h.type === 'Navigate' ? goToScene(h.targetSceneId) : setOpenInfo(h.id === openInfo ? null : h.id))}
+            aria-label={laKhu ? `Chọn ${h.label || 'khu này'}` : h.label || (h.type === 'Navigate' ? 'Sang cảnh khác' : 'Xem chú thích')}
+            aria-pressed={laKhu ? dangChon : undefined}
+            title={h.label || undefined}
+            className={`absolute left-0 top-0 z-10 flex items-center gap-2 border shadow-lift pl-2 pr-3 py-1.5 text-xs font-semibold transition-colors opacity-0 ${
+              dangChon ? 'bg-lamp text-board border-lamp' : laKhu ? 'bg-board/90 text-lamp border-lamp/60 hover:bg-lamp hover:text-board' : 'bg-card/95 text-ink border-line-strong hover:bg-ink hover:text-lamp'}`}
+            style={{ willChange: 'transform' }}
+          >
+            {laKhu ? <Armchair size={15} /> : h.type === 'Navigate' ? <ArrowUpRight size={15} /> : <Info size={15} />}
+            {h.label && <span className="max-w-[10rem] truncate">{h.label}</span>}
+          </button>
+        )
+      })}
 
       {info && (
         <div className="absolute left-1/2 bottom-16 -translate-x-1/2 z-20 w-[min(92%,26rem)] bg-card border border-line shadow-lift p-4 text-sm text-ink-soft">

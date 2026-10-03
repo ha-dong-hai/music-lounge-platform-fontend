@@ -156,6 +156,12 @@ quầy + ghế cao, "sofa" → 2 sofa + bàn trà, còn lại → bàn tròn 4 g
 khu ghi rõ là minh hoạ, sức chứa thật là con số). Camera vừa khít cụm khu. Nhãn tên khu HTML bám khu, kéo xoay/cuộn phóng to
 (không lật xuống sàn), chạm thảm hoặc bàn ghế = chọn khu; danh sách khu dạng nút aria-pressed bên cạnh là đường tương đương.
 
+**Chọn khu khi mua vé (MLACP-556, 03/10/2026).** Tab "Vé và chỗ ngồi" của buổi diễn: khối "Chọn khu" cùng tablist
+2D / 3D / 360° + danh sách khu (tên, còn bao nhiêu, khoảng giá). MỘT trạng thái chọn cho cả ba view và danh sách; chọn
+khu chỉ lọc hạng vé, giữ chỗ/thanh toán đi đường cũ. Bán theo KHU, không có ghế số. 2D cắt khung vừa cụm khu (tỉ lệ kẹp
+1,2–2). 360° chỉ vẽ điểm "Khu" (hotspot Zone, chủ phòng trà đặt ở trang Tour 360°) của khu ĐANG BÁN trong buổi đó; ở
+trang phòng trà điểm Khu ẩn. Khu đang chọn = nhãn nền lamp chữ board ở cả 3D lẫn 360°.
+
 **The Real-Furniture Rule.** Sơ đồ 3D không dùng khối màu bão hoà hay cột trụ làm ghế (chủ dự án loại 03/10: "xấu… 3D vậy
 không được"). Không vẽ sân khấu/đồ trang trí khi dữ liệu không có vị trí — vẽ vào là bịa bố cục phòng trà.
 
