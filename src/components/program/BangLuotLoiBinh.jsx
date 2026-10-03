@@ -10,12 +10,16 @@
 //    nút Trước/Sau thật. KHÔNG tự chạy → không cần nút dừng. Lượt đang khuất gắn `inert` để Tab không lọt vào liên kết
 //    của lượt không nhìn thấy.
 //
-// HAI TRẠNG THÁI (thiết kế trạng thái KHÔNG ẢNH trước, ảnh là phần cộng thêm):
-//  - CÓ ẢNH khán giả gửi: ảnh nằm trong khung Polaroid (vẻ đã có ở XapPolaroid), chú thích viết tay ghi rõ ẢNH CỦA AI —
-//    không để người xem tưởng ảnh của phòng trà. Ảnh hỏng (404) thì lượt đó tự lùi về trạng thái không ảnh.
-//  - KHÔNG ẢNH: KHÔNG lấp chỗ trống bằng ảnh kho hay ảnh phòng trà giả làm ảnh khán giả. Lời bình thành nhân vật chính:
-//    chữ to hơn, dấu ngoặc lớn làm điểm nhấn; ảnh bìa buổi diễn chỉ là hình nhỏ cạnh dòng ghi nguồn (đúng là ảnh buổi đó).
-//  Hai trạng thái cùng chiều cao tối thiểu để băng không giật khi lướt.
+// ẢNH CỦA MỖI LƯỢT (bản 2, 03/10/2026) — MỘT ảnh, theo thứ tự ưu tiên, chú thích GHI RÕ NGUỒN để không ai tưởng ảnh phòng
+// trà là ảnh khán giả chụp:
+//    1. ảnh khán giả đính kèm đánh giá  → "Ảnh của [tên]"
+//    2. ảnh bìa đêm diễn                → "Ảnh bìa đêm diễn"
+//    3. ảnh đại diện phòng trà          → tên phòng trà
+//  Ảnh hỏng (404) thì lùi xuống nguồn kế. Bản 1 chỉ nhận ảnh khán giả, còn lại in kiểu chỉ-có-chữ: với dữ liệu thật (một
+//  lời ngắn "Rat hay!", không ảnh, đêm diễn không có ảnh bìa) khối đen cao 640px gần như rỗng — chủ dự án: "trống trải quá".
+//  Thiết kế cho "nhiều và dài" mà bỏ sót "ít và ngắn".
+// KHÔNG CÒN ẢNH NÀO (cả ba nguồn đều thiếu/hỏng): lượt chỉ có chữ và THU GỌN theo nội dung — không giữ chiều cao tối thiểu.
+// LỜI NGẮN (dưới 80 ký tự) in chữ to hơn: một câu ngắn ở cỡ chữ thường trông lạc lõng cạnh tấm ảnh.
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import useEmblaCarousel from 'embla-carousel-react'
@@ -35,55 +39,57 @@ const Sao = ({ diem }) => (
 )
 
 const LuotLoi = ({ r }) => {
-  const [anhHong, setAnhHong] = useState(false)
+  const ten = r.userName || 'Khán giả'
+  // Các nguồn ảnh theo thứ tự ưu tiên; `soHong` = số nguồn đầu đã hỏng (onError) → dùng nguồn kế.
+  const nguon = [
+    r.imageUrl && { url: r.imageUrl, chuThich: `Ảnh của ${ten}`, alt: `Ảnh ${ten} chụp trong đêm ${r.buoi.name}` },
+    r.buoi.coverImageUrl && { url: r.buoi.coverImageUrl, chuThich: 'Ảnh bìa đêm diễn', alt: `Ảnh bìa đêm ${r.buoi.name}` },
+    r.buoi.phongTra.anh && { url: r.buoi.phongTra.anh, chuThich: r.buoi.phongTra.name, alt: `Ảnh ${r.buoi.phongTra.name}` },
+  ].filter(Boolean)
+  const [soHong, setSoHong] = useState(0)
   const [biCat, setBiCat] = useState(false)
   const loi = useRef(null)
-  const coAnh = Boolean(r.imageUrl) && !anhHong
-  const ten = r.userName || 'Khán giả'
+  const anh = nguon[soHong] ?? null
+  const ngan = r.comment.length < 80
 
   useLayoutEffect(() => {
     const el = loi.current
-    if (!el) return undefined
+    // Lời ngắn không kẹp dòng nên không bao giờ "bị cắt" — không đo (chữ to có nét vượt khung dòng làm phép đo báo nhầm:
+    // đo 03/10, "Rat hay!" hiện liên kết "Đọc trọn lời này…").
+    if (!el || ngan) return undefined
     const do_ = () => setBiCat(el.scrollHeight > el.clientHeight + 1)
     do_()
     const ro = new ResizeObserver(do_)
     ro.observe(el)
     return () => ro.disconnect()
-  }, [r.comment, coAnh])
+  }, [r.comment, anh, ngan])
 
   return (
-    <div className={`w-full grid gap-8 lg:gap-12 items-center lg:min-h-[24rem] ${coAnh ? 'lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]' : ''}`}>
-      {coAnh && (
+    <div className={`w-full grid gap-8 lg:gap-12 items-center ${anh ? 'lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]' : ''}`}>
+      {anh && (
         <figure className="m-0 mx-auto w-[min(100%,14rem)] lg:w-[min(100%,19rem)] bg-card text-ink p-3 pb-4 -rotate-2 shadow-[0_10px_22px_rgb(0_0_0/0.4)]">
           <div className="aspect-square lg:aspect-[4/5] overflow-hidden bg-sunken">
-            <img src={r.imageUrl} alt={`Ảnh ${ten} chụp trong đêm ${r.buoi.name}`} loading="lazy" width="400" height="500"
-              onError={() => setAnhHong(true)} className="w-full h-full object-cover" />
+            <img key={anh.url} src={anh.url} alt={anh.alt} loading="lazy" width="400" height="500"
+              onError={() => setSoHong((n) => n + 1)} className="w-full h-full object-cover" />
           </div>
-          <figcaption className="font-hand text-lg leading-tight mt-2.5 [overflow-wrap:anywhere]">Ảnh của {ten}</figcaption>
+          <figcaption className="font-hand text-lg leading-tight mt-2.5 [overflow-wrap:anywhere]">{anh.chuThich}</figcaption>
         </figure>
       )}
 
-      <div className={coAnh ? '' : 'max-w-[52rem] mx-auto w-full'}>
-        {/* Dấu ngoặc bằng phông viết tay (cùng phông với lời bình). Bản đầu dùng phông tiêu đề Anton: nét ngoặc ra hai ô vuông. */}
-        {!coAnh && <span aria-hidden="true" className="block font-hand text-[7rem] leading-[0.55] h-12 text-lamp/30 select-none">“</span>}
+      <div className={anh ? '' : 'max-w-[52rem] w-full'}>
         <Sao diem={r.score} />
-        <blockquote ref={loi} className={`font-hand mt-3 ${CHU_NGUOI_VIET} ${coAnh ? 'text-2xl leading-snug line-clamp-6' : 'text-[1.75rem] sm:text-4xl leading-[1.25] line-clamp-5'}`}>
-          {coAnh ? `“${r.comment}”` : r.comment}
+        <blockquote ref={loi} className={`font-hand mt-3 ${CHU_NGUOI_VIET} ${ngan ? 'text-4xl sm:text-5xl leading-[1.15]' : anh ? 'text-2xl leading-snug line-clamp-6' : 'text-[1.75rem] sm:text-4xl leading-[1.25] line-clamp-5'}`}>
+          “{r.comment}”
         </blockquote>
-        {biCat && (
+        {biCat && !ngan && (
           <Link to={`/shows/${r.buoi.id}`} className="inline-flex items-center min-h-[44px] mt-1 text-sm font-semibold text-lamp underline underline-offset-4">
             Đọc trọn lời này ở trang buổi diễn
           </Link>
         )}
-        <div className="flex items-center gap-3 mt-5">
-          {!coAnh && r.buoi.coverImageUrl && (
-            <img src={r.buoi.coverImageUrl} alt="" loading="lazy" width="56" height="56" className="w-14 h-14 object-cover flex-shrink-0 border border-lamp/25" />
-          )}
-          <p className="text-sm text-lamp-mute min-w-0 [overflow-wrap:anywhere]">
-            — <span className="text-lamp font-semibold">{ten}</span> · <Link to={`/shows/${r.buoi.id}`} className="underline underline-offset-2 hover:text-lamp">{r.buoi.name}</Link>
-            <br />{r.buoi.phongTra.name} · {ngayDayDu(r.buoi.scheduledStart)}
-          </p>
-        </div>
+        <p className="text-sm text-lamp-mute mt-5 [overflow-wrap:anywhere]">
+          — <span className="text-lamp font-semibold">{ten}</span> · <Link to={`/shows/${r.buoi.id}`} className="underline underline-offset-2 hover:text-lamp">{r.buoi.name}</Link>
+          <br />{r.buoi.phongTra.name} · {ngayDayDu(r.buoi.scheduledStart)}
+        </p>
       </div>
     </div>
   )

@@ -9,8 +9,8 @@
 //
 // - CHỈ in khi có ít nhất một lời đạt luật. Không bịa lời, không in "★ 0", không có chữ mẫu.
 // - Tên người đánh giá in như trang buổi diễn (ShowRatings: userName || 'Khán giả') — cùng một quy ước.
-// - ẢNH của lượt là ảnh KHÁN GIẢ đính kèm đánh giá (trường `imageUrl`). Backend 03/10/2026 CHƯA có trường này → mọi lượt
-//   đang ở trạng thái không ảnh; có trường thì băng tự dùng, không phải sửa ở đây.
+// - ẢNH của mỗi lượt: ảnh khán giả đính kèm đánh giá (`imageUrl` — backend 03/10/2026 CHƯA có trường này) → ảnh bìa đêm
+//   diễn → ảnh đại diện phòng trà; chú thích ghi rõ nguồn (xem BangLuotLoiBinh). Có `imageUrl` thì băng tự dùng.
 // GIỚI HẠN ĐÃ BIẾT: backend chỉ có đánh giá THEO TỪNG BUỔI (GET /lounge-shows/{id}/ratings) → gọi lịch theo từng phòng
 // trà rồi đánh giá theo từng đêm đã diễn (tối đa SO_DEM_XET đêm gần nhất, mỗi đêm SO_LOI_MOI_DEM lời mới nhất). Trần: vài
 // chục đêm. Đường nâng cấp: một API "lời bình tiêu biểu" ở backend trả thẳng N lời đã chọn kèm tên buổi/phòng trà.
@@ -23,7 +23,7 @@ import BangLuotLoiBinh from './BangLuotLoiBinh'
 
 const SO_DEM_XET = 12
 const SO_LOI_MOI_DEM = 20
-const KHOA_NHO = 'ml-dem-da-qua-v2'
+const KHOA_NHO = 'ml-dem-da-qua-v3'
 const NHO_MS = 5 * 60 * 1000
 const docNho = () => { try { const v = JSON.parse(sessionStorage.getItem(KHOA_NHO)); return v && Date.now() - v.luc < NHO_MS ? v.duLieu : null } catch { return null } }
 const ghiNho = (duLieu) => { try { sessionStorage.setItem(KHOA_NHO, JSON.stringify({ luc: Date.now(), duLieu })) } catch { /* trình duyệt chặn lưu — bỏ qua */ } }
@@ -49,7 +49,7 @@ const DemDaQua = ({ phongTra = [], dau = null, className = '' }) => {
       const lich = await Promise.allSettled(phongTra.map((l) => getShowsByLounge(l.id, { page: 1, pageSize: 50 })))
       const daDien = lich.flatMap((r, i) => (r.status === 'fulfilled' && r.value?.success ? r.value.data?.items ?? [] : [])
         .filter((b) => b.status === 'Ended')
-        .map((b) => ({ id: b.id, name: b.name, scheduledStart: b.scheduledStart, coverImageUrl: b.coverImageUrl ?? null, phongTra: { id: phongTra[i].id, name: b.loungeName || phongTra[i].name } })))
+        .map((b) => ({ id: b.id, name: b.name, scheduledStart: b.scheduledStart, coverImageUrl: b.coverImageUrl ?? null, phongTra: { id: phongTra[i].id, name: b.loungeName || phongTra[i].name, anh: phongTra[i].primaryImageUrl ?? null } })))
         .sort((a, b) => new Date(b.scheduledStart) - new Date(a.scheduledStart)).slice(0, SO_DEM_XET)
       const dg = await Promise.allSettled(daDien.map((b) => getShowRatings(b.id, { page: 1, pageSize: SO_LOI_MOI_DEM })))
       const kq = { loi: chonLoiDemDaQua(daDien.map((buoi, i) => ({ buoi, danhGia: dg[i].status === 'fulfilled' && dg[i].value?.success ? dg[i].value.data?.items?.items ?? [] : [] }))) }
