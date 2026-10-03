@@ -527,12 +527,14 @@ Nghiên cứu: `reports/Trang chủ - buổi diễn nổi bật.md` (repo backen
 - **Sắp lên đèn** (`SapLenDen`): MỘT buổi gần nhất KHÔNG phải tối nay, in lớn trên khối sơn then (ảnh bìa, ai hát + một câu
   giới thiệu, nơi diễn, "N khu · còn X vé" từ sơ đồ khu, cuống Đặt vé). Phần "Tiếp theo" đã bỏ (03/10): các buổi còn lại ở
   khối Dành cho bạn / Đang được quan tâm.
-- **Dành cho bạn / Đang được quan tâm** (`GoiYChoBan`, ngay sau Sắp lên đèn) — KHỐI NỔI BẬT (chủ dự án 03/10: "nền tảng
-  nổi bật vì AI"): nền sơn then trải ngang; màn lớn 2 cột (trái: tiêu đề + giới thiệu + ô mời AI; phải: thẻ ảnh lớn, 1–2
-  buổi thì thẻ nằm ngang). Nhãn "✦ AI gợi ý" (khối lamp chữ board) CHỈ trên thẻ `recommendationSource = Ai` (MLACP-565).
-  Lý do riêng in chữ viết tay; "Đang thịnh hành" là nhãn mono nhỏ. Ô mời AI theo người xem (khách → đăng nhập; chưa bật →
-  Bật gợi ý AI; đã bật chưa có thẻ AI → AI đang học gu); điện thoại: ô mời nằm SAU thẻ. Mỗi buổi một lần trên trang;
-  "Vì sao tôi thấy" + Chỉnh gu / Xoá lịch sử xem.
+- **Chương trình in riêng cho [tên] / Những đêm nhiều người đang giữ chỗ** (`GoiYChoBan`, ngay sau Sắp lên đèn) — một TỜ
+  CHƯƠNG TRÌNH trên giấy ngà (bản 3, 03/10; bản nền tối + thẻ poster + ✦ bị chê "quá xấu" và trái hợp đồng trang chủ). Đầu tờ
+  viền đôi; mỗi đêm là tiết mục đánh số 01.. có dòng chấm dẫn ngày giờ + cuống Đặt vé; lý do gợi ý là GHI CHÚ BÊN LỀ viết
+  tay (chỉ lý do riêng — thịnh hành in máy chữ nhỏ). Nhãn AI bằng CHỮ: tiết mục nguồn Ai ký "— AI MusicLounge ghi · AI chọn",
+  lời in cuối tờ nói AI làm gì. Lời mời bật AI là PHIẾU XÉ có đường đục lỗ (theo người xem). Mỗi buổi một lần trên trang.
+
+**The No-Sparkle Rule.** Không dùng biểu tượng ngôi sao ✦/✨ làm dấu AI (NN/g "sparkle ambiguity"; dấu sáo mòn số một của
+"thẩm mỹ AI"). Gắn nhãn AI bằng chữ rõ nghĩa, đặt ngay cạnh thứ AI đã làm.
 - **Thẻ gu** (`TheGu`): tối đa 4 dòng nhạc đang có buổi, luôn hiện; mỗi thẻ một ảnh khác nhau khi có thể (gán thẻ ít lựa
   chọn trước). Danh sách gu đầy đủ vẫn gập.
 - **Đêm đã qua** (`DemDaQua`): chỉ in khi có ít nhất một lời bình THẬT; sao màu lamp (vàng thếp `ember` chỉ cho đang diễn).

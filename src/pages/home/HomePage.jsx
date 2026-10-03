@@ -192,7 +192,7 @@ const HomePage = () => {
         {/* DÀNH CHO BẠN / ĐANG ĐƯỢC QUAN TÂM — loại mọi buổi đã in ở hai khối trên (mỗi buổi một lần trên trang). Chờ danh
             sách buổi tải xong mới dựng, nếu không khối này kịp in buổi mà "Sắp lên đèn" sắp in. */}
         {!dangTai && (
-          <GoiYChoBan className="mt-24" daDangNhap={daDangNhap} anhPhongTra={anhPhongTra}
+          <GoiYChoBan className="mt-24" daDangNhap={daDangNhap}
             loaiTru={[...buoiDemNay.map((x) => x.id), ...(sapLenDen[0] ? [sapLenDen[0].id] : [])]} />
         )}
 
