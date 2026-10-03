@@ -31,11 +31,13 @@ import { searchShows, getFilterOptions } from '../../services/showServices'
 import { toggleWishlist } from '../../services/interactionServices'
 import { useAuthStore } from '../../store/useAuthStore'
 import { BO_LOC_RONG, CACH_SAP, boLocDangAp, demLuaChon, docBoLoc, ghiBoLoc, thamSoApi } from '../../utils/boLocBuoiDien'
+import { useTranslation } from 'react-i18next'
 
 const DANH_MUC_RONG = { genres: [], moods: [], atmospheres: [], cities: [] }
 const NUT_VIEN = 'inline-flex items-center justify-center gap-2 min-h-[48px] px-5 border-2 border-ink bg-card font-semibold hover:bg-ink hover:text-lamp transition-colors disabled:opacity-40 disabled:hover:bg-card disabled:hover:text-ink disabled:cursor-not-allowed'
 
 const ShowSearchPage = () => {
+  const { t } = useTranslation()
   const { user } = useAuthStore()
   const [thamSo, setThamSo] = useSearchParams()
   const chuoiThamSo = thamSo.toString()
@@ -95,13 +97,13 @@ const ShowSearchPage = () => {
         if (huy) return
         const ma = err?.response?.status
         // 4xx kèm câu của backend (ví dụ khoảng giá sai) thì in đúng câu đó; còn lại là lỗi kết nối.
-        setLoi((ma >= 400 && ma < 500 && err.response?.data?.message) || err.thongBao || 'Danh sách buổi diễn chưa tải được.')
+        setLoi((ma >= 400 && ma < 500 && err.response?.data?.message) || err.thongBao || t('Danh sách buổi diễn chưa tải được.'))
         setKq({ items: [], tong: 0, soTrang: 1 })
       }
     }
     tai()
     return () => { huy = true }
-  }, [chuoiThamSo, lanTai])
+  }, [chuoiThamSo, lanTai, t])
 
   const doiLuu = async (b) => {
     if (dangLuu) return
@@ -110,10 +112,10 @@ const ShowSearchPage = () => {
     setDaLuu((m) => ({ ...m, [b.id]: !dang }))
     try {
       await toggleWishlist(b.id, dang)
-      toast.success(dang ? 'Đã bỏ khỏi danh sách yêu thích.' : 'Đã lưu vào danh sách yêu thích.')
+      toast.success(dang ? t('Đã bỏ khỏi danh sách yêu thích.') : t('Đã lưu vào danh sách yêu thích.'))
     } catch (err) {
       setDaLuu((m) => ({ ...m, [b.id]: dang }))
-      toast.error(err.response?.data?.message || 'Chưa lưu được. Hãy thử lại.')
+      toast.error(err.response?.data?.message || t('Chưa lưu được. Hãy thử lại.'))
     } finally {
       setDangLuu(null)
     }
@@ -129,7 +131,7 @@ const ShowSearchPage = () => {
     <div className="min-h-[70vh] bg-stock text-ink pb-24">
       <div className="max-w-[1440px] mx-auto px-4 sm:px-8 pt-10">
         <h1 ref={tieuDe} tabIndex={-1} className="text-[clamp(2.75rem,6vw,5rem)] leading-[1.05] break-words focus:outline-none">
-          {boLoc.q ? <>Kết quả cho “{boLoc.q}”</> : 'Buổi diễn'}
+          {boLoc.q ? t('Kết quả cho “{{q}}”', { q: boLoc.q }) : t('Buổi diễn')}
         </h1>
 
         <div className="mt-8">
@@ -137,21 +139,21 @@ const ShowSearchPage = () => {
             {/* THANH TRÊN: tìm, mở bộ lọc (màn nhỏ), sắp xếp */}
             <div className="flex flex-wrap items-end gap-3 border-t-2 border-ink pt-5">
               <form role="search" className="relative flex-1 min-w-[15rem]" onSubmit={(e) => { e.preventDefault(); doi({ ...boLoc, q: oTim.trim() }) }}>
-                <label htmlFor="o-tim-buoi-dien" className="block text-sm font-semibold mb-1">Tìm theo tên buổi diễn, nghệ sĩ, phòng trà</label>
+                <label htmlFor="o-tim-buoi-dien" className="block text-sm font-semibold mb-1">{t('Tìm theo tên buổi diễn, nghệ sĩ, phòng trà')}</label>
                 <div className="flex">
                   <input id="o-tim-buoi-dien" type="search" value={oTim} onChange={(e) => setOTim(e.target.value)}
                     className="flex-1 min-w-0 min-h-[48px] px-4 bg-card border-2 border-r-0 border-ink text-ink focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2 focus:ring-offset-stock [&::-webkit-search-cancel-button]:hidden" />
-                  <button type="submit" aria-label="Tìm" className="w-12 min-h-[48px] inline-flex items-center justify-center bg-ink text-lamp hover:bg-board transition-colors">
+                  <button type="submit" aria-label={t('Tìm')} className="w-12 min-h-[48px] inline-flex items-center justify-center bg-ink text-lamp hover:bg-board transition-colors">
                     <Search size={18} aria-hidden="true" />
                   </button>
                 </div>
               </form>
 
               <button type="button" onClick={() => hopLoc.current?.showModal()} className={`${NUT_VIEN} lg:hidden`}>
-                <SlidersHorizontal size={18} aria-hidden="true" /> Bộ lọc{soLoc > 0 ? ` (${soLoc})` : ''}
+                <SlidersHorizontal size={18} aria-hidden="true" /> {t('Bộ lọc')}{soLoc > 0 ? ` (${soLoc})` : ''}
               </button>
 
-              <label className="block text-sm font-semibold">Sắp xếp
+              <label className="block text-sm font-semibold">{t('Sắp xếp')}
                 <select value={boLoc.sap} onChange={(e) => doi({ ...boLoc, sap: e.target.value })}
                   className="block mt-1 min-h-[48px] px-3 bg-card border-2 border-ink text-ink font-normal text-base focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2 focus:ring-offset-stock">
                   {CACH_SAP.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
@@ -160,55 +162,55 @@ const ShowSearchPage = () => {
             </div>
 
             {/* THANH LỌC NGANG — màn lớn */}
-            <section aria-label="Bộ lọc buổi diễn" className="hidden lg:block mt-5">
+            <section aria-label={t('Bộ lọc buổi diễn')} className="hidden lg:block mt-5">
               <ThanhLocNgang boLoc={boLoc} danhMuc={danhMuc} dem={dem} onDoi={doi} />
             </section>
 
             {/* BỘ LỌC ĐANG ÁP */}
             {dangAp.length > 0 && (
-              <ul aria-label="Bộ lọc đang áp" className="flex flex-wrap items-center gap-2 mt-4">
+              <ul aria-label={t('Bộ lọc đang áp')} className="flex flex-wrap items-center gap-2 mt-4">
                 {dangAp.map((x) => (
                   <li key={x.khoa}>
-                    <button type="button" onClick={() => doi(x.go(boLoc))} aria-label={`Gỡ bộ lọc ${x.nhan}`}
+                    <button type="button" onClick={() => doi(x.go(boLoc))} aria-label={t('Gỡ bộ lọc {{x}}', { x: x.nhan })}
                       className="inline-flex items-center gap-2 min-h-[40px] pl-3 pr-2 border border-ink bg-card text-sm font-medium hover:bg-ink hover:text-lamp transition-colors">
                       <span className="break-words">{x.nhan}</span><X size={16} aria-hidden="true" />
                     </button>
                   </li>
                 ))}
                 <li>
-                  <button type="button" onClick={xoaHet} className="inline-flex items-center gap-1.5 min-h-[40px] px-2 text-sm font-semibold hover:text-ink-soft"><X size={16} strokeWidth={1.75} aria-hidden="true" /> Xoá tất cả</button>
+                  <button type="button" onClick={xoaHet} className="inline-flex items-center gap-1.5 min-h-[40px] px-2 text-sm font-semibold hover:text-ink-soft"><X size={16} strokeWidth={1.75} aria-hidden="true" /> {t('Xoá tất cả')}</button>
                 </li>
               </ul>
             )}
 
             <p className="font-mono text-sm text-ink-mute mt-5" role="status">
-              {dangTai ? 'Đang tìm…' : loi ? '' : `${kq.tong.toLocaleString('vi-VN')} buổi diễn${kq.soTrang > 1 ? ` · trang ${boLoc.trang} trên ${kq.soTrang}` : ''}`}
+              {dangTai ? t('Đang tìm…') : loi ? '' : `${t('{{n}} buổi diễn', { n: kq.tong.toLocaleString('vi-VN') })}${kq.soTrang > 1 ? ` · ${t('trang {{a}} trên {{b}}', { a: boLoc.trang, b: kq.soTrang })}` : ''}`}
             </p>
 
             {/* KẾT QUẢ */}
             <div className="mt-2">
               {dangTai ? (
-                <div className="h-96 border-2 border-ink/20 bg-ink/5 animate-pulse" aria-busy="true" aria-label="Đang tải danh sách buổi diễn" />
+                <div className="h-96 border-2 border-ink/20 bg-ink/5 animate-pulse" aria-busy="true" aria-label={t('Đang tải danh sách buổi diễn')} />
               ) : loi ? (
                 <div role="alert" className="border-2 border-ink p-5 sm:p-6">
                   <p className="text-lg">{loi}</p>
                   <div className="flex flex-wrap gap-3 mt-4">
-                    <button type="button" onClick={() => setLanTai((n) => n + 1)} className="min-h-[44px] px-5 bg-ink text-lamp font-semibold hover:bg-board transition-colors">Thử lại</button>
-                    {dangAp.length > 0 && <button type="button" onClick={xoaHet} className={NUT_VIEN}>Xoá tất cả bộ lọc</button>}
+                    <button type="button" onClick={() => setLanTai((n) => n + 1)} className="min-h-[44px] px-5 bg-ink text-lamp font-semibold hover:bg-board transition-colors">{t('Thử lại')}</button>
+                    {dangAp.length > 0 && <button type="button" onClick={xoaHet} className={NUT_VIEN}>{t('Xoá tất cả bộ lọc')}</button>}
                   </div>
                 </div>
               ) : kq.items.length === 0 ? (
                 <div className="border-2 border-ink p-6 sm:p-8">
-                  <h2 className="text-3xl">{dangAp.length > 0 ? 'Không có buổi diễn nào khớp bộ lọc này.' : 'Chưa có buổi diễn nào đang mở bán.'}</h2>
+                  <h2 className="text-3xl">{dangAp.length > 0 ? t('Không có buổi diễn nào khớp bộ lọc này.') : t('Chưa có buổi diễn nào đang mở bán.')}</h2>
                   {dangAp.length > 0 ? (
                     <>
-                      <p className="text-ink-soft mt-2">Gỡ bớt một bộ lọc ở trên, hoặc xem tất cả.</p>
-                      <button type="button" onClick={xoaHet} className="mt-5 min-h-[48px] px-6 bg-ink text-lamp font-semibold hover:bg-board transition-colors">Xem tất cả buổi diễn</button>
+                      <p className="text-ink-soft mt-2">{t('Gỡ bớt một bộ lọc ở trên, hoặc xem tất cả.')}</p>
+                      <button type="button" onClick={xoaHet} className="mt-5 min-h-[48px] px-6 bg-ink text-lamp font-semibold hover:bg-board transition-colors">{t('Xem tất cả buổi diễn')}</button>
                     </>
                   ) : (
                     <>
-                      <p className="text-ink-soft mt-2">Phòng trà vẫn ở đó: xem và theo dõi để được báo khi có đêm diễn mới.</p>
-                      <Link to="/lounges" className="inline-flex items-center mt-5 min-h-[48px] px-6 bg-ink text-lamp font-semibold hover:bg-board transition-colors">Xem các phòng trà</Link>
+                      <p className="text-ink-soft mt-2">{t('Phòng trà vẫn ở đó: xem và theo dõi để được báo khi có đêm diễn mới.')}</p>
+                      <Link to="/lounges" className="inline-flex items-center mt-5 min-h-[48px] px-6 bg-ink text-lamp font-semibold hover:bg-board transition-colors">{t('Xem các phòng trà')}</Link>
                     </>
                   )}
                 </div>
@@ -222,10 +224,10 @@ const ShowSearchPage = () => {
             </div>
 
             {!dangTai && !loi && kq.soTrang > 1 && (
-              <nav aria-label="Phân trang" className="flex flex-wrap items-center gap-4 mt-8">
-                <button type="button" onClick={() => sangTrang(boLoc.trang - 1)} disabled={boLoc.trang <= 1} className={NUT_VIEN}>Trang trước</button>
-                <p className="font-mono text-sm">Trang {boLoc.trang} trên {kq.soTrang}</p>
-                <button type="button" onClick={() => sangTrang(boLoc.trang + 1)} disabled={boLoc.trang >= kq.soTrang} className={NUT_VIEN}>Trang sau</button>
+              <nav aria-label={t('Phân trang')} className="flex flex-wrap items-center gap-4 mt-8">
+                <button type="button" onClick={() => sangTrang(boLoc.trang - 1)} disabled={boLoc.trang <= 1} className={NUT_VIEN}>{t('Trang trước')}</button>
+                <p className="font-mono text-sm">{t('Trang {{a}} trên {{b}}', { a: boLoc.trang, b: kq.soTrang })}</p>
+                <button type="button" onClick={() => sangTrang(boLoc.trang + 1)} disabled={boLoc.trang >= kq.soTrang} className={NUT_VIEN}>{t('Trang sau')}</button>
               </nav>
             )}
           </div>
@@ -236,8 +238,8 @@ const ShowSearchPage = () => {
       <dialog ref={hopLoc} aria-labelledby="tieu-de-hop-loc" className="lg:hidden bg-stock text-ink w-screen h-dvh max-w-none max-h-none m-0 p-0 backdrop:bg-board">
         <div className="flex flex-col h-full">
           <div className="flex items-center justify-between gap-4 border-b-2 border-ink px-4 py-3">
-            <h2 id="tieu-de-hop-loc" className="text-3xl">Bộ lọc</h2>
-            <button type="button" onClick={() => hopLoc.current?.close()} aria-label="Đóng bộ lọc" className="w-11 h-11 inline-flex items-center justify-center border border-ink hover:bg-ink hover:text-lamp transition-colors">
+            <h2 id="tieu-de-hop-loc" className="text-3xl">{t('Bộ lọc')}</h2>
+            <button type="button" onClick={() => hopLoc.current?.close()} aria-label={t('Đóng bộ lọc')} className="w-11 h-11 inline-flex items-center justify-center border border-ink hover:bg-ink hover:text-lamp transition-colors">
               <X size={20} aria-hidden="true" />
             </button>
           </div>
@@ -245,9 +247,9 @@ const ShowSearchPage = () => {
             <BoLocBuoiDien boLoc={boLoc} danhMuc={danhMuc} onDoi={doi} ngayCoDien={dem?.chinhXac ? dem.ngayCoDien : null} />
           </div>
           <div className="flex gap-3 border-t-2 border-ink px-4 py-3">
-            {soLoc > 0 && <button type="button" onClick={xoaHet} className={NUT_VIEN}>Xoá tất cả</button>}
+            {soLoc > 0 && <button type="button" onClick={xoaHet} className={NUT_VIEN}>{t('Xoá tất cả')}</button>}
             <button type="button" onClick={() => hopLoc.current?.close()} className="flex-1 min-h-[48px] px-5 bg-ink text-lamp font-semibold hover:bg-board transition-colors">
-              {dangTai ? 'Đang tìm…' : `Xem ${kq.tong.toLocaleString('vi-VN')} buổi diễn`}
+              {dangTai ? t('Đang tìm…') : t('Xem {{n}} buổi diễn', { n: kq.tong.toLocaleString('vi-VN') })}
             </button>
           </div>
         </div>

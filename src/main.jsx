@@ -12,11 +12,8 @@ import '@fontsource/be-vietnam-pro/700.css'
 import '@fontsource/jetbrains-mono/400.css'
 import '@fontsource/jetbrains-mono/600.css'
 import './index.css'
-import dayjs from 'dayjs'
-import 'dayjs/locale/vi'
-
-// Ngày giờ hiển thị bằng tiếng Việt (thứ, tháng) trên toàn ứng dụng.
-dayjs.locale('vi')
+// Lớp chuyển ngữ (i18next) — nạp TRƯỚC App; nó cũng đặt locale dayjs ('vi' mặc định, 'en' khi khách chọn English).
+import './i18n'
 import App from './App.jsx'
 
 createRoot(document.getElementById('root')).render(

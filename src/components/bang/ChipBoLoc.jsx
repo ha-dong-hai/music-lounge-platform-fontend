@@ -6,16 +6,18 @@
 // Mỗi chip là một nút có tên đầy đủ "Bỏ lọc Vai trò: Chủ phòng trà" cho trình đọc màn hình — dấu × một mình không có nghĩa.
 // Không có bộ lọc nào thì không vẽ gì.
 import { X } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 const ChipBoLoc = ({ cacChip, onXoaTatCa, className = '' }) => {
+  const { t } = useTranslation()
   if (!cacChip?.length) return null
   return (
     <div className={`flex flex-wrap items-center gap-2 ${className}`}>
-      <span className="text-sm text-ink-soft">Đang lọc:</span>
+      <span className="text-sm text-ink-soft">{t('Đang lọc:')}</span>
       <ul className="contents">
         {cacChip.map((c) => (
           <li key={c.khoa}>
-            <button type="button" onClick={c.xoa} aria-label={`Bỏ lọc ${c.nhan}`}
+            <button type="button" onClick={c.xoa} aria-label={t('Bỏ lọc {{x}}', { x: c.nhan })}
               className="inline-flex items-center gap-1.5 min-h-[44px] px-3 border-2 border-ink bg-card text-sm font-semibold hover:bg-ink hover:text-lamp">
               {c.nhan} <X size={14} aria-hidden="true" />
             </button>
@@ -24,7 +26,7 @@ const ChipBoLoc = ({ cacChip, onXoaTatCa, className = '' }) => {
       </ul>
       {cacChip.length > 1 && (
         <button type="button" onClick={onXoaTatCa} className="inline-flex items-center gap-1.5 min-h-[44px] px-2 text-sm font-semibold hover:text-ink-soft">
-          <X size={16} strokeWidth={1.75} aria-hidden="true" /> Xoá tất cả
+          <X size={16} strokeWidth={1.75} aria-hidden="true" /> {t('Xoá tất cả')}
         </button>
       )}
     </div>

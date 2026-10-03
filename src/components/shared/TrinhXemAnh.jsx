@@ -16,10 +16,12 @@
 import { useCallback, useEffect, useState } from 'react'
 import useEmblaCarousel from 'embla-carousel-react'
 import { ArrowLeft, ArrowRight } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 const NUT = 'inline-flex items-center justify-center w-12 h-12 border border-lamp/40 text-lamp transition-colors hover:bg-lamp hover:text-board disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-lamp disabled:cursor-not-allowed'
 
-const TrinhXemAnh = ({ anh, batDau = 0, moTa, onDoi, nhan = 'Xem ảnh' }) => {
+const TrinhXemAnh = ({ anh, batDau = 0, moTa, onDoi, nhan }) => {
+  const { t } = useTranslation()
   const itChuyenDong = typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
   const [khung, embla] = useEmblaCarousel({ loop: false, startIndex: batDau, duration: itChuyenDong ? 0 : 22 })
   const [chon, setChon] = useState(batDau)
@@ -49,15 +51,15 @@ const TrinhXemAnh = ({ anh, batDau = 0, moTa, onDoi, nhan = 'Xem ảnh' }) => {
   }, [embla, n])
 
   return (
-    <div role="region" aria-roledescription="carousel" aria-label={nhan} className="flex flex-col min-h-0 flex-1">
+    <div role="region" aria-roledescription="carousel" aria-label={nhan ?? t('Xem ảnh')} className="flex flex-col min-h-0 flex-1">
       <div ref={khung} className="overflow-hidden flex-1 min-h-0 cursor-grab active:cursor-grabbing">
         <div className="flex h-full touch-pan-y" aria-live="polite">
           {anh.map((a, k) => (
-            <div key={a.url + k} role="group" aria-roledescription="slide" aria-label={`Ảnh ${k + 1} trên ${n}`} inert={k !== chon}
+            <div key={a.url + k} role="group" aria-roledescription="slide" aria-label={t('Ảnh {{a}} trên {{b}}', { a: k + 1, b: n })} inert={k !== chon}
               className="relative min-w-0 shrink-0 grow-0 basis-full h-full flex items-center justify-center px-3 sm:px-8 py-3 select-none">
               {/* Chữ nằm DƯỚI ảnh: nhảy thẳng tới một ảnh xa (phím End, bấm ảnh trong lưới) thì ảnh chưa kịp tải — bản đầu để
                   khung trống đen, không biết là đang tải hay hỏng (đo 03/10). Ảnh tải xong thì che chữ đi. */}
-              <span aria-hidden="true" className="absolute inset-0 flex items-center justify-center font-mono text-sm text-lamp-mute">Đang tải ảnh…</span>
+              <span aria-hidden="true" className="absolute inset-0 flex items-center justify-center font-mono text-sm text-lamp-mute">{t('Đang tải ảnh…')}</span>
               {Math.abs(k - chon) <= 1 && (
                 <img src={a.url} alt={moTa(k)} draggable={false} className="relative max-w-full max-h-full object-contain pointer-events-none bg-board" />
               )}
@@ -68,12 +70,12 @@ const TrinhXemAnh = ({ anh, batDau = 0, moTa, onDoi, nhan = 'Xem ảnh' }) => {
 
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2 px-4 sm:px-8 py-3 border-t border-lamp/20">
         <div className="flex gap-2">
-          <button type="button" onClick={truoc} disabled={chon === 0} aria-label="Ảnh trước" className={NUT}><ArrowLeft size={20} aria-hidden="true" /></button>
-          <button type="button" onClick={sau} disabled={chon === n - 1} aria-label="Ảnh sau" className={NUT}><ArrowRight size={20} aria-hidden="true" /></button>
+          <button type="button" onClick={truoc} disabled={chon === 0} aria-label={t('Ảnh trước')} className={NUT}><ArrowLeft size={20} aria-hidden="true" /></button>
+          <button type="button" onClick={sau} disabled={chon === n - 1} aria-label={t('Ảnh sau')} className={NUT}><ArrowRight size={20} aria-hidden="true" /></button>
         </div>
         <p className="font-mono text-sm text-lamp" aria-hidden="true">{String(chon + 1).padStart(2, '0')} / {String(n).padStart(2, '0')}</p>
         {anh[chon]?.caption && <p className="font-hand text-xl text-lamp min-w-0 [overflow-wrap:anywhere]">{anh[chon].caption}</p>}
-        <p className="ml-auto text-sm text-lamp-mute hidden sm:block">Kéo ảnh, hoặc dùng phím ← →</p>
+        <p className="ml-auto text-sm text-lamp-mute hidden sm:block">{t('Kéo ảnh, hoặc dùng phím ← →')}</p>
       </div>
     </div>
   )

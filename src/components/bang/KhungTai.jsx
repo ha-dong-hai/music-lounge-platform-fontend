@@ -9,24 +9,27 @@
 // Có dữ liệu thì vẽ `children`.
 //
 // Props: dangTai, loi (truthy = lỗi), rong (bool), taiLai (fn), tenVung ("đơn gọi món"), noiDungRong (node), caoKhung.
-const KhungTai = ({ dangTai, loi, rong, taiLai, tenVung = 'dữ liệu', noiDungRong, caoKhung = 'h-48', children }) => {
+import { useTranslation } from 'react-i18next'
+const KhungTai = ({ dangTai, loi, rong, taiLai, tenVung: tenVungVao, noiDungRong, caoKhung = 'h-48', children }) => {
+  const { t } = useTranslation()
+  const tenVung = tenVungVao ?? t('dữ liệu')
   if (dangTai) {
-    return <div className={`${caoKhung} border-2 border-ink/15 bg-ink/5 animate-pulse`} aria-busy="true" aria-label={`Đang tải ${tenVung}`} />
+    return <div className={`${caoKhung} border-2 border-ink/15 bg-ink/5 animate-pulse`} aria-busy="true" aria-label={t('Đang tải {{x}}', { x: tenVung })} />
   }
   if (loi) {
     return (
       <div role="alert" className="flex flex-wrap items-center gap-4 border-2 border-ink bg-card p-5">
-        <p>Chưa tải được {tenVung}. Dữ liệu vẫn còn nguyên — kiểm tra kết nối rồi thử lại.</p>
+        <p>{t('Chưa tải được {{x}}. Dữ liệu vẫn còn nguyên — kiểm tra kết nối rồi thử lại.', { x: tenVung })}</p>
         {taiLai && (
           <button type="button" onClick={() => taiLai()} className="min-h-[44px] px-4 border-2 border-ink font-semibold hover:bg-ink hover:text-lamp">
-            Thử lại
+            {t('Thử lại')}
           </button>
         )}
       </div>
     )
   }
   if (rong) {
-    return <div className="border-2 border-ink/30 bg-card p-6 sm:p-8 text-ink-soft">{noiDungRong ?? `Chưa có ${tenVung}.`}</div>
+    return <div className="border-2 border-ink/30 bg-card p-6 sm:p-8 text-ink-soft">{noiDungRong ?? t('Chưa có {{x}}.', { x: tenVung })}</div>
   }
   return children
 }

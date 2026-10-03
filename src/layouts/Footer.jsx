@@ -12,36 +12,38 @@
 // - Khối mực tím than đóng trang, chữ màu ánh đèn — cùng vật liệu với bảng giờ diễn.
 import { Link } from 'react-router-dom'
 import Wordmark from '../components/brand/Wordmark'
+import { useTranslation } from 'react-i18next'
 
 const linkCls =
   'inline-flex items-center min-h-[44px] text-lamp-mute hover:text-lamp underline-offset-4 hover:underline transition-colors focus-visible:outline-lamp'
 
 const Footer = () => {
+  const { t } = useTranslation()
   return (
     <footer className="bg-ink text-lamp-mute">
       <div className="max-w-[1440px] mx-auto px-4 sm:px-8 py-14 grid grid-cols-1 md:grid-cols-[1.4fr_1fr_1fr] gap-10">
         <div>
           <p className="text-4xl mb-3"><Wordmark tone="lamp" /></p>
           <p className="text-sm leading-relaxed max-w-sm">
-            Sàn đặt vé phòng trà Sài Gòn. Tiền vé được giữ hộ tới khi buổi diễn diễn ra mới chuyển cho phòng trà.
+            {t('Sàn đặt vé phòng trà Sài Gòn. Tiền vé được giữ hộ tới khi buổi diễn diễn ra mới chuyển cho phòng trà.')}
           </p>
         </div>
 
-        <nav aria-label="Khám phá">
-          <h3 className="text-base text-lamp mb-2">Khám phá</h3>
+        <nav aria-label={t('Khám phá')}>
+          <h3 className="text-base text-lamp mb-2">{t('Khám phá')}</h3>
           <ul className="text-sm">
-            <li><Link to="/shows" className={linkCls}>Buổi diễn</Link></li>
-            <li><Link to="/lounges" className={linkCls}>Phòng trà</Link></li>
+            <li><Link to="/shows" className={linkCls}>{t('Buổi diễn')}</Link></li>
+            <li><Link to="/lounges" className={linkCls}>{t('Phòng trà')}</Link></li>
             {/* Cửa công khai của sao kê tiền ủng hộ — chân trang có mặt trên MỌI trang công khai. */}
-            <li><Link to="/minh-bach" className={linkCls}>Minh bạch tiền ủng hộ</Link></li>
+            <li><Link to="/minh-bach" className={linkCls}>{t('Minh bạch tiền ủng hộ')}</Link></li>
           </ul>
         </nav>
 
-        <nav aria-label="Hỗ trợ">
-          <h3 className="text-base text-lamp mb-2">Hỗ trợ</h3>
+        <nav aria-label={t('Hỗ trợ')}>
+          <h3 className="text-base text-lamp mb-2">{t('Hỗ trợ')}</h3>
           <ul className="text-sm">
-            <li><Link to="/complaints" className={linkCls}>Gửi và tra cứu khiếu nại</Link></li>
-            <li><Link to="/my-shows" className={linkCls}>Vé của tôi</Link></li>
+            <li><Link to="/complaints" className={linkCls}>{t('Gửi và tra cứu khiếu nại')}</Link></li>
+            <li><Link to="/my-shows" className={linkCls}>{t('Vé của tôi')}</Link></li>
           </ul>
         </nav>
       </div>

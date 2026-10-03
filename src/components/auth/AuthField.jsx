@@ -9,6 +9,7 @@
 // `icon` vẫn nhận để các trang cũ không phải sửa lời gọi, nhưng KHÔNG vẽ nữa: biểu tượng trong ô là trang trí, và nó
 // lấy mất 28px bề ngang của ô trên màn 390px.
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 const AuthField = ({
   id,
@@ -24,6 +25,7 @@ const AuthField = ({
   className: lopThem = '',
   ...rest
 }) => {
+  const { t } = useTranslation()
   const [show, setShow] = useState(false)
   const describedBy = [hint ? `${id}-hint` : null, error ? `${id}-error` : null].filter(Boolean).join(' ') || undefined
 
@@ -32,7 +34,7 @@ const AuthField = ({
       <div className="flex items-baseline justify-between gap-3 mb-1.5">
         <label htmlFor={id} className="font-semibold text-ink">
           {label}
-          {optional && <span className="ml-1.5 font-normal text-ink-mute">(không bắt buộc)</span>}
+          {optional && <span className="ml-1.5 font-normal text-ink-mute">{t('(không bắt buộc)')}</span>}
         </label>
         {action}
       </div>
@@ -54,10 +56,10 @@ const AuthField = ({
             type="button"
             onClick={() => setShow((v) => !v)}
             aria-pressed={show}
-            aria-label={`${show ? 'Ẩn' : 'Hiện'} ${String(label).toLowerCase()}`}
+            aria-label={show ? t('Ẩn {{x}}', { x: String(label).toLowerCase() }) : t('Hiện {{x}}', { x: String(label).toLowerCase() })}
             className="absolute right-0.5 top-1/2 -translate-y-1/2 min-w-[64px] h-11 px-3 text-sm font-semibold text-ink underline underline-offset-4 hover:bg-ink hover:text-lamp hover:no-underline transition-colors"
           >
-            {show ? 'Ẩn' : 'Hiện'}
+            {show ? t('Ẩn') : t('Hiện')}
           </button>
         )}
       </div>

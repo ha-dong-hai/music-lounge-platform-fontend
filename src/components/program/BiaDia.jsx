@@ -16,12 +16,14 @@
 import { lazy, Suspense, useCallback, useState } from 'react'
 import { Disc3, Pause } from 'lucide-react'
 import CoverFallback from '../shared/CoverFallback'
+import { useTranslation } from 'react-i18next'
 
 const DiaThanCanvas = lazy(() => import('./DiaThanCanvas'))
 
 const giamChuyenDong = () => typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
 
 const BiaDia = ({ anh, alt, ten, phongTra, ngay, soTietMuc = 0, dangDien = false }) => {
+  const { t } = useTranslation()
   const [quay, setQuay] = useState(() => dangDien && !giamChuyenDong())
   const [coWebgl, setCoWebgl] = useState(true)
   const khongHoTro = useCallback(() => setCoWebgl(false), [])
@@ -44,7 +46,7 @@ const BiaDia = ({ anh, alt, ten, phongTra, ngay, soTietMuc = 0, dangDien = false
         <button type="button" onClick={() => setQuay((v) => !v)} aria-pressed={quay}
           className="absolute bottom-3 right-3 z-20 inline-flex items-center gap-2 min-h-[44px] px-3 text-sm font-semibold text-lamp hover:text-stock">
           {quay ? <Pause size={18} strokeWidth={1.75} aria-hidden="true" /> : <Disc3 size={18} strokeWidth={1.75} aria-hidden="true" />}
-          {quay ? 'Dừng đĩa' : 'Quay đĩa'}
+          {quay ? t('Dừng đĩa') : t('Quay đĩa')}
         </button>
       )}
     </div>

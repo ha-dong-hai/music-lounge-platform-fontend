@@ -12,10 +12,12 @@
 // `lui` (mũi tên trái đứng trước — quay lại) · `nen` 'giay' | 'muc' · `nho` (chữ 14px, mũi tên ngắn hơn — dòng chỉ đường).
 import { Link } from 'react-router-dom'
 import MuiTenLuyen from './MuiTenLuyen'
+import { useTranslation } from 'react-i18next'
 
 const MAU = { giay: 'text-ink', muc: 'text-lamp' }
 
 const LienKetMuiTen = ({ to, href, lui = false, nen = 'giay', nho = false, className = '', children, ...rest }) => {
+  const { t } = useTranslation()
   const ngoai = Boolean(href)
   const muiTen = <MuiTenLuyen huong={lui ? 'lui' : ngoai ? 'ngoai' : 'toi'} rong={ngoai ? (nho ? 18 : 22) : (nho ? 30 : 36)} />
   // Truyền font-display (tên phòng trà Anton) thì KHÔNG cộng font-semibold: hai lớp độ đậm cùng lúc thì lớp nào thắng
@@ -26,7 +28,7 @@ const LienKetMuiTen = ({ to, href, lui = false, nen = 'giay', nho = false, class
   const noiDung = <>{lui && muiTen}<span className="min-w-0">{children}</span>{!lui && muiTen}</>
 
   return ngoai
-    ? <a href={href} target="_blank" rel="noreferrer" className={lop} {...rest}>{noiDung}<span className="sr-only"> (mở ở thẻ mới)</span></a>
+    ? <a href={href} target="_blank" rel="noreferrer" className={lop} {...rest}>{noiDung}<span className="sr-only"> {t('(mở ở thẻ mới)')}</span></a>
     : <Link to={to} className={lop} {...rest}>{noiDung}</Link>
 }
 

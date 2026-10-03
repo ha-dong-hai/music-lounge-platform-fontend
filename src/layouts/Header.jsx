@@ -8,6 +8,9 @@ import { getMyProfile } from '../services/userServices'
 import { getShowSuggestions, getTrendingShows, getRecommendedShows } from '../services/showServices'
 import Wordmark from '../components/brand/Wordmark'
 import KhungGoiYTimKiem from '../components/shared/KhungGoiYTimKiem'
+import { useTranslation } from 'react-i18next'
+import { doiNgonNgu, k } from '../i18n'
+
 
 // GỢI Ý TÌM KIẾM — GHI CHÚ CHO ĐỘI FE:
 // - Gọi /lounge-shows/suggestions, trả về { id, name, coverImageUrl }. Chỉ có tên và ảnh, KHÔNG có
@@ -21,13 +24,14 @@ const DO_TRE_GOI_Y = 300
 // ⭐ BỎ PROPS searchQuery, setSearchQuery ĐI
 // Menu chính — một nguồn cho cả hàng liên kết (≥1280px) và bảng menu (hẹp hơn).
 const MENU_CHINH = [
-  { to: '/lounges', nhan: 'Phòng trà' },
-  { to: '/shows', nhan: 'Buổi diễn' },
-  { to: '/minh-bach', nhan: 'Minh bạch' },
+  { to: '/lounges', nhan: k('Phòng trà') },
+  { to: '/shows', nhan: k('Buổi diễn') },
+  { to: '/minh-bach', nhan: k('Minh bạch') },
 ]
 
 const Header = () => {
   const { user, logout } = useAuthStore()
+  const { t, i18n } = useTranslation()
   const navigate = useNavigate() //
 
   // Ảnh đại diện không nằm trong kết quả đăng nhập (AuthResultDto) — chưa biết (undefined) thì hỏi /me/profile MỘT lần
@@ -58,7 +62,8 @@ const Header = () => {
   // của người trước. Không gọi lại mỗi lần mở ô tìm kiếm — chỉ lấy một lần cho mỗi người.
   const [goiYMacDinh, setGoiYMacDinh] = useState({ khoa: null, kieu: 'trending', items: [] })
   const [isLangOpen, setIsLangOpen] = useState(false)
-  const [currentLang, setCurrentLang] = useState(localStorage.getItem('lang') || 'vi')
+  // Ngôn ngữ đang dùng lấy từ i18next (src/i18n) — một nguồn, không giữ bản sao trong state.
+  const currentLang = i18n.language === 'en' ? 'en' : 'vi'
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
   const [moMenu, setMoMenu] = useState(false)
   // Esc đóng bảng menu — người dùng bàn phím không phải tab ngược về nút để đóng.
@@ -164,7 +169,7 @@ const Header = () => {
   const handleLogout = () => {
     logout()
     setIsUserMenuOpen(false)
-    toast.success('Đã đăng xuất')
+    toast.success(t('Đã đăng xuất'))
   }
 
   // ÀM SUBMIT TÌM KIẾM SẼ CHUYỂN TRANG
@@ -175,11 +180,11 @@ const Header = () => {
     }
   }
 
+  // Đổi ngôn ngữ giao diện (i18next) — App.jsx vẽ lại toàn bộ cây và tải lại dữ liệu theo ngôn ngữ mới.
   const handleChangeLang = (lang) => {
-    setCurrentLang(lang)
-    localStorage.setItem('lang', lang)
     setIsLangOpen(false)
-    toast.success(lang === 'vi' ? 'Đã chuyển sang Tiếng Việt' : 'Switched to English')
+    setMoMenu(false)
+    doiNgonNgu(lang).then(() => toast.success(lang === 'vi' ? 'Đã chuyển sang Tiếng Việt' : 'Switched to English'))
   }
 
   return (
@@ -187,15 +192,15 @@ const Header = () => {
     <header className="sticky top-0 z-50 w-full bg-stock border-b-2 border-ink px-4 sm:px-6 py-3">
       <div className="flex items-center justify-between gap-2 sm:gap-8">
         <div className="flex items-center gap-4 sm:gap-8 flex-1 min-w-0">
-          <Link to="/" aria-label="MusicLounge — về trang chủ" className="text-xl sm:text-3xl leading-none whitespace-nowrap flex-shrink-0 inline-flex items-center min-h-[44px]">
+          <Link to="/" aria-label={t('MusicLounge — về trang chủ')} className="text-xl sm:text-3xl leading-none whitespace-nowrap flex-shrink-0 inline-flex items-center min-h-[44px]">
             <Wordmark />
           </Link>
 
           <form onSubmit={handleSearchSubmit} ref={oTimKiemRef} className="relative w-full max-w-md hidden md:block">
-            <button type="submit" className="absolute left-0.5 top-1/2 -translate-y-1/2 w-11 h-11 inline-flex items-center justify-center text-ink cursor-pointer" aria-label="Tìm kiếm">
+            <button type="submit" className="absolute left-0.5 top-1/2 -translate-y-1/2 w-11 h-11 inline-flex items-center justify-center text-ink cursor-pointer" aria-label={t('Tìm kiếm')}>
               <Search size={18} strokeWidth={2.5}/>
             </button>
-            <input aria-label="Tìm đêm nhạc, phòng trà, nghệ sĩ"
+            <input aria-label={t('Tìm đêm nhạc, phòng trà, nghệ sĩ')}
               type="text"
               role="combobox" aria-autocomplete="list" aria-expanded={coKhungGoiY && dsDangHien.length > 0}
               aria-controls="o-tim-goi-y" aria-activedescendant={coKhungGoiY && chiSoChon >= 0 ? `o-tim-goi-y-${chiSoChon}` : undefined}
@@ -209,11 +214,11 @@ const Header = () => {
               onFocus={() => { setMoGoiY(true); setChiSoChon(-1) }}
               onKeyDown={handleKeyDown}
               autoComplete="off"
-              placeholder="Tìm đêm nhạc, phòng trà, nghệ sĩ…"
+              placeholder={t('Tìm đêm nhạc, phòng trà, nghệ sĩ…')}
               className="w-full pl-12 pr-11 py-2.5 min-h-[44px] bg-card text-ink placeholder:text-ink-mute border-2 border-ink text-sm focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2 focus:ring-offset-stock transition-all"
             />
             {localSearch && (
-              <button type="button" onClick={() => { setLocalSearch(''); setMoGoiY(false) }} className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-soft hover:text-ink" aria-label="Đóng">
+              <button type="button" onClick={() => { setLocalSearch(''); setMoGoiY(false) }} className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-soft hover:text-ink" aria-label={t('Đóng')}>
                 <X size={18} />
               </button>
             )}
@@ -229,7 +234,7 @@ const Header = () => {
               nằm ở chân trang. Từ xl (1280px) hiện thành hàng; hẹp hơn thì ô tìm kiếm + nút tài khoản đã chiếm hết
               hàng, nên ba liên kết nằm trong bảng mở bằng nút "Menu" (pre-mortem 30/09, T7: dưới 1280px trước đây
               KHÔNG có đường nào tới "Minh bạch" ngoài chân trang). */}
-          <nav aria-label="Menu chính" className="hidden xl:flex items-center gap-1 flex-shrink-0">
+          <nav aria-label={t('Menu chính')} className="hidden xl:flex items-center gap-1 flex-shrink-0">
             {MENU_CHINH.map((m) => (
               <NavLink
                 key={m.to}
@@ -238,34 +243,34 @@ const Header = () => {
                   `inline-flex items-center min-h-[44px] px-3 text-sm font-semibold text-ink underline-offset-[6px] decoration-2 hover:underline whitespace-nowrap ${isActive ? 'underline' : ''}`
                 }
               >
-                {m.nhan}
+                {t(m.nhan)}
               </NavLink>
             ))}
           </nav>
         </div>
 
         <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
-          <Link to="/shows" aria-label="Tìm kiếm" className="md:hidden w-11 h-11 inline-flex items-center justify-center text-ink hover:bg-ink hover:text-lamp transition-colors">
+          <Link to="/shows" aria-label={t('Tìm kiếm')} className="md:hidden w-11 h-11 inline-flex items-center justify-center text-ink hover:bg-ink hover:text-lamp transition-colors">
             <Search size={20} />
           </Link>
           <Link to="/my-shows" className="bg-transparent hover:bg-ink hover:text-lamp text-ink border-2 border-ink px-5 min-h-[44px] text-sm font-semibold transition-colors hidden sm:inline-flex items-center">
-            Vé của tôi
+            {t('Vé của tôi')}
           </Link>
 
           {!user ? (
             <div className="flex items-center gap-2">
-              <Link to="/login" className="text-sm font-semibold text-ink hover:underline underline-offset-4 px-2 sm:px-3 min-h-[44px] inline-flex items-center whitespace-nowrap">Đăng nhập</Link>
+              <Link to="/login" className="text-sm font-semibold text-ink hover:underline underline-offset-4 px-2 sm:px-3 min-h-[44px] inline-flex items-center whitespace-nowrap">{t('Đăng nhập')}</Link>
               {/* Dưới sm "Đăng ký" nằm trong bảng menu: hàng đầu trang 390px không đủ chỗ cho cả nút Menu lẫn hai nút này. */}
-              <Link to="/register" className="bg-ink text-lamp px-3 sm:px-5 min-h-[44px] hidden sm:inline-flex items-center whitespace-nowrap text-sm font-semibold hover:bg-board transition-colors">Đăng ký</Link>
+              <Link to="/register" className="bg-ink text-lamp px-3 sm:px-5 min-h-[44px] hidden sm:inline-flex items-center whitespace-nowrap text-sm font-semibold hover:bg-board transition-colors">{t('Đăng ký')}</Link>
             </div>
           ) : (
             <>
             {/* Thông báo chỉ có nghĩa với người đã đăng nhập — API /notifications yêu cầu xác thực. */}
             <NotificationBell />
             <div className="relative">
-              <button onClick={() => setIsUserMenuOpen(!isUserMenuOpen)} aria-haspopup="menu" aria-expanded={isUserMenuOpen} aria-label="Menu tài khoản" className="flex items-center gap-2 min-h-[44px] hover:text-ink transition-colors focus:outline-none">
+              <button onClick={() => setIsUserMenuOpen(!isUserMenuOpen)} aria-haspopup="menu" aria-expanded={isUserMenuOpen} aria-label={t('Menu tài khoản')} className="flex items-center gap-2 min-h-[44px] hover:text-ink transition-colors focus:outline-none">
                 {user.avatarUrl ? (
-                  <img src={user.avatarUrl} alt="avatar" className="w-9 h-9 object-cover border-2 border-ink" />
+                  <img src={user.avatarUrl} alt={t('Ảnh đại diện')} className="w-9 h-9 object-cover border-2 border-ink" />
                 ) : (
                   <div className="w-9 h-9 bg-card text-ink flex items-center justify-center border-2 border-ink">
                     <User size={20} />
@@ -277,20 +282,20 @@ const Header = () => {
               {isUserMenuOpen && (
                 <div className="absolute right-0 top-full mt-3 w-56 bg-card border-2 border-ink shadow-lift py-2 z-50">
                   <div className="px-4 py-2 border-b border-line mb-1">
-                    <p className="text-xs text-ink-mute">Xin chào,</p>
+                    <p className="text-xs text-ink-mute">{t('Xin chào,')}</p>
                     <p className="text-sm font-semibold text-ink truncate">{user.email}</p>
                   </div>
                   <Link to="/account" className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-ink-soft hover:bg-sunken hover:text-ink transition-colors text-left">
-                    <Settings size={18} className="text-ink" /> Thông tin tài khoản
+                    <Settings size={18} className="text-ink" /> {t('Thông tin tài khoản')}
                   </Link>
                   <Link to="/my-shows" className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-ink-soft hover:bg-sunken transition-colors text-left">
-                    <Ticket size={18} className="text-ink" /> Vé của tôi
+                    <Ticket size={18} className="text-ink" /> {t('Vé của tôi')}
                   </Link>
                   <Link to="/notifications" className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-ink-soft hover:bg-sunken transition-colors text-left">
-                    <Bell size={18} className="text-ink" /> Thông báo
+                    <Bell size={18} className="text-ink" /> {t('Thông báo')}
                   </Link>
                   <Link to="/complaints" className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-ink-soft hover:bg-sunken transition-colors text-left">
-                    <MessageSquareWarning size={18} className="text-ink" /> Khiếu nại
+                    <MessageSquareWarning size={18} className="text-ink" /> {t('Khiếu nại')}
                   </Link>
 
                   {/* LỐI VÀO KHU LÀM VIỆC THEO VAI TRÒ.
@@ -303,7 +308,7 @@ const Header = () => {
                     <>
                       <div className="my-1 border-t border-line"></div>
                       <Link to="/owner" className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-ink hover:bg-sunken transition-colors text-left font-medium">
-                        <Store size={18} /> Khu vực phòng trà
+                        <Store size={18} /> {t('Khu vực phòng trà')}
                       </Link>
                     </>
                   )}
@@ -311,14 +316,14 @@ const Header = () => {
                     <>
                       <div className="my-1 border-t border-line"></div>
                       <Link to="/admin" className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-ink hover:bg-sunken transition-colors text-left font-medium">
-                        <LayoutDashboard size={18} /> Trang quản trị
+                        <LayoutDashboard size={18} /> {t('Trang quản trị')}
                       </Link>
                     </>
                   )}
 
                   <div className="my-1 border-t border-line"></div>
                   <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-danger hover:bg-danger/10 transition-colors text-left font-medium">
-                    <LogOut size={18} /> Đăng xuất
+                    <LogOut size={18} /> {t('Đăng xuất')}
                   </button>
                 </div>
               )}
@@ -327,7 +332,7 @@ const Header = () => {
           )}
 
           <div className="relative hidden sm:block">
-            <button type="button" onClick={() => setIsLangOpen(!isLangOpen)} aria-expanded={isLangOpen} aria-label={`Ngôn ngữ, đang chọn ${currentLang === 'vi' ? 'VN' : 'EN'}`} className="flex items-center gap-1.5 px-3 min-h-[44px] border-2 border-transparent hover:border-ink text-sm font-medium text-ink transition-colors">
+            <button type="button" onClick={() => setIsLangOpen(!isLangOpen)} aria-expanded={isLangOpen} aria-label={`${t('Ngôn ngữ')}: ${currentLang === 'vi' ? 'Tiếng Việt' : 'English'}`} className="flex items-center gap-1.5 px-3 min-h-[44px] border-2 border-transparent hover:border-ink text-sm font-medium text-ink transition-colors">
               <Languages size={16} />
               <span>{currentLang === 'vi' ? 'VN' : 'EN'}</span>
               <ChevronDown size={14} className={`transition-transform duration-200 ${isLangOpen ? 'rotate-180' : ''}`} />
@@ -349,7 +354,7 @@ const Header = () => {
             onClick={() => setMoMenu((v) => !v)}
             aria-expanded={moMenu}
             aria-controls="menu-chinh-hep"
-            aria-label={moMenu ? 'Đóng menu' : 'Mở menu'}
+            aria-label={moMenu ? t('Đóng menu') : t('Mở menu')}
             className="xl:hidden w-11 h-11 inline-flex items-center justify-center text-ink border-2 border-ink hover:bg-ink hover:text-lamp transition-colors"
           >
             {moMenu ? <X size={20} aria-hidden="true" /> : <Menu size={20} aria-hidden="true" />}
@@ -360,24 +365,35 @@ const Header = () => {
       {/* BẢNG MENU cho màn hình dưới 1280px — nằm trong dòng chảy của đầu trang (đẩy nội dung xuống), không phải lớp phủ:
           không cần bẫy focus, đóng bằng Esc / bấm liên kết / bấm lại nút. */}
       {moMenu && (
-        <nav id="menu-chinh-hep" aria-label="Menu chính" className="xl:hidden mt-3 border-t-2 border-ink pt-2">
+        <nav id="menu-chinh-hep" aria-label={t('Menu chính')} className="xl:hidden mt-3 border-t-2 border-ink pt-2">
           <ul>
             {MENU_CHINH.map((m) => (
               <li key={m.to}>
                 <NavLink to={m.to} onClick={() => setMoMenu(false)}
                   className={({ isActive }) => `flex items-center min-h-[48px] px-1 text-base font-semibold text-ink border-b border-ink/15 ${isActive ? 'underline decoration-2 underline-offset-[6px]' : ''}`}>
-                  {m.nhan}
+                  {t(m.nhan)}
                 </NavLink>
               </li>
             ))}
             <li className="sm:hidden">
-              <Link to="/my-shows" onClick={() => setMoMenu(false)} className="flex items-center min-h-[48px] px-1 text-base font-semibold text-ink border-b border-ink/15">Vé của tôi</Link>
+              <Link to="/my-shows" onClick={() => setMoMenu(false)} className="flex items-center min-h-[48px] px-1 text-base font-semibold text-ink border-b border-ink/15">{t('Vé của tôi')}</Link>
             </li>
             {!user && (
               <li className="sm:hidden">
-                <Link to="/register" onClick={() => setMoMenu(false)} className="flex items-center min-h-[48px] px-1 text-base font-semibold text-ink">Đăng ký</Link>
+                <Link to="/register" onClick={() => setMoMenu(false)} className="flex items-center min-h-[48px] px-1 text-base font-semibold text-ink border-b border-ink/15">{t('Đăng ký')}</Link>
               </li>
             )}
+            {/* Nút ngôn ngữ ở hàng đầu trang ẩn dưới sm — bản trước người dùng điện thoại KHÔNG có cách nào đổi ngôn ngữ. */}
+            <li className="sm:hidden flex items-center gap-2 min-h-[48px] px-1">
+              <Languages size={16} aria-hidden="true" />
+              {[['vi', 'Tiếng Việt'], ['en', 'English']].map(([ma, ten]) => (
+                <button key={ma} type="button" onClick={() => handleChangeLang(ma)} aria-pressed={currentLang === ma}
+                  className={`min-h-[44px] px-3 text-sm font-semibold border-2 ${currentLang === ma ? 'border-ink bg-ink text-lamp' : 'border-transparent text-ink hover:border-ink'}`}>
+                  {ten}
+                </button>
+              ))}
+            </li>
+
           </ul>
         </nav>
       )}

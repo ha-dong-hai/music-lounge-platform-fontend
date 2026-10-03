@@ -9,31 +9,38 @@
 // dòng nào mà sản phẩm chưa làm được.
 import { Link } from 'react-router-dom'
 import Wordmark from '../brand/Wordmark'
+import { useTranslation } from 'react-i18next'
+import { k } from '../../i18n'
 
 const LOI_HUA = [
-  'Chọn chỗ ngồi ngay trên sơ đồ phòng trà',
-  'Xem phòng trà bằng ảnh 360° trước khi đặt vé',
-  'Theo dõi phòng trà để biết khi có đêm diễn mới',
+  k('Chọn chỗ ngồi ngay trên sơ đồ phòng trà'),
+  k('Xem phòng trà bằng ảnh 360° trước khi đặt vé'),
+  k('Theo dõi phòng trà để biết khi có đêm diễn mới'),
 ]
 
-const TamBang = () => (
+const TamBang = () => {
+  const { t } = useTranslation()
+  return (
   <aside className="hidden lg:flex flex-col justify-between bg-board text-lamp p-10 xl:p-12">
     <div>
-      <p className="font-display text-5xl xl:text-6xl leading-[1.08] text-lamp">Những đêm nhạc mộc, ngồi đúng chỗ mình chọn.</p>
+      <p className="font-display text-5xl xl:text-6xl leading-[1.08] text-lamp">{t('Những đêm nhạc mộc, ngồi đúng chỗ mình chọn.')}</p>
     </div>
     <ul className="mt-12 border-t border-lamp/25">
-      {LOI_HUA.map((t) => (
-        <li key={t} className="py-3.5 border-b border-lamp/25 text-lamp-mute">{t}</li>
+      {LOI_HUA.map((cau) => (
+        <li key={cau} className="py-3.5 border-b border-lamp/25 text-lamp-mute">{t(cau)}</li>
       ))}
     </ul>
   </aside>
-)
+  )
+}
 
-const AuthShell = ({ children, withAside = false }) => (
+const AuthShell = ({ children, withAside = false }) => {
+  const { t } = useTranslation()
+  return (
   <div className="min-h-screen flex flex-col bg-stock text-ink">
     <header className="w-full border-b-2 border-ink bg-stock">
       <div className="max-w-[1440px] mx-auto px-4 sm:px-8 h-16 flex items-center">
-        <Link to="/" aria-label="MusicLounge, về trang chủ" className="font-display text-2xl leading-none text-ink inline-flex items-center min-h-[44px]">
+        <Link to="/" aria-label={t('MusicLounge, về trang chủ')} className="font-display text-2xl leading-none text-ink inline-flex items-center min-h-[44px]">
           <Wordmark />
         </Link>
       </div>
@@ -52,6 +59,7 @@ const AuthShell = ({ children, withAside = false }) => (
 
     <footer className="border-t border-ink/20 px-4 py-5 text-center text-sm text-ink-mute">© 2026 MusicLounge</footer>
   </div>
-)
+  )
+}
 
 export default AuthShell

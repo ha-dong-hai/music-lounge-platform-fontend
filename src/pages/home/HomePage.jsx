@@ -36,6 +36,7 @@ import SapLenDen from '../../components/program/SapLenDen'
 import GoiYChoBan from '../../components/program/GoiYChoBan'
 import TheGu from '../../components/program/TheGu'
 import DemDaQua from '../../components/program/DemDaQua'
+import { useTranslation } from 'react-i18next'
 
 const SO_BUOI_TAI = 50
 
@@ -66,6 +67,7 @@ const TieuDeKhoi = ({ id, children, phu }) => (
 )
 
 const HomePage = () => {
+  const { t } = useTranslation()
   const daDangNhap = Boolean(useAuthStore((s) => s.user))
 
   const [dangTai, setDangTai] = useState(true)
@@ -137,10 +139,10 @@ const HomePage = () => {
 
   const homNay = dayjs()
   const dongPhu = dangTai
-    ? 'Đang dò bảng giờ…'
+    ? t('Đang dò bảng giờ…')
     : dongBang.length > 0
-      ? `${thuVietHoa(homNay)} ${ngayDayDu(homNay)}, ${dongBang.length} phòng trà sáng đèn`
-      : `${thuVietHoa(homNay)} ${ngayDayDu(homNay)}, chưa phòng trà nào lên đèn`
+      ? t('{{ngay}}, {{n}} phòng trà sáng đèn', { ngay: `${thuVietHoa(homNay)} ${ngayDayDu(homNay)}`, n: dongBang.length })
+      : t('{{ngay}}, chưa phòng trà nào lên đèn', { ngay: `${thuVietHoa(homNay)} ${ngayDayDu(homNay)}` })
 
   // Dòng nhạc chỉ còn MỘT chỗ là thẻ ảnh (TheGu). Bản 03/10 in hai lần — thẻ đếm mọi thể loại (Bolero 2), nhóm chữ
   // "Dòng nhạc" bên dưới chỉ đếm thể loại ĐẦU của mỗi buổi (Bolero 1, thiếu luôn Acoustic) — chủ dự án: "đang hơi bị loạn".
@@ -154,11 +156,11 @@ const HomePage = () => {
         <section aria-labelledby="dem-nay">
           <div className="flex flex-wrap items-end justify-between gap-6 mb-8">
             <div>
-              <h1 id="dem-nay" className="text-[clamp(3rem,8vw,6rem)] leading-[0.95] text-ink">Đêm nay ở Sài Gòn</h1>
+              <h1 id="dem-nay" className="text-[clamp(3rem,8vw,6rem)] leading-[0.95] text-ink">{t('Đêm nay ở Sài Gòn')}</h1>
               <p className="font-mono text-base sm:text-lg mt-3" aria-live="polite">{dongPhu}</p>
             </div>
             <Link to="/shows" className="inline-flex items-center gap-2 min-h-[44px] px-5 border-2 border-ink font-semibold hover:bg-ink hover:text-lamp transition-colors">
-              <SlidersHorizontal size={16} aria-hidden="true" /> Tìm và lọc buổi diễn
+              <SlidersHorizontal size={16} aria-hidden="true" /> {t('Tìm và lọc buổi diễn')}
             </Link>
           </div>
 
@@ -176,8 +178,8 @@ const HomePage = () => {
                 -top-7 để không chạm nút "Tìm và lọc" ngay phía trên. Đây là dấu mộc DUY NHẤT của khối — trong hộp đèn
                 đã bỏ (đỏ mộc trên tím than ~2:1). Chỉ từ md: điện thoại hộp đèn in lời hứa giữ hộ bằng chữ. */}
             <DauMoc
-              vongNgoai="MUSICLOUNGE · TIỀN VÉ GIỮ HỘ · "
-              giua={'GIỮ HỘ\nTỚI KHI DIỄN'}
+              vongNgoai={t('MUSICLOUNGE · TIỀN VÉ GIỮ HỘ · ')}
+              giua={t('GIỮ HỘ\nTỚI KHI DIỄN')}
               size={104}
               xoay={-12}
               className="hidden md:block absolute -top-7 right-6 pointer-events-none"
@@ -187,8 +189,8 @@ const HomePage = () => {
 
         {sapLenDen.length > 0 && (
           <section aria-labelledby="sap-len-den" id="sap-len-den-khoi" className="mt-24 scroll-mt-24">
-            <TieuDeKhoi id="sap-len-den" phu={<LienKetMuiTen to="/shows">Mọi buổi diễn</LienKetMuiTen>}>
-              Sắp lên đèn
+            <TieuDeKhoi id="sap-len-den" phu={<LienKetMuiTen to="/shows">{t('Mọi buổi diễn')}</LienKetMuiTen>}>
+              {t('Sắp lên đèn')}
             </TieuDeKhoi>
             <SapLenDen buoi={sapLenDen} anhPhongTra={anhPhongTra} />
           </section>
@@ -214,12 +216,12 @@ const HomePage = () => {
                   className="inline-flex items-center gap-1.5 min-h-[44px] text-sm font-semibold text-ink hover:text-board"
                 >
                   {moGu
-                    ? <><IconMoRong mo /> Thu gọn</>
-                    : <><IconMoRong /> Lọc thêm theo tâm trạng, không gian ({soLocThem})</>}
+                    ? <><IconMoRong mo /> {t('Thu gọn')}</>
+                    : <><IconMoRong /> {t('Lọc thêm theo tâm trạng, không gian ({{n}})', { n: soLocThem })}</>}
                 </button>
               )}
             >
-              Tìm theo gu
+              {t('Tìm theo gu')}
             </TieuDeKhoi>
             {/* Dòng nhạc = thẻ ảnh, luôn hiện (TheGu). Tâm trạng + không gian là lọc phụ, gập bên dưới. */}
             <TheGu buoi={sapToi} anhPhongTra={anhPhongTra} anhTheLoai={anhTheLoai} />
@@ -227,8 +229,8 @@ const HomePage = () => {
               <div id="theo-gu-noi-dung" className="grid gap-8 md:grid-cols-2">
                 {[
                   // Bộ lọc đi qua ĐỊA CHỈ theo ID (src/utils/boLocBuoiDien.js): bấm Quay lại, tải lại hay gửi đường dẫn đều giữ nguyên.
-                  ['Tâm trạng', gu.moods.map((m) => ({ key: m.id, ten: m.name, to: `/shows?tam=${m.id}` }))],
-                  ['Không gian', gu.atmospheres.map((a) => ({ key: a.id, ten: a.name, to: `/shows?kg=${a.id}` }))],
+                  [t('Tâm trạng'), gu.moods.map((m) => ({ key: m.id, ten: m.name, to: `/shows?tam=${m.id}` }))],
+                  [t('Không gian'), gu.atmospheres.map((a) => ({ key: a.id, ten: a.name, to: `/shows?kg=${a.id}` }))],
                 ].filter(([, ds]) => ds.length > 0).map(([tieuDe, ds]) => (
                   // Mỗi nhóm tự thu gọn khi dài (NhomGu): chỉ hiện các mục đáng thấy nhất, "Xem thêm N" mở phần còn lại.
                   <NhomGu key={tieuDe} tieuDe={tieuDe} ds={ds} />
@@ -239,18 +241,18 @@ const HomePage = () => {
         )}
 
         <section aria-labelledby="phong-tra-tren-san" className="mt-24">
-          <TieuDeKhoi id="phong-tra-tren-san" phu={<LienKetMuiTen to="/lounges">Mọi phòng trà</LienKetMuiTen>}>
-            Phòng trà trên sàn
+          <TieuDeKhoi id="phong-tra-tren-san" phu={<LienKetMuiTen to="/lounges">{t('Mọi phòng trà')}</LienKetMuiTen>}>
+            {t('Phòng trà trên sàn')}
           </TieuDeKhoi>
           <PhongTraTrenSan daDangNhap={daDangNhap} phongTraSangDen={phongTraSangDen} onTai={khiTaiPhongTra} />
         </section>
 
         <DemDaQua phongTra={dsPhongTra} className="mt-24"
-          dau={<TieuDeKhoi id="dem-da-qua" phu={<LienKetMuiTen to="/shows">Mọi buổi diễn</LienKetMuiTen>}>Đêm đã qua</TieuDeKhoi>} />
+          dau={<TieuDeKhoi id="dem-da-qua" phu={<LienKetMuiTen to="/shows">{t('Mọi buổi diễn')}</LienKetMuiTen>}>{t('Đêm đã qua')}</TieuDeKhoi>} />
 
         <section aria-labelledby="tien-di-dau" className="mt-24">
-          <TieuDeKhoi id="tien-di-dau" phu={<LienKetMuiTen to="/minh-bach">Trang minh bạch</LienKetMuiTen>}>
-            Tiền của bạn đi đâu
+          <TieuDeKhoi id="tien-di-dau" phu={<LienKetMuiTen to="/minh-bach">{t('Trang minh bạch')}</LienKetMuiTen>}>
+            {t('Tiền của bạn đi đâu')}
           </TieuDeKhoi>
           <CuongVeCamKet />
         </section>

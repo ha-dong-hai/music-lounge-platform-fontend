@@ -23,6 +23,7 @@
 // gắn khi nguồn thật là "Ai", cùng luật nói thật với khối gợi ý ở trang chủ.
 import { Link } from 'react-router-dom'
 import { gioTrongNgay, ngayTrongLich } from '../../utils/ngayVietNam'
+import { useTranslation } from 'react-i18next'
 
 // Tô đậm chỗ khớp từ khoá. So khớp không phân biệt hoa thường; tiếng Việt giữ nguyên dấu (gõ "sài" khớp "Sài").
 const ToKhop = ({ chu, tuKhoa }) => {
@@ -36,21 +37,22 @@ const Anh = ({ url }) => (url
   : <span aria-hidden="true" className="w-14 h-14 flex-shrink-0 bg-sunken border border-ink/15" />)
 
 const KhungGoiYTimKiem = ({ idKhung, tuKhoa, dangTai, goiY, macDinh, chiSoChon, setChiSoChon, onChon, onDong }) => {
+  const { t } = useTranslation()
   const dangGo = tuKhoa.length >= 2
   const ds = dangGo ? goiY : macDinh.items
   const caNhan = !dangGo && macDinh.kieu === 'ca-nhan'
   const lop = 'absolute top-full left-0 mt-2 w-[min(34rem,calc(100vw-2rem))] bg-card border-2 border-ink shadow-lift z-50'
 
-  if (dangGo && dangTai) return <div className={`${lop} py-6 text-center text-sm text-ink-mute`} role="status">Đang tìm…</div>
+  if (dangGo && dangTai) return <div className={`${lop} py-6 text-center text-sm text-ink-mute`} role="status">{t('Đang tìm…')}</div>
   if (dangGo && ds.length === 0) {
-    return <p className={`${lop} px-4 py-4 text-sm text-ink-mute`} role="status">Không có buổi diễn nào khớp. Nhấn Enter để tìm rộng hơn.</p>
+    return <p className={`${lop} px-4 py-4 text-sm text-ink-mute`} role="status">{t('Không có buổi diễn nào khớp. Nhấn Enter để tìm rộng hơn.')}</p>
   }
   if (ds.length === 0) return null
 
   return (
     <div className={lop}>
       <p id={`${idKhung}-nhan`} className="px-4 pt-3 pb-2 font-mono text-xs tracking-[0.15em] text-ink-mute border-b border-ink/15">
-        {dangGo ? 'BUỔI DIỄN KHỚP' : caNhan ? 'GỢI Ý RIÊNG CHO BẠN' : 'NHIỀU NGƯỜI ĐANG GIỮ CHỖ'}
+        {dangGo ? t('BUỔI DIỄN KHỚP') : caNhan ? t('GỢI Ý RIÊNG CHO BẠN') : t('NHIỀU NGƯỜI ĐANG GIỮ CHỖ')}
       </p>
       <ul id={idKhung} role="listbox" aria-labelledby={`${idKhung}-nhan`}>
         {ds.map((b, i) => {
@@ -74,7 +76,7 @@ const KhungGoiYTimKiem = ({ idKhung, tuKhoa, dangTai, goiY, macDinh, chiSoChon, 
                 )}
                 {lyDo && (
                   <span className="block text-sm text-ink-soft leading-snug mt-1.5">
-                    {laAi && <span className="font-mono text-xs text-ink mr-1.5">AI chọn ·</span>}{lyDo}
+                    {laAi && <span className="font-mono text-xs text-ink mr-1.5">{t('AI chọn ·')}</span>}{lyDo}
                   </span>
                 )}
               </span>
@@ -85,7 +87,7 @@ const KhungGoiYTimKiem = ({ idKhung, tuKhoa, dangTai, goiY, macDinh, chiSoChon, 
       <Link to={dangGo ? `/shows?q=${encodeURIComponent(tuKhoa)}` : '/shows'} tabIndex={-1}
         onMouseDown={(e) => e.preventDefault()} onClick={onDong}
         className="flex items-center justify-between px-4 min-h-[44px] text-sm font-semibold text-ink border-t-2 border-ink hover:bg-sunken">
-        {dangGo ? `Xem mọi kết quả cho “${tuKhoa}”` : 'Xem tất cả buổi diễn'} <span aria-hidden="true">→</span>
+        {dangGo ? t('Xem mọi kết quả cho “{{x}}”', { x: tuKhoa }) : t('Xem tất cả buổi diễn')} <span aria-hidden="true">→</span>
       </Link>
     </div>
   )

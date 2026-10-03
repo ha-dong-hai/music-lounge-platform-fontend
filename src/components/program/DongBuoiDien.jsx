@@ -34,19 +34,22 @@ import CuongDatVe from './CuongDatVe'
 import { ngayTrongLich, gioTrongNgay } from '../../utils/ngayVietNam'
 import { formatMinPrice } from '../../utils/formatPrice'
 import NhanDangDien from './NhanDangDien'
+import { useTranslation } from 'react-i18next'
+import { k, td } from '../../i18n/k'
 
-const HINH_THUC = { Online: 'Trực tuyến', Hybrid: 'Tại chỗ và trực tuyến' }
+const HINH_THUC = { Online: k('Trực tuyến'), Hybrid: k('Tại chỗ và trực tuyến') }
 
 const giaIn = (b) => {
   const gia = formatMinPrice(b)
-  return b.minPrice != null && b.maxPrice != null && b.maxPrice > b.minPrice ? `từ ${gia}` : gia
+  return b.minPrice != null && b.maxPrice != null && b.maxPrice > b.minPrice ? td('từ {{x}}', { x: gia }) : gia
 }
 
 const DongBuoiDien = ({ b, hienPhongTra = true, hienAnh = true, anhDuPhong = null, daLuu = false, dangLuu = false, onDoiLuu }) => {
+  const { t } = useTranslation()
   const [anhHong, setAnhHong] = useState(false)
   const nguoiHat = b.performerNames ?? []
   const noi = [b.loungeName, b.loungeDistrict || b.loungeCity].filter(Boolean).join(' · ')
-  const phu = [...(b.genres ?? []).map((g) => g.name), HINH_THUC[b.format]].filter(Boolean)
+  const phu = [...(b.genres ?? []).map((g) => g.name), HINH_THUC[b.format] && t(HINH_THUC[b.format])].filter(Boolean)
   const dangDien = b.status === 'Ongoing'
 
   return (
@@ -61,7 +64,7 @@ const DongBuoiDien = ({ b, hienPhongTra = true, hienAnh = true, anhDuPhong = nul
       <p className="font-mono text-sm text-ink whitespace-nowrap">
         {dangDien
           ? <NhanDangDien co="nho" />
-          : b.status === 'Ended' ? <span className="text-ink-mute">Đã diễn {ngayTrongLich(b.scheduledStart)}</span>
+          : b.status === 'Ended' ? <span className="text-ink-mute">{t('Đã diễn {{x}}', { x: ngayTrongLich(b.scheduledStart) })}</span>
             : <>{ngayTrongLich(b.scheduledStart)}<span className="text-ink-mute"> · </span>{gioTrongNgay(b.scheduledStart)}</>}
       </p>
       <div className="min-w-0">
@@ -82,11 +85,11 @@ const DongBuoiDien = ({ b, hienPhongTra = true, hienAnh = true, anhDuPhong = nul
             chủ dự án 02/10: "sát rạt, xấu". Rê chuột: trái tim tô đầy + chữ đậm màu; đã lưu thì tim đặc sẵn. */}
         {onDoiLuu && (
           <button type="button" onClick={() => onDoiLuu(b)} disabled={dangLuu} aria-pressed={daLuu}
-            aria-label={daLuu ? `Bỏ lưu ${b.name}` : `Lưu ${b.name}`}
+            aria-label={daLuu ? t('Bỏ lưu {{x}}', { x: b.name }) : t('Lưu {{x}}', { x: b.name })}
             className="group/luu relative z-10 inline-flex items-center gap-2 min-h-[48px] px-2 text-sm font-semibold text-ink-soft hover:text-ink transition-colors disabled:opacity-60">
             <Heart size={20} strokeWidth={1.75} aria-hidden="true"
               className={`transition-[fill,transform] duration-300 motion-safe:group-hover/luu:scale-110 ${daLuu ? 'fill-current text-ink' : 'group-hover/luu:fill-current'}`} />
-            {daLuu ? 'Đã lưu' : 'Lưu'}
+            {daLuu ? t('Đã lưu') : t('Lưu')}
           </button>
         )}
       </div>

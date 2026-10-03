@@ -21,13 +21,15 @@
 // cắt chữ chứa phần tử bấm được) — liên kết nằm trong vùng bị cắt vẫn nhận focus mà không nhìn thấy.
 import { useId, useLayoutEffect, useRef, useState } from 'react'
 import IconMoRong from './IconMoRong'
+import { useTranslation } from 'react-i18next'
 
 export const SO_DONG = 6
 export const AN_TOI_THIEU = 3
 
 const KEP = { display: '-webkit-box', WebkitBoxOrient: 'vertical', WebkitLineClamp: SO_DONG, overflow: 'hidden' }
 
-const DoanVanDai = ({ children, nhanMo = 'Đọc tiếp', nhanDong = 'Thu gọn', className = '' }) => {
+const DoanVanDai = ({ children, nhanMo, nhanDong, className = '' }) => {
+  const { t } = useTranslation()
   const id = useId()
   const ref = useRef(null)
   const [canCat, setCanCat] = useState(false)
@@ -57,7 +59,7 @@ const DoanVanDai = ({ children, nhanMo = 'Đọc tiếp', nhanDong = 'Thu gọn'
       {canCat && (
         <button type="button" onClick={() => setMo((v) => !v)} aria-expanded={mo} aria-controls={id}
           className="inline-flex items-center gap-1.5 min-h-[44px] mt-1 text-sm font-semibold text-ink hover:text-board">
-          {mo ? <><IconMoRong mo /> {nhanDong}</> : <><IconMoRong /> {nhanMo}</>}
+          {mo ? <><IconMoRong mo /> {nhanDong ?? t('Thu gọn')}</> : <><IconMoRong /> {nhanMo ?? t('Đọc tiếp')}</>}
         </button>
       )}
     </div>

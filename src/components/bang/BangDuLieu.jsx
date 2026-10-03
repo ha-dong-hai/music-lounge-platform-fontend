@@ -24,12 +24,15 @@
 import { rowPaginationFeature, tableFeatures, useTable } from '@tanstack/react-table'
 import PhanTrang from './PhanTrang'
 import { HEP } from './lopBangHep'
+import { useTranslation } from 'react-i18next'
 
 const features = tableFeatures({ rowPaginationFeature })
 const RONG = []
 const layIdMacDinh = (d) => String(d.id)
 
-const BangDuLieu = ({ ds, cot, tenDonVi = 'mục', chuThich, idDanhSach, khiRong, layId = layIdMacDinh }) => {
+const BangDuLieu = ({ ds, cot, tenDonVi: tenDonViVao, chuThich, idDanhSach, khiRong, layId = layIdMacDinh }) => {
+  const { t } = useTranslation()
+  const tenDonVi = tenDonViVao ?? t('mục')
   const pagination = { pageIndex: ds.trang - 1, pageSize: ds.coThuc }
   const table = useTable({
     key: idDanhSach,
@@ -58,7 +61,7 @@ const BangDuLieu = ({ ds, cot, tenDonVi = 'mục', chuThich, idDanhSach, khiRong
       <div className="overflow-x-auto border-2 border-ink bg-card">
         <table id={idDanhSach} tabIndex={-1} role="table" aria-busy={ds.dangTai || ds.dangTaiLai}
           className={`w-full text-sm focus:outline-none max-md:block ${ds.laDuLieuCu ? 'opacity-60' : ''}`}>
-          {chuThich && <caption className="sr-only">{chuThich}, trang {ds.trang} trên {ds.soTrang}</caption>}
+          {chuThich && <caption className="sr-only">{t('{{x}}, trang {{a}} trên {{b}}', { x: chuThich, a: ds.trang, b: ds.soTrang })}</caption>}
           <thead role="rowgroup" className="bg-sunken border-b-2 border-ink max-md:sr-only">
             {table.getHeaderGroups().map((hg) => (
               <tr key={hg.id} role="row">
@@ -72,18 +75,18 @@ const BangDuLieu = ({ ds, cot, tenDonVi = 'mục', chuThich, idDanhSach, khiRong
           </thead>
           <tbody role="rowgroup" className="divide-y divide-line max-md:block">
             {ds.dangTai ? (
-              <tr><td colSpan={soCot} className="p-0"><div className="h-48 bg-ink/5 animate-pulse" aria-label={`Đang tải ${tenDonVi}`} /></td></tr>
+              <tr><td colSpan={soCot} className="p-0"><div className="h-48 bg-ink/5 animate-pulse" aria-label={t('Đang tải {{x}}', { x: tenDonVi })} /></td></tr>
             ) : ds.loi ? (
               <tr>
                 <td colSpan={soCot} className="p-6">
                   <div role="alert" className="flex flex-wrap items-center gap-4">
-                    <p>Chưa tải được danh sách {tenDonVi}.</p>
-                    <button type="button" onClick={() => ds.taiLai()} className="min-h-[44px] px-4 border-2 border-ink font-semibold hover:bg-ink hover:text-lamp">Thử lại</button>
+                    <p>{t('Chưa tải được danh sách {{x}}.', { x: tenDonVi })}</p>
+                    <button type="button" onClick={() => ds.taiLai()} className="min-h-[44px] px-4 border-2 border-ink font-semibold hover:bg-ink hover:text-lamp">{t('Thử lại')}</button>
                   </div>
                 </td>
               </tr>
             ) : table.getRowModel().rows.length === 0 ? (
-              <tr><td colSpan={soCot} className="p-8 text-center text-ink-soft">{khiRong ?? `Không có ${tenDonVi} nào.`}</td></tr>
+              <tr><td colSpan={soCot} className="p-8 text-center text-ink-soft">{khiRong ?? t('Không có {{x}} nào.', { x: tenDonVi })}</td></tr>
             ) : (
               table.getRowModel().rows.map((r) => (
                 <tr key={r.id} role="row" className="hover:bg-sunken/40 max-md:block max-md:py-2">

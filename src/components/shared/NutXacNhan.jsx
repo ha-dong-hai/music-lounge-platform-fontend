@@ -9,7 +9,7 @@
 import { useState } from 'react'
 import HopXacNhan from './HopXacNhan'
 
-const NutXacNhan = ({ onXacNhan, tieuDe, noiDung, nhanXacNhan, nhanGiu = 'Không, quay lại', nguyHiem = true, children, ...nut }) => {
+const NutXacNhan = ({ onXacNhan, tieuDe, noiDung, nhanXacNhan, nhanGiu, nguyHiem = true, children, ...nut }) => {
   const [mo, setMo] = useState(false)
   return (
     <>

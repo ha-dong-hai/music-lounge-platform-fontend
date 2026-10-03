@@ -9,11 +9,13 @@
 // Răng cưa cuống vé vẽ bằng mask CSS (radial-gradient lặp) — không phải ảnh, không phải clip-path đa giác.
 import DauMoc from './DauMoc'
 import LienKetMuiTen from '../shared/LienKetMuiTen'
+import { useTranslation } from 'react-i18next'
+import { k } from '../../i18n/k'
 
 const CAM_KET = [
-  { tieuDe: 'Tiền vé được giữ hộ', cau: 'Tiền bạn trả trực tuyến được nền tảng giữ, chỉ chuyển cho phòng trà sau khi buổi diễn diễn ra.', dau: 'GIỮ HỘ' },
-  { tieuDe: 'Buổi diễn huỷ thì hoàn tiền', cau: 'Phòng trà huỷ buổi diễn thì vé của bạn được hoàn — theo dõi trạng thái ngay trong mục Vé của tôi.', dau: 'HOÀN VÉ' },
-  { tieuDe: 'Tiền ủng hộ có sao kê', cau: 'Mỗi khoản ủng hộ nghệ sĩ được ghi lên sao kê công khai, ai cũng xem được tiền đã tới tay nghệ sĩ hay chưa.', dau: 'SAO KÊ', link: { to: '/minh-bach', nhan: 'Xem sao kê' } },
+  { tieuDe: k('Tiền vé được giữ hộ'), cau: k('Tiền bạn trả trực tuyến được nền tảng giữ, chỉ chuyển cho phòng trà sau khi buổi diễn diễn ra.'), dau: k('GIỮ HỘ') },
+  { tieuDe: k('Buổi diễn huỷ thì hoàn tiền'), cau: k('Phòng trà huỷ buổi diễn thì vé của bạn được hoàn — theo dõi trạng thái ngay trong mục Vé của tôi.'), dau: k('HOÀN VÉ') },
+  { tieuDe: k('Tiền ủng hộ có sao kê'), cau: k('Mỗi khoản ủng hộ nghệ sĩ được ghi lên sao kê công khai, ai cũng xem được tiền đã tới tay nghệ sĩ hay chưa.'), dau: k('SAO KÊ'), link: { to: '/minh-bach', nhan: k('Xem sao kê') } },
 ]
 
 const RANG_CUA = {
@@ -21,21 +23,23 @@ const RANG_CUA = {
   mask: 'radial-gradient(circle 7px at 50% 0, transparent 98%, #000) top/22px 51% repeat-x, radial-gradient(circle 7px at 50% 100%, transparent 98%, #000) bottom/22px 51% repeat-x',
 }
 
-const CuongVeCamKet = () => (
+const CuongVeCamKet = () => {
+  const { t } = useTranslation()
+  return (
   <ul className="grid gap-6 md:grid-cols-3">
     {CAM_KET.map((c) => (
       // Dấu mộc nằm TRONG dòng chảy (hàng cuối, căn phải) chứ không position absolute: bản absolute đè lên chữ của cả
       // ba cuống ở 390px (người duyệt 30/09) và sát chữ cuống thứ ba ở máy tính.
       <li key={c.tieuDe} className="flex flex-col bg-card text-ink px-6 pt-8 pb-8 shadow-lift" style={RANG_CUA}>
-        <h3 className="font-display text-3xl leading-none">{c.tieuDe}</h3>
-        <p className="mt-3 text-ink-soft max-w-prose">{c.cau}</p>
+        <h3 className="font-display text-3xl leading-none">{t(c.tieuDe)}</h3>
+        <p className="mt-3 text-ink-soft max-w-prose">{t(c.cau)}</p>
         <div className="mt-auto pt-3 flex items-end justify-between gap-4">
-          {c.link ? <LienKetMuiTen to={c.link.to}>{c.link.nhan}</LienKetMuiTen> : <span />}
-          <DauMoc vongNgoai="MUSICLOUNGE · CAM KẾT · " giua={c.dau} size={84} xoay={-14} className="shrink-0 opacity-90" />
+          {c.link ? <LienKetMuiTen to={c.link.to}>{t(c.link.nhan)}</LienKetMuiTen> : <span />}
+          <DauMoc vongNgoai={t('MUSICLOUNGE · CAM KẾT · ')} giua={t(c.dau)} size={84} xoay={-14} className="shrink-0 opacity-90" />
         </div>
       </li>
     ))}
   </ul>
-)
-
+  )
+}
 export default CuongVeCamKet

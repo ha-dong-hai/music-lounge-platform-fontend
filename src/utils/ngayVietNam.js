@@ -6,7 +6,7 @@
 // nghĩa là có hai chỗ để lệch nhau. Đặc tả §10 (chữ và định dạng tiếng Việt) chỉ đúng được nếu nó
 // có đúng một chỗ để thi hành.
 //
-// dayjs đã nạp locale 'vi' toàn cục ở src/main.jsx, nên `format('dddd')` trả "thứ ba", "chủ nhật".
+// dayjs nạp locale toàn cục ở src/i18n/index.js theo ngôn ngữ giao diện: 'vi' → `format('dddd')` trả "thứ ba", 'en' → "Tuesday".
 import dayjs from 'dayjs'
 
 // "thứ ba" -> "Thứ ba". CSS `capitalize` KHÔNG làm được việc này cho đúng: nó viết hoa chữ cái đầu
@@ -27,8 +27,11 @@ export const thuVietHoa = (d) => {
 export const nhanNgay = (d, moc = dayjs()) => {
   const ngay = dayjs(d)
   const goc = dayjs(moc)
-  if (ngay.isSame(goc, 'day')) return 'Hôm nay'
-  if (ngay.isSame(goc.add(1, 'day'), 'day')) return 'Ngày mai'
+  // Giao diện tiếng Anh (src/i18n đặt dayjs.locale('en')): tên thứ đã do dayjs dịch; hai nhãn này dịch tại chỗ — không nạp
+  // i18n vào tiện ích để file vẫn chạy được trong unit test bằng node.
+  const en = dayjs.locale() === 'en'
+  if (ngay.isSame(goc, 'day')) return en ? 'Today' : 'Hôm nay'
+  if (ngay.isSame(goc.add(1, 'day'), 'day')) return en ? 'Tomorrow' : 'Ngày mai'
   return thuVietHoa(ngay)
 }
 

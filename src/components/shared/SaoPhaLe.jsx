@@ -10,6 +10,7 @@
 // - Lấp lánh: một đốm sáng lướt qua từng sao, lệch nhịp, CHỈ 2 lượt rồi đứng yên (< 5 giây — WCAG 2.2.2 không đòi nút dừng,
 //   cùng cách với .song-am / .vach-quet). Giảm chuyển động: không lấp lánh.
 // - Trình đọc màn hình đọc "4 trên 5 sao"; hình vẽ aria-hidden.
+import { useTranslation } from 'react-i18next'
 const DIEM = Array.from({ length: 10 }, (_, i) => {
   const r = i % 2 ? 19 : 47
   const g = -Math.PI / 2 + (i * Math.PI) / 5
@@ -37,13 +38,16 @@ const MotSao = ({ day, tre }) => (
   </svg>
 )
 
-const SaoPhaLe = ({ diem, className = 'w-8 h-8' }) => (
+const SaoPhaLe = ({ diem, className = 'w-8 h-8' }) => {
+  const { t } = useTranslation()
+  return (
   <span className="inline-flex gap-1.5 align-middle">
     {[0, 1, 2, 3, 4].map((i) => (
       <span key={i} className={`block shrink-0 ${className}`}><MotSao day={i < diem} tre={i * 0.35} /></span>
     ))}
-    <span className="sr-only">{diem} trên 5 sao</span>
+    <span className="sr-only">{t('{{diem}} trên 5 sao', { diem })}</span>
   </span>
-)
+  )
+}
 
 export default SaoPhaLe

@@ -14,33 +14,36 @@
 import dayjs from 'dayjs'
 import { khoaNgay, ngayDayDu, ngayGon, ngayTrongLich } from './ngayVietNam.js'
 import { chuanHoaKhoangLoc } from './rangBuocNgay.js'
+import { td } from '../i18n/k.js'
 
+// Nhãn hiển thị dùng GETTER + td() (src/i18n/k.js): đọc lúc vẽ nên theo ngôn ngữ đang chọn; chạy unit test bằng node thì
+// td trả nguyên câu tiếng Việt.
 export const CO_TRANG = 20
 
 // Mặc định xếp theo ngày diễn gần nhất: với một buổi diễn, "khi nào" là câu hỏi đầu tiên (DICE, Ticketmaster đều
 // xếp theo ngày tăng dần). Bản cũ mặc định "Mới nhất" — tức là theo lúc ĐĂNG, thứ khán giả không quan tâm.
 export const CACH_SAP = [
-  { value: 'StartingSoon', label: 'Ngày diễn gần nhất' },
-  { value: 'PriceAsc', label: 'Giá thấp đến cao' },
-  { value: 'PriceDesc', label: 'Giá cao đến thấp' },
-  { value: 'Popular', label: 'Được quan tâm nhiều' },
-  { value: 'Newest', label: 'Mới đăng' },
+  { value: 'StartingSoon', get label() { return td('Ngày diễn gần nhất') } },
+  { value: 'PriceAsc', get label() { return td('Giá thấp đến cao') } },
+  { value: 'PriceDesc', get label() { return td('Giá cao đến thấp') } },
+  { value: 'Popular', get label() { return td('Được quan tâm nhiều') } },
+  { value: 'Newest', get label() { return td('Mới đăng') } },
 ]
 export const SAP_MAC_DINH = 'StartingSoon'
 
 export const HINH_THUC = [
-  { value: 'Offline', label: 'Tại phòng trà' },
-  { value: 'Online', label: 'Trực tuyến' },
-  { value: 'Hybrid', label: 'Tại chỗ và trực tuyến' },
+  { value: 'Offline', get label() { return td('Tại phòng trà') } },
+  { value: 'Online', get label() { return td('Trực tuyến') } },
+  { value: 'Hybrid', get label() { return td('Tại chỗ và trực tuyến') } },
 ]
 
 // Mốc ngày nhanh — cách người ta thật sự hỏi ("tối nay có gì", "cuối tuần này"). Eventbrite: Today / Tomorrow /
 // This weekend / Pick a date; Ticketmaster: This Weekend.
 export const MOC_NGAY = [
-  { value: 'hom-nay', label: 'Hôm nay' },
-  { value: 'ngay-mai', label: 'Ngày mai' },
-  { value: 'cuoi-tuan', label: 'Cuối tuần này' },
-  { value: '7-ngay', label: '7 ngày tới' },
+  { value: 'hom-nay', get label() { return td('Hôm nay') } },
+  { value: 'ngay-mai', get label() { return td('Ngày mai') } },
+  { value: 'cuoi-tuan', get label() { return td('Cuối tuần này') } },
+  { value: '7-ngay', get label() { return td('7 ngày tới') } },
 ]
 
 // Khoảng [từ, đến] của một mốc nhanh. "Cuối tuần này" = thứ Sáu đến hết Chủ nhật của tuần đang chứa `moc`
@@ -128,11 +131,11 @@ export const inTienGo = (chuoi) => { const n = docTienGo(chuoi); return n == nul
 export const nhanGiaTuNhap = ({ giaTu, giaDen }) => {
   const t = (n) => `${Number(n).toLocaleString('vi-VN')}đ`
   if (giaTu != null && giaDen != null) return `${t(giaTu)} – ${t(giaDen)}`
-  return giaTu != null ? `Từ ${t(giaTu)}` : giaDen != null ? `Đến ${t(giaDen)}` : 'Giá'
+  return giaTu != null ? td('Từ {{x}}', { x: t(giaTu) }) : giaDen != null ? td('Đến {{x}}', { x: t(giaDen) }) : td('Giá')
 }
 
-export const loiKhoangGia = (b) => (b.giaTu != null && b.giaDen != null && b.giaDen < b.giaTu ? 'Giá "đến" phải lớn hơn hoặc bằng giá "từ".' : null)
-export const loiKhoangNgay = (b) => (!b.ngay && b.tu && b.den && b.den < b.tu ? 'Ngày "đến" phải sau hoặc trùng ngày "từ".' : null)
+export const loiKhoangGia = (b) => (b.giaTu != null && b.giaDen != null && b.giaDen < b.giaTu ? td('Giá "đến" phải lớn hơn hoặc bằng giá "từ".') : null)
+export const loiKhoangNgay = (b) => (!b.ngay && b.tu && b.den && b.den < b.tu ? td('Ngày "đến" phải sau hoặc trùng ngày "từ".') : null)
 
 // MỘT Ô LỊCH cho cả "một ngày" lẫn "khoảng ngày" (03/10/2026 — chủ dự án: hai ô Từ/Đến "quá phiền"). Bấm một ngày = chọn
 // đúng ngày đó (tu = den); bấm ngày thứ hai = mở thành khoảng (tự xếp ngày sớm trước); bấm tiếp khi đã có khoảng = bắt
@@ -153,7 +156,7 @@ export const nhanKhoangNgay = ({ tu, den }, bayGio = dayjs()) => {
   const gon = (d) => (dayjs(d).isSame(bayGio, 'year') ? ngayGon(d) : ngayDayDu(d))
   if (tu && den && tu === den) return ngayTrongLich(tu, bayGio)
   if (tu && den) return `${gon(tu)} – ${gon(den)}`
-  return tu ? `Từ ${gon(tu)}` : `Đến ${gon(den)}`
+  return tu ? td('Từ {{x}}', { x: gon(tu) }) : td('Đến {{x}}', { x: gon(den) })
 }
 
 // Tham số gửi GET /lounge-shows/search.
@@ -186,14 +189,14 @@ const tien = (n) => `${Number(n).toLocaleString('vi-VN')}đ`
 // ID không còn trong danh mục (Admin đã xoá mục) vẫn in ra với nhãn "mục đã gỡ" để người dùng gỡ được — im lặng bỏ qua
 // thì danh sách bị lọc theo một thứ không nhìn thấy.
 export const boLocDangAp = (b, danhMuc = {}) => {
-  const ten = (ds, id) => (ds ?? []).find((x) => x.id === id)?.name ?? 'mục đã gỡ'
+  const ten = (ds, id) => (ds ?? []).find((x) => x.id === id)?.name ?? td('mục đã gỡ')
   const kq = []
   if (b.q) kq.push({ khoa: 'q', nhan: `“${b.q}”`, go: (x) => ({ ...x, q: '' }) })
   if (b.ngay) kq.push({ khoa: 'ngay', nhan: MOC_NGAY.find((m) => m.value === b.ngay).label, go: (x) => ({ ...x, ngay: '' }) })
   else if (b.tu || b.den) {
     kq.push({
       khoa: 'khoang-ngay',
-      nhan: b.tu && b.den && b.tu === b.den ? `Ngày ${ngayDayDu(b.tu)}` : b.tu && b.den ? `${ngayDayDu(b.tu)} đến ${ngayDayDu(b.den)}` : b.tu ? `Từ ${ngayDayDu(b.tu)}` : `Đến ${ngayDayDu(b.den)}`,
+      nhan: b.tu && b.den && b.tu === b.den ? td('Ngày {{x}}', { x: ngayDayDu(b.tu) }) : b.tu && b.den ? td('{{a}} đến {{b}}', { a: ngayDayDu(b.tu), b: ngayDayDu(b.den) }) : b.tu ? td('Từ {{x}}', { x: ngayDayDu(b.tu) }) : td('Đến {{x}}', { x: ngayDayDu(b.den) }),
       go: (x) => ({ ...x, tu: '', den: '' }),
     })
   }
@@ -205,7 +208,7 @@ export const boLocDangAp = (b, danhMuc = {}) => {
   if (b.giaTu != null || b.giaDen != null) {
     kq.push({
       khoa: 'gia',
-      nhan: b.giaTu != null && b.giaDen != null ? `${tien(b.giaTu)} đến ${tien(b.giaDen)}` : b.giaTu != null ? `Từ ${tien(b.giaTu)}` : `Đến ${tien(b.giaDen)}`,
+      nhan: b.giaTu != null && b.giaDen != null ? td('{{a}} đến {{b}}', { a: tien(b.giaTu), b: tien(b.giaDen) }) : b.giaTu != null ? td('Từ {{x}}', { x: tien(b.giaTu) }) : td('Đến {{x}}', { x: tien(b.giaDen) }),
       go: (x) => ({ ...x, giaTu: null, giaDen: null }),
     })
   }
@@ -215,10 +218,10 @@ export const boLocDangAp = (b, danhMuc = {}) => {
 // MỨC GIÁ GỢI Ý (thanh lọc ngang, 03/10/2026): hai ô "Từ/Đến" trống không gợi ý gì — người ta nghĩ theo mức ("dưới
 // 300 nghìn"). Mức theo giá vé phòng trà thường gặp; vẫn còn ô tự nhập cho khoảng khác.
 export const MUC_GIA = [
-  { khoa: 'duoi-300', label: 'Dưới 300.000đ', giaTu: null, giaDen: 300000 },
+  { khoa: 'duoi-300', get label() { return td('Dưới 300.000đ') }, giaTu: null, giaDen: 300000 },
   { khoa: '300-500', label: '300.000đ – 500.000đ', giaTu: 300000, giaDen: 500000 },
   { khoa: '500-1tr', label: '500.000đ – 1.000.000đ', giaTu: 500000, giaDen: 1000000 },
-  { khoa: 'tren-1tr', label: 'Trên 1.000.000đ', giaTu: 1000000, giaDen: null },
+  { khoa: 'tren-1tr', get label() { return td('Trên 1.000.000đ') }, giaTu: 1000000, giaDen: null },
 ]
 
 // SỐ BUỔI CỦA TỪNG LỰA CHỌN — đếm ở trình duyệt trên MỘT lượt tải toàn bộ buổi sắp diễn (`ds`: dòng /lounge-shows/search).

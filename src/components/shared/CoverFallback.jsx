@@ -5,14 +5,16 @@
 // Dùng chung cho buổi diễn VÀ phòng trà nên nhãn chỉ nói điều đúng cho cả hai: chưa có ảnh.
 import { useId } from 'react'
 import { Music2 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 const CoverFallback = ({ className = '' }) => {
+  const { t } = useTranslation()
   const id = useId().replace(/:/g, '')
   return (
     <div
       className={`relative flex items-center justify-center w-full h-full overflow-hidden bg-board ${className}`}
       role="img"
-      aria-label="Chưa có ảnh"
+      aria-label={t('Chưa có ảnh')}
     >
       {/* Khuông nhạc 5 dòng — hoạ tiết của tờ chương trình, không phải icon lặp vô nghĩa */}
       <svg className="absolute inset-0 w-full h-full opacity-25" aria-hidden="true">

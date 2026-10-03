@@ -21,6 +21,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Link, NavLink, useLocation, matchPath } from 'react-router-dom'
 import { Menu, X } from 'lucide-react'
 import Wordmark from '../brand/Wordmark'
+import VungTiengViet from '../../i18n/VungTiengViet'
 
 const lopMuc = ({ isActive }) =>
   `flex items-center gap-3 pl-3 pr-3 min-h-[44px] text-sm font-medium border-l-4 transition-colors ${isActive
@@ -102,8 +103,11 @@ const PortalShell = ({ portalName, nhom = [], loiRa = [], footer, headerRight, c
     </>
   )
 
+  // Khu chủ phòng trà / nhân viên / admin luôn tiếng Việt dù khách đã chọn English (xem src/i18n/VungTiengViet.jsx).
   return (
+    <VungTiengViet>
     <div className="lg:flex lg:h-screen bg-page lg:overflow-hidden">
+
       {/* THANH BÊN TĨNH — chỉ từ màn lớn */}
       <aside className="hidden lg:flex w-64 bg-board text-lamp flex-col h-full flex-shrink-0">{sidebar}</aside>
 
@@ -134,7 +138,9 @@ const PortalShell = ({ portalName, nhom = [], loiRa = [], footer, headerRight, c
         </main>
       </div>
     </div>
+    </VungTiengViet>
   )
+
 }
 
 export default PortalShell

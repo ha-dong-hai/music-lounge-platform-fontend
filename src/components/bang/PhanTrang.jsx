@@ -12,10 +12,13 @@
 // Chỉ một trang và không có gì để đổi cỡ thì vẫn hiện dòng đếm (người dùng cần biết có bao nhiêu), ẩn phần điều hướng.
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { dayTrang } from '../../hooks/useDanhSachMayChu'
+import { useTranslation } from 'react-i18next'
 
 const NUT = 'inline-flex items-center justify-center min-w-[44px] min-h-[44px] px-2 border-2 font-semibold transition-colors disabled:opacity-40 disabled:cursor-not-allowed'
 
-const PhanTrang = ({ ds, tenDonVi = 'mục', idDanhSach, className = '' }) => {
+const PhanTrang = ({ ds, tenDonVi: tenDonViVao, idDanhSach, className = '' }) => {
+  const { t } = useTranslation()
+  const tenDonVi = tenDonViVao ?? t('mục')
   const { tong, trang, soTrang, co, coThuc, cacCo, datTrang, datCo, dangTaiLai, dangTai } = ds
   const tu = tong === 0 ? 0 : (trang - 1) * coThuc + 1
   const den = Math.min(tong, trang * coThuc)
@@ -37,14 +40,14 @@ const PhanTrang = ({ ds, tenDonVi = 'mục', idDanhSach, className = '' }) => {
   return (
     <div className={`flex flex-wrap items-center justify-between gap-x-6 gap-y-3 ${className}`}>
       <p role="status" className="font-mono text-sm text-ink-soft">
-        {dangTai ? 'Đang tải…' : tong === 0 ? `Không có ${tenDonVi} nào` : `Hiện ${tu.toLocaleString('vi-VN')}–${den.toLocaleString('vi-VN')} trên ${tong.toLocaleString('vi-VN')} ${tenDonVi}`}
-        {dangTaiLai && !dangTai && <span className="sr-only"> — đang cập nhật</span>}
+        {dangTai ? t('Đang tải…') : tong === 0 ? t('Không có {{x}} nào', { x: tenDonVi }) : t('Hiện {{tu}}–{{den}} trên {{tong}} {{x}}', { tu: tu.toLocaleString('vi-VN'), den: den.toLocaleString('vi-VN'), tong: tong.toLocaleString('vi-VN'), x: tenDonVi })}
+        {dangTaiLai && !dangTai && <span className="sr-only"> {t('— đang cập nhật')}</span>}
       </p>
 
       <div className="flex flex-wrap items-center gap-3">
         {cacCo.length > 1 && tong > Math.min(...cacCo) && (
           <label className="inline-flex items-center gap-2 text-sm">
-            <span>Mỗi trang</span>
+            <span>{t('Mỗi trang')}</span>
             <select value={co} onChange={(e) => datCo(Number(e.target.value))}
               className="min-h-[44px] px-2 bg-card border-2 border-ink text-ink focus:outline-none focus:ring-2 focus:ring-ink">
               {cacCo.map((n) => <option key={n} value={n}>{n}</option>)}
@@ -52,10 +55,10 @@ const PhanTrang = ({ ds, tenDonVi = 'mục', idDanhSach, className = '' }) => {
           </label>
         )}
         {soTrang > 1 && (
-          <nav aria-label={`Phân trang ${tenDonVi}`}>
+          <nav aria-label={t('Phân trang {{x}}', { x: tenDonVi })}>
             <ul className="flex flex-wrap items-center gap-1">
               <li>
-                <button type="button" onClick={() => sangTrang(trang - 1)} disabled={trang <= 1} aria-label="Trang trước"
+                <button type="button" onClick={() => sangTrang(trang - 1)} disabled={trang <= 1} aria-label={t('Trang trước')}
                   className={`${NUT} border-ink hover:bg-ink hover:text-lamp`}>
                   <ChevronLeft size={18} aria-hidden="true" />
                 </button>

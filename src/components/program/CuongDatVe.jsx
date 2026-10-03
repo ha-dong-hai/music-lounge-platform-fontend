@@ -23,6 +23,8 @@
 // `nen`: 'giay' (trên giấy sáng, cuống mực) | 'muc' (trên bảng giờ diễn tối, cuống giấy — như nút Đặt chỗ).
 import { Link } from 'react-router-dom'
 import MuiTenLuyen from '../shared/MuiTenLuyen'
+import { useTranslation } from 'react-i18next'
+import { k } from '../../i18n/k'
 
 // 9px (bản đầu 6px): khuyết to hơn đọc thành vết bấm tròn mềm; 6px trông như góc bị cắt (chủ dự án 02/10: "cứng nhắc").
 const BAN_KINH = 9
@@ -43,7 +45,7 @@ const LO_DUC = { backgroundColor: 'currentColor', WebkitMask: MASK_LO, mask: MAS
 const KHUYET_TRAI = khuyet('trai')
 
 // Đang diễn KHÔNG ghi "Vào xem": buổi có thể chỉ diễn tại phòng trà, không phát trực tuyến — nhãn đó hứa điều không có.
-const NHAN = { MoBan: 'Đặt vé', DangDien: 'Xem buổi diễn', DaDien: 'Xem lại trang buổi diễn' }
+const NHAN = { MoBan: k('Đặt vé'), DangDien: k('Xem buổi diễn'), DaDien: k('Xem lại trang buổi diễn') }
 
 const MAU = {
   giay: {
@@ -59,6 +61,7 @@ const MAU = {
 }
 
 const CuongDatVe = ({ gia, trangThai = 'MoBan', nen = 'giay', to, className = '' }) => {
+  const { t } = useTranslation()
   const mau = MAU[nen] ?? MAU.giay
   const laLink = Boolean(to)
   const Goc = laLink ? Link : 'span'
@@ -91,7 +94,7 @@ const CuongDatVe = ({ gia, trangThai = 'MoBan', nen = 'giay', to, className = ''
       <span aria-hidden={laLink ? undefined : true}
         className={`inline-flex items-center gap-2.5 pl-4 pr-4 font-display text-xl leading-none ${gia ? 'rounded-r-[3px]' : 'rounded-[3px]'} ${hanhDong}`}
         style={gia ? KHUYET_TRAI : undefined}>
-        {NHAN[trangThai] ?? NHAN.MoBan}
+        {t(NHAN[trangThai] ?? NHAN.MoBan)}
         <MuiTenLuyen rong={34} />
       </span>
     </Goc>

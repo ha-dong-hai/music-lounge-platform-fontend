@@ -1,5 +1,7 @@
 import axios from 'axios';
 import { useAuthStore } from '../store/useAuthStore';
+import { ngonNguGuiMayChu } from '../i18n';
+
 
 // ĐỊA CHỈ MÁY CHỦ — đọc từ biến môi trường, rơi về máy chủ hiện tại nếu không đặt.
 // Vì sao cần: trước đây địa chỉ này dán cứng, nên muốn trỏ sang môi trường khác (máy cá nhân, bản
@@ -38,13 +40,9 @@ const axiosClient = axios.create({
 // tiếng Anh thấy lỗi tiếng Anh giữa giao diện tiếng Việt (đo 30/09: "Tickets can only be checked in
 // while the concert is running." trên màn soát vé). Lấy theo lựa chọn ngôn ngữ của chính trang web
 // (localStorage 'lang', Header.jsx), mặc định 'vi' — đúng phương án A đã chọn ở MLACP-407.
-const ngonNgu = () => {
-  try {
-    return localStorage.getItem('lang') === 'en' ? 'en' : 'vi';
-  } catch {
-    return 'vi';
-  }
-};
+// 03/10/2026: khu chủ phòng trà / admin luôn tiếng Việt (src/i18n/VungTiengViet.jsx) nên đọc qua ngonNguGuiMayChu().
+const ngonNgu = () => ngonNguGuiMayChu();
+
 
 // Interceptor Request: Tự động gắn token (đọc từ store, không phải localStorage thô) và ngôn ngữ
 axiosClient.interceptors.request.use(

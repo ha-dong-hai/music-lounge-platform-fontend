@@ -11,8 +11,10 @@
 import { useEffect, useState } from 'react'
 import dayjs from 'dayjs'
 import KyTuLat from '../program/KyTuLat'
+import { useTranslation } from 'react-i18next'
 
 const DemNguocGioDien = ({ batDau, className = '' }) => {
+  const { t } = useTranslation()
   const [bayGio, setBayGio] = useState(() => dayjs())
   useEffect(() => {
     const id = setInterval(() => setBayGio(dayjs()), 60_000)
@@ -23,15 +25,15 @@ const DemNguocGioDien = ({ batDau, className = '' }) => {
   if (!batDau || con <= 0) return null
   const ngay = Math.floor(con / 1440), gio = Math.floor((con % 1440) / 60), phut = con % 60
   const hai = (n) => String(n).padStart(2, '0')
-  const cau = `Còn ${ngay ? `${ngay} ngày ` : ''}${gio} giờ ${phut} phút tới giờ diễn`
+  const cau = ngay ? t('Còn {{ngay}} ngày {{gio}} giờ {{phut}} phút tới giờ diễn', { ngay, gio, phut }) : t('Còn {{gio}} giờ {{phut}} phút tới giờ diễn', { gio, phut })
 
   return (
     <div className={`flex flex-col items-center gap-2 ${className}`}>
-      <p className="text-xs text-ink-soft">Tới giờ diễn còn</p>
+      <p className="text-xs text-ink-soft">{t('Tới giờ diễn còn')}</p>
       <div aria-hidden="true" className="flex items-end gap-3">
-        {ngay > 0 && <span className="flex flex-col items-center gap-1"><KyTuLat key={`n${ngay}`} chu={hai(ngay)} tone="ink" className="text-xl" /><span className="text-[11px] text-ink-mute">ngày</span></span>}
-        <span className="flex flex-col items-center gap-1"><KyTuLat key={`g${gio}`} chu={hai(gio)} tone="ink" className="text-xl" /><span className="text-[11px] text-ink-mute">giờ</span></span>
-        <span className="flex flex-col items-center gap-1"><KyTuLat key={`p${phut}`} chu={hai(phut)} tone="ink" className="text-xl" /><span className="text-[11px] text-ink-mute">phút</span></span>
+        {ngay > 0 && <span className="flex flex-col items-center gap-1"><KyTuLat key={`n${ngay}`} chu={hai(ngay)} tone="ink" className="text-xl" /><span className="text-[11px] text-ink-mute">{t('ngày')}</span></span>}
+        <span className="flex flex-col items-center gap-1"><KyTuLat key={`g${gio}`} chu={hai(gio)} tone="ink" className="text-xl" /><span className="text-[11px] text-ink-mute">{t('giờ')}</span></span>
+        <span className="flex flex-col items-center gap-1"><KyTuLat key={`p${phut}`} chu={hai(phut)} tone="ink" className="text-xl" /><span className="text-[11px] text-ink-mute">{t('phút')}</span></span>
       </div>
       <p className="sr-only">{cau}</p>
     </div>
