@@ -1,20 +1,24 @@
 // src/pages/admin/AdminSystemConfigPage.jsx
 //
-// GHI CHÚ CHO ĐỘI FE:
-// - Đây là những tham số điều khiển hành vi thật của hệ thống: tỉ lệ hoa hồng, thời gian giữ vé,
-//   hạn hoàn tiền, ngưỡng quyết toán. Đổi một dòng ở đây là đổi cách hệ thống tính tiền.
-// - `note` LÀ BẮT BUỘC, không phải trường phụ: nó là lý do ghi vào lịch sử. Một tỉ lệ tiền bị đổi mà
-//   không ai biết vì sao là thứ không truy được về sau. Form vì vậy đặt ô lý do ngang hàng ô giá trị.
-// - `isMoneyRate` đánh dấu nhóm tham số tiền. Nhóm này có RÀNG BUỘC CHÉO với nhau: đổi một cái có thể
-//   bị backend từ chối vì tổng vượt ngưỡng. Lỗi trả về giải thích rõ, nên hiển thị nguyên văn.
-// - Backend trả MẢNG TRẦN cho danh sách, và lịch sử là mảng riêng theo từng khoá.
-// - KHỐI "CẤU HÌNH CÒN THIẾU" LÀ MỘT THỨ KHÁC HẲN phần dưới, đừng gộp vào cùng bảng:
-//     Phần dưới  = tham số nghiệp vụ, Admin sửa được ngay trên giao diện.
-//     Khối trên  = khoá hạ tầng (khoá Mux, khoá Firebase…) nằm trong biến môi trường của server,
-//                  SỬA Ở ĐÂY KHÔNG ĐƯỢC — phải vào cấu hình triển khai. Nó chỉ trả về TÊN khoá và
-//                  hậu quả khi thiếu, không bao giờ trả giá trị, nên không lo lộ secret.
-import { useState, useEffect, useCallback } from 'react'
-import { Loader2, SlidersHorizontal, History, Save, X, AlertTriangle, Coins, PlugZap, CheckCircle2 } from 'lucide-react'
+// CẤU HÌNH HỆ THỐNG — bản 2 (03/10/2026). Chủ dự án: "khó sử dụng quá, không hiểu gì hết, không phù hợp với người mới".
+// Bản 1 in thẳng dữ liệu máy: tên là khoá kỹ thuật, giá trị "0.05", "true", "[]", ô sửa ghi "kiểu Decimal", 26 mục dồn vào
+// "Tham số khác", và đầu trang là khối hạ tầng toàn tên khoá biến môi trường với nhãn đỏ.
+//
+// Bản 2 (lớp hiển thị ở utils/thamSoHeThong.js — giá trị gửi lên KHÔNG đổi dạng):
+//  - Mỗi tham số: TÊN ĐỜI THƯỜNG + một câu "nó làm gì", giá trị kèm đơn vị ("15 phút", "5%"). Khoá kỹ thuật chỉ còn ở hộp sửa.
+//  - Nhóm theo VIỆC (Vé và giữ chỗ, Chi trả cho phòng trà…), có mục lục nhảy nhóm và ô tìm không dấu.
+//  - Ô sửa đúng loại: phần trăm có hậu tố %, số có đơn vị, Bật/Tắt là hai nút chọn, từ cấm mỗi dòng một từ; câu VÍ DỤ tính
+//    ngay theo giá trị đang gõ cho tham số tiền (GOV.UK: prefix/suffix cho đơn vị; inputmode thay type="number").
+//  - Lý do bắt buộc ≥ 10 ký tự (backend đòi vậy — bản 1 không nói, bấm Lưu mới bị từ chối) có bộ đếm.
+//  - Khối hạ tầng chuyển XUỐNG CUỐI, gập lại, đề "dành cho kỹ thuật viên", chỉ để một dòng tóm tắt (NN/g progressive
+//    disclosure: thứ người mới cần lên trước, thứ hiếm dùng để sau và gắn nhãn rõ).
+//
+// GHI CHÚ GIỮ TỪ BẢN 1:
+// - `note` là lý do ghi vào lịch sử (SystemConfigHistory) — bắt buộc, lưu vĩnh viễn.
+// - `isMoneyRate`: nhóm tỉ lệ tiền có RÀNG BUỘC CHÉO (backend SystemConfigValidation) — lỗi trả về hiện nguyên văn.
+// - Khối hạ tầng là khoá biến môi trường của server, KHÔNG sửa được ở đây; API chỉ trả tên khoá + hậu quả, không trả giá trị.
+import { useState, useEffect, useCallback, useMemo, useId } from 'react'
+import { Loader2, History, Save, X, AlertTriangle, PlugZap, CheckCircle2, Search, ChevronDown } from 'lucide-react'
 import dayjs from 'dayjs'
 import toast from 'react-hot-toast'
 import {
@@ -22,92 +26,130 @@ import {
 } from '../../services/adminServices'
 import { TrangLoiTai } from '../../components/bang/KhungTai'
 import HopThoai, { TieuDeHop } from '../../components/shared/HopThoai'
-import { HEP } from '../../components/bang/lopBangHep'
+import { moTaThamSo, hienGiaTri, giaTriSua, guiLen, gomTheoNhom, khopTim } from '../../utils/thamSoHeThong'
+
+const LY_DO_TOI_THIEU = 10
+const O_NHAP = 'w-full min-h-[44px] px-3 py-2 bg-card border-2 border-ink text-ink focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2'
 
 const EditModal = ({ config, onClose, onSaved }) => {
-  const [configValue, setConfigValue] = useState(config.configValue ?? '')
+  const m = moTaThamSo(config)
+  const id = useId()
+  const [nhap, setNhap] = useState(giaTriSua(m, config.configValue))
   const [note, setNote] = useState('')
   const [isBusy, setIsBusy] = useState(false)
+  const [daBam, setDaBam] = useState(false)
+  const kq = guiLen(m, nhap)
+  const khongDoi = kq.ok && kq.value === String(config.configValue)
+  const loiLyDo = note.trim().length < LY_DO_TOI_THIEU
 
   const submit = async (e) => {
     e.preventDefault()
-    if (!configValue.trim()) { toast.error('Cần nhập giá trị mới.'); return }
-    if (!note.trim()) {
-      toast.error('Cần ghi lý do thay đổi — lý do được lưu vào lịch sử.')
-      return
-    }
+    setDaBam(true)
+    if (!kq.ok || khongDoi || loiLyDo) return
     setIsBusy(true)
     try {
-      await updateSystemConfig(config.configKey, { configValue: configValue.trim(), note: note.trim() })
-      toast.success('Đã cập nhật tham số.')
+      await updateSystemConfig(config.configKey, { configValue: kq.value, note: note.trim() })
+      toast.success(`Đã đổi "${m.ten}" thành ${hienGiaTri(m, kq.value)}.`)
       onSaved(); onClose()
     } catch (err) {
       // Ràng buộc chéo giữa các tỉ lệ tiền trả về câu giải thích cụ thể — hiện nguyên văn.
-      toast.error(err.response?.data?.message || 'Không cập nhật được tham số.', { duration: 6000 })
+      toast.error(err.response?.data?.message || 'Không cập nhật được tham số.', { duration: 8000 })
     } finally { setIsBusy(false) }
   }
 
+  const viDu = m.viDu && kq.ok ? m.viDu(Number(kq.value)) : null
+
   return (
-    <HopThoai onDong={onClose} className="max-w-md">
-        <div className="flex justify-between items-center p-5 border-b border-line">
-          <TieuDeHop><h2 className="text-3xl text-ink truncate">{config.configKey}</h2></TieuDeHop>
-          <button onClick={onClose} disabled={isBusy} className="inline-flex items-center justify-center w-11 h-11 flex-shrink-0 hover:bg-sunken text-ink-soft disabled:opacity-30" aria-label="Đóng">
-            <X size={20} />
-          </button>
+    <HopThoai onDong={onClose} className="max-w-lg max-h-[92vh] flex flex-col">
+      <div className="flex justify-between items-start gap-3 p-5 border-b border-line">
+        <TieuDeHop><h2 className="text-2xl sm:text-3xl text-ink leading-tight">{m.ten}</h2></TieuDeHop>
+        <button onClick={onClose} disabled={isBusy} className="inline-flex items-center justify-center w-11 h-11 flex-shrink-0 hover:bg-sunken text-ink-soft disabled:opacity-30" aria-label="Đóng">
+          <X size={20} />
+        </button>
+      </div>
+
+      <form onSubmit={submit} noValidate className="p-5 space-y-5 overflow-y-auto">
+        {m.moTa && <p className="text-sm text-ink-soft leading-relaxed">{m.moTa}</p>}
+
+        <p className="text-sm">
+          <span className="text-ink-mute">Đang là </span>
+          <b className="text-ink tabular-nums">{hienGiaTri(m, config.configValue)}</b>
+        </p>
+
+        <div>
+          <label htmlFor={`${id}-gt`} className="text-sm font-semibold text-ink">Giá trị mới</label>
+          {m.kieu === 'bat' ? (
+            <div id={`${id}-gt`} role="radiogroup" aria-label="Giá trị mới" className="mt-2 grid grid-cols-2 gap-2">
+              {[['true', 'Bật'], ['false', 'Tắt']].map(([v, ten]) => (
+                <button key={v} type="button" role="radio" aria-checked={nhap === v} onClick={() => setNhap(v)}
+                  className={`min-h-[44px] border-2 border-ink text-sm font-semibold ${nhap === v ? 'bg-ink text-lamp' : 'bg-card text-ink hover:bg-sunken'}`}>
+                  {ten}
+                </button>
+              ))}
+            </div>
+          ) : m.kieu === 'dsTu' ? (
+            <textarea id={`${id}-gt`} value={nhap} onChange={(e) => setNhap(e.target.value)} rows={5}
+              placeholder={'Mỗi dòng một từ hoặc cụm từ\nĐể trống = không chặn từ nào'} className={`mt-1 resize-y ${O_NHAP}`} />
+          ) : (
+            <div className="mt-1 flex items-stretch">
+              <input id={`${id}-gt`} value={nhap} onChange={(e) => setNhap(e.target.value)}
+                inputMode={m.kieu === 'so' || m.kieu === 'tien' ? 'numeric' : m.kieu === 'chu' ? undefined : 'decimal'}
+                aria-describedby={`${id}-loi`} aria-invalid={daBam && !kq.ok}
+                className={`flex-1 min-w-0 tabular-nums ${O_NHAP}`} />
+              {(m.kieu === 'tile' || m.donVi || m.kieu === 'tien') && (
+                <span aria-hidden="true" className="inline-flex items-center px-3 border-2 border-l-0 border-ink bg-sunken text-sm font-semibold text-ink whitespace-nowrap">
+                  {m.kieu === 'tile' ? '%' : m.kieu === 'tien' ? 'đồng' : m.donVi}
+                </span>
+              )}
+            </div>
+          )}
+          <p id={`${id}-loi`} className="text-xs mt-1.5 min-h-[1rem]">
+            {!kq.ok ? <span className={daBam ? 'text-danger' : 'text-ink-mute'}>{kq.loi}</span>
+              : khongDoi ? <span className={daBam ? 'text-danger' : 'text-ink-mute'}>Giá trị này giống giá trị hiện tại.</span>
+                : viDu ? <span className="text-ink-soft">{viDu}</span> : null}
+          </p>
         </div>
 
-        <form onSubmit={submit} className="p-5 space-y-4">
-          {config.description && (
-            <p className="text-xs text-ink-mute leading-relaxed">{config.description}</p>
-          )}
+        {config.isMoneyRate && (
+          <p className="text-xs text-warning flex items-start gap-1.5 leading-relaxed bg-warning/5 border border-warning/30 p-3">
+            <AlertTriangle size={13} className="mt-px flex-shrink-0" aria-hidden="true" />
+            Tỉ lệ này cộng chung với các tỉ lệ tiền khác trên cùng một khoản tiền. Nếu tổng vượt mức cho phép (phòng trà còn nhận
+            dưới 0đ), hệ thống sẽ từ chối và nói rõ lý do.
+          </p>
+        )}
 
-          {config.isMoneyRate && (
-            <p className="text-xs text-warning flex items-start gap-1.5 leading-relaxed bg-warning/5 border border-warning/30 p-3">
-              <AlertTriangle size={13} className="mt-px flex-shrink-0" />
-              Tham số này thuộc nhóm tỉ lệ tiền và có ràng buộc chéo với các tỉ lệ khác. Backend có thể từ chối
-              nếu tổng vượt ngưỡng cho phép.
-            </p>
-          )}
+        <div>
+          <label htmlFor={`${id}-ld`} className="text-sm font-semibold text-ink">Vì sao đổi?</label>
+          <textarea id={`${id}-ld`} value={note} onChange={(e) => setNote(e.target.value)} rows={3} aria-describedby={`${id}-ldg`}
+            className={`mt-1 resize-none ${O_NHAP}`} placeholder="Ví dụ: Theo quyết định họp ngày 03/10, giảm hoa hồng để thu hút phòng trà mới." />
+          <p id={`${id}-ldg`} className={`text-xs mt-1 ${daBam && loiLyDo ? 'text-danger' : 'text-ink-mute'}`}>
+            Bắt buộc, ít nhất {LY_DO_TOI_THIEU} ký tự ({note.trim().length}/{LY_DO_TOI_THIEU}). Lý do được lưu vĩnh viễn trong lịch sử.
+          </p>
+        </div>
 
-          <div>
-            <label className="text-sm font-semibold text-ink">Giá trị hiện tại</label>
-            <p className="mt-1 px-3 py-2 bg-sunken border border-line text-sm text-ink-soft tabular-nums">
-              {config.configValue}
-            </p>
-          </div>
+        <details className="text-xs text-ink-mute">
+          <summary className="cursor-pointer min-h-[44px] inline-flex items-center font-semibold text-ink-soft">Chi tiết kỹ thuật</summary>
+          <p className="mt-1">Mã tham số: <code className="font-mono text-ink">{config.configKey}</code> · kiểu {config.dataType} · giá trị lưu: <code className="font-mono text-ink">{String(config.configValue)}</code></p>
+          {config.description && <p className="mt-1 leading-relaxed">{config.description}</p>}
+        </details>
 
-          <div>
-            <label className="text-sm font-semibold text-ink">
-              Giá trị mới <span className="text-danger">*</span>
-              <span className="text-ink-mute"> · kiểu {config.dataType}</span>
-            </label>
-            <input aria-label="Giá trị mới (bắt buộc)" value={configValue} onChange={(e) => setConfigValue(e.target.value)}
-              className="mt-1 w-full tabular-nums min-h-[44px] px-3 py-2 bg-card border-2 border-ink text-ink focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2" />
-          </div>
-
-          <div>
-            <label className="text-sm font-semibold text-ink">Lý do thay đổi <span className="text-danger">*</span></label>
-            <textarea aria-label="Lý do thay đổi" value={note} onChange={(e) => setNote(e.target.value)} rows={3}
-              className="mt-1 w-full resize-none min-h-[44px] px-3 py-2 bg-card border-2 border-ink text-ink focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2"
-              placeholder="Vì sao đổi, theo quyết định nào. Nội dung này lưu vĩnh viễn trong lịch sử." />
-          </div>
-
-          <div className="flex gap-3 flex-wrap">
-            <button type="button" onClick={onClose} disabled={isBusy}
-              className="inline-flex flex-1 disabled:opacity-50 items-center justify-center gap-2 min-h-[44px] px-4 border-2 border-ink bg-card text-ink text-sm font-semibold hover:bg-ink hover:text-lamp">
-              Huỷ
-            </button>
-            <button type="submit" disabled={isBusy}
-              className="flex-1 flex items-center justify-center gap-2 disabled:opacity-50 min-h-[44px] px-4 bg-ink text-lamp text-sm font-semibold hover:bg-board">
-              {isBusy ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />} Lưu
-            </button>
-          </div>
-        </form>
-      </HopThoai>
+        <div className="flex gap-3 flex-wrap">
+          <button type="button" onClick={onClose} disabled={isBusy}
+            className="inline-flex flex-1 disabled:opacity-50 items-center justify-center gap-2 min-h-[44px] px-4 border-2 border-ink bg-card text-ink text-sm font-semibold hover:bg-ink hover:text-lamp">
+            Huỷ
+          </button>
+          <button type="submit" disabled={isBusy}
+            className="flex-1 flex items-center justify-center gap-2 disabled:opacity-50 min-h-[44px] px-4 bg-ink text-lamp text-sm font-semibold hover:bg-board">
+            {isBusy ? <Loader2 size={16} className="animate-spin" aria-hidden="true" /> : <Save size={16} aria-hidden="true" />} Lưu thay đổi
+          </button>
+        </div>
+      </form>
+    </HopThoai>
   )
 }
 
-const HistoryModal = ({ configKey, onClose }) => {
+const HistoryModal = ({ config, onClose }) => {
+  const m = moTaThamSo(config)
   const [rows, setRows] = useState([])
   const [isLoading, setIsLoading] = useState(true)
 
@@ -115,7 +157,7 @@ const HistoryModal = ({ configKey, onClose }) => {
     const chay = async () => {
       setIsLoading(true)
       try {
-        const res = await getSystemConfigHistory(configKey)
+        const res = await getSystemConfigHistory(config.configKey)
         if (res.success) setRows(res.data ?? [])
       } catch (err) {
         toast.error(err.response?.data?.message || 'Không tải được lịch sử.')
@@ -124,51 +166,48 @@ const HistoryModal = ({ configKey, onClose }) => {
       }
     }
     chay()
-  }, [configKey])
+  }, [config.configKey])
 
   return (
     <HopThoai onDong={onClose} className="max-w-lg max-h-[90vh] flex flex-col">
-        <div className="flex justify-between items-center p-5 border-b border-line">
-          <TieuDeHop><h2 className="text-3xl text-ink truncate">Lịch sử: {configKey}</h2></TieuDeHop>
-          <button onClick={onClose} className="inline-flex items-center justify-center w-11 h-11 flex-shrink-0 hover:bg-sunken text-ink-soft" aria-label="Đóng"><X size={20} /></button>
-        </div>
-
-        <div className="p-5 overflow-y-auto">
-          {isLoading ? (
-            <div className="py-10 flex justify-center"><Loader2 size={24} className="animate-spin text-ink" /></div>
-          ) : rows.length === 0 ? (
-            <p className="text-sm text-ink-mute text-center py-8">Tham số này chưa từng bị đổi.</p>
-          ) : (
-            <ul className="space-y-3">
-              {rows.map((h) => (
-                <li key={h.id} className="bg-sunken/70 border border-line p-3">
-                  <div className="flex items-center gap-2 text-sm tabular-nums">
-                    <span className="text-ink-mute line-through">{h.oldValue ?? '—'}</span>
-                    <span className="text-ink-mute">→</span>
-                    <span className="text-ink font-medium">{h.newValue}</span>
-                  </div>
-                  <p className="text-xs text-ink-soft mt-1.5 leading-relaxed">{h.note}</p>
-                  <p className="text-xs text-ink-mute mt-1">
-                    {h.changedByName ?? `Người dùng #${h.changedBy}`} · {dayjs(h.changedAt).format('HH:mm DD/MM/YYYY')}
-                  </p>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-      </HopThoai>
+      <div className="flex justify-between items-start gap-3 p-5 border-b border-line">
+        <TieuDeHop><h2 className="text-2xl text-ink leading-tight">Lịch sử: {m.ten}</h2></TieuDeHop>
+        <button onClick={onClose} className="inline-flex items-center justify-center w-11 h-11 flex-shrink-0 hover:bg-sunken text-ink-soft" aria-label="Đóng"><X size={20} /></button>
+      </div>
+      <div className="p-5 overflow-y-auto">
+        {isLoading ? (
+          <div className="py-10 flex justify-center"><Loader2 size={24} className="animate-spin text-ink" /></div>
+        ) : rows.length === 0 ? (
+          <p className="text-sm text-ink-mute text-center py-8">Tham số này chưa từng bị đổi.</p>
+        ) : (
+          <ul className="space-y-3">
+            {rows.map((h) => (
+              <li key={h.id} className="bg-sunken/70 border border-line p-3">
+                <div className="flex items-center gap-2 text-sm tabular-nums">
+                  <span className="text-ink-mute line-through">{h.oldValue == null ? '—' : hienGiaTri(m, h.oldValue)}</span>
+                  <span className="text-ink-mute" aria-label="thành">→</span>
+                  <span className="text-ink font-medium">{hienGiaTri(m, h.newValue)}</span>
+                </div>
+                <p className="text-sm text-ink-soft mt-1.5 leading-relaxed">{h.note}</p>
+                <p className="text-xs text-ink-mute mt-1">
+                  {h.changedByName ?? 'Không rõ người đổi'} · {dayjs(h.changedAt).format('HH:mm DD/MM/YYYY')}
+                </p>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </HopThoai>
   )
 }
 
-// Một khoá hạ tầng còn thiếu. `severity`: 'Broken' = tính năng đó hiện KHÔNG dùng được,
-// 'Degraded' = vẫn chạy nhưng mất một lớp (thường là lớp bảo vệ). Hai mức phải trông khác nhau,
-// vì cách xử lý khác nhau: Broken là đi sửa ngay, Degraded là đưa vào việc cần làm.
+// Một khoá hạ tầng còn thiếu. 'Broken' = tính năng đó hiện KHÔNG dùng được; 'Degraded' = vẫn chạy nhưng mất một lớp.
 const GapRow = ({ gap }) => {
   const vo = gap.severity === 'Broken'
   return (
     <div className={`p-4 border ${vo ? 'border-danger/30 bg-danger/5' : 'border-warning/25 bg-warning/5'}`}>
       <div className="flex flex-wrap items-center gap-2">
-        <span className={`px-2 py-0.5 rounded-md text-xs font-bold ${vo ? 'bg-danger/15 text-danger' : 'bg-warning/15 text-warning'}`}>
+        <span className={`px-2 py-0.5 text-xs font-bold ${vo ? 'bg-danger/15 text-danger' : 'bg-warning/15 text-warning'}`}>
           {vo ? 'Không dùng được' : 'Chạy thiếu lớp'}
         </span>
         <p className="text-sm text-ink font-medium">{gap.feature}</p>
@@ -179,158 +218,137 @@ const GapRow = ({ gap }) => {
   )
 }
 
+const DongThamSo = ({ c, m, onSua, onLichSu }) => (
+  <li className="py-4 border-t border-line first:border-t-0 grid gap-x-6 gap-y-2 md:grid-cols-[minmax(0,1fr)_auto] md:items-center">
+    <div className="min-w-0">
+      <h3 className="font-sans text-base font-semibold text-ink">{m.ten}</h3>
+      {m.moTa && <p className="text-sm text-ink-soft mt-0.5 leading-relaxed max-w-[62ch]">{m.moTa}</p>}
+      <p className="text-xs text-ink-mute mt-1">
+        Đổi lần cuối {dayjs(c.updatedAt).format('DD/MM/YYYY')}{c.updatedByName ? ` · ${c.updatedByName}` : ''}
+      </p>
+    </div>
+    <div className="flex flex-wrap items-center gap-2 md:justify-end">
+      <span className="text-lg font-semibold text-ink tabular-nums mr-2 [overflow-wrap:anywhere]">{hienGiaTri(m, c.configValue)}</span>
+      <button type="button" onClick={onLichSu} aria-label={`Lịch sử thay đổi: ${m.ten}`} title="Lịch sử thay đổi"
+        className="inline-flex items-center justify-center w-11 h-11 flex-shrink-0 text-ink-soft hover:bg-sunken">
+        <History size={16} aria-hidden="true" />
+      </button>
+      <button type="button" onClick={onSua} aria-label={`Sửa: ${m.ten}`}
+        className="inline-flex items-center justify-center min-h-[44px] px-4 border-2 border-ink bg-card text-ink text-sm font-semibold hover:bg-ink hover:text-lamp">
+        Sửa
+      </button>
+    </div>
+  </li>
+)
+
 const AdminSystemConfigPage = () => {
   const [configs, setConfigs] = useState([])
   const [isLoading, setIsLoading] = useState(true)
-  // Lỗi tải dữ liệu nền: vẽ TrangLoiTai thay vì bảng rỗng (01/10/2026 — xem components/bang/KhungTai.jsx).
   const [loiTai, setLoiTai] = useState(false)
   const [editing, setEditing] = useState(null)
-  const [historyKey, setHistoryKey] = useState(null)
-  // null = chưa soát được (gọi lỗi). [] = đã soát và không thiếu gì. Hai cái này KHÔNG được
-  // hiện giống nhau, nếu không thì gọi lỗi lại trông như "mọi thứ đủ".
+  const [historyOf, setHistoryOf] = useState(null)
+  const [tim, setTim] = useState('')
+  // null = chưa soát được (gọi lỗi). [] = đã soát và không thiếu gì. Hai cái này KHÔNG được hiện giống nhau.
   const [gaps, setGaps] = useState(null)
 
   const load = useCallback(async () => {
     setIsLoading(true)
     setLoiTai(false)
-    // Soát cấu hình chạy song song và độc lập: nó lỗi thì bảng tham số bên dưới vẫn phải hiện.
+    // Soát hạ tầng chạy song song và độc lập: nó lỗi thì danh sách tham số vẫn phải hiện.
     const [cfg, audit] = await Promise.allSettled([getSystemConfigs(), getConfigurationAudit()])
-    if (cfg.status === 'fulfilled' && cfg.value?.success) {
-      setConfigs(cfg.value.data ?? [])
-    } else {
-      // Bảng tham số trống vì LỖI khác hẳn "không có tham số nào" — bản cũ chỉ bật toast rồi vẽ bảng rỗng.
-      setLoiTai(true)
-    }
+    if (cfg.status === 'fulfilled' && cfg.value?.success) setConfigs(cfg.value.data ?? [])
+    else setLoiTai(true)
     setGaps(audit.status === 'fulfilled' && audit.value?.success ? (audit.value.data ?? []) : null)
     setIsLoading(false)
   }, [])
 
   useEffect(() => { const chay = async () => { await load() }; chay() }, [load])
 
-  if (isLoading) {
-    return <div className="py-20 flex justify-center"><Loader2 size={32} className="animate-spin text-ink" /></div>
-  }
+  const nhom = useMemo(() => gomTheoNhom(configs).map((n) => ({ ...n, muc: n.muc.filter(({ c, m }) => khopTim(m, c, tim)) })), [configs, tim])
+  const soKhop = nhom.reduce((s, n) => s + n.muc.length, 0)
+
+  if (isLoading) return <div className="py-20 flex justify-center"><Loader2 size={32} className="animate-spin text-ink" /></div>
   if (loiTai) return <TrangLoiTai tieuDe="Cấu hình hệ thống" tenVung="cấu hình hệ thống" taiLai={load} />
 
-  const tienTe = configs.filter((c) => c.isMoneyRate)
-  const conLai = configs.filter((c) => !c.isMoneyRate)
-
-  const renderBang = (ds) => (
-    <div className="overflow-x-auto">
-      {/* Màn hẹp: mỗi tham số một khối có nhãn (lopBangHep) — trước đây cuộn ngang ở 390px, nút Sửa nằm khuất. */}
-      <table role="table" className={`w-full text-sm ${HEP.bang}`}>
-        <thead role="rowgroup" className={HEP.dau}>
-          <tr role="row" className="text-sm text-ink border-b-2 border-ink">
-            <th scope="col" role="columnheader" className="text-left py-2 pr-3 font-semibold">Tham số</th>
-            <th scope="col" role="columnheader" className="text-left py-2 pr-3 font-semibold">Giá trị</th>
-            <th scope="col" role="columnheader" className="text-left py-2 pr-3 font-semibold">Đổi lần cuối</th>
-            <th scope="col" role="columnheader" className="py-2 font-semibold"><span className="sr-only">Thao tác</span></th>
-          </tr>
-        </thead>
-        <tbody role="rowgroup" className={HEP.than}>
-          {ds.map((c) => (
-            <tr key={c.configKey} role="row" className={`border-b border-line/60 ${HEP.dong}`}>
-              <td role="cell" className={`py-3 pr-3 align-top ${HEP.oTron}`}>
-                <p className="text-ink font-semibold break-all">{c.configKey}</p>
-                {c.description && <p className="text-xs text-ink-mute mt-0.5 leading-relaxed">{c.description}</p>}
-              </td>
-              <td role="cell" data-nhan="Giá trị" className={`py-3 pr-3 align-top text-ink-soft tabular-nums md:whitespace-nowrap ${HEP.o}`}>
-                {/* Giá trị dạng chuỗi dài (vd. mã phiên bản điều khoản) phải ngắt được ở màn hẹp — đo 01/10: tràn 35px ở 390px. */}
-                <span className="min-w-0 max-md:break-all max-md:text-right">{c.configValue}</span>
-              </td>
-              <td role="cell" data-nhan="Đổi lần cuối" className={`py-3 pr-3 align-top text-xs text-ink-mute whitespace-nowrap ${HEP.o}`}>
-                <span>
-                  {dayjs(c.updatedAt).format('DD/MM/YYYY')}
-                  {c.updatedByName && <span className="block text-ink-mute">{c.updatedByName}</span>}
-                </span>
-              </td>
-              <td role="cell" className={`py-3 align-top ${HEP.oTron}`}>
-                <div className="flex gap-1 justify-end">
-                  <button onClick={() => setHistoryKey(c.configKey)} title="Lịch sử thay đổi" aria-label="Lịch sử thay đổi"
-                    className="inline-flex items-center justify-center w-11 h-11 flex-shrink-0 text-ink-soft hover:bg-sunken">
-                    <History size={14} />
-                  </button>
-                  <button onClick={() => setEditing(c)} title="Sửa" aria-label="Sửa"
-                    className="inline-flex items-center justify-center gap-2 min-h-[44px] px-4 border-2 border-ink bg-card text-ink text-sm font-semibold hover:bg-ink hover:text-lamp">
-                    Sửa
-                  </button>
-                </div>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  )
+  const soVo = gaps?.filter((g) => g.severity === 'Broken').length ?? 0
 
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-4xl text-ink mb-1">Cấu hình hệ thống</h1>
-        <p className="text-ink-soft text-sm leading-relaxed">
-          Những tham số này điều khiển cách hệ thống tính tiền và xử lý thời hạn. Mỗi lần đổi đều phải ghi lý do
-          và được lưu vào lịch sử.
+        <p className="text-ink-soft leading-relaxed max-w-[70ch]">
+          Các con số quyết định cách nền tảng vận hành: giữ chỗ bao lâu, thu hoa hồng bao nhiêu, khi nào chuyển tiền cho phòng
+          trà. Bấm <b className="text-ink">Sửa</b> ở dòng cần đổi. Mỗi lần đổi phải ghi lý do và được lưu lại trong lịch sử.
         </p>
       </div>
 
-      {/* CẤU HÌNH HẠ TẦNG CÒN THIẾU — chỉ đọc, sửa ở biến môi trường của server chứ không ở đây */}
-      <div className="bg-card border border-line p-6">
-        <h2 className="font-sans font-bold text-base text-ink flex items-center gap-2">
-          <PlugZap size={16} /> Cấu hình hạ tầng
-        </h2>
-        <p className="text-xs text-ink-mute mt-1 leading-relaxed">
-          Những khoá kết nối dịch vụ ngoài (phát trực tiếp, thông báo đẩy, thanh toán). Đây là chỗ
-          xem TRƯỚC khi đi tìm lỗi &quot;tự nhiên tính năng này không chạy trên môi trường này&quot;.
-          Không sửa được trên giao diện — phải đổi trong cấu hình triển khai của server.
-        </p>
-
-        {gaps === null ? (
-          <p className="mt-4 text-xs text-warning flex items-start gap-1.5 leading-relaxed">
-            <AlertTriangle size={13} className="mt-px flex-shrink-0" />
-            Chưa soát được cấu hình hạ tầng. Đây KHÔNG có nghĩa là không thiếu gì.
-          </p>
-        ) : gaps.length === 0 ? (
-          <p className="mt-4 text-sm text-success flex items-center gap-2">
-            <CheckCircle2 size={15} /> Không thiếu khoá cấu hình nào.
-          </p>
-        ) : (
-          <div className="mt-4 space-y-2">
-            {/* Broken lên trước: đó là thứ đang làm người dùng không dùng được tính năng. */}
-            {[...gaps].sort((a, b) => (a.severity === b.severity ? 0 : a.severity === 'Broken' ? -1 : 1))
-              .map((g) => <GapRow key={g.key} gap={g} />)}
-          </div>
-        )}
+      <div className="flex flex-col lg:flex-row lg:items-center gap-3">
+        <div className="relative lg:w-96">
+          <Search size={16} aria-hidden="true" className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-mute" />
+          <input type="search" value={tim} onChange={(e) => setTim(e.target.value)} aria-label="Tìm tham số"
+            placeholder="Tìm: giữ chỗ, hoa hồng, khiếu nại…" className={`pl-9 ${O_NHAP}`} />
+        </div>
+        <nav aria-label="Nhảy tới nhóm" className="flex flex-wrap gap-x-4 gap-y-1">
+          {nhom.filter((n) => n.muc.length > 0).map((n) => (
+            <a key={n.id} href={`#nhom-${n.id}`} className="text-sm font-semibold text-ink underline underline-offset-4 decoration-ink/30 hover:decoration-ink min-h-[44px] inline-flex items-center">
+              {n.ten} <span className="ml-1 font-normal text-ink-mute">{n.muc.length}</span>
+            </a>
+          ))}
+        </nav>
       </div>
 
-      {tienTe.length > 0 && (
-        <div className="bg-card border border-line p-6">
-          <h2 className="font-sans font-bold text-base text-ink flex items-center gap-2">
-            <Coins size={16} className="text-warning" /> Tỉ lệ tiền
-          </h2>
-          <p className="text-xs text-ink-mute mt-1 mb-4 leading-relaxed">
-            Nhóm này có ràng buộc chéo với nhau — đổi một tham số có thể bị từ chối nếu tổng vượt ngưỡng.
-          </p>
-          {renderBang(tienTe)}
-        </div>
+      {tim && soKhop === 0 && (
+        <p className="bg-card border border-line p-6 text-ink-soft">
+          Không có tham số nào khớp “{tim}”. <button type="button" onClick={() => setTim('')} className="font-semibold text-ink underline underline-offset-4 min-h-[44px]">Xoá ô tìm</button>
+        </p>
       )}
 
-      {conLai.length > 0 && (
-        <div className="bg-card border border-line p-6">
-          <h2 className="font-sans font-bold text-base text-ink flex items-center gap-2">
-            <SlidersHorizontal size={16} /> Tham số khác
-          </h2>
-          <div className="mt-4">{renderBang(conLai)}</div>
-        </div>
-      )}
+      {nhom.filter((n) => n.muc.length > 0).map((n) => (
+        <section key={n.id} id={`nhom-${n.id}`} aria-labelledby={`tieu-de-${n.id}`} className="bg-card border border-line px-5 sm:px-6 pt-5 pb-2 scroll-mt-24">
+          <h2 id={`tieu-de-${n.id}`} className="text-2xl text-ink">{n.ten}</h2>
+          {n.moTa && <p className="text-sm text-ink-mute mt-0.5">{n.moTa}</p>}
+          <ul className="mt-2">
+            {n.muc.map(({ c, m }) => (
+              <DongThamSo key={c.configKey} c={c} m={m} onSua={() => setEditing(c)} onLichSu={() => setHistoryOf(c)} />
+            ))}
+          </ul>
+        </section>
+      ))}
 
       {configs.length === 0 && (
-        <div className="bg-card border border-line p-10 text-center">
-          <p className="text-sm text-ink-mute">Không có tham số nào.</p>
-        </div>
+        <div className="bg-card border border-line p-10 text-center"><p className="text-sm text-ink-mute">Không có tham số nào.</p></div>
       )}
 
+      {/* KẾT NỐI DỊCH VỤ NGOÀI — chỉ đọc, sửa ở biến môi trường của server. Gập lại, chỉ để một dòng tóm tắt. */}
+      <details className="group bg-card border border-line">
+        <summary className="cursor-pointer list-none p-5 sm:px-6 flex flex-wrap items-center gap-x-3 gap-y-1 min-h-[44px]">
+          <PlugZap size={16} aria-hidden="true" className="text-ink-soft" />
+          <span className="font-semibold text-ink">Kết nối dịch vụ ngoài</span>
+          <span className="text-sm text-ink-mute">(dành cho kỹ thuật viên — không sửa được ở trang này)</span>
+          <span className="text-sm ml-auto flex items-center gap-2">
+            {gaps === null ? <span className="text-warning">Chưa kiểm tra được</span>
+              : gaps.length === 0 ? <span className="text-success inline-flex items-center gap-1"><CheckCircle2 size={14} aria-hidden="true" /> Đủ cả</span>
+                : <span className={soVo ? 'text-danger' : 'text-warning'}>{soVo ? `${soVo} dịch vụ không dùng được` : `${gaps.length} dịch vụ chạy thiếu`}</span>}
+            <ChevronDown size={16} aria-hidden="true" className="transition-transform group-open:rotate-180" />
+          </span>
+        </summary>
+        <div className="px-5 sm:px-6 pb-5">
+          <p className="text-sm text-ink-soft leading-relaxed">
+            Khoá kết nối tới các dịch vụ ngoài (phát trực tiếp, email, tin nhắn, AI…). Thiếu khoá thì tính năng tương ứng không chạy.
+            Kỹ thuật viên phải thêm khoá trong cấu hình triển khai của máy chủ.
+          </p>
+          {gaps === null ? (
+            <p className="mt-3 text-sm text-warning flex items-start gap-1.5"><AlertTriangle size={14} className="mt-0.5 flex-shrink-0" aria-hidden="true" /> Chưa kiểm tra được — điều này KHÔNG có nghĩa là đủ cả.</p>
+          ) : gaps.length > 0 && (
+            <div className="mt-4 space-y-2">
+              {[...gaps].sort((a, b) => (a.severity === b.severity ? 0 : a.severity === 'Broken' ? -1 : 1)).map((g) => <GapRow key={g.key} gap={g} />)}
+            </div>
+          )}
+        </div>
+      </details>
+
       {editing && <EditModal config={editing} onClose={() => setEditing(null)} onSaved={load} />}
-      {historyKey && <HistoryModal configKey={historyKey} onClose={() => setHistoryKey(null)} />}
+      {historyOf && <HistoryModal config={historyOf} onClose={() => setHistoryOf(null)} />}
     </div>
   )
 }
