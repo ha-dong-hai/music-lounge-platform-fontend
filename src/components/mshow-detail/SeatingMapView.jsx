@@ -15,7 +15,8 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react'
 import { Loader2, Map as IconMap, Armchair, Rotate3d, RotateCcw } from 'lucide-react'
 import { getShowSeatingMap } from '../../services/showServices'
-import { getLoungeTour } from '../../services/loungeServices'
+import { getLoungeTour, getLoungeZones } from '../../services/loungeServices'
+import KhongGianPhongTra from '../lounge/KhongGianPhongTra'
 import usePhimTab from '../../hooks/usePhimTab'
 
 const SoDoCho3D = lazy(() => import('../lounge/SoDoCho3D'))
@@ -80,9 +81,11 @@ function SoDo2D({ zones, chon, onChon }) {
   )
 }
 
-const SeatingMapView = ({ showId, loungeId, selectedZoneId, onSelectZone }) => {
+const SeatingMapView = ({ showId, loungeId, tenPhongTra = '', selectedZoneId, onSelectZone }) => {
   const [data, setData] = useState(null)
   const [canh, setCanh] = useState([])
+  const [matBang, setMatBang] = useState(null)
+  const [khuPhongTra, setKhuPhongTra] = useState([]) // khu của PHÒNG TRÀ — chỉ dùng khi buổi chưa có hạng vé gắn khu
   const [isLoading, setIsLoading] = useState(true)
   const [dangXem, setDangXem] = useState(null)
   const [lanDatLai, setLanDatLai] = useState(0)
@@ -95,9 +98,15 @@ const SeatingMapView = ({ showId, loungeId, selectedZoneId, onSelectZone }) => {
     const chay = async () => {
       setIsLoading(true)
       // Tour lỗi không được làm mất sơ đồ (và ngược lại) — tải song song, mỗi bên tự rơi về rỗng.
-      const [sd, tour] = await Promise.allSettled([getShowSeatingMap(showId), loungeId ? getLoungeTour(loungeId) : Promise.resolve(null)])
+      const [sd, tour, kpt] = await Promise.allSettled([
+        getShowSeatingMap(showId),
+        loungeId ? getLoungeTour(loungeId) : Promise.resolve(null),
+        loungeId ? getLoungeZones(loungeId) : Promise.resolve(null),
+      ])
       if (huy) return
       setData(sd.status === 'fulfilled' && sd.value?.success ? sd.value.data : null)
+      setMatBang(tour.status === 'fulfilled' && tour.value?.success ? tour.value.data?.floorPlanImageUrl ?? null : null)
+      setKhuPhongTra(kpt.status === 'fulfilled' && kpt.value?.success && Array.isArray(kpt.value.data) ? kpt.value.data : [])
       setCanh(tour.status === 'fulfilled' && tour.value?.success ? tour.value.data?.scenes ?? [] : [])
       setIsLoading(false)
     }
@@ -124,7 +133,17 @@ const SeatingMapView = ({ showId, loungeId, selectedZoneId, onSelectZone }) => {
   if (isLoading) {
     return <div className="bg-card border border-line py-16 flex justify-center"><Loader2 size={26} className="animate-spin text-ink" /></div>
   }
-  if (zones.length === 0) return null
+  // BUỔI CHƯA CÓ HẠNG VÉ NÀO GẮN KHU (04/10/2026). Bản trước `return null`: màn đặt vé không có sơ đồ lẫn 360° dù trang
+  // phòng trà có đủ — chủ dự án: "bên chỗ đặt vé là chỗ đặc biệt cần được xem". API sơ đồ của buổi chỉ trả khu ĐÃ gắn vào
+  // hạng vé (GetShowSeatingMapQueryHandler: `.Where(t => t.ZoneId.HasValue)`), nên ở đây dùng khu và tour của PHÒNG TRÀ ở
+  // chế độ CHỈ XEM: không có gì để chọn (không hạng vé nào thuộc khu nào), và nói rõ điều đó thay vì giả là chọn được.
+  if (zones.length === 0) {
+    return (
+      <KhongGianPhongTra zones={khuPhongTra} tourScenes={canh.filter((s) => s.imageUrl)} tenPhongTra={tenPhongTra} anhMatBang={matBang ?? data?.areaLayoutImageUrl ?? null}
+        lop="bg-card border border-line p-4 md:p-6"
+        ghiChu="Buổi này chưa bán vé theo từng khu: hình dưới đây để bạn xem không gian phòng trà. Chọn hạng vé ở danh sách bên dưới." />
+    )
+  }
 
   const chon = (id) => onSelectZone?.(id)
   const goiY = {

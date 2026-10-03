@@ -32,7 +32,9 @@ const CHO = (
 // tab 360 đúng cảnh đó; (2) trong 360 có BẢN ĐỒ NHỎ (PanoramaViewer › BanDoNho) chỉ chỗ đang đứng giữa các khu.
 // Cảnh chưa đặt vị trí vẫn xem được ở tab 360, chỉ không có ghim.
 const MAU_KHU = ['#C9A45C', '#8C7A6B', '#B3A899', '#6E5E50']
-const KhongGianPhongTra = ({ zones = [], tourScenes = [], tenPhongTra = '', anhMatBang = null }) => {
+// lop / ghiChu: màn đặt vé (SeatingMapView) dùng lại khối này ở chế độ CHỈ XEM khi buổi diễn chưa có hạng vé nào gắn khu —
+// bỏ khoảng đệm trên của trang phòng trà và in một dòng nói rõ vì sao không chọn khu được ở đây.
+const KhongGianPhongTra = ({ zones = [], tourScenes = [], tenPhongTra = '', anhMatBang = null, lop = 'pt-16', ghiChu = null }) => {
   const khu = useMemo(() => zones.filter((z) => z.isActive !== false && coSoDo2D(z))
     .sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0)), [zones])
   const cachXem = useMemo(() => [
@@ -62,7 +64,7 @@ const KhongGianPhongTra = ({ zones = [], tourScenes = [], tenPhongTra = '', anhM
   const khuChon = khu.find((z) => z.id === chon)
 
   return (
-    <section aria-labelledby="khong-gian-title" className="pt-16">
+    <section aria-labelledby="khong-gian-title" className={lop}>
       <div className="flex flex-wrap items-end justify-between gap-4 mb-2">
         <h2 id="khong-gian-title" className="text-4xl">Không gian và chỗ ngồi</h2>
         {cachXem.length > 1 && (
@@ -81,6 +83,7 @@ const KhongGianPhongTra = ({ zones = [], tourScenes = [], tenPhongTra = '', anhM
           </div>
         )}
       </div>
+      {ghiChu && <p className="mb-3 border-l-4 border-ink pl-3 text-ink">{ghiChu}</p>}
       <p className="text-ink-soft mb-5">{hienTai.goiY}</p>
 
       <div id="khong-gian-panel" role={cachXem.length > 1 ? 'tabpanel' : undefined} aria-labelledby={cachXem.length > 1 ? `xem-${hienTai.khoa}` : 'khong-gian-title'}>
