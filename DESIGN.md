@@ -527,11 +527,12 @@ Nghiên cứu: `reports/Trang chủ - buổi diễn nổi bật.md` (repo backen
 - **Sắp lên đèn** (`SapLenDen`): MỘT buổi gần nhất KHÔNG phải tối nay, in lớn trên khối sơn then (ảnh bìa, ai hát + một câu
   giới thiệu, nơi diễn, "N khu · còn X vé" từ sơ đồ khu, cuống Đặt vé). Phần "Tiếp theo" đã bỏ (03/10): các buổi còn lại ở
   khối Dành cho bạn / Đang được quan tâm.
-- **Dành cho bạn / Đang được quan tâm** (`GoiYChoBan`, ngay sau Sắp lên đèn): GET /recommendations (đăng nhập: gu tự khai +
-  phòng trà theo dõi; khách: buổi vừa xem trên máy — `utils/buoiVuaXem.js`, hoặc thịnh hành = vé bán + lượt lưu). Luật:
-  mỗi buổi một lần trên trang (loại buổi đã in ở Đêm nay + Sắp lên đèn); tiêu đề nói thật ("Dành cho bạn" chỉ khi có buổi
-  xếp theo gu thật); mỗi dòng in lý do backend trả; "Vì sao tôi thấy những buổi này?" giải thích tiêu chí + Chỉnh gu / Xoá
-  lịch sử xem; mời chọn gu chỉ khi máy chủ không có gì cá nhân hoá. Còn 0 buổi thì không in khối.
+- **Dành cho bạn / Đang được quan tâm** (`GoiYChoBan`, ngay sau Sắp lên đèn) — KHỐI NỔI BẬT (chủ dự án 03/10: "nền tảng
+  nổi bật vì AI"): nền sơn then trải ngang; màn lớn 2 cột (trái: tiêu đề + giới thiệu + ô mời AI; phải: thẻ ảnh lớn, 1–2
+  buổi thì thẻ nằm ngang). Nhãn "✦ AI gợi ý" (khối lamp chữ board) CHỈ trên thẻ `recommendationSource = Ai` (MLACP-565).
+  Lý do riêng in chữ viết tay; "Đang thịnh hành" là nhãn mono nhỏ. Ô mời AI theo người xem (khách → đăng nhập; chưa bật →
+  Bật gợi ý AI; đã bật chưa có thẻ AI → AI đang học gu); điện thoại: ô mời nằm SAU thẻ. Mỗi buổi một lần trên trang;
+  "Vì sao tôi thấy" + Chỉnh gu / Xoá lịch sử xem.
 - **Thẻ gu** (`TheGu`): tối đa 4 dòng nhạc đang có buổi, luôn hiện; mỗi thẻ một ảnh khác nhau khi có thể (gán thẻ ít lựa
   chọn trước). Danh sách gu đầy đủ vẫn gập.
 - **Đêm đã qua** (`DemDaQua`): chỉ in khi có ít nhất một lời bình THẬT; sao màu lamp (vàng thếp `ember` chỉ cho đang diễn).
