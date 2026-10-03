@@ -332,7 +332,7 @@ const ShowMap = ({ showData }) => {
                   disabled={isProcessing}
                   className="w-full py-3 bg-brand text-on-brand rounded-lg font-bold hover:bg-brand-hover transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                 >
-                  {isProcessing ? <Loader2 size={18} className="animate-spin" /> : 'Buy ticket'}
+                  {isProcessing ? <Loader2 size={18} className="animate-spin" /> : 'Mua Vé'}
                 </button>
               )}
             </div>
