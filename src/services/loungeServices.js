@@ -151,6 +151,12 @@ export const removeTourScene = async (loungeId, sceneId) => {
 // cảnh 360° đó nằm ở đâu trong phòng trà.
 // X/Y theo PHẦN TRĂM 0–100. Backend bắt hai giá trị phải CÙNG có hoặc CÙNG null; gửi cả hai null
 // là xoá chấm định vị. Điền một cái bỏ một cái là bị từ chối.
+// Đổi tên một cảnh (MLACP-586). Tên rỗng = bỏ tên (khán giả thấy "Cảnh N"). Tối đa 100 ký tự. Trả 204.
+// Không đụng ảnh, vị trí hay điểm bấm của cảnh — trước đây muốn sửa tên phải xoá cảnh rồi thêm lại.
+export const renameTourScene = async (loungeId, sceneId, name) => {
+  return axiosClient.put(`/lounges/${loungeId}/tour/scenes/${sceneId}/name`, { name });
+};
+
 export const setTourScenePosition = async (loungeId, sceneId, payload) => {
   return axiosClient.put(`/lounges/${loungeId}/tour/scenes/${sceneId}/position`, payload);
 };

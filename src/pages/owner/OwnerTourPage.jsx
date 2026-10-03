@@ -22,7 +22,7 @@ import toast from 'react-hot-toast'
 import {
   getLounges, getLoungeDetail, getLoungeTour, addTourScene, stitchTourScene,
   getTourStitchAttempt, removeTourScene, addTourHotspot, removeTourHotspot, setLoungeModel3D,
-  setTourScenePosition, getLoungeZones,
+  setTourScenePosition, renameTourScene, getLoungeZones,
 } from '../../services/loungeServices'
 import { uploadImage, uploadModel } from '../../services/userServices'
 import ConfirmModal from '../../components/shared/ConfirmModal'
@@ -46,6 +46,41 @@ const LOAI_HOTSPOT = [
   { value: 'Zone', ten: 'Khu ghế', mo: 'Đánh dấu một khu ghế nhìn thấy trong ảnh. Khi mua vé, khách chạm vào đây để chọn khu đó.' },
   { value: 'Info', ten: 'Chú thích', mo: 'Hiện một đoạn chữ tại điểm đó, không dẫn đi đâu. Đặt tên là "Sân khấu" để màn hình livestream nằm đúng chỗ này khi khán giả chọn "Ngồi tại phòng trà".' },
 ]
+
+// TÊN ĐIỂM ĐỨNG — sửa tại chỗ (MLACP-586, 03/10/2026). Chủ dự án thấy ghim "Cảnh 1" ở trang phòng trà: "không đổi tên
+// được sao". Nút "Thêm ảnh 360° có sẵn" không hỏi tên nên mọi cảnh đều không tên, và backend trước đó không có lệnh đổi
+// tên. Tên này là thứ khán giả đọc: ghim trên sơ đồ 3D, nút chuyển cảnh, "Bạn đang ở: …" trên bản đồ nhỏ.
+const TenCanh = ({ loungeId, sc, onLuu }) => {
+  const [ten, setTen] = useState(sc.name ?? '')
+  const [dangLuu, setDangLuu] = useState(false)
+  const doi = ten.trim() !== (sc.name ?? '')
+  const luu = async (e) => {
+    e.preventDefault()
+    if (!doi) return
+    setDangLuu(true)
+    try {
+      await renameTourScene(loungeId, sc.id, ten.trim())
+      toast.success(ten.trim() ? `Đã đặt tên "${ten.trim()}".` : 'Đã bỏ tên điểm đứng.')
+      await onLuu()
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Chưa đổi được tên điểm đứng.')
+    } finally { setDangLuu(false) }
+  }
+  return (
+    <form onSubmit={luu} className="flex items-end gap-2">
+      <label className="flex-1 min-w-0 text-sm font-semibold text-ink">
+        Tên điểm đứng
+        <input value={ten} onChange={(e) => setTen(e.target.value)} maxLength={100}
+          placeholder="Ví dụ: Quầy bar, Sân khấu, Lối vào"
+          className="mt-1 w-full min-h-[44px] px-3 py-2 bg-card border-2 border-ink text-ink font-normal focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2" />
+      </label>
+      <button type="submit" disabled={!doi || dangLuu} aria-label={`Lưu tên điểm đứng ${sc.name || `#${maNgan(sc.id)}`}`}
+        className="inline-flex items-center gap-1.5 justify-center min-h-[44px] px-3 border-2 border-ink bg-card text-ink text-sm font-semibold hover:bg-ink hover:text-lamp disabled:opacity-40">
+        {dangLuu ? <Loader2 size={12} className="animate-spin" /> : <Save size={12} />} Lưu tên
+      </button>
+    </form>
+  )
+}
 
 const HotspotModal = ({ loungeId, scene, scenes, zones = [], onClose, onSaved }) => {
   const [form, setForm] = useState({ type: 'Navigate', targetSceneId: '', zoneId: '', label: '', infoText: '', yaw: 0, pitch: 0 })
@@ -503,7 +538,7 @@ const OwnerTourPage = () => {
               <li key={sc.id} className="bg-sunken/70 border border-line overflow-hidden">
                 {sc.imageUrl && <img src={sc.imageUrl} alt="" className="w-full h-32 object-cover" />}
                 <div className="p-3">
-                  <p className="text-sm text-ink font-medium truncate">{sc.name || `Điểm đứng #${maNgan(sc.id)}`}</p>
+                  <TenCanh loungeId={lounge.id} sc={sc} onLuu={load} />
                   <p className="text-xs text-ink-mute mt-0.5">
                     {(sc.hotspots?.length ?? 0)} hotspot
                   </p>
