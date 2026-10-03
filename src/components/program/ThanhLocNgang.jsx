@@ -16,7 +16,8 @@
 //   fieldset. Esc đóng và trả focus về nút; bấm ra ngoài đóng.
 import { useEffect, useId, useRef, useState } from 'react'
 import { ChevronDown } from 'lucide-react'
-import { HINH_THUC, MOC_NGAY, MUC_GIA, loiKhoangGia, loiKhoangNgay } from '../../utils/boLocBuoiDien'
+import { HINH_THUC, MOC_NGAY, MUC_GIA, loiKhoangGia, loiKhoangNgay, nhanKhoangNgay } from '../../utils/boLocBuoiDien'
+import LichChonNgay from './LichChonNgay'
 
 const O_CHON = 'flex items-center gap-2.5 min-h-[40px] cursor-pointer'
 const O_TICH = 'w-5 h-5 flex-shrink-0 accent-ink'
@@ -24,11 +25,15 @@ const O_NHAP = 'w-full min-h-[44px] px-3 bg-card border-2 border-ink text-ink fo
 
 const So = ({ n }) => (n == null ? null : <span className="ml-auto pl-3 font-mono text-sm text-ink-mute">{n}</span>)
 
-const NutTha = ({ nhan, dang = false, children, rong = 'w-72' }) => {
+// `children` có thể là hàm nhận `dong()` — để nội dung tự đóng khung (ô lịch đóng khi đã chọn xong khoảng).
+// `nhe`: viền nhạt như các nút mốc ngày đứng cạnh nó.
+const NutTha = ({ nhan, dang = false, children, rong = 'w-72', nhe = false, nhanAria }) => {
   const id = useId()
   const [mo, setMo] = useState(false)
   const goc = useRef(null)
   const nut = useRef(null)
+  // Đóng từ BÊN TRONG khung (ô lịch chọn đủ khoảng) — tìm nút theo id thay vì đọc ref, vì hàm này được truyền đi lúc render.
+  const dong = () => { setMo(false); document.getElementById(`${id}-nut`)?.focus() }
   useEffect(() => {
     if (!mo) return undefined
     const ngoai = (e) => { if (!goc.current?.contains(e.target)) setMo(false) }
@@ -39,13 +44,13 @@ const NutTha = ({ nhan, dang = false, children, rong = 'w-72' }) => {
   }, [mo])
   return (
     <div ref={goc} className="relative">
-      <button ref={nut} type="button" aria-expanded={mo} aria-controls={`${id}-khung`} onClick={() => setMo((v) => !v)}
-        className={`inline-flex items-center gap-2 min-h-[44px] px-4 border-2 border-ink text-sm font-semibold transition-colors ${dang || mo ? 'bg-ink text-lamp' : 'bg-card text-ink hover:bg-sunken'}`}>
+      <button ref={nut} id={`${id}-nut`} type="button" aria-expanded={mo} aria-controls={`${id}-khung`} aria-label={nhanAria} onClick={() => setMo((v) => !v)}
+        className={`inline-flex items-center gap-2 min-h-[44px] px-4 border-2 text-sm font-semibold whitespace-nowrap transition-colors ${dang || mo ? 'bg-ink text-lamp border-ink' : nhe ? 'bg-card text-ink border-ink/30 hover:border-ink' : 'bg-card text-ink border-ink hover:bg-sunken'}`}>
         {nhan} <ChevronDown size={16} aria-hidden="true" className={`transition-transform ${mo ? 'rotate-180' : ''}`} />
       </button>
       {mo && (
         <div id={`${id}-khung`} className={`absolute left-0 top-full mt-2 z-30 ${rong} max-h-[70vh] overflow-y-auto bg-card border-2 border-ink p-4 shadow-[0_10px_24px_rgb(35_26_21/0.18)]`}>
-          {children}
+          {typeof children === 'function' ? children(dong) : children}
         </div>
       )}
     </div>
@@ -57,7 +62,6 @@ const ThanhLocNgang = ({ boLoc, danhMuc, dem, onDoi }) => {
   const coSo = dem?.chinhXac
   const so = (nhom, khoa) => (coSo ? dem?.[nhom]?.[khoa] ?? 0 : null)
   const tuChon = !boLoc.ngay && Boolean(boLoc.tu || boLoc.den)
-  const [moTuChon, setMoTuChon] = useState(tuChon)
   const loiNgay = loiKhoangNgay(boLoc)
 
   // Giá tự nhập: giữ chữ đang gõ ở đây, chỉ áp khi bấm "Áp dụng"/Enter. Bộ lọc đổi từ ngoài (nút gỡ, chọn mức) → đồng bộ.
@@ -93,21 +97,25 @@ const ThanhLocNgang = ({ boLoc, danhMuc, dem, onDoi }) => {
     <div className="space-y-3">
       {/* MỐC NGÀY — bấm thẳng */}
       <div role="group" aria-label="Ngày diễn" className="flex flex-wrap items-center gap-2">
-        {nutMoc('', 'Mọi ngày', !boLoc.ngay && !tuChon && !moTuChon, so('ngay', ''), () => { setMoTuChon(false); onDoi({ ...boLoc, ngay: '', tu: '', den: '' }) })}
-        {MOC_NGAY.map((m) => nutMoc(m.value, m.label, boLoc.ngay === m.value, so('ngay', m.value), () => { setMoTuChon(false); onDoi({ ...boLoc, ngay: m.value, tu: '', den: '' }) }))}
-        {nutMoc('tu-chon', 'Chọn ngày…', tuChon || moTuChon, null, () => { setMoTuChon(true); if (boLoc.ngay) onDoi({ ...boLoc, ngay: '' }) })}
-        {(tuChon || moTuChon) && (
-          <span className="inline-flex flex-wrap items-center gap-2">
-            <label className="sr-only" htmlFor={`${id}-tu`}>Từ ngày</label>
-            <input id={`${id}-tu`} type="date" value={boLoc.tu} max={boLoc.den || undefined} onChange={(e) => onDoi({ ...boLoc, ngay: '', tu: e.target.value })}
-              aria-invalid={loiNgay ? 'true' : undefined} className="min-h-[44px] px-3 bg-card border-2 border-ink text-sm" />
-            <span aria-hidden="true">–</span>
-            <label className="sr-only" htmlFor={`${id}-den`}>Đến ngày</label>
-            <input id={`${id}-den`} type="date" value={boLoc.den} min={boLoc.tu || undefined} onChange={(e) => onDoi({ ...boLoc, ngay: '', den: e.target.value })}
-              aria-invalid={loiNgay ? 'true' : undefined} className="min-h-[44px] px-3 bg-card border-2 border-ink text-sm" />
-            {loiNgay && <span role="alert" className="text-sm font-semibold text-danger">{loiNgay}</span>}
-          </span>
-        )}
+        {nutMoc('', 'Mọi ngày', !boLoc.ngay && !tuChon, so('ngay', ''), () => onDoi({ ...boLoc, ngay: '', tu: '', den: '' }))}
+        {MOC_NGAY.map((m) => nutMoc(m.value, m.label, boLoc.ngay === m.value, so('ngay', m.value), () => onDoi({ ...boLoc, ngay: m.value, tu: '', den: '' })))}
+        {/* MỘT ô lịch thay hai ô Từ/Đến (03/10/2026): nhãn nút in luôn ngày/khoảng đang chọn. Bấm một ngày thì khung vẫn mở
+            để còn bấm ngày thứ hai; đủ khoảng thì tự đóng. */}
+        <NutTha nhe rong="w-auto" dang={tuChon}
+          nhan={tuChon ? nhanKhoangNgay(boLoc) : 'Chọn ngày…'}
+          nhanAria={tuChon ? `Ngày diễn: ${nhanKhoangNgay(boLoc)}. Đổi ngày` : 'Chọn ngày trên lịch'}>
+          {(dong) => (
+            <>
+              <LichChonNgay tu={tuChon ? boLoc.tu : ''} den={tuChon ? boLoc.den : ''} ngayCoDien={coSo ? dem?.ngayCoDien : null}
+                onChon={(k) => { onDoi({ ...boLoc, ngay: '', ...k }); if (k.tu && k.tu !== k.den) dong() }} />
+              {loiNgay && <p role="alert" className="mt-2 text-sm font-semibold text-danger">{loiNgay}</p>}
+              {tuChon && (
+                <button type="button" onClick={() => { onDoi({ ...boLoc, tu: '', den: '' }); dong() }}
+                  className="mt-3 min-h-[44px] text-sm font-semibold underline underline-offset-4">Bỏ chọn ngày</button>
+              )}
+            </>
+          )}
+        </NutTha>
       </div>
 
       {/* BỐN NÚT THẢ */}

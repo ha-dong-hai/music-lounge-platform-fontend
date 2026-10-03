@@ -242,7 +242,7 @@ const ShowSearchPage = () => {
             </button>
           </div>
           <div className="flex-1 overflow-y-auto px-4 py-5">
-            <BoLocBuoiDien boLoc={boLoc} danhMuc={danhMuc} onDoi={doi} />
+            <BoLocBuoiDien boLoc={boLoc} danhMuc={danhMuc} onDoi={doi} ngayCoDien={dem?.chinhXac ? dem.ngayCoDien : null} />
           </div>
           <div className="flex gap-3 border-t-2 border-ink px-4 py-3">
             {soLoc > 0 && <button type="button" onClick={xoaHet} className={NUT_VIEN}>Xoá tất cả</button>}

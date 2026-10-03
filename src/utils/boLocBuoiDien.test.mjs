@@ -1,8 +1,10 @@
 // node src/utils/boLocBuoiDien.test.mjs
 import assert from 'node:assert/strict'
 import dayjs from 'dayjs'
-import { docBoLoc, ghiBoLoc, thamSoApi, boLocDangAp, khoangCuaMoc, loiKhoangGia, loiKhoangNgay, demLuaChon, BO_LOC_RONG, CO_TRANG } from './boLocBuoiDien.js'
+import 'dayjs/locale/vi.js'  // trên web main.jsx nạp sẵn; node chạy test thì phải nạp tay
+import { docBoLoc, ghiBoLoc, thamSoApi, boLocDangAp, khoangCuaMoc, loiKhoangGia, loiKhoangNgay, demLuaChon, buocChonNgay, nhanKhoangNgay, BO_LOC_RONG, CO_TRANG } from './boLocBuoiDien.js'
 
+dayjs.locale('vi')
 const doc = (s) => docBoLoc(new URLSearchParams(s))
 // Mã danh mục là GUID từ MLACP-516 (đúng dạng Azure trả). Bản trước kiểm bằng số nguyên 1, 4… nên XANH trong khi trên
 // web thật bộ lọc dòng nhạc/tâm trạng/không gian không chạy: parseInt('00000000-03ed-…') = 0 → bị bỏ (đo 03/10/2026).
@@ -84,6 +86,8 @@ assert.deepEqual(d0.tp, { 'TP.HCM': 2, 'Hà Nội': 1 })
 const d1 = demLuaChon(ds3, { ...BO_LOC_RONG, ngay: 'cuoi-tuan' }, thuTu)
 assert.equal(d1.the[G4], 1, 'đếm dòng nhạc tính cả bộ lọc ngày đang áp')
 assert.equal(d1.ngay[''], 3, '"mọi ngày" bỏ qua bộ lọc ngày')
+assert.deepEqual([...d1.ngayCoDien].sort(), ['2026-10-02', '2026-10-03', '2026-10-20'], 'chấm lịch bỏ qua chính bộ lọc ngày (để còn thấy ngày khác)')
+assert.deepEqual([...demLuaChon(ds3, { ...BO_LOC_RONG, the: [G5] }, thuTu).ngayCoDien], ['2026-10-03'], 'chấm lịch tính bộ lọc nhóm khác')
 // ... nhưng KHÔNG tự lọc theo chính nhóm của nó: đang chọn G5, số của G4 vẫn là 2
 assert.equal(demLuaChon(ds3, { ...BO_LOC_RONG, the: [G5] }, thuTu).the[G4], 2)
 assert.equal(demLuaChon(ds3, { ...BO_LOC_RONG, the: [G5] }, thuTu).ht.Offline, 0, 'nhóm khác thì tính dòng nhạc đang chọn')
@@ -91,3 +95,21 @@ assert.equal(demLuaChon(ds3, { ...BO_LOC_RONG, the: [G5] }, thuTu).ht.Offline, 0
 for (const x of [{ q: 'bolero' }, { giaTu: 100000 }, { tam: [M1] }, { kg: [K2] }]) assert.equal(demLuaChon(ds3, { ...BO_LOC_RONG, ...x }, thuTu).chinhXac, false)
 
 console.log('boLocBuoiDien: DAT')
+
+// --- MỘT Ô LỊCH: bấm 1 = một ngày, bấm 2 = khoảng, bấm 3 = bắt đầu lại, bấm lại ngày đang chọn = bỏ
+const R0 = { tu: '', den: '' }
+const b1 = buocChonNgay(R0, '2026-10-22')
+assert.deepEqual(b1, { tu: '2026-10-22', den: '2026-10-22' }, 'bấm một ngày = chọn đúng ngày đó')
+assert.deepEqual(buocChonNgay(b1, '2026-10-25'), { tu: '2026-10-22', den: '2026-10-25' }, 'bấm ngày sau = khoảng')
+assert.deepEqual(buocChonNgay(b1, '2026-10-20'), { tu: '2026-10-20', den: '2026-10-22' }, 'bấm ngày trước = khoảng, tự xếp ngày sớm trước')
+assert.deepEqual(buocChonNgay({ tu: '2026-10-22', den: '2026-10-25' }, '2026-10-28'), { tu: '2026-10-28', den: '2026-10-28' }, 'đã có khoảng thì bấm tiếp = bắt đầu lại, KHÔNG kéo dài')
+assert.deepEqual(buocChonNgay(b1, '2026-10-22'), R0, 'bấm lại ngày đang chọn = bỏ')
+assert.deepEqual(buocChonNgay({ tu: '2026-10-22', den: '' }, '2026-10-25'), { tu: '2026-10-25', den: '2026-10-25' }, 'địa chỉ cũ chỉ có "từ": bấm = bắt đầu lại')
+const BN = dayjs('2026-10-03T10:00:00')
+assert.equal(nhanKhoangNgay({ tu: '2026-10-22', den: '2026-10-22' }, BN), 'Thứ năm 22/10', 'một ngày: thứ + ngày')
+assert.equal(nhanKhoangNgay({ tu: '2026-10-22', den: '2026-10-25' }, BN), '22/10 – 25/10', 'khoảng gọn')
+assert.equal(nhanKhoangNgay({ tu: '2026-12-30', den: '2027-01-02' }, BN), '30/12 – 02/01/2027', 'sang năm khác thì in năm')
+assert.equal(nhanKhoangNgay(R0, BN), '', 'chưa chọn = rỗng')
+assert.equal(boLocDangAp({ ...BO_LOC_RONG, tu: '2026-10-22', den: '2026-10-22' })[0].nhan, 'Ngày 22/10/2026', 'nhãn gỡ cho một ngày không lặp "X đến X"')
+
+console.log('chonNgay OK')

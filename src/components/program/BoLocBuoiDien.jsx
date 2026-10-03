@@ -14,12 +14,14 @@
 //  - Nhóm dài tự thu gọn theo luật chung của DESIGN.md (tới 8 mục in hết; nhiều hơn in 6 + "Xem thêm N"); mục ĐANG CHỌN
 //    luôn được in ra dù nằm trong phần ẩn — giấu một bộ lọc đang áp là giấu lý do danh sách ngắn lại.
 //  - Ngày: mốc nhanh ("Hôm nay", "Cuối tuần này"…) trước, tự chọn khoảng ngày sau — đúng cách Eventbrite,
-//    Ticketmaster làm, và là cách người ta hỏi.
+//    Ticketmaster làm, và là cách người ta hỏi. Tự chọn = MỘT ô lịch (LichChonNgay, 03/10/2026) chọn được cả một ngày
+//    lẫn khoảng ngày; bản trước là hai ô Từ/Đến, chủ dự án: "quá phiền".
 //  - Giá chỉ áp khi RỜI ô hoặc bấm Enter: áp theo từng phím là gửi một truy vấn cho mỗi chữ số.
 //  - KHÔNG có lọc theo quận: cấp quận/huyện đã bỏ từ 01/07/2025 và API không trả danh sách quận.
 //  - Thành phố chỉ hiện khi sàn có từ hai thành phố trở lên.
 import { useId, useState } from 'react'
 import { HINH_THUC, MOC_NGAY, loiKhoangGia, loiKhoangNgay } from '../../utils/boLocBuoiDien'
+import LichChonNgay from './LichChonNgay'
 import { SO_HIEN, NGUONG_KHONG_CAT } from '../../utils/nhomGu'
 import IconMoRong from '../shared/IconMoRong'
 
@@ -57,7 +59,7 @@ const NhomTich = ({ tieuDe, ds = [], chon = [], onDoi }) => {
   )
 }
 
-const BoLocBuoiDien = ({ boLoc, danhMuc, onDoi }) => {
+const BoLocBuoiDien = ({ boLoc, danhMuc, onDoi, ngayCoDien = null }) => {
   const id = useId()
   const tuChon = !boLoc.ngay && Boolean(boLoc.tu || boLoc.den)
   const [moTuChon, setMoTuChon] = useState(tuChon)
@@ -86,7 +88,7 @@ const BoLocBuoiDien = ({ boLoc, danhMuc, onDoi }) => {
     <div className="space-y-7">
       <fieldset className="min-w-0">
         <legend className={LEGEND}>Ngày diễn</legend>
-        {[{ value: '', label: 'Ngày nào cũng được' }, ...MOC_NGAY, { value: 'tu-chon', label: 'Chọn khoảng ngày' }].map((m) => (
+        {[{ value: '', label: 'Ngày nào cũng được' }, ...MOC_NGAY, { value: 'tu-chon', label: 'Chọn ngày trên lịch' }].map((m) => (
           <label key={m.value} className={O_CHON}>
             <input type="radio" name={`${id}-ngay`} className={O_TICH} checked={mocDangChon === m.value}
               onChange={() => {
@@ -97,16 +99,10 @@ const BoLocBuoiDien = ({ boLoc, danhMuc, onDoi }) => {
           </label>
         ))}
         {mocDangChon === 'tu-chon' && (
-          <div className="grid grid-cols-2 gap-3 mt-2">
-            <label className="block text-sm">Từ ngày
-              <input type="date" value={boLoc.tu} max={boLoc.den || undefined} onChange={(e) => onDoi({ ...boLoc, ngay: '', tu: e.target.value })}
-                aria-invalid={loiNgay ? 'true' : undefined} aria-describedby={loiNgay ? `${id}-loi-ngay` : undefined} className={`${O_NHAP} mt-1`} />
-            </label>
-            <label className="block text-sm">Đến ngày
-              <input type="date" value={boLoc.den} min={boLoc.tu || undefined} onChange={(e) => onDoi({ ...boLoc, ngay: '', den: e.target.value })}
-                aria-invalid={loiNgay ? 'true' : undefined} aria-describedby={loiNgay ? `${id}-loi-ngay` : undefined} className={`${O_NHAP} mt-1`} />
-            </label>
-            {loiNgay && <p id={`${id}-loi-ngay`} className="col-span-2 text-sm font-semibold text-danger">{loiNgay}</p>}
+          <div className="mt-2 max-w-[22rem]">
+            <LichChonNgay tu={tuChon ? boLoc.tu : ''} den={tuChon ? boLoc.den : ''} ngayCoDien={ngayCoDien}
+              onChon={(k) => onDoi({ ...boLoc, ngay: '', ...k })} />
+            {loiNgay && <p id={`${id}-loi-ngay`} className="text-sm font-semibold text-danger">{loiNgay}</p>}
           </div>
         )}
       </fieldset>

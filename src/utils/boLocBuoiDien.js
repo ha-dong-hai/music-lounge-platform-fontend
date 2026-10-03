@@ -12,7 +12,7 @@
 // ht (hình thức), ngay (mốc nhanh) hoặc tu + den (YYYY-MM-DD), giaTu, giaDen, sap, trang.
 // Tương thích đường dẫn cũ: ?keyword= và ?genreId= vẫn đọc được.
 import dayjs from 'dayjs'
-import { ngayDayDu } from './ngayVietNam.js'
+import { khoaNgay, ngayDayDu, ngayGon, ngayTrongLich } from './ngayVietNam.js'
 
 export const CO_TRANG = 20
 
@@ -118,6 +118,28 @@ export const ghiBoLoc = (b) => {
 export const loiKhoangGia = (b) => (b.giaTu != null && b.giaDen != null && b.giaDen < b.giaTu ? 'Giá "đến" phải lớn hơn hoặc bằng giá "từ".' : null)
 export const loiKhoangNgay = (b) => (!b.ngay && b.tu && b.den && b.den < b.tu ? 'Ngày "đến" phải sau hoặc trùng ngày "từ".' : null)
 
+// MỘT Ô LỊCH cho cả "một ngày" lẫn "khoảng ngày" (03/10/2026 — chủ dự án: hai ô Từ/Đến "quá phiền"). Bấm một ngày = chọn
+// đúng ngày đó (tu = den); bấm ngày thứ hai = mở thành khoảng (tự xếp ngày sớm trước); bấm tiếp khi đã có khoảng = bắt
+// đầu lại từ ngày vừa bấm; bấm lại chính ngày đang chọn = bỏ. Lý do tự viết bước này thay vì để mặc react-day-picker:
+// mặc định của thư viện (utils/addToRange) bấm thêm sau một khoảng là KÉO DÀI khoảng đó — muốn chọn lại phải bấm đúng
+// ngày đầu, không ai đoán được.
+export const buocChonNgay = ({ tu, den }, ngay) => {
+  if (tu && den && tu === den) {
+    if (ngay === tu) return { tu: '', den: '' }
+    return ngay < tu ? { tu: ngay, den: tu } : { tu, den: ngay }
+  }
+  return { tu: ngay, den: ngay }
+}
+
+// Nhãn của nút lịch: "Thứ năm 22/10" (một ngày) / "22/10 – 25/10" (khoảng). Khác năm thì in đủ năm.
+export const nhanKhoangNgay = ({ tu, den }, bayGio = dayjs()) => {
+  if (!tu && !den) return ''
+  const gon = (d) => (dayjs(d).isSame(bayGio, 'year') ? ngayGon(d) : ngayDayDu(d))
+  if (tu && den && tu === den) return ngayTrongLich(tu, bayGio)
+  if (tu && den) return `${gon(tu)} – ${gon(den)}`
+  return tu ? `Từ ${gon(tu)}` : `Đến ${gon(den)}`
+}
+
 // Tham số gửi GET /lounge-shows/search.
 export const thamSoApi = (b, bayGio = dayjs()) => {
   const p = { page: b.trang, pageSize: CO_TRANG, sortBy: b.sap, includeSoldOut: true }
@@ -155,7 +177,7 @@ export const boLocDangAp = (b, danhMuc = {}) => {
   else if (b.tu || b.den) {
     kq.push({
       khoa: 'khoang-ngay',
-      nhan: b.tu && b.den ? `${ngayDayDu(b.tu)} đến ${ngayDayDu(b.den)}` : b.tu ? `Từ ${ngayDayDu(b.tu)}` : `Đến ${ngayDayDu(b.den)}`,
+      nhan: b.tu && b.den && b.tu === b.den ? `Ngày ${ngayDayDu(b.tu)}` : b.tu && b.den ? `${ngayDayDu(b.tu)} đến ${ngayDayDu(b.den)}` : b.tu ? `Từ ${ngayDayDu(b.tu)}` : `Đến ${ngayDayDu(b.den)}`,
       go: (x) => ({ ...x, tu: '', den: '' }),
     })
   }
@@ -219,5 +241,7 @@ export const demLuaChon = (ds = [], b = BO_LOC_RONG, bayGio = dayjs()) => {
   HINH_THUC.forEach((h) => { ht[h.value] = dem((x) => khop(x, { ht: h.value })) })
   const tp = {}
   new Set(ds.map((x) => x.loungeCity).filter(Boolean)).forEach((c) => { tp[c] = dem((x) => khop(x, { tp: c })) })
-  return { chinhXac, coTrongSan, ngay, the, ht, tp }
+  // Ngày có ít nhất một buổi khớp các bộ lọc KHÁC (bỏ qua ngày) — để ô lịch chấm dấu ngày nào có đêm diễn.
+  const ngayCoDien = new Set(ds.filter((x) => khop(x, { ngay: null })).map((x) => khoaNgay(x.scheduledStart)))
+  return { chinhXac, coTrongSan, ngay, the, ht, tp, ngayCoDien }
 }
