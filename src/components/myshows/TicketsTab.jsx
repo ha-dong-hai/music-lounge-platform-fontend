@@ -14,6 +14,7 @@ import { ChevronLeft, ChevronRight, Search, MapPin, Video, QrCode, X } from 'luc
 import dayjs from 'dayjs'
 import DauMoc from '../program/DauMoc'
 import { getMyTickets } from '../../services/ticketServices'
+import KyNiemDemDaDen from './KyNiemDemDaDen'
 import { thuVietHoa, ngayGon, gioTrongNgay, ngayDayDu } from '../../utils/ngayVietNam'
 import { TRANG_THAI_VE, laVeTrucTuyen } from '../../utils/trangThaiVe'
 import LienKetMuiTen from '../shared/LienKetMuiTen'
@@ -144,6 +145,9 @@ const TicketsTab = () => {
 
   return (
     <div>
+      {/* ===== KỶ NIỆM ĐÊM ĐÃ ĐẾN (MLACP-546): ảnh Polaroid cho mỗi buổi khách đã thật sự có mặt ===== */}
+      <KyNiemDemDaDen />
+
       {/* ===== TÌM VÉ ===== */}
       <div className="relative mb-4 max-w-xl">
         <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-mute" aria-hidden="true" />
