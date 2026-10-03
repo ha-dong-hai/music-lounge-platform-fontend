@@ -4,12 +4,14 @@ import toast from 'react-hot-toast'
 import { createFilterOption, updateFilterOption, deleteFilterOption } from '../../../services/adminServices'
 import ConfirmModal from '../../shared/ConfirmModal'
 import OptionFormModal from './OptionFormModal'
+import AnhTheLoai from './AnhTheLoai'
 import KhungTai from '../../bang/KhungTai'
 import { HEP } from '../../bang/lopBangHep'
 import { maNgan } from '../../../utils/format'
 
 
-const OptionTypeTab = ({ typeKey, typeLabel, hasNameEn, hasDescription, hasIsActive, options, onRefresh, loi }) => {
+// hasImage: chỉ thể loại nhạc có ảnh riêng (MLACP-581) — ảnh thẻ thể loại ở trang chủ.
+const OptionTypeTab = ({ typeKey, typeLabel, hasNameEn, hasDescription, hasImage, hasIsActive, options, onRefresh, loi }) => {
   // Loại buổi diễn là loại DUY NHẤT có isActive. Xoá bị backend chặn (409) khi đang có buổi diễn
   // dùng tới, nên "tắt" là cách thật để cho một loại nghỉ hưu.
   // Trang cha đọc qua /admin/event-categories (không lọc mục đã tắt) nên BẬT LẠI ĐƯỢC — trước đây
@@ -143,6 +145,9 @@ const OptionTypeTab = ({ typeKey, typeLabel, hasNameEn, hasDescription, hasIsAct
                 {hasDescription && (
                   <th scope="col" role="columnheader" className="p-4 text-sm font-semibold text-ink">Mô tả</th>
                 )}
+                {hasImage && (
+                  <th scope="col" role="columnheader" className="p-4 text-sm font-semibold text-ink">Ảnh trên trang chủ</th>
+                )}
                 {coTat && (
                   <th scope="col" role="columnheader" className="p-4 text-sm font-semibold text-ink">Trạng thái</th>
                 )}
@@ -161,6 +166,11 @@ const OptionTypeTab = ({ typeKey, typeLabel, hasNameEn, hasDescription, hasIsAct
                     {hasDescription && (
                       <td role="cell" data-nhan="Mô tả" className={`p-4 text-sm text-ink-soft whitespace-normal md:max-w-xs leading-relaxed ${HEP.o}`}>
                         {opt.description || <span className="text-ink-mute italic">—</span>}
+                      </td>
+                    )}
+                    {hasImage && (
+                      <td role="cell" data-nhan="Ảnh trên trang chủ" className={`p-4 ${HEP.o}`}>
+                        <AnhTheLoai theLoai={opt} onDoi={onRefresh} />
                       </td>
                     )}
                     {coTat && (
@@ -214,7 +224,7 @@ const OptionTypeTab = ({ typeKey, typeLabel, hasNameEn, hasDescription, hasIsAct
                 ))
               ) : (
                 <tr role="row">
-                  <td role="cell" colSpan={3 + (hasNameEn ? 1 : 0) + (hasDescription ? 1 : 0) + (coTat ? 1 : 0)} className="p-10 text-center text-ink-mute">
+                  <td role="cell" colSpan={3 + (hasNameEn ? 1 : 0) + (hasDescription ? 1 : 0) + (hasImage ? 1 : 0) + (coTat ? 1 : 0)} className="p-10 text-center text-ink-mute">
                     <Music2 size="32" className="mx-auto mb-3 opacity-50" />
                     Chưa có {typeLabel} nào.
                   </td>

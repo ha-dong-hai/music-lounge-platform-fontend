@@ -10,6 +10,8 @@
 //   Hết buổi chưa dùng thì mới lặp; buổi không ảnh bìa thì ảnh phòng trà; không có gì thì CoverFallback.
 // - Đây là chỗ DUY NHẤT trang chủ in dòng nhạc (danh sách chữ "Dòng nhạc" đã bỏ — trùng và đếm lệch). Tối đa SO_THE
 //   thẻ, dòng nhiều buổi nhất trước; quá SO_THE thì phần còn lại vẫn tìm được ở /shows (bộ lọc dòng nhạc).
+// - ẢNH RIÊNG CỦA THỂ LOẠI (MLACP-581): Admin đặt được ảnh cho từng thể loại (trang Admin → Danh mục lọc → Thể loại).
+//   Có ảnh riêng thì dùng nó và KHÔNG chiếm ảnh buổi diễn nào — các thẻ còn lại có thêm lựa chọn. Chưa đặt thì mượn như trên.
 // - Lưới tự chia đều theo số thẻ (auto-fit), thẻ nằm ngang: bản 4 cột cố định với 3 thẻ đứng để trống một góc và cao ~390px.
 import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
@@ -18,7 +20,7 @@ import CoverFallback from '../shared/CoverFallback'
 
 const SO_THE = 8
 
-const TheGu = ({ buoi = [], anhPhongTra = {} }) => {
+const TheGu = ({ buoi = [], anhPhongTra = {}, anhTheLoai = {} }) => {
   const the = useMemo(() => {
     const nhom = new Map()
     buoi.forEach((b) => (b.genres ?? []).forEach((g) => {
@@ -30,14 +32,14 @@ const TheGu = ({ buoi = [], anhPhongTra = {} }) => {
     // và Acoustic, cả ba trùng một ảnh — đo 03/10). Thứ tự HIỆN vẫn theo `xep`.
     const daDung = new Set()
     const anhCua = new Map()
-    ;[...xep].sort((a, b) => a.ds.filter((x) => x.thumbnail).length - b.ds.filter((x) => x.thumbnail).length).forEach((t) => {
+    ;[...xep].filter((t) => !anhTheLoai[t.id]).sort((a, b) => a.ds.filter((x) => x.thumbnail).length - b.ds.filter((x) => x.thumbnail).length).forEach((t) => {
       const coAnh = t.ds.filter((b) => b.thumbnail)
       const chon = coAnh.find((b) => !daDung.has(b.id)) ?? coAnh[0] ?? t.ds[0]
       daDung.add(chon.id)
       anhCua.set(t.id, chon.thumbnail || anhPhongTra[chon.loungeName] || null)
     })
-    return xep.map((t) => ({ ...t, anh: anhCua.get(t.id) }))
-  }, [buoi, anhPhongTra])
+    return xep.map((t) => ({ ...t, anh: anhTheLoai[t.id] || anhCua.get(t.id) }))
+  }, [buoi, anhPhongTra, anhTheLoai])
 
   if (the.length === 0) return null
 

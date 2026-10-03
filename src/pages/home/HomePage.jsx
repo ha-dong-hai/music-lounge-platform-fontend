@@ -26,6 +26,7 @@ import DauMoc from '../../components/program/DauMoc'
 import CuongVeCamKet from '../../components/program/CuongVeCamKet'
 import LienKetMuiTen from '../../components/shared/LienKetMuiTen'
 import { getShows, getFilterOptions } from '../../services/showServices'
+import { getGenres } from '../../services/catalogServices'
 import { formatMinPrice } from '../../utils/formatPrice'
 import { ngayDayDu, thuVietHoa } from '../../utils/ngayVietNam'
 import { timDemGanNhat, locDemNay } from '../../utils/lichDien'
@@ -73,6 +74,7 @@ const HomePage = () => {
   const [sapToi, setSapToi] = useState([])
   const [dangDien, setDangDien] = useState([])
   const [anhPhongTra, setAnhPhongTra] = useState({})
+  const [anhTheLoai, setAnhTheLoai] = useState({}) // id thể loại → ảnh riêng Admin đặt (MLACP-581)
   const [gu, setGu] = useState({ moods: [], atmospheres: [] })
   const [dsPhongTra, setDsPhongTra] = useState([])
   // Danh sách phòng trà (từ PhongTraTrenSan) — Đêm đã qua (DemDaQua) dùng để tìm các đêm đã diễn.
@@ -109,6 +111,9 @@ const HomePage = () => {
     getFilterOptions()
       .then((res) => { if (res.success) setGu({ moods: res.data.moods || [], atmospheres: res.data.atmospheres || [] }) })
       .catch(() => {}) // khối "tìm theo gu" tự ẩn khi không có danh mục — không chặn trang
+    getGenres()
+      .then((res) => { if (res.success) setAnhTheLoai(Object.fromEntries((res.data || []).filter((g) => g.imageUrl).map((g) => [g.id, g.imageUrl]))) })
+      .catch(() => {}) // không có ảnh riêng thì thẻ thể loại vẫn mượn ảnh buổi diễn
   }, [])
 
   // Ảnh không gian của phòng trà (DTO buổi diễn không có loungeId nên ghép theo TÊN; không khớp thì dùng ảnh bìa buổi diễn).
@@ -217,7 +222,7 @@ const HomePage = () => {
               Tìm theo gu
             </TieuDeKhoi>
             {/* Dòng nhạc = thẻ ảnh, luôn hiện (TheGu). Tâm trạng + không gian là lọc phụ, gập bên dưới. */}
-            <TheGu buoi={sapToi} anhPhongTra={anhPhongTra} />
+            <TheGu buoi={sapToi} anhPhongTra={anhPhongTra} anhTheLoai={anhTheLoai} />
             {moGu && (
               <div id="theo-gu-noi-dung" className="grid gap-8 md:grid-cols-2">
                 {[

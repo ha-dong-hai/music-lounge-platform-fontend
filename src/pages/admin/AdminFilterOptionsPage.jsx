@@ -19,7 +19,7 @@ import OptionTypeTab from '../../components/admin/filter-options/OptionTypeTab'
 // Cấu hình 4 tab — genres có nameEn, eventCategories có description, 2 loại kia chỉ có name.
 // `typeKey` phải trùng khoá trong FILTER_OPTION_TYPES ở adminServices.js.
 const TABS = [
-  { key: 'genres',          label: 'Thể loại',          typeLabel: 'thể loại',          hasNameEn: true },
+  { key: 'genres',          label: 'Thể loại',          typeLabel: 'thể loại',          hasNameEn: true, hasImage: true },
   { key: 'moods',           label: 'Tâm trạng',           typeLabel: 'tâm trạng',           hasNameEn: false },
   { key: 'atmospheres',     label: 'Không gian',     typeLabel: 'không gian',     hasNameEn: false },
   { key: 'eventCategories', label: 'Loại buổi diễn',  typeLabel: 'loại buổi diễn', hasNameEn: false, hasDescription: true, hasIsActive: true },
@@ -121,6 +121,7 @@ const AdminFilterOptionsPage = () => {
             typeLabel={tab.typeLabel}
             hasNameEn={tab.hasNameEn}
             hasDescription={tab.hasDescription}
+            hasImage={tab.hasImage}
             hasIsActive={tab.hasIsActive}
             options={options[tab.key]}
             loi={!!loaiLoi[tab.key]}

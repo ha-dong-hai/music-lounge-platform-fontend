@@ -224,6 +224,18 @@ export const getAdminGenres = async () => {
   return axiosClient.get('/admin/genres');
 };
 
+// ===== ẢNH RIÊNG CỦA THỂ LOẠI (MLACP-581) =====
+// Ảnh thẻ thể loại ở trang chủ. ENDPOINT RIÊNG, không nằm trong PUT /admin/genres/{id} (PUT đó ghi đè mọi trường nó nhận —
+// gộp vào thì sửa tên là mất ảnh). imageUrl phải là URL do POST /uploads/images trả về; URL ngoài bị 400.
+// Gỡ ảnh → thẻ quay về mượn ảnh của một buổi hòa nhạc thuộc thể loại đó. Cả hai trả 204.
+export const setGenreImage = async (id, imageUrl) => {
+  return axiosClient.put(`/admin/genres/${id}/image`, { imageUrl });
+};
+
+export const clearGenreImage = async (id) => {
+  return axiosClient.delete(`/admin/genres/${id}/image`);
+};
+
 // ===== GỠ ĐÁNH GIÁ =====
 // `reason` BẮT BUỘC. LƯU Ý: gỡ đánh giá qua hàng đợi báo cáo nội dung (content-reports/resolve với
 // action 'Removed') cũng dẫn tới cùng kết quả. Dùng hàm này khi gỡ trực tiếp mà không đi từ báo cáo nào.
