@@ -40,7 +40,7 @@ import {
   getShowDetail, submitShow, setLegalApproval, addPerformance, deletePerformance,
   updatePerformance,
 } from '../../services/showServices'
-import { getTiers, createTier, deleteTier, updateTier } from '../../services/ticketTierServices'
+import { getTiers, createTier, deleteTier, updateTier, assignTierZone } from '../../services/ticketTierServices'
 import { getLoungeZones } from '../../services/loungeServices'
 import ShowAnalyticsSection from '../../components/owner/ShowAnalyticsSection'
 import { StatusBadge } from '../../components/admin/shows/ShowBadges'
@@ -313,6 +313,23 @@ const OwnerShowDetailPage = () => {
       await load()
     } catch (err) {
       toast.error(err.response?.data?.message || 'Không tạo được hạng vé.', { duration: 6000 })
+    } finally { setBusy(null) }
+  }
+
+  // MLACP-545: gắn khu cho hạng vé (kể cả buổi đã mở bán, nếu hạng vé chưa có khu). Không gắn khu thì sơ đồ chỗ ngồi
+  // của khán giả không có khu nào để chọn.
+  const [khuChon, setKhuChon] = useState({}) // { [tierId]: zoneId đang chọn trong ô }
+  const handleAssignZone = async (tierId) => {
+    const zoneId = khuChon[tierId]
+    if (!zoneId) return
+    setBusy(`zone-${tierId}`)
+    try {
+      await assignTierZone(tierId, zoneId)
+      toast.success('Đã gắn khu ghế cho hạng vé.')
+      setKhuChon((p) => ({ ...p, [tierId]: undefined }))
+      await load()
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Không gắn được khu ghế.')
     } finally { setBusy(null) }
   }
 
@@ -673,6 +690,13 @@ const OwnerShowDetailPage = () => {
                         {t.accessType === 'Livestream' ? 'Trực tuyến' : 'Tại chỗ'}
                       </span>
                     </p>
+                    {t.accessType !== 'Livestream' && (
+                      <p className="mt-1 text-xs text-ink-soft">
+                        Khu ghế: {t.zoneId
+                          ? <span className="text-ink font-medium">{zones.find((z) => z.id === t.zoneId)?.name ?? 'đã gắn'}</span>
+                          : <span className="text-warning font-medium">chưa gắn — khán giả không thấy hạng vé này trên sơ đồ chỗ ngồi</span>}
+                      </p>
+                    )}
                     <div className="mt-1.5 space-y-0.5">
                       {t.prices?.map((pr) => (
                         <p key={pr.id} className="text-xs text-ink-soft">
@@ -704,6 +728,28 @@ const OwnerShowDetailPage = () => {
                     </div>
                   )}
                 </div>
+
+                {/* GẮN KHU (MLACP-545): hạng vé tại chỗ chưa có khu, hoặc buổi còn Nháp. Đã mở bán + đã có khu thì không
+                    hiện — backend không cho đổi để người đã mua không bị chuyển chỗ. */}
+                {t.accessType !== 'Livestream' && zones.length > 0 && !['Ended', 'Cancelled'].includes(show.status)
+                  && (isDraft || !t.zoneId) && (
+                  <div className="mt-3 pt-3 border-t border-line flex flex-wrap items-center gap-2">
+                    <label htmlFor={`gan-khu-${t.id}`} className="text-xs text-ink-soft">{t.zoneId ? 'Đổi khu ghế' : 'Gắn khu ghế'}</label>
+                    <select id={`gan-khu-${t.id}`} value={khuChon[t.id] ?? ''}
+                      onChange={(e) => setKhuChon((p) => ({ ...p, [t.id]: e.target.value }))}
+                      className="min-h-[44px] px-3 border-2 border-ink bg-card text-sm">
+                      <option value="">Chọn khu…</option>
+                      {zones.filter((z) => z.isActive !== false && z.id !== t.zoneId).map((z) => (
+                        <option key={z.id} value={z.id}>{z.name} ({z.capacity} chỗ)</option>
+                      ))}
+                    </select>
+                    <button type="button" onClick={() => handleAssignZone(t.id)} disabled={!khuChon[t.id] || !!busy}
+                      className="inline-flex items-center min-h-[44px] px-4 bg-ink text-lamp text-sm font-semibold disabled:opacity-50">
+                      {busy === `zone-${t.id}` ? 'Đang gắn…' : 'Gắn khu'}
+                    </button>
+                    {!isDraft && <p className="basis-full text-xs text-ink-mute">Buổi đã mở bán: chỉ gắn được một lần, sau đó không đổi khu nữa.</p>}
+                  </div>
+                )}
 
                 {/* FORM SỬA HẠNG VÉ — GIÁ KHÔNG NẰM Ở ĐÂY, giá thuộc đợt giá riêng */}
                 {suaHangVe?.id === t.id && (

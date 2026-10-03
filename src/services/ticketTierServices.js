@@ -21,6 +21,12 @@ export const updateTier = async (tierId, { name, description = null, totalCapaci
   return axiosClient.put(`/ticket-tiers/${tierId}`, { name, description, totalCapacity });
 };
 
+// MLACP-545: gắn khu ghế cho hạng vé tại chỗ. Buổi còn Nháp: gắn/đổi tự do; đã mở bán: chỉ gắn khi hạng vé CHƯA có khu
+// (backend từ chối đổi khu để người đã mua không bị chuyển chỗ). Khu phải thuộc đúng phòng trà của buổi diễn.
+export const assignTierZone = async (tierId, zoneId) => {
+  return axiosClient.put(`/ticket-tiers/${tierId}/zone`, { zoneId });
+};
+
 export const deleteTier = async (tierId) => {
   return axiosClient.delete(`/ticket-tiers/${tierId}`);
 };
