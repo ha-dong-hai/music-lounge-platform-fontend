@@ -9,9 +9,12 @@
 //   - 24 trang chỉ có Trước/Sau → dùng PhanTrang chung (dải số kiểu GOV.UK, dòng "Hiện 11–20 trên 237 đánh giá"); trang
 //     nằm trên địa chỉ (?dgTrang=) qua useDanhSachMayChu nên Quay lại về đúng trang, và dữ liệu cũ giữ tới khi trang mới về.
 //   - Bình luận 1.000 ký tự cao 662px trên điện thoại → thu gọn 5 dòng + "Xem thêm" (chỉ khi thật sự bị cắt).
+//   - LỌC THEO SỐ SAO (MLACP-573, cần backend PR #388): mỗi thanh "5 ★ … 1 ★" là một nút bật/tắt (aria-pressed), lọc nằm
+//     trên địa chỉ (?dgSao=5). Tổng quan KHÔNG đổi theo bộ lọc (backend tính trên mọi đánh giá). Mức 0 đánh giá thì khoá nút.
 import { useState, useRef, useLayoutEffect, useMemo } from 'react'
 
 import { Loader2, Star, MessageSquare, Trash2, X } from 'lucide-react'
+import { parseAsInteger } from 'nuqs'
 import { useDanhSachMayChu } from '../../hooks/useDanhSachMayChu'
 import PhanTrang from '../bang/PhanTrang'
 import { ngayDayDu } from '../../utils/ngayVietNam'
@@ -126,21 +129,26 @@ const BinhLuan = ({ chu }) => {
 
 // Đáp án của GET /lounge-shows/{id}/ratings lồng hai tầng: { averageScore, totalCount, scoreDistribution, items: { items,
 // page, … } }. Trải tầng trong ra cho useDanhSachMayChu đọc trang/tổng, giữ phần tổng quan ở `tongQuan`.
-const goiDanhGia = (showId) => async ({ page, pageSize }) => {
-  const res = await getShowRatings(showId, { page, pageSize })
+const goiDanhGia = (showId) => async ({ page, pageSize, dgSao }) => {
+  // Số sao sửa tay trên địa chỉ ngoài 1–5 thì bỏ (backend trả 400 cho giá trị đó).
+  const score = Number.isInteger(dgSao) && dgSao >= 1 && dgSao <= 5 ? dgSao : undefined
+  const res = await getShowRatings(showId, { page, pageSize, score })
   if (!res?.success) return res
   const { items: trangDg, ...tongQuan } = res.data ?? {}
   return { ...res, data: { ...(trangDg ?? {}), tongQuan } }
 }
 
 const ID_DS = 'ds-danh-gia'
+// Ngoài component: useDanhSachMayChu ghi nhớ theo đối tượng này, tạo mới mỗi lần vẽ là tải lại mãi.
+const BO_LOC_DG = { dgSao: parseAsInteger }
 
 const ShowRatings = ({ showId }) => {
   const role = useAuthStore((s) => s.user?.role)
   const laAdmin = role === 'Admin'
   const [removing, setRemoving] = useState(null)
   const goi = useMemo(() => goiDanhGia(showId), [showId])
-  const ds = useDanhSachMayChu({ khoa: ['danh-gia-buoi', showId], goi, coMacDinh: 10, cacCo: [10], tien: 'dg' })
+  const ds = useDanhSachMayChu({ khoa: ['danh-gia-buoi', showId], goi, boLoc: BO_LOC_DG, coMacDinh: 10, cacCo: [10], tien: 'dg' })
+  const saoLoc = [1, 2, 3, 4, 5].includes(ds.boLoc.dgSao) ? ds.boLoc.dgSao : null
   const data = ds.duLieu?.tongQuan ?? null
 
   if (ds.dangTai) {
@@ -183,23 +191,38 @@ const ShowRatings = ({ showId }) => {
           <p className="text-xs text-ink-mute mt-1.5">{data.totalCount} đánh giá</p>
         </div>
 
-        <div className="flex-1 space-y-1.5">
+        <div className="flex-1" role="group" aria-label="Lọc nhận xét theo số sao">
           {[5, 4, 3, 2, 1].map((sao) => {
             // Khoá có thể thiếu khi không đánh giá nào ở mức đó — mặc định 0.
             const soLuong = Number(phanBo[sao] ?? phanBo[String(sao)] ?? 0)
             const tiLe = data.totalCount > 0 ? (soLuong / data.totalCount) * 100 : 0
+            const dang = saoLoc === sao
             return (
-              <div key={sao} className="flex items-center gap-3">
-                <span className="text-xs text-ink-mute w-8 flex-shrink-0 tabular-nums">{sao} ★</span>
-                <div className="flex-1 h-2 bg-sunken overflow-hidden">
-                  <div className="h-full bg-ink" style={{ width: `${tiLe}%` }} />
-                </div>
+              <button key={sao} type="button" aria-pressed={dang} disabled={!dang && soLuong === 0}
+                aria-label={`${sao} sao: ${soLuong} đánh giá${dang ? ' — đang lọc, bấm để bỏ' : ''}`}
+                onClick={() => ds.datBoLoc({ dgSao: dang ? null : sao })}
+                className={`w-full flex items-center gap-3 min-h-[36px] px-2 -mx-2 text-left transition-colors disabled:cursor-not-allowed disabled:opacity-45 ${dang ? 'bg-sunken outline outline-2 outline-ink' : 'hover:bg-sunken'}`}>
+                <span className={`text-xs w-8 flex-shrink-0 tabular-nums ${dang ? 'font-bold text-ink' : 'text-ink-mute'}`}>{sao} ★</span>
+                <span className="flex-1 h-2 bg-sunken overflow-hidden" aria-hidden="true">
+                  <span className="block h-full bg-ink" style={{ width: `${tiLe}%` }} />
+                </span>
                 <span className="text-xs text-ink-mute w-10 text-right flex-shrink-0 tabular-nums">{soLuong}</span>
-              </div>
+              </button>
             )
           })}
+          <p className="text-xs text-ink-mute mt-2">Bấm vào một mức sao để chỉ xem nhận xét mức đó.</p>
         </div>
       </div>
+
+      {saoLoc && (
+        <p className="flex flex-wrap items-center gap-x-3 text-sm text-ink" role="status">
+          <span>Đang xem nhận xét <b>{saoLoc} sao</b> ({ds.tong} / {data.totalCount}).</span>
+          <button type="button" onClick={() => ds.datBoLoc({ dgSao: null })} className="min-h-[44px] font-semibold underline underline-offset-4">Xem mọi đánh giá</button>
+        </p>
+      )}
+      {saoLoc && ds.items.length === 0 && !ds.laDuLieuCu && (
+        <p className="bg-card border border-line p-6 text-sm text-ink-mute">Chưa có nhận xét {saoLoc} sao.</p>
+      )}
 
       {/* NHẬN XÉT — tabIndex -1 để PhanTrang đưa tiêu điểm về đầu danh sách khi đổi trang */}
       <div id={ID_DS} tabIndex={-1} aria-busy={ds.laDuLieuCu || undefined}
