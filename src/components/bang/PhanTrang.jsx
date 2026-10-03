@@ -23,7 +23,16 @@ const PhanTrang = ({ ds, tenDonVi = 'mục', idDanhSach, className = '' }) => {
     datTrang(n)
     // Đưa tiêu điểm về đầu danh sách: người dùng bàn phím không phải Tab ngược cả trang, và trình đọc màn hình biết
     // nội dung đã đổi (GOV.UK). Danh sách phải có id={idDanhSach} và tabIndex={-1}.
-    if (idDanhSach) requestAnimationFrame(() => document.getElementById(idDanhSach)?.focus())
+    // focus() KHÔNG cuộn khi danh sách còn lộ một phần (người dùng vừa bấm số trang ở ĐÁY danh sách): đo 03/10 ở khối
+    // đánh giá, sang trang 2 mà đầu danh sách vẫn khuất 435px. Nên tự đưa đầu danh sách lên khi nó nằm trên mép màn hình.
+    if (idDanhSach) {
+      requestAnimationFrame(() => {
+        const el = document.getElementById(idDanhSach)
+        if (!el) return
+        el.focus({ preventScroll: true })
+        if (el.getBoundingClientRect().top < 0) el.scrollIntoView({ block: 'start' })
+      })
+    }
   }
   return (
     <div className={`flex flex-wrap items-center justify-between gap-x-6 gap-y-3 ${className}`}>

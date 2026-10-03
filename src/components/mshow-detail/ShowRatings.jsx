@@ -6,9 +6,14 @@
 //   - Xuống dòng người viết gõ bị gộp thành một đoạn → giữ xuống dòng (white-space: pre-line).
 //   - Bấm "Sau": cả khối thay bằng vòng xoay, trang co từ ~3.170px xuống ~1.740px nên vị trí đọc nhảy
 //     → giữ danh sách cũ (mờ đi, aria-busy) tới khi trang mới về, rồi đưa đầu danh sách vào tầm nhìn.
-import { useState, useEffect, useCallback, useRef } from 'react'
+//   - 24 trang chỉ có Trước/Sau → dùng PhanTrang chung (dải số kiểu GOV.UK, dòng "Hiện 11–20 trên 237 đánh giá"); trang
+//     nằm trên địa chỉ (?dgTrang=) qua useDanhSachMayChu nên Quay lại về đúng trang, và dữ liệu cũ giữ tới khi trang mới về.
+//   - Bình luận 1.000 ký tự cao 662px trên điện thoại → thu gọn 5 dòng + "Xem thêm" (chỉ khi thật sự bị cắt).
+import { useState, useRef, useLayoutEffect, useMemo } from 'react'
 
 import { Loader2, Star, MessageSquare, Trash2, X } from 'lucide-react'
+import { useDanhSachMayChu } from '../../hooks/useDanhSachMayChu'
+import PhanTrang from '../bang/PhanTrang'
 import { ngayDayDu } from '../../utils/ngayVietNam'
 import toast from 'react-hot-toast'
 import { getShowRatings } from '../../services/showServices'
@@ -84,38 +89,70 @@ const RemoveModal = ({ rating, onClose, onDone }) => {
   )
 }
 
+// Bình luận dài: kẹp 5 dòng, nút "Xem thêm" CHỈ hiện khi chữ thật sự bị cắt (đo scrollHeight, không đoán theo số ký tự —
+// 300 ký tự có xuống dòng có thể dài hơn 600 ký tự liền).
+const BinhLuan = ({ chu }) => {
+  const [mo, setMo] = useState(false)
+  // 'do' = đang đo (đang kẹp); 'cat' = phần giấu dài > 2 dòng → giữ kẹp + nút; 'du' = in hết, không cần nút.
+  const [kieu, setKieu] = useState('do')
+  const biCat = kieu === 'cat'
+  const p = useRef(null)
+  useLayoutEffect(() => {
+    const el = p.current
+    if (!el || mo || kieu === 'du') return undefined
+    // Chỉ thu gọn khi phần bị giấu dài hơn 2 dòng: giấu 1–2 dòng sau một nút "Xem thêm" phiền hơn là in luôn (đo 03/10:
+    // bình luận 1.000 ký tự ở màn 1440px chỉ dư 1 dòng, bấm "Xem thêm" ra thêm 23px).
+    const do_ = () => {
+      const dong = Number.parseFloat(getComputedStyle(el).lineHeight) || 20
+      setKieu(el.scrollHeight - el.clientHeight > dong * 2 ? 'cat' : 'du')
+    }
+    do_()
+    const ro = new ResizeObserver(do_)
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [chu, mo, kieu])
+  return (
+    <>
+      <p ref={p} className={`text-sm text-ink-soft mt-2 leading-relaxed ${CHU_NGUOI_VIET} ${mo || kieu === 'du' ? '' : 'line-clamp-5'}`}>{chu}</p>
+      {(biCat || mo) && (
+        <button type="button" onClick={() => setMo((v) => !v)} aria-expanded={mo}
+          className="mt-1 min-h-[44px] text-sm font-semibold text-ink underline underline-offset-4">
+          {mo ? 'Thu gọn' : 'Xem thêm'}
+        </button>
+      )}
+    </>
+  )
+}
+
+// Đáp án của GET /lounge-shows/{id}/ratings lồng hai tầng: { averageScore, totalCount, scoreDistribution, items: { items,
+// page, … } }. Trải tầng trong ra cho useDanhSachMayChu đọc trang/tổng, giữ phần tổng quan ở `tongQuan`.
+const goiDanhGia = (showId) => async ({ page, pageSize }) => {
+  const res = await getShowRatings(showId, { page, pageSize })
+  if (!res?.success) return res
+  const { items: trangDg, ...tongQuan } = res.data ?? {}
+  return { ...res, data: { ...(trangDg ?? {}), tongQuan } }
+}
+
+const ID_DS = 'ds-danh-gia'
+
 const ShowRatings = ({ showId }) => {
   const role = useAuthStore((s) => s.user?.role)
   const laAdmin = role === 'Admin'
-
-  const [data, setData] = useState(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const [page, setPage] = useState(1)
   const [removing, setRemoving] = useState(null)
-  const dauDanhSach = useRef(null)
-  const daChuyenTrang = useRef(false)
+  const goi = useMemo(() => goiDanhGia(showId), [showId])
+  const ds = useDanhSachMayChu({ khoa: ['danh-gia-buoi', showId], goi, coMacDinh: 10, cacCo: [10], tien: 'dg' })
+  const data = ds.duLieu?.tongQuan ?? null
 
-  const load = useCallback(async () => {
-    setIsLoading(true)
-    try {
-      const res = await getShowRatings(showId, { page, pageSize: 10 })
-      if (res.success) setData(res.data)
-      // Sang trang khác: đưa đầu danh sách vào tầm nhìn nếu nó đang khuất (người đọc vừa bấm nút ở CUỐI danh sách).
-      if (daChuyenTrang.current && dauDanhSach.current && dauDanhSach.current.getBoundingClientRect().top < 0) {
-        dauDanhSach.current.scrollIntoView({ block: 'start' })
-      }
-    } catch (err) {
-      toast.error(err.response?.data?.message || 'Không tải được đánh giá.')
-    } finally {
-      setIsLoading(false)
-    }
-  }, [showId, page])
-
-  useEffect(() => { const chay = async () => { await load() }; chay() }, [load])
-
-  // Vòng xoay toàn khối CHỈ lần tải đầu; chuyển trang thì giữ danh sách cũ (xem chú thích đầu file).
-  if (isLoading && !data) {
+  if (ds.dangTai) {
     return <div className="py-16 flex justify-center"><Loader2 size={28} className="animate-spin text-ink" /></div>
+  }
+  if (ds.loi && !data) {
+    return (
+      <div className="bg-card border border-line p-8 text-center">
+        <p className="font-semibold text-ink">Chưa tải được đánh giá.</p>
+        <button type="button" onClick={() => ds.taiLai()} className="mt-3 min-h-[44px] px-4 border-2 border-ink font-semibold hover:bg-ink hover:text-lamp">Thử lại</button>
+      </div>
+    )
   }
 
   if (!data || data.totalCount === 0) {
@@ -129,8 +166,6 @@ const ShowRatings = ({ showId }) => {
   }
 
   const phanBo = data.scoreDistribution ?? {}
-  const items = data.items?.items ?? []
-  const totalPages = data.items?.totalPages ?? 1
 
   return (
     <div className="space-y-5">
@@ -166,17 +201,17 @@ const ShowRatings = ({ showId }) => {
         </div>
       </div>
 
-      {/* NHẬN XÉT */}
-      <div ref={dauDanhSach} aria-busy={isLoading || undefined}
-        className={`bg-card border border-line divide-y divide-line scroll-mt-24 transition-opacity ${isLoading ? 'opacity-50' : ''}`}>
-        {items.map((r) => (
+      {/* NHẬN XÉT — tabIndex -1 để PhanTrang đưa tiêu điểm về đầu danh sách khi đổi trang */}
+      <div id={ID_DS} tabIndex={-1} aria-busy={ds.laDuLieuCu || undefined}
+        className={`bg-card border border-line divide-y divide-line scroll-mt-24 focus:outline-none transition-opacity ${ds.laDuLieuCu ? 'opacity-50' : ''}`}>
+        {ds.items.map((r) => (
           <div key={r.id} className="p-5 flex items-start justify-between gap-4">
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2">
                 <p className="text-sm font-semibold text-ink [overflow-wrap:anywhere]">{r.userName || 'Khán giả'}</p>
                 <SaoHang score={r.score} />
               </div>
-              {r.comment && <p className={`text-sm text-ink-soft mt-2 leading-relaxed ${CHU_NGUOI_VIET}`}>{r.comment}</p>}
+              {r.comment && <BinhLuan chu={r.comment} />}
               <p className="text-xs text-ink-mute mt-2">{ngayDayDu(r.createdAt)}</p>
             </div>
             {laAdmin && (
@@ -189,24 +224,12 @@ const ShowRatings = ({ showId }) => {
         ))}
       </div>
 
-      {totalPages > 1 && (
-        <div className="flex items-center justify-center gap-3">
-          <button onClick={() => { daChuyenTrang.current = true; setPage((p) => Math.max(1, p - 1)) }} disabled={page <= 1 || isLoading}
-            className="px-4 py-2 border border-line text-sm text-ink-soft hover:bg-sunken disabled:opacity-40">
-            Trước
-          </button>
-          <span className="text-sm text-ink-mute">Trang {page}/{totalPages}</span>
-          <button onClick={() => { daChuyenTrang.current = true; setPage((p) => Math.min(totalPages, p + 1)) }} disabled={page >= totalPages || isLoading}
-            className="px-4 py-2 border border-line text-sm text-ink-soft hover:bg-sunken disabled:opacity-40">
-            Sau
-          </button>
-        </div>
-      )}
+      <PhanTrang ds={ds} tenDonVi="đánh giá" idDanhSach={ID_DS} />
 
       {removing && (
         // Gỡ xong tải lại CẢ KHỐI: điểm trung bình và phân bố do backend tính, xoá dòng khỏi
         // state là hiển thị sai điểm.
-        <RemoveModal rating={removing} onClose={() => setRemoving(null)} onDone={load} />
+        <RemoveModal rating={removing} onClose={() => setRemoving(null)} onDone={() => ds.taiLai()} />
       )}
     </div>
   )
