@@ -65,6 +65,7 @@ import NotFoundPage from '../pages/NotFoundPage'
 import OwnerShowsPage from '../pages/owner/OwnerShowsPage'
 import OwnerShowDetailPage from '../pages/owner/OwnerShowDetailPage'
 import FnbOrderPage from '../pages/fnb/FnbOrderPage'
+import TrangDauKhuPhongTra from './TrangDauKhuPhongTra'
 
 const AppRouter = createBrowserRouter([
   {
@@ -131,7 +132,7 @@ const AppRouter = createBrowserRouter([
     // Staff đi qua được route rồi ăn 403 từ API — trang tải ra một lỗi chung, không ai hiểu
     // vì sao. Giữ mức quyền ở đây khớp với policy của backend.
     children: [
-      { index: true, element: <OwnerLivestreamsPage /> },
+      { index: true, element: <TrangDauKhuPhongTra /> },
       { path: 'lounge', element: <ProtectedRoute requiredRoles={['Owner']}><OwnerLoungePage /></ProtectedRoute> },
       { path: 'bank-accounts', element: <ProtectedRoute requiredRoles={['Owner']}><OwnerBankAccountsPage /></ProtectedRoute> },
       { path: 'zones', element: <ProtectedRoute requiredRoles={['Owner']}><OwnerZonesPage /></ProtectedRoute> },
