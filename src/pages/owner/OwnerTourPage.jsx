@@ -13,7 +13,7 @@
 // - VỊ TRÍ SCENE là chấm định vị TRÊN ẢNH MẶT BẰNG của phòng trà (ảnh đặt ở màn Khu vực chỗ ngồi),
 //   theo phần trăm 0–100. Nó KHÔNG quyết định thứ tự hay hướng di chuyển — việc nhảy giữa các scene
 //   do hotspot quyết định. Backend bắt X/Y phải cùng có hoặc cùng trống; trống cả hai = xoá chấm.
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import {
   Loader2, Plus, Trash2, Upload, Layers, Box, RefreshCw, Link2, X, AlertTriangle, Clock,
   MapPin, Save, Eraser,
@@ -275,13 +275,19 @@ const OwnerTourPage = () => {
   // Scene đang nhắm để bấm đặt chấm trên ảnh mặt bằng. null = không ở chế độ đặt.
   const [sceneDangDat, setSceneDangDat] = useState(null)
   const [xoaScene, setXoaScene] = useState(null)
-  const [hotspotOf, setHotspotOf] = useState(null)
+  // Chỉ nhớ MÃ điểm đứng đang mở hộp điểm bấm, dữ liệu lấy từ `scenes` mới nhất. Bản trước giữ nguyên object lúc mở hộp:
+  // xoá một điểm bấm xong máy chủ đã xoá, trang đã tải lại, nhưng hộp vẫn vẽ theo bản chụp cũ — phải tải lại trang mới
+  // thấy mất (chủ dự án gặp 03/10/2026).
+  const [hotspotOfId, setHotspotOfId] = useState(null)
   const [khu, setKhu] = useState([]) // khu đang mở — cho điểm bấm loại Khu ghế
   const [donGhep, setDonGhep] = useState(null) // { id, status }
   const [anhGhep, setAnhGhep] = useState([])
 
+  // Vòng xoay TOÀN TRANG chỉ ở lần tải đầu. Bản trước bật lại mỗi lần lưu/xoá: cả trang bị thay bằng vòng xoay rồi vẽ lại
+  // — màn hình nháy, hộp đang mở bị đóng/dựng lại, mất chỗ đang cuộn. Các lần sau dữ liệu mới thay vào tại chỗ.
+  const daTaiLanDau = useRef(false)
   const load = useCallback(async () => {
-    setIsLoading(true)
+    if (!daTaiLanDau.current) setIsLoading(true)
     setLoiTai(false)
     try {
       const res = await getLounges({ mine: true })
@@ -308,6 +314,7 @@ const OwnerTourPage = () => {
     } catch {
       setLoiTai(true)
     } finally {
+      daTaiLanDau.current = true
       setIsLoading(false)
     }
   }, [])
@@ -444,6 +451,7 @@ const OwnerTourPage = () => {
   }
 
   const scenes = tour?.scenes ?? []
+  const hotspotOf = scenes.find((s) => s.id === hotspotOfId) ?? null
 
   return (
     <div className="space-y-6">
@@ -543,7 +551,7 @@ const OwnerTourPage = () => {
                     {(sc.hotspots?.length ?? 0)} hotspot
                   </p>
                   <div className="mt-2 flex gap-2 flex-wrap">
-                    <button onClick={() => setHotspotOf(sc)}
+                    <button onClick={() => setHotspotOfId(sc.id)}
                       className="flex items-center gap-1.5 justify-center min-h-[44px] px-4 border-2 border-ink bg-card text-ink text-sm font-semibold hover:bg-ink hover:text-lamp">
                       <Link2 size={12} /> Hotspot
                     </button>
@@ -670,7 +678,7 @@ const OwnerTourPage = () => {
 
       {hotspotOf && (
         <HotspotModal loungeId={lounge.id} scene={hotspotOf} scenes={scenes} zones={khu}
-          onClose={() => setHotspotOf(null)} onSaved={load} />
+          onClose={() => setHotspotOfId(null)} onSaved={load} />
       )}
       {xoaScene && (
         <ConfirmModal
