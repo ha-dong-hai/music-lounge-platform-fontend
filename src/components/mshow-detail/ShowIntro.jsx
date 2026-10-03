@@ -8,8 +8,8 @@
 //  2. CHÍNH SÁCH HOÀN VÉ in ngay ở đây, dùng NGUYÊN VĂN câu `refundPolicy.summary` của backend — frontend không tự
 //     diễn đạt lại lời hứa về tiền (diễn đạt lại là có thể hứa khác đi).
 //  3. BỎ ảnh đại diện lấy từ api.dicebear.com: gọi sang dịch vụ ngoài mỗi lần mở trang, và vòng tròn chữ cái nền xanh
-//     lục không thuộc thế giới này. Nghệ sĩ có ảnh thật thì in ảnh vuông 64px; không có thì in ô "Chưa có ảnh" của
-//     trang (CoverFallback) — 02/10/2026 chủ dự án: chỉ in tên thì line-up toàn chữ, kém trực quan.
+//     lục không thuộc thế giới này. 03/10/2026: line-up in thành ảnh Polaroid (ảnh thật hoặc ô "Chưa có ảnh" của trang,
+//     CoverFallback) — 02/10 chủ dự án: chỉ in tên thì line-up toàn chữ, kém trực quan.
 //
 // Dùng chung cho hai trang nên mọi trường mới đều có dự phòng: `data.tags ?? data.moodTags`, nút Theo dõi chỉ hiện khi
 // trang truyền `onToggleFollow` (trang Admin không truyền).
@@ -19,6 +19,7 @@ import DauMoc from '../program/DauMoc'
 import CoverFallback from '../shared/CoverFallback'
 
 const VAI = { Main: 'Hát chính', Guest: 'Khách mời', Host: 'Dẫn chương trình' }
+const XOAY_ANH = ['-rotate-2', 'rotate-[1.5deg]', '-rotate-1', 'rotate-2'] // nghiêng cố định theo vị trí tấm ảnh
 const gioTietMuc = (setTime) => (typeof setTime === 'string' && setTime.length >= 5 ? setTime.slice(0, 5) : null)
 
 const Muc = ({ nhan, children }) => (
@@ -44,27 +45,30 @@ const ShowIntro = ({ data, isFollowing, onToggleFollow }) => {
       <div>
         <h2 className="text-3xl sm:text-4xl text-ink border-b-2 border-ink pb-3">Chương trình</h2>
         {lineUp.length > 0 ? (
-          <ol>
-            {lineUp.map((p) => (
-              <li key={p.performanceId ?? p.id} className={`grid ${coGio ? 'grid-cols-[4.5rem_minmax(0,1fr)]' : 'grid-cols-1'} gap-4 items-start py-4 border-b border-ink/20`}>
-                {/* Giờ lên sân khấu — dữ liệu, nên chữ mono. Chưa có giờ thì in gạch, không bịa giờ. */}
-                {coGio && <span className="font-mono text-lg text-ink pt-1">{gioTietMuc(p.setTime) ?? '—'}</span>}
-                <div className="flex items-start gap-3 min-w-0">
-                  <div className="w-16 h-16 flex-shrink-0 border border-ink overflow-hidden">
+          // LINE-UP POLAROID (03/10/2026, chủ dự án chọn P3): mỗi nghệ sĩ một tấm ảnh chụp lấy liền — ảnh vuông, TÊN viết
+          // tay trên dải giấy đáy (Hand-Is-On-Photo Rule), giờ lên sân khấu (mono, dữ liệu) + vai trò in dưới tấm ảnh.
+          // Xếp theo thứ tự tiết mục, tự xuống dòng khi line-up dài; nghiêng cố định theo vị trí (không ngẫu nhiên). Chưa có
+          // ảnh thì ô "Chưa có ảnh" của trang — không ảnh kho. Rê chuột: tấm ảnh thẳng lại (chỉ khi không giảm chuyển động).
+          <ol className="flex flex-wrap gap-x-6 gap-y-8 pt-6 pb-2">
+            {lineUp.map((p, i) => (
+              <li key={p.performanceId ?? p.id} className="w-40 sm:w-44">
+                {/* Mỗi nghệ sĩ dẫn sang trang riêng: lịch diễn của họ + sao kê tiền ủng hộ công khai. */}
+                <Link to={`/performers/${p.id}`}
+                  className={`block bg-card p-2 pb-0 shadow-lift border border-ink/10 ${XOAY_ANH[i % XOAY_ANH.length]} motion-safe:transition-transform motion-safe:duration-300 motion-safe:hover:rotate-0 motion-safe:hover:-translate-y-1`}>
+                  <div className="aspect-square w-full overflow-hidden bg-board">
                     {p.avatarUrl
                       ? <img src={p.avatarUrl} alt="" loading="lazy" className="w-full h-full object-cover" />
                       : <CoverFallback />}
                   </div>
-                  <div className="min-w-0">
-                    {/* Mỗi nghệ sĩ dẫn sang trang riêng: lịch diễn của họ + sao kê tiền ủng hộ công khai. */}
-                    <Link to={`/performers/${p.id}`} className="font-display text-2xl leading-none text-ink hover:underline underline-offset-4 break-words">{p.name}</Link>
-                    {(VAI[p.role] || p.acceptsDonation) && (
-                      <p className="text-sm text-ink-soft mt-1.5">
-                        {[VAI[p.role], p.acceptsDonation && 'nhận ủng hộ có sao kê công khai'].filter(Boolean).join(', ').replace(/^./, (c) => c.toUpperCase())}
-                      </p>
-                    )}
-                  </div>
-                </div>
+                  <p className="px-1 pt-1.5 pb-2.5 font-hand text-xl leading-tight text-ink break-words">{p.name}</p>
+                </Link>
+                {/* Giờ lên sân khấu — dữ liệu, nên chữ mono. Cả buổi chưa ai có giờ thì không in giờ (không bịa giờ). */}
+                {(coGio || VAI[p.role] || p.acceptsDonation) && (
+                  <p className="mt-3 text-sm text-ink-soft">
+                    {coGio && <span className="font-mono text-ink mr-2">{gioTietMuc(p.setTime) ?? '—'}</span>}
+                    {[VAI[p.role], p.acceptsDonation && 'nhận ủng hộ có sao kê'].filter(Boolean).join(', ').replace(/^./, (c) => c.toUpperCase())}
+                  </p>
+                )}
               </li>
             ))}
           </ol>
