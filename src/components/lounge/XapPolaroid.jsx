@@ -19,7 +19,7 @@
 //
 // GÓC NGHIÊNG cố định theo VỊ TRÍ ẢNH (XOAY[k % 4]), không ngẫu nhiên: ngẫu nhiên mỗi lần dựng thì tải lại trang ảnh
 // đổi góc, trông như lỗi.
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
 
 const XOAY = [-2.5, 3, -4, 1.8] // độ
@@ -56,6 +56,9 @@ const TamAnh = ({ a, ten, k, n, moTa, uuTien }) => (
 
 const XapPolaroid = ({ anh, i, ten, moTa, onToi, onLui, lat, onLat }) => {
   const giam = useReducedMotion()
+  // Framer vẫn gọi onTap khi THẢ TAY sau một lần kéo (đo 03/10 trên Feelings: kéo sang ảnh 2 thì ảnh 2 hiện luôn mặt sau,
+  // vì onDragEnd chuyển ảnh + đặt lại lat, rồi onTap bật lat). Kéo rồi thì cú thả đó không phải bấm.
+  const vuaKeo = useRef(false)
   const [huong, setHuong] = useState(1) // 1: tấm cũ bay sang trái (đi tới) · -1: bay sang phải (quay lui)
   const n = anh.length
   const hien = [...new Set(Array.from({ length: Math.min(n, SO_TAM_LO + 1) }, (_, d) => (i + d) % n))]
@@ -88,10 +91,12 @@ const XapPolaroid = ({ anh, i, ten, moTa, onToi, onLui, lat, onLat }) => {
               drag={tren && n > 1 ? 'x' : false}
               dragSnapToOrigin
               dragElastic={0.7}
+              onDragStart={() => { vuaKeo.current = true }}
               onDragEnd={(_, info) => {
                 if (Math.abs(info.offset.x) > NGUONG_KEO || Math.abs(info.velocity.x) > NGUONG_TOC_DO) (info.offset.x < 0 ? toi : lui)()
               }}
-              onTap={() => { if (tren && anh[k].caption) onLat() }}
+              onTapStart={() => { vuaKeo.current = false }}
+              onTap={() => { if (!vuaKeo.current && tren && anh[k].caption) onLat() }}
               whileDrag={giam ? undefined : { scale: 1.03, cursor: 'grabbing' }}
             >
               <motion.div
