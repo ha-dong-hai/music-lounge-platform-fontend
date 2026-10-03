@@ -21,7 +21,6 @@ import usePhimTab from '../../hooks/usePhimTab'
 const SoDoCho3D = lazy(() => import('./SoDoCho3D'))
 const PanoramaViewer = lazy(() => import('./PanoramaViewer'))
 
-const SO_GHE_TOI_DA = 80 // khớp SoDoCho3D — để ghi chú khi khu đông hơn số ghế vẽ được
 const coSoDo2D = (z) => z.layout2DX != null && z.layout2DY != null
 
 const CHO = (
@@ -112,9 +111,7 @@ const KhongGianPhongTra = ({ zones = [], tourScenes = [], tenPhongTra = '' }) =>
                   <p className="font-display text-2xl leading-tight">{khuChon.name}</p>
                   <p className="font-mono text-sm mt-1">Sức chứa {khuChon.capacity} chỗ</p>
                   {khuChon.description && <p className="text-ink-soft mt-2">{khuChon.description}</p>}
-                  {khuChon.capacity > SO_GHE_TOI_DA && (
-                    <p className="text-xs text-ink-mute mt-2">Hình 3D vẽ tối đa {SO_GHE_TOI_DA} ghế mỗi khu cho nhẹ máy; sức chứa thật là {khuChon.capacity}.</p>
-                  )}
+                  <p className="text-xs text-ink-mute mt-2">Bàn ghế trên hình 3D là minh hoạ cách bày trong khu, không đếm từng chỗ — sức chứa thật là con số ở trên.</p>
                   <p className="text-xs text-ink-mute mt-2">Giá vé theo từng buổi diễn — xem ở trang buổi diễn.</p>
                 </div>
               )}

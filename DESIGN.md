@@ -150,8 +150,14 @@ tấm lộ mép; kéo ngang > 110px hoặc vuốt nhanh để sang ảnh; chạm
 Trang phòng trà, một khối, KHÁCH TỰ CHỌN cách xem (`KhongGianPhongTra`): tablist APG (mũi tên/Home/End, roving tabindex),
 nút chuyển dạng phân đoạn viền mực 2px, đang chọn = khối mực chữ lamp. Chỉ in cách xem có dữ liệu; một cách xem thì không
 in nút chuyển. Mỗi lúc chỉ dựng MỘT cảnh WebGL. Sơ đồ 3D (`SoDoCho3D`): dựng nổi từ sơ đồ 2D của chủ phòng trà (mặt sàn
-16:9), bục màu layoutColor, số ghế = sức chứa (tối đa 80 vẽ), nhãn tên khu HTML bám bục, kéo xoay/cuộn phóng to (không lật
-xuống sàn), chạm bục = chọn khu; danh sách khu dạng nút aria-pressed bên cạnh là đường tương đương + thẻ sức chứa/mô tả.
+16:9) trên sàn gỗ tối; mỗi khu là TẤM THẢM màu layoutColor (giảm bão hoà ~45%, tối đi) bày bàn ghế thật — Kenney Furniture
+Kit CC0, `public/models/noi-that/`, vật liệu ghi đè sang gỗ nâu/nệm ngà/đồng thau. Kiểu bàn ghế đoán theo tên khu: "bar" →
+quầy + ghế cao, "sofa" → 2 sofa + bàn trà, còn lại → bàn tròn 4 ghế; số bộ theo sức chứa nhưng không vượt số bộ vừa thảm (thẻ
+khu ghi rõ là minh hoạ, sức chứa thật là con số). Camera vừa khít cụm khu. Nhãn tên khu HTML bám khu, kéo xoay/cuộn phóng to
+(không lật xuống sàn), chạm thảm hoặc bàn ghế = chọn khu; danh sách khu dạng nút aria-pressed bên cạnh là đường tương đương.
+
+**The Real-Furniture Rule.** Sơ đồ 3D không dùng khối màu bão hoà hay cột trụ làm ghế (chủ dự án loại 03/10: "xấu… 3D vậy
+không được"). Không vẽ sân khấu/đồ trang trí khi dữ liệu không có vị trí — vẽ vào là bịa bố cục phòng trà.
 
 ### Thành phần kỹ thuật số (03/10/2026)
 Mặt chữ "bảng điện" DUY NHẤT là ô chữ lật `KyTuLat` — không dựng chữ chấm LED (cần mask gradient trang trí).
