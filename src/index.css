@@ -124,77 +124,138 @@
   --color-warning: #5E3D00;
 }
 
-/* CHỦ ĐỀ MÀU CỦA MÀN VẬN HÀNH (05/10/2026). Chủ dự án, sau khi tôi chỉ thêm dải màu mảnh: "Đã bảo đừng màu trung tính nữa
-   rồi mà sao toàn chỉ thấy màu trắng, màu cà phê trung tính". Nền ngà + mực nâu + thanh bên đen nâu LÀ thứ trung tính đó
-   — thêm điểm màu lên trên không đổi được cảm giác tổng thể. Nên đổi chính BỀ MẶT: nền trang có sắc, thẻ trắng, thanh
-   bên màu đậm, nút chính và đầu bảng mang màu chủ đề. Trang khán giả KHÔNG đổi (lớp này chỉ nằm ở PortalShell).
+/* CHỦ ĐỀ MÀU CỦA MÀN VẬN HÀNH — LẦN 2, THEO MẪU THẬT (05/10/2026).
+   Lần 1 (A lam / B lục / C mận) bị chủ dự án bác cả ba: "Không cái nào được hết, tôi muốn là sự kết hợp hài hoà giữa các
+   màu, đa dạng màu sắc; lên Internet lấy mấy mẫu màn hình quản trị về mà tham khảo". Ba chủ đề cũ đều MỘT sắc — sai đề.
 
-   Ba chủ đề để chủ dự án chọn trên trang thật (cách đã dùng để chốt bảng màu trang khán giả 30/09): A lam · B lục · C mận.
-   Xem thử bằng `?mau=A|B|C`. Mọi cặp chữ/nền đã qua APCA (scratchpad/chude.cjs): chữ trên thẻ Lc 93–104 (cần 90), chữ mực
-   trên đầu bảng Lc 79–82 (16px/600 cần 75), chữ trắng trên nút chính Lc 87–93, nền lõm so với thẻ Lc 19–23 (cần 15), viền
-   3,5:1 (cần 3:1), chữ thanh bên Lc 96. Chữ nhạt đặt thẳng trên nền trang có sắc chỉ tới Lc ~88 → chữ phụ ở đây gần bằng
-   mực; phân cấp bằng cỡ và độ đậm. */
+   Lần này mỗi chủ đề lấy cách phối màu của một mẫu trang quản trị có thật, MÀU ĐO TRÊN BẢN CHẠY THỬ của chính mẫu đó
+   (scratchpad/e2e/mau_tk3.js đọc màu trình duyệt đang vẽ; ảnh ở J:/MVP/ML_FE/ban-mau/mau-quan-tri/):
+     D — theo Materio (themeselection, MIT): nền #F4F5FA, chữ #2E263D, tím #8C57FF + lục #56CA00 + vàng #FFB400 + lam #16B1FF
+         + đỏ #FF4C51; ô số trắng có Ô BIỂU TƯỢNG tô màu.
+     E — theo CoreUI (MIT): nền #F3F4F7, thanh bên #212631, ô số TÔ ĐẶC chàm #5856D6 / lam #3399FF / vàng #F9B115 / đỏ #E55353.
+     F — theo Berry (codedthemes, MIT): nền #EEF2F6, tím #5E35B1 + lam #1E88E5, ô số NHUỘM NHẠT theo màu nhóm.
+   Chỉ lấy cách phối màu và kiểu ô số; KHÔNG thêm thư viện của họ (MUI / Bootstrap) — khung vẫn là Tailwind + recharts + Radix
+   đang có. Vài màu được làm đậm hơn bản gốc để chữ trắng trên nền màu và viền đạt ngưỡng đọc (APCA / 3:1); chỗ nào đổi có ghi.
+   Xem thử: `?mau=D|E|F`. Năm màu số liệu `--color-sl-*` được ghi đè theo chủ đề, nên ô số, tiêu đề mục và biểu đồ cùng đổi. */
 .khung-van-hanh {
-  /* cỡ chữ: thanh bên cũng theo sàn 14px (nhãn nhóm 12px trên nền tối là chỗ khó đọc nhất) */
+  /* cỡ chữ: thanh bên cũng theo sàn 14px */
   --text-xs: 0.875rem;
   --text-xs--line-height: calc(1.25 / 0.875);
-  /* A — LAM (mặc định) */
-  --color-page: #E3EBF8;
+  --bo-goc: 8px;
+  /* D — MATERIO (mặc định): thẻ trắng trên nền xám tím, thanh bên sáng, nhiều màu ở ô biểu tượng và biểu đồ */
+  --color-page: #F4F5FA;
   --color-card: #FFFFFF;
-  --color-stock: #E3EBF8;
-  --color-sunken: #CCDAF2;
-  --color-line: #7889A6;
-  --color-line-strong: #101B33;
-  --color-ink: #101B33;
-  --color-ink-soft: #1A2640;
-  --color-ink-mute: #202C46;
-  --color-board: #0E1C3A;
-  --color-board-soft: #1A2C55;
-  --color-lamp: #EAF0FB;
-  --color-lamp-mute: #C6D2EA;
-  --color-chinh: #1B4FB5;
-  --color-chinh-dam: #123B8C;
+  --color-stock: #F4F5FA;
+  --color-sunken: #E4E0F3;
+  --color-line: #8B8698;
+  --color-line-strong: #2E263D;
+  --color-ink: #2E263D;
+  --color-ink-soft: #3A3249;
+  --color-ink-mute: #433B52;
+  --color-board: #2E263D;          /* khối tối trong trang (ô chữ cái tên, nhãn đặc): mực của chủ đề, không còn đen nâu */
+  --color-board-soft: #453C58;
+  --color-lamp: #FFFFFF;           /* chữ sáng trên khối tối / trên màu */
+  --color-lamp-mute: #D9D4E6;
+  --color-chinh: #7A45EE;          /* #8C57FF của Materio làm đậm một nấc để chữ trắng trên nút đủ tương phản */
+  --color-chinh-dam: #6332D1;
+  --color-sl-tien: #2E9E00;        /* gốc #56CA00 — đậm hơn để biểu tượng trắng đọc được */
+  --color-sl-khangia: #0C8FD6;     /* gốc #16B1FF */
+  --color-sl-goiy: #8C57FF;
+  --color-sl-uytin: #D99000;       /* gốc #FFB400 */
+  --color-sl-buoidien: #F0434A;    /* gốc #FF4C51 */
 }
-.khung-van-hanh[data-mau="B"] {
-  --color-page: #DFEFEA;
-  --color-stock: #DFEFEA;
-  --color-sunken: #C4E0D6;
-  --color-line: #6F8F86;
-  --color-line-strong: #0E231F;
-  --color-ink: #0E231F;
-  --color-ink-soft: #152F29;
-  --color-ink-mute: #19352F;
-  --color-board: #0A2722;
-  --color-board-soft: #143C34;
-  --color-lamp: #E8F5F1;
-  --color-lamp-mute: #C0DCD3;
-  --color-chinh: #0B6B58;
-  --color-chinh-dam: #084F41;
+.khung-van-hanh[data-mau="E"] {
+  --bo-goc: 6px;
+  --color-page: #F3F4F7;
+  --color-stock: #F3F4F7;
+  --color-sunken: #DADEE8;
+  --color-line: #808797;
+  --color-line-strong: #212631;
+  --color-ink: #212631;
+  --color-ink-soft: #2B3140;
+  --color-ink-mute: #353C4C;
+  --color-board: #212631;          /* thanh bên xám đậm của CoreUI */
+  --color-board-soft: #2F3645;
+  --color-lamp: #F3F4F7;
+  --color-lamp-mute: #C9CEDB;
+  --color-chinh: #5856D6;
+  --color-chinh-dam: #4543B5;
+  --color-sl-tien: #1B9E3E;
+  --color-sl-khangia: #2B85E4;     /* gốc #3399FF */
+  --color-sl-goiy: #5856D6;
+  --color-sl-uytin: #F9B115;
+  --color-sl-buoidien: #E04848;    /* gốc #E55353 */
 }
-.khung-van-hanh[data-mau="C"] {
-  --color-page: #F6E3EC;
-  --color-stock: #F6E3EC;
-  --color-sunken: #EBCBDA;
-  --color-line: #9C7E8B;
-  --color-line-strong: #2A1220;
-  --color-ink: #2A1220;
-  --color-ink-soft: #35192B;
-  --color-ink-mute: #3B1E31;
-  --color-board: #2B0F20;
-  --color-board-soft: #461C36;
-  --color-lamp: #FBEAF2;
-  --color-lamp-mute: #E6C8D6;
-  --color-chinh: #8A2452;
-  --color-chinh-dam: #6A1A3E;
+.khung-van-hanh[data-mau="F"] {
+  --bo-goc: 12px;
+  --color-page: #EEF2F6;
+  --color-stock: #EEF2F6;
+  --color-sunken: #DCE3EE;
+  --color-line: #7F8B9C;
+  --color-line-strong: #121926;
+  --color-ink: #121926;
+  --color-ink-soft: #27303F;
+  --color-ink-mute: #303B4C;
+  --color-board: #121926;
+  --color-board-soft: #27303F;
+  --color-lamp: #FFFFFF;
+  --color-lamp-mute: #D5DCE6;
+  --color-chinh: #5E35B1;
+  --color-chinh-dam: #4527A0;
+  --color-sl-tien: #00A152;        /* gốc #00C853 */
+  --color-sl-khangia: #1E88E5;
+  --color-sl-goiy: #5E35B1;
+  --color-sl-uytin: #E8A200;       /* gốc #FFC107 */
+  --color-sl-buoidien: #D84315;
 }
-/* Nút chính, tab đang chọn, ô phân trang đang chọn: mã cũ viết `bg-ink` (mực) — ở màn vận hành chúng mang MÀU CHỦ ĐỀ.
-   Ghi đè theo phạm vi thay vì sửa ~100 chỗ gọi: cùng lý do với cỡ chữ ở trên. */
-.khung-van-hanh main :is(button, a, [role="button"]).bg-ink { background-color: var(--color-chinh); border-color: var(--color-chinh); }
+
+/* Nút chính, tab đang chọn, ô phân trang đang chọn: mã cũ viết `bg-ink` — ở màn vận hành chúng mang MÀU CHỦ ĐỀ. Ghi đè theo
+   phạm vi thay vì sửa ~100 chỗ gọi (cùng lý do với cỡ chữ). */
+.khung-van-hanh main :is(button, a, [role="button"]).bg-ink { background-color: var(--color-chinh); border-color: var(--color-chinh); color: #fff; }
 .khung-van-hanh main :is(button, a, [role="button"]).bg-ink:hover { background-color: var(--color-chinh-dam); }
-/* Đầu bảng: nền lõm đã có sắc chủ đề; thêm vạch màu chủ đề thay vạch mực. */
 .khung-van-hanh main thead { border-bottom-color: var(--color-chinh); }
-/* Mục đang mở ở thanh bên: vạch trái màu sáng của chủ đề thay vàng thếp (ember chỉ dành cho "buổi đang diễn"). */
-.khung-van-hanh nav a[aria-current="page"] { border-left-color: var(--color-chinh); }
+.khung-van-hanh main :is(button, input, select, textarea, details, .o-chi-so) { border-radius: var(--bo-goc); }
+.khung-van-hanh main details { overflow: clip; }
+
+/* THANH BÊN: mục đang mở là viên màu chủ đề, chữ trắng (cả ba mẫu đều làm vậy hoặc tương tự). Thanh bên sáng (D, F) có viền phải. */
+.khung-van-hanh nav a[aria-current="page"] { background-color: var(--color-chinh); color: #fff; border-left-color: var(--color-chinh); border-radius: var(--bo-goc); }
+.khung-van-hanh .thanh-ben { border-right: 1px solid color-mix(in srgb, var(--color-line) 45%, transparent); }
+/* Thanh bên SÁNG ở D (Materio) và F (Berry): đổi board/lamp CHỈ bên trong thanh bên. Lần đầu đổi cho cả trang thì mọi chỗ
+   "chữ sáng trên nền tối" trong nội dung (nhãn vai trò, huy hiệu số) thành chữ tối trên nền tối — đo trên ảnh chụp 05/10. */
+.khung-van-hanh:not([data-mau="E"]) .thanh-ben { --color-board: #FFFFFF; --color-board-soft: color-mix(in srgb, var(--color-chinh) 12%, #FFFFFF); --color-lamp: var(--color-ink); --color-lamp-mute: var(--color-ink-mute); }
+.khung-van-hanh .thanh-ben .bg-danger { color: #fff; }
+
+/* Ô SỐ (components/bang/OChiSo): `--nhom` là màu nhóm. Ô không khai nhóm thì xoay vòng năm màu theo thứ tự — để trang nào
+   cũng có màu mà không phải sửa từng chỗ gọi (17 trang quản trị + trang chủ phòng trà). */
+.o-chi-so { --nhom: var(--color-sl-goiy); --chu-nhom: #fff; position: relative; }
+.o-chi-so:not([data-nhom]):nth-child(5n + 2) { --nhom: var(--color-sl-khangia); }
+.o-chi-so:not([data-nhom]):nth-child(5n + 3) { --nhom: var(--color-sl-tien); }
+.o-chi-so:not([data-nhom]):nth-child(5n + 4) { --nhom: var(--color-sl-uytin); }
+.o-chi-so:not([data-nhom]):nth-child(5n + 5) { --nhom: var(--color-sl-buoidien); }
+.o-chi-so[data-nhom="tien"] { --nhom: var(--color-sl-tien); }
+.o-chi-so[data-nhom="khangia"] { --nhom: var(--color-sl-khangia); }
+.o-chi-so[data-nhom="goiy"] { --nhom: var(--color-sl-goiy); }
+.o-chi-so[data-nhom="uytin"] { --nhom: var(--color-sl-uytin); }
+.o-chi-so[data-nhom="buoidien"] { --nhom: var(--color-sl-buoidien); }
+.o-chi-so__bieu-tuong { display: none; }
+
+/* D — Materio: thẻ trắng, bóng nhẹ, ô biểu tượng tô màu nhóm; ô đang chọn viền màu nhóm. */
+.khung-van-hanh:not([data-mau="E"]):not([data-mau="F"]) .o-chi-so { background: var(--color-card); border: 1px solid color-mix(in srgb, var(--color-line) 55%, transparent); box-shadow: 0 2px 8px rgb(46 38 61 / 0.12); }
+.khung-van-hanh:not([data-mau="E"]):not([data-mau="F"]) .o-chi-so__bieu-tuong { display: grid; place-items: center; width: 44px; height: 44px; margin-bottom: 6px; border-radius: var(--bo-goc); background: var(--nhom); color: #fff; }
+.khung-van-hanh:not([data-mau="E"]):not([data-mau="F"]) .o-chi-so[aria-pressed="true"] { border: 2px solid var(--nhom); background: color-mix(in srgb, var(--nhom) 10%, var(--color-card)); }
+
+/* E — CoreUI: ô số tô đặc màu nhóm, chữ trắng (vàng thì chữ mực — chữ trắng trên vàng không đọc được). */
+.khung-van-hanh[data-mau="E"] .o-chi-so { background: var(--nhom); border-color: var(--nhom); color: var(--chu-nhom); }
+.khung-van-hanh[data-mau="E"] .o-chi-so * { color: inherit !important; }
+.khung-van-hanh[data-mau="E"] .o-chi-so[data-nhom="uytin"],
+.khung-van-hanh[data-mau="E"] .o-chi-so:not([data-nhom]):nth-child(5n + 4) { --chu-nhom: #1B1F27; }
+.khung-van-hanh[data-mau="E"] .o-chi-so__bieu-tuong { display: grid; place-items: center; width: 40px; height: 40px; margin-bottom: 6px; border-radius: var(--bo-goc); background: rgb(255 255 255 / 0.22); }
+.khung-van-hanh[data-mau="E"] .o-chi-so[aria-pressed="true"] { outline: 3px solid var(--color-ink); outline-offset: 2px; }
+
+/* F — Berry: ô số nhuộm nhạt màu nhóm, ô biểu tượng tô đặc, viền màu nhóm. */
+.khung-van-hanh[data-mau="F"] .o-chi-so { background: color-mix(in srgb, var(--nhom) 13%, var(--color-card)); border: 1px solid color-mix(in srgb, var(--nhom) 55%, var(--color-card)); }
+.khung-van-hanh[data-mau="F"] .o-chi-so__bieu-tuong { display: grid; place-items: center; width: 44px; height: 44px; margin-bottom: 6px; border-radius: var(--bo-goc); background: var(--nhom); color: #fff; }
+.khung-van-hanh[data-mau="F"] .o-chi-so[aria-pressed="true"] { border-width: 2px; border-color: var(--nhom); background: color-mix(in srgb, var(--nhom) 24%, var(--color-card)); }
 .man-van-hanh :is(.text-success, .text-danger, .text-warning) { font-weight: 700; }
 
 @layer base {

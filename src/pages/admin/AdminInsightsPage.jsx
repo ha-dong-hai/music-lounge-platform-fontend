@@ -18,7 +18,7 @@
 //  - Câu mô tả điểm uy tín cũ ("tính từ vi phạm, khiếu nại và đánh giá") SAI: backend chỉ ghi ReputationScore = trung bình
 //    điểm đánh giá còn hiệu lực, cập nhật khi xếp lịch quyết toán (ScheduleSettlementHandler.ResolveTierPreRateAsync).
 import { useState, useEffect, useCallback } from 'react'
-import { Loader2 } from 'lucide-react'
+import { Loader2, UserPlus, Heart, Star, Repeat, Sparkles, MousePointerClick, Ticket } from 'lucide-react'
 import {
   getAdminContentOverview, getAudienceEngagement, getAiRecommendationPerformance, getRecommenderEvaluation,
 } from '../../services/analyticsServices'
@@ -133,10 +133,10 @@ const AdminInsightsPage = () => {
         <KhoiMuc id="tuong-tac" mau="khangia" tieuDe="Tương tác của khán giả" phamVi={`${ky} · so với ${nhanKhoang(truoc.tu, truoc.den)}`}
           moTa="Quay lại = mua vé của từ 2 buổi diễn khác nhau trong kỳ.">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <OChiSo mau="khangia" nhan="Lượt theo dõi phòng trà mới" so={soNguyen(e.newFollowsInPeriod)} phu={soSanh(e, eT, 'newFollowsInPeriod')} />
-            <OChiSo mau="khangia" nhan="Lượt thêm vào danh sách quan tâm" so={soNguyen(e.newWishlistsInPeriod)} phu={soSanh(e, eT, 'newWishlistsInPeriod')} />
-            <OChiSo mau="khangia" nhan="Đánh giá mới" so={soNguyen(e.newRatingsInPeriod)} phu={soSanh(e, eT, 'newRatingsInPeriod')} />
-            <OChiSo mau="khangia" nhan="Tỷ lệ quay lại" so={phanTram(e.returnRatePercent)}
+            <OChiSo mau="khangia" icon={UserPlus} nhan="Lượt theo dõi phòng trà mới" so={soNguyen(e.newFollowsInPeriod)} phu={soSanh(e, eT, 'newFollowsInPeriod')} />
+            <OChiSo mau="buoidien" icon={Heart} nhan="Lượt thêm vào danh sách quan tâm" so={soNguyen(e.newWishlistsInPeriod)} phu={soSanh(e, eT, 'newWishlistsInPeriod')} />
+            <OChiSo mau="uytin" icon={Star} nhan="Đánh giá mới" so={soNguyen(e.newRatingsInPeriod)} phu={soSanh(e, eT, 'newRatingsInPeriod')} />
+            <OChiSo mau="tien" icon={Repeat} nhan="Tỷ lệ quay lại" so={phanTram(e.returnRatePercent)}
               phu={eT ? `Kỳ trước: ${phanTram(eT.returnRatePercent)}` : undefined} />
           </div>
         </KhoiMuc>
@@ -152,10 +152,10 @@ const AdminInsightsPage = () => {
             tomTat={ai.recommendedPairCount > 0 ? `${soNguyen(ai.clickThroughCount)} trên ${soNguyen(ai.recommendedPairCount)} cặp gợi ý được mở` : 'Kỳ này chưa có gợi ý nào'}>
             <p className="text-sm text-ink-soft py-3">Một cặp = một người được gợi ý một buổi diễn.</p>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <OChiSo mau="goiy" nhan="Cặp được gợi ý" so={soNguyen(ai.recommendedPairCount)} phu={soSanh(ai, aT, 'recommendedPairCount')} />
-              <OChiSo mau="goiy" nhan="Tỷ lệ bấm vào" so={phanTram(ai.clickThroughRatePercent)}
+              <OChiSo mau="goiy" icon={Sparkles} nhan="Cặp được gợi ý" so={soNguyen(ai.recommendedPairCount)} phu={soSanh(ai, aT, 'recommendedPairCount')} />
+              <OChiSo mau="khangia" icon={MousePointerClick} nhan="Tỷ lệ bấm vào" so={phanTram(ai.clickThroughRatePercent)}
                 phu={cauMauSo(ai.clickThroughCount, ai.recommendedPairCount)} />
-              <OChiSo mau="goiy" nhan="Tỷ lệ thành mua vé" so={phanTram(ai.conversionRatePercent)}
+              <OChiSo mau="tien" icon={Ticket} nhan="Tỷ lệ thành mua vé" so={phanTram(ai.conversionRatePercent)}
                 phu={cauMauSo(ai.conversionCount, ai.recommendedPairCount)} />
             </div>
           </MucGap>

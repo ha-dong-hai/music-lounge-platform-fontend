@@ -21,9 +21,9 @@ export const CURSOR = 'var(--color-sunken)'
 // bảng màu số liệu (index.css `--color-sl-*`), thay ba độ đậm của mực và sọc chéo. Chọn bộ ba này vì mô phỏng mù màu
 // đỏ–lục vẫn tách được (lam / vàng ô-liu / xám); KHÔNG dùng lục cạnh mận hay lam cạnh tím trong cùng biểu đồ.
 export const SOURCES = [
-  { key: 'ticket',   label: 'Vé',          color: '#1D5FA8' }, // = --color-sl-khangia (lam)
-  { key: 'package',  label: 'Gói dịch vụ', color: '#A86400' }, // = --color-sl-uytin (hổ phách)
-  { key: 'donation', label: 'Tiền ủng hộ', color: '#A3355F' }, // = --color-sl-buoidien (mận)
+  { key: 'ticket',   label: 'Vé',          color: 'var(--color-sl-khangia)' },
+  { key: 'package',  label: 'Gói dịch vụ', color: 'var(--color-sl-uytin)' },
+  { key: 'donation', label: 'Tiền ủng hộ', color: 'var(--color-sl-buoidien)' },
 ]
 
 export const SINGLE_SERIES = '#231A15'

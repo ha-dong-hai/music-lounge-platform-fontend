@@ -48,6 +48,8 @@ const HuyHieu = ({ dem, trenNenSang }) => {
   )
 }
 
+const CHU_DE = ['D', 'E', 'F']
+
 const PortalShell = ({ portalName, nhom = [], loiRa = [], footer, headerRight, children }) => {
   const location = useLocation()
   const openerRef = useRef(null)
@@ -80,14 +82,16 @@ const PortalShell = ({ portalName, nhom = [], loiRa = [], footer, headerRight, c
     .sort((a, b) => b.to.length - a.to.length)[0]
 
   // CHỦ ĐỀ MÀU màn vận hành (05/10/2026) — chủ dự án: "đừng màu trung tính nữa… toàn chỉ thấy màu trắng, màu cà phê".
-  // Ba chủ đề A (lam) / B (lục) / C (mận) khai báo ở index.css (`.khung-van-hanh[data-mau]`). XEM THỬ: thêm `?mau=B` vào
+  // Ba chủ đề theo mẫu thật: D (Materio) / E (CoreUI) / F (Berry), khai báo ở index.css (`.khung-van-hanh[data-mau]`); A/B/C
+  // của lần 1 đã bị bác và gỡ. XEM THỬ: thêm `?mau=E` vào
   // địa chỉ — lựa chọn được nhớ trong phiên trình duyệt. Khi chủ dự án chốt một chủ đề thì bỏ tham số này, đặt cố định.
   const chuDe = (() => {
     const q = new URLSearchParams(location.search).get('mau')
     try {
-      if (q && ['A', 'B', 'C'].includes(q)) { sessionStorage.setItem('mau-van-hanh', q); return q }
-      return sessionStorage.getItem('mau-van-hanh') ?? 'A'
-    } catch { return q ?? 'A' }
+      if (q && CHU_DE.includes(q)) { sessionStorage.setItem('mau-van-hanh', q); return q }
+      const nho = sessionStorage.getItem('mau-van-hanh')
+      return CHU_DE.includes(nho) ? nho : 'D'
+    } catch { return CHU_DE.includes(q) ? q : 'D' }
   })()
 
   const coQuaHan = nhom.some((n) => n.muc.some((m) => (m.dem?.overdueCount ?? 0) > 0))
@@ -147,13 +151,13 @@ const PortalShell = ({ portalName, nhom = [], loiRa = [], footer, headerRight, c
     <div className="khung-van-hanh lg:flex lg:h-screen bg-page lg:overflow-hidden" data-mau={chuDe}>
 
       {/* THANH BÊN TĨNH — chỉ từ màn lớn */}
-      <aside className="hidden lg:flex w-64 bg-board text-lamp flex-col h-full flex-shrink-0">{sidebar}</aside>
+      <aside className="thanh-ben hidden lg:flex w-64 bg-board text-lamp flex-col h-full flex-shrink-0">{sidebar}</aside>
 
       {/* NGĂN KÉO — dưới lg */}
       <div className={`lg:hidden fixed inset-0 z-50 ${isDrawerOpen ? '' : 'pointer-events-none'}`} inert={!isDrawerOpen}>
         <div onClick={closeDrawer} className={`absolute inset-0 bg-board/60 transition-opacity duration-300 ${isDrawerOpen ? 'opacity-100' : 'opacity-0'}`} />
         <div ref={drawerRef} role="dialog" aria-modal="true" aria-label={`Menu ${portalName}`}
-          className={`absolute inset-y-0 left-0 w-[17rem] max-w-[85vw] bg-board text-lamp flex flex-col shadow-lift transition-transform duration-300 ease-out ${isDrawerOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+          className={`thanh-ben absolute inset-y-0 left-0 w-[17rem] max-w-[85vw] bg-board text-lamp flex flex-col shadow-lift transition-transform duration-300 ease-out ${isDrawerOpen ? 'translate-x-0' : '-translate-x-full'}`}>
           {sidebar}
         </div>
       </div>

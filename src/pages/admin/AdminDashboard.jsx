@@ -13,7 +13,7 @@
 // Dữ liệu: TanStack Query, mỗi kỳ một khoá — đổi kỳ giữ số cũ mờ đi trong lúc tải (placeholderData) thay vì cả trang quay.
 import { useState } from 'react'
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
-import { Loader2 } from 'lucide-react'
+import { Loader2, Banknote, Receipt, Music2, Users, Store, Ticket, HeartHandshake } from 'lucide-react'
 import { getPlatformAnalytics, getAdminOverview, getAdminDashboard } from '../../services/analyticsServices'
 import { RevenueSeriesChart, RevenueShareBars, TopShowsTable, GenreTrendingList } from '../../components/admin/dashboard/DashboardCharts'
 import { SOURCES } from '../../components/admin/dashboard/chartTokens'
@@ -121,13 +121,13 @@ const AdminDashboard = () => {
         {/* 2 — KẾT QUẢ KỲ NÀY: bốn con số, mỗi số so với kỳ trước. Đây là hết màn đầu. */}
         <KhoiMuc id="trong-ky" tieuDe="Kết quả kỳ này" phamVi={`${nhanKhoang(tu, den)} · so với ${nhanKhoang(truoc.tu, truoc.den)}`}>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <OChiSo mau="tien" nhan="Doanh thu nền tảng" so={fmtMoney(o?.platformRevenueInPeriod)}
+            <OChiSo mau="tien" icon={Banknote} nhan="Doanh thu nền tảng" so={fmtMoney(o?.platformRevenueInPeriod)}
               phu={soSanh(o?.platformRevenueInPeriod, oT?.platformRevenueInPeriod)} />
-            <OChiSo mau="tien" nhan="Tổng giá trị giao dịch" so={fmtMoney(gmvNay)}
+            <OChiSo mau="goiy" icon={Receipt} nhan="Tổng giá trị giao dịch" so={fmtMoney(gmvNay)}
               phu={soSanh(gmvNay, gmvTruoc)} />
-            <OChiSo mau="buoidien" nhan="Buổi diễn trong kỳ" so={o?.eventsInPeriodCount ?? 0}
+            <OChiSo mau="buoidien" icon={Music2} nhan="Buổi diễn trong kỳ" so={o?.eventsInPeriodCount ?? 0}
               phu={soSanh(o?.eventsInPeriodCount, oT?.eventsInPeriodCount)} />
-            <OChiSo mau="khangia" nhan="Khán giả đăng ký mới" so={o?.newAudienceSignupsInPeriod ?? 0}
+            <OChiSo mau="khangia" icon={Users} nhan="Khán giả đăng ký mới" so={o?.newAudienceSignupsInPeriod ?? 0}
               phu={soSanh(o?.newAudienceSignupsInPeriod, oT?.newAudienceSignupsInPeriod)} />
           </div>
         </KhoiMuc>
@@ -183,13 +183,13 @@ const AdminDashboard = () => {
           <MucGap id="luy-ke" tieuDe="Từ khi vận hành"
             tomTat={`${p?.totalVenues ?? 0} phòng trà · ${(p?.totalUsers ?? 0).toLocaleString('vi-VN')} người dùng · ${(p?.totalTicketsSold ?? 0).toLocaleString('vi-VN')} vé đã bán`}>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pt-4">
-              <OChiSo mau="uytin" nhan="Phòng trà đã đăng ký" so={p?.totalVenues ?? 0}
+              <OChiSo mau="uytin" icon={Store} nhan="Phòng trà đã đăng ký" so={p?.totalVenues ?? 0}
                 phu={venueBreakdown(p?.venuesByStatus) || 'Mọi trạng thái, kể cả chờ duyệt'} />
-              <OChiSo mau="khangia" nhan="Người dùng" so={(p?.totalUsers ?? 0).toLocaleString('vi-VN')} />
-              <OChiSo mau="buoidien" nhan="Buổi diễn đã xuất bản" so={p?.totalPublishedShows ?? 0} />
-              <OChiSo mau="buoidien" nhan="Vé đã bán" so={(p?.totalTicketsSold ?? 0).toLocaleString('vi-VN')} />
-              <OChiSo mau="tien" nhan="Tổng giá trị giao dịch" so={fmtMoney(p?.totalGrossMerchandiseValue)} />
-              <OChiSo mau="tien" nhan="Tiền ủng hộ" so={fmtMoney(p?.totalDonationVolume)} />
+              <OChiSo mau="khangia" icon={Users} nhan="Người dùng" so={(p?.totalUsers ?? 0).toLocaleString('vi-VN')} />
+              <OChiSo mau="buoidien" icon={Music2} nhan="Buổi diễn đã xuất bản" so={p?.totalPublishedShows ?? 0} />
+              <OChiSo mau="goiy" icon={Ticket} nhan="Vé đã bán" so={(p?.totalTicketsSold ?? 0).toLocaleString('vi-VN')} />
+              <OChiSo mau="tien" icon={Banknote} nhan="Tổng giá trị giao dịch" so={fmtMoney(p?.totalGrossMerchandiseValue)} />
+              <OChiSo mau="buoidien" icon={HeartHandshake} nhan="Tiền ủng hộ" so={fmtMoney(p?.totalDonationVolume)} />
             </div>
           </MucGap>
         </section>
