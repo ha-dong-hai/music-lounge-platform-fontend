@@ -1,18 +1,20 @@
 import { Building, Radio, Cast } from 'lucide-react'
 import NhanTrangThai from '../../shared/NhanTrangThai'
+import NhanPhanLoai from '../../shared/NhanPhanLoai'
 
 // 30/09/2026: nhãn vẽ bằng components/shared/NhanTrangThai (biểu tượng + chữ, 5 sắc thái) — không tự đặt màu ở đây nữa.
 // ===== SHOW BADGES =====
 const HINH_THUC = {
-  offline: { nhan: 'Tại chỗ', icon: Building },
-  online: { nhan: 'Trực tuyến', icon: Radio },
-  livestream: { nhan: 'Trực tuyến', icon: Radio },
-  hybrid: { nhan: 'Tại chỗ và trực tuyến', icon: Cast },
+  // MLACP-623: hình thức là phân loại — ba hình thức ba độ đậm (xem NhanPhanLoai), không còn ba ô viền giống nhau.
+  offline: { nhan: 'Tại chỗ', icon: Building, kieu: 'vien' },
+  online: { nhan: 'Trực tuyến', icon: Radio, kieu: 'vua' },
+  livestream: { nhan: 'Trực tuyến', icon: Radio, kieu: 'vua' },
+  hybrid: { nhan: 'Tại chỗ và trực tuyến', icon: Cast, kieu: 'dac' },
 }
 export const FormatBadge = ({ format }) => {
   const h = HINH_THUC[format ? format.toLowerCase() : 'offline']
   if (!h) return null
-  return <NhanTrangThai sacThai="trung" icon={h.icon}>{h.nhan}</NhanTrangThai>
+  return <NhanPhanLoai kieu={h.kieu} icon={h.icon}>{h.nhan}</NhanPhanLoai>
 }
 
 // Đủ 6 giá trị LoungeShowStatus của backend (Draft, Pending, Published, Ongoing, Ended, Cancelled).

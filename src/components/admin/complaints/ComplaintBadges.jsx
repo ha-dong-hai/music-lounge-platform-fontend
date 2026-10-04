@@ -1,15 +1,20 @@
+import { FileWarning, ReceiptText, HandCoins, Wrench, Handshake, Gavel, Flag, CircleEllipsis } from 'lucide-react'
 import NhanTrangThai from '../../shared/NhanTrangThai'
+import NhanPhanLoai from '../../shared/NhanPhanLoai'
 // 30/09/2026: nhãn vẽ bằng components/shared/NhanTrangThai (biểu tượng + chữ, 5 sắc thái) — không tự đặt màu ở đây nữa.
 // ===== CONFIGS (dùng chung toàn hệ thống complaints) =====
 export const CATEGORY_CONFIG = {
-  EventMisrepresentation: { label: 'Buổi diễn sai mô tả' },
-  RefundDispute:          { label: 'Tranh chấp hoàn tiền' },
-  DonationNotPaid:        { label: 'Ủng hộ chưa chuyển tiền' },
-  TechnicalIssue:         { label: 'Sự cố kỹ thuật' },
-  VenueConduct:           { label: 'Cách hành xử của phòng trà' },
-  PenaltyAppeal:          { label: 'Khiếu nại án phạt' },
-  ContentViolation:       { label: 'Nội dung vi phạm' },
-  Other:                  { label: 'Khác' },
+  // MLACP-623: 8 loại > 4 kiểu của NhanPhanLoai, nên xếp thành 4 NHÓM theo "khiếu nại về cái gì", mỗi nhóm 2 loại:
+  // tiền (đặc) · phòng trà (vừa) · nội dung buổi diễn (viền) · hệ thống và khác (nhạt). Trong một nhóm, biểu tượng phân
+  // biệt từng loại. Nhóm KHÔNG phải mức ưu tiên — hạn xử lý mới là thứ xếp việc trước sau.
+  EventMisrepresentation: { label: 'Buổi diễn sai mô tả', kieu: 'vien', icon: FileWarning },
+  RefundDispute:          { label: 'Tranh chấp hoàn tiền', kieu: 'dac', icon: ReceiptText },
+  DonationNotPaid:        { label: 'Ủng hộ chưa chuyển tiền', kieu: 'dac', icon: HandCoins },
+  TechnicalIssue:         { label: 'Sự cố kỹ thuật', kieu: 'nhat', icon: Wrench },
+  VenueConduct:           { label: 'Cách hành xử của phòng trà', kieu: 'vua', icon: Handshake },
+  PenaltyAppeal:          { label: 'Khiếu nại án phạt', kieu: 'vua', icon: Gavel },
+  ContentViolation:       { label: 'Nội dung vi phạm', kieu: 'vien', icon: Flag },
+  Other:                  { label: 'Khác', kieu: 'nhat', icon: CircleEllipsis },
 }
 
 // Đúng 6 giá trị ComplaintDto.targetType của backend (origin/master), chữ thường.
@@ -34,13 +39,12 @@ export const STATUS_CONFIG = {
 }
 
 // ===== BADGES =====
-// Loại khiếu nại là PHÂN LOẠI, không phải mức độ: in bằng chữ viền mực, không tô màu nguy hiểm/cảnh báo (bản cũ tô đỏ
-// "Cách hành xử của phòng trà" như thể đã có lỗi — chưa ai kết luận gì).
-export const CategoryBadge = ({ category }) => (
-  <span className="inline-flex items-center px-2 min-h-[26px] border border-ink/40 text-xs font-medium whitespace-nowrap">
-    {CATEGORY_CONFIG[category]?.label ?? category}
-  </span>
-)
+// Loại khiếu nại là PHÂN LOẠI, không phải mức độ: không tô màu nguy hiểm/cảnh báo (bản cũ tô đỏ "Cách hành xử của phòng
+// trà" như thể đã có lỗi — chưa ai kết luận gì). Phân biệt bằng biểu tượng + độ đậm của mực (NhanPhanLoai).
+export const CategoryBadge = ({ category }) => {
+  const c = CATEGORY_CONFIG[category]
+  return <NhanPhanLoai kieu={c?.kieu ?? 'vien'} icon={c?.icon ?? CircleEllipsis}>{c?.label ?? category}</NhanPhanLoai>
+}
 
 export const StatusBadge = ({ status }) => {
   const cfg = STATUS_CONFIG[status]
