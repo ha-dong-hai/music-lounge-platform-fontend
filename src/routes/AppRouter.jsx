@@ -66,8 +66,11 @@ import OwnerShowsPage from '../pages/owner/OwnerShowsPage'
 import OwnerShowDetailPage from '../pages/owner/OwnerShowDetailPage'
 import FnbOrderPage from '../pages/fnb/FnbOrderPage'
 import TrangDauKhuPhongTra from './TrangDauKhuPhongTra'
+import GocUngDung from './GocUngDung'
+import TrangVanBan from '../pages/public/TrangVanBan'
 
-const AppRouter = createBrowserRouter([
+// MLACP-602: MỌI route nằm trong một route gốc không đường dẫn (GocUngDung) — nơi in <title> theo trang.
+const AppRouter = createBrowserRouter([{ element: <GocUngDung />, children: [
   {
     path: '/',
     element: <MainLayout />,
@@ -91,6 +94,9 @@ const AppRouter = createBrowserRouter([
       // Footer) chu khong dung rieng nhu /performers/:id/donations, vi day la trang nguoi la
       // ghe vao tu chan trang — ho can dieu huong day du de di tiep.
       { path: 'minh-bach', element: <TransparencyHubPage /> },
+      // MLACP-602: hai văn bản mà ô "Tôi đồng ý" ở trang Đăng ký dẫn tới (trước là /terms, /privacy — không có route).
+      { path: 'dieu-khoan', element: <TrangVanBan loai="dieu-khoan" /> },
+      { path: 'bao-mat', element: <TrangVanBan loai="bao-mat" /> },
       // 30/09/2026: ba trang công khai dưới đây trước đứng RIÊNG ngoài MainLayout — không có đầu trang, người vào từ
       // trang vé hay trang buổi diễn chỉ còn một đường ra là "Về trang chủ". Nay có Header + Footer như mọi trang khán giả.
       // Khách chưa đăng nhập vẫn gửi khiếu nại và xem sao kê ủng hộ được (không bọc ProtectedRoute).
@@ -197,6 +203,6 @@ const AppRouter = createBrowserRouter([
   // chứ không nghĩ mình gõ sai địa chỉ.
   { path: '*', element: <NotFoundPage /> },
 
-])
+] }])
 
 export default AppRouter

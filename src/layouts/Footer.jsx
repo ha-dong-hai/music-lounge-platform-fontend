@@ -43,6 +43,8 @@ const Footer = () => {
           <h3 className="text-base text-lamp mb-2">{t('Hỗ trợ')}</h3>
           <ul className="text-sm">
             <li><Link to="/complaints" className={linkCls}>{t('Gửi và tra cứu khiếu nại')}</Link></li>
+            <li><Link to="/dieu-khoan" className={linkCls}>{t('Điều khoản dịch vụ')}</Link></li>
+            <li><Link to="/bao-mat" className={linkCls}>{t('Chính sách bảo mật')}</Link></li>
             <li><Link to="/my-shows" className={linkCls}>{t('Vé của tôi')}</Link></li>
           </ul>
         </nav>

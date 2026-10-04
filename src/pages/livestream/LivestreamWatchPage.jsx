@@ -317,7 +317,10 @@ const LivestreamWatchPage = () => {
         <AlertCircle size={40} className="text-danger mb-4" />
         {/* Trang lỗi cũng cần một h1 — trình đọc màn hình nhảy theo tiêu đề (quét 01/10/2026: 0 h1). */}
         <h1 className="text-xl mb-4 px-4 text-center">{error}</h1>
-        <LienKetMuiTen to="/" lui>Về trang chủ</LienKetMuiTen>
+        {/* MLACP-602: lối gần nhất là quay về chính buổi diễn này (xem giờ diễn, mua vé vào cửa) — trước chỉ có "Về trang
+            chủ", người vào từ trang buổi diễn bị ném ra xa hai bước. */}
+        <LienKetMuiTen to={`/shows/${showId}`} lui>Về trang buổi diễn</LienKetMuiTen>
+        <span className="mt-3"><LienKetMuiTen to="/">Trang chủ</LienKetMuiTen></span>
       </div>
     )
   }

@@ -32,6 +32,7 @@ import LienKetMuiTen from '../../components/shared/LienKetMuiTen'
 // Trình xem 360° kéo theo three.js (~500KB) — chỉ tải khi phòng trà THẬT SỰ có tour, không làm nặng
 // bundle chính của mọi trang.
 import KhongGianPhongTra from '../../components/lounge/KhongGianPhongTra'
+import { tieuDeRieng } from '../../utils/tieuDeTrang'
 
 const NUT_DAC = 'inline-flex items-center justify-center min-h-[52px] px-7 bg-stock text-ink font-display text-2xl hover:bg-lamp transition-colors disabled:opacity-60'
 const NUT_VIEN = 'inline-flex items-center justify-center min-h-[52px] px-7 border-2 border-lamp text-lamp font-semibold hover:bg-lamp hover:text-board transition-colors disabled:opacity-60'
@@ -163,6 +164,7 @@ const LoungeDetailPage = () => {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-stock pb-20" aria-busy="true" aria-label="Đang tải trang phòng trà">
+        <title>{tieuDeRieng('Phòng trà')}</title>
         <div className="bg-board">
           <div className="max-w-[1440px] mx-auto grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
             <div className="px-4 sm:px-8 py-12 space-y-5">
@@ -184,6 +186,7 @@ const LoungeDetailPage = () => {
   if (apiError || !lounge) {
     return (
       <div className="min-h-[70vh] bg-stock flex flex-col items-center justify-center text-ink px-4 text-center">
+        <title>{tieuDeRieng('Không tìm thấy phòng trà')}</title>
         <h1 className="text-4xl mb-4">{apiError || 'Không tìm thấy phòng trà này.'}</h1>
         <LienKetMuiTen to="/lounges" lui>Xem các phòng trà trên sàn</LienKetMuiTen>
       </div>
@@ -213,6 +216,8 @@ const LoungeDetailPage = () => {
 
   return (
     <div className="min-h-screen bg-stock text-ink pb-24">
+      {/* MLACP-602: tiêu đề tab theo tên phòng trà. */}
+      <title>{tieuDeRieng(lounge.name)}</title>
 
       {/* ===== ĐẦU TRANG: khối sơn then, chữ bên trái, bộ ảnh bên phải (cùng khuôn với trang buổi diễn) ===== */}
       <section className="bg-board text-lamp" aria-labelledby="ten-phong-tra">

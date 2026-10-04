@@ -19,6 +19,7 @@ import { anhChuCai } from '../../utils/anhChuCai'
 import DongBuoiDien from '../../components/program/DongBuoiDien'
 import DoanVanDai from '../../components/shared/DoanVanDai'
 import LienKetMuiTen from '../../components/shared/LienKetMuiTen'
+import { tieuDeRieng } from '../../utils/tieuDeTrang'
 
 const CO_TRANG = 12
 const NUT_VIEN = 'inline-flex items-center justify-center min-h-[44px] px-4 border-2 border-ink font-semibold hover:bg-ink hover:text-lamp transition-colors disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-ink'
@@ -54,6 +55,7 @@ const PerformerPage = () => {
   if (!data) {
     return (
       <div className="min-h-[70vh] bg-stock flex flex-col items-center justify-center text-ink px-4 text-center">
+        <title>{tieuDeRieng('Nghệ sĩ')}</title>
         <h1 className="text-4xl mb-4">{loi === 'khong-co' ? 'Không tìm thấy nghệ sĩ này.' : 'Trang nghệ sĩ chưa tải được.'}</h1>
         {loi === 'tai' && <button type="button" onClick={load} className={`${NUT_VIEN} mb-3`}>Thử lại</button>}
         <LienKetMuiTen to="/shows">Xem các buổi diễn</LienKetMuiTen>
@@ -66,6 +68,8 @@ const PerformerPage = () => {
 
   return (
     <div className="min-h-[70vh] bg-stock text-ink pb-24">
+      {/* MLACP-602: tiêu đề tab theo tên nghệ sĩ. */}
+      <title>{tieuDeRieng(data.name)}</title>
       {/* ĐẦU TRANG — khối sơn then, cùng khuôn với trang phòng trà */}
       <section className="bg-board text-lamp" aria-labelledby="ten-nghe-si">
         <div className="max-w-[1440px] mx-auto px-4 sm:px-8 py-10 lg:py-14 flex flex-col sm:flex-row gap-6 sm:gap-10 sm:items-end">

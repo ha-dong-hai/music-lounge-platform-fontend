@@ -25,9 +25,10 @@
 // bằng CHỮ ("Đã chọn") chứ không chỉ đổi màu viền; luật mật khẩu in TRƯỚC ô và luôn hiện; bỏ chữ mẫu trong ô (chữ mẫu
 // biến mất khi gõ và hay bị tưởng là ô đã điền).
 //
-// TỒN ĐỌNG (không thuộc FE quyết): liên kết "Điều khoản dịch vụ" (/terms) và "Chính sách bảo mật" (/privacy) HIỆN CHƯA
-// CÓ TRANG — AppRouter không khai báo route nên bấm vào rơi về trang 404. Nội dung pháp lý phải do bên vận hành cung cấp;
-// FE không tự bịa. Backend lại bắt buộc acceptTerms, nên đừng gỡ ô này.
+// MLACP-602 (04/10/2026): hai liên kết "Điều khoản dịch vụ" và "Chính sách bảo mật" trước trỏ tới /terms và /privacy —
+// hai đường dẫn KHÔNG có route, bấm vào ra 404 trong khi ô này bắt người dùng đồng ý với chính hai văn bản đó. Nay trỏ
+// tới /dieu-khoan và /bao-mat (pages/public/TrangVanBan.jsx — bản soạn cho giai đoạn thử nghiệm, chỉ ghi điều hệ thống
+// thật sự làm; chủ dự án duyệt câu chữ). Backend bắt buộc acceptTerms, nên đừng gỡ ô này.
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
@@ -141,9 +142,9 @@ const RegisterPage = () => {
             />
             <span className="text-ink-soft leading-relaxed">
               Tôi đồng ý với{' '}
-              <a className="text-ink font-semibold underline underline-offset-4" href="/terms" target="_blank" rel="noreferrer">Điều khoản dịch vụ</a>{' '}
+              <a className="text-ink font-semibold underline underline-offset-4" href="/dieu-khoan" target="_blank" rel="noreferrer">Điều khoản dịch vụ</a>{' '}
               và{' '}
-              <a className="text-ink font-semibold underline underline-offset-4" href="/privacy" target="_blank" rel="noreferrer">Chính sách bảo mật</a>
+              <a className="text-ink font-semibold underline underline-offset-4" href="/bao-mat" target="_blank" rel="noreferrer">Chính sách bảo mật</a>
             </span>
           </label>
           {errors.acceptTerms && <p id="acceptTerms-error" className="text-sm font-semibold text-danger mt-1.5">{errors.acceptTerms.message}</p>}

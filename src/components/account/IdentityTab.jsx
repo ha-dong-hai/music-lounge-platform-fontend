@@ -105,12 +105,16 @@ const IdentityTab = () => {
   // Tải ảnh CCCD đã nộp về để (a) biết là đã nộp hay chưa, (b) hiện ngay tại chỗ cho người dùng
   // đối chiếu xem có chụp nhầm, chụp mờ, chụp ngược mặt không — trước khi quản trị viên duyệt.
   const taiAnhDaNop = useCallback(async () => {
-    const [truoc, sau, tt] = await Promise.allSettled([
-      getMyCitizenCardImage('front'),
-      getMyCitizenCardImage('back'),
-      getMyCitizenCard(),
-    ])
-    setTrangThaiCccd(tt.status === 'fulfilled' && tt.value?.success ? tt.value.data : null)
+    // MLACP-602: hỏi TRẠNG THÁI trước; máy chủ nói rõ "chưa nộp" thì không gọi hai ảnh nữa (trước đây người chưa nộp gì
+    // mở trang là có hai lệnh gọi 404). Không đọc được trạng thái (máy chủ bản cũ chưa có GET /me/citizen-card) thì vẫn
+    // thử tải ảnh như trước, để trang không mù hẳn.
+    const [tt] = await Promise.allSettled([getMyCitizenCard()])
+    const trangThai = tt.status === 'fulfilled' && tt.value?.success ? tt.value.data : null
+    setTrangThaiCccd(trangThai)
+    const chuaNop = trangThai && !trangThai.submittedAt
+    const [truoc, sau] = chuaNop
+      ? [{ status: 'rejected' }, { status: 'rejected' }]
+      : await Promise.allSettled([getMyCitizenCardImage('front'), getMyCitizenCardImage('back')])
     const thanhUrl = (kq) => {
       if (kq.status !== 'fulfilled' || !kq.value) return null
       // Service đặt responseType 'blob' nên interceptor trả thẳng Blob, không bóc `.data`.

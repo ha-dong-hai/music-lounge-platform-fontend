@@ -21,6 +21,7 @@ import HopThoai, { TieuDeHop } from '../../components/shared/HopThoai'
 import LienKetMuiTen from '../../components/shared/LienKetMuiTen'
 import usePhimTab from '../../hooks/usePhimTab'
 import NhanDangDien from '../../components/program/NhanDangDien'
+import { tieuDeRieng } from '../../utils/tieuDeTrang'
 
 const KHOA_TAB = ['intro', 'map', 'ratings'] // phải khớp TAB trong trang
 
@@ -183,6 +184,8 @@ const EventDetailPage = () => {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-stock pb-20" aria-busy="true" aria-label="Đang tải buổi diễn">
+        {/* MLACP-602: tiêu đề tab theo tên buổi diễn (utils/tieuDeTrang). Đúng MỘT <title> ở mỗi nhánh return. */}
+        <title>{tieuDeRieng('Buổi diễn')}</title>
         <div className="bg-board">
           <div className="max-w-[1440px] mx-auto grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
             <div className="px-4 sm:px-8 py-12 space-y-5">
@@ -204,6 +207,7 @@ const EventDetailPage = () => {
   if (apiError || !data) {
     return (
       <div className="min-h-screen bg-stock flex flex-col items-center justify-center text-ink px-4 text-center">
+        <title>{tieuDeRieng('Không tìm thấy buổi diễn')}</title>
         <h1 className="text-4xl mb-4">{apiError || 'Không tìm thấy buổi diễn'}</h1>
         <LienKetMuiTen to="/shows" lui>Xem các buổi diễn khác</LienKetMuiTen>
       </div>
@@ -217,6 +221,7 @@ const EventDetailPage = () => {
 
   return (
     <div className="min-h-screen bg-stock text-ink pb-20">
+      <title>{tieuDeRieng(data.title)}</title>
 
       {/* ===== ĐẦU TRANG: khối sơn then, chữ bên trái, ảnh bên phải =====
           Ảnh KHÔNG bị phủ lớp chuyển sắc như bản cũ: ảnh sân khấu là thứ mang màu của trang, giao diện lùi lại. */}
