@@ -3,7 +3,7 @@
 // dấu là hotspot của chủ phòng trà hiện lệch sang phía đối diện mà không ai hiểu vì sao.
 import * as THREE from 'three'
 import {
-  verticalSpan, viewLimits, directionFromYawPitch, yawPitchFromDirection, dragToAngles, clampPitch, blackBorderCrop,
+  verticalSpan, viewLimits, fovFitScreen, directionFromYawPitch, yawPitchFromDirection, dragToAngles, clampPitch, blackBorderCrop,
 } from './panoramaMath.js'
 
 const results = []
@@ -93,6 +93,29 @@ check('tỉ lệ rác (0, NaN) -> rơi về cả khối cầu, không sập', ve
   check('lệch (10% trên, 4% dưới) -> cắt theo mép sâu hơn, đối xứng', near(blackBorderCrop(asym), 0.11, 0.005), blackBorderCrop(asym).toFixed(3))
   check('ảnh đen hoàn toàn -> kẹp ở 25%, không cắt hết', blackBorderCrop(rows(100, () => 1)) === 0.25)
   check('quá ít hàng để đo -> không cắt', blackBorderCrop([1, 1, 1]) === 0)
+}
+
+// MLACP-624) Màn hình buổi diễn vừa khung: kiểm bằng camera thật — chiếu bốn góc màn hình ra toạ độ màn hình (NDC)
+{
+  const chiem = (widthDeg, viewAspect, fill) => {
+    const fov = fovFitScreen(widthDeg, viewAspect, fill)
+    const cam = new THREE.PerspectiveCamera(fov, viewAspect, 0.1, 1100)
+    cam.updateMatrixWorld(true); cam.updateProjectionMatrix()
+    const dist = 380, w = 2 * dist * Math.tan((widthDeg * Math.PI) / 360), h = (w * 9) / 16
+    const p = new THREE.Vector3(w / 2, h / 2, -dist).project(cam)
+    return { fov, x: p.x, y: p.y }
+  }
+  const ngang = chiem(56, 16 / 10, 0.82)
+  check('khung ngang 16:10: màn hình chiếm 82% theo chiều chật, không tràn chiều kia',
+    near(Math.max(ngang.x, ngang.y), 0.82, 1e-6) && ngang.x <= 1 && ngang.y <= 1, `x=${ngang.x.toFixed(3)} y=${ngang.y.toFixed(3)} fov=${ngang.fov.toFixed(1)}°`)
+  const doc = chiem(56, 9 / 16, 0.82)
+  check('khung dọc 9:16 (điện thoại): chật ngang -> bề ngang 82%, không bị cắt', near(doc.x, 0.82, 1e-6) && doc.y < doc.x, `x=${doc.x.toFixed(3)} y=${doc.y.toFixed(3)} fov=${doc.fov.toFixed(1)}°`)
+  const rong = chiem(56, 21 / 9, 0.82)
+  check('khung rất rộng 21:9: chật dọc -> bề dọc 82%', near(rong.y, 0.82, 1e-6) && rong.x < rong.y, `x=${rong.x.toFixed(3)} y=${rong.y.toFixed(3)}`)
+  check('tỉ lệ khung rác -> không sập, ra số hữu hạn', Number.isFinite(fovFitScreen(56, NaN)) && Number.isFinite(fovFitScreen(56, 0)))
+  const san = fovFitScreen(40, 16 / 9)
+  check('viewLimits nhận sàn FOV: phóng được tới mức vừa màn hình, mặc định vẫn 30°',
+    viewLimits(2, 5, san).fov === san && viewLimits(2, 5).fov === 30, `sàn=${san.toFixed(1)}°`)
 }
 
 const fail = results.filter((x) => !x).length

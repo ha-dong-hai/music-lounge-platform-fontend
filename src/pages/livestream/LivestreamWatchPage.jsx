@@ -453,7 +453,9 @@ const LivestreamWatchPage = () => {
                     // có thì hướng 0° (giữa ảnh).
                     yaw: tourScenes[0]?.hotspots?.find((h) => /sân khấu|stage/i.test(h.label || ''))?.yaw ?? 0,
                     pitch: tourScenes[0]?.hotspots?.find((h) => /sân khấu|stage/i.test(h.label || ''))?.pitch ?? 0,
-                    widthDeg: 40,
+                    // 56° (trước là 40°): khi lùi ra nhìn quanh phòng, màn hình vẫn chiếm gần nửa bề ngang khung thay
+                    // vì một phần ba (MLACP-624). Lúc mở chế độ này, khung tự phóng cho màn hình vừa khung.
+                    widthDeg: 56,
                     placeholder: livestream?.hlsUrl ? 'Đang kết nối tới buổi diễn' : 'Buổi diễn sắp bắt đầu',
                   }}
                   className="w-full h-full"

@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, useCallback } from 'react'
 import * as THREE from 'three'
 import { Maximize2, Minimize2, Info, ArrowUpRight, Loader2, ImageOff, X, Tv, Armchair } from 'lucide-react'
 import {
-  viewLimits, directionFromYawPitch, dragToAngles, clampPitch, blackBorderCrop,
+  viewLimits, fovFitScreen, directionFromYawPitch, dragToAngles, clampPitch, blackBorderCrop,
 } from '../../utils/panoramaMath'
 
 const SUBLINE = 'Màn hình sẽ sáng lên khi có tín hiệu'
@@ -54,6 +54,15 @@ const lerpAngle = (a, b, t) => {
 // x, y, w, h, mau }] } — mặt bằng thu nhỏ ở góc: các khu (cùng toạ độ % với Layout2D), chấm từng cảnh đã đặt vị trí,
 // chấm đang đứng nổi bật; bấm chấm khác = sang cảnh đó. Không vẽ HƯỚNG NHÌN: góc 0° của ảnh 360 không gắn với hướng nào
 // trên mặt bằng (dữ liệu không có), vẽ vào là đoán.
+// MLACP-624 — giới hạn góc nhìn có xét MÀN HÌNH BUỔI DIỄN. Khi có màn hình (chế độ "Ngồi tại phòng trà") thì sàn FOV
+// hạ xuống mức màn hình vừa khung, để người xem phóng được màn hình ra gần kín khung thay vì dừng ở 30° như lúc tham
+// quan. Không có màn hình: y như cũ (30°).
+const fovVuaManHinh = (screen, camera) => (screen?.video && camera ? fovFitScreen(screen.widthDeg ?? 40, camera.aspect) : null)
+const gioiHanXem = (aspect, fov, screen, camera) => {
+  const vua = fovVuaManHinh(screen, camera)
+  return viewLimits(aspect, fov, vua == null ? 30 : Math.min(30, vua))
+}
+
 const PanoramaViewer = ({ scenes = [], initialSceneId = null, className = '', videoScreen = null, autoRotate = true, onChonKhu = null, khuDangChon = null, khuBan = null, banDoNho = null }) => {
   const containerRef = useRef(null)
   const mountRef = useRef(null)
@@ -123,7 +132,7 @@ const PanoramaViewer = ({ scenes = [], initialSceneId = null, className = '', vi
       }
     }
     const setFov = (fov) => {
-      const lim = viewLimits(st.aspect ?? 2, fov)
+      const lim = gioiHanXem(st.aspect ?? 2, fov, screenRef.current, camera)
       st.tFov = lim.fov
       st.limits = lim
       st.tPitch = clampPitch(st.tPitch, lim.pitchMax)
@@ -194,16 +203,23 @@ const PanoramaViewer = ({ scenes = [], initialSceneId = null, className = '', vi
       // đặt các nút hotspot (HTML) lên đúng chỗ trên màn hình
       const w = host.clientWidth
       const h = host.clientHeight
+      // MLACP-624: điểm nằm SAU màn hình buổi diễn thì ẩn — nếu không nhãn của nó ("Khu VIP gần sân khấu"…) nổi đè giữa
+      // hình đang phát. So theo GÓC (không theo điểm ảnh) nên xoay hay phóng kiểu gì kết quả cũng như nhau.
+      const mh = sc ? screenRef.current : null
+      const nuaRong = mh ? (mh.widthDeg ?? 40) / 2 : 0
+      const nuaCao = mh ? (Math.atan(Math.tan((nuaRong * Math.PI) / 180) * (9 / 16)) * 180) / Math.PI : 0
       hotspotEls.current.forEach((node, id) => {
         const hs = st.hotspots?.get(id)
         if (!node || !hs) return
+        const lechYaw = mh ? Math.abs(((((hs.yaw - (mh.yaw ?? 0)) + 180) % 360) + 360) % 360 - 180) : 999
+        const sauManHinh = !!mh && lechYaw <= nuaRong * 1.05 && Math.abs(hs.pitch - (mh.pitch ?? 0)) <= nuaCao * 1.1
         const d = directionFromYawPitch(hs.yaw, hs.pitch)
         tmp.set(d.x, d.y, d.z)
         const inFront = tmp.dot(fwd) > 0.05
         tmp.multiplyScalar(HOTSPOT_RADIUS).project(camera)
         const x = (tmp.x * 0.5 + 0.5) * w
         const y = (-tmp.y * 0.5 + 0.5) * h
-        const shown = inFront && x > -40 && x < w + 40 && y > -40 && y < h + 40
+        const shown = !sauManHinh && inFront && x > -40 && x < w + 40 && y > -40 && y < h + 40
         node.style.transform = `translate(${x}px, ${y}px) translate(-50%, -50%)`
         node.style.opacity = shown ? '1' : '0'
         node.style.pointerEvents = shown ? 'auto' : 'none'
@@ -264,11 +280,15 @@ const PanoramaViewer = ({ scenes = [], initialSceneId = null, className = '', vi
         threeScene.add(mesh)
         three.current.mesh = mesh
 
-        st.limits = lim
+        // Có màn hình buổi diễn: MỞ RA đã nhìn thẳng vào màn hình và phóng vừa khung (MLACP-624) — vào chế độ này trước
+        // hết để xem buổi diễn; muốn nhìn quanh phòng thì kéo hoặc cuộn ra. Không có màn hình: góc rộng 70° như cũ.
+        const vua = fovVuaManHinh(screenRef.current, three.current.camera)
+        const mo = vua == null ? lim : gioiHanXem(aspect, vua, screenRef.current, three.current.camera)
+        st.limits = mo
         st.yaw = st.tYaw = screenRef.current?.yaw ?? 0
-        st.pitch = st.tPitch = 0
-        st.fov = st.tFov = lim.fov
-        three.current.camera.fov = lim.fov
+        st.pitch = st.tPitch = vua == null ? 0 : clampPitch(screenRef.current?.pitch ?? 0, mo.pitchMax)
+        st.fov = st.tFov = mo.fov
+        three.current.camera.fov = mo.fov
         three.current.camera.updateProjectionMatrix()
         setError(false)
         setLoading(false)
@@ -358,7 +378,8 @@ const PanoramaViewer = ({ scenes = [], initialSceneId = null, className = '', vi
     const st = view.current
     stopAuto()
     st.tYaw = screenYaw
-    const lim = viewLimits(st.aspect ?? 2, 30)
+    const cam = three.current.camera
+    const lim = gioiHanXem(st.aspect ?? 2, fovVuaManHinh(screenRef.current, cam) ?? 30, screenRef.current, cam)
     st.tFov = lim.fov
     st.limits = lim
     st.tPitch = clampPitch(screenPitch, lim.pitchMax)
@@ -398,7 +419,7 @@ const PanoramaViewer = ({ scenes = [], initialSceneId = null, className = '', vi
     if (k === 'ArrowUp') st.tPitch = clampPitch(st.tPitch + step, st.limits.pitchMax)
     if (k === 'ArrowDown') st.tPitch = clampPitch(st.tPitch - step, st.limits.pitchMax)
     if (k === '+' || k === '=' || k === '-' || k === '_') {
-      const lim = viewLimits(st.aspect ?? 2, st.tFov + (k === '-' || k === '_' ? 6 : -6))
+      const lim = gioiHanXem(st.aspect ?? 2, st.tFov + (k === '-' || k === '_' ? 6 : -6), screenRef.current, three.current.camera)
       st.tFov = lim.fov
       st.limits = lim
     }

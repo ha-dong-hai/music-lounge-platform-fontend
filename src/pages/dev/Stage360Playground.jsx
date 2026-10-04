@@ -68,7 +68,7 @@ const Stage360Playground = () => {
         <PanoramaViewer
           scenes={scenes}
           autoRotate={false}
-          videoScreen={{ video, yaw: stageHotspot?.yaw ?? 0, pitch: stageHotspot?.pitch ?? 0, widthDeg: 40, placeholder: 'Buổi diễn sắp bắt đầu' }}
+          videoScreen={{ video, yaw: stageHotspot?.yaw ?? 0, pitch: stageHotspot?.pitch ?? 0, widthDeg: 56, placeholder: 'Buổi diễn sắp bắt đầu' }}
           className="w-full aspect-video border border-line"
         />
       )}

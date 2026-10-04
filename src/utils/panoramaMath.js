@@ -16,15 +16,28 @@ export function verticalSpan(aspect) {
 }
 
 // Các giới hạn góc nhìn cho một ảnh: FOV dọc (độ) được phép và góc nhìn lên/xuống tối đa (độ).
-export function viewLimits(aspect, fovDeg) {
+// `fovSan`: FOV nhỏ nhất được phép (độ). Mặc định 30° cho tham quan; chế độ có màn hình buổi diễn truyền số nhỏ hơn để
+// phóng được tới mức màn hình vừa khung (xem fovFitScreen).
+export function viewLimits(aspect, fovDeg, fovSan = 30) {
   const spanDeg = verticalSpan(aspect) / DEG
   const isFull = spanDeg >= 179.5
   // FOV không được lớn hơn phần ảnh có thật, nếu không mép trên/dưới lộ khoảng trống ngay cả khi nhìn thẳng.
   const fovMax = isFull ? 90 : Math.max(20, spanDeg * 0.98)
-  const fovMin = Math.min(30, fovMax)
+  const fovMin = Math.min(fovSan, fovMax)
   const fov = Math.min(fovMax, Math.max(fovMin, fovDeg))
   const pitchMax = isFull ? 85 : Math.max(0, spanDeg / 2 - fov / 2)
   return { spanDeg, isFull, fov, fovMin, fovMax, pitchMax }
+}
+
+// FOV DỌC (độ) để một màn hình phẳng rộng `widthDeg` độ, tỉ lệ `screenAspect`, đặt thẳng trước mặt, chiếm `fill` phần
+// của khung nhìn có tỉ lệ `viewAspect` — theo CHIỀU CHẬT HƠN (khung dọc của điện thoại thì chật ngang, khung ngang thì
+// thường chật dọc), nên màn hình không bao giờ bị cắt. MLACP-624: chủ dự án thấy màn hình trong chế độ "Ngồi tại phòng
+// trà" quá nhỏ — trước đây màn hình rộng 40° nằm trong góc nhìn ngang ~100°, chỉ chiếm khoảng 1/3 bề ngang.
+export function fovFitScreen(widthDeg, viewAspect, fill = 0.82, screenAspect = 16 / 9) {
+  const tanW = Math.tan((widthDeg / 2) * DEG)
+  const tanH = tanW / screenAspect
+  const a = Number.isFinite(viewAspect) && viewAspect > 0 ? viewAspect : 16 / 9
+  return (2 * Math.atan(Math.max(tanH, tanW / a) / fill)) / DEG
 }
 
 const wrapYaw = (y) => ((((y + 180) % 360) + 360) % 360) - 180
