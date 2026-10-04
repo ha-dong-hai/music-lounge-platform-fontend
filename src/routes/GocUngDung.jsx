@@ -7,9 +7,16 @@
 //
 // index.html vẫn giữ một <title> tĩnh để tab có tên trước khi React chạy; nó được gỡ ngay khi ứng dụng lên, vì trình
 // duyệt lấy <title> ĐẦU TIÊN trong <head> — để lại thì mọi tiêu đề React in ra đều bị nó che.
-import { useEffect } from 'react'
+import { Suspense, useEffect } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
+import { Loader2 } from 'lucide-react'
 import { tieuDeTheoDuong } from '../utils/tieuDeTrang'
+
+const DangTaiTrang = () => (
+  <div className="min-h-[60vh] flex items-center justify-center bg-stock" aria-busy="true" aria-label="Đang tải trang">
+    <Loader2 size={28} className="animate-spin text-ink" aria-hidden="true" />
+  </div>
+)
 
 const GocUngDung = () => {
   const { pathname } = useLocation()
@@ -18,7 +25,10 @@ const GocUngDung = () => {
   return (
     <>
       {tieuDe && <title>{tieuDe}</title>}
-      <Outlet />
+      {/* MLACP-611: trang tải theo yêu cầu (React.lazy ở AppRouter) — trong lúc tệp của trang đang về thì hiện khung chờ. */}
+      <Suspense fallback={<DangTaiTrang />}>
+        <Outlet />
+      </Suspense>
     </>
   )
 }

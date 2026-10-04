@@ -1,73 +1,80 @@
 // src/routes/AppRouter.jsx
+// MLACP-611: TÁCH MÃ THEO TRANG. Trước đây 60 trang được import tĩnh nên cả web nằm trong MỘT tệp JavaScript 3,27 MB
+// (đo bằng bản build 04/10/2026): khán giả mở trang chủ, hay nhân viên mở trang soát vé bằng 4G, đều phải tải cả khu
+// quản trị, biểu đồ và trình vẽ sơ đồ. Nay chỉ năm trang vào nhiều nhất của khán giả tải ngay; các trang còn lại dùng
+// React.lazy — trình duyệt tải khi người dùng mở tới. Ranh giới chờ (Suspense) nằm ở GocUngDung (cả trang) và
+// PortalShell (giữ thanh bên, chỉ vùng nội dung chờ).
+import { lazy } from 'react'
 import { createBrowserRouter } from 'react-router-dom'
 import MainLayout from '../layouts/MainLayout'
 
 // Pages Public & Auth
 import HomePage from '../pages/home/HomePage'
 import ShowSearchPage from '../pages/home/ShowSearchPage'
-import AccountPage from '../pages/user/AccountPage'
 import EventDetailPage from '../pages/events/EventDetailPage'
-import MyShowsPage from '../pages/user/MyShowsPage'
 import ProtectedRoute from './ProtectedRoute'
 
 import AdminLayout from '../layouts/AdminLayout'
-import AdminDashboard from '../pages/admin/AdminDashboard'
-import AdminAccountsPage from '../pages/admin/AdminAccountsPage'
-import AdminShowsPage from '../pages/admin/AdminShowsPage'
-import AdminShowDetailPage from '../pages/admin/AdminShowDetailPage'
-import AdminPackagesPage from '../pages/admin/AdminPackagesPage'
-import AdminComplaintPage from '../pages/admin/AdminComplaintPage'
-import AdminContentReportsPage from '../pages/admin/AdminContentReportsPage'
-import AdminRefundsPage from '../pages/admin/AdminRefundsPage'
-import AdminSettlementsPage from '../pages/admin/AdminSettlementsPage'
-import LoungeDetailPage from '../pages/lounge/LoungeDetailPage'
-import TicketDetailPage from '../pages/user/TicketDetailPage'
-import LoungeListPage from '../pages/lounge/LoungeListPage'
-import LivestreamWatchPage from '../pages/livestream/LivestreamWatchPage'
-import AdminVenuesPage from '../pages/admin/AdminVenuesPage'
-import AdminFilterOptionsPage from '../pages/admin/AdminFilterOptionsPage'
-import AdminKycReviewsPage from '../pages/admin/AdminKycReviewsPage'
-import AdminInsightsPage from '../pages/admin/AdminInsightsPage'
-import AdminSystemConfigPage from '../pages/admin/AdminSystemConfigPage'
-import AdminLedgerPage from '../pages/admin/AdminLedgerPage'
-import AdminBankAccountsPage from '../pages/admin/AdminBankAccountsPage'
-import AdminPenaltyAppealsPage from '../pages/admin/AdminPenaltyAppealsPage'
-import PaymentResultPage from '../pages/payment/PaymentResultPage'
 import LoginPage from '../pages/auth/LoginPage'
-import RegisterPage from '../pages/auth/RegisterPage'
-import VerifyEmailPage from '../pages/auth/VerifyEmailPage'
-import ForgotPasswordPage from '../pages/auth/ForgotPasswordPage'
-import ResetPasswordPage from '../pages/auth/ResetPasswordPage'
 import OwnerLayout from '../layouts/OwnerLayout'
-import OwnerLivestreamsPage from '../pages/owner/OwnerLivestreamsPage'
-import OwnerSubscriptionPage from '../pages/owner/OwnerSubscriptionPage'
-import OwnerAnalyticsPage from '../pages/owner/OwnerAnalyticsPage'
-import OwnerFinancePage from '../pages/owner/OwnerFinancePage'
-import OwnerLoungePage from '../pages/owner/OwnerLoungePage'
-import OwnerBankAccountsPage from '../pages/owner/OwnerBankAccountsPage'
-import OwnerZonesPage from '../pages/owner/OwnerZonesPage'
-import OwnerShowSettingsPage from '../pages/owner/OwnerShowSettingsPage'
-import OwnerTourPage from '../pages/owner/OwnerTourPage'
-import OwnerOperatePage from '../pages/owner/OwnerOperatePage'
-import OwnerFnbOrdersPage from '../pages/owner/OwnerFnbOrdersPage'
-import OwnerFnbMenusPage from '../pages/owner/OwnerFnbMenusPage'
-import OwnerStaffPage from '../pages/owner/OwnerStaffPage'
-import OwnerPerformersPage from '../pages/owner/OwnerPerformersPage'
-import OwnerDonationsPage from '../pages/owner/OwnerDonationsPage'
-import OwnerPenaltiesPage from '../pages/owner/OwnerPenaltiesPage'
-import ComplaintPage from '../pages/user/ComplaintPage'
-import PerformerConfirmationPage from '../pages/public/PerformerConfirmationPage'
-import PerformerDonationsPage from '../pages/public/PerformerDonationsPage'
-import PerformerPage from '../pages/public/PerformerPage'
-import TransparencyHubPage from '../pages/public/TransparencyHubPage'
-import NotificationsPage from '../pages/user/NotificationsPage'
 import NotFoundPage from '../pages/NotFoundPage'
-import OwnerShowsPage from '../pages/owner/OwnerShowsPage'
-import OwnerShowDetailPage from '../pages/owner/OwnerShowDetailPage'
-import FnbOrderPage from '../pages/fnb/FnbOrderPage'
 import TrangDauKhuPhongTra from './TrangDauKhuPhongTra'
 import GocUngDung from './GocUngDung'
-import TrangVanBan from '../pages/public/TrangVanBan'
+
+const AccountPage = lazy(() => import('../pages/user/AccountPage'))
+const MyShowsPage = lazy(() => import('../pages/user/MyShowsPage'))
+const AdminDashboard = lazy(() => import('../pages/admin/AdminDashboard'))
+const AdminAccountsPage = lazy(() => import('../pages/admin/AdminAccountsPage'))
+const AdminShowsPage = lazy(() => import('../pages/admin/AdminShowsPage'))
+const AdminShowDetailPage = lazy(() => import('../pages/admin/AdminShowDetailPage'))
+const AdminPackagesPage = lazy(() => import('../pages/admin/AdminPackagesPage'))
+const AdminComplaintPage = lazy(() => import('../pages/admin/AdminComplaintPage'))
+const AdminContentReportsPage = lazy(() => import('../pages/admin/AdminContentReportsPage'))
+const AdminRefundsPage = lazy(() => import('../pages/admin/AdminRefundsPage'))
+const AdminSettlementsPage = lazy(() => import('../pages/admin/AdminSettlementsPage'))
+const LoungeDetailPage = lazy(() => import('../pages/lounge/LoungeDetailPage'))
+const TicketDetailPage = lazy(() => import('../pages/user/TicketDetailPage'))
+const LoungeListPage = lazy(() => import('../pages/lounge/LoungeListPage'))
+const LivestreamWatchPage = lazy(() => import('../pages/livestream/LivestreamWatchPage'))
+const AdminVenuesPage = lazy(() => import('../pages/admin/AdminVenuesPage'))
+const AdminFilterOptionsPage = lazy(() => import('../pages/admin/AdminFilterOptionsPage'))
+const AdminKycReviewsPage = lazy(() => import('../pages/admin/AdminKycReviewsPage'))
+const AdminInsightsPage = lazy(() => import('../pages/admin/AdminInsightsPage'))
+const AdminSystemConfigPage = lazy(() => import('../pages/admin/AdminSystemConfigPage'))
+const AdminLedgerPage = lazy(() => import('../pages/admin/AdminLedgerPage'))
+const AdminBankAccountsPage = lazy(() => import('../pages/admin/AdminBankAccountsPage'))
+const AdminPenaltyAppealsPage = lazy(() => import('../pages/admin/AdminPenaltyAppealsPage'))
+const PaymentResultPage = lazy(() => import('../pages/payment/PaymentResultPage'))
+const RegisterPage = lazy(() => import('../pages/auth/RegisterPage'))
+const VerifyEmailPage = lazy(() => import('../pages/auth/VerifyEmailPage'))
+const ForgotPasswordPage = lazy(() => import('../pages/auth/ForgotPasswordPage'))
+const ResetPasswordPage = lazy(() => import('../pages/auth/ResetPasswordPage'))
+const OwnerLivestreamsPage = lazy(() => import('../pages/owner/OwnerLivestreamsPage'))
+const OwnerSubscriptionPage = lazy(() => import('../pages/owner/OwnerSubscriptionPage'))
+const OwnerAnalyticsPage = lazy(() => import('../pages/owner/OwnerAnalyticsPage'))
+const OwnerFinancePage = lazy(() => import('../pages/owner/OwnerFinancePage'))
+const OwnerLoungePage = lazy(() => import('../pages/owner/OwnerLoungePage'))
+const OwnerBankAccountsPage = lazy(() => import('../pages/owner/OwnerBankAccountsPage'))
+const OwnerZonesPage = lazy(() => import('../pages/owner/OwnerZonesPage'))
+const OwnerShowSettingsPage = lazy(() => import('../pages/owner/OwnerShowSettingsPage'))
+const OwnerTourPage = lazy(() => import('../pages/owner/OwnerTourPage'))
+const OwnerOperatePage = lazy(() => import('../pages/owner/OwnerOperatePage'))
+const OwnerFnbOrdersPage = lazy(() => import('../pages/owner/OwnerFnbOrdersPage'))
+const OwnerFnbMenusPage = lazy(() => import('../pages/owner/OwnerFnbMenusPage'))
+const OwnerStaffPage = lazy(() => import('../pages/owner/OwnerStaffPage'))
+const OwnerPerformersPage = lazy(() => import('../pages/owner/OwnerPerformersPage'))
+const OwnerDonationsPage = lazy(() => import('../pages/owner/OwnerDonationsPage'))
+const OwnerPenaltiesPage = lazy(() => import('../pages/owner/OwnerPenaltiesPage'))
+const ComplaintPage = lazy(() => import('../pages/user/ComplaintPage'))
+const PerformerConfirmationPage = lazy(() => import('../pages/public/PerformerConfirmationPage'))
+const PerformerDonationsPage = lazy(() => import('../pages/public/PerformerDonationsPage'))
+const PerformerPage = lazy(() => import('../pages/public/PerformerPage'))
+const TransparencyHubPage = lazy(() => import('../pages/public/TransparencyHubPage'))
+const NotificationsPage = lazy(() => import('../pages/user/NotificationsPage'))
+const OwnerShowsPage = lazy(() => import('../pages/owner/OwnerShowsPage'))
+const OwnerShowDetailPage = lazy(() => import('../pages/owner/OwnerShowDetailPage'))
+const FnbOrderPage = lazy(() => import('../pages/fnb/FnbOrderPage'))
+const TrangVanBan = lazy(() => import('../pages/public/TrangVanBan'))
 
 // MLACP-602: MỌI route nằm trong một route gốc không đường dẫn (GocUngDung) — nơi in <title> theo trang.
 const AppRouter = createBrowserRouter([{ element: <GocUngDung />, children: [

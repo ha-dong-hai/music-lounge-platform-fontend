@@ -17,9 +17,9 @@
 //
 // DỮ LIỆU MENU: `nhom` = [{ ten, muc: [{ to, nhan, icon, end? }] }], `loiRa` = [{ to, nhan, icon }] (đường ra khỏi khu,
 // dùng Link chứ không NavLink vì không bao giờ "đang chọn").
-import { useEffect, useRef, useState } from 'react'
+import { Suspense, useEffect, useRef, useState } from 'react'
 import { Link, NavLink, useLocation, matchPath } from 'react-router-dom'
-import { Menu, X } from 'lucide-react'
+import { Loader2, Menu, X } from 'lucide-react'
 import Wordmark from '../brand/Wordmark'
 import VungTiengViet from '../../i18n/VungTiengViet'
 
@@ -134,7 +134,12 @@ const PortalShell = ({ portalName, nhom = [], loiRa = [], footer, headerRight, c
 
         <main className="lg:flex-1 lg:overflow-y-auto p-4 sm:p-6 lg:p-8 bg-page min-w-0">
           {/* Khung trang tối đa 1440px căn giữa (DESIGN.md › Bố cục) — trước không giới hạn nên trang biểu mẫu neo trái để trống cả nửa màn rộng. */}
-          <div className="max-w-[1440px] mx-auto">{children}</div>
+          {/* MLACP-611: trang con tải theo yêu cầu — thanh bên đứng yên, chỉ vùng này hiện vòng chờ. */}
+          <div className="max-w-[1440px] mx-auto">
+            <Suspense fallback={<div className="py-20 flex justify-center" aria-busy="true" aria-label="Đang tải trang"><Loader2 size={28} className="animate-spin text-ink" aria-hidden="true" /></div>}>
+              {children}
+            </Suspense>
+          </div>
         </main>
       </div>
     </div>
