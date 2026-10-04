@@ -13,7 +13,7 @@
 // Dữ liệu: TanStack Query, mỗi kỳ một khoá — đổi kỳ giữ số cũ mờ đi trong lúc tải (placeholderData) thay vì cả trang quay.
 import { useState } from 'react'
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
-import { Banknote, Ticket, Users, AlertCircle, Store, Music2, HeartHandshake, Loader2, Receipt } from 'lucide-react'
+import { Loader2 } from 'lucide-react'
 import { getPlatformAnalytics, getAdminOverview, getAdminDashboard } from '../../services/analyticsServices'
 import { RevenueSeriesChart, RevenueShareBars, TopShowsTable, GenreTrendingList } from '../../components/admin/dashboard/DashboardCharts'
 import { SOURCES } from '../../components/admin/dashboard/chartTokens'
@@ -21,6 +21,7 @@ import NhomTab from '../../components/bang/NhomTab'
 import KhungTai from '../../components/bang/KhungTai'
 import OChiSo from '../../components/bang/OChiSo'
 import ChonKy from '../../components/bang/ChonKy'
+import KhoiMuc from '../../components/bang/KhoiMuc'
 import ViecCanXuLy from '../../components/admin/dashboard/ViecCanXuLy'
 import { useKyBaoCao } from '../../hooks/useKyBaoCao'
 import { cauSoVoiKyTruoc, nhanKhoang, thamSoApi } from '../../utils/kyBaoCao'
@@ -50,10 +51,12 @@ const MEASURES = [
   { key: 'gmv', label: 'Tổng giá trị giao dịch (GMV)' },
 ]
 
+// Tiêu đề khối biểu đồ theo đơn vị gộp backend chọn (ngày/tuần/tháng tuỳ độ dài kỳ).
+const TEN_DON_VI_KY = { day: 'ngày', week: 'tuần', month: 'tháng' }
+
 const tongTrongKy = (series, measure) =>
   (series ?? []).reduce((sum, b) => sum + SOURCES.reduce((s2, src) => s2 + Number(b[src.key]?.[measure] ?? 0), 0), 0)
 
-const SectionTitle = ({ children }) => <h2 className="font-sans font-bold text-sm text-ink-soft mb-3">{children}</h2>
 
 // Bóc { success, data } của axiosClient; lỗi thì ném để TanStack Query đánh dấu nguồn đó lỗi.
 const boc = async (p) => { const r = await p; if (!r?.success) throw new Error(r?.message || 'Không tải được'); return r.data }
@@ -103,82 +106,73 @@ const AdminDashboard = () => {
 
       <div aria-busy={dangDoiKy} className={`space-y-8 transition-opacity ${dangDoiKy ? 'opacity-60' : ''}`}>
         {/* ===== TRONG KỲ ===== */}
-        <section>
-          <SectionTitle>Trong kỳ <span className="text-ink-mute font-normal">({nhanKhoang(tu, den)})</span></SectionTitle>
+        <KhoiMuc id="trong-ky" tieuDe="Trong kỳ" phamVi={nhanKhoang(tu, den)}>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <OChiSo nhan="Doanh thu nền tảng" so={fmtMoney(o?.platformRevenueInPeriod)} icon={Banknote}
+            <OChiSo nhan="Doanh thu nền tảng" so={fmtMoney(o?.platformRevenueInPeriod)}
               phu={soSanh(o?.platformRevenueInPeriod, oT?.platformRevenueInPeriod)} />
-            <OChiSo nhan="Tổng giá trị giao dịch" so={fmtMoney(gmvNay)} icon={Receipt}
+            <OChiSo nhan="Tổng giá trị giao dịch" so={fmtMoney(gmvNay)}
               phu={soSanh(gmvNay, gmvTruoc)} />
-            <OChiSo nhan="Buổi diễn trong kỳ" so={o?.eventsInPeriodCount ?? 0} icon={Music2}
+            <OChiSo nhan="Buổi diễn trong kỳ" so={o?.eventsInPeriodCount ?? 0}
               phu={soSanh(o?.eventsInPeriodCount, oT?.eventsInPeriodCount)} />
-            <OChiSo nhan="Khán giả đăng ký mới" so={o?.newAudienceSignupsInPeriod ?? 0} icon={Users}
+            <OChiSo nhan="Khán giả đăng ký mới" so={o?.newAudienceSignupsInPeriod ?? 0}
               phu={soSanh(o?.newAudienceSignupsInPeriod, oT?.newAudienceSignupsInPeriod)} />
           </div>
-        </section>
+        </KhoiMuc>
 
         {/* ===== TIỀN THEO KỲ ===== */}
         {d ? (
-          <section className="space-y-4">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <h2 className="font-sans text-lg font-bold text-ink">Tiền trong kỳ, tách theo nguồn</h2>
-              <NhomTab nhan="Đại lượng doanh thu" dangChon={measure} onChon={setMeasure}
-                cacTab={MEASURES.map((m) => ({ khoa: m.key, nhan: m.label }))} />
-            </div>
-            <p className="text-xs text-ink-mute leading-relaxed">
-              {measure === 'platformRevenue'
-                ? 'Phần nền tảng thực nhận: hoa hồng trên vé và tiền ủng hộ, cộng toàn bộ phí gói dịch vụ. Không gồm tiền giữ hộ phòng trà chờ quyết toán; vé bán tại quầy bằng tiền mặt không đi qua nền tảng nên gần như không có ở đây.'
-                : 'Tổng tiền người mua trả, GỒM cả vé bán tại quầy bằng tiền mặt. Đây KHÔNG phải doanh thu của nền tảng — phần lớn thuộc về phòng trà và nghệ sĩ.'}
-            </p>
+          <KhoiMuc id="tien-theo-nguon" tieuDe="Tiền trong kỳ, tách theo nguồn" phamVi={nhanKhoang(tu, den)}
+            moTa={measure === 'platformRevenue'
+              ? 'Phần nền tảng thực nhận: hoa hồng vé và tiền ủng hộ, cộng phí gói dịch vụ.'
+              : 'Tổng tiền người mua trả, gồm cả vé bán tại quầy. Không phải doanh thu của nền tảng.'}
+            phai={<NhomTab nhan="Đại lượng doanh thu" dangChon={measure} onChon={setMeasure}
+              cacTab={MEASURES.map((m) => ({ khoa: m.key, nhan: m.label }))} />}>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <div className="lg:col-span-2 bg-card border border-line p-6">
+              <div className="lg:col-span-2 bg-card border-2 border-ink/25 p-5 sm:p-6">
+                <h3 className="text-base font-semibold text-ink mb-3">Theo {TEN_DON_VI_KY[d.seriesUnit] ?? 'thời gian'}</h3>
                 {d.series ? (
                   <RevenueSeriesChart series={d.series} unit={d.seriesUnit} measure={measure} seriesTruoc={dT?.series} />
                 ) : (
                   <p className="text-sm text-ink-soft">Máy chủ chưa có bản cập nhật biểu đồ theo kỳ (MLACP-594).</p>
                 )}
               </div>
-              <div className="lg:col-span-1 bg-card border border-line p-6">
-                <h3 className="text-base font-semibold text-ink">Tỷ trọng theo nguồn</h3>
-                <p className="text-xs text-ink-mute mt-0.5 mb-3">Cả kỳ {nhanKhoang(tu, den)}</p>
+              <div className="lg:col-span-1 bg-card border-2 border-ink/25 p-5 sm:p-6">
+                <h3 className="text-base font-semibold text-ink mb-3">Tỷ trọng cả kỳ</h3>
                 <RevenueShareBars series={d.series ?? []} measure={measure} />
               </div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <div className="lg:col-span-2 bg-card border border-line overflow-hidden">
-                <div className="p-6 pb-4">
-                  <h3 className="text-lg font-semibold text-ink">Buổi diễn nổi bật</h3>
-                  <p className="text-ink-mute text-xs">Theo doanh thu vé bán trong kỳ · 10 buổi đầu</p>
+              <div className="lg:col-span-2 bg-card border-2 border-ink/25 overflow-hidden">
+                <div className="px-5 sm:px-6 pt-5 pb-3">
+                  <h3 className="text-base font-semibold text-ink">Buổi diễn bán vé tốt nhất</h3>
+                  <p className="text-sm text-ink-soft mt-0.5">Theo doanh thu vé trong kỳ</p>
                 </div>
                 <TopShowsTable shows={d.topShows} />
               </div>
-              <div className="lg:col-span-1 bg-card border border-line p-6">
-                <h3 className="text-lg font-semibold text-ink mb-1">Thể loại được mua vé nhiều</h3>
-                <p className="text-ink-mute text-xs mb-6">Xếp theo số vé bán trong kỳ</p>
+              <div className="lg:col-span-1 bg-card border-2 border-ink/25 p-5 sm:p-6">
+                <h3 className="text-base font-semibold text-ink mb-3">Thể loại theo số vé bán</h3>
                 <GenreTrendingList genres={d.genres} />
               </div>
             </div>
-          </section>
+          </KhoiMuc>
         ) : null}
       </div>
 
-      {/* ===== KHÔNG THEO KỲ ===== */}
-      <section>
-        <SectionTitle>Hiện tại và luỹ kế <span className="text-ink-mute font-normal">(không theo kỳ đã chọn)</span></SectionTitle>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <OChiSo nhan="Phòng trà đang hoạt động" so={p?.operatingVenues ?? o?.activeVenuesCount ?? 0} icon={Store} phu="Tại thời điểm này" />
-          <OChiSo nhan="Chờ duyệt thủ công" so={p?.pendingModerationsCount ?? 0} icon={AlertCircle}
-            canChuY={p?.pendingModerationsCount > 0} phu={p?.pendingModerationsCount > 0 ? 'Cần xử lý' : 'Đã xử lý hết'} />
-          <OChiSo nhan="Phòng trà đã đăng ký" so={p?.totalVenues ?? 0} icon={Store}
+      {/* ===== KHÔNG THEO KỲ =====
+          04/10/2026: bỏ "Phòng trà đang hoạt động" (lặp dòng phụ "5 hoạt động" của ô Phòng trà đã đăng ký) và "Chờ duyệt thủ
+          công" (đã nằm trong khối Việc cần xử lý đầu trang) — luật Q9: một việc một chỗ. */}
+      <KhoiMuc id="luy-ke" tieuDe="Từ khi vận hành" phamVi="không theo kỳ đã chọn">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <OChiSo nhan="Phòng trà đã đăng ký" so={p?.totalVenues ?? 0}
             phu={venueBreakdown(p?.venuesByStatus) || 'Mọi trạng thái, kể cả chờ duyệt'} />
-          <OChiSo nhan="Tổng người dùng" so={(p?.totalUsers ?? 0).toLocaleString('vi-VN')} icon={Users} />
-          <OChiSo nhan="Tổng giá trị giao dịch từ khi vận hành" so={fmtMoney(p?.totalGrossMerchandiseValue)} icon={Banknote} />
-          <OChiSo nhan="Vé đã bán từ khi vận hành" so={(p?.totalTicketsSold ?? 0).toLocaleString('vi-VN')} icon={Ticket} />
-          <OChiSo nhan="Tiền ủng hộ từ khi vận hành" so={fmtMoney(p?.totalDonationVolume)} icon={HeartHandshake} />
-          <OChiSo nhan="Buổi diễn đã xuất bản" so={p?.totalPublishedShows ?? 0} icon={Music2} />
+          <OChiSo nhan="Người dùng" so={(p?.totalUsers ?? 0).toLocaleString('vi-VN')} />
+          <OChiSo nhan="Buổi diễn đã xuất bản" so={p?.totalPublishedShows ?? 0} />
+          <OChiSo nhan="Vé đã bán" so={(p?.totalTicketsSold ?? 0).toLocaleString('vi-VN')} />
+          <OChiSo nhan="Tổng giá trị giao dịch" so={fmtMoney(p?.totalGrossMerchandiseValue)} />
+          <OChiSo nhan="Tiền ủng hộ" so={fmtMoney(p?.totalDonationVolume)} />
         </div>
-      </section>
+      </KhoiMuc>
     </div>
   )
 }

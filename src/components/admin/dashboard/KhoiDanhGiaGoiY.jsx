@@ -1,52 +1,85 @@
 // src/components/admin/dashboard/KhoiDanhGiaGoiY.jsx
 //
 // Chất lượng mô hình gợi ý (GET /analytics/recommender-evaluation). MLACP-595: chuyển từ trang Tổng quan sang trang Nội
-// dung và tương tác — đây là số liệu kỹ thuật, không theo kỳ, không phải việc Admin xem hằng ngày; trang tổng quan chỉ giữ
-// số liệu kinh doanh theo kỳ (NN/g: dashboard là thông tin "at-a-glance" để hành động nhanh).
-import { Brain } from 'lucide-react'
+// dung và tương tác — đây là số liệu kỹ thuật, không theo kỳ, không phải việc Admin xem hằng ngày.
+//
+// SỬA 04/10/2026 — LỖI DỮ LIỆU: bản trước đọc `m.name` và `m.hitRate` (tỷ lệ 0–1), nhưng backend (ModelEvaluationDto) trả
+// `model`, `cases`, `hits`, `hitRateAtKPercent` (ĐÃ là phần trăm) và `catalogueCoveragePercent`. Kết quả: hai dòng không tên
+// và con số luôn "0.0%" — trong khi số thật đo trên dữ liệu cục bộ là 67,57% (cá nhân hoá) so với 5,41% (mốc). Cùng khuôn
+// bài học L-31: tên trường đọc từ API phải đối chiếu với DTO, không tin vào việc màn hình "hiện ra một con số".
+//
+// Trình bày (reports/Trang quản trị - rà soát thị giác…, luật Q1/Q5/Q8): một câu kết luận trước, so với mốc (Few: "Compared
+// to what?"); độ lớn bằng ĐỘ DÀI thanh từ 0 tới 100% (NN/g) — vẽ bằng BieuDoThanhNgang (recharts); không khung lồng khung.
+// Chủ dự án 04/10: "đúng đủ, không nhồi nhét nội dung gây rối mắt" — khối chỉ còn MỘT câu kết luận, biểu đồ, và MỘT dòng
+// nhắc giới hạn luôn hiện (backend ghi rõ giới hạn phải đọc kèm con số, nên không giấu hẳn); lời giới hạn đầy đủ, độ phủ
+// kho và cách đo nằm trong <details> "Chi tiết phép đo" — ai cần mới mở.
+import { phanTram } from '../../../utils/dinhDangSo'
+import BieuDoThanhNgang from '../../bang/BieuDoThanhNgang'
+
+// Tên kỹ thuật backend → tên người đọc hiểu. Khoá lạ thì in nguyên, không giấu.
+const TEN_MO_HINH = {
+  content_based: 'Theo gu từng người',
+  popularity_baseline: 'Mốc: buổi đông người chọn',
+}
+const MOC = 'popularity_baseline'
+const ten = (m) => TEN_MO_HINH[m.model] ?? m.model
 
 const KhoiDanhGiaGoiY = ({ recommender }) => {
   if (!recommender) return null
+
+  // BE cố tình KHÔNG trả con số khi chưa đủ dữ liệu — hiển thị đúng như vậy, không quy về 0%.
+  if (recommender.status === 'NotEnoughHistory') {
+    return (
+      <div className="border-2 border-ink/25 bg-card p-5 space-y-2">
+        <p className="font-semibold text-ink">Chưa đủ dữ liệu để đo</p>
+        <p className="text-sm text-ink-soft leading-relaxed">{recommender.caveat}</p>
+        <p className="text-sm text-ink-soft">
+          Người dùng đủ lịch sử: <span className="text-ink font-semibold tabular-nums">{recommender.usersWithEnoughHistory}</span>
+          {' · '}Kho buổi diễn: <span className="text-ink font-semibold tabular-nums">{recommender.catalogueSize}</span>
+        </p>
+      </div>
+    )
+  }
+
+  const ds = recommender.models ?? []
+  const moc = ds.find((m) => m.model === MOC)
+  const chinh = ds.find((m) => m.model !== MOC)
+  const gapLan = moc && chinh && moc.hitRateAtKPercent > 0 ? chinh.hitRateAtKPercent / moc.hitRateAtKPercent : null
+  const k = recommender.k
+
   return (
-    <div className="bg-card border border-line p-6">
-      <div className="flex items-start gap-3 mb-4">
-        <div className="p-2.5 bg-ink/10">
-          <Brain size={20} className="text-ink" aria-hidden="true" />
-        </div>
-        <div>
-          <h3 className="text-lg font-semibold text-ink">Chất lượng mô hình gợi ý</h3>
-          <p className="text-ink-mute text-xs mt-0.5 leading-relaxed">{recommender.method}</p>
-        </div>
+    <div className="border-2 border-ink/25 bg-card p-5 sm:p-6 space-y-4">
+      {chinh && moc && (
+        <p className="text-lg text-ink leading-snug">
+          Gợi ý theo gu đoán đúng <span className="font-bold tabular-nums">{phanTram(chinh.hitRateAtKPercent)}</span> số lần
+          {gapLan && gapLan >= 1.1
+            ? <>, <span className="font-bold">gấp {gapLan.toLocaleString('vi-VN', { maximumFractionDigits: 1 })} lần</span> mốc so sánh.</>
+            : <>; mốc so sánh là {phanTram(moc.hitRateAtKPercent)}.</>}
+        </p>
+      )}
+
+      {/* max-w-2xl: thanh dài hết màn rộng thì mắt phải quét xa giữa tên và số. */}
+      <div className="max-w-2xl">
+        <BieuDoThanhNgang toiDa={100}
+          moTa={`Tỷ lệ trúng trong ${k} vị trí đầu: ${ds.map((m) => `${ten(m)} ${phanTram(m.hitRateAtKPercent)}, ${m.hits} trên ${m.cases} lần`).join('; ')}`}
+          data={ds.map((m) => ({
+            khoa: m.model, nhan: ten(m), giaTri: m.hitRateAtKPercent, mo: m.model === MOC,
+            nhanGiaTri: `${phanTram(m.hitRateAtKPercent)} · ${m.hits}/${m.cases} lần`,
+          }))} />
       </div>
 
-      {/* BE cố tình KHÔNG trả con số khi chưa đủ dữ liệu — hiển thị đúng như vậy,
-          không quy về 0% kẻo người đọc tưởng mô hình đo được và đang sai */}
-      {recommender.status === 'NotEnoughHistory' ? (
-        <div className="bg-warning/5 border border-warning/20 p-4">
-          <p className="text-warning text-sm font-medium mb-1">Chưa đủ dữ liệu để đo</p>
-          <p className="text-ink-soft text-xs leading-relaxed">{recommender.caveat}</p>
-          <div className="flex flex-wrap gap-6 mt-3 text-xs">
-            <span className="text-ink-mute">
-              Người dùng đủ lịch sử: <span className="text-ink font-medium">{recommender.usersWithEnoughHistory}</span>
-            </span>
-            <span className="text-ink-mute">
-              Kho buổi diễn: <span className="text-ink font-medium">{recommender.catalogueSize}</span>
-            </span>
-          </div>
+      <p className="text-sm text-ink-soft">Đo trên dữ liệu đã có, chưa thay được số đo trên người dùng thật.</p>
+      <details className="text-sm text-ink-soft">
+        <summary className="cursor-pointer min-h-[44px] inline-flex items-center font-semibold text-ink underline underline-offset-4">Chi tiết phép đo</summary>
+        <div className="space-y-2 leading-relaxed pb-1 max-w-3xl">
+          <p>{recommender.method}</p>
+          <p>
+            Độ phủ kho (phần trong {recommender.catalogueSize} buổi diễn từng được đưa lên):{' '}
+            {ds.map((m) => `${ten(m)} ${phanTram(m.catalogueCoveragePercent)}`).join(' · ')}.
+          </p>
+          {recommender.caveat && <p>{recommender.caveat}</p>}
         </div>
-      ) : (
-        <div className="space-y-3">
-          {(recommender.models || []).map((m, i) => (
-            <div key={m.name ?? i} className="flex items-center justify-between bg-sunken/70 border border-line px-4 py-3">
-              <span className="text-sm text-ink font-medium">{m.name}</span>
-              <span className="text-sm text-ink font-bold">
-                HR@{recommender.k}: {((m.hitRate ?? 0) * 100).toFixed(1)}%
-              </span>
-            </div>
-          ))}
-          {recommender.caveat && <p className="text-ink-mute text-xs leading-relaxed pt-1">{recommender.caveat}</p>}
-        </div>
-      )}
+      </details>
     </div>
   )
 }

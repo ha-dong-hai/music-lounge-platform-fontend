@@ -13,9 +13,12 @@ export const CURSOR = '#EDE6DB'      // = --color-sunken
 // Ba độ đậm của MỰC, phân biệt bằng độ sáng (đọc được khi mù màu); không mượn ember (chỉ buổi đang diễn) hay son (chỉ
 // trạng thái tiền). Đo 01/10/2026 so với nền thẻ #FBF8F3: 16.1 / 5.9 / 3.1 : 1 (WCAG 1.4.11 cần >= 3:1). Hai màu liền kề
 // chỉ 2.8 và 1.9 : 1 — tách được nhờ khe 2px + chú giải; muốn tăng thì thêm hoa văn, đừng thêm màu ngoài bảng.
+// 04/10/2026: ĐÃ thêm hoa văn — nguồn giữa (gói dịch vụ) vẽ sọc chéo (`hoaVan`), nên hai cặp kề nhau khác nhau bằng KẾT CẤU,
+// không chỉ bằng độ sáng (WCAG 1.4.11 / 1.4.1: không dùng màu là cách phân biệt duy nhất). Ba màu nâu cùng tông dưới 3:1
+// là thứ chủ dự án gọi là "mờ nhạt"; không thêm sắc mới vì bảng màu chỉ dành son cho tiền và ember cho buổi đang diễn.
 export const SOURCES = [
   { key: 'ticket',   label: 'Vé',          color: '#231A15' },
-  { key: 'package',  label: 'Gói dịch vụ', color: '#6E5E50' }, // = --color-chart-2
+  { key: 'package',  label: 'Gói dịch vụ', color: '#6E5E50', hoaVan: true }, // = --color-chart-2
   { key: 'donation', label: 'Tiền ủng hộ', color: '#9A8B7C' }, // = --color-chart-3
 ]
 

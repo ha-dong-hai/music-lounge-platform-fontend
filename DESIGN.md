@@ -354,6 +354,23 @@ thiếu mô tả, Gói dịch vụ không xuống dòng). Trang mới thì dùng
 trực tuyến / Đơn gọi món / nghệ sĩ; `keyword` cho Admin khiếu nại, phòng trà, buổi diễn, danh sách phòng trà công khai;
 `allStatuses=true` để thêm lại "Tất cả" ở Admin Phòng trà; trái tim theo dõi qua `/follows/lounges/status`.
 
+### Trang số liệu quản trị — luật trình bày (04/10/2026)
+
+Chủ dự án: "không đầu không đuôi, rối mắt, mờ nhạt, không theo tiêu chuẩn nào"; "được thì dùng thư viện, đừng tự code";
+"đúng đủ, không thừa không thiếu, đừng nhồi nhét nội dung". Nguồn và số đo: `reports/Trang quản trị - rà soát thị giác và
+luật trình bày số liệu.md` (repo backend). Mẫu đã làm: Tổng quan, Nội dung và tương tác. 15 trang còn lại CHƯA làm.
+
+- **Mỗi con số trả lời "so với cái gì"**: dòng phụ là kỳ trước, hoặc mẫu số ("0 trên 560 cặp"). Không có thì không in ô đó.
+- **Không có dữ liệu ≠ 0**: in chữ ("Chưa có điểm"), không vẽ thanh dài 0 cạnh thanh khác.
+- **Một việc một chỗ**: không lặp cùng một số ở hai trang hay hai khối.
+- **Chữ: mỗi mục tối đa MỘT câu mô tả ngắn.** Giải thích dài, cách đo, giới hạn → `<details>` (thẻ gốc trình duyệt).
+- **Không biểu tượng trang trí** trong ô số, dòng danh sách, tiêu đề khối. Biểu tượng chỉ ở điều hướng, nút, nhãn trạng thái.
+- **Biểu đồ dùng recharts**, không tự vẽ bằng div/svg. Thanh ngang: `components/bang/BieuDoThanhNgang` (nhãn trên thanh,
+  trục từ 0). Phân biệt chuỗi bằng độ đậm + hoa văn sọc, không thêm sắc ngoài bảng màu.
+- **Tiêu đề**: mục dùng `components/bang/KhoiMuc` (H2 20px đậm + phạm vi chữ nhạt); tiêu đề khối H3 16px.
+- **Số**: phần trăm qua `utils/dinhDangSo` (dấu phẩy tiếng Việt, không ",0" thừa). Cột số căn phải.
+- **Tên trường đọc từ API phải đối chiếu DTO backend** (lỗi "HR@10: 0.0%" là đọc sai tên trường, không phải lỗi hiển thị).
+
 ## Danh sách lựa chọn dài: thu gọn, không in hết (30/09/2026)
 
 > Chủ dự án: khối "Tìm theo gu" in hết mọi lựa chọn, "nếu có quá nhiều option thì sao". Căn cứ: `reports/Thu gọn danh

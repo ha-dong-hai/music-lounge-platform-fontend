@@ -4,11 +4,29 @@
 // theo độ dài kỳ) kèm đường KỲ TRƯỚC nét đứt — cách Shopify Analytics vẽ so sánh. Biểu đồ tròn khuyết tỷ trọng thay bằng
 // thanh ngang: NN/g (Dashboards: Making Charts and Graphs Easier to Understand) khuyên tránh tròn/tròn khuyết trên
 // dashboard vì mắt so độ dài nhanh hơn so góc.
+//
+// 04/10/2026 (rà soát thị giác trang quản trị — reports/Trang quản trị - rà soát thị giác và luật trình bày số liệu.md):
+//  - Nguồn "gói dịch vụ" vẽ sọc chéo (chartTokens `hoaVan`) — phân biệt bằng kết cấu, không chỉ bằng ba sắc nâu gần nhau.
+//  - Tỷ trọng: một danh sách thanh có NHÃN TRỰC TIẾP (tên · số tiền · phần trăm ngay trên thanh) thay cho thanh recharts +
+//    chú giải + danh sách số (một thông tin in ba lần, chú giải che thanh khi rê chuột). Datawrapper/GOV.UK: nhãn trực tiếp.
+//  - Bỏ biểu tượng ♪ và mũi tên "đang tăng" ở mọi dòng thể loại: số đó là số vé, không phải xu hướng — mũi tên nói sai.
+//  - Phần trăm định dạng tiếng Việt (utils/dinhDangSo), không còn "73.0%".
+import { useId } from 'react'
 import dayjs from 'dayjs'
 import { Link } from 'react-router-dom'
-import { Music2, TrendingUp } from 'lucide-react'
-import { ComposedChart, BarChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
+import { ComposedChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import { SURFACE, GRID, AXIS_TEXT, CURSOR, SOURCES, fmtMoney, fmtCompact } from './chartTokens'
+import { phanTram } from '../../../utils/dinhDangSo'
+import BieuDoThanhNgang from '../../bang/BieuDoThanhNgang'
+
+// Hoa văn sọc chéo cho nguồn có `hoaVan` — dùng chung cho cột biểu đồ, ô chú giải và thanh tỷ trọng.
+const HoaVan = ({ id, color }) => (
+  <pattern id={id} width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+    <rect width="6" height="6" fill={SURFACE} />
+    <rect width="3.5" height="6" fill={color} />
+  </pattern>
+)
+const fillCua = (s, tienTo) => (s.hoaVan ? `url(#${tienTo}-${s.key})` : s.color)
 
 // Nhãn trục theo đơn vị backend chọn. Tuần ghi ngày thứ Hai đầu tuần.
 const nhanNhom = (start, unit) => {
@@ -18,9 +36,16 @@ const nhanNhom = (start, unit) => {
 }
 const TEN_DON_VI = { day: 'ngày', week: 'tuần', month: 'tháng' }
 
-const Swatch = ({ color, size = 'w-2.5 h-2.5' }) => (
-  <span className={`${size} flex-shrink-0`} style={{ backgroundColor: color }} />
-)
+// Ô màu chú giải: SVG để vẽ được cả hoa văn (nguồn sọc chéo phải trông giống hệt trên cột).
+const Swatch = ({ nguon, kichThuoc = 10 }) => {
+  const id = useId().replace(/:/g, '')
+  return (
+    <svg width={kichThuoc} height={kichThuoc} aria-hidden="true" className="flex-shrink-0">
+      {nguon.hoaVan && <defs><HoaVan id={`${id}-${nguon.key}`} color={nguon.color} /></defs>}
+      <rect width={kichThuoc} height={kichThuoc} fill={fillCua(nguon, id)} stroke={nguon.color} strokeWidth={nguon.hoaVan ? 1 : 0} />
+    </svg>
+  )
+}
 
 // TOOLTIP: mỗi nguồn một dòng + tổng kỳ này + tổng kỳ trước cùng vị trí.
 const RevenueTooltip = ({ active, payload }) => {
@@ -31,7 +56,7 @@ const RevenueTooltip = ({ active, payload }) => {
       <p className="text-ink font-bold mb-2">{row.tieuDe}</p>
       {SOURCES.map((s) => (
         <div key={s.key} className="flex items-center justify-between gap-6 py-0.5">
-          <span className="inline-flex items-center gap-2 text-ink-soft"><Swatch color={s.color} size="w-2 h-2" />{s.label}</span>
+          <span className="inline-flex items-center gap-2 text-ink-soft"><Swatch nguon={s} kichThuoc={8} />{s.label}</span>
           <span className="text-ink font-medium tabular-nums">{fmtMoney(row[s.key])}</span>
         </div>
       ))}
@@ -70,7 +95,7 @@ export const RevenueSeriesChart = ({ series, unit, measure, seriesTruoc }) => {
     <div className="space-y-3">
       <div className="flex flex-wrap gap-4 text-xs text-ink-soft">
         {SOURCES.map((s) => (
-          <span key={s.key} className="inline-flex items-center gap-1.5"><Swatch color={s.color} /> {s.label}</span>
+          <span key={s.key} className="inline-flex items-center gap-1.5"><Swatch nguon={s} /> {s.label}</span>
         ))}
         {coKyTruoc && (
           <span className="inline-flex items-center gap-1.5">
@@ -83,13 +108,14 @@ export const RevenueSeriesChart = ({ series, unit, measure, seriesTruoc }) => {
       <div className="h-[320px]">
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart data={rows} margin={{ top: 8, right: 10, left: 0, bottom: 0 }}>
+            <defs>{SOURCES.filter((s) => s.hoaVan).map((s) => <HoaVan key={s.key} id={`hv-cot-${s.key}`} color={s.color} />)}</defs>
             <CartesianGrid strokeDasharray="3 3" stroke={GRID} vertical={false} />
             <XAxis dataKey="label" axisLine={{ stroke: GRID }} tickLine={false} minTickGap={12}
               tick={{ fill: AXIS_TEXT, fontSize: 12 }} />
             <YAxis width={56} axisLine={false} tickLine={false} tick={{ fill: AXIS_TEXT, fontSize: 12 }} tickFormatter={fmtCompact} />
             <Tooltip content={<RevenueTooltip />} cursor={{ fill: CURSOR, opacity: 0.6 }} />
             {SOURCES.map((s) => (
-              <Bar key={s.key} dataKey={s.key} stackId="rev" fill={s.color} maxBarSize={28}
+              <Bar key={s.key} dataKey={s.key} name={s.label} stackId="rev" fill={fillCua(s, 'hv-cot')} maxBarSize={28}
                 stroke={SURFACE} strokeWidth={2} isAnimationActive={false} />
             ))}
             {coKyTruoc && (
@@ -131,69 +157,52 @@ export const RevenueSeriesChart = ({ series, unit, measure, seriesTruoc }) => {
   )
 }
 
-// ===== 2. TỶ TRỌNG NGUỒN TRONG KỲ — thanh ngang (thay biểu đồ tròn khuyết) =====
+// ===== 2. TỶ TRỌNG NGUỒN TRONG KỲ — thanh ngang nhãn trực tiếp (BieuDoThanhNgang, dựng bằng recharts) =====
+// Mỗi hàng: tên nguồn · thanh độ dài · "số tiền · phần trăm". Không chú giải tách rời, không tooltip che thanh.
 export const RevenueShareBars = ({ series, measure }) => {
   const all = SOURCES.map((s) => ({ ...s, value: series.reduce((sum, b) => sum + Number(b[s.key]?.[measure] ?? 0), 0) }))
   const total = all.reduce((sum, p) => sum + p.value, 0)
-  if (total <= 0) return <p className="text-sm text-ink-mute py-12 text-center">Kỳ này chưa phát sinh doanh thu.</p>
+  if (total <= 0) return <p className="text-sm text-ink-soft py-12 text-center">Kỳ này chưa phát sinh doanh thu.</p>
   return (
     <div className="space-y-4">
       <p className="font-mono text-2xl font-semibold tabular-nums text-ink">{fmtMoney(total)}</p>
-      <div className="h-[140px]">
-        <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={all} layout="vertical" margin={{ top: 0, right: 8, left: 0, bottom: 0 }}>
-            <XAxis type="number" hide domain={[0, total]} />
-            <YAxis type="category" dataKey="label" width={92} axisLine={false} tickLine={false} tick={{ fill: AXIS_TEXT, fontSize: 12 }} />
-            <Tooltip formatter={(v) => fmtMoney(v)} cursor={{ fill: CURSOR, opacity: 0.6 }} />
-            <Bar dataKey="value" name="Số tiền" isAnimationActive={false} maxBarSize={22}
-              shape={(props) => <rect x={props.x} y={props.y} width={props.width} height={props.height} fill={props.payload.color} />} />
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
-      <dl className="space-y-1.5 text-sm">
-        {all.map((p) => (
-          <div key={p.key} className="flex items-center justify-between gap-3">
-            <dt className="flex items-center gap-2 text-ink-soft"><Swatch color={p.color} />{p.label}</dt>
-            <dd className="text-ink font-medium tabular-nums">{fmtMoney(p.value)} <span className="text-ink-mute ml-1">{((p.value / total) * 100).toFixed(1)}%</span></dd>
-          </div>
-        ))}
-      </dl>
+      <BieuDoThanhNgang toiDa={total}
+        // Nguồn 0đ không vẽ: thanh dài 0 không có gì để so, và recharts không in nhãn cho thanh rỗng (để lại hàng trống).
+        data={all.filter((p) => p.value > 0).map((p) => ({ khoa: p.key, nhan: p.label, giaTri: p.value, nhanGiaTri: `${fmtMoney(p.value)} · ${phanTram((p.value / total) * 100)}`, mau: p.color, hoaVan: p.hoaVan }))} />
     </div>
   )
 }
-
-// ===== 3. BẢNG TOP SHOWS — kiểu cũ (rank + badge vé + doanh thu vàng), dữ liệu thật =====
+// ===== 3. BẢNG BUỔI DIỄN NỔI BẬT =====
+// 04/10/2026: bỏ ô số vé bo tròn (`rounded-md` — trái luật góc vuông) — số căn phải như mọi cột số; tên buổi dẫn tới trang
+// buổi diễn CỦA ADMIN (/admin/shows/:id), không phải trang khán giả.
 export const TopShowsTable = ({ shows }) => {
   if (!shows?.length) {
-    return <p className="text-sm text-ink-mute py-10 text-center">Chưa có buổi diễn nào bán được vé trong kỳ.</p>
+    return <p className="text-sm text-ink-soft py-10 text-center">Chưa có buổi diễn nào bán được vé trong kỳ.</p>
   }
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-left whitespace-nowrap">
-        <thead className="bg-sunken border-b-2 border-ink">
-          <tr>
-            <th scope="col" className="p-4 text-sm font-semibold text-ink w-10">#</th>
-            <th scope="col" className="p-4 text-sm font-semibold text-ink">Buổi diễn</th>
-            <th scope="col" className="p-4 text-sm font-semibold text-ink">Vé bán</th>
-            <th scope="col" className="p-4 text-sm font-semibold text-ink text-right">Doanh thu vé</th>
+        <caption className="sr-only">Buổi diễn xếp theo doanh thu vé trong kỳ</caption>
+        <thead className="border-b-2 border-ink">
+          <tr className="text-sm text-ink-soft">
+            <th scope="col" className="px-5 py-3 font-semibold w-10">#</th>
+            <th scope="col" className="px-5 py-3 font-semibold">Buổi diễn</th>
+            <th scope="col" className="px-5 py-3 font-semibold text-right">Vé bán</th>
+            <th scope="col" className="px-5 py-3 font-semibold text-right">Doanh thu vé</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-line">
           {shows.map((s, i) => (
-            <tr key={s.showId} className="hover:bg-sunken/40 transition-colors">
-              <td className="p-4 text-ink-mute tabular-nums text-sm">{i + 1}</td>
-              <td className="p-4">
-                <Link to={`/shows/${s.showId}`} className="text-sm text-ink font-medium hover:text-ink transition-colors">
+            <tr key={s.showId} className="hover:bg-sunken/60 transition-colors">
+              <td className="px-5 py-3 text-ink-mute tabular-nums text-sm">{i + 1}</td>
+              <td className="px-5 py-3">
+                <Link to={`/admin/shows/${s.showId}`} className="text-sm text-ink font-semibold hover:underline underline-offset-4">
                   {s.title}
                 </Link>
-                <p className="text-xs text-ink-mute mt-0.5">{s.loungeName} · {dayjs(s.startTime).format('DD/MM/YYYY')}</p>
+                <p className="text-sm text-ink-soft mt-0.5">{s.loungeName} · {dayjs(s.startTime).format('DD/MM/YYYY')}</p>
               </td>
-              <td className="p-4">
-                <span className="text-sm text-ink bg-sunken px-2 py-1 rounded-md tabular-nums">
-                  {s.ticketsSold.toLocaleString('vi-VN')}
-                </span>
-              </td>
-              <td className="p-4 text-right text-sm font-bold text-ink tabular-nums">{fmtMoney(s.ticketRevenue)}</td>
+              <td className="px-5 py-3 text-right text-sm text-ink tabular-nums">{s.ticketsSold.toLocaleString('vi-VN')}</td>
+              <td className="px-5 py-3 text-right text-sm font-bold text-ink tabular-nums">{fmtMoney(s.ticketRevenue)}</td>
             </tr>
           ))}
         </tbody>
@@ -202,40 +211,33 @@ export const TopShowsTable = ({ shows }) => {
   )
 }
 
-// ===== 4. TRENDING GENRES — kiểu cũ (rank + thanh progress), dữ liệu thật theo vé bán =====
+// ===== 4. THỂ LOẠI THEO SỐ VÉ BÁN =====
+// Hiện SO_THE_LOAI_HIEN dòng đầu; phần còn lại nằm trong <details> gốc của trình duyệt (không tự dựng nút bật/tắt), ghi rõ số
+// đang ẩn, CÙNG thang đo với phần trên. Mọi thanh một màu: không thể loại nào quan trọng hơn (Datawrapper).
+const SO_THE_LOAI_HIEN = 6
+
 export const GenreTrendingList = ({ genres }) => {
   if (!genres?.length) {
-    return <p className="text-sm text-ink-mute py-10 text-center">Chưa có vé nào bán ra trong kỳ.</p>
+    return <p className="text-sm text-ink-soft py-10 text-center">Chưa có vé nào bán ra trong kỳ.</p>
   }
   const rows = [...genres].sort((a, b) => b.ticketsSold - a.ticketsSold)
-  const max = rows[0].ticketsSold || 1
+    .map((g) => ({ khoa: g.genreName, nhan: g.genreName, giaTri: g.ticketsSold, nhanGiaTri: `${g.ticketsSold.toLocaleString('vi-VN')} vé · ${g.showCount} buổi` }))
+  const max = rows[0].giaTri || 1
+  const an = rows.slice(SO_THE_LOAI_HIEN)
 
   return (
-    <div className="space-y-4">
-      {rows.map((g, index) => (
-        <div key={g.genreName}>
-          <div className="flex items-center justify-between mb-1.5">
-            <div className="flex items-center gap-2">
-              <span className={`text-xs font-bold ${index === 0 ? 'text-ink' : 'text-ink-mute'}`}>#{index + 1}</span>
-              <span className="text-sm font-medium text-ink flex items-center gap-1.5">
-                <Music2 size={14} className="text-ink-mute" /> {g.genreName}
-              </span>
-            </div>
-            <div className="flex items-center gap-1 text-xs font-medium text-ink-soft tabular-nums">
-              <TrendingUp size={12} className="text-success" />
-              {g.ticketsSold.toLocaleString('vi-VN')} vé · {g.showCount} buổi diễn
-            </div>
-          </div>
-          <div className="w-full h-1.5 bg-sunken overflow-hidden">
-            <div
-              className={`h-full ${index === 0 ? 'bg-ink' : 'bg-ink/60'}`}
-              style={{ width: `${(g.ticketsSold / max) * 100}%` }}
-            />
-          </div>
-        </div>
-      ))}
-      <p className="text-xs text-ink-mute pt-1 leading-relaxed">
-        Xếp theo số vé bán trong kỳ. Một buổi diễn nhiều thể loại được tính vé cho từng thể loại.
+    <div className="space-y-3">
+      <BieuDoThanhNgang data={rows.slice(0, SO_THE_LOAI_HIEN)} toiDa={max} />
+      {an.length > 0 && (
+        <details>
+          <summary className="cursor-pointer min-h-[44px] inline-flex items-center text-sm font-semibold text-ink underline underline-offset-4">
+            Xem thêm {an.length} thể loại
+          </summary>
+          <BieuDoThanhNgang data={an} toiDa={max} />
+        </details>
+      )}
+      <p className="text-sm text-ink-soft leading-relaxed">
+        Buổi diễn nhiều thể loại được tính cho từng thể loại.
       </p>
     </div>
   )

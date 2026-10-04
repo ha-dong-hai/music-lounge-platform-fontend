@@ -19,10 +19,10 @@ const ViecCanXuLy = () => {
   const ds = sapXepTheoUuTien(data)
 
   return (
-    <section aria-labelledby="viec-can-xu-ly">
-      {/* Cùng kiểu tiêu đề khối với trang Tổng quan (SectionTitle trong AdminDashboard.jsx). */}
-      <h2 id="viec-can-xu-ly" className="font-sans font-bold text-sm text-ink-soft mb-3">
-        Việc cần xử lý <span className="text-ink-mute font-normal">(lúc này, không theo kỳ đã chọn)</span>
+    <section aria-labelledby="viec-can-xu-ly" className="space-y-4">
+      {/* Cùng kiểu tiêu đề mục với mọi khối trang số liệu (components/bang/KhoiMuc — luật Q7, 04/10/2026). */}
+      <h2 id="viec-can-xu-ly" className="font-sans text-xl font-bold text-ink">
+        Việc cần xử lý <span className="ml-2 text-sm font-normal text-ink-mute">lúc này, không theo kỳ đã chọn</span>
       </h2>
       <KhungTai dangTai={isPending} loi={isError} taiLai={refetch} tenVung="việc cần xử lý" caoKhung="h-24"
         rong={ds.length === 0}
