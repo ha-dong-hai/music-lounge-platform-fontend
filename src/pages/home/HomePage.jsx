@@ -46,6 +46,7 @@ const doiSangDong = (show) => ({
   title: show.name,
   thumbnail: show.coverImageUrl,
   start_date: show.scheduledStart,
+  end_date: show.effectiveEnd, // MLACP-633: giờ kết thúc hiệu lực — để mọi khối hiện "bắt đầu – kết thúc"
   province: show.loungeCity,
   district: show.loungeDistrict,
   loungeName: show.loungeName,

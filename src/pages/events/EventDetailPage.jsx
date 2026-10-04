@@ -64,9 +64,10 @@ const EventDetailPage = () => {
             loungeName: beData.lounge?.name,
             loungeId: beData.lounge?.id,
             address: beData.lounge?.fullAddress,
-            // Ngày giờ đi qua utils/ngayVietNam (một nguồn định dạng cho cả web). Có giờ kết thúc thì in khoảng giờ.
+            // Ngày giờ đi qua utils/ngayVietNam (một nguồn định dạng cho cả web). MLACP-633: LUÔN in giờ kết thúc — dùng
+            // effectiveEnd (backend đã áp "không khai thì + 4 tiếng"), không dùng scheduledEnd có thể trống.
             dateStr: beData.scheduledStart
-              ? `${thuVietHoa(beData.scheduledStart)} ${ngayDayDu(beData.scheduledStart)}, ${gioTrongNgay(beData.scheduledStart)}${beData.scheduledEnd ? ' đến ' + gioTrongNgay(beData.scheduledEnd) : ''}`
+              ? `${thuVietHoa(beData.scheduledStart)} ${ngayDayDu(beData.scheduledStart)}, ${gioTrongNgay(beData.scheduledStart)}${(beData.effectiveEnd ?? beData.scheduledEnd) ? ' đến ' + gioTrongNgay(beData.effectiveEnd ?? beData.scheduledEnd) : ''}`
               : null,
             genre: beData.genres?.map((g) => g.name).join(', ') || null,
             // Giá thấp nhất trong các hạng vé đang có — số thật từ ticketTiers, không ước lượng.

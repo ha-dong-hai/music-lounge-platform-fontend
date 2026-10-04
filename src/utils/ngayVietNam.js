@@ -40,6 +40,13 @@ export const nhanNgay = (d, moc = dayjs()) => {
 // rải rác trong component — hai chỗ định dạng khác nhau thì trang tự mâu thuẫn với chính nó.
 export const gioTrongNgay = (d) => dayjs(d).format('HH:mm')
 
+// MLACP-633: khung giờ "19:30 – 22:00". Mọi chỗ hiện buổi diễn phải nói rõ cả giờ kết thúc (chủ dự án
+// 04/10/2026). `ketThuc` lấy từ `effectiveEnd` của backend — luôn có, vì backend đã áp quy tắc "không khai
+// thì bắt đầu + 4 tiếng"; giao diện KHÔNG tự cộng 4 tiếng để khỏi lệch với mốc hệ thống thật sự dùng.
+// Thiếu `ketThuc` (dữ liệu từ API cũ) thì chỉ in giờ bắt đầu, không bịa giờ kết thúc.
+export const khungGio = (batDau, ketThuc) =>
+  ketThuc ? `${gioTrongNgay(batDau)} – ${gioTrongNgay(ketThuc)}` : gioTrongNgay(batDau)
+
 // Ngày đầy đủ: NGÀY/THÁNG/NĂM.
 export const ngayDayDu = (d) => dayjs(d).format('DD/MM/YYYY')
 

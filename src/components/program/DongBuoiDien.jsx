@@ -31,7 +31,7 @@ import { Link } from 'react-router-dom'
 import { Heart } from 'lucide-react'
 import CoverFallback from '../shared/CoverFallback'
 import CuongDatVe from './CuongDatVe'
-import { ngayTrongLich, gioTrongNgay } from '../../utils/ngayVietNam'
+import { ngayTrongLich, khungGio } from '../../utils/ngayVietNam'
 import { formatMinPrice } from '../../utils/formatPrice'
 import NhanDangDien from './NhanDangDien'
 import { useTranslation } from 'react-i18next'
@@ -62,10 +62,11 @@ const DongBuoiDien = ({ b, hienPhongTra = true, hienAnh = true, anhDuPhong = nul
         </div>
       )}
       <p className="font-mono text-sm text-ink whitespace-nowrap">
+        {/* MLACP-633: mọi trạng thái đều in khung giờ "bắt đầu – kết thúc" — kể cả đang diễn, để khách biết buổi kéo tới mấy giờ. */}
         {dangDien
-          ? <NhanDangDien co="nho" />
-          : b.status === 'Ended' ? <span className="text-ink-mute">{t('Đã diễn {{x}}', { x: ngayTrongLich(b.scheduledStart) })}</span>
-            : <>{ngayTrongLich(b.scheduledStart)}<span className="text-ink-mute"> · </span>{gioTrongNgay(b.scheduledStart)}</>}
+          ? <><NhanDangDien co="nho" /><span className="block mt-1">{khungGio(b.scheduledStart, b.effectiveEnd)}</span></>
+          : b.status === 'Ended' ? <span className="text-ink-mute">{t('Đã diễn {{x}}', { x: ngayTrongLich(b.scheduledStart) })} · {khungGio(b.scheduledStart, b.effectiveEnd)}</span>
+            : <>{ngayTrongLich(b.scheduledStart)}<span className="text-ink-mute"> · </span>{khungGio(b.scheduledStart, b.effectiveEnd)}</>}
       </p>
       <div className="min-w-0">
         <h3 className="font-display font-normal text-2xl leading-tight tracking-normal break-words">

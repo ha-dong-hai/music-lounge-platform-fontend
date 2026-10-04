@@ -17,7 +17,7 @@
 //  - Đêm đã diễn nằm trong một khối đóng sẵn: là lối vào để đánh giá, không phải thứ người mới cần thấy trước.
 import { useId, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ngayDayDu } from '../../utils/ngayVietNam'
+import { ngayDayDu, khungGio } from '../../utils/ngayVietNam'
 import DongBuoiDien from '../program/DongBuoiDien'
 import { chiaLichPhongTra, catLich, SO_DA_DIEN_HIEN } from '../../utils/lichPhongTra'
 import IconMoRong from '../shared/IconMoRong'
@@ -82,7 +82,7 @@ const LichDienPhongTra = ({ ds, tong = 0, loi = false, onThuLai, tenPhongTra = '
                 <ul className="border-t border-ink/20 mt-1">
                   {daDienIn.map((b) => (
                     <li key={b.id} className="flex flex-wrap items-baseline gap-x-6 gap-y-0.5 py-3 border-b border-ink/20">
-                      <span className="font-mono text-sm text-ink-mute w-24 flex-shrink-0">{ngayDayDu(b.scheduledStart)}</span>
+                      <span className="font-mono text-sm text-ink-mute w-44 flex-shrink-0">{ngayDayDu(b.scheduledStart)} · {khungGio(b.scheduledStart, b.effectiveEnd)}</span>
                       <Link to={`/shows/${b.id}`} className="font-semibold hover:underline underline-offset-4 min-h-[24px]">{b.name}</Link>
                       {(b.performerNames ?? []).length > 0 && <span className="text-sm text-ink-soft">{b.performerNames.join(', ')}</span>}
                     </li>

@@ -17,7 +17,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { getShowDetail, getShowSeatingMap } from '../../services/showServices'
-import { thuVietHoa, ngayDayDu, gioTrongNgay } from '../../utils/ngayVietNam'
+import { thuVietHoa, ngayDayDu, khungGio } from '../../utils/ngayVietNam'
 import CuongDatVe from './CuongDatVe'
 import CoverFallback from '../shared/CoverFallback'
 
@@ -57,7 +57,7 @@ const SapLenDen = ({ buoi = [], anhPhongTra = {} }) => {
         </Link>
         <div className="min-w-0">
           <p className="font-mono text-sm text-lamp-mute">
-            Gần nhất · {thuVietHoa(noiBat.start_date)} {ngayDayDu(noiBat.start_date)} · {gioTrongNgay(noiBat.start_date)}
+            Gần nhất · {thuVietHoa(noiBat.start_date)} {ngayDayDu(noiBat.start_date)} · {khungGio(noiBat.start_date, noiBat.end_date)}
           </p>
           <h3 className="font-display font-normal text-[clamp(2.1rem,4.2vw,3.4rem)] leading-[1.02] mt-3 mb-4 break-words">
             <Link to={`/shows/${noiBat.id}`} className="hover:text-stock">{noiBat.title}</Link>

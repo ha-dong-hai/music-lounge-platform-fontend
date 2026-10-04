@@ -22,7 +22,7 @@
 // chủ in ("Thứ năm 22/10 · 19:26 · Phòng trà Ánh Dương"). Lý do gợi ý in TRỌN câu, không kẹp dòng: lời AI viết riêng mà cắt giữa chừng thì vô nghĩa — chính là lỗi của bản cũ. Nhãn "AI chọn" chỉ
 // gắn khi nguồn thật là "Ai", cùng luật nói thật với khối gợi ý ở trang chủ.
 import { Link } from 'react-router-dom'
-import { gioTrongNgay, ngayTrongLich } from '../../utils/ngayVietNam'
+import { khungGio, ngayTrongLich } from '../../utils/ngayVietNam'
 import { useTranslation } from 'react-i18next'
 
 // Tô đậm chỗ khớp từ khoá. So khớp không phân biệt hoa thường; tiếng Việt giữ nguyên dấu (gõ "sài" khớp "Sài").
@@ -71,7 +71,7 @@ const KhungGoiYTimKiem = ({ idKhung, tuKhoa, dangTai, goiY, macDinh, chiSoChon, 
                 <span className={`${dangGo ? 'font-normal' : 'font-semibold'} text-ink leading-snug line-clamp-2`}><ToKhop chu={b.name} tuKhoa={dangGo ? tuKhoa : ''} /></span>
                 {b.scheduledStart && (
                   <span className="block font-mono text-xs text-ink-mute mt-1">
-                    {ngayTrongLich(b.scheduledStart)} · {gioTrongNgay(b.scheduledStart)}{b.loungeName ? ` · ${b.loungeName}` : ''}
+                    {ngayTrongLich(b.scheduledStart)} · {khungGio(b.scheduledStart, b.effectiveEnd)}{b.loungeName ? ` · ${b.loungeName}` : ''}
                   </span>
                 )}
                 {lyDo && (

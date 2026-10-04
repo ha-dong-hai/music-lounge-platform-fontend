@@ -22,8 +22,7 @@ import { Link } from 'react-router-dom'
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
 import { MapPin, LogIn, RotateCcw } from 'lucide-react'
 import KyTuLat from './KyTuLat'
-import CoverFallback from '../shared/CoverFallback'
-import { gioTrongNgay } from '../../utils/ngayVietNam'
+import { gioTrongNgay, khungGio } from '../../utils/ngayVietNam'
 import CuongDatVe from './CuongDatVe'
 import NhanDangDien from './NhanDangDien'
 import { useTranslation } from 'react-i18next'
@@ -64,11 +63,14 @@ const DongBang = ({ dong, mo, onMo, onRoi, chiSo, daDangNhap }) => {
     >
       {/* Máy tính: một hàng 7 cột như bảng khởi hành. Điện thoại: giờ + trạng thái trên, tên phòng trà cả dòng giữa,
           người hát + nút dưới — không ép tên phòng trà vào cột hẹp (đo 30/09: tên bị cắt còn "P."). */}
-      <div className="grid grid-cols-[1fr_auto] md:grid-cols-[7.5rem_3.5rem_minmax(0,1.4fr)_minmax(0,1.2fr)_7.5rem_7rem_9rem] items-center gap-x-4 gap-y-2 px-3 sm:px-4 py-3">
-        <KyTuLat chu={gioTrongNgay(buoi.start_date)} tone={dong.dangDien ? 'ember' : 'lamp'} treMs={chiSo * 120} className="text-xl sm:text-2xl" />
-
-        <div className="hidden md:block w-14 h-14 overflow-hidden bg-board">
-          {dong.anh ? <img src={dong.anh} alt="" loading="lazy" className="w-full h-full object-cover" /> : <CoverFallback />}
+      <div className="grid grid-cols-[1fr_auto] md:grid-cols-[9.5rem_minmax(0,1.4fr)_minmax(0,1.2fr)_7.5rem_8.5rem_9rem] items-center gap-x-4 gap-y-2 px-3 sm:px-4 py-3">
+        {/* MLACP-633 (chủ dự án 04/10): giờ lên sân khấu lật chữ + giờ kết thúc ngay dưới — khách phải biết buổi kéo
+            tới mấy giờ. ĐÃ BỎ ô ảnh nhỏ sau cột giờ theo yêu cầu chủ dự án; ảnh không gian vẫn ở hộp đèn khi mở dòng. */}
+        <div className="flex flex-col items-start">
+          <KyTuLat chu={gioTrongNgay(buoi.start_date)} tone={dong.dangDien ? 'ember' : 'lamp'} treMs={chiSo * 120} className="text-xl sm:text-2xl" />
+          {buoi.end_date && (
+            <span className="font-mono text-xs text-lamp-mute mt-1">{t('đến {{x}}', { x: gioTrongNgay(buoi.end_date) })}</span>
+          )}
         </div>
 
         <button
@@ -154,7 +156,7 @@ const DongBang = ({ dong, mo, onMo, onRoi, chiSo, daDangNhap }) => {
                   <ul className="divide-y divide-lamp/10">
                     {cacBuoi.map((b) => (
                       <li key={b.id} className="flex flex-wrap items-center gap-x-4 gap-y-1 py-2">
-                        <span className="font-mono text-stock w-14">{gioTrongNgay(b.start_date)}</span>
+                        <span className="font-mono text-stock w-28">{khungGio(b.start_date, b.end_date)}</span>
                         {/* Điện thoại: tên buổi xuống dòng riêng (order-last + basis-full) — ép chung hàng với giờ, giá, liên
                             kết thì tên bị cắt còn "[…" (đo 30/09). Từ sm trở lên giữ một hàng như cũ — PHẢI là sm:basis-0, không phải
                             basis-auto: basis-auto ghi đè basis 0 của flex-1, tên dài đòi đủ chỗ và đẩy "Xem và đặt" xuống dòng. */}
@@ -183,8 +185,8 @@ const KhungBang = ({ children }) => {
   <div className="relative bg-board text-lamp border-[3px] border-ink p-3 sm:p-5 shadow-lift">
     {/* Cột cuối RỘNG CỐ ĐỊNH ở cả hàng tiêu đề lẫn dòng: để "auto" thì ở hàng tiêu đề nó rỗng (0px) còn ở dòng nó chứa
         nút Đặt chỗ, các cột fr co khác nhau và tiêu đề lệch 50–95px so với dữ liệu (người duyệt đo 30/09). */}
-    <div className="hidden md:grid grid-cols-[7.5rem_3.5rem_minmax(0,1.4fr)_minmax(0,1.2fr)_7.5rem_7rem_9rem] gap-x-4 px-4 pb-3 text-xs text-lamp-mute border-b border-lamp/15 mb-3">
-      <span>{t('Giờ')}</span><span /><span>{t('Phòng trà')}</span><span>{t('Người hát')}</span><span>{t('Khu vực')}</span><span>{t('Trạng thái')}</span><span />
+    <div className="hidden md:grid grid-cols-[9.5rem_minmax(0,1.4fr)_minmax(0,1.2fr)_7.5rem_8.5rem_9rem] gap-x-4 px-4 pb-3 text-xs text-lamp-mute border-b border-lamp/15 mb-3">
+      <span>{t('Giờ')}</span><span>{t('Phòng trà')}</span><span>{t('Người hát')}</span><span>{t('Khu vực')}</span><span>{t('Trạng thái')}</span><span />
     </div>
     {children}
   </div>

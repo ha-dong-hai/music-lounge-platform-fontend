@@ -26,7 +26,7 @@ import { Link } from 'react-router-dom'
 import { Plus, Loader2, Pencil, Send, X, Trash2, Settings2, Image as ImageIcon } from 'lucide-react'
 import HopXacNhan from '../../components/shared/HopXacNhan'
 import { StatusBadge, FormatBadge } from '../../components/admin/shows/ShowBadges'
-import { ngayDayDu, gioTrongNgay } from '../../utils/ngayVietNam'
+import { ngayDayDu, gioTrongNgay, khungGio } from '../../utils/ngayVietNam'
 import dayjs from 'dayjs'
 import { giaTriGioCucBo, loiLichBuoiDien } from '../../utils/rangBuocNgay'
 import toast from 'react-hot-toast'
@@ -441,7 +441,7 @@ const OwnerShowsPage = () => {
               <li key={s.id} className="py-4 border-t border-ink/20 first:border-t-0 grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
                 <div className="min-w-0">
                   <p className="font-mono text-sm text-ink-soft">
-                    {gioTrongNgay(s.scheduledStart)} · {ngayDayDu(s.scheduledStart)}
+                    {khungGio(s.scheduledStart, s.effectiveEnd)} · {ngayDayDu(s.scheduledStart)}
                     {s.minPrice != null && ` · từ ${Number(s.minPrice).toLocaleString('vi-VN')}đ`}
                   </p>
                   <h2 className="font-sans font-bold text-lg text-ink mt-0.5 break-words">

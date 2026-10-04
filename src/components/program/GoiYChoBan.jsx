@@ -33,7 +33,7 @@ import CoverFallback from '../shared/CoverFallback'
 import { getRecommendedShows } from '../../services/showServices'
 import { getMyProfile } from '../../services/userServices'
 import { docBuoiVuaXem, xoaBuoiVuaXem } from '../../utils/buoiVuaXem'
-import { thuVietHoa, ngayGon, gioTrongNgay } from '../../utils/ngayVietNam'
+import { thuVietHoa, ngayGon, khungGio } from '../../utils/ngayVietNam'
 import { formatMinPrice } from '../../utils/formatPrice'
 
 const SO_HIEN = 4
@@ -90,9 +90,9 @@ const TietMuc = ({ b, so }) => {
               <Link to={`/shows/${b.id}`} className="after:absolute after:inset-0 hover:underline decoration-2 underline-offset-4">{b.name}</Link>
             </h3>
             <span aria-hidden="true" className="hidden sm:block flex-1 min-w-[2rem] border-b-2 border-dotted border-ink/40 translate-y-[-0.35rem]" />
-            <span className="hidden sm:block font-mono text-sm whitespace-nowrap">{thuVietHoa(b.scheduledStart)} {ngayGon(b.scheduledStart)} · {gioTrongNgay(b.scheduledStart)}</span>
+            <span className="hidden sm:block font-mono text-sm whitespace-nowrap">{thuVietHoa(b.scheduledStart)} {ngayGon(b.scheduledStart)} · {khungGio(b.scheduledStart, b.effectiveEnd)}</span>
           </div>
-          <p className="sm:hidden font-mono text-sm mt-1">{thuVietHoa(b.scheduledStart)} {ngayGon(b.scheduledStart)} · {gioTrongNgay(b.scheduledStart)}</p>
+          <p className="sm:hidden font-mono text-sm mt-1">{thuVietHoa(b.scheduledStart)} {ngayGon(b.scheduledStart)} · {khungGio(b.scheduledStart, b.effectiveEnd)}</p>
           <p className="text-ink-soft mt-1">{[(b.performerNames ?? []).slice(0, 3).join(', '), b.loungeName].filter(Boolean).join(' · ')}</p>
           <div className="mt-4">
             <CuongDatVe gia={gia || null} />
