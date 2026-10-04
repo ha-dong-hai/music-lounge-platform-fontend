@@ -1,4 +1,5 @@
-import { Search, User, ChevronDown, LogOut, Ticket, Settings, X, Menu, Languages, Check, Store, LayoutDashboard, Bell, MessageSquareWarning } from 'lucide-react'
+import { Search, ChevronDown, LogOut, Ticket, Settings, X, Menu, Languages, Check, Store, LayoutDashboard, Bell, MessageSquareWarning } from 'lucide-react'
+import { anhChuCai } from '../utils/anhChuCai'
 import { useState, useEffect, useRef } from 'react'
 import { Link, NavLink, useNavigate } from 'react-router-dom' 
 import { useAuthStore } from '../store/useAuthStore'
@@ -269,13 +270,12 @@ const Header = () => {
             <NotificationBell />
             <div className="relative">
               <button onClick={() => setIsUserMenuOpen(!isUserMenuOpen)} aria-haspopup="menu" aria-expanded={isUserMenuOpen} aria-label={t('Menu tài khoản')} className="flex items-center justify-center gap-2 min-h-[44px] min-w-[44px] hover:text-ink transition-colors focus:outline-none">
-                {user.avatarUrl ? (
-                  <img src={user.avatarUrl} alt={t('Ảnh đại diện')} className="w-9 h-9 object-cover border-2 border-ink" />
-                ) : (
-                  <div className="w-9 h-9 bg-card text-ink flex items-center justify-center border-2 border-ink">
-                    <User size={20} />
-                  </div>
-                )}
+                {/* MLACP-628 (chủ dự án 04/10/2026): ô này luôn là ẢNH ĐẠI DIỆN, không còn biểu tượng hình người chung chung.
+                    Người dùng chưa đặt ảnh (hoặc ảnh hỏng) thì hiện ảnh chữ cái tên của chính họ — vẽ tại chỗ, không gọi
+                    dịch vụ ngoài (anhChuCai). alt rỗng: tên đã là chữ ngay cạnh / trong aria-label của nút. */}
+                <img src={user.avatarUrl || anhChuCai(user.name)} alt="" width="36" height="36"
+                  onError={(e) => { const du = anhChuCai(user.name); if (e.currentTarget.src !== du) e.currentTarget.src = du }}
+                  className="w-9 h-9 object-cover border-2 border-ink" />
                 <span className="font-medium text-ink text-sm hidden lg:inline">{user.name}</span>
                 <ChevronDown size={14} className={`hidden lg:block transition-transform duration-200 ${isUserMenuOpen ? 'rotate-180' : ''}`} />
               </button>
