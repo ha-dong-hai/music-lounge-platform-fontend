@@ -13,8 +13,11 @@
 //   chỉ đặt page=1 — đang ở trang 1 thì không đổi gì, khiếu nại vừa xử lý vẫn hiện trạng thái cũ); đổi bộ lọc gọi API
 //   MỘT lần (bản cũ hai lần vì một effect đặt lại trang). Tìm kiếm + loại vấn đề vẫn lọc trong trang cho tới khi backend
 //   có keyword (T-BE-12).
+// - 04/10/2026 (MLACP-599): backend ĐÃ có `keyword` từ MLACP-502 → ô tìm kiếm nay tìm trên MỌI khiếu nại (phía máy chủ,
+//   gõ xong 300ms mới gọi), không còn chỉ lọc trong trang. Thêm lọc theo NGÀY GỬI (createdFrom/createdTo, MLACP-598).
+//   Lọc LOẠI VẤN ĐỀ vẫn chỉ trong trang hiện tại — backend chưa có tham số cho nó.
 import { useState, useMemo } from 'react'
-import { parseAsStringLiteral } from 'nuqs'
+import { parseAsString, parseAsStringLiteral } from 'nuqs'
 import dayjs from 'dayjs'
 import toast from 'react-hot-toast'
 import { getComplaintHistory } from '../../services/adminServices'
@@ -24,36 +27,53 @@ import ComplaintsTable from '../../components/admin/complaints/ComplaintsTable'
 import ComplaintDetailModal from '../../components/admin/complaints/ComplaintDetailModal'
 import ResolveComplaintModal from '../../components/admin/complaints/ResolveComplaintModal'
 import { useDanhSachMayChu } from '../../hooks/useDanhSachMayChu'
+import { useOTimTre } from '../../hooks/useOTimTre'
+import ChonKy from '../../components/bang/ChonKy'
+import ChipBoLoc from '../../components/bang/ChipBoLoc'
+import { khoangHopLe, nhanKhoang, thamSoApi } from '../../utils/kyBaoCao'
 import PhanTrang from '../../components/bang/PhanTrang'
 import KhungTai from '../../components/bang/KhungTai'
 import { maNgan } from '../../utils/format'
 
-const BO_LOC = { trangThai: parseAsStringLiteral(Object.keys(STATUS_CONFIG)) }
-const goiKhieuNai = ({ trangThai, ...q }) => getComplaintHistory({ ...q, status: trangThai ? [trangThai] : undefined })
+const BO_LOC = {
+    trangThai: parseAsStringLiteral(Object.keys(STATUS_CONFIG)),
+    q: parseAsString.withDefault(''),
+    tu: parseAsString,
+    den: parseAsString,
+}
+const goiKhieuNai = ({ trangThai, q, tu, den, ...trang }) => {
+    const k = khoangHopLe(tu, den)
+    const ngay = k ? thamSoApi(k.tu, k.den) : null
+    return getComplaintHistory({
+        ...trang,
+        status: trangThai ? [trangThai] : undefined,
+        keyword: q.trim() || undefined,
+        createdFrom: ngay?.from,
+        createdTo: ngay?.to,
+    })
+}
 
 const AdminComplaintPage = () => {
     const ds = useDanhSachMayChu({ khoa: ['admin-khieu-nai'], goi: goiKhieuNai, boLoc: BO_LOC, coMacDinh: 20 })
     const statusFilter = ds.boLoc.trangThai ?? 'all'
     const setStatusFilter = (v) => ds.datBoLoc({ trangThai: v === 'all' ? null : v })
 
-    // tìm kiếm + danh mục lọc trong trang hiện tại (BE không có tham số cho chúng)
-    const [searchQuery, setSearchQuery] = useState('')
+    // Tìm kiếm chạy phía máy chủ (keyword); loại vấn đề vẫn lọc trong trang hiện tại (BE chưa có tham số).
+    const [searchQuery, setSearchQuery] = useOTimTre(ds, 'q')
     const [categoryFilter, setCategoryFilter] = useState('all')
+    const kyLoc = khoangHopLe(ds.boLoc.tu, ds.boLoc.den)
+    const cacChip = [
+        ds.boLoc.q && { khoa: 'q', nhan: `Từ khoá: “${ds.boLoc.q}”`, xoa: () => { setSearchQuery(''); ds.datBoLoc({ q: null }) } },
+        ds.boLoc.trangThai && { khoa: 'tt', nhan: `Trạng thái: ${STATUS_CONFIG[ds.boLoc.trangThai]?.label ?? ds.boLoc.trangThai}`, xoa: () => ds.datBoLoc({ trangThai: null }) },
+        kyLoc && { khoa: 'ngay', nhan: `Ngày gửi: ${nhanKhoang(kyLoc.tu, kyLoc.den)}`, xoa: () => ds.datBoLoc({ tu: null, den: null }) },
+    ].filter(Boolean)
 
     const [selectedComplaint, setSelectedComplaint] = useState(null)
     const [resolvingComplaint, setResolvingComplaint] = useState(null)
 
-    const filteredComplaints = useMemo(() => {
-        const q = searchQuery.toLowerCase().trim()
-        return ds.items.filter(c => {
-            const matchSearch = !q ||
-                String(c.id).includes(q) ||
-                (c.description || '').toLowerCase().includes(q) ||
-                (c.contactPhone || '').includes(q)
-            const matchCategory = categoryFilter === 'all' || c.category === categoryFilter
-            return matchSearch && matchCategory
-        })
-    }, [ds.items, searchQuery, categoryFilter])
+    const filteredComplaints = useMemo(
+        () => ds.items.filter(c => categoryFilter === 'all' || c.category === categoryFilter),
+        [ds.items, categoryFilter])
 
     // 4. EXPORT CSV các dòng đã lọc
     const handleExportCSV = () => {
@@ -99,6 +119,10 @@ const AdminComplaintPage = () => {
                 statusFilter={statusFilter} setStatusFilter={setStatusFilter}
                 onExportCSV={handleExportCSV}
             />
+
+            <ChonKy coTheBoTrong tenLoc="Ngày gửi" tu={kyLoc?.tu} den={kyLoc?.den}
+                onChon={(k) => ds.datBoLoc({ tu: k?.tu ?? null, den: k?.den ?? null })} />
+            <ChipBoLoc cacChip={cacChip} onXoaTatCa={() => { setSearchQuery(''); ds.xoaBoLoc() }} />
 
             {/* TABLE */}
             <KhungTai loi={ds.loi} taiLai={ds.taiLai} tenVung="danh sách khiếu nại">

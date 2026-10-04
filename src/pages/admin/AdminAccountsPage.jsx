@@ -25,6 +25,8 @@ import ChipBoLoc from '../../components/bang/ChipBoLoc'
 import { useDanhSachMayChu } from '../../hooks/useDanhSachMayChu'
 import { useOTimTre } from '../../hooks/useOTimTre'
 import { mocUtc } from '../../utils/format'
+import ChonKy from '../../components/bang/ChonKy'
+import { khoangHopLe, nhanKhoang, thamSoApi } from '../../utils/kyBaoCao'
 import { anhChuCai } from '../../utils/anhChuCai'
 
 // Đúng bốn giá trị enum UserRole của backend.
@@ -34,9 +36,20 @@ const BO_LOC = {
   q: parseAsString.withDefault(''),
   vaiTro: parseAsStringLiteral(Object.keys(VAI_TRO)),
   trangThai: parseAsStringLiteral(Object.keys(TRANG_THAI)),
+  // MLACP-599: lọc theo ngày đăng ký (YYYY-MM-DD giờ VN, cả hai đầu). Trống = mọi thời gian.
+  tu: parseAsString,
+  den: parseAsString,
 }
-const goiTaiKhoan = ({ q, vaiTro, trangThai, ...trang }) => getAdminUsers({
+// URL sai định dạng / khoảng ngược → coi như không lọc ngày (không gửi lên để khỏi nhận 422 vì một URL gõ tay).
+const ngayGui = (tu, den) => {
+  const k = khoangHopLe(tu, den)
+  if (!k) return {}
+  const { from, to } = thamSoApi(k.tu, k.den)
+  return { createdFrom: from, createdTo: to }
+}
+const goiTaiKhoan = ({ q, vaiTro, trangThai, tu, den, ...trang }) => getAdminUsers({
   ...trang,
+  ...ngayGui(tu, den),
   searchText: q.trim() || undefined,
   role: vaiTro ?? undefined,
   isActive: trangThai ? trangThai === 'active' : undefined,
@@ -49,6 +62,7 @@ const AdminAccountsPage = () => {
   const ds = useDanhSachMayChu({ khoa: ['admin-tai-khoan'], goi: goiTaiKhoan, boLoc: BO_LOC })
   const [oTim, setOTim] = useOTimTre(ds, 'q')
   const { vaiTro, trangThai, q } = ds.boLoc
+  const kyLoc = khoangHopLe(ds.boLoc.tu, ds.boLoc.den)
 
   // Số đếm trên thẻ: 5 lời gọi pageSize=1 (adminServices.getAdminStats). Trong cache Query để khoá/mở xong làm mới được.
   const thongKe = useQuery({ queryKey: ['admin-tai-khoan-dem'], queryFn: getAdminStats })
@@ -150,6 +164,7 @@ const AdminAccountsPage = () => {
     q && { khoa: 'q', nhan: `Từ khoá: “${q}”`, xoa: () => { setOTim(''); ds.datBoLoc({ q: null }) } },
     vaiTro && { khoa: 'vaiTro', nhan: `Vai trò: ${VAI_TRO[vaiTro]}`, xoa: () => ds.datBoLoc({ vaiTro: null }) },
     trangThai && { khoa: 'trangThai', nhan: `Trạng thái: ${TRANG_THAI[trangThai]}`, xoa: () => ds.datBoLoc({ trangThai: null }) },
+    kyLoc && { khoa: 'ngay', nhan: `Ngày đăng ký: ${nhanKhoang(kyLoc.tu, kyLoc.den)}`, xoa: () => ds.datBoLoc({ tu: null, den: null }) },
   ].filter(Boolean)
 
   return (
@@ -167,6 +182,9 @@ const AdminAccountsPage = () => {
         roleFilter={vaiTro ?? 'all'} setRoleFilter={(v) => ds.datBoLoc({ vaiTro: v === 'all' ? null : v })}
         statusFilter={trangThai ?? 'all'} setStatusFilter={(v) => ds.datBoLoc({ trangThai: v === 'all' ? null : v })}
       />
+
+      <ChonKy coTheBoTrong tenLoc="Ngày đăng ký" tu={kyLoc?.tu} den={kyLoc?.den}
+        onChon={(k) => ds.datBoLoc({ tu: k?.tu ?? null, den: k?.den ?? null })} />
 
       <ChipBoLoc cacChip={cacChip} onXoaTatCa={() => { setOTim(''); ds.xoaBoLoc() }} />
 

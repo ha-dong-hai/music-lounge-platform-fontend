@@ -9,6 +9,10 @@
 //  - Lịch: react-day-picker chế độ range (lưới ngày ARIA, phím mũi tên, nhãn tiếng Việt), hình thức dùng chung lopLich.js.
 // Chọn khoảng định sẵn là áp dụng ngay; chọn trên lịch thì phải bấm "Áp dụng" (chọn hai đầu mới thành khoảng — áp ngay sau
 // cú bấm đầu sẽ tải số liệu của một ngày lẻ mà người dùng không định xem). Không cho chọn ngày sau hôm nay.
+//
+// MLACP-599: dùng lại làm BỘ LỌC NGÀY của danh sách (tài khoản, khiếu nại). Khác trang phân tích ở chỗ danh sách mặc định
+// KHÔNG lọc ngày: `coTheBoTrong` thêm lựa chọn "Mọi thời gian" (onChon(null)) và `tu`/`den` được phép trống. `tenLoc` là
+// tên bộ lọc đọc cho trình đọc màn hình ("Ngày đăng ký", "Ngày gửi").
 import { useState } from 'react'
 import * as Popover from '@radix-ui/react-popover'
 import { DayPicker } from 'react-day-picker'
@@ -20,20 +24,21 @@ import { KHOANG_DINH_SAN, khoaDinhSanKhop, nhanKhoang, tinhKhoang } from '../../
 
 const LOP_HAI_THANG = { ...LOP, months: 'relative flex flex-col sm:flex-row gap-6' }
 
-const ChonKy = ({ tu, den, onChon }) => {
+const ChonKy = ({ tu, den, onChon, coTheBoTrong = false, tenLoc = 'Kỳ báo cáo', nhanTrong = 'Mọi thời gian' }) => {
   const [mo, setMo] = useState(false)
   const [nhap, setNhap] = useState(undefined) // khoảng đang chọn dở trên lịch: { from, to }
   // Màn hẹp chỉ hiện MỘT tháng: hai tháng xếp dọc dài hơn màn điện thoại, nút Áp dụng rơi xuống dưới mép (đo 390x844).
   // Đo lúc mở khung là đủ — không cần nghe thay đổi cỡ màn khi khung đang mở.
   const [soThang, setSoThang] = useState(2)
-  const khoaKhop = khoaDinhSanKhop(tu, den)
+  const coKhoang = Boolean(tu && den)
+  const khoaKhop = coKhoang ? khoaDinhSanKhop(tu, den) : null
   const tenKhoang = KHOANG_DINH_SAN.find((k) => k.khoa === khoaKhop)?.nhan
   const homNay = dayjs().endOf('day').toDate()
 
   const doiMo = (m) => {
     setMo(m)
     if (m) {
-      setNhap({ from: dayjs(tu).toDate(), to: dayjs(den).toDate() })
+      setNhap(coKhoang ? { from: dayjs(tu).toDate(), to: dayjs(den).toDate() } : undefined)
       setSoThang(window.matchMedia('(min-width: 640px)').matches ? 2 : 1)
     }
   }
@@ -48,11 +53,13 @@ const ChonKy = ({ tu, den, onChon }) => {
   return (
     <Popover.Root open={mo} onOpenChange={doiMo}>
       <Popover.Trigger asChild>
-        <button type="button" aria-label={`Kỳ báo cáo: ${tenKhoang ? `${tenKhoang}, ` : ''}${nhanKhoang(tu, den)}. Bấm để đổi`}
+        <button type="button" aria-label={`${tenLoc}: ${coKhoang ? `${tenKhoang ? `${tenKhoang}, ` : ''}${nhanKhoang(tu, den)}` : nhanTrong}. Bấm để đổi`}
           className="inline-flex items-center gap-2 min-h-[44px] px-4 border-2 border-ink bg-card text-sm font-semibold hover:bg-sunken">
           <CalendarDays size={16} aria-hidden="true" />
+          {coTheBoTrong && <span className="text-ink-soft font-normal">{tenLoc}:</span>}
+          {!coKhoang && <span>{nhanTrong}</span>}
           {tenKhoang && <span>{tenKhoang}</span>}
-          <span className={`font-mono tabular-nums ${tenKhoang ? 'text-ink-soft font-normal' : ''}`}>{nhanKhoang(tu, den)}</span>
+          {coKhoang && <span className={`font-mono tabular-nums ${tenKhoang ? 'text-ink-soft font-normal' : ''}`}>{nhanKhoang(tu, den)}</span>}
           <ChevronDown size={14} aria-hidden="true" />
         </button>
       </Popover.Trigger>
@@ -63,6 +70,14 @@ const ChonKy = ({ tu, den, onChon }) => {
             <div className="md:w-40 flex-shrink-0">
               <p id="ky-dinh-san" className="text-xs font-semibold text-ink-soft mb-2">Khoảng có sẵn</p>
               <ul aria-labelledby="ky-dinh-san" className="grid grid-cols-2 md:grid-cols-1 gap-1">
+                {coTheBoTrong && (
+                  <li>
+                    <button type="button" onClick={() => { onChon(null); setMo(false) }} aria-pressed={!coKhoang}
+                      className={`w-full text-left min-h-[44px] px-3 text-sm border-l-4 ${!coKhoang ? 'bg-ink text-lamp border-ember font-semibold' : 'border-transparent hover:bg-sunken'}`}>
+                      {nhanTrong}
+                    </button>
+                  </li>
+                )}
                 {KHOANG_DINH_SAN.map((k) => (
                   <li key={k.khoa}>
                     <button type="button" onClick={() => chonDinhSan(k.khoa)} aria-pressed={k.khoa === khoaKhop}
@@ -84,7 +99,7 @@ const ChonKy = ({ tu, den, onChon }) => {
                   if (!cu?.from || cu.to) return { from: ngayBam, to: undefined }
                   return ngayBam < cu.from ? { from: ngayBam, to: cu.from } : { from: cu.from, to: ngayBam }
                 })}
-                defaultMonth={dayjs(den).subtract(soThang - 1, 'month').toDate()}
+                defaultMonth={dayjs(coKhoang ? den : undefined).subtract(soThang - 1, 'month').toDate()}
                 endMonth={homNay} disabled={{ after: homNay }}
                 // Nhãn tiếng Việt mặc định của nút điều hướng là "Tháng trước" — trùng tên khoảng định sẵn bên trái, trình
                 // đọc màn hình nghe hai nút cùng tên làm hai việc khác nhau. Đặt lại cho rõ là lật lịch.
