@@ -7,12 +7,19 @@
 // - Điểm uy tín phòng trà (ReputationScore) do backend tính; FE chỉ hiển thị, không tự suy diễn.
 // - Hai tỷ lệ của gợi ý AI tính trên cùng một kỳ: tỷ lệ bấm vào (trong số cặp được gợi ý) và tỷ lệ
 //   chuyển thành mua vé. Đặt cạnh nhau nhưng KHÔNG cộng hay chia cho nhau.
+// - MLACP-595: dùng chung bộ chọn kỳ với trang Tổng quan (ChonKy + useKyBaoCao, kỳ trên URL) cho hai khối theo kỳ (tương
+//   tác khán giả, hiệu quả gợi ý); trước đây hai khối này luôn là kỳ mặc định của backend, không đổi được. Khối "việc đang
+//   chờ xử lý" là số HIỆN TẠI nên ghi rõ không theo kỳ. Nhận thêm khối chất lượng mô hình gợi ý từ trang Tổng quan.
 import { useState, useEffect, useCallback } from 'react'
 import { Loader2, ShieldAlert, MessageSquareWarning, Music2, Award, Users, Heart, Star, Repeat, MousePointerClick, Ticket } from 'lucide-react'
 import dayjs from 'dayjs'
 import {
-  getAdminContentOverview, getAudienceEngagement, getAiRecommendationPerformance,
+  getAdminContentOverview, getAudienceEngagement, getAiRecommendationPerformance, getRecommenderEvaluation,
 } from '../../services/analyticsServices'
+import ChonKy from '../../components/bang/ChonKy'
+import KhoiDanhGiaGoiY from '../../components/admin/dashboard/KhoiDanhGiaGoiY'
+import { useKyBaoCao } from '../../hooks/useKyBaoCao'
+import { thamSoApi } from '../../utils/kyBaoCao'
 import KhungTai, { TrangLoiTai } from '../../components/bang/KhungTai'
 import OChiSo from '../../components/bang/OChiSo'
 
@@ -35,24 +42,29 @@ const AdminInsightsPage = () => {
   const [content, setContent] = useState(null)
   const [engagement, setEngagement] = useState(null)
   const [ai, setAi] = useState(null)
+  const [recommender, setRecommender] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
+  const { tu, den, datKy } = useKyBaoCao()
   // Nguồn số liệu nào lỗi (01/10/2026): bản cũ chỉ bật toast khi CẢ BA lỗi; một nguồn lỗi thì khối đó lặng lẽ trống.
   const [nguonLoi, setNguonLoi] = useState([])
 
+  // Chỉ vòng xoay toàn trang ở lần tải đầu; đổi kỳ thì giữ số cũ cho tới khi số mới về.
   const load = useCallback(async () => {
-    setIsLoading(true)
+    const ky = thamSoApi(tu, den)
     const ketQua = await Promise.allSettled([
       getAdminContentOverview(),
-      getAudienceEngagement(),
-      getAiRecommendationPerformance(),
+      getAudienceEngagement(ky),
+      getAiRecommendationPerformance(ky),
+      getRecommenderEvaluation(),
     ])
-    const [c, e, a] = ketQua.map((x) => (x.status === 'fulfilled' && x.value?.success ? x.value.data : null))
+    const [c, e, a, r] = ketQua.map((x) => (x.status === 'fulfilled' && x.value?.success ? x.value.data : null))
     setContent(c)
     setEngagement(e)
     setAi(a)
+    setRecommender(r)
     setNguonLoi(['việc cần xử lý', 'tương tác của khán giả', 'hiệu quả gợi ý'].filter((_, i) => ![c, e, a][i]))
     setIsLoading(false)
-  }, [])
+  }, [tu, den])
 
   useEffect(() => { const chay = async () => { await load() }; chay() }, [load])
 
@@ -67,15 +79,18 @@ const AdminInsightsPage = () => {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-4xl text-ink mb-1">Nội dung và tương tác</h1>
-        <p className="text-ink-soft text-sm">Việc cần xử lý, mức tương tác của khán giả, và chất lượng gợi ý.</p>
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <h1 className="text-4xl text-ink mb-1">Nội dung và tương tác</h1>
+          <p className="text-ink-soft text-sm">Việc cần xử lý, mức tương tác của khán giả, và chất lượng gợi ý.</p>
+        </div>
+        <ChonKy tu={tu} den={den} onChon={datKy} />
       </div>
       {nguonLoi.length > 0 && <KhungTai loi tenVung={`phần ${nguonLoi.join(', ')}`} taiLai={load} />}
 
       {/* === NỘI DUNG & GIÁM SÁT === */}
       {content ? (
-        <Section title="Việc đang chờ xử lý">
+        <Section title="Việc đang chờ xử lý (hiện tại, không theo kỳ đã chọn)">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <StatCard title="Buổi diễn chờ duyệt" value={fmtSo(content.pendingEventsCount)}
               icon={Music2} color="text-warning" bg="bg-warning/10" />
@@ -158,6 +173,9 @@ const AdminInsightsPage = () => {
           <p className="text-sm text-ink-soft">Chưa tải được số liệu hiệu quả gợi ý.</p>
         </div>
       )}
+
+      {/* === CHẤT LƯỢNG MÔ HÌNH GỢI Ý (không theo kỳ) — chuyển từ trang Tổng quan, MLACP-595 === */}
+      <KhoiDanhGiaGoiY recommender={recommender} />
     </div>
   )
 }

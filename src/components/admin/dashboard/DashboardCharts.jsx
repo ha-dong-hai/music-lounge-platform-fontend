@@ -1,25 +1,34 @@
 // src/components/admin/dashboard/DashboardCharts.jsx
-// Dựng từ GET /analytics/admin-dashboard. Layout theo dashboard cũ:
-// cột chồng 6 tháng + doughnut tỷ trọng tháng này + bảng Top shows + list thể loại trending.
+// Dựng từ GET /analytics/admin-dashboard.
+// MLACP-595 (04/10/2026): biểu đồ tiền theo ĐÚNG kỳ Admin chọn (trường `series`, đơn vị ngày/tuần/tháng do backend chọn
+// theo độ dài kỳ) kèm đường KỲ TRƯỚC nét đứt — cách Shopify Analytics vẽ so sánh. Biểu đồ tròn khuyết tỷ trọng thay bằng
+// thanh ngang: NN/g (Dashboards: Making Charts and Graphs Easier to Understand) khuyên tránh tròn/tròn khuyết trên
+// dashboard vì mắt so độ dài nhanh hơn so góc.
 import dayjs from 'dayjs'
 import { Link } from 'react-router-dom'
 import { Music2, TrendingUp } from 'lucide-react'
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts'
-import { SURFACE, GRID, AXIS_TEXT, CURSOR, SOURCES, fmtMoney, fmtCompact, fmtTienGon } from './chartTokens'
+import { ComposedChart, BarChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
+import { SURFACE, GRID, AXIS_TEXT, CURSOR, SOURCES, fmtMoney, fmtCompact } from './chartTokens'
 
-const monthLabel = (m) => dayjs(`${m}-01`).format('MM/YYYY')
+// Nhãn trục theo đơn vị backend chọn. Tuần ghi ngày thứ Hai đầu tuần.
+const nhanNhom = (start, unit) => {
+  const d = dayjs(start)
+  if (unit === 'month') return d.format('MM/YYYY')
+  return d.format('DD/MM')
+}
+const TEN_DON_VI = { day: 'ngày', week: 'tuần', month: 'tháng' }
 
 const Swatch = ({ color, size = 'w-2.5 h-2.5' }) => (
-  <span className={`${size} rounded-sm flex-shrink-0`} style={{ backgroundColor: color }} />
+  <span className={`${size} flex-shrink-0`} style={{ backgroundColor: color }} />
 )
 
-// ===== TOOLTIP kiểu cũ: nền card + viền line, mỗi nguồn một dòng kèm ô màu =====
+// TOOLTIP: mỗi nguồn một dòng + tổng kỳ này + tổng kỳ trước cùng vị trí.
 const RevenueTooltip = ({ active, payload }) => {
   if (!active || !payload?.length) return null
   const row = payload[0].payload
   return (
-    <div className="bg-card border border-line-strong p-3 shadow-soft text-xs">
-      <p className="text-ink font-bold mb-2">Tháng {row.label}{row.partial && ' (chưa trọn tháng)'}</p>
+    <div className="bg-card border-2 border-ink p-3 shadow-soft text-xs">
+      <p className="text-ink font-bold mb-2">{row.tieuDe}</p>
       {SOURCES.map((s) => (
         <div key={s.key} className="flex items-center justify-between gap-6 py-0.5">
           <span className="inline-flex items-center gap-2 text-ink-soft"><Swatch color={s.color} size="w-2 h-2" />{s.label}</span>
@@ -30,70 +39,88 @@ const RevenueTooltip = ({ active, payload }) => {
         <span className="text-ink-soft">Tổng</span>
         <span className="text-ink font-medium tabular-nums">{fmtMoney(row.total)}</span>
       </div>
+      {row.truoc != null && (
+        <div className="flex justify-between gap-6 pt-0.5">
+          <span className="text-ink-mute">Cùng vị trí kỳ trước</span>
+          <span className="text-ink-soft tabular-nums">{fmtMoney(row.truoc)}</span>
+        </div>
+      )}
     </div>
   )
 }
 
-const toRows = (months, measure) => months.map((m, i) => {
-  const row = { month: m.month, label: monthLabel(m.month), partial: i === months.length - 1 }
-  SOURCES.forEach((s) => { row[s.key] = Number(m[s.key]?.[measure] ?? 0) })
+const tongNhom = (b, measure) => SOURCES.reduce((sum, s) => sum + Number(b?.[s.key]?.[measure] ?? 0), 0)
+
+// Ghép kỳ này với kỳ trước THEO VỊ TRÍ (nhóm thứ i với nhóm thứ i) — hai kỳ cùng số ngày nên cùng số nhóm, trừ khi mốc
+// rơi lệch tuần/tháng; nhóm không có cặp thì để trống đường kỳ trước chứ không bịa số 0.
+const toSeriesRows = (series, unit, measure, seriesTruoc = null) => series.map((b, i) => {
+  const row = { start: b.start, label: nhanNhom(b.start, unit) }
+  row.tieuDe = unit === 'week' ? `Tuần từ ${dayjs(b.start).format('DD/MM/YYYY')}` : unit === 'month' ? `Tháng ${row.label}` : dayjs(b.start).format('DD/MM/YYYY')
+  SOURCES.forEach((s) => { row[s.key] = Number(b[s.key]?.[measure] ?? 0) })
   row.total = SOURCES.reduce((sum, s) => sum + row[s.key], 0)
+  row.truoc = seriesTruoc && seriesTruoc[i] ? tongNhom(seriesTruoc[i], measure) : null
   return row
 })
 
-// ===== 1. CỘT CHỒNG 6 THÁNG — MỘT đại lượng mỗi lúc (measure do trang chọn) =====
-export const RevenueByMonthChart = ({ months, measure }) => {
-  const rows = toRows(months, measure)
+// ===== 1. CỘT CHỒNG THEO KỲ + ĐƯỜNG KỲ TRƯỚC — MỘT đại lượng mỗi lúc (measure do trang chọn) =====
+export const RevenueSeriesChart = ({ series, unit, measure, seriesTruoc }) => {
+  const rows = toSeriesRows(series, unit, measure, seriesTruoc)
+  const coKyTruoc = rows.some((r) => r.truoc != null)
   return (
     <div className="space-y-3">
-      {/* Chú giải — chữ dùng màu chữ, ô màu mới mang danh tính nguồn */}
       <div className="flex flex-wrap gap-4 text-xs text-ink-soft">
         {SOURCES.map((s) => (
-          <span key={s.key} className="inline-flex items-center gap-1.5">
-            <Swatch color={s.color} /> {s.label}
-          </span>
+          <span key={s.key} className="inline-flex items-center gap-1.5"><Swatch color={s.color} /> {s.label}</span>
         ))}
+        {coKyTruoc && (
+          <span className="inline-flex items-center gap-1.5">
+            <svg width="22" height="8" aria-hidden="true"><line x1="0" y1="4" x2="22" y2="4" stroke={AXIS_TEXT} strokeWidth="2" strokeDasharray="4 3" /></svg>
+            Tổng kỳ trước
+          </span>
+        )}
       </div>
 
       <div className="h-[320px]">
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={rows} margin={{ top: 8, right: 10, left: 0, bottom: 0 }}>
+          <ComposedChart data={rows} margin={{ top: 8, right: 10, left: 0, bottom: 0 }}>
             <CartesianGrid strokeDasharray="3 3" stroke={GRID} vertical={false} />
-            <XAxis dataKey="label" axisLine={{ stroke: GRID }} tickLine={false}
-              tick={{ fill: AXIS_TEXT, fontSize: 12 }}
-              tickFormatter={(v, i) => (rows[i]?.partial ? `${v}*` : v)} />
-            <YAxis width={56} axisLine={false} tickLine={false}
-              tick={{ fill: AXIS_TEXT, fontSize: 12 }} tickFormatter={fmtCompact} />
+            <XAxis dataKey="label" axisLine={{ stroke: GRID }} tickLine={false} minTickGap={12}
+              tick={{ fill: AXIS_TEXT, fontSize: 12 }} />
+            <YAxis width={56} axisLine={false} tickLine={false} tick={{ fill: AXIS_TEXT, fontSize: 12 }} tickFormatter={fmtCompact} />
             <Tooltip content={<RevenueTooltip />} cursor={{ fill: CURSOR, opacity: 0.6 }} />
-            {SOURCES.map((s, i) => (
-              // Khe 2px màu nền giữa các đoạn — tách bằng khoảng trống, không vẽ viền màu khác
-              <Bar key={s.key} dataKey={s.key} stackId="rev" fill={s.color} maxBarSize={24}
-                stroke={SURFACE} strokeWidth={2} isAnimationActive={false}
-                radius={i === SOURCES.length - 1 ? [4, 4, 0, 0] : 0} />
+            {SOURCES.map((s) => (
+              <Bar key={s.key} dataKey={s.key} stackId="rev" fill={s.color} maxBarSize={28}
+                stroke={SURFACE} strokeWidth={2} isAnimationActive={false} />
             ))}
-          </BarChart>
+            {coKyTruoc && (
+              <Line type="monotone" dataKey="truoc" stroke={AXIS_TEXT} strokeWidth={2} strokeDasharray="4 3"
+                dot={false} isAnimationActive={false} connectNulls={false} />
+            )}
+          </ComposedChart>
         </ResponsiveContainer>
       </div>
-      <p className="text-xs text-ink-mute">* Tháng hiện tại, chưa trọn tháng.</p>
+      <p className="text-xs text-ink-mute">Mỗi cột là một {TEN_DON_VI[unit] ?? 'nhóm'}. Cột đầu và cột cuối có thể chưa trọn {TEN_DON_VI[unit] ?? 'nhóm'}.</p>
 
-      {/* ⭐ Giữ từ bản mới: bản song song dạng bảng — đọc được mọi giá trị không cần rê chuột */}
+      {/* Bản song song dạng bảng — đọc được mọi giá trị không cần rê chuột */}
       <details className="text-xs">
-        <summary className="cursor-pointer text-ink-mute hover:text-ink-soft select-none">Xem dạng bảng</summary>
+        <summary className="cursor-pointer text-ink-mute hover:text-ink-soft select-none min-h-[44px] inline-flex items-center">Xem dạng bảng</summary>
         <div className="overflow-x-auto mt-2">
           <table className="w-full tabular-nums">
             <thead>
               <tr className="text-ink-mute">
-                <th scope="col" className="text-left py-1.5 pr-3 font-medium">Tháng</th>
+                <th scope="col" className="text-left py-1.5 pr-3 font-medium">{(TEN_DON_VI[unit] ?? 'nhóm').replace(/^./, (c) => c.toUpperCase())}</th>
                 {SOURCES.map((s) => <th scope="col" key={s.key} className="text-right py-1.5 pr-3 font-medium">{s.label}</th>)}
-                <th scope="col" className="text-right py-1.5 font-medium">Tổng</th>
+                <th scope="col" className="text-right py-1.5 pr-3 font-medium">Tổng</th>
+                {coKyTruoc && <th scope="col" className="text-right py-1.5 font-medium">Kỳ trước</th>}
               </tr>
             </thead>
             <tbody>
               {rows.map((r) => (
-                <tr key={r.month} className="border-t border-line text-ink-soft">
-                  <td className="py-1.5 pr-3">{r.label}{r.partial && '*'}</td>
+                <tr key={r.start} className="border-t border-line text-ink-soft">
+                  <td className="py-1.5 pr-3">{r.tieuDe}</td>
                   {SOURCES.map((s) => <td key={s.key} className="text-right py-1.5 pr-3">{fmtMoney(r[s.key])}</td>)}
-                  <td className="text-right py-1.5 text-ink">{fmtMoney(r.total)}</td>
+                  <td className="text-right py-1.5 pr-3 text-ink">{fmtMoney(r.total)}</td>
+                  {coKyTruoc && <td className="text-right py-1.5">{r.truoc == null ? '—' : fmtMoney(r.truoc)}</td>}
                 </tr>
               ))}
             </tbody>
@@ -104,51 +131,33 @@ export const RevenueByMonthChart = ({ months, measure }) => {
   )
 }
 
-// ===== 2. DOUGHNUT TỶ TRỌNG THÁNG NÀY — kiểu cũ (tổng ở tâm + legend % bên dưới) =====
-export const RevenueShareDonut = ({ month, measure }) => {
-  const all = SOURCES.map((s) => ({ ...s, value: Number(month?.[s.key]?.[measure] ?? 0) }))
+// ===== 2. TỶ TRỌNG NGUỒN TRONG KỲ — thanh ngang (thay biểu đồ tròn khuyết) =====
+export const RevenueShareBars = ({ series, measure }) => {
+  const all = SOURCES.map((s) => ({ ...s, value: series.reduce((sum, b) => sum + Number(b[s.key]?.[measure] ?? 0), 0) }))
   const total = all.reduce((sum, p) => sum + p.value, 0)
-
-  if (total <= 0) {
-    return <p className="text-sm text-ink-mute py-12 text-center">Tháng này chưa phát sinh doanh thu.</p>
-  }
-  const data = all.filter((p) => p.value > 0)
-
+  if (total <= 0) return <p className="text-sm text-ink-mute py-12 text-center">Kỳ này chưa phát sinh doanh thu.</p>
   return (
-    <div className="flex flex-col h-full">
-      <div className="relative h-[200px] w-full mt-2">
+    <div className="space-y-4">
+      <p className="font-mono text-2xl font-semibold tabular-nums text-ink">{fmtMoney(total)}</p>
+      <div className="h-[140px]">
         <ResponsiveContainer width="100%" height="100%">
-          <PieChart>
-            <Pie data={data} dataKey="value" nameKey="label" cx="50%" cy="50%" innerRadius={55} outerRadius={80} paddingAngle={3}>
-              {data.map((entry, i) => (
-                <Cell key={`cell-${i}`} fill={entry.color} stroke="none" />
-              ))}
-            </Pie>
-            <Tooltip content={<RevenueTooltip />} />
-          </PieChart>
+          <BarChart data={all} layout="vertical" margin={{ top: 0, right: 8, left: 0, bottom: 0 }}>
+            <XAxis type="number" hide domain={[0, total]} />
+            <YAxis type="category" dataKey="label" width={92} axisLine={false} tickLine={false} tick={{ fill: AXIS_TEXT, fontSize: 12 }} />
+            <Tooltip formatter={(v) => fmtMoney(v)} cursor={{ fill: CURSOR, opacity: 0.6 }} />
+            <Bar dataKey="value" name="Số tiền" isAnimationActive={false} maxBarSize={22}
+              shape={(props) => <rect x={props.x} y={props.y} width={props.width} height={props.height} fill={props.payload.color} />} />
+          </BarChart>
         </ResponsiveContainer>
-        {/* Tổng ở giữa doughnut — kiểu cũ */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none">
-          <p className="text-xs text-ink-mute">Tổng</p>
-          <p className="text-lg font-bold text-ink tabular-nums leading-tight">{fmtTienGon(total).split(' ')[0]}</p>
-          <p className="text-xs text-ink-mute">{fmtTienGon(total).split(' ').slice(1).join(' ')}</p>
-        </div>
       </div>
-
-      {/* Legend % — kiểu cũ */}
-      <div className="mt-auto pt-4 space-y-2">
+      <dl className="space-y-1.5 text-sm">
         {all.map((p) => (
-          <div key={p.key} className="flex items-center justify-between text-sm">
-            <span className="flex items-center gap-2">
-              <Swatch color={p.color} />
-              <span className="text-ink-soft">{p.label}</span>
-            </span>
-            <span className="text-ink font-medium">
-              {fmtMoney(p.value)} <span className="text-ink-mute ml-1">{((p.value / total) * 100).toFixed(1)}%</span>
-            </span>
+          <div key={p.key} className="flex items-center justify-between gap-3">
+            <dt className="flex items-center gap-2 text-ink-soft"><Swatch color={p.color} />{p.label}</dt>
+            <dd className="text-ink font-medium tabular-nums">{fmtMoney(p.value)} <span className="text-ink-mute ml-1">{((p.value / total) * 100).toFixed(1)}%</span></dd>
           </div>
         ))}
-      </div>
+      </dl>
     </div>
   )
 }

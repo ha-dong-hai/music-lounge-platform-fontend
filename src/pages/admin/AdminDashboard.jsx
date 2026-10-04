@@ -1,15 +1,28 @@
 // src/pages/admin/AdminDashboard.jsx
-// Data thật từ /analytics/* — layout theo dashboard cũ + giữ các tính năng hay của bản mới:
-// nút chuyển đại lượng doanh thu (GMV ↔ Platform Revenue), khối luỹ kế, khối recommender.
-import { useState, useEffect } from 'react'
-import { Banknote, Ticket, Users, AlertCircle, Store, Music2, HeartHandshake, Loader2, Brain } from 'lucide-react'
-import toast from 'react-hot-toast'
-import dayjs from 'dayjs'
-import { getPlatformAnalytics, getAdminOverview, getRecommenderEvaluation, getAdminDashboard } from '../../services/analyticsServices'
-import { RevenueByMonthChart, RevenueShareDonut, TopShowsTable, GenreTrendingList } from '../../components/admin/dashboard/DashboardCharts'
+//
+// TRANG TỔNG QUAN ADMIN — dashboard PHÂN TÍCH (NN/g: phân tích ≠ vận hành; việc cần xử lý gấp nằm ở các hàng chờ).
+//
+// LÀM LẠI 04/10/2026 (MLACP-595) — chủ dự án: "số liệu lớn theo thời gian dài mà cứ show hết ra, không có bộ lọc thời gian".
+// Research: Shopify Analytics (khoảng định sẵn + so với kỳ trước, kỳ trước nét đứt), Stripe Dashboard (đơn vị gộp tự đổi
+// theo độ dài khoảng), NN/g Dashboards (tránh biểu đồ tròn khuyết). Thay đổi:
+//  - MỘT bộ chọn kỳ đầu trang (components/bang/ChonKy — Radix Popover + react-day-picker), kỳ nằm trên URL (nuqs). Mọi khối
+//    "trong kỳ" theo đúng kỳ đó; trước đây ô số cố định tháng này, biểu đồ cố định 6 tháng, hai kỳ khác nhau trên một trang.
+//  - Mỗi ô số trong kỳ ghi thay đổi so với KỲ TRƯỚC cùng độ dài (utils/kyBaoCao).
+//  - Số liệu KHÔNG theo kỳ (đang hoạt động, đang chờ duyệt, luỹ kế) gom một khối riêng có tiêu đề nói rõ điều đó.
+//  - Khối chất lượng mô hình gợi ý chuyển sang trang Nội dung và tương tác.
+// Dữ liệu: TanStack Query, mỗi kỳ một khoá — đổi kỳ giữ số cũ mờ đi trong lúc tải (placeholderData) thay vì cả trang quay.
+import { useState } from 'react'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
+import { Banknote, Ticket, Users, AlertCircle, Store, Music2, HeartHandshake, Loader2, Receipt } from 'lucide-react'
+import { getPlatformAnalytics, getAdminOverview, getAdminDashboard } from '../../services/analyticsServices'
+import { RevenueSeriesChart, RevenueShareBars, TopShowsTable, GenreTrendingList } from '../../components/admin/dashboard/DashboardCharts'
+import { SOURCES } from '../../components/admin/dashboard/chartTokens'
 import NhomTab from '../../components/bang/NhomTab'
 import KhungTai from '../../components/bang/KhungTai'
 import OChiSo from '../../components/bang/OChiSo'
+import ChonKy from '../../components/bang/ChonKy'
+import { useKyBaoCao } from '../../hooks/useKyBaoCao'
+import { cauSoVoiKyTruoc, nhanKhoang, thamSoApi } from '../../utils/kyBaoCao'
 
 const fmtMoney = (v) => `${Number(v || 0).toLocaleString('vi-VN')}đ`
 
@@ -30,259 +43,139 @@ const venueBreakdown = (byStatus) => {
   return parts.length ? parts.join(' · ') : null
 }
 
-// ⭐ GIỮ TỪ BẢN MỚI: MỘT nút chuyển cho CẢ HAI khối doanh thu — hai khối luôn cùng đại lượng
+// MỘT nút chuyển cho CẢ HAI khối doanh thu — hai khối luôn cùng đại lượng
 const MEASURES = [
   { key: 'platformRevenue', label: 'Doanh thu nền tảng' },
   { key: 'gmv', label: 'Tổng giá trị giao dịch (GMV)' },
 ]
 
-// Ô số liệu: dùng OChiSo chung (01/10/2026). Bản cũ có ô biểu tượng tô màu (xanh/đỏ/xám) — màu chỉ trang trí, không mang
-// nghĩa (thẻ "Tổng tiền ủng hộ" nền đỏ), và mỗi trang một kiểu ô số liệu. Tham số color/bg cũ được bỏ qua.
-const StatCard = ({ title, value, note, icon }) => <OChiSo nhan={title} so={value} phu={note} icon={icon} />
+const tongTrongKy = (series, measure) =>
+  (series ?? []).reduce((sum, b) => sum + SOURCES.reduce((s2, src) => s2 + Number(b[src.key]?.[measure] ?? 0), 0), 0)
 
-const SectionTitle = ({ children }) => (
-  <h2 className="font-sans font-bold text-sm text-ink-soft mb-3">{children}</h2>
-)
+const SectionTitle = ({ children }) => <h2 className="font-sans font-bold text-sm text-ink-soft mb-3">{children}</h2>
+
+// Bóc { success, data } của axiosClient; lỗi thì ném để TanStack Query đánh dấu nguồn đó lỗi.
+const boc = async (p) => { const r = await p; if (!r?.success) throw new Error(r?.message || 'Không tải được'); return r.data }
 
 const AdminDashboard = () => {
-  const [platform, setPlatform] = useState(null)
-  const [overview, setOverview] = useState(null)
-  const [recommender, setRecommender] = useState(null)
-  const [dashboard, setDashboard] = useState(null)
+  const { tu, den, truoc, datKy } = useKyBaoCao()
   const [measure, setMeasure] = useState('platformRevenue')
-  const [isLoading, setIsLoading] = useState(true)
-  // Nguồn số liệu nào lỗi (01/10/2026): bản cũ chỉ báo khi có ngoại lệ — một nguồn lỗi thì thẻ của nó lặng lẽ thiếu.
-  const [nguonLoi, setNguonLoi] = useState([])
-  const [lanTai, setLanTai] = useState(0)
+  const api = thamSoApi(tu, den)
+  const apiTruoc = thamSoApi(truoc.tu, truoc.den)
 
-  useEffect(() => {
-    const fetchAll = async () => {
-      setIsLoading(true)
-      try {
-        // allSettled chứ không phải all: một endpoint lỗi (VD backend chưa deploy admin-dashboard)
-        // không làm mất các thẻ đang chạy tốt
-        const ketQua = await Promise.allSettled([
-          getPlatformAnalytics(),
-          getAdminOverview(),
-          getRecommenderEvaluation(),
-          getAdminDashboard(),
-        ])
-        const [pRes, oRes, rRes, dRes] = ketQua.map(
-          (x) => (x.status === 'fulfilled' ? x.value : { success: false })
-        )
-        if (dRes.success) setDashboard(dRes.data)
-        if (pRes.success) setPlatform(pRes.data)
-        if (oRes.success) setOverview(oRes.data)
-        if (rRes.success) setRecommender(rRes.data)
-        setNguonLoi(['doanh thu nền tảng', 'tổng quan trong kỳ', 'đánh giá gợi ý', 'luỹ kế hệ thống'].filter((_, i) => ![pRes, oRes, rRes, dRes][i].success))
-      } catch {
-        toast.error('Không tải được số liệu thống kê.')
-      } finally {
-        setIsLoading(false)
-      }
-    }
-    fetchAll()
-  }, [lanTai])
+  const chung = { placeholderData: keepPreviousData, staleTime: 60_000 }
+  const tongQuan = useQuery({ queryKey: ['admin-tq', tu, den], queryFn: () => boc(getAdminOverview(api)), ...chung })
+  const tongQuanTruoc = useQuery({ queryKey: ['admin-tq', truoc.tu, truoc.den], queryFn: () => boc(getAdminOverview(apiTruoc)), ...chung })
+  const bang = useQuery({ queryKey: ['admin-db', tu, den], queryFn: () => boc(getAdminDashboard(api)), ...chung })
+  const bangTruoc = useQuery({ queryKey: ['admin-db', truoc.tu, truoc.den], queryFn: () => boc(getAdminDashboard(apiTruoc)), ...chung })
+  const luyKe = useQuery({ queryKey: ['admin-luy-ke'], queryFn: () => boc(getPlatformAnalytics()), staleTime: 60_000 })
 
-  if (isLoading) {
-    return (
-      <div className="py-20 flex justify-center">
-        <Loader2 size={32} className="animate-spin text-ink" />
-      </div>
-    )
+  const nguon = [[tongQuan, 'số liệu trong kỳ'], [bang, 'biểu đồ và xếp hạng'], [luyKe, 'số liệu luỹ kế'], [tongQuanTruoc, 'số liệu kỳ trước'], [bangTruoc, 'biểu đồ kỳ trước']]
+  const nguonLoi = nguon.filter(([q]) => q.isError).map(([, ten]) => ten)
+  const taiLai = () => nguon.forEach(([q]) => q.isError && q.refetch())
+
+  if (tongQuan.isPending && bang.isPending && luyKe.isPending) {
+    return <div className="py-20 flex justify-center"><Loader2 size={32} className="animate-spin text-ink" aria-label="Đang tải" /></div>
   }
 
-  const periodLabel = overview
-    ? `${dayjs(overview.periodFrom).format('DD/MM')} – ${dayjs(overview.periodTo).format('DD/MM/YYYY')}`
-    : ''
+  const o = tongQuan.data; const oT = tongQuanTruoc.data
+  const d = bang.data; const dT = bangTruoc.data
+  const p = luyKe.data
+  const dangDoiKy = tongQuan.isPlaceholderData || bang.isPlaceholderData
+  // Có số kỳ trước mới ghi so sánh; đang tải kỳ trước thì để trống chứ không ghi "kỳ trước chưa có".
+  const soSanh = (nay, cu) => (cu === undefined ? undefined : cauSoVoiKyTruoc(nay, cu))
+  const gmvNay = tongTrongKy(d?.series, 'gmv')
+  const gmvTruoc = dT ? tongTrongKy(dT.series, 'gmv') : undefined
 
   return (
-    <div className="space-y-6">
-
-      {/* ===== HEADER (kiểu cũ) ===== */}
-      <div>
-        <h1 className="text-4xl text-ink mb-1">Tổng quan</h1>
-        <p className="text-ink-soft text-sm">Toàn bộ số liệu lấy trực tiếp từ hệ thống, không phải dữ liệu mẫu.</p>
-      </div>
-      {nguonLoi.length > 0 && <KhungTai loi tenVung={`phần ${nguonLoi.join(', ')}`} taiLai={() => setLanTai((n) => n + 1)} />}
-
-      {/* ===== KỲ HIỆN TẠI (data thật — giữ từ bản mới) ===== */}
-      <div>
-        <SectionTitle>
-          Trong kỳ {periodLabel && <span className="text-ink-mute">({periodLabel})</span>}
-        </SectionTitle>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <StatCard
-            title="Doanh thu nền tảng"
-            value={fmtMoney(overview?.platformRevenueInPeriod)}
-            icon={Banknote} color="text-success" bg="bg-success/10"
-          />
-          <StatCard
-            title="Buổi diễn trong kỳ"
-            value={overview?.eventsInPeriodCount ?? 0}
-            icon={Music2} color="text-ink" bg="bg-ink/10"
-          />
-          <StatCard
-            title="Khán giả đăng ký mới"
-            value={overview?.newAudienceSignupsInPeriod ?? 0}
-            icon={Users} color="text-ink" bg="bg-ink/10"
-          />
-          <StatCard
-            title="Phòng trà đang hoạt động"
-            value={platform?.operatingVenues ?? overview?.activeVenuesCount ?? 0}
-            note="Tính tại thời điểm hiện tại, không theo kỳ"
-            icon={Store} color="text-ink" bg="bg-ink/10"
-          />
+    <div className="space-y-8">
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <h1 className="text-4xl text-ink mb-1">Tổng quan</h1>
+          <p className="text-ink-soft text-sm">So với kỳ trước: {nhanKhoang(truoc.tu, truoc.den)} (cùng số ngày, liền trước).</p>
         </div>
+        <ChonKy tu={tu} den={den} onChon={datKy} />
       </div>
+      {nguonLoi.length > 0 && <KhungTai loi tenVung={`phần ${nguonLoi.join(', ')}`} taiLai={taiLai} />}
 
-      {/* ===== LUỸ KẾ TOÀN HỆ THỐNG ===== */}
-      <div>
-        <SectionTitle>Luỹ kế toàn hệ thống</SectionTitle>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <StatCard
-            title="Tổng giá trị giao dịch"
-            value={fmtMoney(platform?.totalGrossMerchandiseValue)}
-            icon={Banknote} color="text-success" bg="bg-success/10"
-          />
-          <StatCard
-            title="Vé đã bán"
-            value={(platform?.totalTicketsSold ?? 0).toLocaleString('vi-VN')}
-            icon={Ticket} color="text-ink" bg="bg-ink/10"
-          />
-          <StatCard
-            title="Tổng tiền ủng hộ"
-            value={fmtMoney(platform?.totalDonationVolume)}
-            icon={HeartHandshake} color="text-danger" bg="bg-danger/10"
-          />
-          <StatCard
-            title="Chờ duyệt thủ công"
-            value={platform?.pendingModerationsCount ?? 0}
-            note={platform?.pendingModerationsCount > 0 ? 'Cần xử lý' : 'Đã xử lý hết'}
-            icon={AlertCircle} color="text-warning" bg="bg-warning/10"
-          />
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
-          <StatCard
-            title="Phòng trà đã đăng ký"
-            value={platform?.totalVenues ?? 0}
-            note={venueBreakdown(platform?.venuesByStatus) || 'Mọi trạng thái, kể cả chờ duyệt'}
-            icon={Store} color="text-ink" bg="bg-ink/10"
-          />
-          <StatCard
-            title="Buổi diễn đã xuất bản"
-            value={platform?.totalPublishedShows ?? 0}
-            icon={Music2} color="text-ink" bg="bg-ink/10"
-          />
-          <StatCard
-            title="Tổng người dùng"
-            value={(platform?.totalUsers ?? 0).toLocaleString('vi-VN')}
-            icon={Users} color="text-ink" bg="bg-ink/10"
-          />
-        </div>
-      </div>
-
-      {/* ===== DOANH THU 6 THÁNG — nút chuyển đại lượng áp cho cả 2 khối ===== */}
-      {dashboard ? (
-        <div className="space-y-4">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <h3 className="text-lg font-semibold text-ink">Doanh thu 6 tháng gần nhất</h3>
-            {/* ⭐ SEGMENTED CONTROL từ bản mới */}
-            <NhomTab nhan="Đại lượng doanh thu" dangChon={measure} onChon={setMeasure}
-              cacTab={MEASURES.map((m) => ({ khoa: m.key, nhan: m.label }))} />
+      <div aria-busy={dangDoiKy} className={`space-y-8 transition-opacity ${dangDoiKy ? 'opacity-60' : ''}`}>
+        {/* ===== TRONG KỲ ===== */}
+        <section>
+          <SectionTitle>Trong kỳ <span className="text-ink-mute font-normal">({nhanKhoang(tu, den)})</span></SectionTitle>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <OChiSo nhan="Doanh thu nền tảng" so={fmtMoney(o?.platformRevenueInPeriod)} icon={Banknote}
+              phu={soSanh(o?.platformRevenueInPeriod, oT?.platformRevenueInPeriod)} />
+            <OChiSo nhan="Tổng giá trị giao dịch" so={fmtMoney(gmvNay)} icon={Receipt}
+              phu={soSanh(gmvNay, gmvTruoc)} />
+            <OChiSo nhan="Buổi diễn trong kỳ" so={o?.eventsInPeriodCount ?? 0} icon={Music2}
+              phu={soSanh(o?.eventsInPeriodCount, oT?.eventsInPeriodCount)} />
+            <OChiSo nhan="Khán giả đăng ký mới" so={o?.newAudienceSignupsInPeriod ?? 0} icon={Users}
+              phu={soSanh(o?.newAudienceSignupsInPeriod, oT?.newAudienceSignupsInPeriod)} />
           </div>
+        </section>
 
-          {/* Giải thích ý nghĩa 2 đại lượng — quan trọng để Admin không đọc sai số */}
-          <p className="text-xs text-ink-mute leading-relaxed">
-            {measure === 'platformRevenue'
-              ? 'Phần nền tảng thực nhận: hoa hồng trên vé và tiền ủng hộ, cộng toàn bộ phí gói dịch vụ. Không gồm tiền giữ hộ phòng trà chờ quyết toán; vé bán tại quầy bằng tiền mặt không đi qua nền tảng nên gần như không có ở đây.'
-              : 'Tổng tiền người mua trả, GỒM cả vé bán tại quầy bằng tiền mặt. Đây KHÔNG phải doanh thu của nền tảng — phần lớn thuộc về phòng trà và nghệ sĩ.'}
-          </p>
-
-          {/* Layout 2/3 + 1/3 — kiểu cũ */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2 bg-card border border-line p-6">
-              <h3 className="text-base font-semibold text-ink">Theo tháng, tách theo nguồn</h3>
-              <p className="text-xs text-ink-mute mt-0.5 mb-4">Cột chồng theo nguồn doanh thu.</p>
-              <RevenueByMonthChart months={dashboard.months} measure={measure} />
+        {/* ===== TIỀN THEO KỲ ===== */}
+        {d ? (
+          <section className="space-y-4">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <h2 className="font-sans text-lg font-bold text-ink">Tiền trong kỳ, tách theo nguồn</h2>
+              <NhomTab nhan="Đại lượng doanh thu" dangChon={measure} onChon={setMeasure}
+                cacTab={MEASURES.map((m) => ({ khoa: m.key, nhan: m.label }))} />
             </div>
-            <div className="lg:col-span-1 bg-card border border-line p-6 flex flex-col">
-              <h3 className="text-base font-semibold text-ink">Doanh thu tháng này</h3>
-              <p className="text-xs text-ink-mute mt-0.5 mb-2">
-                Tháng {dayjs(`${dashboard.months.at(-1)?.month}-01`).format('MM/YYYY')}, chưa trọn tháng
-              </p>
-              <RevenueShareDonut month={dashboard.months.at(-1)} measure={measure} />
-            </div>
-          </div>
-
-          {/* Top shows + Trending genres — layout kiểu cũ */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2 bg-card border border-line overflow-hidden">
-              <div className="p-6 pb-4">
-                <h3 className="text-lg font-semibold text-ink">Buổi diễn nổi bật</h3>
-                <p className="text-ink-mute text-xs">
-                  Theo doanh thu vé · {dayjs(dashboard.periodFrom).format('DD/MM/YYYY')} – {dayjs(dashboard.periodTo).format('DD/MM/YYYY')}
-                </p>
+            <p className="text-xs text-ink-mute leading-relaxed">
+              {measure === 'platformRevenue'
+                ? 'Phần nền tảng thực nhận: hoa hồng trên vé và tiền ủng hộ, cộng toàn bộ phí gói dịch vụ. Không gồm tiền giữ hộ phòng trà chờ quyết toán; vé bán tại quầy bằng tiền mặt không đi qua nền tảng nên gần như không có ở đây.'
+                : 'Tổng tiền người mua trả, GỒM cả vé bán tại quầy bằng tiền mặt. Đây KHÔNG phải doanh thu của nền tảng — phần lớn thuộc về phòng trà và nghệ sĩ.'}
+            </p>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="lg:col-span-2 bg-card border border-line p-6">
+                {d.series ? (
+                  <RevenueSeriesChart series={d.series} unit={d.seriesUnit} measure={measure} seriesTruoc={dT?.series} />
+                ) : (
+                  <p className="text-sm text-ink-soft">Máy chủ chưa có bản cập nhật biểu đồ theo kỳ (MLACP-594).</p>
+                )}
               </div>
-              <TopShowsTable shows={dashboard.topShows} />
-            </div>
-            <div className="lg:col-span-1 bg-card border border-line p-6">
-              <h3 className="text-lg font-semibold text-ink mb-1">Thể loại đang được quan tâm</h3>
-              <p className="text-ink-mute text-xs mb-6">Xếp theo số vé bán trong kỳ</p>
-              <GenreTrendingList genres={dashboard.genres} />
-            </div>
-          </div>
-        </div>
-      ) : (
-        <div className="bg-card border border-line p-6">
-          <p className="text-sm text-ink-soft">Chưa tải được biểu đồ doanh thu và xếp hạng.</p>
-          <p className="text-xs text-ink-mute mt-1">Các số liệu tổng quan phía trên không bị ảnh hưởng.</p>
-        </div>
-      )}
-
-      {/* ===== CHẤT LƯỢNG MÔ HÌNH GỢI Ý (giữ từ bản mới) ===== */}
-      {recommender && (
-        <div className="bg-card border border-line p-6">
-          <div className="flex items-start gap-3 mb-4">
-            <div className="p-2.5 bg-ink/10">
-              <Brain size={20} className="text-ink" />
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold text-ink">Chất lượng mô hình gợi ý</h3>
-              <p className="text-ink-mute text-xs mt-0.5 leading-relaxed">{recommender.method}</p>
-            </div>
-          </div>
-
-          {/* BE cố tình KHÔNG trả con số khi chưa đủ dữ liệu — hiển thị đúng như vậy,
-              không quy về 0% kẻo người đọc tưởng mô hình đo được và đang sai */}
-          {recommender.status === 'NotEnoughHistory' ? (
-            <div className="bg-warning/5 border border-warning/20 p-4">
-              <p className="text-warning text-sm font-medium mb-1">Chưa đủ dữ liệu để đo</p>
-              <p className="text-ink-soft text-xs leading-relaxed">{recommender.caveat}</p>
-              <div className="flex flex-wrap gap-6 mt-3 text-xs">
-                <span className="text-ink-mute">
-                  Người dùng đủ lịch sử: <span className="text-ink font-medium">{recommender.usersWithEnoughHistory}</span>
-                </span>
-                <span className="text-ink-mute">
-                  Kho buổi diễn: <span className="text-ink font-medium">{recommender.catalogueSize}</span>
-                </span>
+              <div className="lg:col-span-1 bg-card border border-line p-6">
+                <h3 className="text-base font-semibold text-ink">Tỷ trọng theo nguồn</h3>
+                <p className="text-xs text-ink-mute mt-0.5 mb-3">Cả kỳ {nhanKhoang(tu, den)}</p>
+                <RevenueShareBars series={d.series ?? []} measure={measure} />
               </div>
             </div>
-          ) : (
-            <div className="space-y-3">
-              {(recommender.models || []).map((m, i) => (
-                <div key={m.name ?? i} className="flex items-center justify-between bg-sunken/70 border border-line px-4 py-3">
-                  <span className="text-sm text-ink font-medium">{m.name}</span>
-                  <span className="text-sm text-ink font-bold">
-                    HR@{recommender.k}: {((m.hitRate ?? 0) * 100).toFixed(1)}%
-                  </span>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="lg:col-span-2 bg-card border border-line overflow-hidden">
+                <div className="p-6 pb-4">
+                  <h3 className="text-lg font-semibold text-ink">Buổi diễn nổi bật</h3>
+                  <p className="text-ink-mute text-xs">Theo doanh thu vé bán trong kỳ · 10 buổi đầu</p>
                 </div>
-              ))}
-              {recommender.caveat && <p className="text-ink-mute text-xs leading-relaxed pt-1">{recommender.caveat}</p>}
+                <TopShowsTable shows={d.topShows} />
+              </div>
+              <div className="lg:col-span-1 bg-card border border-line p-6">
+                <h3 className="text-lg font-semibold text-ink mb-1">Thể loại được mua vé nhiều</h3>
+                <p className="text-ink-mute text-xs mb-6">Xếp theo số vé bán trong kỳ</p>
+                <GenreTrendingList genres={d.genres} />
+              </div>
             </div>
-          )}
+          </section>
+        ) : null}
+      </div>
+
+      {/* ===== KHÔNG THEO KỲ ===== */}
+      <section>
+        <SectionTitle>Hiện tại và luỹ kế <span className="text-ink-mute font-normal">(không theo kỳ đã chọn)</span></SectionTitle>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <OChiSo nhan="Phòng trà đang hoạt động" so={p?.operatingVenues ?? o?.activeVenuesCount ?? 0} icon={Store} phu="Tại thời điểm này" />
+          <OChiSo nhan="Chờ duyệt thủ công" so={p?.pendingModerationsCount ?? 0} icon={AlertCircle}
+            canChuY={p?.pendingModerationsCount > 0} phu={p?.pendingModerationsCount > 0 ? 'Cần xử lý' : 'Đã xử lý hết'} />
+          <OChiSo nhan="Phòng trà đã đăng ký" so={p?.totalVenues ?? 0} icon={Store}
+            phu={venueBreakdown(p?.venuesByStatus) || 'Mọi trạng thái, kể cả chờ duyệt'} />
+          <OChiSo nhan="Tổng người dùng" so={(p?.totalUsers ?? 0).toLocaleString('vi-VN')} icon={Users} />
+          <OChiSo nhan="Tổng giá trị giao dịch từ khi vận hành" so={fmtMoney(p?.totalGrossMerchandiseValue)} icon={Banknote} />
+          <OChiSo nhan="Vé đã bán từ khi vận hành" so={(p?.totalTicketsSold ?? 0).toLocaleString('vi-VN')} icon={Ticket} />
+          <OChiSo nhan="Tiền ủng hộ từ khi vận hành" so={fmtMoney(p?.totalDonationVolume)} icon={HeartHandshake} />
+          <OChiSo nhan="Buổi diễn đã xuất bản" so={p?.totalPublishedShows ?? 0} icon={Music2} />
         </div>
-      )}
+      </section>
     </div>
   )
 }
