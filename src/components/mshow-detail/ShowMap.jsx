@@ -11,6 +11,7 @@ import Skeleton from '../shared/Skeleton'
 import SeatingMapView from './SeatingMapView'
 import { ghiNhoThanhToan, LOAI_THANH_TOAN } from '../../utils/paymentContext'
 import HopThoai, { TieuDeHop } from '../shared/HopThoai'
+import { GhiChuGiaVe } from '../shared/DieuKhoanTien'
 
 const formatVnd = (amount) => `${Number(amount || 0).toLocaleString('vi-VN')}đ`
 
@@ -310,6 +311,8 @@ const ShowMap = ({ showData }) => {
                   {formatVnd(selectedPrice.price * quantity)}
                 </span>
               </div>
+              {/* MLACP-626: điều khoản tiền nói TRƯỚC nút trả tiền — giá là giá cuối, không cộng thêm phí. */}
+              <GhiChuGiaVe />
 
               {/* CHÍNH SÁCH HOÀN TIỀN — PHẢI HIỆN TRƯỚC KHI TRẢ TIỀN, KHÔNG ĐƯỢC BỎ.
                   Backend thêm khối `refundPolicy` đúng vì mục này: trước đó các cột điều kiện huỷ

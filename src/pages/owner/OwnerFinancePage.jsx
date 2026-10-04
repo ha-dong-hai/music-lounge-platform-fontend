@@ -28,6 +28,7 @@ import { loiKhoangNgay } from '../../utils/boLocBuoiDien'
 import OChiSo from '../../components/bang/OChiSo'
 import ChonKy from '../../components/bang/ChonKy'
 import NhanTrangThai from '../../components/shared/NhanTrangThai'
+import { PhiThueLichChi } from '../../components/shared/DieuKhoanTien'
 
 const fmtTien = (v) => `${Number(v || 0).toLocaleString('vi-VN')}đ`
 
@@ -113,6 +114,9 @@ const OwnerFinancePage = () => {
       ) : (
         <KhungTai loi tenVung="phần tổng quan (danh sách giao dịch bên dưới vẫn đúng)" taiLai={tongQuan.refetch} />
       )}
+
+      {/* MLACP-626: luật chia tiền và lịch chi, bằng số đang áp dụng — trước đây trang chỉ hiện kết quả, không nói luật. */}
+      <PhiThueLichChi />
 
       {/* QUYẾT TOÁN GẦN ĐÂY */}
       {(earnings?.recentSettlements?.length ?? 0) > 0 && (

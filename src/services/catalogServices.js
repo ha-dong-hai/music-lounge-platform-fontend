@@ -7,6 +7,9 @@ export const getMoods = async () => axiosClient.get('/catalog/moods');
 export const getAtmospheres = async () => axiosClient.get('/catalog/venue-atmospheres');
 export const getEventCategories = async () => axiosClient.get('/catalog/event-categories');
 
+// MLACP-626: biểu phí và điều khoản tiền đang áp dụng + ngày cập nhật + nhật ký thay đổi (backend MLACP-625, công khai).
+export const getMoneyTerms = async () => axiosClient.get('/catalog/money-terms');
+
 // MLACP-522: danh mục hành chính 2 cấp từ 01/7/2025 (34 tỉnh, 3.321 phường/xã — QĐ 19/2025/QĐ-TTg). Không còn cấp
 // quận/huyện: chọn tỉnh rồi chọn phường/xã. Mỗi mục: { code, name, divisionType }.
 export const getProvinces = async () => axiosClient.get('/catalog/provinces');

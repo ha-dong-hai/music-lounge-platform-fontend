@@ -32,6 +32,7 @@ import { thuVietHoa, ngayDayDu, ngayGon, gioTrongNgay } from '../../utils/ngayVi
 import { TRANG_THAI_VE, laVeTrucTuyen } from '../../utils/trangThaiVe'
 import LienKetMuiTen from '../../components/shared/LienKetMuiTen'
 import DemNguocGioDien from '../../components/shared/DemNguocGioDien'
+import { HanHoanTien } from '../../components/shared/DieuKhoanTien'
 
 const tien = (n) => `${Number(n ?? 0).toLocaleString('vi-VN')}đ`
 const NUT_VIEN = 'inline-flex items-center justify-center gap-2 min-h-[48px] px-5 border-2 border-ink font-semibold hover:bg-ink hover:text-lamp transition-colors disabled:opacity-60'
@@ -304,6 +305,8 @@ const TicketDetailPage = () => {
                   : 'Huỷ vé sẽ tạo yêu cầu hoàn tiền gửi tới quản trị viên. Số tiền hoàn theo đúng chính sách của buổi diễn.')
                 : 'Vé này chưa thanh toán nên huỷ sẽ có hiệu lực ngay.'}
             </p>
+            {/* MLACP-626: "cần quản trị viên duyệt" mà không nói bao lâu thì người mua không biết chờ tới khi nào. */}
+            {ticket.status === 'Confirmed' && <HanHoanTien />}
             <button type="button" onClick={() => setMoHuy(true)} className="inline-flex items-center min-h-[48px] px-5 border-2 border-danger text-danger font-semibold hover:bg-danger hover:text-lamp transition-colors">
               Huỷ vé này
             </button>

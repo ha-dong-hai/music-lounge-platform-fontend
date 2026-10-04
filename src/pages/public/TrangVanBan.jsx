@@ -8,6 +8,7 @@
 // ghi con số chính sách cụ thể (tỉ lệ, số ngày) vì chúng nằm ở cấu hình hệ thống và đổi được — văn bản dẫn người đọc tới
 // nơi con số đang hiện. ĐÂY LÀ BẢN SOẠN CHO GIAI ĐOẠN THỬ NGHIỆM, chủ dự án duyệt câu chữ trước khi dùng thật.
 import { Link } from 'react-router-dom'
+import { BieuPhiDayDu } from '../../components/shared/DieuKhoanTien'
 
 const NGAY_CAP_NHAT = '04/10/2026'
 
@@ -21,7 +22,7 @@ const DIEU_KHOAN = {
       'Nghệ sĩ biểu diễn không có tài khoản đăng nhập; hồ sơ nghệ sĩ do phòng trà quản lý.',
     ]],
     ['Mua vé và tiền vé', [
-      'Tiền vé mua trực tuyến được MusicLounge giữ hộ cho tới khi buổi diễn diễn ra, rồi mới chuyển cho phòng trà sau khi trừ phí dịch vụ và thuế theo quy định.',
+      'Tiền vé mua trực tuyến được MusicLounge giữ hộ cho tới khi buổi diễn diễn ra, rồi mới chuyển cho phòng trà sau khi trừ phí dịch vụ và thuế. Mức phí, thuế và thời hạn cụ thể ghi ở mục Biểu phí và điều khoản tiền bên dưới.',
       'Vé mua tại quầy bằng tiền mặt do phòng trà thu trực tiếp.',
       'Mỗi vé có một mã QR để vào cửa. Vé đã soát thì không soát lại được.',
     ]],
@@ -32,6 +33,7 @@ const DIEU_KHOAN = {
     ]],
     ['Tiền ủng hộ nghệ sĩ', [
       'Tiền bạn ủng hộ nghệ sĩ được ghi nhận công khai trên trang sao kê của nghệ sĩ đó, gồm số tiền đã nhận và đã chi trả.',
+      'Tiền ủng hộ không hoàn lại sau khi thanh toán thành công. Cách chia từng khoản ghi ở mục Biểu phí và điều khoản tiền bên dưới.',
       'Bạn có thể khiếu nại nếu cho rằng tiền ủng hộ chưa tới tay nghệ sĩ.',
     ]],
     ['Dành cho chủ phòng trà', [
@@ -101,6 +103,15 @@ const TrangVanBan = ({ loai }) => {
             </ul>
           </section>
         ))}
+
+        {/* MLACP-626: biểu phí bằng SỐ ĐANG ÁP DỤNG (đọc từ máy chủ) + ngày cập nhật + nhật ký thay đổi. Phần chữ ở trên
+            là văn bản soạn tay, đổi thì sửa NGAY_CAP_NHAT; phần này tự đổi theo cấu hình của hệ thống. */}
+        {loai !== 'bao-mat' && (
+          <section id="bieu-phi" aria-labelledby="bieu-phi-td" className="mt-10 border-t-2 border-ink pt-5 scroll-mt-24">
+            <h2 id="bieu-phi-td" className="font-sans text-xl font-bold">{v.muc.length + 1}. Biểu phí và điều khoản tiền</h2>
+            <div className="mt-4 text-base leading-relaxed"><BieuPhiDayDu /></div>
+          </section>
+        )}
 
         <nav aria-label="Liên quan" className="mt-12">
           <ul className="border-y-2 border-ink divide-y divide-ink/20">

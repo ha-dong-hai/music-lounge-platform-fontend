@@ -14,6 +14,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { X, Loader2 } from 'lucide-react'
 import { anhChuCai } from '../../utils/anhChuCai'
+import { ChiaTienUngHo } from '../shared/DieuKhoanTien'
 
 const MUC_SAN = [20000, 50000, 100000, 200000, 500000, 1000000]
 const TOI_THIEU = 1000
@@ -114,6 +115,9 @@ const DonateModal = ({ performers, onClose, onSendDonation }) => {
                 className="mt-1 w-full px-3 py-2 bg-card border-2 border-ink focus:outline-none focus:ring-2 focus:ring-ink resize-none" />
               <p id="loi-nhan-dem" className="text-right text-xs font-mono text-ink-mute">{nhan.length}/{DAI_NHAN}</p>
             </div>
+
+            {/* MLACP-626: trước khi trả tiền, người ủng hộ phải thấy nghệ sĩ nhận bao nhiêu và rằng tiền không hoàn lại. */}
+            <ChiaTienUngHo soTien={soTien} />
 
             {loi.chung && <p ref={refLoi} tabIndex={-1} role="alert" className="scroll-mb-24 border-2 border-danger p-3 font-semibold text-danger">{loi.chung}</p>}
           </div>

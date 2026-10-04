@@ -269,6 +269,11 @@ const FnbOrderPage = () => {
                   <p className="text-sm text-ink-soft mt-2 leading-relaxed">
                     Đơn gửi đi mặc định là trả tiền mặt tại quầy. Sau khi gửi, bạn có thể chọn thanh toán trực tuyến.
                   </p>
+                  {/* MLACP-626: điều khoản tiền của đơn đồ uống, nói trước khi gửi đơn. */}
+                  <p className="text-sm text-ink-soft mt-2 leading-relaxed">
+                    Bạn trả đúng giá trên thực đơn, không có phí cộng thêm. Trả trùng một đơn, hoặc tiền về sau khi đơn đã bị huỷ, thì khoản đó được hoàn 100%.{' '}
+                    <Link to="/dieu-khoan#bieu-phi" className="underline underline-offset-4">Điều khoản tiền</Link>
+                  </p>
                 </>
               )}
             </div>
