@@ -1,5 +1,6 @@
 import { Loader2, Building2, FileText, ShieldAlert } from 'lucide-react'
 import dayjs from 'dayjs'
+import DaCho from '../../bang/DaCho'
 import { VenueStatusBadge, LicenseBadge } from './VenueBadges'
 import { anhChuCai } from '../../../utils/anhChuCai'
 import { maNgan } from '../../../utils/format'
@@ -56,7 +57,11 @@ const VenuesTable = ({ venues, isLoading, onViewDossier, onReview, onPenalize })
                   </td>
                   <td className="p-4"><LicenseBadge hasLicense={v.hasBusinessLicense} /></td>
                   <td className="p-4"><VenueStatusBadge status={v.status} /></td>
-                  <td className="p-4 text-sm text-ink-soft">{dayjs(v.createdAt).format('DD/MM/YYYY')}</td>
+                  <td className="p-4 text-sm text-ink-soft">
+                    {dayjs(v.createdAt).format('DD/MM/YYYY')}
+                    {/* Chỉ hồ sơ ĐANG CHỜ DUYỆT mới có tuổi chờ; hồ sơ đã quyết thì ngày nộp là đủ. */}
+                    {v.status === 'Pending' && <span className="block mt-1"><DaCho luc={v.createdAt} /></span>}
+                  </td>
                   <td className="p-4 text-right">
                     {/* "Xem hồ sơ" mở hồ sơ ĐÃ NỘP (chủ, địa chỉ, giấy phép kinh doanh) — đó mới là
                         thứ cần đọc trước khi bấm Duyệt. Liên kết sang trang công khai vẫn còn,

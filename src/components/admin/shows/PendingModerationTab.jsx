@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { AlertTriangle, Check, X, Eye, Loader2, ChevronLeft, ChevronRight } from 'lucide-react'
 import dayjs from 'dayjs'
+import DaCho from '../../bang/DaCho'
 import toast from 'react-hot-toast'
 import HopXacNhan from '../../shared/HopXacNhan'
 import { getPendingModerations, reviewLivestreamModeration, reviewTicketTier } from '../../../services/adminServices'
@@ -143,6 +144,7 @@ const PendingModerationTab = () => {
                     <td className="p-4 text-ink font-medium">
                       {{ Show: 'Buổi diễn', Livestream: 'Buổi phát', TicketTier: 'Hạng vé' }[targetType] ?? targetType} #{maNgan(item.targetId)}
                       <p className="text-xs text-ink-mute mt-1">Tạo lúc {dayjs(item.createdAt).format('HH:mm DD/MM/YYYY')}</p>
+                      <DaCho luc={item.createdAt} han={item.slaDeadline} className="mt-1" />
                     </td>
                     <td className="p-4"><FormatBadge format={item.format} /></td>
                     <td className="p-4"><RiskLevelBadge level={item.riskLevel} /></td>

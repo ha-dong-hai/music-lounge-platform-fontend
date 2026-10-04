@@ -2,6 +2,7 @@
 import { Link } from 'react-router-dom'
 import { CheckCircle2, XCircle } from 'lucide-react'
 import dayjs from 'dayjs'
+import DaCho from '../../bang/DaCho'
 import { PenaltyTypeBadge, penaltyStatusLabel, penaltyStatusCls } from './PenaltyBadges'
 
 /**
@@ -42,6 +43,7 @@ const PenaltyAppealCard = ({ p, choXuLy, onDecide }) => (
           <div className="mt-3 pl-3 border-l-2 border-warning/40">
             <p className="text-xs text-ink-mute">
               Khiếu nại {p.appealedAt ? dayjs(p.appealedAt).format('DD/MM/YYYY') : ''}
+              {p.appealedAt && !p.reviewedAt && <DaCho luc={p.appealedAt} className="ml-2" />}
             </p>
             <p className="text-sm text-ink-soft italic mt-0.5 leading-relaxed">“{p.appealReason}”</p>
           </div>

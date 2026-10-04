@@ -32,6 +32,7 @@ import {
   Loader2, Landmark, CheckCircle2, XCircle, AlertTriangle, RefreshCw, ShieldCheck, X, Ban,
 } from 'lucide-react'
 import dayjs from 'dayjs'
+import DaCho from '../../components/bang/DaCho'
 import toast from 'react-hot-toast'
 import { getAdminBankAccounts, reviewPayoutBankAccount } from '../../services/adminServices'
 import { mocUtc } from '../../utils/format'
@@ -239,6 +240,7 @@ const AdminBankAccountsPage = () => {
                     </p>
                     <p className="text-xs text-ink-mute mt-0.5">
                       Khai báo {dayjs(mocUtc(it.createdAt)).format('DD/MM/YYYY')}
+                      {!daDuyet && <DaCho luc={mocUtc(it.createdAt)} className="ml-2" />}
                     </p>
 
                     <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1">

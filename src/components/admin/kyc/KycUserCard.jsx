@@ -1,5 +1,6 @@
 // src/components/admin/kyc/KycUserCard.jsx
 import dayjs from 'dayjs'
+import DaCho from '../../bang/DaCho'
 import { IdCard, FileText, ExternalLink, AlertTriangle, ShieldAlert } from 'lucide-react'
 import KycDocBlock from './KycDocBlock'
 
@@ -43,6 +44,7 @@ const KycUserCard = ({ item, onViewImage, onReview }) => (
             )}
             <p className="text-xs text-ink-mute">
               Gửi lúc {dayjs(item.citizenCardSubmittedAt).format('HH:mm DD/MM/YYYY')}
+              {item.citizenCardReviewStatus === 'Pending' && <DaCho luc={item.citizenCardSubmittedAt} className="ml-2" />}
             </p>
             <div className="flex gap-2 pt-1">
               <button onClick={() => onViewImage(item.userId, 'front')}
@@ -83,6 +85,7 @@ const KycUserCard = ({ item, onViewImage, onReview }) => (
             {item.legalName && <p className="text-xs text-ink-mute">{item.legalName}</p>}
             <p className="text-xs text-ink-mute">
               Gửi lúc {dayjs(item.taxProfileSubmittedAt).format('HH:mm DD/MM/YYYY')}
+              {item.taxProfileReviewStatus === 'Pending' && <DaCho luc={item.taxProfileSubmittedAt} className="ml-2" />}
             </p>
             {item.withholdingWouldStopIfApproved && (
               <p className="text-xs text-warning/90 flex items-start gap-1.5 pt-1">

@@ -1,5 +1,6 @@
 import { Eye, Loader2, MessageSquareWarning } from 'lucide-react'
 import dayjs from 'dayjs'
+import DaCho from '../../bang/DaCho'
 import { CategoryBadge, StatusBadge, TARGET_TYPE_LABELS } from './ComplaintBadges'
 import { maNgan } from '../../../utils/format'
 
@@ -43,7 +44,11 @@ const ComplaintsTable = ({ complaints, isLoading, onViewDetail }) => {
                   </td>
                   <td className="p-4 text-sm text-ink-soft font-mono">{c.contactPhone || '—'}</td>
                   <td className="p-4"><StatusBadge status={c.status} /></td>
-                  <td className="p-4 text-sm text-ink-soft">{dayjs(c.createdAt).format('HH:mm DD/MM/YYYY')}</td>
+                  <td className="p-4 text-sm text-ink-soft">
+                    {dayjs(c.createdAt).format('HH:mm DD/MM/YYYY')}
+                    {/* Khiếu nại CHƯA xử lý xong (chưa có resolvedAt) mới ghi tuổi chờ. */}
+                    {!c.resolvedAt && <span className="block mt-1"><DaCho luc={c.createdAt} /></span>}
+                  </td>
                   <td className="p-4 text-center">
                     {/* Cả hàng bấm được bằng chuột, nhưng <tr> không nhận focus: nút này là lối vào cho bàn phím và trình đọc màn
                         hình. Bản cũ là một nút KHÔNG có onClick (chỉ ăn theo sự kiện của hàng) và không có tên. */}
