@@ -240,9 +240,9 @@
 .o-chi-so__bieu-tuong { display: none; }
 
 /* D — Materio: thẻ trắng, bóng nhẹ, ô biểu tượng tô màu nhóm; ô đang chọn viền màu nhóm. */
-.khung-van-hanh:not([data-mau="E"]):not([data-mau="F"]) .o-chi-so { background: var(--color-card); border: 1px solid color-mix(in srgb, var(--color-line) 55%, transparent); box-shadow: 0 2px 8px rgb(46 38 61 / 0.12); }
-.khung-van-hanh:not([data-mau="E"]):not([data-mau="F"]) .o-chi-so__bieu-tuong { display: grid; place-items: center; width: 44px; height: 44px; margin-bottom: 6px; border-radius: var(--bo-goc); background: var(--nhom); color: #fff; }
-.khung-van-hanh:not([data-mau="E"]):not([data-mau="F"]) .o-chi-so[aria-pressed="true"] { border: 2px solid var(--nhom); background: color-mix(in srgb, var(--nhom) 10%, var(--color-card)); }
+.khung-van-hanh[data-mau="D"] .o-chi-so { background: var(--color-card); border: 1px solid color-mix(in srgb, var(--color-line) 55%, transparent); box-shadow: 0 2px 8px rgb(46 38 61 / 0.12); }
+.khung-van-hanh[data-mau="D"] .o-chi-so__bieu-tuong { display: grid; place-items: center; width: 44px; height: 44px; margin-bottom: 6px; border-radius: var(--bo-goc); background: var(--nhom); color: #fff; }
+.khung-van-hanh[data-mau="D"] .o-chi-so[aria-pressed="true"] { border: 2px solid var(--nhom); background: color-mix(in srgb, var(--nhom) 10%, var(--color-card)); }
 
 /* E — CoreUI: ô số tô đặc màu nhóm, chữ trắng (vàng thì chữ mực — chữ trắng trên vàng không đọc được). */
 .khung-van-hanh[data-mau="E"] .o-chi-so { background: var(--nhom); border-color: var(--nhom); color: var(--chu-nhom); }
@@ -256,6 +256,72 @@
 .khung-van-hanh[data-mau="F"] .o-chi-so { background: color-mix(in srgb, var(--nhom) 13%, var(--color-card)); border: 1px solid color-mix(in srgb, var(--nhom) 55%, var(--color-card)); }
 .khung-van-hanh[data-mau="F"] .o-chi-so__bieu-tuong { display: grid; place-items: center; width: 44px; height: 44px; margin-bottom: 6px; border-radius: var(--bo-goc); background: var(--nhom); color: #fff; }
 .khung-van-hanh[data-mau="F"] .o-chi-so[aria-pressed="true"] { border-width: 2px; border-color: var(--nhom); background: color-mix(in srgb, var(--nhom) 24%, var(--color-card)); }
+/* BỐN KIỂU THÊM (05/10/2026, chủ dự án: "thêm nhiều mẫu đi, mẫu nào có cùng công nghệ với tôi đang dùng") — cả bốn mẫu gốc đều là
+   React + Tailwind như dự án; màu đo trên bản chạy thử (scratchpad/e2e/mau_tk5.js, ảnh J:/MVP/ML_FE/ban-mau/mau-quan-tri/):
+     G — MatDash (adminmart, MIT; React + Tailwind + Flowbite): nền #F4F7FB, chàm #635BFF, ngọc #16CDC7, hồng #FF6692, vàng #F8C20A,
+         lam #3772FF; thẻ trắng không viền bo lớn, ô biểu tượng NỀN NHẠT + biểu tượng màu.
+     H — Tailwindadmin (wrappixel, MIT; React + Tailwind + shadcn): lam #5D87FF, lam nhạt #49BEFF, ngọc #13DEB9, vàng #F6B51E, tím
+         #8754EC; ô số NHUỘM CẢ Ô theo màu, nhãn cùng sắc.
+     I — Mosaic Lite (cruip, GPL; React + Tailwind 4 + Vite): tím #8470FF, xanh trời #67BFFF, lục #3EC972, đỏ #FF5656; thẻ trắng,
+         tăng/giảm là viên màu.
+     J — TailAdmin (MIT; React 19 + Tailwind 4 + Vite): nền #F9FAFB, lam #465FFF; ô biểu tượng xám, màu chỉ ở nút, viên tăng/giảm và
+         biểu đồ — kiểu ÍT màu nhất, đưa vào vì trùng công nghệ nhất.
+   Màu nào dùng làm nền cho chữ trắng hoặc làm biểu tượng trên nền nhạt được làm đậm hơn bản gốc để đạt ngưỡng đọc. */
+.khung-van-hanh[data-mau="G"] {
+  --bo-goc: 14px;
+  --color-page: #F4F7FB; --color-stock: #F4F7FB; --color-sunken: #DDE5F0; --color-line: #8491A4; --color-line-strong: #2A3547;
+  --color-ink: #2A3547; --color-ink-soft: #313D50; --color-ink-mute: #3A4659;
+  --color-board: #2A3547; --color-board-soft: #3E4A5E; --color-lamp: #FFFFFF; --color-lamp-mute: #D6DDE8;
+  --color-chinh: #5A52F0; --color-chinh-dam: #463FD0;
+  --color-sl-tien: #0FA8A3; --color-sl-khangia: #3772FF; --color-sl-goiy: #635BFF; --color-sl-uytin: #D9A300; --color-sl-buoidien: #F0457A;
+}
+.khung-van-hanh[data-mau="H"] {
+  --bo-goc: 12px;
+  --color-page: #F2F6FA; --color-stock: #F2F6FA; --color-sunken: #DCE5F3; --color-line: #8794A8; --color-line-strong: #2A3547;
+  --color-ink: #2A3547; --color-ink-soft: #313D50; --color-ink-mute: #3A4659;
+  --color-board: #2A3547; --color-board-soft: #3E4A5E; --color-lamp: #FFFFFF; --color-lamp-mute: #D6DDE8;
+  --color-chinh: #4570EA; --color-chinh-dam: #3359C8;
+  --color-sl-tien: #0FB89A; --color-sl-khangia: #1FA4EC; --color-sl-goiy: #5D87FF; --color-sl-uytin: #E69A0C; --color-sl-buoidien: #8754EC;
+}
+.khung-van-hanh[data-mau="I"] {
+  --bo-goc: 12px;
+  --color-page: #F3F4F6; --color-stock: #F3F4F6; --color-sunken: #DFE2E8; --color-line: #858D9A; --color-line-strong: #1F2937;
+  --color-ink: #1F2937; --color-ink-soft: #283241; --color-ink-mute: #333D4D;
+  --color-board: #1F2937; --color-board-soft: #374151; --color-lamp: #FFFFFF; --color-lamp-mute: #D1D5DB;
+  --color-chinh: #6F5BF0; --color-chinh-dam: #5946D4;
+  --color-sl-tien: #23A455; --color-sl-khangia: #2FA4F5; --color-sl-goiy: #8470FF; --color-sl-uytin: #E08E00; --color-sl-buoidien: #F04444;
+}
+.khung-van-hanh[data-mau="J"] {
+  --bo-goc: 16px;
+  --color-page: #F9FAFB; --color-stock: #F9FAFB; --color-sunken: #E4E7EC; --color-line: #858D9C; --color-line-strong: #101828;
+  --color-ink: #101828; --color-ink-soft: #1D2939; --color-ink-mute: #2B3648;
+  --color-board: #101828; --color-board-soft: #1D2939; --color-lamp: #FFFFFF; --color-lamp-mute: #D0D5DD;
+  --color-chinh: #465FFF; --color-chinh-dam: #3641F5;
+  --color-sl-tien: #039855; --color-sl-khangia: #465FFF; --color-sl-goiy: #7A5AF8; --color-sl-uytin: #DC6803; --color-sl-buoidien: #D92D20;
+}
+
+/* G — MatDash: thẻ trắng không viền, bóng mềm; ô biểu tượng nền nhạt 16% + biểu tượng mang màu nhóm. */
+.khung-van-hanh[data-mau="G"] .o-chi-so { background: var(--color-card); border-color: transparent; box-shadow: 0 1px 4px rgb(42 53 71 / 0.10), 0 8px 24px rgb(42 53 71 / 0.08); }
+.khung-van-hanh[data-mau="G"] .o-chi-so__bieu-tuong { display: grid; place-items: center; width: 48px; height: 48px; margin-bottom: 8px; border-radius: 12px; background: color-mix(in srgb, var(--nhom) 16%, var(--color-card)); color: var(--nhom); }
+.khung-van-hanh[data-mau="G"] .o-chi-so[aria-pressed="true"] { border: 2px solid var(--nhom); }
+
+/* H — Tailwindadmin: nhuộm cả ô 14% màu nhóm, không viền; nhãn cùng sắc nhưng đậm (trộn với mực) để vẫn đọc được. */
+.khung-van-hanh[data-mau="H"] .o-chi-so { background: color-mix(in srgb, var(--nhom) 14%, var(--color-card)); border-color: transparent; }
+.khung-van-hanh[data-mau="H"] .o-chi-so > .text-sm { color: color-mix(in srgb, var(--nhom) 45%, var(--color-ink)); font-weight: 600; }
+.khung-van-hanh[data-mau="H"] .o-chi-so__bieu-tuong { display: grid; place-items: center; width: 44px; height: 44px; margin-bottom: 6px; border-radius: 50%; background: var(--nhom); color: #fff; }
+.khung-van-hanh[data-mau="H"] .o-chi-so[aria-pressed="true"] { border: 2px solid var(--nhom); background: color-mix(in srgb, var(--nhom) 26%, var(--color-card)); }
+
+/* I — Mosaic: thẻ trắng bóng nhẹ, vạch màu nhóm bên trái; tăng/giảm là viên màu như mẫu. */
+.khung-van-hanh[data-mau="I"] .o-chi-so { background: var(--color-card); border: 0; border-left: 5px solid var(--nhom); box-shadow: 0 1px 3px rgb(31 41 55 / 0.14); }
+.khung-van-hanh[data-mau="I"] .o-chi-so__bieu-tuong { display: grid; place-items: center; width: 36px; height: 36px; margin-bottom: 4px; color: var(--nhom); }
+.khung-van-hanh[data-mau="I"] .o-chi-so[aria-pressed="true"] { background: color-mix(in srgb, var(--nhom) 12%, var(--color-card)); }
+
+/* J — TailAdmin: thẻ trắng viền mảnh bo lớn, ô biểu tượng xám; tăng/giảm là viên màu. */
+.khung-van-hanh[data-mau="J"] .o-chi-so { background: var(--color-card); border: 1px solid color-mix(in srgb, var(--color-line) 50%, transparent); }
+.khung-van-hanh[data-mau="J"] .o-chi-so__bieu-tuong { display: grid; place-items: center; width: 48px; height: 48px; margin-bottom: 8px; border-radius: 12px; background: var(--color-sunken); color: var(--color-ink); }
+.khung-van-hanh[data-mau="J"] .o-chi-so[aria-pressed="true"] { border: 2px solid var(--color-chinh); }
+.khung-van-hanh:is([data-mau="I"], [data-mau="J"]) .o-chi-so > :is(.text-success, .text-danger) { align-self: flex-start; padding: 2px 10px; border-radius: 999px; background: color-mix(in srgb, currentColor 13%, var(--color-card)); }
+
 .man-van-hanh :is(.text-success, .text-danger, .text-warning) { font-weight: 700; }
 
 @layer base {

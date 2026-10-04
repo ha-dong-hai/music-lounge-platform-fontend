@@ -48,7 +48,7 @@ const HuyHieu = ({ dem, trenNenSang }) => {
   )
 }
 
-const CHU_DE = ['D', 'E', 'F']
+const CHU_DE = ['D', 'E', 'F', 'G', 'H', 'I', 'J']
 
 const PortalShell = ({ portalName, nhom = [], loiRa = [], footer, headerRight, children }) => {
   const location = useLocation()
