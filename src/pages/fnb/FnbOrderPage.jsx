@@ -4,11 +4,12 @@ import { Loader2, Plus, Minus, ShoppingCart, ArrowLeft, CreditCard, Receipt } fr
 import dayjs from 'dayjs'
 import toast from 'react-hot-toast'
 import { getLoungeDetail } from '../../services/loungeServices'
-import { getMenus, getMenuItems, createFnbOrder, getMyFnbOrders, payFnbOrder } from '../../services/fnbServices'
+import { getMenus, getMenuItems, createFnbOrder, getMyFnbOrders, payFnbOrder, cancelMyFnbOrder } from '../../services/fnbServices'
 import { useAuthStore } from '../../store/useAuthStore'
 import { ghiNhoThanhToan, LOAI_THANH_TOAN } from '../../utils/paymentContext'
 import { maNgan } from '../../utils/format'
 import NhanTrangThai from '../../components/shared/NhanTrangThai'
+import NutXacNhan from '../../components/shared/NutXacNhan'
 
 const fmtMoney = (v) => `${Number(v || 0).toLocaleString('vi-VN')}đ`
 
@@ -126,6 +127,21 @@ const FnbOrderPage = () => {
       }
     } catch (err) {
       toast.error(err.response?.data?.message || 'Không gửi được đơn.')
+    } finally {
+      setBusy(null)
+    }
+  }
+
+  // MLACP-631: khách tự huỷ được khi quầy chưa nhận đơn (giống ShopeeFood khi đơn còn "chờ xác nhận").
+  const handleCancel = async (orderId) => {
+    setBusy(`huy-${orderId}`)
+    try {
+      await cancelMyFnbOrder(orderId)
+      toast.success('Đã huỷ đơn.')
+      await loadOrders()
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Không huỷ được đơn.')
+      await loadOrders()
     } finally {
       setBusy(null)
     }
@@ -315,6 +331,19 @@ const FnbOrderPage = () => {
                           <CreditCard size={14} />
                           {busy === `pay-${o.id}` ? 'Đang chuyển…' : 'Thanh toán trực tuyến'}
                         </button>
+                      )}
+                      {o.status === 'Pending' && (
+                        <NutXacNhan onXacNhan={() => handleCancel(o.id)} disabled={!!busy}
+                          tieuDe={`Huỷ đơn #${maNgan(o.id)}?`} nhanXacNhan="Huỷ đơn" nhanGiu="Không, giữ đơn"
+                          noiDung={o.isPaid
+                            ? 'Quầy chưa nhận đơn nên bạn huỷ được. Bạn đã trả online: hệ thống tạo yêu cầu hoàn 100% về phương thức bạn đã trả.'
+                            : 'Quầy chưa nhận đơn nên bạn huỷ được. Khi quầy đã bắt đầu làm, muốn huỷ hãy nói với nhân viên.'}
+                          className="mt-2 w-full inline-flex items-center justify-center gap-1.5 min-h-[44px] px-3 border-2 border-ink/40 text-ink-soft text-sm font-semibold hover:border-danger hover:text-danger disabled:opacity-40">
+                          {busy === `huy-${o.id}` ? 'Đang huỷ…' : 'Huỷ đơn'}
+                        </NutXacNhan>
+                      )}
+                      {o.status === 'Cancelled' && o.cancelReason && (
+                        <p className="text-xs text-ink-soft mt-1.5">Huỷ vì: {o.cancelReason}</p>
                       )}
                       {o.onlinePaymentLiveUntil && !o.isPaid && (
                         <p className="text-xs text-ink-mute mt-1.5">

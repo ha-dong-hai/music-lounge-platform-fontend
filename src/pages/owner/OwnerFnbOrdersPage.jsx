@@ -33,7 +33,7 @@ import { useAuthStore } from '../../store/useAuthStore'
 import { getLoungeFnbOrders, updateFnbOrderStatus } from '../../services/fnbServices'
 import { useDanhSachMayChu } from '../../hooks/useDanhSachMayChu'
 import PhanTrang from '../../components/bang/PhanTrang'
-import NutXacNhan from '../../components/shared/NutXacNhan'
+import NutHuyDon from '../../components/shared/NutHuyDon'
 import NhomTab from '../../components/bang/NhomTab'
 import { maNgan } from '../../utils/format'
 import NhanTrangThai from '../../components/shared/NhanTrangThai'
@@ -80,6 +80,8 @@ const OwnerFnbOrdersPage = () => {
   // "Chưa có phòng trà nào để nhận đơn" với chính người đứng bếp (đo 30/09). Phòng trà nhân viên vận
   // hành nằm trong phiên đăng nhập (AuthResultDto.loungeId) — dùng nó; chủ phòng trà vẫn đi đường mine.
   const loungeIdPhien = useAuthStore((st) => st.user?.loungeId)
+  // MLACP-631: đơn đã bắt đầu làm chỉ chủ phòng trà huỷ được (món làm ra rồi là một khoản mất cần người chịu trách nhiệm).
+  const laChu = useAuthStore((st) => st.user?.role) === 'Owner'
   const loadLounge = useCallback(async () => {
     try {
       if (loungeIdPhien) {
@@ -112,10 +114,10 @@ const OwnerFnbOrdersPage = () => {
 
   useEffect(() => { const chay = async () => { await loadLounge() }; chay() }, [loadLounge])
 
-  const doiTrangThai = async (order, status) => {
+  const doiTrangThai = async (order, status, lyDo = null) => {
     setBusyId(order.id)
     try {
-      await updateFnbOrderStatus(order.id, status)
+      await updateFnbOrderStatus(order.id, status, lyDo)
       toast.success(`Đã chuyển đơn #${maNgan(order.id)} sang “${TAB.find((t) => t.key === status)?.label ?? status}”.`)
       await ds.taiLai()
     } catch (err) {
@@ -215,12 +217,27 @@ const OwnerFnbOrdersPage = () => {
                 <div className="mt-2 flex items-center gap-2 text-xs">
                   {o.isPaid ? (
                     <span className="inline-flex items-center gap-1.5 text-success"><CheckCircle2 size={13} /> Khách đã trả tiền</span>
+                  ) : o.status === 'Cancelled' ? (
+                    // MLACP-631: đơn đã huỷ mà chưa trả thì không còn gì để thu — "Chưa thu tiền" màu cảnh báo ở đây
+                    // là một việc giả cho quầy.
+                    <span className="text-ink-mute">Không thu tiền</span>
                   ) : (
                     <span className="inline-flex items-center gap-1.5 text-warning"><Clock size={13} /> Chưa thu tiền</span>
                   )}
                   <span className="text-ink-mute">·</span>
                   <span className="text-ink-mute">{TEN_PHUONG_THUC[o.paymentMethod] ?? o.paymentMethod}</span>
+                  {/* MLACP-631: ai cầm tiền mặt — để đối chiếu tiền mặt cuối ca theo từng người. */}
+                  {o.cashCollectedByName && <><span className="text-ink-mute">·</span><span className="text-ink-mute">Thu bởi {o.cashCollectedByName}</span></>}
                 </div>
+
+                {/* MLACP-631: dấu vết huỷ — vì sao, ai, lúc nào. Không có người huỷ = hệ thống huỷ (buổi diễn huỷ, phòng trà bị khoá…). */}
+                {o.status === 'Cancelled' && o.cancelReason && (
+                  <p className="mt-2 text-xs text-ink-soft leading-relaxed">
+                    Huỷ vì: <span className="font-semibold text-ink">{o.cancelReason}</span>
+                    {' · '}{o.cancelledByName ? `bởi ${o.cancelledByName}` : 'hệ thống tự huỷ'}
+                    {o.cancelledAt && <> · {dayjs(o.cancelledAt).format('HH:mm DD/MM')}</>}
+                  </p>
+                )}
 
                 {conLinkOnline && (
                   <p className="mt-2 text-xs text-ink/90 flex items-start gap-1.5 leading-relaxed">
@@ -244,20 +261,24 @@ const OwnerFnbOrdersPage = () => {
                       </button>
                     )
                   })()}
-                  {o.status !== 'Cancelled' && o.status !== 'Paid' && (
+                  {o.status !== 'Cancelled' && o.status !== 'Paid' && (o.status === 'Pending' || laChu ? (
                     // Huỷ là trạng thái cuối (không lùi được); đơn đã trả online thì backend tạo yêu cầu hoàn 100%
-                    // (UpdateFnbOrderStatusCommandHandler, MLACP-351) — hỏi lại và nói đúng hậu quả.
-                    <NutXacNhan onXacNhan={() => doiTrangThai(o, 'Cancelled')} disabled={dangBan || conLinkOnline}
-                      tieuDe={`Huỷ đơn #${maNgan(o.id)}?`} nhanXacNhan="Huỷ đơn" nhanGiu="Không, giữ đơn"
+                    // (MLACP-351) — hỏi lại, nói đúng hậu quả, và bắt chọn lý do (MLACP-631).
+                    <NutHuyDon onHuy={(lyDo) => doiTrangThai(o, 'Cancelled', lyDo)} disabled={dangBan || conLinkOnline}
+                      tieuDe={`Huỷ đơn #${maNgan(o.id)}?`}
                       noiDung={o.isPaid
                         ? 'Khách đã trả tiền online cho đơn này: hệ thống tạo yêu cầu hoàn 100% và báo cho khách. Không hoàn tác được.'
-                        : 'Đơn chuyển sang Đã huỷ và khách được báo. Không hoàn tác được.'}
+                        : o.status === 'Pending' ? 'Đơn chuyển sang Đã huỷ và khách được báo. Không hoàn tác được.'
+                          : 'Món đã bắt đầu làm — huỷ là ghi nhận một khoản mất. Không hoàn tác được.'}
                       title={conLinkOnline ? 'Không huỷ được khi khách còn liên kết thanh toán online' : undefined}
                       aria-label={conLinkOnline ? 'Không huỷ được khi khách còn liên kết thanh toán online' : `Huỷ đơn #${maNgan(o.id)}`}
                       className="flex items-center gap-1.5 min-h-[44px] px-3 border-2 border-ink/40 text-ink-soft text-sm font-semibold hover:border-danger hover:text-danger disabled:opacity-40 disabled:cursor-not-allowed">
                       <XCircle size={14} aria-hidden="true" /> Huỷ đơn
-                    </NutXacNhan>
-                  )}
+                    </NutHuyDon>
+                  ) : (
+                    // Nhân viên: nói rõ vì sao không có nút huỷ, thay vì để nút rồi máy chủ trả 403.
+                    <p className="text-xs text-ink-mute self-center">Đơn đã bắt đầu làm — chỉ chủ phòng trà huỷ được.</p>
+                  ))}
                 </div>
               </div>
             )

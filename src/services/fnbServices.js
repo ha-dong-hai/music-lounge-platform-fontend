@@ -65,7 +65,12 @@ export const getLoungeFnbOrders = async (loungeId, params = {}) => {
   return axiosClient.get('/fnb-orders', { params: { loungeId, ...params } });
 };
 
-// Staff/Owner đổi trạng thái chế biến của đơn.
-export const updateFnbOrderStatus = async (id, status) => {
-  return axiosClient.put(`/fnb-orders/${id}/status`, { status });
+// Staff/Owner đổi trạng thái chế biến của đơn. MLACP-631: huỷ (status = 'Cancelled') bắt buộc `reason`.
+export const updateFnbOrderStatus = async (id, status, reason = null) => {
+  return axiosClient.put(`/fnb-orders/${id}/status`, { status, reason });
+};
+
+// MLACP-631: khách tự huỷ đơn của mình — chỉ khi quầy chưa nhận (Pending). Đã trả online thì máy chủ tự tạo yêu cầu hoàn 100%.
+export const cancelMyFnbOrder = async (id) => {
+  return axiosClient.post(`/fnb-orders/${id}/cancel`);
 };
