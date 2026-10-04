@@ -185,7 +185,8 @@ const OwnerFnbOrdersPage = () => {
                   <div>
                     <p className="text-ink font-bold">#{maNgan(o.id)}</p>
                     <p className="text-xs text-ink-mute mt-0.5">
-                      {o.tableNote ? `Bàn: ${o.tableNote}` : 'Không ghi bàn'} · {dayjs(o.createdAt).format('HH:mm DD/MM')}
+                      {/* MLACP-630: khu khách ngồi (máy chủ lấy từ vé của khách) đứng trước dòng khách tự ghi. */}
+                      {[o.zoneName, o.tableNote].filter(Boolean).join(' · ') || 'Không ghi bàn'} · {dayjs(o.createdAt).format('HH:mm DD/MM')}
                     </p>
                   </div>
                   <NhanTrangThai sacThai={tt.sacThai}>{tt.label}</NhanTrangThai>
