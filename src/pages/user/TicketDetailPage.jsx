@@ -217,7 +217,7 @@ const TicketDetailPage = () => {
                 <QRCode value={maQr} size={220} level="M" fgColor="#000000" bgColor="#FFFFFF" title={`Mã QR vào cửa của vé ${ticket.showName}`} />
                 <span aria-hidden="true" className="vach-quet" />
               </div>
-              <p className="mt-4 text-sm text-ink-soft">Máy quét không đọc được? Đọc dãy mã này cho nhân viên:</p>
+              <p className="mt-4 text-sm text-ink-soft">Máy quét không đọc được? Đọc <strong className="text-ink">mã vào cửa</strong> này cho nhân viên:</p>
               <p className="font-mono text-sm break-all mt-1 select-all">{maQr}</p>
             </div>
           ) : (
@@ -258,7 +258,10 @@ const TicketDetailPage = () => {
             {ticket.physicalDetail && (
               <Muc nhan="Vào cửa">{daVao ? <span className="font-mono">{gioTrongNgay(daVao)} {ngayDayDu(daVao)}</span> : 'Chưa soát vé'}</Muc>
             )}
-            <Muc nhan="Mã vé"><span className="font-mono text-sm font-normal">{ticket.id}</span></Muc>
+            {/* MLACP-629: dòng này in `id` của vé, KHÔNG phải mã vào cửa. Trước đây nhãn là "Mã vé" — trùng với ô "Mã vé"
+                ở màn soát vé của nhân viên, nên người ta gõ dãy này vào và nhận "không tìm thấy vé" (chủ dự án gặp
+                04/10/2026). Mã vào cửa là dãy in ngay dưới mã QR ở trên. */}
+            <Muc nhan="Số tham chiếu (khi cần hỗ trợ)"><span className="font-mono text-sm font-normal">{ticket.id}</span></Muc>
           </dl>
         </section>
 
