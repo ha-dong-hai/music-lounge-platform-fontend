@@ -76,7 +76,7 @@ const DongBang = ({ dong, mo, onMo, onRoi, chiSo, daDangNhap }) => {
           onClick={() => onMo(dong.khoa, 'bam')}
           aria-expanded={mo}
           aria-controls={idChiTiet}
-          className="order-3 md:order-none col-span-2 md:col-span-1 text-left min-w-0 focus-visible:outline-lamp"
+          className="order-3 md:order-none col-span-2 md:col-span-1 text-left min-w-0 min-h-[44px] flex flex-col justify-center focus-visible:outline-lamp"
         >
           {/* Dòng đang mở thì tên phòng trà "lên đèn": quầng sáng màu ánh đèn quanh chữ — thứ phân biệt hộp đèn bật/tắt. */}
           <span className={`block font-display text-3xl text-lamp leading-none md:truncate ${mo ? '[text-shadow:0_0_18px_rgb(201_164_92/0.45)]' : ''}`}>{dong.tenPhongTra}</span>

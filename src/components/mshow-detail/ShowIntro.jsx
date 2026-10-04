@@ -94,7 +94,7 @@ const ShowIntro = ({ data, isFollowing, onToggleFollow }) => {
         <dl>
           <Muc nhan="Phòng trà">
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <Link to={`/lounge/${data.loungeId}`} className="font-display text-2xl leading-none hover:underline underline-offset-4">{data.loungeName}</Link>
+              <Link to={`/lounge/${data.loungeId}`} className="inline-flex items-center min-h-[44px] font-display text-2xl leading-none hover:underline underline-offset-4">{data.loungeName}</Link>
               {onToggleFollow && (
                 <button
                   type="button"

@@ -34,6 +34,7 @@ import {
   getMyShows, getShowDetail, createShow, updateShow, submitShow, cancelShow, deleteShow,
 } from '../../services/showServices'
 import { getLounges } from '../../services/loungeServices'
+import ViecCanLamMoBan from '../../components/owner/ViecCanLamMoBan'
 import { getGenres, getMoods, getAtmospheres, getEventCategories } from '../../services/catalogServices'
 import NhomTab from '../../components/bang/NhomTab'
 import HopThoai, { TieuDeHop } from '../../components/shared/HopThoai'
@@ -390,9 +391,13 @@ const OwnerShowsPage = () => {
   }
 
   if (!lounge) {
+    // MLACP-606: trước đây chỗ này là NGÕ CỤT — một câu "chưa sở hữu phòng trà nào" không kèm lối đi nào, đúng lúc chủ
+    // mới đăng ký cần được chỉ đường nhất. Nay hiện danh sách việc cần làm, bước đầu là khai hồ sơ phòng trà.
     return (
-      <div className="bg-card border border-line p-8 text-center text-ink-mute">
-        Tài khoản này chưa sở hữu phòng trà nào nên chưa tạo được buổi diễn.
+      <div>
+        <h1 className="text-4xl text-ink mb-1">Buổi diễn</h1>
+        <p className="text-ink-soft text-sm mb-6">Bạn chưa có phòng trà. Làm lần lượt các bước dưới đây để mở bán buổi diễn đầu tiên.</p>
+        <ViecCanLamMoBan lounge={null} />
       </div>
     )
   }
@@ -409,6 +414,9 @@ const OwnerShowsPage = () => {
           <Plus size={16} /> Tạo buổi diễn
         </button>
       </div>
+
+      {/* MLACP-606: việc còn thiếu để mở bán (tự ẩn khi đủ cả 5 bước). */}
+      <ViecCanLamMoBan lounge={lounge} />
 
       {/* TAB THEO TRẠNG THÁI — nút thường có aria-pressed (lọc danh sách), không phải tablist: nội dung không đổi kiểu. */}
       <NhomTab nhan="Lọc theo trạng thái" className="mb-5" dangChon={tab}
