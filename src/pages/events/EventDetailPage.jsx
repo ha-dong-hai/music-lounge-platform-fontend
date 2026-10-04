@@ -262,6 +262,10 @@ const EventDetailPage = () => {
               ) : data.status === 'Ended' ? (
                 data.userHasRated ? (
                   <p className="flex items-center gap-2 text-lamp-mute"><Star size={16} className="text-lamp fill-lamp" aria-hidden="true" /> Bạn đã đánh giá buổi diễn này.</p>
+                ) : data.operatorInfo && user?.role !== 'Admin' ? (
+                  // MLACP-591: backend chỉ trả operatorInfo cho chủ/nhân viên của chính phòng trà này (và Admin) — họ không
+                  // được đánh giá buổi của phòng trà mình (backend cũng từ chối), nên báo thay cho nút.
+                  <p className="text-lamp-mute">Buổi diễn đã kết thúc. Người của phòng trà không đánh giá buổi diễn của chính phòng trà mình.</p>
                 ) : data.userHasTicket ? (
                   <button type="button" onClick={() => setShowRating(true)} className={NUT_CHINH}><Star size={20} aria-hidden="true" /> Đánh giá buổi diễn</button>
                 ) : (

@@ -183,6 +183,9 @@ const LivestreamWatchPage = () => {
   useEffect(() => {
     if (!showData) return
     if (!user) return
+    // MLACP-591: chủ/nhân viên của chính phòng trà này (backend chỉ trả operatorInfo cho họ và Admin) không được đánh
+    // giá buổi của phòng trà mình — đừng bật hộp đánh giá để rồi bị từ chối.
+    if (showData.operatorInfo && user.role !== 'Admin') return
     if (localStorage.getItem(`rated_show_${showId}`)) return
 
     const hasEnded = () => {
