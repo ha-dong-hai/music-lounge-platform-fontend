@@ -25,13 +25,14 @@ const TEN_MO_HINH = {
 const MOC = 'popularity_baseline'
 const ten = (m) => TEN_MO_HINH[m.model] ?? m.model
 
-const KhoiDanhGiaGoiY = ({ recommender }) => {
+// `khongKhung`: bỏ viền + đệm khi khối nằm trong một mục gập đã có khung (không khung lồng khung).
+const KhoiDanhGiaGoiY = ({ recommender, khongKhung = false }) => {
   if (!recommender) return null
 
   // BE cố tình KHÔNG trả con số khi chưa đủ dữ liệu — hiển thị đúng như vậy, không quy về 0%.
   if (recommender.status === 'NotEnoughHistory') {
     return (
-      <div className="border-2 border-ink/25 bg-card p-5 space-y-2">
+      <div className={khongKhung ? 'space-y-2 pt-4' : 'border-2 border-ink/25 bg-card p-5 space-y-2'}>
         <p className="font-semibold text-ink">Chưa đủ dữ liệu để đo</p>
         <p className="text-sm text-ink-soft leading-relaxed">{recommender.caveat}</p>
         <p className="text-sm text-ink-soft">
@@ -49,7 +50,7 @@ const KhoiDanhGiaGoiY = ({ recommender }) => {
   const k = recommender.k
 
   return (
-    <div className="border-2 border-ink/25 bg-card p-5 sm:p-6 space-y-4">
+    <div className={khongKhung ? 'space-y-4 pt-4' : 'border-2 border-ink/25 bg-card p-5 sm:p-6 space-y-4'}>
       {chinh && moc && (
         <p className="text-lg text-ink leading-snug">
           Gợi ý theo gu đoán đúng <span className="font-bold tabular-nums">{phanTram(chinh.hitRateAtKPercent)}</span> số lần

@@ -24,6 +24,7 @@ import {
 } from '../../services/analyticsServices'
 import ChonKy from '../../components/bang/ChonKy'
 import KhoiMuc from '../../components/bang/KhoiMuc'
+import MucGap from '../../components/bang/MucGap'
 import KhoiDanhGiaGoiY from '../../components/admin/dashboard/KhoiDanhGiaGoiY'
 import { useKyBaoCao } from '../../hooks/useKyBaoCao'
 import { thamSoApi, nhanKhoang, cauSoVoiKyTruoc } from '../../utils/kyBaoCao'
@@ -47,7 +48,7 @@ const KhoiUyTin = ({ ds }) => {
   const coDiem = ds.filter((v) => Number(v.reputationScore) > 0)
   const chuaCo = ds.filter((v) => !(Number(v.reputationScore) > 0))
   return (
-    <div className="border-2 border-ink/25 bg-card p-5 sm:p-6 space-y-4">
+    <div className="space-y-4">
       {/* Giới hạn bề ngang (max-w-2xl): thanh dài hết màn rộng thì mắt phải quét xa giữa tên và số. */}
       {coDiem.length > 0 ? (
         <div className="max-w-2xl">
@@ -67,6 +68,15 @@ const KhoiUyTin = ({ ds }) => {
       )}
     </div>
   )
+}
+
+// Câu tóm tắt của mục mô hình khi đang gập: kết luận, không phải tên khối.
+const tomTatMoHinh = (r) => {
+  if (r.status === 'NotEnoughHistory') return 'Chưa đủ dữ liệu để đo'
+  const moc = r.models?.find((m) => m.model === 'popularity_baseline')
+  const chinh = r.models?.find((m) => m.model !== 'popularity_baseline')
+  if (!chinh) return ''
+  return `Đúng ${phanTram(chinh.hitRateAtKPercent)} số lần${moc ? ` · mốc so sánh ${phanTram(moc.hitRateAtKPercent)}` : ''}`
 }
 
 const AdminInsightsPage = () => {
@@ -105,20 +115,22 @@ const AdminInsightsPage = () => {
 
   const { content, engagement: e, ai, recommender, engagementTruoc: eT, aiTruoc: aT } = so
   const ky = nhanKhoang(tu, den)
+  const dsUyTin = content?.topVenuesByReputation ?? []
+  const coDiem = dsUyTin.filter((v) => Number(v.reputationScore) > 0).length
 
   return (
     <div className="space-y-10">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="text-4xl text-ink mb-1">Nội dung và tương tác</h1>
-          <p className="text-ink-soft text-sm">So với kỳ trước: {nhanKhoang(truoc.tu, truoc.den)}.</p>
+          <p className="text-ink-soft text-sm">Khán giả tương tác ra sao trong kỳ. Chi tiết bấm để mở.</p>
         </div>
         <ChonKy tu={tu} den={den} onChon={datKy} />
       </div>
       {nguonLoi.length > 0 && <KhungTai loi tenVung={`phần ${nguonLoi.join(', ')}`} taiLai={load} />}
 
       {e && (
-        <KhoiMuc id="tuong-tac" mau="khangia" tieuDe="Tương tác của khán giả" phamVi={ky}
+        <KhoiMuc id="tuong-tac" mau="khangia" tieuDe="Tương tác của khán giả" phamVi={`${ky} · so với ${nhanKhoang(truoc.tu, truoc.den)}`}
           moTa="Quay lại = mua vé của từ 2 buổi diễn khác nhau trong kỳ.">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <OChiSo mau="khangia" nhan="Lượt theo dõi phòng trà mới" so={soNguyen(e.newFollowsInPeriod)} phu={soSanh(e, eT, 'newFollowsInPeriod')} />
@@ -130,33 +142,41 @@ const AdminInsightsPage = () => {
         </KhoiMuc>
       )}
 
-      {ai && (
-        <KhoiMuc id="hieu-qua-goi-y" mau="goiy" tieuDe="Gợi ý buổi diễn có được dùng không" phamVi={ky}
-          moTa="Một cặp = một người được gợi ý một buổi diễn.">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <OChiSo mau="goiy" nhan="Cặp được gợi ý" so={soNguyen(ai.recommendedPairCount)} phu={soSanh(ai, aT, 'recommendedPairCount')} />
-            <OChiSo mau="goiy" nhan="Tỷ lệ bấm vào" so={phanTram(ai.clickThroughRatePercent)}
-              phu={cauMauSo(ai.clickThroughCount, ai.recommendedPairCount)} />
-            <OChiSo mau="goiy" nhan="Tỷ lệ thành mua vé" so={phanTram(ai.conversionRatePercent)}
-              phu={cauMauSo(ai.conversionCount, ai.recommendedPairCount)} />
-          </div>
-        </KhoiMuc>
-      )}
+      {/* CHI TIẾT: mỗi khối một dòng có câu tóm tắt, mở khi cần (components/bang/MucGap) — chủ dự án 05/10: trang nhồi quá
+          nhiều thông tin, không biết xem gì trước. Màn đầu chỉ còn bốn con số tương tác. */}
+      <section aria-labelledby="chi-tiet" className="space-y-3">
+        <h2 id="chi-tiet" className="font-sans text-xl font-bold text-ink">Chi tiết <span className="ml-2 text-sm font-normal text-ink-mute">bấm vào dòng để mở</span></h2>
 
-      {recommender && (
-        <KhoiMuc id="chat-luong-mo-hinh" mau="goiy" tieuDe="Mô hình gợi ý đoán đúng đến đâu" phamVi="không theo kỳ">
-          <KhoiDanhGiaGoiY recommender={recommender} />
-        </KhoiMuc>
-      )}
+        {ai && (
+          <MucGap id="hieu-qua-goi-y" mau="goiy" tieuDe="Gợi ý buổi diễn có được dùng không"
+            tomTat={ai.recommendedPairCount > 0 ? `${soNguyen(ai.clickThroughCount)} trên ${soNguyen(ai.recommendedPairCount)} cặp gợi ý được mở` : 'Kỳ này chưa có gợi ý nào'}>
+            <p className="text-sm text-ink-soft py-3">Một cặp = một người được gợi ý một buổi diễn.</p>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <OChiSo mau="goiy" nhan="Cặp được gợi ý" so={soNguyen(ai.recommendedPairCount)} phu={soSanh(ai, aT, 'recommendedPairCount')} />
+              <OChiSo mau="goiy" nhan="Tỷ lệ bấm vào" so={phanTram(ai.clickThroughRatePercent)}
+                phu={cauMauSo(ai.clickThroughCount, ai.recommendedPairCount)} />
+              <OChiSo mau="goiy" nhan="Tỷ lệ thành mua vé" so={phanTram(ai.conversionRatePercent)}
+                phu={cauMauSo(ai.conversionCount, ai.recommendedPairCount)} />
+            </div>
+          </MucGap>
+        )}
 
-      {content && (
-        <KhoiMuc id="uy-tin" mau="uytin" tieuDe="Uy tín phòng trà" phamVi="lúc này, không theo kỳ"
-          moTa={`Trung bình điểm khán giả chấm, thang ${DIEM_TOI_DA}. Vi phạm trong tháng này: ${soNguyen(content.violationsThisMonthCount)}.`}>
-          {(content.topVenuesByReputation?.length ?? 0) > 0
-            ? <KhoiUyTin ds={content.topVenuesByReputation} />
-            : <p className="text-sm text-ink-soft">Chưa có phòng trà nào hoạt động.</p>}
-        </KhoiMuc>
-      )}
+        {recommender && (
+          <MucGap id="chat-luong-mo-hinh" mau="goiy" tieuDe="Mô hình gợi ý đoán đúng đến đâu" tomTat={tomTatMoHinh(recommender)}>
+            <KhoiDanhGiaGoiY recommender={recommender} khongKhung />
+          </MucGap>
+        )}
+
+        {content && (
+          <MucGap id="uy-tin" mau="uytin" tieuDe="Uy tín phòng trà"
+            tomTat={`${coDiem} trên ${dsUyTin.length} phòng trà có điểm · ${soNguyen(content.violationsThisMonthCount)} vi phạm trong tháng`}>
+            <p className="text-sm text-ink-soft py-3">Trung bình điểm khán giả chấm, thang {DIEM_TOI_DA}.</p>
+            {dsUyTin.length > 0
+              ? <KhoiUyTin ds={dsUyTin} />
+              : <p className="text-sm text-ink-soft">Chưa có phòng trà nào hoạt động.</p>}
+          </MucGap>
+        )}
+      </section>
     </div>
   )
 }

@@ -362,6 +362,10 @@ luật trình bày số liệu.md` (repo backend). Mẫu đã làm: Tổng quan,
 
 - **Mỗi con số trả lời "so với cái gì"**: dòng phụ là kỳ trước, hoặc mẫu số ("0 trên 560 cặp"). Không có thì không in ô đó.
 - **Không có dữ liệu ≠ 0**: in chữ ("Chưa có điểm"), không vẽ thanh dài 0 cạnh thanh khác.
+- **Có điểm bắt đầu (05/10/2026 — chủ dự án: "nhồi nhét quá nhiều thông tin, không biết xem cái gì, xem từ đâu")**: màn đầu của
+  trang số liệu CHỈ gồm (1) việc cần làm, (2) vài con số kết quả kỳ này. Mọi biểu đồ, bảng, số luỹ kế nằm trong `components/bang/MucGap`
+  (thẻ `<details>` gốc), ĐÓNG sẵn, mỗi dòng có câu tóm tắt là KẾT LUẬN của khối ("Vé 73% · Gói dịch vụ 27%"), không phải mô tả khối.
+  Kiểm: `scratchpad/e2e/mogap.tpl.js` (màn đầu không có biểu đồ, danh sách dòng kết thúc trong 1000px, Enter mở được, 390px không tràn).
 - **Một việc một chỗ**: không lặp cùng một số ở hai trang hay hai khối.
 - **Chữ: mỗi mục tối đa MỘT câu mô tả ngắn.** Giải thích dài, cách đo, giới hạn → `<details>` (thẻ gốc trình duyệt).
 - **Không biểu tượng trang trí** trong ô số, dòng danh sách, tiêu đề khối. Biểu tượng chỉ ở điều hướng, nút, nhãn trạng thái.

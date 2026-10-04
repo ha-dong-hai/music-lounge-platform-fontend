@@ -22,6 +22,8 @@ import KhungTai from '../../components/bang/KhungTai'
 import OChiSo from '../../components/bang/OChiSo'
 import ChonKy from '../../components/bang/ChonKy'
 import KhoiMuc from '../../components/bang/KhoiMuc'
+import MucGap from '../../components/bang/MucGap'
+import { phanTram } from '../../utils/dinhDangSo'
 import ViecCanXuLy from '../../components/admin/dashboard/ViecCanXuLy'
 import { useKyBaoCao } from '../../hooks/useKyBaoCao'
 import { cauSoVoiKyTruoc, nhanKhoang, thamSoApi } from '../../utils/kyBaoCao'
@@ -91,22 +93,33 @@ const AdminDashboard = () => {
   const gmvNay = tongTrongKy(d?.series, 'gmv')
   const gmvTruoc = dT ? tongTrongKy(dT.series, 'gmv') : undefined
 
+  // Câu tóm tắt cho từng mục gập — kết luận của khối, đọc được khi chưa mở.
+  const tongNguon = SOURCES.map((s) => ({ ...s, v: (d?.series ?? []).reduce((t, b) => t + Number(b[s.key]?.[measure] ?? 0), 0) }))
+  const tongTien = tongNguon.reduce((t, s) => t + s.v, 0)
+  const tomTatTien = tongTien > 0
+    ? tongNguon.filter((s) => s.v > 0).map((s) => `${s.label} ${phanTram((s.v / tongTien) * 100, 0)}`).join(' · ')
+    : 'Chưa phát sinh'
+  const dau = d?.topShows?.[0]
+  const theLoaiDau = d?.genres?.length ? [...d.genres].sort((a, b) => b.ticketsSold - a.ticketsSold)[0] : null
+
   return (
     <div className="space-y-8">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="text-4xl text-ink mb-1">Tổng quan</h1>
-          <p className="text-ink-soft text-sm">So với kỳ trước: {nhanKhoang(truoc.tu, truoc.den)} (cùng số ngày, liền trước).</p>
+          <p className="text-ink-soft text-sm">Việc cần làm trước, kết quả kỳ này sau. Chi tiết bấm để mở.</p>
         </div>
         <ChonKy tu={tu} den={den} onChon={datKy} />
       </div>
+
+      {/* 1 — VIỆC CẦN LÀM: thứ duy nhất đòi hành động, nên đứng đầu. */}
       <ViecCanXuLy />
 
       {nguonLoi.length > 0 && <KhungTai loi tenVung={`phần ${nguonLoi.join(', ')}`} taiLai={taiLai} />}
 
       <div aria-busy={dangDoiKy} className={`space-y-8 transition-opacity ${dangDoiKy ? 'opacity-60' : ''}`}>
-        {/* ===== TRONG KỲ ===== */}
-        <KhoiMuc id="trong-ky" tieuDe="Trong kỳ" phamVi={nhanKhoang(tu, den)}>
+        {/* 2 — KẾT QUẢ KỲ NÀY: bốn con số, mỗi số so với kỳ trước. Đây là hết màn đầu. */}
+        <KhoiMuc id="trong-ky" tieuDe="Kết quả kỳ này" phamVi={`${nhanKhoang(tu, den)} · so với ${nhanKhoang(truoc.tu, truoc.den)}`}>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <OChiSo mau="tien" nhan="Doanh thu nền tảng" so={fmtMoney(o?.platformRevenueInPeriod)}
               phu={soSanh(o?.platformRevenueInPeriod, oT?.platformRevenueInPeriod)} />
@@ -119,60 +132,68 @@ const AdminDashboard = () => {
           </div>
         </KhoiMuc>
 
-        {/* ===== TIỀN THEO KỲ ===== */}
-        {d ? (
-          <KhoiMuc id="tien-theo-nguon" mau="tien" tieuDe="Tiền trong kỳ, tách theo nguồn" phamVi={nhanKhoang(tu, den)}
-            moTa={measure === 'platformRevenue'
-              ? 'Phần nền tảng thực nhận: hoa hồng vé và tiền ủng hộ, cộng phí gói dịch vụ.'
-              : 'Tổng tiền người mua trả, gồm cả vé bán tại quầy. Không phải doanh thu của nền tảng.'}
-            phai={<NhomTab nhan="Đại lượng doanh thu" dangChon={measure} onChon={setMeasure}
-              cacTab={MEASURES.map((m) => ({ khoa: m.key, nhan: m.label }))} />}>
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <div className="lg:col-span-2 bg-card border-2 border-ink/25 p-5 sm:p-6">
-                <h3 className="text-base font-semibold text-ink mb-3">Theo {TEN_DON_VI_KY[d.seriesUnit] ?? 'thời gian'}</h3>
-                {d.series ? (
-                  <RevenueSeriesChart series={d.series} unit={d.seriesUnit} measure={measure} seriesTruoc={dT?.series} />
-                ) : (
-                  <p className="text-sm text-ink-soft">Máy chủ chưa có bản cập nhật biểu đồ theo kỳ (MLACP-594).</p>
-                )}
-              </div>
-              <div className="lg:col-span-1 bg-card border-2 border-ink/25 p-5 sm:p-6">
-                <h3 className="text-base font-semibold text-ink mb-3">Tỷ trọng cả kỳ</h3>
-                <RevenueShareBars series={d.series ?? []} measure={measure} />
-              </div>
-            </div>
+        {/* 3 — CHI TIẾT: mỗi khối một dòng có câu tóm tắt; mở khi cần (components/bang/MucGap). */}
+        <section aria-labelledby="chi-tiet" className="space-y-3">
+          <h2 id="chi-tiet" className="font-sans text-xl font-bold text-ink">Chi tiết <span className="ml-2 text-sm font-normal text-ink-mute">bấm vào dòng để mở</span></h2>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <div className="lg:col-span-2 bg-card border-2 border-ink/25 overflow-hidden">
-                <div className="px-5 sm:px-6 pt-5 pb-3">
-                  <h3 className="text-base font-semibold text-ink">Buổi diễn bán vé tốt nhất</h3>
-                  <p className="text-sm text-ink-soft mt-0.5">Theo doanh thu vé trong kỳ</p>
+          {d && (
+            <MucGap id="tien-theo-nguon" mau="tien" tieuDe="Tiền theo ngày và theo nguồn" tomTat={tomTatTien}>
+              <div className="flex flex-wrap items-center justify-between gap-3 py-3">
+                <p className="text-sm text-ink-soft">
+                  {measure === 'platformRevenue'
+                    ? 'Phần nền tảng thực nhận: hoa hồng vé và tiền ủng hộ, cộng phí gói dịch vụ.'
+                    : 'Tổng tiền người mua trả, gồm cả vé bán tại quầy. Không phải doanh thu của nền tảng.'}
+                </p>
+                <NhomTab nhan="Đại lượng doanh thu" dangChon={measure} onChon={setMeasure}
+                  cacTab={MEASURES.map((m) => ({ khoa: m.key, nhan: m.label }))} />
+              </div>
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div className="lg:col-span-2">
+                  <h3 className="text-base font-semibold text-ink mb-3">Theo {TEN_DON_VI_KY[d.seriesUnit] ?? 'thời gian'}</h3>
+                  {d.series ? (
+                    <RevenueSeriesChart series={d.series} unit={d.seriesUnit} measure={measure} seriesTruoc={dT?.series} />
+                  ) : (
+                    <p className="text-sm text-ink-soft">Máy chủ chưa có bản cập nhật biểu đồ theo kỳ (MLACP-594).</p>
+                  )}
                 </div>
-                <TopShowsTable shows={d.topShows} />
+                <div>
+                  <h3 className="text-base font-semibold text-ink mb-3">Tỷ trọng cả kỳ</h3>
+                  <RevenueShareBars series={d.series ?? []} measure={measure} />
+                </div>
               </div>
-              <div className="lg:col-span-1 bg-card border-2 border-ink/25 p-5 sm:p-6">
-                <h3 className="text-base font-semibold text-ink mb-3">Thể loại theo số vé bán</h3>
-                <GenreTrendingList genres={d.genres} />
-              </div>
-            </div>
-          </KhoiMuc>
-        ) : null}
-      </div>
+            </MucGap>
+          )}
 
-      {/* ===== KHÔNG THEO KỲ =====
-          04/10/2026: bỏ "Phòng trà đang hoạt động" (lặp dòng phụ "5 hoạt động" của ô Phòng trà đã đăng ký) và "Chờ duyệt thủ
-          công" (đã nằm trong khối Việc cần xử lý đầu trang) — luật Q9: một việc một chỗ. */}
-      <KhoiMuc id="luy-ke" tieuDe="Từ khi vận hành" phamVi="không theo kỳ đã chọn">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          <OChiSo mau="uytin" nhan="Phòng trà đã đăng ký" so={p?.totalVenues ?? 0}
-            phu={venueBreakdown(p?.venuesByStatus) || 'Mọi trạng thái, kể cả chờ duyệt'} />
-          <OChiSo mau="khangia" nhan="Người dùng" so={(p?.totalUsers ?? 0).toLocaleString('vi-VN')} />
-          <OChiSo mau="buoidien" nhan="Buổi diễn đã xuất bản" so={p?.totalPublishedShows ?? 0} />
-          <OChiSo mau="buoidien" nhan="Vé đã bán" so={(p?.totalTicketsSold ?? 0).toLocaleString('vi-VN')} />
-          <OChiSo mau="tien" nhan="Tổng giá trị giao dịch" so={fmtMoney(p?.totalGrossMerchandiseValue)} />
-          <OChiSo mau="tien" nhan="Tiền ủng hộ" so={fmtMoney(p?.totalDonationVolume)} />
-        </div>
-      </KhoiMuc>
+          {d && (
+            <MucGap id="buoi-ban-tot" mau="buoidien" tieuDe="Buổi diễn bán vé tốt nhất"
+              tomTat={dau ? `Dẫn đầu: ${dau.title} — ${fmtMoney(dau.ticketRevenue)}` : 'Chưa có buổi nào bán vé'}>
+              <div className="-mx-4 sm:-mx-5"><TopShowsTable shows={d.topShows} /></div>
+            </MucGap>
+          )}
+
+          {d && (
+            <MucGap id="the-loai" mau="buoidien" tieuDe="Thể loại theo số vé bán"
+              tomTat={theLoaiDau ? `Nhiều nhất: ${theLoaiDau.genreName} — ${theLoaiDau.ticketsSold.toLocaleString('vi-VN')} vé` : 'Chưa có vé nào'}>
+              <div className="max-w-2xl pt-3"><GenreTrendingList genres={d.genres} /></div>
+            </MucGap>
+          )}
+
+          {/* Không theo kỳ. 04/10/2026: bỏ "Phòng trà đang hoạt động" (lặp dòng phụ của ô Phòng trà đã đăng ký) và "Chờ duyệt
+              thủ công" (đã nằm trong khối Việc cần xử lý) — một việc một chỗ. */}
+          <MucGap id="luy-ke" tieuDe="Từ khi vận hành"
+            tomTat={`${p?.totalVenues ?? 0} phòng trà · ${(p?.totalUsers ?? 0).toLocaleString('vi-VN')} người dùng · ${(p?.totalTicketsSold ?? 0).toLocaleString('vi-VN')} vé đã bán`}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pt-4">
+              <OChiSo mau="uytin" nhan="Phòng trà đã đăng ký" so={p?.totalVenues ?? 0}
+                phu={venueBreakdown(p?.venuesByStatus) || 'Mọi trạng thái, kể cả chờ duyệt'} />
+              <OChiSo mau="khangia" nhan="Người dùng" so={(p?.totalUsers ?? 0).toLocaleString('vi-VN')} />
+              <OChiSo mau="buoidien" nhan="Buổi diễn đã xuất bản" so={p?.totalPublishedShows ?? 0} />
+              <OChiSo mau="buoidien" nhan="Vé đã bán" so={(p?.totalTicketsSold ?? 0).toLocaleString('vi-VN')} />
+              <OChiSo mau="tien" nhan="Tổng giá trị giao dịch" so={fmtMoney(p?.totalGrossMerchandiseValue)} />
+              <OChiSo mau="tien" nhan="Tiền ủng hộ" so={fmtMoney(p?.totalDonationVolume)} />
+            </div>
+          </MucGap>
+        </section>
+      </div>
     </div>
   )
 }
