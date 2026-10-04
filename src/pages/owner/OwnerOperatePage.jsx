@@ -478,11 +478,14 @@ const OwnerOperatePage = () => {
         </Card>
       </div>
 
-      {/* DANH SÁCH KHÁCH ĐÃ MUA VÉ — có tên và email, nên phải bấm mới tải và ẩn được lại */}
+      {/* DANH SÁCH KHÁCH ĐÃ MUA VÉ — có tên và email, nên phải bấm mới tải và ẩn được lại. MLACP-592: nhân viên nhận bản rút
+          gọn từ máy chủ (không có email); cột số tiền khách trả cũng ẩn với nhân viên, như thẻ số liệu. */}
       {showId && (
         <Card
           title="Danh sách khách đã mua vé"
-          subtitle="Dùng để đối soát và đón khách. Danh sách có tên và email người mua — chỉ mở khi cần."
+          subtitle={xemDuocSoLieu
+            ? 'Dùng để đối soát và đón khách. Danh sách có tên và email người mua — chỉ mở khi cần.'
+            : 'Tên khách và hạng vé để đón khách, tìm người quên vé. Chỉ mở khi cần.'}
           right={
             !moDanhSachKhach ? (
               <button type="button" onClick={() => setMoDanhSachKhach(true)}
@@ -524,7 +527,7 @@ const OwnerOperatePage = () => {
                   <tr className="text-xs text-ink-mute border-b border-line">
                     <th scope="col" className="text-left py-2 pr-3 font-medium">Khách</th>
                     <th scope="col" className="text-left py-2 pr-3 font-medium">Hạng vé</th>
-                    <th scope="col" className="text-right py-2 pr-3 font-medium">Đã trả</th>
+                    {xemDuocSoLieu && <th scope="col" className="text-right py-2 pr-3 font-medium">Đã trả</th>}
                     <th scope="col" className="text-left py-2 pr-3 font-medium">Kênh</th>
                     <th scope="col" className="text-left py-2 font-medium">Vào cửa</th>
                   </tr>
@@ -540,7 +543,7 @@ const OwnerOperatePage = () => {
                         {k.tierName}
                         <span className="text-ink-mute"> · {k.priceName}</span>
                       </td>
-                      <td className="py-2.5 pr-3 text-right text-ink-soft tabular-nums">{fmtMoney(k.pricePaid)}</td>
+                      {xemDuocSoLieu && <td className="py-2.5 pr-3 text-right text-ink-soft tabular-nums">{fmtMoney(k.pricePaid)}</td>}
                       <td className="py-2.5 pr-3 text-ink-mute text-xs">
                         {k.purchaseChannel === 'Offline' ? 'tại quầy' : 'trực tuyến'}
                       </td>
