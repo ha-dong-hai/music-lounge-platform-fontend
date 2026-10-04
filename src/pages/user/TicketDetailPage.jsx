@@ -185,9 +185,11 @@ const TicketDetailPage = () => {
           <div className="relative p-5 sm:p-6 min-w-0">
             <p className="text-sm font-semibold text-ink-soft">{trucTuyen ? 'Vé xem trực tuyến' : 'Vé vào cửa'} · {tt.nhan}</p>
             <h1 className="text-4xl sm:text-5xl leading-[1.08] mt-1 break-words">{ticket.showName}</h1>
-            <p className="font-display text-2xl mt-3">{ticket.loungeName}</p>
+            {/* Nhãn cho từng nhóm (05/10/2026): tên phòng trà và hạng vé in trần thì người cầm vé không biết đó là gì. */}
+            <p className="text-sm text-ink-mute mt-3">Nơi diễn</p>
+            <p className="font-display text-2xl">{ticket.loungeName}</p>
             {!trucTuyen && ticket.loungeAddress && <p className="text-ink-soft">{ticket.loungeAddress}</p>}
-            <p className="mt-3"><span className="font-semibold">{ticket.tierName}</span>{ticket.priceName && ticket.priceName !== ticket.tierName ? ` · ${ticket.priceName}` : ''}</p>
+            <p className="mt-3"><span className="text-ink-mute">Hạng vé: </span><span className="font-semibold">{ticket.tierName}</span>{ticket.priceName && ticket.priceName !== ticket.tierName ? ` · ${ticket.priceName}` : ''}</p>
             {ticket.physicalDetail && (
               <p className="text-ink-soft">Chỗ ngồi: <span className="text-ink font-semibold">{ticket.physicalDetail.seatInfo || 'không xếp chỗ cố định'}</span></p>
             )}

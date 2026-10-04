@@ -49,7 +49,8 @@ const DongBuoiDien = ({ b, hienPhongTra = true, hienAnh = true, anhDuPhong = nul
   const [anhHong, setAnhHong] = useState(false)
   const nguoiHat = b.performerNames ?? []
   const noi = [b.loungeName, b.loungeDistrict || b.loungeCity].filter(Boolean).join(' · ')
-  const phu = [...(b.genres ?? []).map((g) => g.name), HINH_THUC[b.format] && t(HINH_THUC[b.format])].filter(Boolean)
+  const theLoai = (b.genres ?? []).map((g) => g.name)
+  const hinhThuc = HINH_THUC[b.format] ? t(HINH_THUC[b.format]) : null
   const dangDien = b.status === 'Ongoing'
 
   return (
@@ -72,9 +73,12 @@ const DongBuoiDien = ({ b, hienPhongTra = true, hienAnh = true, anhDuPhong = nul
         <h3 className="font-display font-normal text-2xl leading-tight tracking-normal break-words">
           <Link to={`/shows/${b.id}`} className="after:absolute after:inset-0">{b.name}</Link>
         </h3>
-        {nguoiHat.length > 0 && <p className="text-ink-soft mt-1">{nguoiHat.join(', ')}</p>}
-        {hienPhongTra && noi && <p className="text-ink mt-0.5">{noi}</p>}
-        {phu.length > 0 && <p className="text-sm text-ink-mute mt-0.5">{phu.join(' · ')}</p>}
+        {/* MỖI DÒNG CÓ NHÃN (05/10/2026) — chủ dự án chụp "Buổi diễn tương tự": ba dòng in trần (tên người, tên phòng trà,
+            thể loại), người mới không biết dòng nào là gì. Nhãn màu nhạt, giá trị màu mực: mắt vẫn đọc giá trị trước. */}
+        {nguoiHat.length > 0 && <p className="mt-1"><span className="text-ink-mute">{t('Biểu diễn')}: </span>{nguoiHat.join(', ')}</p>}
+        {hienPhongTra && noi && <p className="mt-0.5"><span className="text-ink-mute">{t('Nơi diễn')}: </span>{noi}</p>}
+        {theLoai.length > 0 && <p className="mt-0.5"><span className="text-ink-mute">{t('Thể loại')}: </span>{theLoai.join(', ')}</p>}
+        {hinhThuc && <p className="mt-0.5"><span className="text-ink-mute">{t('Hình thức')}: </span>{hinhThuc}</p>}
       </div>
       <div className={`flex flex-wrap items-center gap-x-6 gap-y-2 lg:justify-end ${hienAnh ? 'col-span-2 sm:col-span-1 lg:col-start-3 lg:row-start-1 lg:row-span-2 lg:self-center' : 'md:justify-end'}`}>
         {/* Giá + hành động in thành MỘT cuống vé (CuongDatVe) thay chữ gạch dưới "Xem và đặt" — 02/10/2026. Đã diễn hoặc đang diễn thì

@@ -216,6 +216,9 @@
 .khung-van-hanh main :is(button, a, [role="button"]).bg-ink:hover { background-color: var(--color-chinh-dam); }
 .khung-van-hanh main thead { border-bottom-color: var(--color-chinh); }
 .khung-van-hanh main :is(button, input, select, textarea, details, .o-chi-so) { border-radius: var(--bo-goc); }
+/* TAB GẠCH CHÂN (nút chỉ có viền dưới `border-b-2`): bo góc làm hai đầu gạch chân cong lên như cái móc — chủ dự án chụp
+   05/10 ở "Buổi diễn đang mở bán | Chờ duyệt". Gạch chân là một đường thẳng, không phải khối, nên không bo. */
+.khung-van-hanh main button[class*="border-b-2"] { border-radius: 0; }
 .khung-van-hanh main details { overflow: clip; }
 
 /* THANH BÊN: mục đang mở là viên màu chủ đề, chữ trắng (cả ba mẫu đều làm vậy hoặc tương tự). Thanh bên sáng (D, F) có viền phải. */

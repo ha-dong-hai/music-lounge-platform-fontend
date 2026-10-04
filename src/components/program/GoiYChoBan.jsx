@@ -93,7 +93,11 @@ const TietMuc = ({ b, so }) => {
             <span className="hidden sm:block font-mono text-sm whitespace-nowrap">{thuVietHoa(b.scheduledStart)} {ngayGon(b.scheduledStart)} · {khungGio(b.scheduledStart, b.effectiveEnd)}</span>
           </div>
           <p className="sm:hidden font-mono text-sm mt-1">{thuVietHoa(b.scheduledStart)} {ngayGon(b.scheduledStart)} · {khungGio(b.scheduledStart, b.effectiveEnd)}</p>
-          <p className="text-ink-soft mt-1">{[(b.performerNames ?? []).slice(0, 3).join(', '), b.loungeName].filter(Boolean).join(' · ')}</p>
+          {/* Có nhãn (05/10/2026): "Lam Phương Quartet · Phòng trà Ánh Dương" in trần thì không ai biết đâu là người biểu diễn, đâu là nơi diễn. */}
+          {(b.performerNames ?? []).length > 0 && (
+            <p className="mt-1"><span className="text-ink-mute">Biểu diễn: </span>{b.performerNames.slice(0, 3).join(', ')}{b.performerNames.length > 3 && ` và ${b.performerNames.length - 3} người khác`}</p>
+          )}
+          {b.loungeName && <p className="mt-0.5"><span className="text-ink-mute">Nơi diễn: </span>{b.loungeName}</p>}
           <div className="mt-4">
             <CuongDatVe gia={gia || null} />
           </div>

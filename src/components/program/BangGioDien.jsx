@@ -87,7 +87,10 @@ const DongBang = ({ dong, mo, onMo, onRoi, chiSo, daDangNhap }) => {
           )}
         </button>
 
-        <p className="order-4 md:order-none col-span-2 md:col-span-1 text-sm text-lamp md:truncate" title={nguoiHat}>{nguoiHat}</p>
+        <p className="order-4 md:order-none col-span-2 md:col-span-1 text-sm text-lamp md:truncate" title={nguoiHat}>
+          {/* Điện thoại không có hàng tiêu đề cột → in nhãn ngay trong dòng, nếu không tên người đứng trơ trọi (05/10/2026). */}
+          <span className="md:hidden text-lamp-mute">{t('Người hát')}: </span>{nguoiHat}
+        </p>
 
         <p className="hidden md:flex items-center gap-1 text-sm text-lamp-mute">
           <MapPin size={13} aria-hidden="true" /> {buoi.district || buoi.province || '—'}

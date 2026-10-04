@@ -71,7 +71,7 @@ const KhungGoiYTimKiem = ({ idKhung, tuKhoa, dangTai, goiY, macDinh, chiSoChon, 
                 <span className={`${dangGo ? 'font-normal' : 'font-semibold'} text-ink leading-snug line-clamp-2`}><ToKhop chu={b.name} tuKhoa={dangGo ? tuKhoa : ''} /></span>
                 {b.scheduledStart && (
                   <span className="block font-mono text-xs text-ink-mute mt-1">
-                    {ngayTrongLich(b.scheduledStart)} · {khungGio(b.scheduledStart, b.effectiveEnd)}{b.loungeName ? ` · ${b.loungeName}` : ''}
+                    {ngayTrongLich(b.scheduledStart)} · {khungGio(b.scheduledStart, b.effectiveEnd)}{b.loungeName ? ` · ${t('tại {{x}}', { x: b.loungeName })}` : ''}
                   </span>
                 )}
                 {lyDo && (

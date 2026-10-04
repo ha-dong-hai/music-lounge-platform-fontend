@@ -62,16 +62,25 @@ const SapLenDen = ({ buoi = [], anhPhongTra = {} }) => {
           <h3 className="font-display font-normal text-[clamp(2.1rem,4.2vw,3.4rem)] leading-[1.02] mt-3 mb-4 break-words">
             <Link to={`/shows/${noiBat.id}`} className="hover:text-stock">{noiBat.title}</Link>
           </h3>
+          {/* MỖI NHÓM CHỮ CÓ NHÃN (05/10/2026) — chủ dự án: "cái gì là Nhóm Phố Cũ… không đầu không đuôi". Bản trước in
+              trần ba cái tên rồi một dòng địa chỉ: người mới không biết đó là người biểu diễn hay tên tiết mục, và
+              "Phòng trà Feelings" là nơi diễn hay đơn vị tổ chức. Nhãn chữ thường (không in hoa) theo ngữ pháp tờ chương trình. */}
           {nguoiHat.length > 0 && (
-            <ul className="space-y-1.5">
-              {nguoiHat.map((p) => (
-                <li key={p.ten}><span className="font-semibold">{p.ten}</span>{p.gioiThieu && <span className="text-lamp-mute"> — {p.gioiThieu}</span>}</li>
-              ))}
-            </ul>
+            <div>
+              <p className="text-sm text-lamp-mute mb-1.5">Biểu diễn</p>
+              <ul className="space-y-1.5">
+                {nguoiHat.map((p) => (
+                  <li key={p.ten}><span className="font-semibold">{p.ten}</span>{p.gioiThieu && <span className="text-lamp-mute"> — {p.gioiThieu}</span>}</li>
+                ))}
+              </ul>
+            </div>
           )}
-          <p className="mt-4">{noiBat.loungeName}{ct?.diaChi && <span className="text-lamp-mute"> · {ct.diaChi}</span>}</p>
+          <div className="mt-4">
+            <p className="text-sm text-lamp-mute mb-1">Nơi diễn</p>
+            <p><span className="font-semibold">{noiBat.loungeName}</span>{ct?.diaChi && <span className="text-lamp-mute"> · {ct.diaChi}</span>}</p>
+          </div>
           {ct && ct.soKhu > 0 && (
-            <p className="font-mono text-sm text-lamp-mute mt-1">{ct.soKhu} khu{ct.conVe != null && ` · còn ${ct.conVe} vé`}</p>
+            <p className="font-mono text-sm text-lamp-mute mt-2">{ct.soKhu} khu chỗ ngồi{ct.conVe != null && ` · còn ${ct.conVe} vé`}</p>
           )}
           <div className="mt-6">
             <CuongDatVe nen="muc" to={`/shows/${noiBat.id}`} gia={noiBat.price || null} />

@@ -79,7 +79,7 @@ const PerformerPage = () => {
             <p className="text-sm text-lamp-mute">Nghệ sĩ</p>
             <h1 id="ten-nghe-si" className="text-[clamp(2.5rem,5vw,4.5rem)] leading-[1.05] text-lamp break-words mt-1">{data.name}</h1>
             {(data.genres?.length ?? 0) > 0 && (
-              <p className="mt-3 text-lamp-mute">{data.genres.map((g) => g.name).join(' · ')}</p>
+              <p className="mt-3"><span className="text-lamp-mute">Thể loại: </span>{data.genres.map((g) => g.name).join(', ')}</p>
             )}
             <p className="mt-4">
               <LienKetMuiTen to={`/performers/${performerId}/donations`} nen="muc">Xem sao kê tiền ủng hộ</LienKetMuiTen>

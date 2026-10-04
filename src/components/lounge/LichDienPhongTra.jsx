@@ -84,7 +84,7 @@ const LichDienPhongTra = ({ ds, tong = 0, loi = false, onThuLai, tenPhongTra = '
                     <li key={b.id} className="flex flex-wrap items-baseline gap-x-6 gap-y-0.5 py-3 border-b border-ink/20">
                       <span className="font-mono text-sm text-ink-mute w-44 flex-shrink-0">{ngayDayDu(b.scheduledStart)} · {khungGio(b.scheduledStart, b.effectiveEnd)}</span>
                       <Link to={`/shows/${b.id}`} className="font-semibold hover:underline underline-offset-4 min-h-[24px]">{b.name}</Link>
-                      {(b.performerNames ?? []).length > 0 && <span className="text-sm text-ink-soft">{b.performerNames.join(', ')}</span>}
+                      {(b.performerNames ?? []).length > 0 && <span className="text-sm text-ink-soft"><span className="text-ink-mute">Biểu diễn: </span>{b.performerNames.join(', ')}</span>}
                     </li>
                   ))}
                 </ul>

@@ -55,7 +55,7 @@ const TheGu = ({ buoi = [], anhPhongTra = {}, anhTheLoai = {} }) => {
               <p className="font-mono text-xs tracking-[0.15em] text-lamp-mute">{t.ds.length} ĐÊM SẮP DIỄN</p>
               <p className="font-display text-3xl leading-none mt-1.5">{t.ten}</p>
               <p className="text-sm text-lamp-mute mt-2 truncate">
-                {t.ds.slice(0, 3).map((b) => `${ngayGon(b.start_date)} ${b.loungeName.replace(/^Phòng trà\s+/i, '')}`).join(' · ')}
+                {t.ds.slice(0, 3).map((b) => `${ngayGon(b.start_date)} tại ${b.loungeName.replace(/^Phòng trà\s+/i, '')}`).join(' · ')}
               </p>
             </div>
           </Link>
