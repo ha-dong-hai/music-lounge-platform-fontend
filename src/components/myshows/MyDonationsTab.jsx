@@ -2,21 +2,24 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
-import { Loader2, Heart, Clock, CheckCircle2, EyeOff, ExternalLink } from 'lucide-react'
+import { Loader2, Heart, EyeOff, ExternalLink } from 'lucide-react'
 import dayjs from 'dayjs'
 import toast from 'react-hot-toast'
 import { getMyDonations } from '../../services/donationServices'
+import NhanTrangThai from '../shared/NhanTrangThai'
 
 const fmtTien = (v) => `${Number(v || 0).toLocaleString('vi-VN')}đ`
 
 // Status của backend là chuỗi; chỉ ánh xạ những giá trị đã biết, còn lại hiện nguyên văn thay vì
 // đoán bừa — hiện sai trạng thái của một khoản tiền tệ hơn là hiện chữ lạ.
+// MLACP-619: nhãn trạng thái vẽ bằng components/shared/NhanTrangThai — sắc thái gán theo NGHĨA (xem định nghĩa ở đó).
+// Đã huỷ = khách tự huỷ, đã kết thúc, không cần làm gì → 'tat'. (Bản cũ dùng nhầm đồng hồ cho cả "Thất bại".)
 const NHAN_TRANG_THAI = {
-  Pending: { chu: 'Chờ thanh toán', mau: 'text-warning bg-warning/10', icon: Clock },
-  Paid: { chu: 'Đã thanh toán', mau: 'text-success bg-success/10', icon: CheckCircle2 },
-  Completed: { chu: 'Đã chuyển tới nghệ sĩ', mau: 'text-success bg-success/10', icon: CheckCircle2 },
-  Failed: { chu: 'Thanh toán thất bại', mau: 'text-danger bg-danger/10', icon: Clock },
-  Cancelled: { chu: 'Đã huỷ', mau: 'text-ink-soft bg-line-strong/10', icon: Clock },
+  Pending: { chu: 'Chờ thanh toán', sacThai: 'cho' },
+  Paid: { chu: 'Đã thanh toán', sacThai: 'tot' },
+  Completed: { chu: 'Đã chuyển tới nghệ sĩ', sacThai: 'tot' },
+  Failed: { chu: 'Thanh toán thất bại', sacThai: 'xau' },
+  Cancelled: { chu: 'Đã huỷ', sacThai: 'tat' },
 }
 
 const MyDonationsTab = () => {
@@ -61,7 +64,6 @@ const MyDonationsTab = () => {
       <div className="bg-card border border-line divide-y divide-line">
         {items.map((d) => {
           const tt = NHAN_TRANG_THAI[d.status]
-          const Icon = tt?.icon
           return (
             <div key={d.id} className="p-5 flex flex-wrap items-start justify-between gap-4">
               <div className="min-w-0">
@@ -95,9 +97,7 @@ const MyDonationsTab = () => {
 
               <div className="text-right flex-shrink-0">
                 <p className="text-lg font-bold text-ink tabular-nums">{fmtTien(d.gross)}</p>
-                <span className={`mt-1.5 inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium ${tt?.mau ?? 'text-ink-soft bg-line-strong/10'}`}>
-                  {Icon && <Icon size={11} />} {tt?.chu ?? d.status}
-                </span>
+                <NhanTrangThai sacThai={tt?.sacThai ?? 'trung'} className="mt-1.5">{tt?.chu ?? d.status}</NhanTrangThai>
               </div>
             </div>
           )

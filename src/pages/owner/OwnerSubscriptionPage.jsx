@@ -22,6 +22,7 @@ import {
 import { ghiNhoThanhToan, LOAI_THANH_TOAN } from '../../utils/paymentContext'
 import NutXacNhan from '../../components/shared/NutXacNhan'
 import { TrangLoiTai } from '../../components/bang/KhungTai'
+import NhanTrangThai from '../../components/shared/NhanTrangThai'
 
 const fmtMoney = (v) => `${Number(v || 0).toLocaleString('vi-VN')}đ`
 
@@ -116,12 +117,10 @@ const OwnerSubscriptionPage = () => {
               <div className="flex items-center gap-2 mb-1">
                 <Package size={18} className="text-ink" />
                 <h2 className="text-3xl text-ink">{current.packageName}</h2>
-                <span className={`px-2 py-0.5 text-xs font-bold border ${current.status === 'Active'
-                  ? 'bg-success/10 text-success border-success/30'
-                  : 'bg-line-strong/10 text-ink-soft border-line-strong/30'
-                  }`}>
+                {/* MLACP-619: nhãn trạng thái dùng chung; gói hết hạn/đã huỷ là đã kết thúc → 'tat'. */}
+                <NhanTrangThai sacThai={current.status === 'Active' ? 'tot' : 'tat'}>
                   {{ Active: 'Đang hoạt động', Expired: 'Đã hết hạn', Cancelled: 'Đã huỷ' }[current.status] ?? current.status}
-                </span>
+                </NhanTrangThai>
               </div>
               <p className="text-sm text-ink-soft flex items-center gap-1.5">
                 <CalendarClock size={14} />

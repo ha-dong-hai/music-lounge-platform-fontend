@@ -8,6 +8,7 @@ import { getMenus, getMenuItems, createFnbOrder, getMyFnbOrders, payFnbOrder } f
 import { useAuthStore } from '../../store/useAuthStore'
 import { ghiNhoThanhToan, LOAI_THANH_TOAN } from '../../utils/paymentContext'
 import { maNgan } from '../../utils/format'
+import NhanTrangThai from '../../components/shared/NhanTrangThai'
 
 const fmtMoney = (v) => `${Number(v || 0).toLocaleString('vi-VN')}đ`
 
@@ -18,6 +19,9 @@ const STATUS_LABELS = {
   Paid: 'Đã thanh toán',
   Cancelled: 'Đã huỷ',
 }
+// MLACP-619: nhìn từ phía KHÁCH — "Chờ xác nhận" chờ phòng trà → 'cho'; đã phục vụ / đã thanh toán là xong việc → 'tot';
+// đã huỷ → 'tat'. (Bếp xem cùng trạng thái nhưng theo việc còn phải làm — xem OwnerFnbOrdersPage.)
+const SAC_THAI_DON = { Pending: 'cho', Preparing: 'trung', Served: 'tot', Paid: 'tot', Cancelled: 'tat' }
 
 const FnbOrderPage = () => {
   const { id: loungeId } = useParams()
@@ -286,16 +290,14 @@ const FnbOrderPage = () => {
                     <div key={o.id} className="border border-line p-3">
                       <div className="flex items-center justify-between mb-1">
                         <span className="text-sm font-medium">#{maNgan(o.id)}</span>
-                        <span className="text-xs px-2 py-0.5 bg-sunken text-ink-soft">
-                          {STATUS_LABELS[o.status] || o.status}
-                        </span>
+                        <NhanTrangThai sacThai={SAC_THAI_DON[o.status] ?? 'trung'}>{STATUS_LABELS[o.status] || o.status}</NhanTrangThai>
                       </div>
                       <p className="text-xs text-ink-mute">{dayjs(o.createdAt).format('HH:mm DD/MM/YYYY')}</p>
                       <p className="text-sm text-ink font-bold mt-1">{fmtMoney(o.totalAmount)}</p>
                       <p className="text-xs mt-1">
                         {o.isPaid
-                          ? <span className="text-success">Đã thanh toán</span>
-                          : <span className="text-warning">Chưa thanh toán</span>}
+                          ? <NhanTrangThai sacThai="tot">Đã thanh toán</NhanTrangThai>
+                          : o.status === 'Cancelled' ? null : <NhanTrangThai sacThai="cho">Chưa thanh toán</NhanTrangThai>}
                       </p>
 
                       {/* Chỉ mời trả online khi đơn thật sự chưa trả và chưa bị huỷ. */}

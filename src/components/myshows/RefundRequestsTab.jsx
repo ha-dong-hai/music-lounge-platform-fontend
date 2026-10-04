@@ -17,10 +17,12 @@ import toast from 'react-hot-toast'
 import { getMyRefundRequests, provideRefundPayoutAccount } from '../../services/ticketServices'
 import HopThoai, { TieuDeHop } from '../shared/HopThoai'
 import { maNgan } from '../../utils/format'
+import NhanTrangThai from '../shared/NhanTrangThai'
 
 const fmtMoney = (v) => `${Number(v || 0).toLocaleString('vi-VN')}đ`
 const soTien = (r) => r.amountApproved ?? r.amountRequested
-const TRANG_THAI = { Pending: 'Đang chờ duyệt', Approved: 'Đã duyệt hoàn tiền', Rejected: 'Bị từ chối' }
+// MLACP-619: nhãn trạng thái vẽ bằng components/shared/NhanTrangThai — sắc thái gán theo NGHĨA (xem định nghĩa ở đó). Bản cũ chỉ là chữ xám nhỏ.
+const TRANG_THAI = { Pending: ['cho', 'Đang chờ duyệt'], Approved: ['tot', 'Đã duyệt hoàn tiền'], Rejected: ['xau', 'Bị từ chối'] }
 const inputCls = 'mt-1 w-full px-3 py-2 bg-page border border-line text-sm text-ink focus:outline-none focus:border-ink/50'
 
 const PayoutAccountModal = ({ request, onClose, onSaved }) => {
@@ -149,7 +151,7 @@ const RefundRequestsTab = () => {
                 {r.amountApproved != null && r.amountApproved !== r.amountRequested && (
                   <p className="text-xs text-ink-mute tabular-nums">Yêu cầu {fmtMoney(r.amountRequested)}</p>
                 )}
-                <p className="text-xs text-ink-mute">{TRANG_THAI[r.status] ?? r.status}</p>
+                <NhanTrangThai sacThai={TRANG_THAI[r.status]?.[0] ?? 'trung'} className="mt-1">{TRANG_THAI[r.status]?.[1] ?? r.status}</NhanTrangThai>
               </div>
             </div>
 

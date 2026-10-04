@@ -27,6 +27,7 @@ import { useDanhSachMayChu } from '../../hooks/useDanhSachMayChu'
 import { loiKhoangNgay } from '../../utils/boLocBuoiDien'
 import OChiSo from '../../components/bang/OChiSo'
 import ChonKy from '../../components/bang/ChonKy'
+import NhanTrangThai from '../../components/shared/NhanTrangThai'
 
 const fmtTien = (v) => `${Number(v || 0).toLocaleString('vi-VN')}đ`
 
@@ -47,11 +48,14 @@ const iconTheoLoai = (type) => {
   return ArrowRightLeft
 }
 
+// MLACP-619: nhãn trạng thái vẽ bằng components/shared/NhanTrangThai — sắc thái gán theo NGHĨA (xem định nghĩa ở đó).
+// "Đã lên lịch" chờ THỜI GIAN chứ không chờ ai làm gì → 'trung' (đồng hồ). "Chờ xét" chờ Admin → 'cho'.
+// "Đã huỷ" = đợt bị huỷ vì đã hoàn tiền cho khách, không cần làm gì → 'tat'.
 const TRANG_THAI_QUYET_TOAN = {
-  Released: { chu: 'Đã chuyển', mau: 'text-success bg-success/10' },
-  Scheduled: { chu: 'Đã lên lịch', mau: 'text-warning bg-warning/10' },
-  PendingReview: { chu: 'Chờ xét', mau: 'text-warning bg-warning/10' },
-  Cancelled: { chu: 'Đã huỷ', mau: 'text-ink-soft bg-line-strong/10' },
+  Released: { chu: 'Đã chuyển', sacThai: 'tot' },
+  Scheduled: { chu: 'Đã lên lịch', sacThai: 'trung', icon: Clock },
+  PendingReview: { chu: 'Chờ xét', sacThai: 'cho' },
+  Cancelled: { chu: 'Đã huỷ', sacThai: 'tat' },
 }
 
 // DANH SÁCH GIAO DỊCH (01/10/2026): chuyển sang hooks/useDanhSachMayChu — loại, từ ngày, đến ngày và trang nằm trên URL
@@ -131,9 +135,7 @@ const OwnerFinancePage = () => {
                       {s.paidAt && ` · đã chuyển ${dayjs(s.paidAt).format('DD/MM/YYYY')}`}
                     </p>
                   </div>
-                  <span className={`px-2 py-0.5 rounded-md text-xs font-medium flex-shrink-0 ${tt?.mau ?? 'text-ink-soft bg-line-strong/10'}`}>
-                    {tt?.chu ?? s.status}
-                  </span>
+                  <NhanTrangThai sacThai={tt?.sacThai ?? 'trung'} icon={tt?.icon} className="flex-shrink-0">{tt?.chu ?? s.status}</NhanTrangThai>
                 </div>
               )
             })}

@@ -36,15 +36,19 @@ import PhanTrang from '../../components/bang/PhanTrang'
 import NutXacNhan from '../../components/shared/NutXacNhan'
 import NhomTab from '../../components/bang/NhomTab'
 import { maNgan } from '../../utils/format'
+import NhanTrangThai from '../../components/shared/NhanTrangThai'
 
 const fmtMoney = (v) => `${Number(v || 0).toLocaleString('vi-VN')}đ`
 
 const STATUS_VIEW = {
-  Pending: { label: 'Chờ làm', cls: 'bg-warning/10 text-warning border-warning/30' },
-  Preparing: { label: 'Đang làm', cls: 'bg-ink/10 text-ink border-ink/30' },
-  Served: { label: 'Đã phục vụ', cls: 'bg-success/10 text-success border-success/30' },
-  Paid: { label: 'Đã thanh toán', cls: 'bg-line-strong/10 text-ink-soft border-line-strong/30' },
-  Cancelled: { label: 'Đã huỷ', cls: 'bg-danger/10 text-danger border-danger/30' },
+  // MLACP-619: sắc thái theo nghĩa cho bếp. "Chờ làm" là việc đang chờ người → 'cho' (nổi nhất); "Đang làm" có người
+  // đang làm → 'trung'; "Đã thanh toán" và "Đã huỷ" là đơn đã đóng, không cần làm gì → 'tat' (mờ đi, để mắt dồn vào đơn
+  // còn phải làm).
+  Pending: { label: 'Chờ làm', sacThai: 'cho' },
+  Preparing: { label: 'Đang làm', sacThai: 'trung' },
+  Served: { label: 'Đã phục vụ', sacThai: 'tot' },
+  Paid: { label: 'Đã thanh toán', sacThai: 'tat' },
+  Cancelled: { label: 'Đã huỷ', sacThai: 'tat' },
 }
 
 // Bước tiếp theo hợp lệ của bếp. Không có đường lùi — backend cũng không cho.
@@ -169,7 +173,7 @@ const OwnerFnbOrdersPage = () => {
       ) : (
         <div id="ds-don-mon" tabIndex={-1} className={`grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 focus:outline-none ${ds.laDuLieuCu ? 'opacity-60' : ''}`}>
           {hienThi.map((o) => {
-            const tt = STATUS_VIEW[o.status] ?? { label: o.status, cls: 'bg-line-strong/10 text-ink-soft border-line-strong/30' }
+            const tt = STATUS_VIEW[o.status] ?? { label: o.status, sacThai: 'trung' }
             const buocTiep = BUOC_TIEP[o.status]
             // Liên kết VNPay còn sống: backend chặn thu tiền mặt và chặn huỷ cho tới lúc đó.
             const conLinkOnline = o.onlinePaymentLiveUntil && dayjs(o.onlinePaymentLiveUntil).isAfter(dayjs())
@@ -184,9 +188,7 @@ const OwnerFnbOrdersPage = () => {
                       {o.tableNote ? `Bàn: ${o.tableNote}` : 'Không ghi bàn'} · {dayjs(o.createdAt).format('HH:mm DD/MM')}
                     </p>
                   </div>
-                  <span className={`px-2 py-0.5 rounded-md border text-xs font-medium whitespace-nowrap ${tt.cls}`}>
-                    {tt.label}
-                  </span>
+                  <NhanTrangThai sacThai={tt.sacThai}>{tt.label}</NhanTrangThai>
                 </div>
 
                 <ul className="mt-3 space-y-1 flex-1">

@@ -35,6 +35,8 @@ import NutXacNhan from '../../components/shared/NutXacNhan'
 import { useDanhSachMayChu } from '../../hooks/useDanhSachMayChu'
 import PhanTrang from '../../components/bang/PhanTrang'
 import OChiSo from '../../components/bang/OChiSo'
+import NhanTrangThai from '../../components/shared/NhanTrangThai'
+import { StatusBadge } from '../../components/admin/shows/ShowBadges'
 
 const fmtMoney = (v) => `${Number(v || 0).toLocaleString('vi-VN')}đ`
 
@@ -55,6 +57,9 @@ const VE_KHONG_SOAT = {
   Pending: { cau: 'Vé chưa thanh toán xong — không cho vào.' },
 }
 const TEN_TRANG_THAI_VE = { Pending: 'Chờ thanh toán', Confirmed: 'Hợp lệ', Used: 'Đã soát', Cancelled: 'Đã huỷ', Refunded: 'Đã hoàn tiền' }
+// MLACP-619: sắc thái THEO NGỮ CẢNH SOÁT VÉ — người đứng cửa phải thấy ngay vé này cho vào được hay không. "Đã soát" là
+// 'xau' ở đây (vào lần hai là gian lận), dù ở trang của khán giả nó là trạng thái bình thường. Bản cũ chỉ là chữ xám nhỏ.
+const SAC_THAI_VE_SOAT = { Pending: 'cho', Confirmed: 'tot', Used: 'xau', Cancelled: 'xau', Refunded: 'xau' }
 const CO_THE_KET_THUC = ['Ongoing']
 
 const Card = ({ title, subtitle, children, right }) => (
@@ -341,7 +346,7 @@ const OwnerOperatePage = () => {
             {busy === 'end' ? <Loader2 size={16} className="animate-spin" /> : <Square size={16} />} Kết thúc
           </NutXacNhan>
           <span className="text-xs text-ink-mute self-center">
-            Trạng thái hiện tại: <span className="text-ink-soft">{tenTrangThai(showDangChon.status)}</span>
+            Trạng thái hiện tại: <StatusBadge status={showDangChon.status} />
           </span>
         </div>
       )}
@@ -394,7 +399,7 @@ const OwnerOperatePage = () => {
                     {[veTraCuu.tierName, veTraCuu.priceName, veTraCuu.zoneName].filter(Boolean).join(' · ') || '—'}
                   </p>
                   <p className="text-xs text-ink-mute mt-0.5">
-                    Trạng thái: <span className="text-ink-soft">{TEN_TRANG_THAI_VE[veTraCuu.status] ?? veTraCuu.status}</span>
+                    Trạng thái: <NhanTrangThai sacThai={SAC_THAI_VE_SOAT[veTraCuu.status] ?? 'trung'}>{TEN_TRANG_THAI_VE[veTraCuu.status] ?? veTraCuu.status}</NhanTrangThai>
                     {veTraCuu.holderName && <> · Người mua: <span className="text-ink-soft">{veTraCuu.holderName}</span></>}
                   </p>
                 </div>
