@@ -108,20 +108,20 @@ const AdminDashboard = () => {
         {/* ===== TRONG KỲ ===== */}
         <KhoiMuc id="trong-ky" tieuDe="Trong kỳ" phamVi={nhanKhoang(tu, den)}>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <OChiSo nhan="Doanh thu nền tảng" so={fmtMoney(o?.platformRevenueInPeriod)}
+            <OChiSo mau="tien" nhan="Doanh thu nền tảng" so={fmtMoney(o?.platformRevenueInPeriod)}
               phu={soSanh(o?.platformRevenueInPeriod, oT?.platformRevenueInPeriod)} />
-            <OChiSo nhan="Tổng giá trị giao dịch" so={fmtMoney(gmvNay)}
+            <OChiSo mau="tien" nhan="Tổng giá trị giao dịch" so={fmtMoney(gmvNay)}
               phu={soSanh(gmvNay, gmvTruoc)} />
-            <OChiSo nhan="Buổi diễn trong kỳ" so={o?.eventsInPeriodCount ?? 0}
+            <OChiSo mau="buoidien" nhan="Buổi diễn trong kỳ" so={o?.eventsInPeriodCount ?? 0}
               phu={soSanh(o?.eventsInPeriodCount, oT?.eventsInPeriodCount)} />
-            <OChiSo nhan="Khán giả đăng ký mới" so={o?.newAudienceSignupsInPeriod ?? 0}
+            <OChiSo mau="khangia" nhan="Khán giả đăng ký mới" so={o?.newAudienceSignupsInPeriod ?? 0}
               phu={soSanh(o?.newAudienceSignupsInPeriod, oT?.newAudienceSignupsInPeriod)} />
           </div>
         </KhoiMuc>
 
         {/* ===== TIỀN THEO KỲ ===== */}
         {d ? (
-          <KhoiMuc id="tien-theo-nguon" tieuDe="Tiền trong kỳ, tách theo nguồn" phamVi={nhanKhoang(tu, den)}
+          <KhoiMuc id="tien-theo-nguon" mau="tien" tieuDe="Tiền trong kỳ, tách theo nguồn" phamVi={nhanKhoang(tu, den)}
             moTa={measure === 'platformRevenue'
               ? 'Phần nền tảng thực nhận: hoa hồng vé và tiền ủng hộ, cộng phí gói dịch vụ.'
               : 'Tổng tiền người mua trả, gồm cả vé bán tại quầy. Không phải doanh thu của nền tảng.'}
@@ -164,13 +164,13 @@ const AdminDashboard = () => {
           công" (đã nằm trong khối Việc cần xử lý đầu trang) — luật Q9: một việc một chỗ. */}
       <KhoiMuc id="luy-ke" tieuDe="Từ khi vận hành" phamVi="không theo kỳ đã chọn">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          <OChiSo nhan="Phòng trà đã đăng ký" so={p?.totalVenues ?? 0}
+          <OChiSo mau="uytin" nhan="Phòng trà đã đăng ký" so={p?.totalVenues ?? 0}
             phu={venueBreakdown(p?.venuesByStatus) || 'Mọi trạng thái, kể cả chờ duyệt'} />
-          <OChiSo nhan="Người dùng" so={(p?.totalUsers ?? 0).toLocaleString('vi-VN')} />
-          <OChiSo nhan="Buổi diễn đã xuất bản" so={p?.totalPublishedShows ?? 0} />
-          <OChiSo nhan="Vé đã bán" so={(p?.totalTicketsSold ?? 0).toLocaleString('vi-VN')} />
-          <OChiSo nhan="Tổng giá trị giao dịch" so={fmtMoney(p?.totalGrossMerchandiseValue)} />
-          <OChiSo nhan="Tiền ủng hộ" so={fmtMoney(p?.totalDonationVolume)} />
+          <OChiSo mau="khangia" nhan="Người dùng" so={(p?.totalUsers ?? 0).toLocaleString('vi-VN')} />
+          <OChiSo mau="buoidien" nhan="Buổi diễn đã xuất bản" so={p?.totalPublishedShows ?? 0} />
+          <OChiSo mau="buoidien" nhan="Vé đã bán" so={(p?.totalTicketsSold ?? 0).toLocaleString('vi-VN')} />
+          <OChiSo mau="tien" nhan="Tổng giá trị giao dịch" so={fmtMoney(p?.totalGrossMerchandiseValue)} />
+          <OChiSo mau="tien" nhan="Tiền ủng hộ" so={fmtMoney(p?.totalDonationVolume)} />
         </div>
       </KhoiMuc>
     </div>

@@ -18,6 +18,7 @@ import { ComposedChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip, Respons
 import { SURFACE, GRID, AXIS_TEXT, CURSOR, SOURCES, fmtMoney, fmtCompact } from './chartTokens'
 import { phanTram } from '../../../utils/dinhDangSo'
 import BieuDoThanhNgang from '../../bang/BieuDoThanhNgang'
+import { MAU_SO_LIEU } from '../../bang/mauSoLieu'
 
 // Hoa văn sọc chéo cho nguồn có `hoaVan` — dùng chung cho cột biểu đồ, ô chú giải và thanh tỷ trọng.
 const HoaVan = ({ id, color }) => (
@@ -227,13 +228,13 @@ export const GenreTrendingList = ({ genres }) => {
 
   return (
     <div className="space-y-3">
-      <BieuDoThanhNgang data={rows.slice(0, SO_THE_LOAI_HIEN)} toiDa={max} />
+      <BieuDoThanhNgang data={rows.slice(0, SO_THE_LOAI_HIEN)} toiDa={max} mau={MAU_SO_LIEU.buoidien.hex} />
       {an.length > 0 && (
         <details>
           <summary className="cursor-pointer min-h-[44px] inline-flex items-center text-sm font-semibold text-ink underline underline-offset-4">
             Xem thêm {an.length} thể loại
           </summary>
-          <BieuDoThanhNgang data={an} toiDa={max} />
+          <BieuDoThanhNgang data={an} toiDa={max} mau={MAU_SO_LIEU.buoidien.hex} />
         </details>
       )}
       <p className="text-sm text-ink-soft leading-relaxed">

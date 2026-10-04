@@ -4,12 +4,18 @@
 // Tổng quan dùng 18px đen, trang Nội dung dùng 14px xám đậm — người đọc không biết đâu là mục, đâu là nhãn. Polaris
 // (Layout): mô tả mục ngắn 1–3 câu, nói mục này dùng để làm gì.
 //
-// Props: id (cho aria-labelledby), tieuDe, phamVi? (kỳ / "lúc này" — chữ nhạt cạnh tiêu đề), moTa?, phai? (nút đặt bên phải).
-const KhoiMuc = ({ id, tieuDe, phamVi, moTa, phai, children }) => (
+// 05/10/2026: `mau` (khoá của mauSoLieu) — ô màu trước tiêu đề, cùng màu với dải trên ô số và thanh biểu đồ của mục đó, để
+// mắt nhận ra "khối này nói về tiền / khán giả / gợi ý" trước khi đọc chữ.
+//
+// Props: id (cho aria-labelledby), tieuDe, phamVi? (kỳ / "lúc này" — chữ nhạt cạnh tiêu đề), moTa?, phai?, mau?
+import { MAU_SO_LIEU } from './mauSoLieu'
+
+const KhoiMuc = ({ id, tieuDe, phamVi, moTa, phai, mau, children }) => (
   <section aria-labelledby={id} className="space-y-4">
     <div className="flex flex-wrap items-end justify-between gap-3">
       <div className="min-w-0">
         <h2 id={id} className="font-sans text-xl font-bold text-ink">
+          {MAU_SO_LIEU[mau] && <span aria-hidden="true" className={`inline-block w-3 h-3 mr-2.5 ${MAU_SO_LIEU[mau].nen}`} />}
           {tieuDe}
           {phamVi && <span className="ml-2 text-sm font-normal text-ink-mute">{phamVi}</span>}
         </h2>

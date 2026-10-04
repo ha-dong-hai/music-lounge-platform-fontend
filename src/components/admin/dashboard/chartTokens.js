@@ -16,10 +16,13 @@ export const CURSOR = '#EDE6DB'      // = --color-sunken
 // 04/10/2026: ĐÃ thêm hoa văn — nguồn giữa (gói dịch vụ) vẽ sọc chéo (`hoaVan`), nên hai cặp kề nhau khác nhau bằng KẾT CẤU,
 // không chỉ bằng độ sáng (WCAG 1.4.11 / 1.4.1: không dùng màu là cách phân biệt duy nhất). Ba màu nâu cùng tông dưới 3:1
 // là thứ chủ dự án gọi là "mờ nhạt"; không thêm sắc mới vì bảng màu chỉ dành son cho tiền và ember cho buổi đang diễn.
+// 05/10/2026: chủ dự án muốn trang quản trị ĐA DẠNG MÀU — ba nguồn nay là ba SẮC khác nhau (lam · hổ phách · mận) lấy từ
+// bảng màu số liệu (index.css `--color-sl-*`), thay ba độ đậm của mực và sọc chéo. Chọn bộ ba này vì mô phỏng mù màu
+// đỏ–lục vẫn tách được (lam / vàng ô-liu / xám); KHÔNG dùng lục cạnh mận hay lam cạnh tím trong cùng biểu đồ.
 export const SOURCES = [
-  { key: 'ticket',   label: 'Vé',          color: '#231A15' },
-  { key: 'package',  label: 'Gói dịch vụ', color: '#6E5E50', hoaVan: true }, // = --color-chart-2
-  { key: 'donation', label: 'Tiền ủng hộ', color: '#9A8B7C' }, // = --color-chart-3
+  { key: 'ticket',   label: 'Vé',          color: '#1D5FA8' }, // = --color-sl-khangia (lam)
+  { key: 'package',  label: 'Gói dịch vụ', color: '#A86400' }, // = --color-sl-uytin (hổ phách)
+  { key: 'donation', label: 'Tiền ủng hộ', color: '#A3355F' }, // = --color-sl-buoidien (mận)
 ]
 
 export const SINGLE_SERIES = '#231A15'

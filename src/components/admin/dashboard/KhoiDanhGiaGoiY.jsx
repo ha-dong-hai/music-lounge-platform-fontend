@@ -15,6 +15,7 @@
 // kho và cách đo nằm trong <details> "Chi tiết phép đo" — ai cần mới mở.
 import { phanTram } from '../../../utils/dinhDangSo'
 import BieuDoThanhNgang from '../../bang/BieuDoThanhNgang'
+import { MAU_SO_LIEU } from '../../bang/mauSoLieu'
 
 // Tên kỹ thuật backend → tên người đọc hiểu. Khoá lạ thì in nguyên, không giấu.
 const TEN_MO_HINH = {
@@ -60,7 +61,7 @@ const KhoiDanhGiaGoiY = ({ recommender }) => {
 
       {/* max-w-2xl: thanh dài hết màn rộng thì mắt phải quét xa giữa tên và số. */}
       <div className="max-w-2xl">
-        <BieuDoThanhNgang toiDa={100}
+        <BieuDoThanhNgang toiDa={100} mau={MAU_SO_LIEU.goiy.hex}
           moTa={`Tỷ lệ trúng trong ${k} vị trí đầu: ${ds.map((m) => `${ten(m)} ${phanTram(m.hitRateAtKPercent)}, ${m.hits} trên ${m.cases} lần`).join('; ')}`}
           data={ds.map((m) => ({
             khoa: m.model, nhan: ten(m), giaTri: m.hitRateAtKPercent, mo: m.model === MOC,

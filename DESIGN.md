@@ -366,7 +366,13 @@ luật trình bày số liệu.md` (repo backend). Mẫu đã làm: Tổng quan,
 - **Chữ: mỗi mục tối đa MỘT câu mô tả ngắn.** Giải thích dài, cách đo, giới hạn → `<details>` (thẻ gốc trình duyệt).
 - **Không biểu tượng trang trí** trong ô số, dòng danh sách, tiêu đề khối. Biểu tượng chỉ ở điều hướng, nút, nhãn trạng thái.
 - **Biểu đồ dùng recharts**, không tự vẽ bằng div/svg. Thanh ngang: `components/bang/BieuDoThanhNgang` (nhãn trên thanh,
-  trục từ 0). Phân biệt chuỗi bằng độ đậm + hoa văn sọc, không thêm sắc ngoài bảng màu.
+  trục từ 0).
+- **Màu (05/10/2026 — chủ dự án: trang quản trị phải đa dạng màu, làm nổi thành phần, không bó trong bảng màu sẵn):**
+  năm màu số liệu `--color-sl-*` (index.css), tra qua `components/bang/mauSoLieu`. MỖI MÀU MỘT NGHĨA, dùng nhất quán:
+  lục bảo = tiền · lam = khán giả · tím = gợi ý AI · hổ phách = uy tín/đánh giá · mận = buổi diễn. Cùng một màu cho ô
+  vuông trước tiêu đề mục (`KhoiMuc mau`), dải trên ô số (`OChiSo mau`) và thanh biểu đồ (`BieuDoThanhNgang mau`).
+  Tăng = xanh ▲, giảm = đỏ ▼ (luôn kèm mũi tên; chỉ số "tăng là xấu" truyền `trungTinh`). Số vẫn màu mực. Trong CÙNG một
+  biểu đồ không đặt lục cạnh mận, lam cạnh tím (trùng nhau với người mù màu đỏ–lục). Chỉ áp cho màn vận hành.
 - **Tiêu đề**: mục dùng `components/bang/KhoiMuc` (H2 20px đậm + phạm vi chữ nhạt); tiêu đề khối H3 16px.
 - **Số**: phần trăm qua `utils/dinhDangSo` (dấu phẩy tiếng Việt, không ",0" thừa). Cột số căn phải.
 - **Tên trường đọc từ API phải đối chiếu DTO backend** (lỗi "HR@10: 0.0%" là đọc sai tên trường, không phải lỗi hiển thị).

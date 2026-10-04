@@ -31,6 +31,7 @@ import { phanTram, soNguyen } from '../../utils/dinhDangSo'
 import KhungTai, { TrangLoiTai } from '../../components/bang/KhungTai'
 import OChiSo from '../../components/bang/OChiSo'
 import BieuDoThanhNgang from '../../components/bang/BieuDoThanhNgang'
+import { MAU_SO_LIEU } from '../../components/bang/mauSoLieu'
 
 const DIEM_TOI_DA = 5 // thang điểm đánh giá của khán giả (LoungeShowRating.Score 1–5)
 
@@ -50,7 +51,7 @@ const KhoiUyTin = ({ ds }) => {
       {/* Giới hạn bề ngang (max-w-2xl): thanh dài hết màn rộng thì mắt phải quét xa giữa tên và số. */}
       {coDiem.length > 0 ? (
         <div className="max-w-2xl">
-          <BieuDoThanhNgang toiDa={DIEM_TOI_DA}
+          <BieuDoThanhNgang toiDa={DIEM_TOI_DA} mau={MAU_SO_LIEU.uytin.hex}
             data={coDiem.map((v) => ({
               khoa: v.loungeId, nhan: v.loungeName, giaTri: Number(v.reputationScore),
               nhanGiaTri: `${Number(v.reputationScore).toLocaleString('vi-VN', { maximumFractionDigits: 1 })} / ${DIEM_TOI_DA}`,
@@ -117,39 +118,39 @@ const AdminInsightsPage = () => {
       {nguonLoi.length > 0 && <KhungTai loi tenVung={`phần ${nguonLoi.join(', ')}`} taiLai={load} />}
 
       {e && (
-        <KhoiMuc id="tuong-tac" tieuDe="Tương tác của khán giả" phamVi={ky}
+        <KhoiMuc id="tuong-tac" mau="khangia" tieuDe="Tương tác của khán giả" phamVi={ky}
           moTa="Quay lại = mua vé của từ 2 buổi diễn khác nhau trong kỳ.">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <OChiSo nhan="Lượt theo dõi phòng trà mới" so={soNguyen(e.newFollowsInPeriod)} phu={soSanh(e, eT, 'newFollowsInPeriod')} />
-            <OChiSo nhan="Lượt thêm vào danh sách quan tâm" so={soNguyen(e.newWishlistsInPeriod)} phu={soSanh(e, eT, 'newWishlistsInPeriod')} />
-            <OChiSo nhan="Đánh giá mới" so={soNguyen(e.newRatingsInPeriod)} phu={soSanh(e, eT, 'newRatingsInPeriod')} />
-            <OChiSo nhan="Tỷ lệ quay lại" so={phanTram(e.returnRatePercent)}
+            <OChiSo mau="khangia" nhan="Lượt theo dõi phòng trà mới" so={soNguyen(e.newFollowsInPeriod)} phu={soSanh(e, eT, 'newFollowsInPeriod')} />
+            <OChiSo mau="khangia" nhan="Lượt thêm vào danh sách quan tâm" so={soNguyen(e.newWishlistsInPeriod)} phu={soSanh(e, eT, 'newWishlistsInPeriod')} />
+            <OChiSo mau="khangia" nhan="Đánh giá mới" so={soNguyen(e.newRatingsInPeriod)} phu={soSanh(e, eT, 'newRatingsInPeriod')} />
+            <OChiSo mau="khangia" nhan="Tỷ lệ quay lại" so={phanTram(e.returnRatePercent)}
               phu={eT ? `Kỳ trước: ${phanTram(eT.returnRatePercent)}` : undefined} />
           </div>
         </KhoiMuc>
       )}
 
       {ai && (
-        <KhoiMuc id="hieu-qua-goi-y" tieuDe="Gợi ý buổi diễn có được dùng không" phamVi={ky}
+        <KhoiMuc id="hieu-qua-goi-y" mau="goiy" tieuDe="Gợi ý buổi diễn có được dùng không" phamVi={ky}
           moTa="Một cặp = một người được gợi ý một buổi diễn.">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <OChiSo nhan="Cặp được gợi ý" so={soNguyen(ai.recommendedPairCount)} phu={soSanh(ai, aT, 'recommendedPairCount')} />
-            <OChiSo nhan="Tỷ lệ bấm vào" so={phanTram(ai.clickThroughRatePercent)}
+            <OChiSo mau="goiy" nhan="Cặp được gợi ý" so={soNguyen(ai.recommendedPairCount)} phu={soSanh(ai, aT, 'recommendedPairCount')} />
+            <OChiSo mau="goiy" nhan="Tỷ lệ bấm vào" so={phanTram(ai.clickThroughRatePercent)}
               phu={cauMauSo(ai.clickThroughCount, ai.recommendedPairCount)} />
-            <OChiSo nhan="Tỷ lệ thành mua vé" so={phanTram(ai.conversionRatePercent)}
+            <OChiSo mau="goiy" nhan="Tỷ lệ thành mua vé" so={phanTram(ai.conversionRatePercent)}
               phu={cauMauSo(ai.conversionCount, ai.recommendedPairCount)} />
           </div>
         </KhoiMuc>
       )}
 
       {recommender && (
-        <KhoiMuc id="chat-luong-mo-hinh" tieuDe="Mô hình gợi ý đoán đúng đến đâu" phamVi="không theo kỳ">
+        <KhoiMuc id="chat-luong-mo-hinh" mau="goiy" tieuDe="Mô hình gợi ý đoán đúng đến đâu" phamVi="không theo kỳ">
           <KhoiDanhGiaGoiY recommender={recommender} />
         </KhoiMuc>
       )}
 
       {content && (
-        <KhoiMuc id="uy-tin" tieuDe="Uy tín phòng trà" phamVi="lúc này, không theo kỳ"
+        <KhoiMuc id="uy-tin" mau="uytin" tieuDe="Uy tín phòng trà" phamVi="lúc này, không theo kỳ"
           moTa={`Trung bình điểm khán giả chấm, thang ${DIEM_TOI_DA}. Vi phạm trong tháng này: ${soNguyen(content.violationsThisMonthCount)}.`}>
           {(content.topVenuesByReputation?.length ?? 0) > 0
             ? <KhoiUyTin ds={content.topVenuesByReputation} />

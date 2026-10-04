@@ -49,6 +49,20 @@
   --color-chart-2: #6E5E50;
   --color-chart-3: #9A8B7C;
 
+  /* MÀU SỐ LIỆU CHO TRANG QUẢN TRỊ (05/10/2026). Chủ dự án: "không chỉ muốn trang quản trị chỉ có những màu sắc trung
+     mà phải đa dạng các màu làm nổi bật các thành phần, đừng cứng nhắc trong bảng màu design sẵn".
+     Mỗi màu gắn MỘT NGHĨA cố định (đặt tên theo nghĩa, không theo sắc) để nhiều màu mà không thành loè loẹt:
+       tien = tiền/doanh thu · khangia = khán giả · goiy = gợi ý AI · uytin = uy tín, đánh giá · buoidien = buổi diễn.
+     Đo (scratchpad/mau.cjs) so với nền thẻ #FBF8F3: 4,96 · 6,09 · 6,97 · 4,42 · 6,13 : 1 (WCAG 1.4.11 cần >= 3:1; chữ
+     thường cần 4,5:1 — uytin 4,42 nên KHÔNG dùng làm màu chữ nhỏ). Mô phỏng mù màu đỏ–lục (deuteranopia): tien ≈ buoidien
+     và khangia ≈ goiy trùng nhau → KHÔNG đặt hai cặp đó cạnh nhau trong CÙNG một biểu đồ. Chỉ dùng ở màn vận hành;
+     trang khán giả vẫn theo bảng "sơn then và lụa ngà". */
+  --color-sl-tien: #1F7A5C;
+  --color-sl-khangia: #1D5FA8;
+  --color-sl-goiy: #6B3FA0;
+  --color-sl-uytin: #A86400;
+  --color-sl-buoidien: #A3355F;
+
   --font-sans: 'Be Vietnam Pro', ui-sans-serif, system-ui, sans-serif;
   --font-display: 'Anton', 'Be Vietnam Pro', sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, monospace;  /* chỉ cho giờ, số tiền, số sê-ri — dữ liệu, không trang trí */

@@ -15,6 +15,7 @@
 // Props:
 //  data: [{ khoa, nhan, giaTri, nhanGiaTri, mo?, mau?, hoaVan? }]
 //  toiDa: giá trị ứng với hết chiều dài (vd 100 cho phần trăm, 5 cho thang điểm); bỏ trống = giá trị lớn nhất
+//  mau: mã hex màu thanh mặc định của cả biểu đồ (lấy từ mauSoLieu[..].hex); mục `mo` vẫn xám
 //  moTa: câu cho trình đọc màn hình (mặc định ghép "tên: giá trị")
 import { useId, useState } from 'react'
 import { BarChart, Bar, Cell, XAxis, YAxis, LabelList, ResponsiveContainer } from 'recharts'
@@ -29,11 +30,11 @@ const CHU_PHU = '#4A3F37'  // = --color-ink-soft
 const CAO_HANG = 46 // 20px dòng chữ + 12px thanh + khoảng cách
 const DAY_THANH = 12
 
-const BieuDoThanhNgang = ({ data, toiDa, moTa }) => {
+const BieuDoThanhNgang = ({ data, toiDa, moTa, mau }) => {
   const id = useId().replace(/:/g, '')
   const [rong, setRong] = useState(0)
   const max = toiDa ?? Math.max(1, ...data.map((d) => d.giaTri))
-  const fill = (d) => (d.hoaVan ? `url(#${id}-${d.khoa})` : d.mau ?? (d.mo ? MUC_NHAT : MUC))
+  const fill = (d) => (d.hoaVan ? `url(#${id}-${d.khoa})` : d.mau ?? (d.mo ? MUC_NHAT : mau ?? MUC))
 
   // Nhãn trên thanh: `x`, `y` là góc trên-trái của thanh (recharts truyền vào). Giá trị căn phải theo bề rộng vùng vẽ.
   const nhanTen = ({ x, y, index }) => (
