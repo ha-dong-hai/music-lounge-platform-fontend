@@ -310,7 +310,7 @@ const FnbOrderPage = () => {
                         </button>
                       )}
                       {o.onlinePaymentLiveUntil && !o.isPaid && (
-                        <p className="text-[11px] text-ink-mute mt-1.5">
+                        <p className="text-xs text-ink-mute mt-1.5">
                           Đang có liên kết thanh toán còn hiệu lực tới {dayjs(o.onlinePaymentLiveUntil).format('HH:mm')} —
                           trong lúc này quầy không thu tiền mặt được.
                         </p>

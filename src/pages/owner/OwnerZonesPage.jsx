@@ -527,7 +527,7 @@ const OwnerZonesPage = () => {
                         <label className="text-sm font-semibold text-ink">Màu</label>
                         <input aria-label="Màu" type="color" value={o.color ?? '#3987e5'}
                           onChange={(e) => setLayout((p) => ({ ...p, [z.id]: { ...p[z.id], color: e.target.value } }))}
-                          className="mt-1 w-full h-[30px] bg-page border border-line rounded-md cursor-pointer" />
+                          className="mt-1 w-full h-11 bg-page border border-line cursor-pointer" />
                       </div>
                     </div>
 
@@ -559,7 +559,7 @@ const OwnerZonesPage = () => {
                           <Eraser size={13} /> Xoá trống
                         </button>
                       </div>
-                      <p className="text-[11px] text-ink-mute mt-1.5">
+                      <p className="text-xs text-ink-mute mt-1.5">
                         Phải điền đủ cả ba, hoặc để trống cả ba rồi Lưu để xoá vị trí 3D.
                       </p>
                     </div>

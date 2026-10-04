@@ -59,7 +59,7 @@ const ModerationModal = ({ moderation, onClose, onDecision, isProcessing }) => {
               <p className={`text-sm font-bold ${isSlaOverdue ? 'text-danger' : 'text-ink'}`}>
                 {moderation.slaDeadline ? dayjs(moderation.slaDeadline).format('HH:mm DD/MM') : '-'}
               </p>
-              {isSlaOverdue && <p className="text-[10px] text-danger font-bold">QUÁ HẠN</p>}
+              {isSlaOverdue && <p className="text-xs text-danger font-bold">QUÁ HẠN</p>}
             </div>
           </div>
 

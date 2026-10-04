@@ -12,7 +12,7 @@ const ComplaintsTable = ({ complaints, isLoading, onViewDetail }) => {
         <table className="w-full text-left whitespace-nowrap">
           <thead className="bg-sunken border-b-2 border-ink">
             <tr>
-              <th scope="col" className="p-4 text-sm font-semibold text-ink">#ID</th>
+              <th scope="col" className="p-4 text-sm font-semibold text-ink">Mã</th>
               <th scope="col" className="p-4 text-sm font-semibold text-ink">Phân loại</th>
               <th scope="col" className="p-4 text-sm font-semibold text-ink">Nội dung</th>
               <th scope="col" className="p-4 text-sm font-semibold text-ink">Đối tượng</th>

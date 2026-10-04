@@ -26,7 +26,7 @@ const AdminShowsPage = () => {
         <div>
           <h1 className="text-4xl text-ink">Buổi diễn</h1>
           <p className="text-ink-soft text-sm">
-            Buổi diễn, hạng vé và livestream chủ phòng trà gửi lên nằm ở tab Chờ duyệt. Điểm an toàn do hệ thống chấm giúp ưu tiên xem trước.
+            Buổi diễn, hạng vé và phiên phát trực tuyến chủ phòng trà gửi lên nằm ở tab Chờ duyệt. Điểm an toàn do hệ thống chấm giúp ưu tiên xem trước.
           </p>
         </div>
       </div>

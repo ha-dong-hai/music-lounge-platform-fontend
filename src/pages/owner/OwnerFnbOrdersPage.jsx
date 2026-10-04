@@ -152,7 +152,9 @@ const OwnerFnbOrdersPage = () => {
       <NhomTab nhan="Lọc đơn theo trạng thái" dangChon={tab} cacTab={TAB.map((t) => ({ khoa: t.key, nhan: t.label }))}
         onChon={(k) => ds.datBoLoc({ tab: k })} />
 
-      <PhanTrang ds={ds} tenDonVi="đơn" idDanhSach="ds-don-mon" />
+      {/* MLACP-604: danh sách rỗng thì chỉ khung bên dưới báo (có tên mục đang lọc) — trước đây dòng phân trang cũng in
+          "Không có đơn nào" ngay phía trên, hai câu cùng một ý. */}
+      {(ds.tong > 0 || ds.dangTai) && <PhanTrang ds={ds} tenDonVi="đơn" idDanhSach="ds-don-mon" />}
 
       {ds.loi ? (
         <div role="alert" className="flex flex-wrap items-center gap-4 border-2 border-ink p-5">

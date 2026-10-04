@@ -247,7 +247,7 @@ const EventDetailPage = () => {
             </div>
             <h1 id="ten-buoi-dien" className="mt-4 text-[clamp(2.5rem,5vw,4.5rem)] leading-[0.98] text-lamp break-words">{data.title}</h1>
             <p className="mt-5">
-              <LienKetMuiTen to={`/lounge/${data.loungeId}`} nen="muc" className="font-display text-2xl leading-none">{data.loungeName}</LienKetMuiTen>
+              <LienKetMuiTen to={`/lounge/${data.loungeId}`} nen="muc" className="font-display text-2xl leading-none min-h-[44px]">{data.loungeName}</LienKetMuiTen>
             </p>
             {data.address && (
               <p className="mt-2 flex items-start gap-2 text-lamp-mute">

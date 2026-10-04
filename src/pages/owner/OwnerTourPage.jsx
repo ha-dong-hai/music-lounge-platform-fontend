@@ -145,7 +145,7 @@ const HotspotModal = ({ loungeId, scene, scenes, zones = [], onClose, onSaved })
                           {h.infoText || '(chú thích trống)'}
                         </p>
                       ) : (
-                        <p className="text-xs text-ink-mute">→ {dich?.name || `scene #${maNgan(h.targetSceneId)}`}</p>
+                        <p className="text-xs text-ink-mute">→ {dich?.name || `điểm đứng #${maNgan(h.targetSceneId)}`}</p>
                       )}
                     </div>
                     <button onClick={async () => {
@@ -171,17 +171,17 @@ const HotspotModal = ({ loungeId, scene, scenes, zones = [], onClose, onSaved })
           {form.type === 'Navigate' && khac.length === 0 ? (
             <div className="pt-4 border-t border-line space-y-3">
               <p className="text-sm text-ink-mute">
-                Cần ít nhất hai scene mới tạo được hotspot dẫn đường.
+                Cần ít nhất hai điểm đứng mới tạo được điểm bấm dẫn sang nơi khác.
               </p>
               <button type="button" onClick={() => set('type', 'Info')}
                 className="text-xs font-bold text-ink hover:underline">
-                Tạo hotspot chú thích thay vì dẫn đường →
+                Tạo điểm bấm chú thích thay vì dẫn đường →
               </button>
             </div>
           ) : (
             <form onSubmit={them} className="pt-4 border-t border-line space-y-3">
               <p className="text-xs text-ink-mute">
-                Thêm hotspot mới. Muốn sửa một hotspot thì xoá rồi thêm lại — backend không có endpoint sửa.
+                Thêm điểm bấm mới. Muốn sửa một điểm bấm thì xoá rồi thêm lại.
               </p>
 
               <div>
@@ -206,8 +206,8 @@ const HotspotModal = ({ loungeId, scene, scenes, zones = [], onClose, onSaved })
                     <option value="">— chọn điểm đứng —</option>
                     {khac.map((x) => <option key={x.id} value={x.id}>{x.name || `điểm đứng #${maNgan(x.id)}`}</option>)}
                   </select>
-                  <p className="text-[11px] text-ink-mute mt-1">
-                    Danh sách đã bỏ chính scene này — hotspot không trỏ về nơi chứa nó được.
+                  <p className="text-xs text-ink-mute mt-1">
+                    Danh sách không có chính điểm đứng này — điểm bấm không dẫn về nơi đang đứng được.
                   </p>
                 </div>
               ) : laKhu ? (
@@ -221,7 +221,7 @@ const HotspotModal = ({ loungeId, scene, scenes, zones = [], onClose, onSaved })
                       {zones.map((z) => <option key={z.id} value={z.id}>{z.name} ({z.capacity} chỗ)</option>)}
                     </select>
                   )}
-                  <p className="text-[11px] text-ink-mute mt-1">Xoay ảnh tới chỗ thấy khu đó, rồi nhập hướng ngang/dọc bên dưới.</p>
+                  <p className="text-xs text-ink-mute mt-1">Xoay ảnh tới chỗ thấy khu đó, rồi nhập hướng ngang/dọc bên dưới.</p>
                 </div>
               ) : (
                 <div>
@@ -230,7 +230,7 @@ const HotspotModal = ({ loungeId, scene, scenes, zones = [], onClose, onSaved })
                     onChange={(e) => set('infoText', e.target.value)}
                     className={`${inputCls} resize-none`}
                     placeholder="VD: Đây là cây piano Yamaha U3 phòng trà dùng từ 2018" />
-                  <p className="text-[11px] text-ink-mute mt-1">{form.infoText.length}/2000 ký tự</p>
+                  <p className="text-xs text-ink-mute mt-1">{form.infoText.length}/2000 ký tự</p>
                 </div>
               )}
 
@@ -243,17 +243,17 @@ const HotspotModal = ({ loungeId, scene, scenes, zones = [], onClose, onSaved })
                 <div>
                   <label className="text-sm font-semibold text-ink">Hướng ngang (yaw)</label>
                   <input aria-label="Hướng ngang (yaw)" type="number" min="-180" max="180" value={form.yaw} onChange={(e) => set('yaw', e.target.value)} className={inputCls} />
-                  <p className="text-[11px] text-ink-mute mt-1">-180 đến 180</p>
+                  <p className="text-xs text-ink-mute mt-1">-180 đến 180</p>
                 </div>
                 <div>
                   <label className="text-sm font-semibold text-ink">Hướng dọc (pitch)</label>
                   <input aria-label="Hướng dọc (pitch)" type="number" min="-90" max="90" value={form.pitch} onChange={(e) => set('pitch', e.target.value)} className={inputCls} />
-                  <p className="text-[11px] text-ink-mute mt-1">-90 đến 90</p>
+                  <p className="text-xs text-ink-mute mt-1">-90 đến 90</p>
                 </div>
               </div>
               <button type="submit" disabled={isBusy}
                 className="w-full flex items-center justify-center gap-2 disabled:opacity-50 min-h-[44px] px-4 border-2 border-ink bg-card text-ink text-sm font-semibold hover:bg-ink hover:text-lamp">
-                {isBusy ? <Loader2 size={15} className="animate-spin" /> : <Plus size={15} />} Thêm hotspot
+                {isBusy ? <Loader2 size={15} className="animate-spin" /> : <Plus size={15} />} Thêm điểm bấm
               </button>
             </form>
           )}
@@ -520,7 +520,7 @@ const OwnerTourPage = () => {
                 return (
                   <span key={sc.id}
                     title={sc.name || `Điểm đứng #${maNgan(sc.id)}`}
-                    className={`absolute -translate-x-1/2 -translate-y-1/2 px-1.5 py-0.5 rounded-md text-[10px] font-bold whitespace-nowrap ${
+                    className={`absolute -translate-x-1/2 -translate-y-1/2 px-1.5 py-0.5 rounded-md text-xs font-bold whitespace-nowrap ${
                       dangNham ? 'bg-ink text-lamp ring-2 ring-line-strong/50' : 'bg-ink/80 text-stock border border-ink/50'
                     }`}
                     style={{ left: `${o.x}%`, top: `${o.y}%` }}>
@@ -548,7 +548,7 @@ const OwnerTourPage = () => {
                 <div className="p-3">
                   <TenCanh loungeId={lounge.id} sc={sc} onLuu={load} />
                   <p className="text-xs text-ink-mute mt-0.5">
-                    {(sc.hotspots?.length ?? 0)} hotspot
+                    {(sc.hotspots?.length ?? 0)} điểm bấm
                   </p>
                   <div className="mt-2 flex gap-2 flex-wrap">
                     <button onClick={() => setHotspotOfId(sc.id)}

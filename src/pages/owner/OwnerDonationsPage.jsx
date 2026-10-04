@@ -184,7 +184,7 @@ Không hoàn tiền, và lời nhắn gốc vẫn được lưu để đối chi
     setBusyId(d.id)
     try {
       await hideDonationMessage(d.id)
-      toast.success('Đã gỡ lời nhắn khỏi livestream.')
+      toast.success('Đã gỡ lời nhắn khỏi buổi phát trực tuyến.')
       await load()
     } catch (err) {
       toast.error(err.response?.data?.message || 'Không gỡ được lời nhắn.')
@@ -233,7 +233,7 @@ Không hoàn tiền, và lời nhắn gốc vẫn được lưu để đối chi
               <div className="bg-card border border-line p-4">
                 <p className="text-xs text-ink-mute">Tổng khán giả tặng</p>
                 <p className="text-lg font-bold text-ink mt-1 tabular-nums">{fmtMoney(tongHop.totalGross)}</p>
-                <p className="text-[11px] text-ink-mute mt-1">{tongHop.totalCount} khoản</p>
+                <p className="text-xs text-ink-mute mt-1">{tongHop.totalCount} khoản</p>
               </div>
               <div className="bg-card border border-line p-4">
                 <p className="text-xs text-ink-mute">Đã chuyển nghệ sĩ</p>
@@ -273,7 +273,7 @@ Không hoàn tiền, và lời nhắn gốc vẫn được lưu để đối chi
                       </span>
                     </div>
                     <p className="text-xs text-ink-mute mt-0.5">{d.showName}</p>
-                    <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-ink-mute">
+                    <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-ink-mute">
                       <span>Tạo {dayjs(d.createdAt).format('DD/MM/YYYY')}</span>
                       {d.paymentConfirmedAt && <span>Thanh toán {dayjs(d.paymentConfirmedAt).format('DD/MM/YYYY')}</span>}
                       {d.payoutDueAt && <span>Hạn chuyển {dayjs(d.payoutDueAt).format('DD/MM/YYYY')}</span>}
@@ -282,8 +282,8 @@ Không hoàn tiền, và lời nhắn gốc vẫn được lưu để đối chi
                   </div>
                   <div className="text-right flex-shrink-0">
                     <p className="text-base font-bold text-ink tabular-nums">{fmtMoney(d.gross)}</p>
-                    <p className="text-[11px] text-ink-mute">khán giả trả</p>
-                    <p className="text-[11px] text-ink-mute mt-1 tabular-nums">sau phí {fmtMoney(d.net)}</p>
+                    <p className="text-xs text-ink-mute">khán giả trả</p>
+                    <p className="text-xs text-ink-mute mt-1 tabular-nums">sau phí {fmtMoney(d.net)}</p>
                   </div>
                 </li>
               )
@@ -366,7 +366,7 @@ Không hoàn tiền, và lời nhắn gốc vẫn được lưu để đối chi
                   {d.message && (
                     <button onClick={() => goLoiNhan(d)} disabled={dangBan}
                       className="flex items-center gap-2 disabled:opacity-50 order-last justify-center min-h-[44px] px-4 border-2 border-ink bg-card text-ink text-sm font-semibold hover:bg-ink hover:text-lamp"
-                      title="Ẩn lời nhắn khỏi livestream; không hoàn tiền" aria-label="Ẩn lời nhắn khỏi livestream; không hoàn tiền">
+                      title="Ẩn lời nhắn khỏi buổi phát trực tuyến; không hoàn tiền" aria-label="Ẩn lời nhắn khỏi buổi phát trực tuyến; không hoàn tiền">
                       <EyeOff size={15} /> Gỡ lời nhắn
                     </button>
                   )}

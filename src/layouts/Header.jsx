@@ -9,7 +9,7 @@ import { getShowSuggestions, getTrendingShows, getRecommendedShows } from '../se
 import Wordmark from '../components/brand/Wordmark'
 import KhungGoiYTimKiem from '../components/shared/KhungGoiYTimKiem'
 import { useTranslation } from 'react-i18next'
-import { doiNgonNgu, k } from '../i18n'
+import { BAT_DOI_NGON_NGU, doiNgonNgu, k } from '../i18n'
 
 
 // GỢI Ý TÌM KIẾM — GHI CHÚ CHO ĐỘI FE:
@@ -268,7 +268,7 @@ const Header = () => {
             {/* Thông báo chỉ có nghĩa với người đã đăng nhập — API /notifications yêu cầu xác thực. */}
             <NotificationBell />
             <div className="relative">
-              <button onClick={() => setIsUserMenuOpen(!isUserMenuOpen)} aria-haspopup="menu" aria-expanded={isUserMenuOpen} aria-label={t('Menu tài khoản')} className="flex items-center gap-2 min-h-[44px] hover:text-ink transition-colors focus:outline-none">
+              <button onClick={() => setIsUserMenuOpen(!isUserMenuOpen)} aria-haspopup="menu" aria-expanded={isUserMenuOpen} aria-label={t('Menu tài khoản')} className="flex items-center justify-center gap-2 min-h-[44px] min-w-[44px] hover:text-ink transition-colors focus:outline-none">
                 {user.avatarUrl ? (
                   <img src={user.avatarUrl} alt={t('Ảnh đại diện')} className="w-9 h-9 object-cover border-2 border-ink" />
                 ) : (
@@ -331,7 +331,8 @@ const Header = () => {
             </>
           )}
 
-          <div className="relative hidden sm:block">
+          {/* MLACP-604: ẩn nút đổi ngôn ngữ khi BAT_DOI_NGON_NGU tắt (src/i18n) — chuyển ngữ đang tạm dừng giữa chừng. */}
+          <div className={BAT_DOI_NGON_NGU ? 'relative hidden sm:block' : 'hidden'}>
             <button type="button" onClick={() => setIsLangOpen(!isLangOpen)} aria-expanded={isLangOpen} aria-label={`${t('Ngôn ngữ')}: ${currentLang === 'vi' ? 'Tiếng Việt' : 'English'}`} className="flex items-center gap-1.5 px-3 min-h-[44px] border-2 border-transparent hover:border-ink text-sm font-medium text-ink transition-colors">
               <Languages size={16} />
               <span>{currentLang === 'vi' ? 'VN' : 'EN'}</span>
@@ -384,7 +385,7 @@ const Header = () => {
               </li>
             )}
             {/* Nút ngôn ngữ ở hàng đầu trang ẩn dưới sm — bản trước người dùng điện thoại KHÔNG có cách nào đổi ngôn ngữ. */}
-            <li className="sm:hidden flex items-center gap-2 min-h-[48px] px-1">
+            <li className={BAT_DOI_NGON_NGU ? 'sm:hidden flex items-center gap-2 min-h-[48px] px-1' : 'hidden'}>
               <Languages size={16} aria-hidden="true" />
               {[['vi', 'Tiếng Việt'], ['en', 'English']].map(([ma, ten]) => (
                 <button key={ma} type="button" onClick={() => handleChangeLang(ma)} aria-pressed={currentLang === ma}

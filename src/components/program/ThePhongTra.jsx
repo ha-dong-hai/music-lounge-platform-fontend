@@ -23,7 +23,7 @@ const ThePhongTra = ({ l, sangDen = false, daDangNhap = false, dangTheoDoi = fal
           : <CoverFallback />}
       </Link>
       <div className="flex flex-col gap-2 p-4 flex-1">
-        <Link to={`/lounge/${l.id}`} className={`font-display text-3xl leading-none break-words hover:underline ${sangDen ? 'text-lamp' : 'text-ink'}`}>{l.name}</Link>
+        <Link to={`/lounge/${l.id}`} className={`inline-flex items-center min-h-[44px] font-display text-3xl leading-none break-words hover:underline ${sangDen ? 'text-lamp' : 'text-ink'}`}>{l.name}</Link>
         <p className={`flex items-center gap-1 text-sm ${sangDen ? 'text-lamp-mute' : 'text-ink-soft'}`}>
           <MapPin size={13} className="flex-shrink-0" aria-hidden="true" /> {noi}
         </p>

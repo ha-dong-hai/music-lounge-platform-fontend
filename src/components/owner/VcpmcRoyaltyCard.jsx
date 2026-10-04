@@ -42,7 +42,7 @@ const VcpmcRoyaltyCard = ({ showId, declared, reference, onSaved }) => {
         <div className="p-3 bg-sunken/70 border border-line">
           <p className="text-xs text-ink-mute">Đã khai mã tác quyền VCPMC</p>
           <p className="text-sm text-ink mt-0.5 break-all">{reference || '(đã khai, không đọc lại được mã)'}</p>
-          <p className="text-[11px] text-ink-mute mt-1">Khai lại sẽ ghi đè mã trên.</p>
+          <p className="text-xs text-ink-mute mt-1">Khai lại sẽ ghi đè mã trên.</p>
         </div>
       ) : (
         <p className="text-xs text-warning leading-relaxed">

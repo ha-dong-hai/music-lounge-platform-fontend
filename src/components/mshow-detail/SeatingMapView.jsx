@@ -73,7 +73,7 @@ function SoDo2D({ zones, chon, onChon, hangVe = {} }) {
                 backgroundColor: `color-mix(in srgb, ${mau} ${dang ? 70 : 38}%, #2A1F18)`,
               }}>
               <span className="text-xs sm:text-sm font-semibold text-stock leading-tight text-center line-clamp-2">{hangVe[z.zoneId] ?? z.name}</span>
-              <span className="font-mono text-[11px] text-stock/80">{[khoangGia(z), nhanConLai(z)].filter(Boolean).join(' · ')}</span>
+              <span className="font-mono text-xs text-stock/80">{[khoangGia(z), nhanConLai(z)].filter(Boolean).join(' · ')}</span>
             </button>
           )
         })}

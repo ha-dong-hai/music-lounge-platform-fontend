@@ -42,7 +42,7 @@ const NutDatCho = ({ showId, daDangNhap, lon = false }) => {
       {t('Đặt chỗ')}
     </Link>
     {!daDangNhap && (
-      <span className="inline-flex items-center justify-center gap-1 text-[11px] text-lamp-mute">
+      <span className="inline-flex items-center justify-center gap-1 text-xs text-lamp-mute">
         <LogIn size={11} aria-hidden="true" /> {t('Cần đăng nhập để đặt')}
       </span>
     )}

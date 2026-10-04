@@ -40,7 +40,7 @@ export const AIScoreCircle = ({ score }) => {
     return (
       <div className="text-center">
         <p className="text-ink-mute text-sm font-medium">Chưa chấm</p>
-        <p className="text-[10px] text-ink-mute mt-0.5 leading-tight">vẫn trong hạn duyệt tay</p>
+        <p className="text-xs text-ink-mute mt-0.5 leading-tight">vẫn trong hạn duyệt tay</p>
       </div>
     )
   }

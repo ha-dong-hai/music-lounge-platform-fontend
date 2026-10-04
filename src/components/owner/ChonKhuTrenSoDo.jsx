@@ -39,7 +39,7 @@ const ChonKhuTrenSoDo = ({ zones = [], daGan = {}, value, onChange, tenNhom = 'K
                   backgroundColor: `color-mix(in srgb, ${mau(z)} ${dang ? 75 : 40}%, #2A1F18)`,
                 }}>
                 <span className="text-xs font-semibold text-stock leading-tight line-clamp-2">{z.name}</span>
-                <span className="font-mono text-[11px] text-stock/85 leading-tight line-clamp-1">{ban ? daGan[z.id] : dang ? 'Đang chọn' : `${z.capacity} chỗ`}</span>
+                <span className="font-mono text-xs text-stock/85 leading-tight line-clamp-1">{ban ? daGan[z.id] : dang ? 'Đang chọn' : `${z.capacity} chỗ`}</span>
               </button>
             )
           })}

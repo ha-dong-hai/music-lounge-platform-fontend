@@ -373,7 +373,7 @@ const ShowCustomValuesSection = ({ showId, loungeId }) => {
                 {c.name}
                 <span className="text-ink-mute font-mono">{c.key}</span>
                 {daTat && (
-                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-sunken text-ink-mute text-[10px]">
+                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-sunken text-ink-mute text-xs">
                     <EyeOff size={9} /> đã tắt
                   </span>
                 )}
@@ -401,7 +401,7 @@ const ShowCustomValuesSection = ({ showId, loungeId }) => {
                   <input type="number" aria-label={c.name} value={giaTriHienTai}
                     min={opts.min} max={opts.max} step={opts.step ?? 1}
                     onChange={(e) => dat(c.criteriaId, e.target.value)} className={inputCls} />
-                  <p className="text-[11px] text-ink-mute mt-1">
+                  <p className="text-xs text-ink-mute mt-1">
                     Từ {opts.min} đến {opts.max}
                     {opts.step ? `, bước ${opts.step}` : ''}
                   </p>
@@ -416,7 +416,7 @@ const ShowCustomValuesSection = ({ showId, loungeId }) => {
                   ô đã sửa thì kiểm tại chỗ. Nhờ vậy nó phủ cả Range ngoài khoảng và Boolean rác,
                   chứ không riêng ca giá trị nằm ngoài danh sách chọn. */}
               {loiDong && (
-                <p className="text-[11px] text-warning/90 mt-1 leading-relaxed">
+                <p className="text-xs text-warning/90 mt-1 leading-relaxed">
                   {loiDong} Để nguyên thì không lưu được.
                 </p>
               )}

@@ -377,7 +377,7 @@ const OwnerOperatePage = () => {
               placeholder="Quét hoặc nhập mã QR trên vé" autoFocus
               className="flex-1 min-h-[44px] px-3 py-2 bg-card border-2 border-ink text-ink focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2" />
             <button type="submit" disabled={busy !== null || !qr.trim()}
-              className="flex items-center gap-1.5 disabled:opacity-50 justify-center min-h-[44px] px-4 border-2 border-ink bg-card text-ink text-sm font-semibold hover:bg-ink hover:text-lamp">
+              className="flex items-center gap-1.5 disabled:opacity-50 justify-center min-h-[44px] px-4 border-2 border-ink bg-card text-ink text-sm font-semibold hover:bg-ink hover:text-lamp whitespace-nowrap flex-shrink-0">
               {busy === 'lookup' ? <Loader2 size={16} className="animate-spin" /> : <Search size={16} />} Tra cứu
             </button>
           </form>

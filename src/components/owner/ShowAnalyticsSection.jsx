@@ -31,7 +31,7 @@ const O = ({ title, value, note, icon: Icon }) => (
       <Icon size={15} className="text-ink-mute flex-shrink-0" />
     </div>
     <p className="text-lg font-bold text-ink mt-1 tabular-nums">{value}</p>
-    {note && <p className="text-[11px] text-ink-mute mt-1 leading-relaxed">{note}</p>}
+    {note && <p className="text-xs text-ink-mute mt-1 leading-relaxed">{note}</p>}
   </div>
 )
 
@@ -175,7 +175,7 @@ const ShowAnalyticsSection = ({ showId }) => {
                     {fmtSo(forecast.projectedFinalSales)} vé
                   </p>
                   {(forecast.projectedLow != null || forecast.projectedHigh != null) && (
-                    <p className="text-[11px] text-ink-mute mt-1">
+                    <p className="text-xs text-ink-mute mt-1">
                       khoảng {fmtSo(forecast.projectedLow)}–{fmtSo(forecast.projectedHigh)} vé
                     </p>
                   )}
@@ -184,7 +184,7 @@ const ShowAnalyticsSection = ({ showId }) => {
                   <p className="text-xs text-ink-mute">Còn lại</p>
                   <p className="text-xl font-bold text-ink mt-1 tabular-nums">{forecast.daysUntilShow} ngày</p>
                   {forecast.expectedPaceFraction != null && (
-                    <p className="text-[11px] text-ink-mute mt-1">
+                    <p className="text-xs text-ink-mute mt-1">
                       tới mốc này thường đã bán {fmtPhanTram(Number(forecast.expectedPaceFraction) * 100)} tổng vé
                     </p>
                   )}
@@ -196,7 +196,7 @@ const ShowAnalyticsSection = ({ showId }) => {
                       ? fmtPhanTram(Number(forecast.projectedSellThroughRate) * 100)
                       : '—'}
                   </p>
-                  <p className="text-[11px] text-ink-mute mt-1">
+                  <p className="text-xs text-ink-mute mt-1">
                     {forecast.capacity != null ? `trên ${fmtSo(forecast.capacity)} chỗ` : 'chưa đặt sức chứa'}
                   </p>
                 </div>
@@ -206,7 +206,7 @@ const ShowAnalyticsSection = ({ showId }) => {
               <p className="text-xs text-ink-mute mt-4 leading-relaxed">
                 {forecast.explanation}
               </p>
-              <p className="text-[11px] text-ink-mute mt-2 leading-relaxed">
+              <p className="text-xs text-ink-mute mt-2 leading-relaxed">
                 Nghiêng về lịch sử của phòng trà bạn{' '}
                 {fmtPhanTram(Number(forecast.venueHistoryWeight) * 100)} · dựa trên{' '}
                 {fmtSo(forecast.venueReferenceShows)} buổi diễn của bạn và{' '}

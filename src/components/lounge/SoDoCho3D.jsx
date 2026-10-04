@@ -357,7 +357,7 @@ const SoDoCho3D = ({ zones, chon, onChon, lanDatLai = 0, onKhongHoTro, diem360 =
         {ghim.filter((g) => !g.an).map((g) => (
           <button key={g.id} type="button" onClick={() => onChonDiem?.(g.id)} style={{ left: g.x, top: g.y }}
             aria-label={`Xem 360° tại ${g.ten}`}
-            className="pointer-events-auto absolute -translate-x-1/2 -translate-y-full inline-flex items-center gap-1 min-h-[32px] px-2 bg-ember text-board text-xs font-bold border-2 border-board shadow-lift hover:bg-lamp focus-visible:outline-lamp">
+            className="pointer-events-auto absolute -translate-x-1/2 -translate-y-full inline-flex items-center gap-1 min-h-[44px] px-2 bg-ember text-board text-xs font-bold border-2 border-board shadow-lift hover:bg-lamp focus-visible:outline-lamp">
             <span aria-hidden="true">◉ 360°</span><span className="max-w-[7rem] truncate font-semibold">{g.ten}</span>
           </button>
         ))}

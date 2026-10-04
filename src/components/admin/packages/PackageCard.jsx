@@ -92,7 +92,7 @@ export const PackageCard = ({ pkg, onEdit, onToggleStatus }) => {
 
       {/* ===== FOOTER: chỉ còn #ID góc phải, gọn gàng ===== */}
       <div className="relative z-[1] -mx-6 -mb-6 mt-6 px-6 py-2.5 border-t border-line bg-sunken/40 flex justify-end">
-        <span className="text-[10px] text-ink-mute font-mono">#{maNgan(pkg.id)}</span>
+        <span className="text-xs text-ink-mute font-mono">#{maNgan(pkg.id)}</span>
       </div>
     </div>
   )

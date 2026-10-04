@@ -484,7 +484,7 @@ const OwnerShowDetailPage = () => {
               hint="Theo NĐ 144/2020 Điều 10. Khai ở mục Văn bản chấp thuận bên dưới" />
           ) : (
             <div className="flex items-start gap-2.5">
-              <span className="mt-0.5 w-5 h-5 bg-sunken text-ink-mute flex items-center justify-center flex-shrink-0 text-[10px]">?</span>
+              <span className="mt-0.5 w-5 h-5 bg-sunken text-ink-mute flex items-center justify-center flex-shrink-0 text-xs">?</span>
               <div>
                 <p className="text-sm text-ink-soft">Đã khai văn bản chấp thuận tổ chức biểu diễn</p>
                 <p className="text-xs text-ink-mute mt-0.5">
@@ -495,7 +495,7 @@ const OwnerShowDetailPage = () => {
             </div>
           )}
           <div className="flex items-start gap-2.5">
-            <span className="mt-0.5 w-5 h-5 bg-sunken text-ink-mute flex items-center justify-center flex-shrink-0 text-[10px]">?</span>
+            <span className="mt-0.5 w-5 h-5 bg-sunken text-ink-mute flex items-center justify-center flex-shrink-0 text-xs">?</span>
             <p className="text-sm text-ink-mute">
               Nộp trước tối thiểu số ngày làm việc quy định — cũng được kiểm khi bấm gửi.
             </p>
@@ -622,14 +622,14 @@ const OwnerShowDetailPage = () => {
                       <input aria-label="Giờ diễn" type="time" value={suaTietMuc.setTime}
                         onChange={(e) => setSuaTietMuc((v) => ({ ...v, setTime: e.target.value }))}
                         className="mt-1 w-full min-h-[44px] px-3 py-2 bg-card border-2 border-ink text-ink focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2" />
-                      <p className="text-[11px] text-ink-mute mt-1">Để trống nếu chưa chốt giờ.</p>
+                      <p className="text-xs text-ink-mute mt-1">Để trống nếu chưa chốt giờ.</p>
                     </div>
                     <div className="flex flex-col justify-between">
                       <label className="flex items-center gap-2 text-sm text-ink-soft mt-1">
                         <input type="checkbox" checked={suaTietMuc.acceptsDonation}
                           onChange={(e) => setSuaTietMuc((v) => ({ ...v, acceptsDonation: e.target.checked }))}
                           className="accent-ink" />
-                        Nhận donate
+                        Nhận tiền ủng hộ
                       </label>
                       <div className="flex gap-2 mt-2 flex-wrap">
                         <button onClick={handleLuuTietMuc} disabled={!!busy}
@@ -767,7 +767,7 @@ const OwnerShowDetailPage = () => {
                         <input aria-label="Sức chứa" type="number" min="1" value={suaHangVe.totalCapacity}
                           onChange={(e) => setSuaHangVe((v) => ({ ...v, totalCapacity: e.target.value }))}
                           className="mt-1 w-full min-h-[44px] px-3 py-2 bg-card border-2 border-ink text-ink focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2" />
-                        <p className="text-[11px] text-ink-mute mt-1">Để trống = không giới hạn.</p>
+                        <p className="text-xs text-ink-mute mt-1">Để trống = không giới hạn.</p>
                       </div>
                     </div>
                     <div>
@@ -777,7 +777,7 @@ const OwnerShowDetailPage = () => {
                         placeholder="VD: Ghế sát sân khấu, có nước uống"
                         className="mt-1 w-full min-h-[44px] px-3 py-2 bg-card border-2 border-ink text-ink focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2" />
                     </div>
-                    <p className="text-[11px] text-ink-mute">
+                    <p className="text-xs text-ink-mute">
                       Giá vé không sửa ở đây — giá thuộc đợt giá riêng của hạng vé.
                     </p>
                     <div className="flex gap-2 flex-wrap">
@@ -859,7 +859,7 @@ const OwnerShowDetailPage = () => {
               </div>
             </div>
 
-            <p className="text-[11px] text-ink-mute">
+            <p className="text-xs text-ink-mute">
               Vé mở bán ngay và bán tới khi buổi diễn kết thúc. Giá phải là số nguyên đồng.
             </p>
 

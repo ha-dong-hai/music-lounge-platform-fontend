@@ -20,7 +20,14 @@ import 'dayjs/locale/en'
 import en from './en.json'
 import { datBoDich } from './k'
 
+// MLACP-604 (04/10/2026): việc chuyển ngữ đang TẠM DỪNG giữa chừng (MLACP-583: en.json mới có một phần câu). Để nút đổi
+// ngôn ngữ hiện ra thì người chọn English nhận một trang nửa Anh nửa Việt — tệ hơn không có nút. Cờ này tắt cả nút (ở
+// Header) lẫn việc đọc lựa chọn cũ trong máy người dùng: ai từng chọn English cũng quay về tiếng Việt, không bị kẹt ở bản
+// dịch dở mà không còn nút để đổi lại. Dịch xong thì đổi về true — không cần sửa gì khác.
+export const BAT_DOI_NGON_NGU = false
+
 export const docNgonNgu = () => {
+  if (!BAT_DOI_NGON_NGU) return 'vi'
   try { return localStorage.getItem('lang') === 'en' ? 'en' : 'vi' } catch { return 'vi' }
 }
 

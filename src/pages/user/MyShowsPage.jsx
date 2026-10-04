@@ -54,7 +54,7 @@ const MyShowsPage = () => {
                 {TAB.map(([khoa, nhan]) => (
                   <button key={khoa} type="button" role="tab" id={`tab-cua-toi-${khoa}`} aria-selected={activeMainTab === khoa} aria-controls="noi-dung-cua-toi"
                     {...phimTab(khoa)} onClick={() => setActiveMainTab(khoa === 'shows' ? null : khoa)}
-                    className={`min-h-[48px] pb-3 text-lg font-semibold whitespace-nowrap border-b-4 -mb-[2px] transition-colors ${activeMainTab === khoa ? 'border-ink text-ink' : 'border-transparent text-ink-mute hover:text-ink'}`}>
+                    className={`min-h-[48px] min-w-[44px] pb-3 text-lg font-semibold whitespace-nowrap border-b-4 -mb-[2px] transition-colors ${activeMainTab === khoa ? 'border-ink text-ink' : 'border-transparent text-ink-mute hover:text-ink'}`}>
                     {nhan}
                   </button>
                 ))}

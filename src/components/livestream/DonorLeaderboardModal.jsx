@@ -54,7 +54,7 @@ const DonorLeaderboardModal = ({ donors, onClose }) => {
                 />
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-ink truncate">{d.name}</p>
-                  <p className="text-[11px] text-ink-mute">{d.count} donate count</p>
+                  <p className="text-xs text-ink-mute">{d.count} donate count</p>
                 </div>
 
                 {/* Tổng tiền */}
