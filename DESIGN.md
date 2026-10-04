@@ -354,6 +354,26 @@ thiếu mô tả, Gói dịch vụ không xuống dòng). Trang mới thì dùng
 trực tuyến / Đơn gọi món / nghệ sĩ; `keyword` cho Admin khiếu nại, phòng trà, buổi diễn, danh sách phòng trà công khai;
 `allStatuses=true` để thêm lại "Tất cả" ở Admin Phòng trà; trái tim theo dõi qua `/follows/lounges/status`.
 
+### Trang quản trị: bố cục và linh kiện LẤY TỪ MẪU, không tự dựng (05/10/2026)
+
+Chủ dự án: "cả bố cục design cũng nên tham khảo từ các repo template đã được thiết kế của React 19, Tailwind 4, Vite… tuyệt
+đối đừng tự code, tham khảo từ nhiều nguồn"; "thiết kế phải đáp ứng… người dùng cần gì, vướng ở đâu". Phân tích người dùng +
+bảng nguồn: `reports/Trang quản trị - người dùng cần gì, vướng ở đâu, lấy bố cục từ mẫu nào.md` (repo backend).
+
+- **Trang quản trị là một thế giới hình khối khác trang khán giả**: bo góc, bóng, thẻ trắng theo mẫu. "Giấy in cắt vuông" chỉ
+  còn là luật của trang khán giả. Cổng `kiem:the-gioi` miễn hai luật hình khối CHỈ cho `src/components/ui/`.
+- **Mọi linh kiện của trang quản trị nằm trong `src/components/ui/`** và ghi Nguồn / Ngày lấy / Đã sửa ở đầu tệp (cổng
+  `kiem-component`). Trang chỉ GHÉP linh kiện — viết lớp bo góc/bóng thẳng trong trang thì cổng đỏ (đúng ý: đồ tự dựng lộ ra).
+  - `ui/*.jsx`: shadcn/ui, sinh bằng `npx shadcn@latest add <tên>` (cấu hình `components.json`, JavaScript). Không sửa tay.
+  - `ui/admin/*.jsx`: bản chuyển từ template — khung trang, nhóm menu, người dùng (shadcn-admin); thẻ chỉ số, nhãn màu
+    (TailAdmin, MatDash); dòng danh sách (shadcn-admin); biểu đồ (ví dụ trong tài liệu shadcn charts, bọc recharts).
+- **Màu của linh kiện shadcn** đi qua `src/styles/shadcn.css` (tên shadcn → biến màu màn vận hành) — không có bảng màu thứ hai.
+- **Bố cục một trang số liệu** (theo dashboard của shadcn-admin): tiêu đề + bộ chọn kỳ → Tabs → hàng thẻ số → lưới 7 cột
+  (4 + 3). Tab đầu luôn mở bằng việc cần xử lý.
+- Mẫu tham khảo đã tải: `J:/MVP/ML_FE/tham-khao-template/` (shadcn-admin, TailAdmin, Tailwindadmin, MatDash — đều MIT,
+  React 19 + Tailwind 4 + Vite). Mosaic Lite là GPL: chỉ tham khảo màu, không chép mã.
+- Đã làm theo cách này: khung trang quản trị + trang Tổng quan. CHƯA: 16 trang còn lại, khung chủ phòng trà.
+
 ### Trang số liệu quản trị — luật trình bày (04/10/2026)
 
 Chủ dự án: "không đầu không đuôi, rối mắt, mờ nhạt, không theo tiêu chuẩn nào"; "được thì dùng thư viện, đừng tự code";

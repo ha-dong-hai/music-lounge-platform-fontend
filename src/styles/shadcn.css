@@ -1,0 +1,104 @@
+/* src/styles/shadcn.css
+   LỚP ÁNH XẠ cho linh kiện shadcn/ui (05/10/2026). Chủ dự án: "cả bố cục design cũng nên tham khảo từ các repo template đã
+   được thiết kế của React 19, Tailwind 4, Vite… tuyệt đối đừng tự code". Linh kiện trong src/components/ui được công cụ
+   `npx shadcn add` sinh ra (xem components.json); chúng viết bằng tên màu của shadcn (background, foreground, primary,
+   muted, border, sidebar…). Tệp này KHÔNG khai một bảng màu thứ hai: mỗi tên của shadcn trỏ về biến màu sẵn có của màn vận
+   hành (index.css, `.khung-van-hanh[data-mau]`), nên đổi kiểu màu D…J thì linh kiện shadcn đổi theo.
+
+   Cố ý KHÔNG có: `--color-card` (đã có ở index.css — `bg-card` của shadcn dùng luôn thẻ của mình), và khối
+   `@layer base { * { @apply border-border } body { @apply bg-background text-foreground } }` mà shadcn init thường thêm — nó
+   sẽ đổi viền và nền của CẢ trang khán giả. */
+
+@custom-variant dark (&:is(.dark *));
+@theme inline {
+  --color-background: var(--color-page);
+  --color-foreground: var(--color-ink);
+  --color-card-foreground: var(--color-ink);
+  --color-popover: var(--color-card);
+  --color-popover-foreground: var(--color-ink);
+  --color-primary: var(--color-chinh);
+  --color-primary-foreground: #ffffff;
+  --color-secondary: var(--color-sunken);
+  --color-secondary-foreground: var(--color-ink);
+  --color-muted: var(--color-sunken);
+  --color-muted-foreground: var(--color-ink-mute);
+  --color-accent: var(--color-sunken);
+  --color-accent-foreground: var(--color-ink);
+  --color-destructive: var(--color-danger);
+  --color-border: color-mix(in srgb, var(--color-line) 45%, transparent);
+  --color-input: var(--color-line);
+  --color-ring: var(--color-chinh);
+  --color-chart-1: var(--color-sl-goiy);
+  --color-chart-2: var(--color-sl-khangia);
+  --color-chart-3: var(--color-sl-tien);
+  --color-chart-4: var(--color-sl-uytin);
+  --color-chart-5: var(--color-sl-buoidien);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+:root {
+  --radius: 0.625rem;
+  /* Thanh bên của shadcn: giá trị mặc định (ngoài màn vận hành không dùng tới). Trong màn vận hành, khối dưới ghi đè. */
+  --sidebar: #ffffff;
+  --sidebar-foreground: #231A15;
+  --sidebar-primary: #231A15;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #EDE6DB;
+  --sidebar-accent-foreground: #231A15;
+  --sidebar-border: #DAD0C2;
+  --sidebar-ring: #231A15;
+}
+
+/* Trong màn vận hành: thanh bên shadcn lấy màu theo kiểu đang chọn. */
+.khung-van-hanh {
+  /* BO GÓC CỦA MẪU. index.css ép --radius-* về 1–4px cho cả trang ("giấy in cắt vuông" — luật của trang khán giả); để
+     nguyên thì thẻ, nút, tab của shadcn thành vuông (đo trên ảnh chụp 05/10). Trả lại thang bo góc của shadcn CHỈ trong
+     màn vận hành, tính từ --bo-goc của kiểu màu đang chọn. */
+  --radius: var(--bo-goc);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --sidebar: var(--color-card);
+  --sidebar-foreground: var(--color-ink);
+  --sidebar-primary: var(--color-chinh);
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: color-mix(in srgb, var(--color-chinh) 12%, var(--color-card));
+  --sidebar-accent-foreground: var(--color-ink);
+  --sidebar-border: color-mix(in srgb, var(--color-line) 45%, transparent);
+  --sidebar-ring: var(--color-chinh);
+}
+.khung-van-hanh[data-mau="E"] {
+  --sidebar: #212631;
+  --sidebar-foreground: #F3F4F7;
+  --sidebar-accent: #2F3645;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: #3A4254;
+}
+
+.dark {
+  --sidebar: hsl(240 5.9% 10%);
+  --sidebar-foreground: hsl(240 4.8% 95.9%);
+  --sidebar-primary: hsl(224.3 76.3% 48%);
+  --sidebar-primary-foreground: hsl(0 0% 100%);
+  --sidebar-accent: hsl(240 3.7% 15.9%);
+  --sidebar-accent-foreground: hsl(240 4.8% 95.9%);
+  --sidebar-border: hsl(240 3.7% 15.9%);
+  --sidebar-ring: hsl(217.2 91.2% 59.8%);
+}
+
+/* MÀU VIỀN MẶC ĐỊNH trong màn vận hành. Linh kiện shadcn viết `border` không kèm màu và trông cậy vào luật gốc
+   `* { border-color: var(--border) }` của shadcn; Tailwind 4 thì mặc định viền lấy màu chữ (currentColor) — nên thẻ có viền
+   đen đậm (đo trên ảnh chụp 05/10). Đặt trong @layer base để lớp `border-…` viết tường minh vẫn thắng. Chỉ trong màn vận
+   hành; trang khán giả không đổi. */
+@layer base {
+  .khung-van-hanh *, .khung-van-hanh ::before, .khung-van-hanh ::after { border-color: var(--color-border); }
+}

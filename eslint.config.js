@@ -20,6 +20,11 @@ export default defineConfig([
     // LƯU Ý KHI ĐỌC KẾT QUẢ LINT: vì thư mục này bị bỏ qua, truyền nó vào eslint sẽ làm lệnh
     // THOÁT 2 và không lint file nào — dễ đọc nhầm thành "sạch".
     'src/components/reactbits/**',
+    // Linh kiện shadcn/ui do `npx shadcn add` SINH RA (05/10/2026) — cùng lý do với reactbits: sửa cho hết cảnh báo (nhập
+    // React thừa, xuất hằng cva chung tệp…) là tạo một nhánh riêng, lần `shadcn add --overwrite` sau sẽ ghi đè mất.
+    // CHỈ các tệp nằm ngay trong thư mục; `src/components/ui/admin/**` là bản CHUYỂN TAY từ template (shadcn-admin,
+    // TailAdmin) nên VẪN được lint.
+    'src/components/ui/*.jsx',
   ]),
   {
     files: ['**/*.{js,jsx}'],

@@ -114,6 +114,20 @@ if (process.argv.includes('--tu-kiem')) {
   process.exit(loi ? 1 : 0)
 }
 
+// NGOẠI LỆ HÌNH KHỐI cho linh kiện ĐI LẤY VỀ của màn vận hành (05/10/2026).
+// Chủ dự án, về trang quản trị: "đừng chỉ cứng nhắc trong bảng màu design sẵn"; "cả bố cục design cũng nên tham khảo từ các
+// repo template đã được thiết kế của React 19, Tailwind 4, Vite… tuyệt đối đừng tự code". Linh kiện shadcn/ui và các mảnh bố
+// cục chép từ template (shadcn-admin, TailAdmin…) bo góc và dùng bóng mặc định — đó là hình khối của MẪU, không phải dấu vết
+// thiết kế cũ. "Giấy in cắt vuông" là luật của thế giới tờ chương trình (trang khán giả), và trang khán giả VẪN bị canh đủ.
+// Chỉ miễn HAI luật hình khối, chỉ trong thư mục này; tên màu cũ, chuyển sắc, kính mờ, font cũ, gsap vẫn bị bắt ở đây.
+// Thư mục này còn bị cổng kiem-component bắt buộc ghi nguồn gốc từng tệp — đồ tự viết không được trốn vào đây.
+const MIEN_HINH_KHOI = ['src/components/ui/']
+const LUAT_HINH_KHOI = new Set(['bo góc tròn (giấy in cắt vuông)', 'bóng mặc định Tailwind (dùng shadow-soft/lift/glow)'])
+const viPhamCua = (f) => {
+  const v = viPhamTrong(docTep(f))
+  return MIEN_HINH_KHOI.some((p) => f.startsWith(p)) ? v.filter((x) => !LUAT_HINH_KHOI.has(x.loai)) : v
+}
+
 const daChuyen = DA_CHUYEN.flatMap((p) => quet(p))
 if (daChuyen.length === 0) {
   console.error('✖ Không quét được file ĐÃ CHUYỂN nào — cổng xanh vì rỗng thì vô nghĩa. Kiểm lại DA_CHUYEN.')
@@ -123,7 +137,7 @@ const tapChuyen = new Set(daChuyen)
 
 let tongDo = 0
 for (const f of daChuyen) {
-  const v = viPhamTrong(docTep(f))
+  const v = viPhamCua(f)
   if (!v.length) continue
   tongDo += v.length
   console.log(`\n${f}`)
