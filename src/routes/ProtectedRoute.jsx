@@ -1,5 +1,6 @@
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../store/useAuthStore';
+import NotFoundPage from '../pages/NotFoundPage';
 
 const ProtectedRoute = ({ requiredRoles = [], children }) => {
   const { user, isTokenExpired, logout } = useAuthStore();
@@ -27,8 +28,9 @@ const ProtectedRoute = ({ requiredRoles = [], children }) => {
 
   // Kiểm tra Role 
   if (requiredRoles.length > 0 && !requiredRoles.includes(user.role)) {
-    // Nếu không có quyền
-    return <Navigate to="/" replace />;
+    // MLACP-593: báo rõ "không có quyền" tại chỗ thay cho việc lặng lẽ đẩy về trang chủ (người dùng tưởng hệ thống hỏng).
+    // Trang có lối đi tiếp đúng khu của vai này.
+    return <NotFoundPage khongQuyen />;
   }
 
   // trả về cần render

@@ -75,7 +75,8 @@ const OwnerLayout = () => {
   if (!isOwner) {
     portalName = 'Nhân viên phòng trà'
     nhom = [{ ten: 'Đêm diễn', muc: [...MUC_QUAY, MUC_PHAT] }]
-    loiRa = LOI_RA_CHUNG
+    // Nhân viên không có mục Định danh và thuế (utils/mucTaiKhoan.js) — lối ra dẫn tới tài khoản chung.
+    loiRa = [{ to: '/account', nhan: 'Tài khoản của tôi', icon: ShieldCheck }, LOI_RA_CHUNG[1]]
   } else if (laDuongQuay(pathname)) {
     portalName = 'Quầy đêm diễn'
     nhom = [{ ten: 'Việc tại quầy', muc: MUC_QUAY }]

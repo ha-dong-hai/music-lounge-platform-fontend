@@ -26,6 +26,7 @@ import {
 } from '../../services/livestreamServices'
 import NutXacNhan from '../../components/shared/NutXacNhan'
 import KhungTai from '../../components/bang/KhungTai'
+import { useAuthStore } from '../../store/useAuthStore'
 
 // Đủ 6 trạng thái của LivestreamStatus (Domain/Enums/LivestreamStatus.cs), chữ tiếng Việt. Bản cũ in thẳng enum
 // ("Scheduled", "Live"…) và Reconnecting/Failed rơi về kiểu của Ended (01/10/2026, M-430).
@@ -54,6 +55,7 @@ const ShowLivestreamRow = ({ show, onChanged }) => {
   // mã tác quyền đã khai chỉ có ở chi tiết. Trước đây hàm dưới gọi chi tiết rồi bỏ đi, chỉ lấy
   // livestreamId; nay giữ lại.
   const [chiTiet, setChiTiet] = useState(null)
+  const laNhanVien = useAuthStore((st) => st.user?.role) === 'Staff'
 
   const loadLivestream = useCallback(async () => {
     try {
@@ -176,12 +178,22 @@ const ShowLivestreamRow = ({ show, onChanged }) => {
       {livestream && livestream.status === 'Scheduled' && (
         <div className="mt-4 pt-4 border-t border-line space-y-3">
           {/* Mã tác quyền — điều kiện bắt buộc để bắt đầu phát. Khối dùng chung với trang Cài đặt buổi diễn. */}
-          <VcpmcRoyaltyCard
-            showId={show.id}
-            declared={chiTiet?.operatorInfo?.vcpmcDeclared}
-            reference={chiTiet?.operatorInfo?.vcpmcRoyaltyReference}
-            onSaved={loadLivestream}
-          />
+          {/* MLACP-593: lưu mã tác quyền là quyền của CHỦ (PUT vcpmc-royalty là RequireOwner) — nhân viên chỉ được báo
+              trạng thái, không thấy ô nhập mà bấm Lưu sẽ nhận 403. Cùng cách trang Vận hành đêm diễn báo cho nhân viên. */}
+          {laNhanVien ? (
+            <p role="note" className="text-xs leading-relaxed text-ink-soft">
+              {chiTiet?.operatorInfo?.vcpmcDeclared
+                ? `Đã khai mã tác quyền VCPMC: ${chiTiet.operatorInfo.vcpmcRoyaltyReference}.`
+                : 'Chưa khai mã tác quyền VCPMC nên chưa phát được. Nhờ chủ phòng trà khai trong Cài đặt buổi diễn.'}
+            </p>
+          ) : (
+            <VcpmcRoyaltyCard
+              showId={show.id}
+              declared={chiTiet?.operatorInfo?.vcpmcDeclared}
+              reference={chiTiet?.operatorInfo?.vcpmcRoyaltyReference}
+              onSaved={loadLivestream}
+            />
+          )}
           {/* Lấy khoá phát TRƯỚC giờ diễn để cài sẵn OBS — backend cho lấy ở mọi trạng thái (chỉ kiểm quyền vận hành
               phòng trà). Bản cũ chỉ hiện khoá sau khi bấm Bắt đầu phát (01/10/2026, M-430). */}
           {!credentials && (

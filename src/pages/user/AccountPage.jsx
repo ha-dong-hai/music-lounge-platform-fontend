@@ -14,23 +14,18 @@ import FollowedLoungesTab from '../../components/account/FollowedLoungesTab'
 import IdentityTab from '../../components/account/IdentityTab'
 import PreferencesTab from '../../components/account/PreferencesTab'
 import PrivacyTab from '../../components/account/PrivacyTab'
+import { useAuthStore } from '../../store/useAuthStore'
+import { mucTheoVai, tabHopLe } from '../../utils/mucTaiKhoan'
 
-const MUC = [
-  { key: 'profile', nhan: 'Thông tin tài khoản', icon: User },
-  { key: 'followed', nhan: 'Phòng trà đang theo dõi', icon: Heart },
-  { key: 'identity', nhan: 'Định danh và thuế', icon: ShieldCheck },
-  { key: 'preferences', nhan: 'Sở thích gợi ý', icon: Sparkles },
-  { key: 'privacy', nhan: 'Dữ liệu và tài khoản', icon: Lock },
-]
-const TABS_HOP_LE = MUC.map((m) => m.key)
+// Mục nào hiện với vai nào: utils/mucTaiKhoan.js (MLACP-593). Ở đây chỉ gắn biểu tượng.
+const BIEU_TUONG = { profile: User, followed: Heart, identity: ShieldCheck, preferences: Sparkles, privacy: Lock }
 
 const AccountPage = () => {
   const [searchParams, setSearchParams] = useSearchParams()
-  // Tên tab lạ trên URL thì rơi về 'profile' thay vì hiện trang trống.
-  const tabTuUrl = searchParams.get('tab')
-  const [activeTab, setActiveTabState] = useState(
-    TABS_HOP_LE.includes(tabTuUrl) ? tabTuUrl : 'profile',
-  )
+  const vai = useAuthStore((s) => s.user?.role)
+  const MUC = mucTheoVai(vai).map((m) => ({ ...m, icon: BIEU_TUONG[m.key] }))
+  // Tên tab lạ trên URL — hoặc tab vai này không có — thì rơi về 'profile' thay vì hiện trang trống.
+  const [activeTab, setActiveTabState] = useState(() => tabHopLe(vai, searchParams.get('tab')))
 
   const setActiveTab = (tab) => {
     setActiveTabState(tab)
