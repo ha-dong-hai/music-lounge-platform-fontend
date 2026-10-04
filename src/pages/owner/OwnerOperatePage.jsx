@@ -405,13 +405,31 @@ const OwnerOperatePage = () => {
                   {VE_KHONG_SOAT[veTraCuu.status]?.tot ? <CheckCircle2 size={13} /> : <XCircle size={13} />}
                   {VE_KHONG_SOAT[veTraCuu.status]?.cau ?? 'Vé này không soát được.'}
                 </p>
-              ) : (
-                <button onClick={handleCheckIn} disabled={busy !== null}
-                  className="mt-3 w-full flex items-center justify-center gap-2 disabled:opacity-50 min-h-[44px] px-4 bg-ink text-lamp text-sm font-semibold hover:bg-board">
-                  {busy === 'checkin' ? <Loader2 size={16} className="animate-spin" /> : <CheckCircle2 size={16} />}
-                  Soát vé và cho vào
-                </button>
-              )}
+              ) : (() => {
+                // MLACP-610: backend chỉ cho soát vé khi buổi diễn ĐANG DIỄN (CheckInTicketCommandHandler). Trước đây nút
+                // luôn bấm được; nhân viên bấm rồi mới nhận một dòng báo lỗi có chữ "check-in" (đo 04/10/2026 khi chạy
+                // trọn luồng mua vé → soát vé). Nay biết trước trạng thái buổi của vé thì khoá nút và nói phải làm gì.
+                // Không tìm thấy buổi của vé trong danh sách đang có thì để nút bấm được — backend vẫn là nơi quyết.
+                const buoiCuaVe = shows.find((s) => s.id === veTraCuu.showId)
+                const chuaDien = buoiCuaVe && buoiCuaVe.status !== 'Ongoing'
+                return (
+                  <>
+                    <button onClick={handleCheckIn} disabled={busy !== null || chuaDien}
+                      aria-describedby={chuaDien ? 'ly-do-chua-soat' : undefined}
+                      className="mt-3 w-full flex items-center justify-center gap-2 disabled:opacity-50 min-h-[44px] px-4 bg-ink text-lamp text-sm font-semibold hover:bg-board">
+                      {busy === 'checkin' ? <Loader2 size={16} className="animate-spin" /> : <CheckCircle2 size={16} />}
+                      Soát vé và cho vào
+                    </button>
+                    {chuaDien && (
+                      <p id="ly-do-chua-soat" className="mt-2 text-xs text-warning leading-relaxed">
+                        {buoiCuaVe.status === 'Published'
+                          ? 'Chưa soát được: buổi diễn chưa bắt đầu. Bấm "Bắt đầu buổi diễn" ở trên rồi soát vé.'
+                          : `Chưa soát được: buổi diễn đang ở trạng thái "${tenTrangThai(buoiCuaVe.status)}". Chỉ soát vé khi buổi đang diễn.`}
+                      </p>
+                    )}
+                  </>
+                )
+              })()}
             </div>
           )}
 
