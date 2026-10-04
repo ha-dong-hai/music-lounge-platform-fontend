@@ -80,7 +80,7 @@ const VenueDossierModal = ({ venue, onClose, onReview }) => {
             <LicenseBadge hasLicense={venue.hasBusinessLicense} />
           </div>
 
-          <div className="border border-line bg-sunken/40 px-4">
+          <div className="border border-line bg-sunken px-4">
             <Dong icon={Building2} nhan="Tên phòng trà">{venue.name}</Dong>
             <Dong icon={User} nhan="Chủ phòng trà">
               <p className="font-medium">{venue.ownerName}</p>

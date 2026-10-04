@@ -26,7 +26,7 @@ const AccountDetailModal = ({ selectedAcc, isModalLoading, isUpdating, onClose, 
           <>
             <div className="flex justify-between items-start mb-6">
               <div className="flex items-center gap-4">
-                <img src={selectedAcc.avatarUrl || anhChuCai(selectedAcc.fullName)} alt="avatar" className="w-16 h-16 border-2 border-ink/30 object-cover" />
+                <img src={selectedAcc.avatarUrl || anhChuCai(selectedAcc.fullName)} alt="avatar" className="w-16 h-16 border-2 border-line object-cover" />
                 <div>
                   <TieuDeHop><h2 className="text-xl text-ink">{selectedAcc.fullName}</h2></TieuDeHop>
                   <p className="text-sm text-ink-mute">{selectedAcc.email}</p>
@@ -62,7 +62,7 @@ const AccountDetailModal = ({ selectedAcc, isModalLoading, isUpdating, onClose, 
               </div>
 
               {selectedAcc.role === 'Admin' && (
-                <div className="bg-ink/5 border border-ink/20 p-4 flex items-center gap-2">
+                <div className="bg-ink/5 border border-line p-4 flex items-center gap-2">
                   <ShieldCheck size={18} className="text-ink" />
                   <p className="text-sm text-ink">Hệ thống quản trị</p>
                 </div>

@@ -133,7 +133,7 @@ const HotspotModal = ({ loungeId, scene, scenes, zones = [], onClose, onSaved })
               {scene.hotspots.map((h) => {
                 const dich = scenes.find((x) => x.id === h.targetSceneId)
                 return (
-                  <li key={h.id} className="flex items-center justify-between gap-3 bg-sunken/70 border border-line p-3">
+                  <li key={h.id} className="flex items-center justify-between gap-3 bg-sunken border border-line p-3">
                     <div className="min-w-0">
                       <p className="text-sm text-ink truncate">{h.label || 'Không nhãn'}</p>
                       {/* Hai loại hotspot hiện khác nhau: loại chú thích không dẫn đi đâu nên hiện
@@ -543,7 +543,7 @@ const OwnerTourPage = () => {
         ) : (
           <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {scenes.map((sc) => (
-              <li key={sc.id} className="bg-sunken/70 border border-line overflow-hidden">
+              <li key={sc.id} className="bg-sunken border border-line overflow-hidden">
                 {sc.imageUrl && <img src={sc.imageUrl} alt="" className="w-full h-32 object-cover" />}
                 <div className="p-3">
                   <TenCanh loungeId={lounge.id} sc={sc} onLuu={load} />
@@ -588,7 +588,7 @@ const OwnerTourPage = () => {
                       </button>
                       {tour?.floorPlanImageUrl && (
                         <button type="button" onClick={() => setSceneDangDat(sceneDangDat === sc.id ? null : sc.id)} aria-pressed={sceneDangDat === sc.id}
-                          className={`inline-flex items-center gap-1.5 min-h-[44px] px-3 border-2 text-sm font-semibold transition-colors ${sceneDangDat === sc.id ? 'bg-ink text-lamp border-ink' : 'bg-card border-ink/30 text-ink hover:border-ink'}`}>
+                          className={`inline-flex items-center gap-1.5 min-h-[44px] px-3 border-2 text-sm font-semibold transition-colors ${sceneDangDat === sc.id ? 'bg-ink text-lamp border-ink' : 'bg-card border-line text-ink hover:border-ink'}`}>
                           <MapPin size={12} /> {sceneDangDat === sc.id ? 'Đang nhắm' : 'Đặt trên bản đồ'}
                         </button>
                       )}
@@ -612,7 +612,7 @@ const OwnerTourPage = () => {
         </p>
 
         {donGhep ? (
-          <div className="mt-4 bg-sunken/70 border border-line p-4">
+          <div className="mt-4 bg-sunken border border-line p-4">
             <p className="text-sm text-ink flex items-center gap-2">
               <Clock size={14} className="text-warning" /> Đơn ghép #{maNgan(donGhep.id)} — {donGhep.status}
             </p>

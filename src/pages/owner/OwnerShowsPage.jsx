@@ -77,7 +77,7 @@ const MultiPick = ({ label, options, selected, onToggle }) => (
             type="button"
             onClick={() => onToggle(o.id)}
             aria-pressed={on}
-            className={`inline-flex items-center gap-1.5 min-h-[44px] px-3 border-2 text-sm font-semibold transition-colors ${on ? 'bg-ink text-lamp border-ink' : 'bg-card border-ink/30 text-ink hover:border-ink'}`}
+            className={`inline-flex items-center gap-1.5 min-h-[44px] px-3 border-2 text-sm font-semibold transition-colors ${on ? 'bg-ink text-lamp border-ink' : 'bg-card border-line text-ink hover:border-ink'}`}
           >
             {o.name}
           </button>
@@ -438,7 +438,7 @@ const OwnerShowsPage = () => {
             const isDraft = s.status === 'Draft'
             const isBusy = busyId === s.id
             return (
-              <li key={s.id} className="py-4 border-t border-ink/20 first:border-t-0 grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
+              <li key={s.id} className="py-4 border-t border-line first:border-t-0 grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
                 <div className="min-w-0">
                   <p className="font-mono text-sm text-ink-soft">
                     {khungGio(s.scheduledStart, s.effectiveEnd)} · {ngayDayDu(s.scheduledStart)}

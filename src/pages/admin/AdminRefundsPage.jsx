@@ -99,7 +99,7 @@ const AdminRefundsPage = () => {
         ) : items.length === 0 ? (
           <p className="border-2 border-ink p-6">Không có yêu cầu hoàn tiền nào đang chờ.</p>
         ) : (
-          <ol className="border-y-2 border-ink divide-y divide-ink/20">
+          <ol className="border-y-2 border-ink divide-y divide-line">
             {items.map((r) => {
               const quaHan = r.expectedResolutionBy && new Date(r.expectedResolutionBy) < new Date()
               const d = duong(r)

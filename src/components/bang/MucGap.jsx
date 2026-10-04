@@ -15,8 +15,8 @@ import { ChevronDown } from 'lucide-react'
 import { MAU_SO_LIEU } from './mauSoLieu'
 
 const MucGap = ({ id, tieuDe, tomTat, mau, moSan = false, children }) => (
-  <details open={moSan} className="group border-2 border-ink/25 bg-card">
-    <summary className="flex items-center gap-3 px-4 sm:px-5 min-h-[60px] py-2 cursor-pointer list-none [&::-webkit-details-marker]:hidden hover:bg-sunken/60">
+  <details open={moSan} className="group border-2 border-line bg-card">
+    <summary className="flex items-center gap-3 px-4 sm:px-5 min-h-[60px] py-2 cursor-pointer list-none [&::-webkit-details-marker]:hidden hover:bg-sunken">
       {MAU_SO_LIEU[mau] && <span aria-hidden="true" className={`w-3 h-3 flex-shrink-0 ${MAU_SO_LIEU[mau].nen}`} />}
       <span className="flex-1 min-w-0 flex flex-wrap items-baseline gap-x-4 gap-y-0.5">
         <h2 id={id} className="font-sans text-lg font-bold text-ink">{tieuDe}</h2>

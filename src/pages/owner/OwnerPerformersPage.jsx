@@ -157,7 +157,7 @@ const PerformerFormModal = ({ initial, genres, onClose, onSaved }) => {
                 const chon = form.genreIds.includes(g.id)
                 return (
                   <button key={g.id} type="button" onClick={() => toggleGenre(g.id)} aria-pressed={chon}
-                    className={`inline-flex items-center gap-1.5 min-h-[44px] px-3 border-2 text-sm font-semibold transition-colors ${chon ? 'bg-ink text-lamp border-ink' : 'bg-card border-ink/30 text-ink hover:border-ink'}`}>
+                    className={`inline-flex items-center gap-1.5 min-h-[44px] px-3 border-2 text-sm font-semibold transition-colors ${chon ? 'bg-ink text-lamp border-ink' : 'bg-card border-line text-ink hover:border-ink'}`}>
                     {g.name}
                   </button>
                 )
@@ -228,7 +228,7 @@ const SocialLinksModal = ({ performer, onClose, onSaved }) => {
           ) : (
             <ul className="space-y-2">
               {links.map((l) => (
-                <li key={l.id} className="flex items-center justify-between gap-3 bg-sunken/70 border border-line p-3">
+                <li key={l.id} className="flex items-center justify-between gap-3 bg-sunken border border-line p-3">
                   <div className="min-w-0">
                     <p className="text-ink text-sm font-medium">{l.platform}</p>
                     <a href={l.url} target="_blank" rel="noopener noreferrer"

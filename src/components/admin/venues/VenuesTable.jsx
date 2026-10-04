@@ -33,7 +33,7 @@ const VenuesTable = ({ venues, isLoading, onViewDossier, onReview, onPenalize })
               </tr>
             ) : venues.length > 0 ? (
               venues.map(v => (
-                <tr key={v.loungeId} className="hover:bg-sunken/30 transition-colors">
+                <tr key={v.loungeId} className="hover:bg-sunken transition-colors">
                   <td className="p-4">
                     <div className="flex items-center gap-3">
                       <img

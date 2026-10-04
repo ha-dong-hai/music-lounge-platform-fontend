@@ -91,6 +91,112 @@
   --ease-out-soft: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+/* MÀN VẬN HÀNH — ĐỌC ĐƯỢC BẰNG MẮT NGƯỜI (05/10/2026). Lớp này nằm trên <main> của components/portal/PortalShell
+   (Admin + chủ phòng trà). Chủ dự án: "có cái cỡ chữ thì nhỏ, cái thì màu sắc như muốn lẫn vào màu nền" → "dùng các kỹ
+   thuật để tìm ra thị giác người thật". Số đo và nguồn: reports/PreMortem-giao-dien-quan-tri-2026-10-05.md (repo backend).
+
+   VÌ SAO GHI ĐÈ BIẾN, KHÔNG SỬA TỪNG CHỖ: 143 chỗ dùng text-xs và 125 chỗ dùng viền nhạt ở mã màn vận hành — sửa tay thì
+   sót và tái phát. Token gốc được chọn cho trang khán giả (ảnh mang cấu trúc, chữ nhỏ chỉ là chú thích); trang số liệu
+   không có ảnh, cấu trúc dựa hoàn toàn vào viền + nền + chữ. Trang khán giả KHÔNG đổi.
+
+   CỠ CHỮ — Legge & Bigelow 2011: đọc trôi chảy khi chiều cao chữ thường >= 0,2° góc nhìn. Màn 96dpi cách 60cm:
+   12px = 0,161° · 14px = 0,187° · 16px = 0,214°. Nên: text-sm (chữ đọc chính của bảng) 14 → 16px, text-xs 12 → 14px.
+   Không còn chữ nào dưới 14px.
+
+   MÀU — APCA (mô hình tương phản theo cảm nhận, dự thảo WCAG 3), đo so với nền thẻ #FBF8F3:
+     ink-mute  #65584D Lc 80 → #55493F Lc 86   (chữ phụ 14–16px; thân 14px nét thường cần ~Lc 90, 16px/500 cần 75)
+     ink-soft  #4A3E35 Lc 90 → #3D332C Lc 94
+     line      #DAD0C2 Lc 20, 1,4:1 → #9C8E7F Lc 55, 3,0:1  (Material 3 `outline` / WCAG 1.4.11: ranh giới cần 3:1)
+     sunken    #EDE6DB Lc 8 → #E1D6C6  (APCA: dưới Lc 15 thì đồ hoạ không nhận ra được — đầu bảng, ô đang chọn, rãnh thanh.
+               Không tối hơn nữa: chữ mực đặt TRÊN nền này mất tương phản — thử #DCCFBC thì mực chỉ còn Lc 77.)
+     ink-mute  lần đo 2: #55493F (Lc 86) vẫn dưới mức 90 của chữ 14–16px nét thường → #4A3E35 (Lc 90). Phân cấp chữ
+               chính/phụ ở màn vận hành vì thế dựa vào ĐỘ ĐẬM và CỠ, không dựa vào độ nhạt.
+     success/danger/warning: chữ màu ở 14px không sắc nào tới Lc 90 trừ khi gần đen; APCA cho 14px/700 mức 75 → chữ màu
+               trạng thái LUÔN in đậm 700 (quy tắc dưới), và ba màu đậm thêm: Lc 87 / 82 / 88.
+   Công thức WCAG 2 (4,5:1) báo "đạt" cho mọi chữ ở cả 17 trang trong khi mắt thấy mờ — đừng dùng nó làm bằng chứng. */
+.man-van-hanh {
+  --text-xs: 0.875rem;
+  --text-xs--line-height: calc(1.25 / 0.875);
+  --text-sm: 1rem;
+  --text-sm--line-height: calc(1.5 / 1);
+  --color-success: #1E5235;
+  --color-danger: #9B211A;
+  --color-warning: #5E3D00;
+}
+
+/* CHỦ ĐỀ MÀU CỦA MÀN VẬN HÀNH (05/10/2026). Chủ dự án, sau khi tôi chỉ thêm dải màu mảnh: "Đã bảo đừng màu trung tính nữa
+   rồi mà sao toàn chỉ thấy màu trắng, màu cà phê trung tính". Nền ngà + mực nâu + thanh bên đen nâu LÀ thứ trung tính đó
+   — thêm điểm màu lên trên không đổi được cảm giác tổng thể. Nên đổi chính BỀ MẶT: nền trang có sắc, thẻ trắng, thanh
+   bên màu đậm, nút chính và đầu bảng mang màu chủ đề. Trang khán giả KHÔNG đổi (lớp này chỉ nằm ở PortalShell).
+
+   Ba chủ đề để chủ dự án chọn trên trang thật (cách đã dùng để chốt bảng màu trang khán giả 30/09): A lam · B lục · C mận.
+   Xem thử bằng `?mau=A|B|C`. Mọi cặp chữ/nền đã qua APCA (scratchpad/chude.cjs): chữ trên thẻ Lc 93–104 (cần 90), chữ mực
+   trên đầu bảng Lc 79–82 (16px/600 cần 75), chữ trắng trên nút chính Lc 87–93, nền lõm so với thẻ Lc 19–23 (cần 15), viền
+   3,5:1 (cần 3:1), chữ thanh bên Lc 96. Chữ nhạt đặt thẳng trên nền trang có sắc chỉ tới Lc ~88 → chữ phụ ở đây gần bằng
+   mực; phân cấp bằng cỡ và độ đậm. */
+.khung-van-hanh {
+  /* cỡ chữ: thanh bên cũng theo sàn 14px (nhãn nhóm 12px trên nền tối là chỗ khó đọc nhất) */
+  --text-xs: 0.875rem;
+  --text-xs--line-height: calc(1.25 / 0.875);
+  /* A — LAM (mặc định) */
+  --color-page: #E3EBF8;
+  --color-card: #FFFFFF;
+  --color-stock: #E3EBF8;
+  --color-sunken: #CCDAF2;
+  --color-line: #7889A6;
+  --color-line-strong: #101B33;
+  --color-ink: #101B33;
+  --color-ink-soft: #1A2640;
+  --color-ink-mute: #202C46;
+  --color-board: #0E1C3A;
+  --color-board-soft: #1A2C55;
+  --color-lamp: #EAF0FB;
+  --color-lamp-mute: #C6D2EA;
+  --color-chinh: #1B4FB5;
+  --color-chinh-dam: #123B8C;
+}
+.khung-van-hanh[data-mau="B"] {
+  --color-page: #DFEFEA;
+  --color-stock: #DFEFEA;
+  --color-sunken: #C4E0D6;
+  --color-line: #6F8F86;
+  --color-line-strong: #0E231F;
+  --color-ink: #0E231F;
+  --color-ink-soft: #152F29;
+  --color-ink-mute: #19352F;
+  --color-board: #0A2722;
+  --color-board-soft: #143C34;
+  --color-lamp: #E8F5F1;
+  --color-lamp-mute: #C0DCD3;
+  --color-chinh: #0B6B58;
+  --color-chinh-dam: #084F41;
+}
+.khung-van-hanh[data-mau="C"] {
+  --color-page: #F6E3EC;
+  --color-stock: #F6E3EC;
+  --color-sunken: #EBCBDA;
+  --color-line: #9C7E8B;
+  --color-line-strong: #2A1220;
+  --color-ink: #2A1220;
+  --color-ink-soft: #35192B;
+  --color-ink-mute: #3B1E31;
+  --color-board: #2B0F20;
+  --color-board-soft: #461C36;
+  --color-lamp: #FBEAF2;
+  --color-lamp-mute: #E6C8D6;
+  --color-chinh: #8A2452;
+  --color-chinh-dam: #6A1A3E;
+}
+/* Nút chính, tab đang chọn, ô phân trang đang chọn: mã cũ viết `bg-ink` (mực) — ở màn vận hành chúng mang MÀU CHỦ ĐỀ.
+   Ghi đè theo phạm vi thay vì sửa ~100 chỗ gọi: cùng lý do với cỡ chữ ở trên. */
+.khung-van-hanh main :is(button, a, [role="button"]).bg-ink { background-color: var(--color-chinh); border-color: var(--color-chinh); }
+.khung-van-hanh main :is(button, a, [role="button"]).bg-ink:hover { background-color: var(--color-chinh-dam); }
+/* Đầu bảng: nền lõm đã có sắc chủ đề; thêm vạch màu chủ đề thay vạch mực. */
+.khung-van-hanh main thead { border-bottom-color: var(--color-chinh); }
+/* Mục đang mở ở thanh bên: vạch trái màu sáng của chủ đề thay vàng thếp (ember chỉ dành cho "buổi đang diễn"). */
+.khung-van-hanh nav a[aria-current="page"] { border-left-color: var(--color-chinh); }
+.man-van-hanh :is(.text-success, .text-danger, .text-warning) { font-weight: 700; }
+
 @layer base {
   html { color-scheme: light; -webkit-text-size-adjust: 100%; }
   body {

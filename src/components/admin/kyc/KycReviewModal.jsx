@@ -33,7 +33,7 @@ const KycReviewModal = ({ target, isProcessing, onClose, onSubmit }) => {
         </div>
 
         <form onSubmit={submit} className="p-5 space-y-4">
-          <div className="bg-sunken/70 border border-line p-3">
+          <div className="bg-sunken border border-line p-3">
             <p className="text-sm text-ink font-medium">{target.item.fullName}</p>
             <p className="text-xs text-ink-mute mt-0.5">{target.item.email}</p>
           </div>

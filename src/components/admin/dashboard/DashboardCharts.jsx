@@ -112,8 +112,8 @@ export const RevenueSeriesChart = ({ series, unit, measure, seriesTruoc }) => {
             <defs>{SOURCES.filter((s) => s.hoaVan).map((s) => <HoaVan key={s.key} id={`hv-cot-${s.key}`} color={s.color} />)}</defs>
             <CartesianGrid strokeDasharray="3 3" stroke={GRID} vertical={false} />
             <XAxis dataKey="label" axisLine={{ stroke: GRID }} tickLine={false} minTickGap={12}
-              tick={{ fill: AXIS_TEXT, fontSize: 12 }} />
-            <YAxis width={56} axisLine={false} tickLine={false} tick={{ fill: AXIS_TEXT, fontSize: 12 }} tickFormatter={fmtCompact} />
+              tick={{ fill: AXIS_TEXT, fontSize: 14 }} />
+            <YAxis width={68} axisLine={false} tickLine={false} tick={{ fill: AXIS_TEXT, fontSize: 14 }} tickFormatter={fmtCompact} />
             <Tooltip content={<RevenueTooltip />} cursor={{ fill: CURSOR, opacity: 0.6 }} />
             {SOURCES.map((s) => (
               <Bar key={s.key} dataKey={s.key} name={s.label} stackId="rev" fill={fillCua(s, 'hv-cot')} maxBarSize={28}
@@ -194,7 +194,7 @@ export const TopShowsTable = ({ shows }) => {
         </thead>
         <tbody className="divide-y divide-line">
           {shows.map((s, i) => (
-            <tr key={s.showId} className="hover:bg-sunken/60 transition-colors">
+            <tr key={s.showId} className="hover:bg-sunken transition-colors">
               <td className="px-5 py-3 text-ink-mute tabular-nums text-sm">{i + 1}</td>
               <td className="px-5 py-3">
                 <Link to={`/admin/shows/${s.showId}`} className="text-sm text-ink font-semibold hover:underline underline-offset-4">

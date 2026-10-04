@@ -161,7 +161,7 @@ const CustomCriteriaSection = ({ loungeId }) => {
         </div>
         <div className="flex flex-wrap gap-2 flex-shrink-0">
           <button type="button" onClick={() => setXemCaDaTat((v) => !v)} aria-pressed={xemCaDaTat}
-            className={`inline-flex items-center gap-1.5 min-h-[44px] px-3 border-2 text-sm font-semibold transition-colors ${xemCaDaTat ? 'bg-ink text-lamp border-ink' : 'bg-card border-ink/30 text-ink hover:border-ink'}`}>
+            className={`inline-flex items-center gap-1.5 min-h-[44px] px-3 border-2 text-sm font-semibold transition-colors ${xemCaDaTat ? 'bg-ink text-lamp border-ink' : 'bg-card border-line text-ink hover:border-ink'}`}>
             {xemCaDaTat ? <Eye size={14} /> : <EyeOff size={14} />}
             {xemCaDaTat ? 'Đang xem cả đã tắt' : 'Xem cả đã tắt'}
           </button>
@@ -186,7 +186,7 @@ const CustomCriteriaSection = ({ loungeId }) => {
               const dangSua = suaTen?.id === c.id
               return (
                 <li key={c.id}
-                  className={`bg-sunken/70 border border-line p-3 ${daTat ? 'opacity-60' : ''}`}>
+                  className={`bg-sunken border border-line p-3 ${daTat ? 'opacity-60' : ''}`}>
                   <div className="flex items-start justify-between gap-3 flex-wrap">
                     <div className="min-w-0 flex-1">
                       {dangSua ? (

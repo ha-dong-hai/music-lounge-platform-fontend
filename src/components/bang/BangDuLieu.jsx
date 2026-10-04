@@ -89,7 +89,7 @@ const BangDuLieu = ({ ds, cot, tenDonVi: tenDonViVao, chuThich, idDanhSach, khiR
               <tr><td colSpan={soCot} className="p-8 text-center text-ink-soft">{khiRong ?? t('Không có {{x}} nào.', { x: tenDonVi })}</td></tr>
             ) : (
               table.getRowModel().rows.map((r) => (
-                <tr key={r.id} role="row" className="hover:bg-sunken/40 max-md:block max-md:py-2">
+                <tr key={r.id} role="row" className="hover:bg-sunken max-md:block max-md:py-2">
                   {r.getAllCells().map((c) => (
                     <td key={c.id} role="cell" data-nhan={nhanCot(c.column)}
                       className={`px-4 py-3 align-middle ${canPhai(c.column.columnDef.meta)} ${nhanCot(c.column) ? HEP.o : HEP.oTron}`}>

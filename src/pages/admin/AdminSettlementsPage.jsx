@@ -94,7 +94,7 @@ const AdminSettlementsPage = () => {
         ) : items.length === 0 ? (
           <p className="border-2 border-ink p-6">Không có khoản quyết toán nào đang bị giữ.</p>
         ) : (
-          <ol className="border-y-2 border-ink divide-y divide-ink/20">
+          <ol className="border-y-2 border-ink divide-y divide-line">
             {items.map((s) => {
               const dangXuLy = busyId === s.settlementId
               const [sacThai, nhanPX] = PHAN_XET[s.verdict] ?? ['trung', s.verdict]
@@ -117,8 +117,8 @@ const AdminSettlementsPage = () => {
                       <caption className="sr-only">Bằng chứng thời lượng buổi diễn</caption>
                       <thead><tr className="text-left text-ink-mute"><th scope="col" className="font-normal py-1"></th><th scope="col" className="font-normal py-1">Bắt đầu</th><th scope="col" className="font-normal py-1">Kết thúc</th></tr></thead>
                       <tbody className="font-mono">
-                        <tr className="border-t border-ink/20"><th scope="row" className="font-sans font-normal text-left py-1.5 pr-4 text-ink-mute">Dự kiến</th><td>{moc(s.scheduledStart)}</td><td>{moc(s.scheduledEnd)}</td></tr>
-                        <tr className="border-t border-ink/20"><th scope="row" className="font-sans font-normal text-left py-1.5 pr-4 text-ink-mute">Thực tế</th><td>{moc(s.actualStart)}</td><td>{moc(s.actualEnd)}</td></tr>
+                        <tr className="border-t border-line"><th scope="row" className="font-sans font-normal text-left py-1.5 pr-4 text-ink-mute">Dự kiến</th><td>{moc(s.scheduledStart)}</td><td>{moc(s.scheduledEnd)}</td></tr>
+                        <tr className="border-t border-line"><th scope="row" className="font-sans font-normal text-left py-1.5 pr-4 text-ink-mute">Thực tế</th><td>{moc(s.actualStart)}</td><td>{moc(s.actualEnd)}</td></tr>
                       </tbody>
                     </table>
                     <p className="mt-2 text-sm">

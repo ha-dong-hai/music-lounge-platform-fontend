@@ -110,7 +110,7 @@ const OptionFormModal = ({ isOpen, typeLabel, hasNameEn, hasDescription, editing
                     {/* Mục đang tắt vẫn sửa được, nhưng phải nói rõ trạng thái để người dùng không
                         tưởng mình đang sửa một mục đang dùng. Bật lại là nút riêng ngoài danh sách. */}
                     {isEditing && hasDescription && editingOption?.isActive === false && (
-                        <p className="text-xs text-ink-soft flex items-start gap-1.5 leading-relaxed bg-sunken/40 border border-line p-3">
+                        <p className="text-xs text-ink-soft flex items-start gap-1.5 leading-relaxed bg-sunken border border-line p-3">
                             <AlertTriangle size={13} className="mt-px flex-shrink-0 text-warning" />
                             Mục này đang TẮT — sửa ở đây không bật nó lên. Bật lại bằng nút trong danh sách.
                         </p>

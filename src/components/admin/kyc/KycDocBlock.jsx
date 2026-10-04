@@ -3,7 +3,7 @@ import { CheckCircle2, XCircle } from 'lucide-react'
 import { KycStatusChip } from './KycBadges'
 
 const KycDocBlock = ({ icon: Icon, title, status, children, onApprove, onReject, coDuLieu }) => (
-  <div className="bg-sunken/70 border border-line p-4">
+  <div className="bg-sunken border border-line p-4">
     <div className="flex items-start justify-between gap-3">
       <div className="flex items-center gap-2 min-w-0">
         <Icon size={15} className="text-ink-mute flex-shrink-0" />

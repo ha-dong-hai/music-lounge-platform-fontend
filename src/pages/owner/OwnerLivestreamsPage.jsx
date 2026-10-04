@@ -35,11 +35,11 @@ const TRANG_THAI_PHAT = {
   Live: { nhan: 'Đang phát', lop: 'border-danger text-danger' },
   Reconnecting: { nhan: 'Mất tín hiệu, đang chờ nối lại', lop: 'border-warning text-warning' },
   Failed: { nhan: 'Mất tín hiệu, đã dừng', lop: 'border-danger text-danger' },
-  Ended: { nhan: 'Đã kết thúc', lop: 'border-ink/30 text-ink-soft' },
+  Ended: { nhan: 'Đã kết thúc', lop: 'border-line text-ink-soft' },
   Terminated: { nhan: 'Bị Admin cắt sóng', lop: 'border-danger text-danger' },
 }
 const StatusBadge = ({ status }) => {
-  const t = TRANG_THAI_PHAT[status] ?? { nhan: 'Không rõ trạng thái', lop: 'border-ink/30 text-ink-soft' }
+  const t = TRANG_THAI_PHAT[status] ?? { nhan: 'Không rõ trạng thái', lop: 'border-line text-ink-soft' }
   return (
     <span className={`inline-flex items-center px-2.5 py-1 text-xs font-bold border-2 ${t.lop}`}>
       {t.nhan}

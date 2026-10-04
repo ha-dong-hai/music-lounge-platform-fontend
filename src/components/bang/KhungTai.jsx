@@ -14,7 +14,7 @@ const KhungTai = ({ dangTai, loi, rong, taiLai, tenVung: tenVungVao, noiDungRong
   const { t } = useTranslation()
   const tenVung = tenVungVao ?? t('dữ liệu')
   if (dangTai) {
-    return <div className={`${caoKhung} border-2 border-ink/15 bg-ink/5 animate-pulse`} aria-busy="true" aria-label={t('Đang tải {{x}}', { x: tenVung })} />
+    return <div className={`${caoKhung} border-2 border-line bg-ink/5 animate-pulse`} aria-busy="true" aria-label={t('Đang tải {{x}}', { x: tenVung })} />
   }
   if (loi) {
     return (
@@ -29,7 +29,7 @@ const KhungTai = ({ dangTai, loi, rong, taiLai, tenVung: tenVungVao, noiDungRong
     )
   }
   if (rong) {
-    return <div className="border-2 border-ink/30 bg-card p-6 sm:p-8 text-ink-soft">{noiDungRong ?? t('Chưa có {{x}}.', { x: tenVung })}</div>
+    return <div className="border-2 border-line bg-card p-6 sm:p-8 text-ink-soft">{noiDungRong ?? t('Chưa có {{x}}.', { x: tenVung })}</div>
   }
   return children
 }

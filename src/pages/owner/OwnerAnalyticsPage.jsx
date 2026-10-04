@@ -246,8 +246,8 @@ const OwnerAnalyticsPage = () => {
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={trend} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#333" vertical={false} />
-                <XAxis dataKey="month" tick={{ fill: '#888', fontSize: 12 }} axisLine={{ stroke: '#333' }} tickLine={false} />
-                <YAxis tick={{ fill: '#888', fontSize: 12 }} axisLine={{ stroke: '#333' }} tickLine={false} tickFormatter={fmtAxis} />
+                <XAxis dataKey="month" tick={{ fill: '#888', fontSize: 14 }} axisLine={{ stroke: '#333' }} tickLine={false} />
+                <YAxis tick={{ fill: '#888', fontSize: 14 }} axisLine={{ stroke: '#333' }} tickLine={false} tickFormatter={fmtAxis} />
                 <Tooltip content={<ChartTooltip />} cursor={{ fill: 'rgba(255,255,255,0.05)' }} />
                 {/* Chữ chú giải màu mực: mặc định Recharts tô chữ theo màu chuỗi — chuỗi sáng thì chữ không đọc được (đo 01/10: 2.22:1). */}
                 <Legend wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }} formatter={(v) => <span style={{ color: 'var(--color-ink)' }}>{v}</span>} />
@@ -277,7 +277,7 @@ const OwnerAnalyticsPage = () => {
               </thead>
               <tbody className="divide-y divide-line">
                 {stats.topShows.map((s) => (
-                  <tr key={s.showId} className="hover:bg-sunken/30 transition-colors">
+                  <tr key={s.showId} className="hover:bg-sunken transition-colors">
                     <td className="p-4">
                       <p className="text-sm text-ink font-medium">{s.name}</p>
                       <p className="text-xs text-ink-mute mt-0.5">

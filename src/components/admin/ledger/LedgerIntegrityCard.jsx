@@ -72,7 +72,7 @@ const LedgerIntegrityCard = ({ issues, isChecking, lastCheckedAt, onRefresh }) =
             </thead>
             <tbody className="divide-y divide-line">
               {issues.map((it, i) => (
-                <tr key={`${it.journalId}-${i}`} className="hover:bg-sunken/30">
+                <tr key={`${it.journalId}-${i}`} className="hover:bg-sunken">
                   <td className="p-4 text-sm text-ink">{it.issueType}</td>
                   <td className="p-4 text-xs text-ink-soft font-mono">{it.journalId}</td>
                   <td className="p-4 text-sm text-ink-soft text-right tabular-nums">{fmtTien(it.debitTotal)}</td>

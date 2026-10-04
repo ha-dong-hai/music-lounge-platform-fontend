@@ -409,7 +409,7 @@ const OwnerZonesPage = () => {
                   </button>
                 )}
                 <button type="button" onClick={batTatVe} aria-pressed={veMode}
-                  className={`inline-flex items-center gap-1.5 min-h-[44px] px-3 border-2 text-sm font-semibold transition-colors ${veMode ? 'bg-ink text-lamp border-ink' : 'bg-card border-ink/30 text-ink hover:border-ink'}`}>
+                  className={`inline-flex items-center gap-1.5 min-h-[44px] px-3 border-2 text-sm font-semibold transition-colors ${veMode ? 'bg-ink text-lamp border-ink' : 'bg-card border-line text-ink hover:border-ink'}`}>
                   <PenTool size={13} /> {veMode ? 'Đang vẽ phác' : 'Vẽ phác'}
                 </button>
                 <button onClick={luuSoDo} disabled={isSavingLayout}
@@ -420,7 +420,7 @@ const OwnerZonesPage = () => {
             </div>
 
             {veMode && (
-              <div className="flex flex-wrap items-center gap-3 mb-3 px-3 py-2.5 bg-sunken/70 border border-line text-xs text-ink-soft">
+              <div className="flex flex-wrap items-center gap-3 mb-3 px-3 py-2.5 bg-sunken border border-line text-xs text-ink-soft">
                 <label className="flex items-center gap-2">
                   <span className="font-semibold text-ink">Vẽ cho khu vực</span>
                   <select value={veZoneId} onChange={(e) => setVeZoneId(e.target.value)}
@@ -491,7 +491,7 @@ const OwnerZonesPage = () => {
               {dangHoatDong.map((z) => {
                 const o = layout[z.id] ?? {}
                 return (
-                  <li key={z.id} className="bg-sunken/70 border border-line p-4">
+                  <li key={z.id} className="bg-sunken border border-line p-4">
                     <div className="flex flex-wrap items-start justify-between gap-3">
                       <div className="flex items-start gap-3 min-w-0">
                         <span className="w-4 h-4 rounded-sm mt-0.5 flex-shrink-0" style={{ backgroundColor: o.color }} />
@@ -577,7 +577,7 @@ const OwnerZonesPage = () => {
           <p className="text-xs text-ink-mute mb-3">Giữ lại vì vé đã bán còn tham chiếu tới những khu vực này.</p>
           <ul className="space-y-2">
             {daNgung.map((z) => (
-              <li key={z.id} className="flex items-center justify-between gap-3 bg-sunken/40 border border-line/60 p-3 opacity-70">
+              <li key={z.id} className="flex items-center justify-between gap-3 bg-sunken border border-line/60 p-3 opacity-70">
                 <span className="text-sm text-ink-soft">{z.name}</span>
                 <span className="text-xs text-ink-mute">{z.capacity} chỗ</span>
               </li>

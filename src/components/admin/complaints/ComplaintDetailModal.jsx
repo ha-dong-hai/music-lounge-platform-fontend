@@ -77,7 +77,7 @@ const ComplaintDetailModal = ({ complaint, onClose, onResolve }) => {
           {/* NỘI DUNG KHIẾU NẠI */}
           <div>
             <p className="text-xs text-ink-mute mb-1.5">Nội dung khiếu nại</p>
-            <p className="text-sm text-ink-soft leading-relaxed bg-sunken/50 p-3 rounded-md whitespace-pre-line">
+            <p className="text-sm text-ink-soft leading-relaxed bg-sunken p-3 rounded-md whitespace-pre-line">
               {c.description || 'None'}
             </p>
           </div>
@@ -109,7 +109,7 @@ const ComplaintDetailModal = ({ complaint, onClose, onResolve }) => {
                 <p className="text-sm text-ink-soft">Action: <span className="text-ink">{c.resolvedAction}</span></p>
               )}
               {c.resolution && (
-                <p className="text-sm text-ink-soft bg-sunken/50 rounded-md p-2.5 italic">"{c.resolution}"</p>
+                <p className="text-sm text-ink-soft bg-sunken rounded-md p-2.5 italic">"{c.resolution}"</p>
               )}
               {c.resolvedAt && (
                 <p className="text-xs text-ink-mute flex items-center gap-1.5">

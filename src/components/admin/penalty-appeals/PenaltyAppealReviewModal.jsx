@@ -44,7 +44,7 @@ const PenaltyAppealReviewModal = ({ target, isProcessing, onClose, onSubmit }) =
         </div>
 
         <form onSubmit={submit} className="p-5 space-y-4 overflow-y-auto">
-          <div className="p-3 bg-sunken/80 border border-line space-y-1.5">
+          <div className="p-3 bg-sunken border border-line space-y-1.5">
             <p className="text-sm text-ink">{item.loungeName}</p>
             <p className="text-xs text-ink-soft">
               {PENALTY_TYPE_VIEW[item.penaltyType]?.label ?? item.penaltyType}
@@ -59,7 +59,7 @@ const PenaltyAppealReviewModal = ({ target, isProcessing, onClose, onSubmit }) =
           </div>
 
           <p className={`text-xs flex items-start gap-1.5 leading-relaxed p-3 border ${
-            laHuy ? 'text-success bg-success/5 border-success/30' : 'text-ink-soft bg-sunken/40 border-line'
+            laHuy ? 'text-success bg-success/5 border-success/30' : 'text-ink-soft bg-sunken border-line'
           }`}>
             <AlertTriangle size={13} className="mt-px flex-shrink-0" />
             {laHuy

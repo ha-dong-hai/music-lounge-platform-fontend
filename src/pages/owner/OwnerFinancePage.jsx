@@ -131,7 +131,7 @@ const OwnerFinancePage = () => {
             {earnings.recentSettlements.map((s) => {
               const tt = TRANG_THAI_QUYET_TOAN[s.status]
               return (
-                <div key={s.id} className="flex flex-wrap items-center justify-between gap-3 bg-sunken/70 border border-line px-4 py-3">
+                <div key={s.id} className="flex flex-wrap items-center justify-between gap-3 bg-sunken border border-line px-4 py-3">
                   <div>
                     <p className="text-sm text-ink tabular-nums">{fmtTien(s.amount)}</p>
                     <p className="text-xs text-ink-mute mt-0.5">

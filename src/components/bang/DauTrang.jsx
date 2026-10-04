@@ -12,7 +12,7 @@
 export const NUT_CHINH = 'inline-flex items-center justify-center gap-2 min-h-[44px] px-4 bg-ink text-lamp text-sm font-semibold hover:bg-board disabled:opacity-50'
 export const NUT_PHU = 'inline-flex items-center justify-center gap-2 min-h-[44px] px-4 border-2 border-ink bg-card text-ink text-sm font-semibold hover:bg-ink hover:text-lamp disabled:opacity-50'
 // Nút chỉ có biểu tượng trên dòng (sửa, xoá…): vùng bấm 44px; BẮT BUỘC truyền aria-label nêu đúng đối tượng.
-export const NUT_BIEU_TUONG = 'inline-flex items-center justify-center w-11 h-11 border-2 border-ink/30 text-ink hover:border-ink disabled:opacity-50'
+export const NUT_BIEU_TUONG = 'inline-flex items-center justify-center w-11 h-11 border-2 border-line text-ink hover:border-ink disabled:opacity-50'
 export const NUT_BIEU_TUONG_XOA = 'inline-flex items-center justify-center w-11 h-11 border-2 border-danger/40 text-danger hover:border-danger disabled:opacity-50'
 
 const DauTrang = ({ tieuDe, moTa, thaoTac = [], children }) => (

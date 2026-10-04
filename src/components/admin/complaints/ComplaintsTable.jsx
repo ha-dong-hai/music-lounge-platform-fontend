@@ -34,7 +34,7 @@ const ComplaintsTable = ({ complaints, isLoading, onViewDetail }) => {
               </tr>
             ) : complaints.length > 0 ? (
               complaints.map(c => (
-                <tr key={c.id} className="hover:bg-sunken/30 transition-colors cursor-pointer" onClick={() => onViewDetail(c)}>
+                <tr key={c.id} className="hover:bg-sunken transition-colors cursor-pointer" onClick={() => onViewDetail(c)}>
                   <td className="p-4 font-mono text-xs text-ink whitespace-nowrap">#{maNgan(c.id)}</td>
                   <td className="p-4"><CategoryBadge category={c.category} /></td>
                   <td className="p-4 min-w-[200px] max-w-[320px]">

@@ -166,7 +166,7 @@ const AdminPackagesPage = () => {
           </button>
         </div>
         <div className="bg-card/50 border border-dashed border-line py-20 flex flex-col items-center justify-center text-center">
-          <div className="w-16 h-16 bg-ink/10 border border-ink/25 flex items-center justify-center mb-4">
+          <div className="w-16 h-16 bg-ink/10 border border-line flex items-center justify-center mb-4">
             <Box size={28} className="text-ink" />
           </div>
           <p className="text-ink-soft font-semibold mb-1">Chưa có gói dịch vụ nào.</p>

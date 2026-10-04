@@ -20,12 +20,13 @@
 import { useId, useState } from 'react'
 import { BarChart, Bar, Cell, XAxis, YAxis, LabelList, ResponsiveContainer } from 'recharts'
 
-const MUC = '#231A15'      // = --color-ink
-const MUC_NHAT = '#9A8B7C' // = --color-chart-3
-const RANH = '#EDE6DB'     // = --color-sunken — nền rãnh sau thanh
-const NEN = '#FBF8F3'      // = --color-card
-const CHU = '#231A15'      // = --color-ink
-const CHU_PHU = '#4A3F37'  // = --color-ink-soft
+// 05/10/2026: màu lấy THẲNG từ biến CSS (thuộc tính trình bày của SVG nhận var()) để biểu đồ đổi theo chủ đề màn vận hành.
+const MUC = 'var(--color-ink)'
+const MUC_NHAT = 'var(--color-line)'
+const RANH = 'var(--color-sunken)' // nền rãnh sau thanh
+const NEN = 'var(--color-card)'
+const CHU = 'var(--color-ink)'
+const CHU_PHU = 'var(--color-ink-soft)'
 
 const CAO_HANG = 46 // 20px dòng chữ + 12px thanh + khoảng cách
 const DAY_THANH = 12

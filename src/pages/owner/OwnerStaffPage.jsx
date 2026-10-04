@@ -75,7 +75,7 @@ const AddStaffModal = ({ loungeId, onClose, onSaved }) => {
           </form>
 
           {nguoiTim && (
-            <div className="bg-sunken/70 border border-line p-4">
+            <div className="bg-sunken border border-line p-4">
               <p className="text-ink font-medium">{nguoiTim.fullName}</p>
               <p className="text-xs text-ink-mute mt-0.5">{nguoiTim.email}</p>
               <button onClick={gan} disabled={busy !== null}
@@ -182,7 +182,7 @@ const OwnerStaffPage = () => {
         ) : (
           <ul className="space-y-2">
             {dangLam.map((s) => (
-              <li key={s.id} className="flex items-center justify-between gap-3 bg-sunken/70 border border-line p-4">
+              <li key={s.id} className="flex items-center justify-between gap-3 bg-sunken border border-line p-4">
                 <div className="min-w-0">
                   <p className="text-ink font-medium truncate">{s.fullName}</p>
                   <p className="text-xs text-ink-mute mt-0.5 truncate">{s.email}</p>
@@ -206,7 +206,7 @@ const OwnerStaffPage = () => {
           <p className="text-xs text-ink-mute mb-4">Giữ lại để tra được ai từng làm việc trong đêm diễn nào.</p>
           <ul className="space-y-2">
             {daNgung.map((s) => (
-              <li key={s.id} className="flex items-center justify-between gap-3 bg-sunken/40 border border-line/60 p-3 opacity-70">
+              <li key={s.id} className="flex items-center justify-between gap-3 bg-sunken border border-line/60 p-3 opacity-70">
                 <div className="min-w-0">
                   <p className="text-ink-soft text-sm truncate">{s.fullName}</p>
                   <p className="text-xs text-ink-mute truncate">{s.email}</p>

@@ -182,7 +182,7 @@ const HistoryModal = ({ config, onClose }) => {
         ) : (
           <ul className="space-y-3">
             {rows.map((h) => (
-              <li key={h.id} className="bg-sunken/70 border border-line p-3">
+              <li key={h.id} className="bg-sunken border border-line p-3">
                 <div className="flex items-center gap-2 text-sm tabular-nums">
                   <span className="text-ink-mute line-through">{h.oldValue == null ? '—' : hienGiaTri(m, h.oldValue)}</span>
                   <span className="text-ink-mute" aria-label="thành">→</span>

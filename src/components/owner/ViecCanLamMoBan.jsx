@@ -76,7 +76,7 @@ const ViecCanLamMoBan = ({ lounge }) => {
           </Link>
         )}
       </div>
-      <ol className="mt-4 border-t border-ink/20 divide-y divide-ink/20">
+      <ol className="mt-4 border-t border-line divide-y divide-line">
         {ds.map((b, i) => {
           const [sac, chu] = NHAN[b.trangThai] ?? NHAN.lam
           return (

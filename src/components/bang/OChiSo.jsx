@@ -20,12 +20,15 @@ import { MAU_SO_LIEU } from './mauSoLieu'
 
 const OChiSo = ({ nhan, so, phu, icon: Icon, canChuY = false, dangChon, onClick, mau, trungTinh = false }) => {
   const dai = MAU_SO_LIEU[mau]
-  const lop = `text-left w-full border-2 p-4 sm:p-5 flex flex-col gap-1 min-h-[96px] ${dangChon ? 'border-ink bg-sunken' : canChuY ? 'border-danger bg-card' : 'border-ink/25 bg-card'} ${dai && !canChuY && !dangChon ? `border-t-4 ${dai.vien}` : ''}`
+  const lop = `text-left w-full border-2 p-4 sm:p-5 flex flex-col gap-1 min-h-[96px] ${dangChon ? 'border-ink bg-sunken' : canChuY ? 'border-danger bg-card' : 'border-line bg-card'} ${dai && !canChuY && !dangChon ? `border-t-4 ${dai.vien}` : ''}`
   const tang = !trungTinh && typeof phu === 'string' && phu.startsWith('Tăng ')
   const giam = !trungTinh && typeof phu === 'string' && phu.startsWith('Giảm ')
+  // Nền nhuộm 9% màu nhóm (05/10): dải 4px không đủ để mắt thấy "có màu" — chủ dự án vẫn chỉ thấy trắng và nâu.
+  const nenNhom = dai && !canChuY && !dangChon ? { backgroundColor: `color-mix(in srgb, ${dai.hex} 9%, var(--color-card))` } : undefined
   const noiDung = (
     <>
-      <span className="flex items-center gap-2 text-sm text-ink-soft">
+      {/* Ô đang chọn có nền lõm: nhãn phải là mực đậm, nếu không chữ phụ trên nền lõm chỉ còn Lc 75 (đo 05/10). */}
+      <span className={`flex items-center gap-2 text-sm ${dangChon ? 'text-ink font-semibold' : 'text-ink-soft'}`}>
         {Icon && <Icon size={16} aria-hidden="true" className="flex-shrink-0" />}
         {nhan}
       </span>
@@ -40,9 +43,9 @@ const OChiSo = ({ nhan, so, phu, icon: Icon, canChuY = false, dangChon, onClick,
     </>
   )
   return onClick ? (
-    <button type="button" onClick={onClick} aria-pressed={!!dangChon} className={`${lop} hover:border-ink transition-colors`}>{noiDung}</button>
+    <button type="button" onClick={onClick} aria-pressed={!!dangChon} className={`${lop} hover:border-ink transition-colors`} style={nenNhom}>{noiDung}</button>
   ) : (
-    <div className={lop}>{noiDung}</div>
+    <div className={lop} style={nenNhom}>{noiDung}</div>
   )
 }
 

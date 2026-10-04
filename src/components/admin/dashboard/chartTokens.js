@@ -4,10 +4,11 @@
 // Bản trước còn nguyên màu của giao diện TỐI cũ (nền khe và lưới gần như đen) và hai màu mặc định
 // Tailwind (xanh dương, tím) — biểu đồ vẽ màu tối trên trang sáng. Ảnh data-URI/SVG của recharts không đọc biến CSS nên ghi mã hex, nhưng
 // giữ ĐÚNG giá trị token trong index.css.
-export const SURFACE = '#FBF8F3'     // = --color-card — màu khe 2px giữa các đoạn cột chồng
-export const GRID = '#DAD0C2'        // = --color-line
-export const AXIS_TEXT = '#65584D'   // = --color-ink-mute
-export const CURSOR = '#EDE6DB'      // = --color-sunken
+// 05/10/2026: bốn màu nền/lưới/trục đọc từ biến CSS để ăn theo chủ đề màn vận hành (SVG nhận var() ở fill/stroke).
+export const SURFACE = 'var(--color-card)'   // màu khe 2px giữa các đoạn cột chồng
+export const GRID = 'var(--color-line)'
+export const AXIS_TEXT = 'var(--color-ink-mute)'
+export const CURSOR = 'var(--color-sunken)'
 
 // Màu đi theo NGUỒN, giữ đúng màu ở mọi khối trên trang — không đảo thứ tự.
 // Ba độ đậm của MỰC, phân biệt bằng độ sáng (đọc được khi mù màu); không mượn ember (chỉ buổi đang diễn) hay son (chỉ

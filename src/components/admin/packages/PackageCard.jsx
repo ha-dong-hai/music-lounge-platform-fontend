@@ -14,7 +14,7 @@ const Feature = ({ icon: Icon, label, enabled }) => (
   <div className="flex items-center gap-3">
     <div className={`w-8 h-8 flex items-center justify-center flex-shrink-0 border ${
       enabled
-        ? 'bg-ink/10 border-ink/25'
+        ? 'bg-ink/10 border-line'
         : 'bg-danger/5 border-danger/15'
     }`}>
       {enabled
@@ -91,7 +91,7 @@ export const PackageCard = ({ pkg, onEdit, onToggleStatus }) => {
       </div>
 
       {/* ===== FOOTER: chỉ còn #ID góc phải, gọn gàng ===== */}
-      <div className="relative z-[1] -mx-6 -mb-6 mt-6 px-6 py-2.5 border-t border-line bg-sunken/40 flex justify-end">
+      <div className="relative z-[1] -mx-6 -mb-6 mt-6 px-6 py-2.5 border-t border-line bg-sunken flex justify-end">
         <span className="text-xs text-ink-mute font-mono">#{maNgan(pkg.id)}</span>
       </div>
     </div>
@@ -111,7 +111,7 @@ export const HiddenPackageCard = ({ pkg, onEdit, onRestore }) => {
 
       {/* Tên + giá */}
       <div className="flex items-center gap-3 flex-1 min-w-0">
-        <div className="w-10 h-10 bg-sunken/60 border border-line/50 flex items-center justify-center flex-shrink-0">
+        <div className="w-10 h-10 bg-sunken border border-line/50 flex items-center justify-center flex-shrink-0">
           <Box size={18} className="text-ink-mute" />
         </div>
         <div className="min-w-0">
@@ -127,7 +127,7 @@ export const HiddenPackageCard = ({ pkg, onEdit, onRestore }) => {
         {miniFeatures.map(f => (
           <span key={f.label} className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-xs border ${
             f.enabled
-              ? 'bg-ink/10 text-ink/80 border-ink/20'
+              ? 'bg-ink/10 text-ink/80 border-line'
               : 'bg-danger/5 text-ink-mute border-danger/15'
           }`}>
             {f.enabled

@@ -79,6 +79,17 @@ const PortalShell = ({ portalName, nhom = [], loiRa = [], footer, headerRight, c
     .filter((m) => matchPath({ path: m.to, end: Boolean(m.end) }, location.pathname))
     .sort((a, b) => b.to.length - a.to.length)[0]
 
+  // CHỦ ĐỀ MÀU màn vận hành (05/10/2026) — chủ dự án: "đừng màu trung tính nữa… toàn chỉ thấy màu trắng, màu cà phê".
+  // Ba chủ đề A (lam) / B (lục) / C (mận) khai báo ở index.css (`.khung-van-hanh[data-mau]`). XEM THỬ: thêm `?mau=B` vào
+  // địa chỉ — lựa chọn được nhớ trong phiên trình duyệt. Khi chủ dự án chốt một chủ đề thì bỏ tham số này, đặt cố định.
+  const chuDe = (() => {
+    const q = new URLSearchParams(location.search).get('mau')
+    try {
+      if (q && ['A', 'B', 'C'].includes(q)) { sessionStorage.setItem('mau-van-hanh', q); return q }
+      return sessionStorage.getItem('mau-van-hanh') ?? 'A'
+    } catch { return q ?? 'A' }
+  })()
+
   const coQuaHan = nhom.some((n) => n.muc.some((m) => (m.dem?.overdueCount ?? 0) > 0))
 
   const sidebar = (
@@ -133,7 +144,7 @@ const PortalShell = ({ portalName, nhom = [], loiRa = [], footer, headerRight, c
   // Khu chủ phòng trà / nhân viên / admin luôn tiếng Việt dù khách đã chọn English (xem src/i18n/VungTiengViet.jsx).
   return (
     <VungTiengViet>
-    <div className="lg:flex lg:h-screen bg-page lg:overflow-hidden">
+    <div className="khung-van-hanh lg:flex lg:h-screen bg-page lg:overflow-hidden" data-mau={chuDe}>
 
       {/* THANH BÊN TĨNH — chỉ từ màn lớn */}
       <aside className="hidden lg:flex w-64 bg-board text-lamp flex-col h-full flex-shrink-0">{sidebar}</aside>
@@ -161,7 +172,8 @@ const PortalShell = ({ portalName, nhom = [], loiRa = [], footer, headerRight, c
           {headerRight && <div className="ml-auto flex-shrink-0">{headerRight}</div>}
         </header>
 
-        <main className="lg:flex-1 lg:overflow-y-auto p-4 sm:p-6 lg:p-8 bg-page min-w-0">
+        {/* `man-van-hanh`: phạm vi ghi đè biến cỡ chữ + màu viền/nền/chữ phụ cho mắt người đọc số liệu (index.css, 05/10/2026). */}
+        <main className="man-van-hanh lg:flex-1 lg:overflow-y-auto p-4 sm:p-6 lg:p-8 bg-page min-w-0">
           {/* Khung trang tối đa 1440px căn giữa (DESIGN.md › Bố cục) — trước không giới hạn nên trang biểu mẫu neo trái để trống cả nửa màn rộng. */}
           {/* MLACP-611: trang con tải theo yêu cầu — thanh bên đứng yên, chỉ vùng này hiện vòng chờ. */}
           <div className="max-w-[1440px] mx-auto">

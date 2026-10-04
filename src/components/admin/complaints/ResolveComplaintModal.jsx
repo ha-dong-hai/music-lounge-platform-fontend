@@ -88,7 +88,7 @@ const ResolveComplaintModal = ({ complaint, onClose, onSaved }) => {
         </div>
 
         <form onSubmit={submit} className="p-5 space-y-4 overflow-y-auto">
-          <div className="bg-sunken/70 border border-line p-3">
+          <div className="bg-sunken border border-line p-3">
             <p className="text-xs text-ink-mute mb-1">Nội dung khiếu nại</p>
             <p className="text-sm text-ink-soft leading-relaxed">{complaint.description}</p>
             {complaint.contactPhone && (
