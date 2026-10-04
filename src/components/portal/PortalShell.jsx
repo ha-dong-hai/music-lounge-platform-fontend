@@ -15,11 +15,15 @@
 //  - Ngăn kéo: role="dialog" + aria-modal, Esc / bấm ra ngoài / đổi trang đều đóng; `inert` khi đóng để Tab không rơi
 //    vào mục vô hình; chặn cuộn nền; trả focus về nút đã mở.
 //
-// DỮ LIỆU MENU: `nhom` = [{ ten, muc: [{ to, nhan, icon, end? }] }], `loiRa` = [{ to, nhan, icon }] (đường ra khỏi khu,
+// MLACP-618: mục menu có thể mang `dem` = { count, overdueCount } — huy hiệu số việc đang chờ. Đỏ khi có việc quá hạn
+//    (kèm biểu tượng, không chỉ đổi màu — WCAG 1.4.1); trung tính khi chỉ có việc chờ. Thứ tự menu KHÔNG đổi theo độ ưu
+//    tiên (Nielsen #4 — nhất quán: menu nhảy chỗ phá trí nhớ vị trí); độ ưu tiên xếp ở khối "Việc cần xử lý".
+//    Trên điện thoại, nút mở menu mang chấm đỏ khi có việc quá hạn ở bất kỳ hàng nào — ngăn kéo đóng thì vẫn biết.
+// DỮ LIỆU MENU: `nhom` = [{ ten, muc: [{ to, nhan, icon, end?, dem? }] }], `loiRa` = [{ to, nhan, icon }] (đường ra khỏi khu,
 // dùng Link chứ không NavLink vì không bao giờ "đang chọn").
 import { Suspense, useEffect, useRef, useState } from 'react'
 import { Link, NavLink, useLocation, matchPath } from 'react-router-dom'
-import { Loader2, Menu, X } from 'lucide-react'
+import { Loader2, Menu, X, AlertTriangle } from 'lucide-react'
 import Wordmark from '../brand/Wordmark'
 import VungTiengViet from '../../i18n/VungTiengViet'
 
@@ -27,6 +31,22 @@ const lopMuc = ({ isActive }) =>
   `flex items-center gap-3 pl-3 pr-3 min-h-[44px] text-sm font-medium border-l-4 transition-colors ${isActive
     ? 'bg-lamp text-board border-ember'
     : 'text-lamp-mute border-transparent hover:text-lamp hover:bg-board-soft'}`
+
+// Huy hiệu số việc chờ. `trenNenSang`: mục đang chọn có nền lamp nên huy hiệu trung tính phải đổi sang mực.
+const HuyHieu = ({ dem, trenNenSang }) => {
+  const soViec = dem?.count ?? 0
+  if (soViec <= 0) return null
+  const quaHan = dem.overdueCount ?? 0
+  const nhan = quaHan > 0 ? `${soViec} việc đang chờ, ${quaHan} quá hạn` : `${soViec} việc đang chờ`
+  const lop = quaHan > 0 ? 'bg-danger text-lamp' : trenNenSang ? 'bg-board text-lamp' : 'bg-lamp text-board'
+  return (
+    <span className={`ml-auto inline-flex items-center gap-1 min-w-[24px] h-6 px-1.5 justify-center text-xs font-bold tabular-nums ${lop}`}>
+      {quaHan > 0 && <AlertTriangle size={12} aria-hidden="true" />}
+      <span aria-hidden="true">{soViec > 99 ? '99+' : soViec}</span>
+      <span className="sr-only">{nhan}</span>
+    </span>
+  )
+}
 
 const PortalShell = ({ portalName, nhom = [], loiRa = [], footer, headerRight, children }) => {
   const location = useLocation()
@@ -59,6 +79,8 @@ const PortalShell = ({ portalName, nhom = [], loiRa = [], footer, headerRight, c
     .filter((m) => matchPath({ path: m.to, end: Boolean(m.end) }, location.pathname))
     .sort((a, b) => b.to.length - a.to.length)[0]
 
+  const coQuaHan = nhom.some((n) => n.muc.some((m) => (m.dem?.overdueCount ?? 0) > 0))
+
   const sidebar = (
     <>
       <div className="h-16 flex items-center justify-between gap-2 pl-5 pr-3 border-b border-lamp/20 flex-shrink-0">
@@ -77,10 +99,15 @@ const PortalShell = ({ portalName, nhom = [], loiRa = [], footer, headerRight, c
           <div key={n.ten}>
             <p className="px-3 pb-1.5 text-xs font-semibold text-lamp-mute">{n.ten}</p>
             <ul className="space-y-0.5">
-              {n.muc.map(({ to, end, nhan, icon: Icon }) => (
+              {n.muc.map(({ to, end, nhan, icon: Icon, dem }) => (
                 <li key={to}>
                   <NavLink to={to} end={end} className={lopMuc}>
-                    {Icon && <Icon size={18} aria-hidden="true" />} {nhan}
+                    {({ isActive }) => (
+                      <>
+                        {Icon && <Icon size={18} aria-hidden="true" />} <span className="min-w-0">{nhan}</span>
+                        <HuyHieu dem={dem} trenNenSang={isActive} />
+                      </>
+                    )}
                   </NavLink>
                 </li>
               ))}
@@ -123,8 +150,10 @@ const PortalShell = ({ portalName, nhom = [], loiRa = [], footer, headerRight, c
       <div className="lg:flex-1 lg:flex lg:flex-col lg:h-full lg:overflow-hidden min-w-0">
         <header className="h-16 bg-page border-b-2 border-ink flex items-center gap-2 px-3 sm:px-5 lg:px-8 flex-shrink-0 sticky top-0 z-40 lg:static">
           <button ref={openerRef} type="button" onClick={() => setOpenAt(location.key)} aria-label={`Mở menu ${portalName}`} aria-expanded={isDrawerOpen}
-            className="lg:hidden w-11 h-11 inline-flex items-center justify-center text-ink hover:bg-ink hover:text-lamp transition-colors flex-shrink-0">
+            className="lg:hidden relative w-11 h-11 inline-flex items-center justify-center text-ink hover:bg-ink hover:text-lamp transition-colors flex-shrink-0">
             <Menu size={22} aria-hidden="true" />
+            {coQuaHan && <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-danger" aria-hidden="true" />}
+            {coQuaHan && <span className="sr-only">, có việc quá hạn</span>}
           </button>
           <p className="min-w-0 truncate text-sm text-ink-soft">
             {portalName}{dangMo && <><span aria-hidden="true"> / </span><span className="font-semibold text-ink">{dangMo.nhan}</span></>}

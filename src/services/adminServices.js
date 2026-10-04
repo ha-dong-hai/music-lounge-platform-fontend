@@ -17,6 +17,9 @@ export const getAdminStats = async () => {
   };
 };
 
+// MLACP-617: số việc chờ, số quá hạn và hạn gần nhất của 9 hàng đợi — một yêu cầu thay cho 9.
+export const getWorkQueue = async () => axiosClient.get('/admin/work-queue');
+
 export const getAdminUsers = async (params = {}) => {
   return axiosClient.get('/admin/users', { params });
 };

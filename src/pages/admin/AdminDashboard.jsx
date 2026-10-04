@@ -21,6 +21,7 @@ import NhomTab from '../../components/bang/NhomTab'
 import KhungTai from '../../components/bang/KhungTai'
 import OChiSo from '../../components/bang/OChiSo'
 import ChonKy from '../../components/bang/ChonKy'
+import ViecCanXuLy from '../../components/admin/dashboard/ViecCanXuLy'
 import { useKyBaoCao } from '../../hooks/useKyBaoCao'
 import { cauSoVoiKyTruoc, nhanKhoang, thamSoApi } from '../../utils/kyBaoCao'
 
@@ -96,6 +97,8 @@ const AdminDashboard = () => {
         </div>
         <ChonKy tu={tu} den={den} onChon={datKy} />
       </div>
+      <ViecCanXuLy />
+
       {nguonLoi.length > 0 && <KhungTai loi tenVung={`phần ${nguonLoi.join(', ')}`} taiLai={taiLai} />}
 
       <div aria-busy={dangDoiKy} className={`space-y-8 transition-opacity ${dangDoiKy ? 'opacity-60' : ''}`}>

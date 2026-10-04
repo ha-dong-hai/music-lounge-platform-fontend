@@ -1,53 +1,26 @@
 // src/layouts/AdminLayout.jsx
 //
 // KHU QUẢN TRỊ HỆ THỐNG. Khung (thanh bên, ngăn kéo cho điện thoại, đầu trang) nằm ở components/portal/PortalShell.jsx,
-// dùng chung với OwnerLayout. Ở đây chỉ còn DỮ LIỆU MENU và đăng xuất.
-//
-// GOM NHÓM (30/09/2026): 16 mục phẳng → 4 nhóm theo loại việc: duyệt nội dung, tiền, khiếu nại, hệ thống.
+// dùng chung với OwnerLayout. Dữ liệu menu ở layouts/menuQuanTri.js. Ở đây: gắn số việc chờ vào từng mục (MLACP-618),
+// chuông thông báo và đăng xuất.
 import { Outlet, useNavigate } from 'react-router-dom'
-import { LayoutDashboard, Music, Store, Package, LogOut, Users, Receipt, MessageSquareWarning, SlidersHorizontal, ShieldAlert, Banknote, Landmark, ShieldCheck, Settings2, TrendingUp, Gavel, ExternalLink, UserCog, Building2 } from 'lucide-react'
 import { useAuthStore } from '../store/useAuthStore'
+import { LogOut } from 'lucide-react'
 import PortalShell from '../components/portal/PortalShell'
-
-const NHOM = [
-  { ten: 'Tổng quan', muc: [
-    { to: '/admin', end: true, nhan: 'Tổng quan', icon: LayoutDashboard },
-    { to: '/admin/insights', nhan: 'Nội dung và tương tác', icon: TrendingUp },
-  ] },
-  { ten: 'Duyệt', muc: [
-    { to: '/admin/shows', nhan: 'Buổi diễn', icon: Music },
-    { to: '/admin/venues', nhan: 'Phòng trà', icon: Store },
-    { to: '/admin/kyc-reviews', nhan: 'Định danh người bán', icon: ShieldCheck },
-    { to: '/admin/content-reports', nhan: 'Báo cáo vi phạm', icon: ShieldAlert },
-  ] },
-  { ten: 'Tiền', muc: [
-    { to: '/admin/refunds', nhan: 'Hoàn tiền', icon: Banknote },
-    { to: '/admin/settlements', nhan: 'Quyết toán', icon: Landmark },
-    { to: '/admin/ledger', nhan: 'Sổ cái', icon: Receipt },
-    { to: '/admin/bank-accounts', nhan: 'Tài khoản nhận tiền', icon: Building2 },
-    { to: '/admin/packages', nhan: 'Gói dịch vụ', icon: Package },
-  ] },
-  { ten: 'Khiếu nại', muc: [
-    { to: '/admin/complaint', nhan: 'Xử lý khiếu nại', icon: MessageSquareWarning },
-    { to: '/admin/penalty-appeals', nhan: 'Khiếu nại án phạt', icon: Gavel },
-  ] },
-  { ten: 'Hệ thống', muc: [
-    { to: '/admin/accounts', nhan: 'Tài khoản người dùng', icon: Users },
-    { to: '/admin/filter-options', nhan: 'Danh mục phân loại', icon: SlidersHorizontal },
-    { to: '/admin/system-config', nhan: 'Cấu hình hệ thống', icon: Settings2 },
-  ] },
-]
-
-// LỐI RA — Admin cần xem sản phẩm như khách thấy (kiểm một buổi diễn vừa duyệt chẳng hạn).
-const LOI_RA = [
-  { to: '/account', nhan: 'Tài khoản của tôi', icon: UserCog },
-  { to: '/', nhan: 'Về trang công khai', icon: ExternalLink },
-]
+import { NHOM, LOI_RA } from './menuQuanTri'
+import NotificationBell from '../components/notifications/NotificationBell'
+import { useHangDoiViec } from '../hooks/useHangDoiViec'
+import { duongDanCua } from '../utils/viecCho'
 
 const AdminLayout = () => {
   const navigate = useNavigate()
   const logout = useAuthStore((s) => s.logout)
   const ten = useAuthStore((s) => s.user?.name || s.user?.fullName || s.user?.email || '')
+
+  // MLACP-618: số việc chờ trên từng mục. Mã hàng đợi của backend chính là đoạn đường dẫn sau /admin/.
+  const { data: hangDoi = [] } = useHangDoiViec()
+  const demTheoDuong = Object.fromEntries(hangDoi.map((v) => [duongDanCua(v.key), v]))
+  const nhom = NHOM.map((n) => ({ ...n, muc: n.muc.map((m) => ({ ...m, dem: demTheoDuong[m.to] })) }))
 
   const handleLogout = () => {
     // Trước đây xoá key 'token'/'user' không khớp key thật ('musiclounge-auth') mà useAuthStore
@@ -64,8 +37,15 @@ const AdminLayout = () => {
   )
 
   return (
-    <PortalShell portalName="Quản trị hệ thống" nhom={NHOM} loiRa={LOI_RA} footer={footer}
-      headerRight={ten ? <span className="text-sm text-ink-soft">Đăng nhập: <span className="font-semibold text-ink">{ten}</span></span> : null}>
+    // MLACP-618: chuông thông báo — các job cảnh báo quá hạn (hoàn tiền, khiếu nại, báo cáo vi phạm, duyệt nội dung) đã
+    // gửi thông báo cho Admin từ lâu, nhưng khu Admin không có chuông nên không ai đọc được chúng.
+    <PortalShell portalName="Quản trị hệ thống" nhom={nhom} loiRa={LOI_RA} footer={footer}
+      headerRight={
+        <div className="flex items-center gap-3">
+          {ten && <span className="hidden sm:inline text-sm text-ink-soft">Đăng nhập: <span className="font-semibold text-ink">{ten}</span></span>}
+          <NotificationBell />
+        </div>
+      }>
       <Outlet />
     </PortalShell>
   )
