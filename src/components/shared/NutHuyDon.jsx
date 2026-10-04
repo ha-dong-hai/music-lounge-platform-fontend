@@ -4,13 +4,15 @@
 // do khi huỷ món đã báo bếp/bar, để chủ quán xem lại vì sao đơn bị huỷ và ai huỷ. Backend nay từ chối lệnh huỷ không có
 // lý do (400).
 //
-// - Bốn lý do hay gặp ở quầy bar phòng trà bấm một chạm điền sẵn; vẫn gõ tự do được. Danh sách này chỉ là gợi ý ở giao
+// - Ba lý do hay gặp ở quầy bar phòng trà bấm một chạm điền sẵn; vẫn gõ tự do được. Danh sách này chỉ là gợi ý ở giao
 //   diện — lý do lưu ở máy chủ là chuỗi chữ, không phải mã.
 // - Hộp xác nhận dùng HopXacNhan (WCAG 2.2 SC 3.3.4); nút "Huỷ đơn" khoá khi chưa có lý do.
 import { useState } from 'react'
 import HopXacNhan from './HopXacNhan'
 
-const GOI_Y = ['Khách đổi ý', 'Hết món', 'Gọi nhầm món', 'Khách bỏ về']
+// MLACP-632: không có "Khách bỏ về" — khách bỏ về không trả tiền là chuyện phòng trà xử lý ngoài đời (chủ dự án chốt
+// 04/10/2026), hệ thống không dựng một tình huống riêng cho nó. Gặp thì người huỷ tự ghi lý do.
+const GOI_Y = ['Khách đổi ý', 'Hết món', 'Gọi nhầm món']
 
 const NutHuyDon = ({ onHuy, tieuDe, noiDung, children, ...nut }) => {
   const [mo, setMo] = useState(false)
