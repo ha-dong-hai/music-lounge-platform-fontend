@@ -59,6 +59,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Loader2, ListFilter, Save, EyeOff } from 'lucide-react'
 import toast from 'react-hot-toast'
+import HopXacNhan from '../shared/HopXacNhan'
 import { getShowCustomValues, setShowCustomValues, getLoungeCustomCriteria } from '../../services/customCriteriaServices'
 
 const inputCls = 'mt-1 w-full min-h-[44px] px-3 py-2 bg-card border-2 border-ink text-ink focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2'
@@ -274,7 +275,9 @@ const ShowCustomValuesSection = ({ showId, loungeId }) => {
 
   const dat = (id, v) => setGiaTri((p) => ({ ...p, [id]: v }))
 
-  const luu = async () => {
+  // MLACP-612: xoá hết giá trị thì hỏi lại bằng HopXacNhan chung (trước là window.confirm của trình duyệt).
+  const [hoiXoaHet, setHoiXoaHet] = useState(false)
+  const luu = async (daXacNhanXoaHet = false) => {
     // Chỉ gửi ô có điền: backend bắt value NotEmpty, gửi kèm ô rỗng là 422 cho cả lượt.
     const values = Object.entries(giaTri)
       .filter(([, v]) => String(v ?? '').trim() !== '')
@@ -288,9 +291,11 @@ const ShowCustomValuesSection = ({ showId, loungeId }) => {
         toast.error('Chưa điền tiêu chí nào.')
         return
       }
-      if (!window.confirm('Mọi ô đang trống. Lưu bây giờ sẽ XOÁ HẾT giá trị tiêu chí của buổi diễn này. Tiếp tục?')) {
+      if (daXacNhanXoaHet !== true) {
+        setHoiXoaHet(true)
         return
       }
+      setHoiXoaHet(false)
     }
     // Chặn trước khi gửi để người dùng biết ngay, và báo TẤT CẢ lỗi một lần thay vì sửa xong lại
     // báo tiếp. Máy chủ vẫn kiểm lại và trả 422 — đây không thay thế cho nó.
@@ -425,10 +430,14 @@ const ShowCustomValuesSection = ({ showId, loungeId }) => {
         })}
       </div>
 
-      <button onClick={luu} disabled={isBusy}
+      <button onClick={() => luu()} disabled={isBusy}
         className="mt-5 flex items-center gap-2 disabled:opacity-50 justify-center min-h-[44px] px-4 bg-ink text-lamp text-sm font-semibold hover:bg-board">
         {isBusy ? <Loader2 size={15} className="animate-spin" /> : <Save size={15} />} Lưu tiêu chí
       </button>
+      <HopXacNhan mo={hoiXoaHet} tieuDe="Xoá hết giá trị tiêu chí của buổi diễn này?" nhanXacNhan="Xoá hết" nhanGiu="Quay lại điền"
+        onDong={() => setHoiXoaHet(false)} onXacNhan={() => luu(true)}>
+        Mọi ô đang để trống. Lưu bây giờ sẽ xoá toàn bộ giá trị tiêu chí đã khai cho buổi diễn này.
+      </HopXacNhan>
     </div>
   )
 }

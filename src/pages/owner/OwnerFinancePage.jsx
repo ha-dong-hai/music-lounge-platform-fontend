@@ -26,6 +26,7 @@ import PhanTrang from '../../components/bang/PhanTrang'
 import { useDanhSachMayChu } from '../../hooks/useDanhSachMayChu'
 import { loiKhoangNgay } from '../../utils/boLocBuoiDien'
 import OChiSo from '../../components/bang/OChiSo'
+import ChonKy from '../../components/bang/ChonKy'
 
 const fmtTien = (v) => `${Number(v || 0).toLocaleString('vi-VN')}đ`
 
@@ -69,7 +70,6 @@ const goiGiaoDich = ({ loai, tu, den, ...q }) => {
   const sai = Boolean(loiKhoangNgay({ tu, den }))
   return getMyTransactions({ ...q, type: loai || undefined, from: (!sai && tu) || undefined, to: (!sai && den) || undefined })
 }
-const O_NGAY = 'mt-1 min-h-[44px] px-3 bg-card border-2 border-ink text-ink focus:outline-none focus:ring-2 focus:ring-ink'
 
 const OwnerFinancePage = () => {
   const tongQuan = useQuery({
@@ -159,16 +159,12 @@ const OwnerFinancePage = () => {
         <div className="mt-4 flex flex-wrap items-end gap-3">
           <NhomTab nhan="Lọc theo loại khoản" dangChon={loai ?? ''} cacTab={LOAI.map((l) => ({ khoa: l.value, nhan: l.label }))}
             onChon={(v) => ds.datBoLoc({ loai: v || null })} />
-          <label className="block">
-            <span className="text-sm font-semibold">Từ ngày</span>
-            <input type="date" value={tuNgay} max={denNgay || undefined} onChange={(e) => ds.datBoLoc({ tu: e.target.value || null })}
-              aria-invalid={loiNgay ? 'true' : undefined} aria-describedby={loiNgay ? 'loi-ngay-tai-chinh' : undefined} className={`block ${O_NGAY}`} />
-          </label>
-          <label className="block">
-            <span className="text-sm font-semibold">Đến ngày</span>
-            <input type="date" value={denNgay} min={tuNgay || undefined} onChange={(e) => ds.datBoLoc({ den: e.target.value || null })}
-              aria-invalid={loiNgay ? 'true' : undefined} aria-describedby={loiNgay ? 'loi-ngay-tai-chinh' : undefined} className={`block ${O_NGAY}`} />
-          </label>
+          {/* MLACP-612: một bộ chọn khoảng ngày dùng chung cả web (components/bang/ChonKy — Radix Popover + react-day-picker)
+              thay cho hai ô <input type="date"> của trình duyệt: hai ô gốc hiện định dạng theo ngôn ngữ MÁY (yyyy-mm-dd
+              trên máy đặt tiếng Anh) và bắt chọn hai lần. URL gõ tay sai khoảng vẫn được báo ở dòng lỗi bên dưới. */}
+          <ChonKy coTheBoTrong tenLoc="Ngày giao dịch"
+            tu={tuNgay && denNgay && !loiNgay ? tuNgay : undefined} den={tuNgay && denNgay && !loiNgay ? denNgay : undefined}
+            onChon={(k) => ds.datBoLoc({ tu: k?.tu ?? null, den: k?.den ?? null })} />
           {coLoc && (
             <button type="button" onClick={() => ds.xoaBoLoc()}
               className="inline-flex items-center justify-center gap-2 min-h-[44px] px-4 border-2 border-ink bg-card text-ink text-sm font-semibold hover:bg-ink hover:text-lamp">

@@ -31,6 +31,7 @@ import {
 } from '../../services/donationServices'
 import { uploadImage } from '../../services/userServices'
 import NutXacNhan from '../../components/shared/NutXacNhan'
+import HopXacNhan from '../../components/shared/HopXacNhan'
 import { useDanhSachMayChu } from '../../hooks/useDanhSachMayChu'
 import PhanTrang from '../../components/bang/PhanTrang'
 import NhomTab from '../../components/bang/NhomTab'
@@ -177,10 +178,10 @@ const OwnerDonationsPage = () => {
 
   // Gỡ lời nhắn khỏi livestream. Không hỏi lại bằng modal riêng vì việc này KHÔNG động tới tiền và
   // lời nhắn gốc vẫn được lưu — nhưng vẫn phải xác nhận một lần, vì người đang xem thấy thay đổi ngay.
+  // MLACP-612: hỏi lại bằng HopXacNhan chung thay cho window.confirm của trình duyệt.
+  const [canGo, setCanGo] = useState(null)
   const goLoiNhan = async (d) => {
-    if (!window.confirm(`Gỡ lời nhắn của khoản donate này khỏi livestream?
-
-Không hoàn tiền, và lời nhắn gốc vẫn được lưu để đối chiếu.`)) return
+    setCanGo(null)
     setBusyId(d.id)
     try {
       await hideDonationMessage(d.id)
@@ -364,7 +365,7 @@ Không hoàn tiền, và lời nhắn gốc vẫn được lưu để đối chi
                 <div className="mt-4 flex flex-wrap gap-2">
                   {/* Gỡ lời nhắn: chỉ hiện khi khoản này CÓ lời nhắn — nút không làm gì thì không bày ra */}
                   {d.message && (
-                    <button onClick={() => goLoiNhan(d)} disabled={dangBan}
+                    <button onClick={() => setCanGo(d)} disabled={dangBan}
                       className="flex items-center gap-2 disabled:opacity-50 order-last justify-center min-h-[44px] px-4 border-2 border-ink bg-card text-ink text-sm font-semibold hover:bg-ink hover:text-lamp"
                       title="Ẩn lời nhắn khỏi buổi phát trực tuyến; không hoàn tiền" aria-label="Ẩn lời nhắn khỏi buổi phát trực tuyến; không hoàn tiền">
                       <EyeOff size={15} /> Gỡ lời nhắn
@@ -399,6 +400,10 @@ Không hoàn tiền, và lời nhắn gốc vẫn được lưu để đối chi
       {traNgheSi && (
         <ConfirmPaidModal donation={traNgheSi} onClose={() => setTraNgheSi(null)} onSaved={load} />
       )}
+      <HopXacNhan mo={!!canGo} tieuDe="Gỡ lời nhắn này khỏi buổi phát trực tuyến?" nhanXacNhan="Gỡ lời nhắn" nhanGiu="Giữ lại"
+        onDong={() => setCanGo(null)} onXacNhan={() => goLoiNhan(canGo)}>
+        Người đang xem sẽ không còn thấy lời nhắn. Tiền ủng hộ không bị hoàn, và lời nhắn gốc vẫn được lưu để đối chiếu.
+      </HopXacNhan>
     </div>
   )
 }
