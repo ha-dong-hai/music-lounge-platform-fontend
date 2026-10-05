@@ -47,6 +47,7 @@ import ShowAnalyticsSection from '../../components/owner/ShowAnalyticsSection'
 import { StatusBadge } from '../../components/admin/shows/ShowBadges'
 import { searchPerformers } from '../../services/catalogServices'
 import { TrangLoiTai } from '../../components/bang/KhungTai'
+import { useTaiLaiKhiDoi } from '../../lib/thoiGianThuc'
 
 const fmtMoney = (v) => `${Number(v || 0).toLocaleString('vi-VN')}đ`
 
@@ -116,6 +117,8 @@ const OwnerShowDetailPage = () => {
       if (err?.response?.status !== 404) setLoiTai(true)
     }
   }, [id])
+  // MLACP-669: tải lại khi dữ liệu liên quan đổi ở phía người khác (không cần F5).
+  useTaiLaiKhiDoi(load, ['show', 'event_moderation', 'livestream', 'ticket', 'refund_request'])
 
   useEffect(() => {
     const run = async () => { setIsLoading(true); await load(); setIsLoading(false) }

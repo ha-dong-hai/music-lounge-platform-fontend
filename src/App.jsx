@@ -6,6 +6,7 @@ import { Toaster } from 'react-hot-toast'
 import { QueryClientProvider } from '@tanstack/react-query'
 import { NuqsAdapter } from 'nuqs/adapters/react-router/v7'
 import { queryClient } from './lib/queryClient'
+import { KetNoiThoiGianThuc } from './lib/thoiGianThuc'
 import { useTranslation } from 'react-i18next'
 
 function App() {
@@ -25,6 +26,8 @@ function App() {
       {/* Danh sách có phân trang/bộ lọc máy chủ: TanStack Query giữ dữ liệu, nuqs giữ trang và bộ lọc trên URL.
           NuqsAdapter chỉ cấp hook qua context — các hook router chạy bên trong route, nên bọc ngoài RouterProvider. */}
       <QueryClientProvider client={queryClient}>
+        {/* MLACP-669: một kết nối nghe thay đổi dữ liệu cho cả ứng dụng (xem src/lib/thoiGianThuc.js). */}
+        <KetNoiThoiGianThuc />
         <NuqsAdapter>
           <RouterProvider key={lang} router={AppRouter} />
         </NuqsAdapter>

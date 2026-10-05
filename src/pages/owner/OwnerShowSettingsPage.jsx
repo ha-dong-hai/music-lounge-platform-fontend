@@ -44,6 +44,7 @@ import { getMySubscription } from '../../services/packageServices'
 import ShowCustomValuesSection from '../../components/owner/ShowCustomValuesSection'
 import VcpmcRoyaltyCard from '../../components/owner/VcpmcRoyaltyCard'
 import { TrangLoiTai } from '../../components/bang/KhungTai'
+import { useTaiLaiKhiDoi } from '../../lib/thoiGianThuc'
 
 const inputCls = 'mt-1 w-full min-h-[44px] px-3 py-2 bg-card border-2 border-ink text-ink focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2'
 
@@ -141,6 +142,8 @@ const OwnerShowSettingsPage = () => {
       setIsLoading(false)
     }
   }, [id])
+  // MLACP-669: tải lại khi dữ liệu liên quan đổi ở phía người khác (không cần F5).
+  useTaiLaiKhiDoi(load, ['show', 'event_moderation'])
 
   useEffect(() => { const chay = async () => { await load() }; chay() }, [load])
 

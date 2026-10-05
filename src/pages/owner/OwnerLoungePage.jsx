@@ -35,6 +35,7 @@ import CustomCriteriaSection from '../../components/owner/CustomCriteriaSection'
 import ThePhongTra from '../../components/program/ThePhongTra'
 import ConfirmModal from '../../components/shared/ConfirmModal'
 import { TrangLoiTai } from '../../components/bang/KhungTai'
+import { useTaiLaiKhiDoi } from '../../lib/thoiGianThuc'
 
 // Trạng thái hồ sơ phòng trà — đúng 6 giá trị LoungeStatus của backend.
 const STATUS_VIEW = {
@@ -169,6 +170,8 @@ const OwnerLoungePage = () => {
       setIsLoading(false)
     }
   }, [])
+  // MLACP-669: tải lại khi dữ liệu liên quan đổi ở phía người khác (không cần F5).
+  useTaiLaiKhiDoi(load, ['lounge', 'venue_penalty'])
 
   useEffect(() => { const chay = async () => { await load() }; chay() }, [load])
 

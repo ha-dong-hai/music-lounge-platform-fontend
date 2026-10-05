@@ -30,6 +30,7 @@ import {
 import OTruong from '../shared/OTruong'
 import NhanTrangThai from '../shared/NhanTrangThai'
 import { loiNgaySinh, ngaySinhToiDa } from '../../utils/rangBuocNgay'
+import { useTaiLaiKhiDoi } from '../../lib/thoiGianThuc'
 
 const NUT_VIEN = 'inline-flex items-center justify-center gap-2 min-h-[44px] px-4 border-2 border-ink font-semibold hover:bg-ink hover:text-lamp transition-colors disabled:opacity-60'
 const NUT_DAC = 'inline-flex items-center justify-center gap-2 min-h-[48px] px-5 bg-ink text-lamp font-semibold hover:bg-board transition-colors disabled:opacity-60'
@@ -99,6 +100,8 @@ const IdentityTab = () => {
     }
     setIsLoading(false)
   }, [])
+  // MLACP-669: tải lại khi dữ liệu liên quan đổi ở phía người khác (không cần F5).
+  useTaiLaiKhiDoi(load, ['kyc_review', 'user'])
 
   useEffect(() => { const chay = async () => { await load() }; chay() }, [load])
 

@@ -27,6 +27,7 @@ import {
 import NutXacNhan from '../../components/shared/NutXacNhan'
 import KhungTai from '../../components/bang/KhungTai'
 import { useAuthStore } from '../../store/useAuthStore'
+import { useTaiLaiKhiDoi } from '../../lib/thoiGianThuc'
 
 // Đủ 6 trạng thái của LivestreamStatus (Domain/Enums/LivestreamStatus.cs), chữ tiếng Việt. Bản cũ in thẳng enum
 // ("Scheduled", "Live"…) và Reconnecting/Failed rơi về kiểu của Ended (01/10/2026, M-430).
@@ -72,6 +73,8 @@ const ShowLivestreamRow = ({ show, onChanged }) => {
       setLivestream(null)
     }
   }, [show.id])
+  // MLACP-669: tải lại khi dữ liệu liên quan đổi ở phía người khác (không cần F5).
+  useTaiLaiKhiDoi(loadLivestream, ['livestream', 'show'])
 
   useEffect(() => { const chay = async () => { await loadLivestream() }; chay() }, [loadLivestream])
 

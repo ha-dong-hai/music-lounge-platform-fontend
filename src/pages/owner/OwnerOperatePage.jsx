@@ -37,6 +37,7 @@ import PhanTrang from '../../components/bang/PhanTrang'
 import OChiSo from '../../components/bang/OChiSo'
 import NhanTrangThai from '../../components/shared/NhanTrangThai'
 import { StatusBadge } from '../../components/admin/shows/ShowBadges'
+import { useTaiLaiKhiDoi } from '../../lib/thoiGianThuc'
 
 const fmtMoney = (v) => `${Number(v || 0).toLocaleString('vi-VN')}đ`
 
@@ -138,6 +139,8 @@ const OwnerOperatePage = () => {
       setIsLoading(false)
     }
   }, [])
+  // MLACP-669: tải lại khi dữ liệu liên quan đổi ở phía người khác (không cần F5).
+  useTaiLaiKhiDoi(loadShows, ['show', 'livestream'])
 
   useEffect(() => { const chay = async () => { await loadShows() }; chay() }, [loadShows])
 
@@ -190,6 +193,8 @@ const OwnerOperatePage = () => {
       setChiTietBuoi(null) // không đọc được thì không chặn nút — để máy chủ quyết
     }
   }, [showId])
+  // MLACP-669: tải lại khi dữ liệu liên quan đổi ở phía người khác (không cần F5).
+  useTaiLaiKhiDoi(loadChiTietBuoi, ['show', 'ticket', 'fnb_order'])
 
   useEffect(() => { const chay = async () => { await loadChiTietBuoi() }; chay() }, [loadChiTietBuoi])
 
@@ -212,6 +217,8 @@ const OwnerOperatePage = () => {
       setIsLoadingStats(false)
     }
   }, [showId, xemDuocSoLieu])
+  // MLACP-669: tải lại khi dữ liệu liên quan đổi ở phía người khác (không cần F5).
+  useTaiLaiKhiDoi(loadStats, ['ticket', 'fnb_order'])
 
   useEffect(() => { const chay = async () => { await loadStats() }; chay() }, [loadStats])
 

@@ -21,6 +21,7 @@ import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { Radio, LogOut, Package, BarChart3, CalendarDays, Store, Landmark, ScanLine, UtensilsCrossed, BookOpen, Mic2, Users, HeartHandshake, ShieldAlert, LayoutGrid, Box, Wallet, ShieldCheck, ExternalLink, ArrowLeft } from 'lucide-react'
 import { useAuthStore } from '../store/useAuthStore'
 import PortalShell from '../components/portal/PortalShell'
+import NotificationBell from '../components/notifications/NotificationBell'
 import { laDuongQuay } from '../utils/khuQuay'
 
 // Nhân viên dùng được: soát vé, bán vé quầy, bắt đầu/kết thúc đều là RequireVenueOperator
@@ -95,7 +96,9 @@ const OwnerLayout = () => {
   )
 
   return (
-    <PortalShell portalName={portalName} nhom={nhom} loiRa={loiRa} footer={footer}>
+    // MLACP-669: khu chủ phòng trà/nhân viên trước đây KHÔNG có chuông — thông báo "tài khoản nhận tiền bị từ chối", "buổi
+    // diễn được duyệt"… chỉ đọc được nếu tự mở /notifications. Chuông tự cập nhật qua kênh thời gian thực.
+    <PortalShell portalName={portalName} nhom={nhom} loiRa={loiRa} footer={footer} headerRight={<NotificationBell />}>
       <Outlet />
     </PortalShell>
   )

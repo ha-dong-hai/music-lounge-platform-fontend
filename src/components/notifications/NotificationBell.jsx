@@ -6,6 +6,7 @@
 // - Chuông chỉ lấy 15 thông báo mới nhất; xem đủ và phân trang thì ở /notifications.
 // - Badge chỉ tải lại khi mở dropdown và lúc mới vào trang (không polling nền) để khỏi gọi API liên tục.
 import { useState, useEffect, useCallback } from 'react'
+import { useTaiLaiKhiDoi } from '../../lib/thoiGianThuc'
 import { Bell, Loader2, CheckCheck } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import dayjs from 'dayjs'
@@ -34,6 +35,8 @@ const NotificationBell = () => {
       // Không làm phiền người dùng vì 1 con số badge — im lặng bỏ qua.
     }
   }, [])
+  // MLACP-669: tải lại khi dữ liệu liên quan đổi ở phía người khác (không cần F5).
+  useTaiLaiKhiDoi(loadUnread, undefined)
 
   useEffect(() => {
     const init = async () => { await loadUnread() }

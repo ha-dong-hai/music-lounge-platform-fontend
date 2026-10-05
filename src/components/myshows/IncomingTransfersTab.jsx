@@ -5,6 +5,7 @@ import { Loader2, Inbox, CheckCircle2, Calendar, MapPin } from 'lucide-react'
 import dayjs from 'dayjs'
 import toast from 'react-hot-toast'
 import { getIncomingTicketTransfers, acceptTicketTransfer } from '../../services/ticketServices'
+import { useTaiLaiKhiDoi } from '../../lib/thoiGianThuc'
 
 const fmtMoney = (v) => `${Number(v || 0).toLocaleString('vi-VN')}đ`
 
@@ -24,6 +25,8 @@ const IncomingTransfersTab = () => {
       setIsLoading(false)
     }
   }, [])
+  // MLACP-669: tải lại khi dữ liệu liên quan đổi ở phía người khác (không cần F5).
+  useTaiLaiKhiDoi(load, ['ticket'])
 
   useEffect(() => { const chay = async () => { await load() }; chay() }, [load])
 

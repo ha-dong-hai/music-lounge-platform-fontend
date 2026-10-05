@@ -26,6 +26,7 @@ import { getMyPerformers } from '../../services/performerServices'
 import KhungTai, { TrangLoiTai } from '../../components/bang/KhungTai'
 import HopThoai, { TieuDeHop } from '../../components/shared/HopThoai'
 import { maNgan } from '../../utils/format'
+import { useTaiLaiKhiDoi } from '../../lib/thoiGianThuc'
 
 // NGHỆ SĨ NÀO ĐƯỢC CHỌN (sửa 01/10/2026): GET /performers là danh mục DÙNG CHUNG của mọi phòng trà, sắp theo Id, kẹp
 // 50/trang. Bản cũ lấy một trang pageSize 100 (nhận 50) và cho chọn TẤT CẢ: chọn hồ sơ phòng trà khác tạo thì backend trả
@@ -217,6 +218,8 @@ const OwnerBankAccountsPage = () => {
       setIsLoadingList(false)
     }
   }, [chuSoHuu])
+  // MLACP-669: tải lại khi dữ liệu liên quan đổi ở phía người khác (không cần F5).
+  useTaiLaiKhiDoi(loadAccounts, ['bank_account', 'kyc_review', 'payout_owner'])
 
   useEffect(() => { const chay = async () => { await loadAccounts() }; chay() }, [loadAccounts])
 

@@ -5,6 +5,7 @@
 // utils/ngayVietNam.
 
 import { useState, useEffect, useCallback } from 'react'
+import { useTaiLaiKhiDoi } from '../../lib/thoiGianThuc'
 import { Link } from 'react-router-dom'
 import { Bell, Loader2, CheckCheck, ArrowLeft, Inbox } from 'lucide-react'
 import { ngayDayDu, gioTrongNgay } from '../../utils/ngayVietNam'
@@ -47,6 +48,8 @@ const NotificationsPage = () => {
       setIsLoading(false)
     }
   }, [page])
+  // MLACP-669: tải lại khi dữ liệu liên quan đổi ở phía người khác (không cần F5).
+  useTaiLaiKhiDoi(load, undefined)
 
   useEffect(() => { const chay = async () => { await load() }; chay() }, [load])
 

@@ -38,6 +38,7 @@ import ViecCanLamMoBan from '../../components/owner/ViecCanLamMoBan'
 import { getGenres, getMoods, getAtmospheres, getEventCategories } from '../../services/catalogServices'
 import NhomTab from '../../components/bang/NhomTab'
 import HopThoai, { TieuDeHop } from '../../components/shared/HopThoai'
+import { useTaiLaiKhiDoi } from '../../lib/thoiGianThuc'
 
 // Tab theo trạng thái backend (LoungeShowStatus). '' = tất cả.
 const TAB = [
@@ -328,6 +329,8 @@ const OwnerShowsPage = () => {
       setLoiDs(true)
     }
   }, [tab, trang])
+  // MLACP-669: tải lại khi dữ liệu liên quan đổi ở phía người khác (không cần F5).
+  useTaiLaiKhiDoi(loadShows, ['show', 'event_moderation', 'livestream', 'ticket'])
 
   // SỐ ĐẾM CỦA TAB: MỘT lệnh (tối đa 100 buổi) rồi đếm tại chỗ — không gọi 7 lệnh, và không gọi lại khi đổi tab.
   // Lý do: giới hạn 100 lượt/phút mỗi địa chỉ IP của backend; bản đầu gọi 8 lệnh mỗi lần đổi tab và làm chuỗi kiểm
@@ -343,6 +346,8 @@ const OwnerShowsPage = () => {
       setDem(dem)
     } catch { /* không có số đếm thì tab vẫn dùng được */ }
   }, [])
+  // MLACP-669: tải lại khi dữ liệu liên quan đổi ở phía người khác (không cần F5).
+  useTaiLaiKhiDoi(taiDem, ['show', 'event_moderation', 'ticket'])
   useEffect(() => { const chay = async () => { await taiDem() }; chay() }, [taiDem])
 
   useEffect(() => {

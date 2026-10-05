@@ -33,6 +33,7 @@ import { TRANG_THAI_VE, laVeTrucTuyen } from '../../utils/trangThaiVe'
 import LienKetMuiTen from '../../components/shared/LienKetMuiTen'
 import DemNguocGioDien from '../../components/shared/DemNguocGioDien'
 import { HanHoanTien } from '../../components/shared/DieuKhoanTien'
+import { useTaiLaiKhiDoi } from '../../lib/thoiGianThuc'
 
 const tien = (n) => `${Number(n ?? 0).toLocaleString('vi-VN')}đ`
 const NUT_VIEN = 'inline-flex items-center justify-center gap-2 min-h-[48px] px-5 border-2 border-ink font-semibold hover:bg-ink hover:text-lamp transition-colors disabled:opacity-60'
@@ -67,6 +68,8 @@ const TicketDetailPage = () => {
     if (!res?.success) throw new Error('ticket')
     setTicket(res.data)
   }, [ticketId])
+  // MLACP-669: tải lại khi dữ liệu liên quan đổi ở phía người khác (không cần F5).
+  useTaiLaiKhiDoi(taiVe, ['ticket', 'refund_request', 'show', 'cash_refund'])
 
   useEffect(() => {
     let huy = false

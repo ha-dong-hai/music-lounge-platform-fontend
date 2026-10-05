@@ -7,6 +7,7 @@ import dayjs from 'dayjs'
 import toast from 'react-hot-toast'
 import { getMyDonations } from '../../services/donationServices'
 import NhanTrangThai from '../shared/NhanTrangThai'
+import { useTaiLaiKhiDoi } from '../../lib/thoiGianThuc'
 
 const fmtTien = (v) => `${Number(v || 0).toLocaleString('vi-VN')}đ`
 
@@ -42,6 +43,8 @@ const MyDonationsTab = () => {
       setIsLoading(false)
     }
   }, [page])
+  // MLACP-669: tải lại khi dữ liệu liên quan đổi ở phía người khác (không cần F5).
+  useTaiLaiKhiDoi(load, ['donation'])
 
   useEffect(() => { const chay = async () => { await load() }; chay() }, [load])
 
