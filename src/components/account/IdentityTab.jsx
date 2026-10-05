@@ -225,12 +225,21 @@ const IdentityTab = () => {
   }
 
   const laDoanhNghiep = tax.businessType === 'Enterprise'
+  // MLACP-660 (TT 86/2024/TT-BTC): từ 01/7/2025 số định danh cá nhân 12 chữ số (số CCCD) THAY mã số thuế của cá nhân và hộ
+  // kinh doanh; doanh nghiệp vẫn 10 chữ số (thêm -3 chữ số cho đơn vị trực thuộc). Kiểm ngay ở đây cho người dùng biết sớm —
+  // backend kiểm lại và còn đối chiếu với số CCCD đã nộp.
+  const MA_THUE = laDoanhNghiep
+    ? { nhan: 'Mã số thuế doanh nghiệp', goiY: '10 chữ số, hoặc 10 chữ số kèm 3 chữ số đơn vị trực thuộc (ví dụ 0123456789-001).', mau: /^\d{10}(-\d{3})?$/,
+        loi: 'Mã số thuế doanh nghiệp gồm 10 chữ số, hoặc 10 chữ số kèm 3 chữ số đơn vị trực thuộc.' }
+    : { nhan: 'Số định danh cá nhân (mã số thuế)', goiY: 'Số CCCD 12 chữ số của bạn — từ 01/7/2025 số này dùng thay mã số thuế của cá nhân và hộ kinh doanh.', mau: /^\d{12}$/,
+        loi: 'Số định danh cá nhân gồm đúng 12 chữ số (số CCCD).' }
 
   const luuThue = async (e) => {
     e.preventDefault()
     const thieu = {}
     if (!tax.businessType) thieu.loai = 'Chọn loại hình kinh doanh.'
-    if (!tax.taxCode.trim()) thieu.ma = 'Nhập mã số thuế.'
+    if (!tax.taxCode.trim()) thieu.ma = laDoanhNghiep ? 'Nhập mã số thuế doanh nghiệp.' : 'Nhập số định danh cá nhân (số CCCD).'
+    else if (tax.businessType && !MA_THUE.mau.test(tax.taxCode.trim())) thieu.ma = MA_THUE.loi
     if (laDoanhNghiep && !tax.legalName.trim()) thieu.ten = 'Doanh nghiệp phải khai tên đúng như trên giấy chứng nhận đăng ký kinh doanh.'
     setLoiThue(thieu)
     if (Object.keys(thieu).length) return
@@ -428,7 +437,7 @@ const IdentityTab = () => {
                 ))}
               </div>
             </fieldset>
-            <OTruong nhan="Mã số thuế" batBuoc loi={loiThue.ma} goiY="10 chữ số, hoặc 10 chữ số kèm 3 chữ số đơn vị trực thuộc (ví dụ 0123456789-001).">
+            <OTruong nhan={MA_THUE.nhan} batBuoc loi={loiThue.ma} goiY={tax.businessType ? MA_THUE.goiY : 'Chọn loại hình kinh doanh trước: hộ/cá nhân dùng số CCCD 12 chữ số, doanh nghiệp dùng mã số thuế 10 chữ số.'}>
               {(p) => <input {...p} value={tax.taxCode} inputMode="numeric" autoComplete="off" onChange={(e) => setTax((t) => ({ ...t, taxCode: e.target.value }))} />}
             </OTruong>
             {laDoanhNghiep && (
