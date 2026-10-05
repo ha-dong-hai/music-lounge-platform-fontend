@@ -1,7 +1,13 @@
 import { useState, useRef, useEffect } from 'react'
-// 01/10/2026: chữ tiếng Anh sót ("donated … to", "(You)", "new message") đổi sang tiếng Việt; dòng ủng hộ không in tên
-// nghệ sĩ nữa (DonationAlertDto không có trường đó — bản cũ in "to undefined"); nút ủng hộ có chữ, không dùng ký hiệu
-// đô-la cho sản phẩm tính tiền đồng; menu ba chấm chỉ có MỘT mục nên thay bằng nút "Báo cáo" đứng thẳng.
+// 01/10/2026: chữ tiếng Anh sót ("donated … to", "(You)", "new message") đổi sang tiếng Việt; nút ủng hộ có chữ, không
+// dùng ký hiệu đô-la cho sản phẩm tính tiền đồng; menu ba chấm chỉ có MỘT mục nên thay bằng nút "Báo cáo" đứng thẳng.
+// 05/10/2026 (kiểm thử 11 người xem thật):
+// - Dòng ủng hộ GHI TÊN NGHỆ SĨ: DonationAlertDto có performerName từ MLACP-451 — ghi chú "không có trường đó" đã cũ, và
+//   buổi nhiều nghệ sĩ thì người xem không biết ai được ủng hộ.
+// - Gửi lỗi thì GIỮ CHỮ đã gõ và in đúng lý do của máy chủ (gửi quá nhanh, chat đã tắt — BE MLACP-643 trả câu đó qua
+//   HubException). Bản cũ xoá ô nhập ngay khi bấm gửi, rồi toast "Không gửi được tin nhắn, thử lại.".
+// - Phòng trà tắt chat → ô nhập khoá kèm câu báo (sự kiện ChatEnabledChanged); bản cũ để mở, gõ xong mới biết bị chặn.
+// - Nút ủng hộ chỉ hiện với người được ủng hộ (có vé xem trực tuyến hoặc buổi phát miễn phí — BE MLACP-641).
 import { Send, Heart, Smile, ChevronDown, Flag } from 'lucide-react'
 import EmojiPicker from 'emoji-picker-react'
 import DonateModal from './DonateModal'
@@ -10,8 +16,10 @@ import TopDonorsBar from './TopDonorsBar'
 import { anhChuCai } from '../../utils/anhChuCai'
 import { khoaTin } from '../../utils/chatTrucTiep'
 
-const ChatPanel = ({ messages, performers, onSendMessage, onSendDonation, onReport }) => {
+const ChatPanel = ({ messages, performers, onSendMessage, onSendDonation, onReport, chatEnabled = true, canDonate = true }) => {
   const [text, setText] = useState('')
+  const [loiGui, setLoiGui] = useState(null)
+  const [dangGui, setDangGui] = useState(false)
   const [showEmoji, setShowEmoji] = useState(false)
   const [showDonate, setShowDonate] = useState(false)
   const [showReport, setShowReport] = useState(false)
@@ -51,13 +59,21 @@ const ChatPanel = ({ messages, performers, onSendMessage, onSendDonation, onRepo
     setUnreadCount(0)
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    if (!text.trim()) return
+    if (!text.trim() || dangGui || !chatEnabled) return
     isNearBottomRef.current = true
-    onSendMessage(text.trim())
-    setText('')
-    setShowEmoji(false)
+    setDangGui(true)
+    setLoiGui(null)
+    try {
+      await onSendMessage(text.trim())
+      setText('')
+      setShowEmoji(false)
+    } catch (err) {
+      setLoiGui(err?.message || 'Không gửi được tin nhắn, thử lại.')
+    } finally {
+      setDangGui(false)
+    }
   }
 
   const handleEmojiClick = (emojiData) => {
@@ -97,7 +113,7 @@ const ChatPanel = ({ messages, performers, onSendMessage, onSendDonation, onRepo
                 <img src={msg.user?.avatarUrl || anhChuCai(msg.user?.name)} className="w-6 h-6 flex-shrink-0" alt="" />
                 <div className="min-w-0">
                   <p className="text-xs font-bold text-ink truncate">
-                    {msg.user?.name || 'Một khán giả'} <span className="font-normal">đã ủng hộ {msg.amount?.toLocaleString('vi-VN')} đ</span>
+                    {msg.user?.name || 'Một khán giả'} <span className="font-normal">đã ủng hộ {msg.amount?.toLocaleString('vi-VN')} đ{msg.performerName ? <> cho <span className="font-bold">{msg.performerName}</span></> : null}</span>
                   </p>
                   {msg.message && <p className="text-xs text-ink-soft break-words">“{msg.message}”</p>}
                 </div>
@@ -144,6 +160,10 @@ const ChatPanel = ({ messages, performers, onSendMessage, onSendDonation, onRepo
           </div>
         )}
 
+        {!chatEnabled && (
+          <p role="status" className="mb-2 text-xs font-semibold text-ink-soft">Phòng trà đã tạm tắt khung chat. Bạn vẫn xem và ủng hộ được.</p>
+        )}
+        {loiGui && chatEnabled && <p role="alert" className="mb-2 text-xs font-semibold text-danger">{loiGui}</p>}
         <form onSubmit={handleSubmit} className="flex items-center gap-2">
           <button type="button" onClick={() => setShowEmoji(!showEmoji)} className={`inline-flex items-center justify-center w-11 h-11 transition-colors flex-shrink-0 ${showEmoji ? 'text-ink bg-sunken' : 'text-ink-soft hover:text-ink'}`} aria-label="Chèn biểu tượng cảm xúc" aria-expanded={showEmoji}>
             <Smile size={20} />
@@ -152,22 +172,23 @@ const ChatPanel = ({ messages, performers, onSendMessage, onSendDonation, onRepo
             ref={inputRef}
             type="text"
             value={text}
-            onChange={e => setText(e.target.value)}
-            placeholder="Nhắn gì đó…"
+            onChange={e => { setText(e.target.value); setLoiGui(null) }}
+            disabled={!chatEnabled}
+            placeholder={chatEnabled ? 'Nhắn gì đó…' : 'Khung chat đang tắt'}
             className="flex-1 min-w-0 min-h-[44px] bg-sunken text-ink text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-ink placeholder:text-ink-mute"
           />
           {/* NÚT SEND — donate chuyển sang phải của nó */}
-          <button type="submit" className="inline-flex items-center justify-center w-11 h-11 text-ink hover:bg-sunken transition-colors disabled:opacity-30 flex-shrink-0" disabled={!text.trim()} aria-label="Gửi">
+          <button type="submit" className="inline-flex items-center justify-center w-11 h-11 text-ink hover:bg-sunken transition-colors disabled:opacity-30 flex-shrink-0" disabled={!text.trim() || dangGui || !chatEnabled} aria-label="Gửi">
             <Send size={20} />
           </button>
           {/* NÚT DONATE — vị trí mới */}
-          <button
+          {canDonate && (<button
             type="button"
             onClick={() => setShowDonate(true)}
             className="flex-shrink-0 inline-flex items-center gap-1.5 min-h-[44px] px-3 bg-ink text-lamp text-sm font-semibold hover:bg-board transition-colors"
           >
             <Heart size={16} aria-hidden="true" /> Ủng hộ
-          </button>
+          </button>)}
         </form>
       </div>
 

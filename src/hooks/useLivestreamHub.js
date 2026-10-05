@@ -42,6 +42,8 @@ export const useLivestreamHub = (livestreamId, handlers = {}) => {
     // Chủ phòng trà bấm Kết thúc hoặc Mux báo luồng ngừng (MLACP-508, PR #369 — CHƯA deploy; backend đang chạy không phát,
     // nghe trước vô hại). Payload {}.
     connection.on('LivestreamEnded', () => handlersRef.current.onEnded?.())
+    // BE MLACP-643: phòng trà bật/tắt khung chat — payload { enabled }.
+    connection.on('ChatEnabledChanged', (payload) => handlersRef.current.onChatEnabledChanged?.(payload))
     connection.on('LivestreamReconnecting', () => handlersRef.current.onReconnecting?.())
     connection.on('LivestreamReconnected', () => handlersRef.current.onReconnected?.())
     connection.on('LivestreamFailed', () => handlersRef.current.onFailed?.())

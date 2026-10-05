@@ -23,6 +23,25 @@ const PanoramaViewer = lazy(() => import('../../components/lounge/PanoramaViewer
 
 const HEARTBEAT_INTERVAL_MS = 30000
 
+// C8 (05/10/2026): GET /livestreams/{id} MỞ PHIÊN XEM (tính vào giới hạn 2 thiết bị / vé). Effect chạy hai lần liền
+// (React StrictMode khi dev, hoặc người dùng bấm vào lại rất nhanh) thì hai lời gọi song song mở HAI phiên cho cùng một
+// tab — đo được: mở trang lần đầu đã chiếm 2/2 phiên, tab thứ hai hợp lệ bị chặn oan. Gộp các lời gọi đang bay cùng
+// tham số làm một.
+const dangLayChiTiet = new Map()
+const layChiTietMotLan = (livestreamId, phienCu) => {
+  const khoa = `${livestreamId}|${phienCu ?? ''}`
+  if (!dangLayChiTiet.has(khoa)) {
+    dangLayChiTiet.set(khoa, getLivestreamDetail(livestreamId, phienCu).finally(() => setTimeout(() => dangLayChiTiet.delete(khoa), 0)))
+  }
+  return dangLayChiTiet.get(khoa)
+}
+
+// B5: SignalR gói câu của máy chủ thành "An unexpected error … HubException: <câu>" — lấy đúng phần câu đó.
+const cauLoiHub = (err) => {
+  const m = String(err?.message ?? '').split('HubException: ')
+  return m.length > 1 ? m.at(-1).trim() : null
+}
+
 const LivestreamWatchPage = () => {
   const { showId } = useParams()
   const { user } = useAuthStore()
@@ -96,7 +115,7 @@ const LivestreamWatchPage = () => {
         const khoaPhien = `phien-xem-${showRes.data.livestreamId}`
         let phienCu = null
         try { phienCu = sessionStorage.getItem(khoaPhien) } catch { /* trình duyệt chặn bộ nhớ: coi như chưa có */ }
-        const lsRes = await getLivestreamDetail(showRes.data.livestreamId, phienCu)
+        const lsRes = await layChiTietMotLan(showRes.data.livestreamId, phienCu)
         try {
           if (lsRes.success && lsRes.data.viewingSessionId) sessionStorage.setItem(khoaPhien, lsRes.data.viewingSessionId)
         } catch { /* không lưu được thì lần sau mở phiên mới như cũ */ }
@@ -147,15 +166,18 @@ const LivestreamWatchPage = () => {
           content: msg.message,
           type: 'chat',
           isMine: msg.userId === user?.id,
+          sentAt: msg.sentAt ?? null,
         }))
       },
       onDonationAlert: (donation) => {
-        // DonationAlertDto thật: { donorName, amount, message, donationId } — không có tên nghệ sĩ.
+        // DonationAlertDto: { donorName, amount, message, donationId, performerName } — performerName có từ MLACP-451;
+        // ghi chú cũ "không có tên nghệ sĩ" đã lỗi thời, và buổi nhiều nghệ sĩ thì người xem không biết ai được ủng hộ.
         const entry = {
           id: donation.donationId,
           user: { name: donation.donorName, avatarUrl: null },
           amount: donation.amount,
           message: donation.message,
+          performerName: donation.performerName ?? null,
         }
         setMessages((prev) => themTin(prev, { ...entry, type: 'donate' }))
         setDonationAlerts((prev) => [...prev.slice(-4), entry])
@@ -166,6 +188,8 @@ const LivestreamWatchPage = () => {
       },
       onChatMessageHidden: ({ chatMessageId }) => setMessages((prev) => prev.filter((m) => m.chatId !== chatMessageId)),
       onViewerCountUpdated: ({ count }) => setViewerCount(count),
+      // B5: phòng trà bật/tắt khung chat (BE MLACP-643) — ô nhập đổi ngay, không đợi người xem gõ xong mới biết.
+      onChatEnabledChanged: ({ enabled } = {}) => setLivestream((p) => (p ? { ...p, chatEnabled: !!enabled } : p)),
       // Các sự kiện dưới ĐỔI TRẠNG THÁI trang (không chỉ bật toast): bản cũ chỉ báo một dòng toast rồi để trình phát
       // đứng nguyên tới khi người xem tự tải lại.
       onReconnecting: () => setTinHieu('reconnecting'),
@@ -232,17 +256,27 @@ const LivestreamWatchPage = () => {
     localStorage.setItem(`rated_show_${showId}`, 'true')
   }
 
+  // B5 (05/10/2026): ném lại câu của máy chủ cho ChatPanel in dưới ô nhập và GIỮ chữ đã gõ — bản cũ toast câu chung cho
+  // mọi lỗi (gửi quá nhanh, chat đã tắt) trong khi ô nhập đã bị xoá.
   const handleSendMessage = async (text) => {
     try {
       await hubSendMessage(text)
-    } catch {
-      toast.error('Không gửi được tin nhắn, thử lại.')
+    } catch (err) {
+      throw new Error(cauLoiHub(err) || 'Không gửi được tin nhắn, thử lại.', { cause: err })
     }
   }
 
   // Donate đi qua VNPay thật — không thêm alert cục bộ, chờ sự kiện DonationAlert dội về cho mọi người.
   // Logic tạo khoản + chuyển VNPay dùng chung với trang buổi diễn tại chỗ (utils/ungHo.js, MLACP-638).
-  const handleSendDonation = (performerId, amount, message) => guiUngHoQuaVnPay(showData?.performers, performerId, amount, message)
+  // B2 (05/10/2026): VNPay mở ở tab hộp ủng hộ mở sẵn — người xem ở lại buổi phát; trang kết quả có "Quay lại buổi phát".
+  const handleSendDonation = async (performerId, amount, message, tab) => {
+    const kq = await guiUngHoQuaVnPay(showData?.performers, performerId, amount, message, { tab, quayVe: `/livestream/${showId}` })
+    if (kq?.daMoTabMoi) toast.success('Đã mở VNPay ở tab mới. Trả tiền xong, lời ủng hộ của bạn hiện ngay trong khung chat.')
+    return kq
+  }
+  const dangPhat = ['Live', 'Reconnecting'].includes(livestream?.status)
+  // Người được ủng hộ (BE MLACP-641): buổi phát miễn phí, hoặc người có vé xem trực tuyến (có phiên xem).
+  const duocUngHo = dangPhat && (livestream?.isFree || !!livestream?.viewingSessionId)
 
   // CẮT SÓNG — W22. Trạng thái Terminated là TRẠNG THÁI CUỐI: sau khi cắt, stream không thể phát
   // lại và buổi diễn bị đồng bộ sang Ended. Backend ghi lại ai cắt và lý do, rồi thông báo cho mọi
@@ -329,10 +363,17 @@ const LivestreamWatchPage = () => {
           <h1 className="text-base truncate">{showData?.name}</h1>
           <p className="text-xs text-ink-soft flex items-center gap-2 flex-wrap">
             {/* Vàng thếp (ember) là màu DUY NHẤT của "đang diễn" trong thế giới này; không nhấp nháy. */}
-            <span className="inline-flex items-center px-1.5 bg-ember text-board font-semibold">Đang phát</span>
+            {/* C4 (05/10/2026): bản cũ in "Đang phát" + số người xem cả khi buổi đã kết thúc / bị dừng. */}
+            {dangPhat ? (
+              <span className="inline-flex items-center px-1.5 bg-ember text-board font-semibold">Đang phát</span>
+            ) : (
+              <span className="inline-flex items-center px-1.5 bg-sunken text-ink-soft font-semibold">
+                {{ Scheduled: 'Sắp phát', Ended: 'Đã kết thúc', Terminated: 'Đã dừng', Failed: 'Mất tín hiệu' }[livestream?.status] ?? 'Chưa phát'}
+              </span>
+            )}
             {/* D2 (03/10/2026): bộ đếm ô chữ lật, lật mỗi khi SignalR báo số người xem đổi. */}
-            <BoDemNguoiXem so={viewerCount} />
-            {connectionState !== 'connected' && (
+            {dangPhat && <BoDemNguoiXem so={viewerCount} />}
+            {dangPhat && connectionState !== 'connected' && (
               <span className="flex items-center gap-1 text-warning">
                 <WifiOff size={11} /> {connectionState === 'reconnecting' ? 'Đang kết nối lại…' : 'Đang kết nối…'}
               </span>
@@ -344,7 +385,7 @@ const LivestreamWatchPage = () => {
             Hộp đánh giá vẫn tự mở khi buổi diễn kết thúc (effect phía trên). */}
         {/* CẮT SÓNG — chỉ Admin. Khác hẳn "Kết thúc" của người vận hành: đây là can thiệp từ ngoài
             vào buổi đang phát vì vi phạm nội dung, và là trạng thái cuối. */}
-        {user?.role === 'Admin' && livestream?.id && (
+        {user?.role === 'Admin' && livestream?.id && dangPhat && (
           <button
             onClick={() => setMoCatSong(true)}
             className="flex-shrink-0 inline-flex items-center gap-1.5 min-h-[44px] px-3 border-2 border-danger bg-card text-danger text-sm font-semibold hover:bg-danger hover:text-lamp transition-colors"
@@ -466,6 +507,8 @@ const LivestreamWatchPage = () => {
             onSendMessage={handleSendMessage}
             onSendDonation={handleSendDonation}
             onReport={handleReport}
+            chatEnabled={livestream?.chatEnabled !== false}
+            canDonate={duocUngHo}
           />
         </div>
       </div>

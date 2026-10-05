@@ -15,6 +15,7 @@ import { useState, useRef, useEffect } from 'react'
 import { X, Loader2 } from 'lucide-react'
 import { anhChuCai } from '../../utils/anhChuCai'
 import { ChiaTienUngHo } from '../shared/DieuKhoanTien'
+import { moTabThanhToan } from '../../utils/ungHo'
 
 const MUC_SAN = [20000, 50000, 100000, 200000, 500000, 1000000]
 const TOI_THIEU = 1000
@@ -47,9 +48,13 @@ const DonateModal = ({ performers, onClose, onSendDonation }) => {
     setLoi(thieu)
     if (Object.keys(thieu).length) return
     setDangGui(true)
+    // Mở tab cho VNPay NGAY trong sự kiện bấm (05/10/2026) — mở sau lời gọi mạng thì trình duyệt chặn cửa sổ bật lên.
+    // Người xem ở lại buổi phát; trang cha đưa đường dẫn thanh toán vào tab này, hoặc đóng nó nếu tạo khoản thất bại.
+    const tab = moTabThanhToan()
     try {
-      // Thành công thì trang cha chuyển hẳn sang VNPay — hộp này không cần tự đóng.
-      await onSendDonation(ngheSi, soTien, nhan.trim())
+      const kq = await onSendDonation(ngheSi, soTien, nhan.trim(), tab)
+      if (kq?.daMoTabMoi) { ref.current?.close(); return }
+      // Không mở được tab: trang này đang chuyển sang VNPay — hộp không cần tự đóng.
     } catch (err) {
       setLoi({ chung: err.message || 'Chưa tạo được khoản ủng hộ. Hãy thử lại.' })
       setDangGui(false)
@@ -130,6 +135,7 @@ const DonateModal = ({ performers, onClose, onSendDonation }) => {
               {dangGui && <Loader2 size={18} className="animate-spin" aria-hidden="true" />}
               Thanh toán <span className="font-mono whitespace-nowrap">{tien(soTien)}</span> qua VNPay
             </button>
+            <p className="mt-2 text-xs text-ink-soft text-center">VNPay mở ở tab mới — buổi phát vẫn tiếp tục ở tab này.</p>
           </div>
         )}
       </form>

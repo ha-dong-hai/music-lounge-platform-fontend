@@ -88,7 +88,9 @@ const THEO_LOAI = {
   [LOAI_THANH_TOAN.VE]: {
     success: {
       title: 'Đặt vé thành công',
-      message: 'Vé của bạn đã được xác nhận. Mã QR vào cửa nằm trong mục Vé của tôi.',
+      // 05/10/2026: bản cũ chỉ nói "Mã QR vào cửa" — sai với vé XEM TRỰC TUYẾN (không có mã vào cửa). Trang này không
+      // biết loại vé (backend không gắn tham số), nên câu đúng cho cả hai.
+      message: 'Vé của bạn đã được xác nhận và nằm trong mục Vé của tôi — vé vào cửa có mã QR, vé xem trực tuyến có nút Vào xem.',
       primary: { to: '/my-shows', label: 'Xem vé của tôi' },
     },
   },
@@ -130,14 +132,18 @@ const PaymentResultPage = ({ status }) => {
 
   const chung = VARIANTS[status] ?? VARIANTS.failed
   const rieng = nguCanh ? THEO_LOAI[nguCanh.loai]?.[status] : null
-  // `quayVe` hiện chỉ dùng cho luồng gọi món — đưa khách về đúng thực đơn của quán họ đang ngồi,
-  // thay vì đẩy ra trang chủ.
+  // `quayVe` đưa khách về đúng nơi họ xuất phát: thực đơn của quán họ đang ngồi (gọi món), hoặc buổi phát họ đang xem
+  // (ủng hộ — 05/10/2026: trước đây trang cảm ơn không có đường quay lại buổi phát, người xem phải tự tìm).
   const quayVe =
     nguCanh?.loai === LOAI_THANH_TOAN.GOI_MON && nguCanh.quayVe
       ? { to: nguCanh.quayVe, label: 'Quay lại thực đơn' }
-      : null
+      : nguCanh?.loai === LOAI_THANH_TOAN.UNG_HO && nguCanh.quayVe
+        ? { to: nguCanh.quayVe, label: 'Quay lại buổi phát' }
+        : null
 
-  const variant = { ...chung, ...rieng, primary: rieng?.primary ?? quayVe ?? chung.primary }
+  const variant = nguCanh?.loai === LOAI_THANH_TOAN.UNG_HO && quayVe
+    ? { ...chung, ...rieng, primary: quayVe, secondary: rieng?.primary ?? chung.secondary }
+    : { ...chung, ...rieng, primary: rieng?.primary ?? quayVe ?? chung.primary }
   const Icon = variant.icon
 
   return (
