@@ -101,6 +101,10 @@ const OwnerSubscriptionPage = () => {
   if (loiTai) return <TrangLoiTai tieuDe="Gói dịch vụ" tenVung="thông tin gói dịch vụ" taiLai={load} />
 
   const isExpiringSoon = current && dayjs(current.expiresAt).diff(dayjs(), 'day') <= 7
+  // MLACP-677: Admin đã ngừng mở bán gói đang dùng. Quyền lợi vẫn đủ tới hết kỳ đã trả, nhưng gói này không gia hạn được —
+  // nói trước, thay cho nút "Gia hạn" bấm vào mới báo lỗi. Trường chưa có trên máy chủ cũ thì coi như gói còn bán.
+  const ngungBan = current?.packageOnSale === false
+  const toiDanhSachGoi = () => document.getElementById('cac-goi-dang-ban')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
 
   return (
     <div className="space-y-6">
@@ -131,16 +135,29 @@ const OwnerSubscriptionPage = () => {
                   Đã huỷ gia hạn lúc {dayjs(current.cancelledAt).format('DD/MM/YYYY')} — vẫn dùng được tới hết kỳ trên.
                 </p>
               )}
+              {ngungBan && (
+                <p className="text-sm text-warning mt-2 max-w-xl">
+                  Gói này đã ngừng mở bán. Bạn vẫn dùng đủ quyền lợi tới {dayjs(current.expiresAt).format('DD/MM/YYYY')}; gói không gia
+                  hạn được nữa, nên trước ngày đó hãy chọn một gói đang mở bán bên dưới.
+                </p>
+              )}
             </div>
 
             <div className="flex gap-2">
-              <button
-                onClick={() => goToPayment('renew', renewSubscription)}
-                disabled={!!busy}
-                className="inline-flex disabled:opacity-50 items-center justify-center gap-2 min-h-[44px] px-4 bg-ink text-lamp text-sm font-semibold hover:bg-board"
-              >
-                {busy === 'renew' ? 'Đang chuyển...' : 'Gia hạn'}
-              </button>
+              {ngungBan ? (
+                <button type="button" onClick={toiDanhSachGoi}
+                  className="inline-flex items-center justify-center gap-2 min-h-[44px] px-4 bg-ink text-lamp text-sm font-semibold hover:bg-board">
+                  Chọn gói khác
+                </button>
+              ) : (
+                <button
+                  onClick={() => goToPayment('renew', renewSubscription)}
+                  disabled={!!busy}
+                  className="inline-flex disabled:opacity-50 items-center justify-center gap-2 min-h-[44px] px-4 bg-ink text-lamp text-sm font-semibold hover:bg-board"
+                >
+                  {busy === 'renew' ? 'Đang chuyển...' : 'Gia hạn'}
+                </button>
+              )}
               {!current.cancelledAt && (
                 <NutXacNhan
                   onXacNhan={handleCancel} tieuDe="Huỷ gia hạn gói dịch vụ?" nhanXacNhan="Huỷ gia hạn" nhanGiu="Không, giữ gia hạn"
@@ -196,7 +213,9 @@ const OwnerSubscriptionPage = () => {
             <div className="mt-4 flex items-start gap-2 bg-warning/5 border border-warning/20 p-3">
               <AlertTriangle size={16} className="text-warning flex-shrink-0 mt-0.5" />
               <p className="text-xs text-warning">
-                Gói sắp hết hạn. Hết hạn mà chưa gia hạn thì các hạn mức trên sẽ không còn áp dụng.
+                {ngungBan
+                  ? 'Gói sắp hết hạn và không gia hạn được. Chọn một gói đang mở bán để không bị gián đoạn.'
+                  : 'Gói sắp hết hạn. Hết hạn mà chưa gia hạn thì các hạn mức trên sẽ không còn áp dụng.'}
               </p>
             </div>
           )}
@@ -209,7 +228,7 @@ const OwnerSubscriptionPage = () => {
       )}
 
       {/* === DANH SÁCH GÓI === */}
-      <div>
+      <div id="cac-goi-dang-ban" className="scroll-mt-6">
         <h2 className="font-sans font-bold text-sm text-ink-soft mb-3">Các gói đang mở bán</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {packages.map((p) => {

@@ -89,6 +89,13 @@ export const PackageCard = ({ pkg, onEdit, onToggleStatus }) => {
         ))}
       </div>
 
+      {/* MLACP-677: bao nhiêu chủ phòng trà đang dùng gói (còn hạn) — biết trước khi ẩn hay sửa gói. */}
+      {pkg.activeSubscriberCount != null && (
+        <p className="relative z-[1] mt-5 text-sm text-ink-soft">
+          {pkg.activeSubscriberCount > 0 ? `${pkg.activeSubscriberCount} chủ phòng trà đang dùng` : 'Chưa có ai đang dùng'}
+        </p>
+      )}
+
         {/* MLACP-672: bỏ chân thẻ chỉ chứa mã gói — tên gói đã ở đầu thẻ, mã không giúp Admin làm gì. */}
     </div>
   )

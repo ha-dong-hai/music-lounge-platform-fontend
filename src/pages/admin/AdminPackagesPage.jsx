@@ -262,10 +262,13 @@ const AdminPackagesPage = () => {
           confirmPkg?.isActive ? (
             <>
               <div>
-                Gói "<span className="font-bold text-ink">{confirmPkg?.name}</span>" sẽ bị ẩn khỏi danh sách gói.
+                Gói "<span className="font-bold text-ink">{confirmPkg?.name}</span>" sẽ ngừng mở bán (ẩn khỏi trang đăng ký).
               </div>
-              <div className="text-xs text-ink mt-1.5">
-                Owners using this plan keep their current benefits, but can't renew it.
+              {/* MLACP-677: Admin thấy trước ẩn gói ảnh hưởng ai. Họ vẫn dùng đủ tới hết kỳ đã trả và được báo ngay. */}
+              <div className="text-sm text-ink mt-1.5">
+                {confirmPkg?.activeSubscriberCount > 0
+                  ? <><b>{confirmPkg.activeSubscriberCount} chủ phòng trà</b> đang dùng gói này. Họ vẫn dùng đủ quyền lợi tới hết kỳ đã trả, nhận thông báo ngay, và phải chọn gói khác khi hết hạn (không gia hạn được gói này).</>
+                  : 'Không có chủ phòng trà nào đang dùng gói này.'}
               </div>
             </>
           ) : (
@@ -273,13 +276,13 @@ const AdminPackagesPage = () => {
               <div>
                 Gói "<span className="font-bold text-ink">{confirmPkg?.name}</span>" sẽ hiện lại trong danh sách gói.
               </div>
-              <div className="text-xs text-ink-mute mt-1.5">
-                Owners can select this plan when subscribing.
+              <div className="text-sm text-ink-mute mt-1.5">
+                Chủ phòng trà chọn được gói này khi đăng ký hoặc gia hạn.
               </div>
             </>
           )
         }
-        confirmText={confirmPkg?.isActive ? 'Hide' : 'Show'}
+        confirmText={confirmPkg?.isActive ? 'Ngừng mở bán' : 'Mở bán lại'}
         danger={confirmPkg?.isActive}
         isProcessing={false}
         onClose={() => setConfirmPkg(null)}
