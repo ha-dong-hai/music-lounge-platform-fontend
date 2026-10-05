@@ -73,6 +73,7 @@ const BANG = [
   [/^\/admin\/packages$/, 'Gói dịch vụ (quản trị)'],
   [/^\/admin\/complaint$/, 'Xử lý khiếu nại'],
   [/^\/admin\/penalty-appeals$/, 'Khiếu nại án phạt'],
+  [/^\/admin\/show-cancellations$/, 'Lý do huỷ buổi'],
   [/^\/admin\/accounts$/, 'Tài khoản người dùng'],
   [/^\/admin\/filter-options$/, 'Danh mục'],
   [/^\/admin\/system-config$/, 'Cấu hình hệ thống'],

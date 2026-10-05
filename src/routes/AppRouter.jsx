@@ -44,6 +44,7 @@ const AdminSystemConfigPage = lazy(() => import('../pages/admin/AdminSystemConfi
 const AdminLedgerPage = lazy(() => import('../pages/admin/AdminLedgerPage'))
 const AdminBankAccountsPage = lazy(() => import('../pages/admin/AdminBankAccountsPage'))
 const AdminPenaltyAppealsPage = lazy(() => import('../pages/admin/AdminPenaltyAppealsPage'))
+const AdminShowCancellationsPage = lazy(() => import('../pages/admin/AdminShowCancellationsPage'))
 const PaymentResultPage = lazy(() => import('../pages/payment/PaymentResultPage'))
 const RegisterPage = lazy(() => import('../pages/auth/RegisterPage'))
 const VerifyEmailPage = lazy(() => import('../pages/auth/VerifyEmailPage'))
@@ -189,6 +190,7 @@ const AppRouter = createBrowserRouter([{ element: <GocUngDung />, children: [
       { path: 'ledger', element: <AdminLedgerPage /> },
       { path: 'bank-accounts', element: <AdminBankAccountsPage /> },
       { path: 'penalty-appeals', element: <AdminPenaltyAppealsPage /> },
+      { path: 'show-cancellations', element: <AdminShowCancellationsPage /> },
       { path: 'content-reports', element: <AdminContentReportsPage /> },
       { path: 'refunds', element: <AdminRefundsPage /> },
       { path: 'settlements', element: <AdminSettlementsPage /> },

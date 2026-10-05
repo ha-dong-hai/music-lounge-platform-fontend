@@ -31,7 +31,7 @@ import dayjs from 'dayjs'
 import { giaTriGioCucBo, loiLichBuoiDien } from '../../utils/rangBuocNgay'
 import toast from 'react-hot-toast'
 import {
-  getMyShows, getShowDetail, createShow, updateShow, submitShow, cancelShow, deleteShow,
+  getMyShows, getShowDetail, createShow, updateShow, submitShow, cancelShow, deleteShow, LY_DO_HUY_BUOI,
 } from '../../services/showServices'
 import { getLounges } from '../../services/loungeServices'
 import ViecCanLamMoBan from '../../components/owner/ViecCanLamMoBan'
@@ -39,6 +39,7 @@ import { getGenres, getMoods, getAtmospheres, getEventCategories } from '../../s
 import NhomTab from '../../components/bang/NhomTab'
 import HopThoai, { TieuDeHop } from '../../components/shared/HopThoai'
 import { useTaiLaiKhiDoi } from '../../lib/thoiGianThuc'
+import { uploadImage } from '../../services/userServices'
 
 // Tab theo trạng thái backend (LoungeShowStatus). '' = tất cả.
 const TAB = [
@@ -317,6 +318,28 @@ const OwnerShowsPage = () => {
   const [dem, setDem] = useState({})
   const [loiDs, setLoiDs] = useState(false)
   const [xacNhan, setXacNhan] = useState(null) // { loai: 'huy' | 'xoa', buoi }
+  // MLACP-676: lý do huỷ buổi đã mở bán — nền tảng xét lý do này để miễn hay phạt; khán giả chỉ thấy câu trung tính.
+  const [lyDoHuy, setLyDoHuy] = useState({ reason: '', detail: '', evidenceUrl: '', dangTai: false })
+  const moHuy = (s) => { setLyDoHuy({ reason: '', detail: '', evidenceUrl: '', dangTai: false }); setXacNhan({ loai: 'huy', buoi: s }) }
+  const taiBangChung = async (file) => {
+    if (!file) return
+    setLyDoHuy((l) => ({ ...l, dangTai: true }))
+    try {
+      const up = await uploadImage(file)
+      setLyDoHuy((l) => ({ ...l, evidenceUrl: up.data?.url ?? up.data ?? '' }))
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Không tải được ảnh bằng chứng.')
+    } finally {
+      setLyDoHuy((l) => ({ ...l, dangTai: false }))
+    }
+  }
+  const xacNhanHuy = () => {
+    if (!lyDoHuy.reason) { toast.error('Hãy chọn lý do huỷ.'); return }
+    if (lyDoHuy.detail.trim().length < 20) { toast.error('Hãy mô tả lý do cụ thể, ít nhất 20 ký tự.'); return }
+    act(xacNhan.buoi.id,
+      (id) => cancelShow(id, { reason: lyDoHuy.reason, detail: lyDoHuy.detail.trim(), evidenceUrl: lyDoHuy.evidenceUrl || null }),
+      'Đã huỷ buổi diễn. Vé đã bán được hoàn 100%; nền tảng sẽ xét lý do huỷ.')
+  }
 
   const loadShows = useCallback(async () => {
     setLoiDs(false)
@@ -481,7 +504,7 @@ const OwnerShowsPage = () => {
                     </button>
                   )}
                   {s.status === 'Published' && (
-                    <button onClick={() => setXacNhan({ loai: 'huy', buoi: s })} disabled={isBusy}
+                    <button onClick={() => moHuy(s)} disabled={isBusy}
                       className="inline-flex items-center gap-1.5 min-h-[44px] px-4 border-2 border-danger bg-card text-danger text-sm font-semibold hover:bg-danger hover:text-lamp disabled:opacity-50">
                       <X size={14} aria-hidden="true" /> Huỷ buổi diễn
                     </button>
@@ -517,7 +540,7 @@ const OwnerShowsPage = () => {
         dangXuLy={busyId != null && busyId === xacNhan?.buoi?.id}
         onDong={() => setXacNhan(null)}
         onXacNhan={() => xacNhan.loai === 'huy'
-          ? act(xacNhan.buoi.id, cancelShow, 'Đã huỷ buổi diễn. Vé đã bán được hoàn 100%.')
+          ? xacNhanHuy()
           : act(xacNhan.buoi.id, deleteShow, 'Đã xoá bản nháp.')}
       >
         {xacNhan && (
@@ -525,9 +548,38 @@ const OwnerShowsPage = () => {
             <p><span className="font-semibold text-ink">{xacNhan.buoi.name}</span> · {gioTrongNgay(xacNhan.buoi.scheduledStart)} {ngayDayDu(xacNhan.buoi.scheduledStart)}</p>
             <p className="mt-2">
               {xacNhan.loai === 'huy'
-                ? 'Buổi diễn sẽ gỡ khỏi trang bán vé. Mọi vé đã bán được hoàn 100% tiền cho người mua và khán giả được báo tin. Không hoàn tác được.'
+                ? 'Buổi diễn sẽ gỡ khỏi trang bán vé ngay. Mọi vé đã bán được hoàn 100% tiền cho người mua và khán giả được báo tin. Không hoàn tác được.'
                 : 'Bản nháp cùng line-up và hạng vé đã khai sẽ bị xoá. Không hoàn tác được.'}
             </p>
+            {xacNhan.loai === 'huy' && (
+              <div className="mt-4 space-y-3 text-ink">
+                <label className="block">
+                  <span className="block text-sm font-semibold mb-1">Lý do huỷ *</span>
+                  <select value={lyDoHuy.reason} onChange={(e) => setLyDoHuy((l) => ({ ...l, reason: e.target.value }))}
+                    className="w-full min-h-[44px] px-3 border-2 border-ink bg-card">
+                    <option value="">— chọn lý do —</option>
+                    {LY_DO_HUY_BUOI.map(([k, nhan]) => <option key={k} value={k}>{nhan}</option>)}
+                  </select>
+                </label>
+                <label className="block">
+                  <span className="block text-sm font-semibold mb-1">Mô tả cụ thể * <span className="font-normal text-ink-mute">(ít nhất 20 ký tự)</span></span>
+                  <textarea rows={3} maxLength={1000} value={lyDoHuy.detail}
+                    onChange={(e) => setLyDoHuy((l) => ({ ...l, detail: e.target.value }))}
+                    className="w-full px-3 py-2 border-2 border-ink bg-card" />
+                </label>
+                <label className="block">
+                  <span className="block text-sm font-semibold mb-1">Ảnh bằng chứng <span className="font-normal text-ink-mute">(không bắt buộc)</span></span>
+                  <input type="file" accept="image/*" disabled={lyDoHuy.dangTai} onChange={(e) => taiBangChung(e.target.files?.[0])}
+                    className="block w-full text-sm" />
+                  {lyDoHuy.dangTai && <span className="text-sm text-ink-mute">Đang tải lên…</span>}
+                  {lyDoHuy.evidenceUrl && <span className="text-sm text-success">Đã tải ảnh bằng chứng.</span>}
+                </label>
+                <p className="text-sm text-ink-mute">
+                  Khán giả chỉ thấy loại lý do (ví dụ “nghệ sĩ không thể biểu diễn”). Mô tả và bằng chứng chỉ quản trị viên đọc để
+                  xét miễn hay phạt; huỷ vì bán ít vé hoặc không có lý do chính đáng có thể bị cảnh cáo.
+                </p>
+              </div>
+            )}
           </>
         )}
       </HopXacNhan>

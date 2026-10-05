@@ -69,8 +69,28 @@ export const submitShow = async (id) => {
 };
 
 // Huỷ buổi diễn ĐÃ ĐĂNG: vé Confirmed bị huỷ kèm tự tạo yêu cầu hoàn 100% và báo tới từng người mua.
-export const cancelShow = async (id) => {
-  return axiosClient.post(`/lounge-shows/${id}/cancel`);
+// MLACP-676: buổi đã mở bán phải kèm lý do — reason: ForceMajeure | PerformerUnavailable | AuthorityRequest |
+// VenueIncident | LowSales | Other; detail ≥ 20 ký tự; evidenceUrl tuỳ chọn (ảnh đã tải lên). Admin xét lý do sau.
+export const cancelShow = async (id, { reason = null, detail = null, evidenceUrl = null } = {}) => {
+  return axiosClient.post(`/lounge-shows/${id}/cancel`, { reason, detail, evidenceUrl });
+};
+
+export const LY_DO_HUY_BUOI = [
+  ['ForceMajeure', 'Bất khả kháng (thiên tai, dịch bệnh, sự cố an ninh)'],
+  ['PerformerUnavailable', 'Nghệ sĩ không thể biểu diễn'],
+  ['AuthorityRequest', 'Cơ quan chức năng yêu cầu'],
+  ['VenueIncident', 'Sự cố tại phòng trà'],
+  ['LowSales', 'Bán được ít vé'],
+  ['Other', 'Lý do khác'],
+];
+
+// MLACP-676 — Admin xét lý do huỷ buổi của phòng trà.
+export const getShowCancellationReviews = async ({ status = 'Pending', page = 1, pageSize = 20 } = {}) => {
+  return axiosClient.get('/admin/show-cancellations', { params: { status, page, pageSize } });
+};
+
+export const decideShowCancellationReview = async (id, { decision, note, penaltyType = null, suspensionDays = null }) => {
+  return axiosClient.post(`/admin/show-cancellations/${id}/decide`, { decision, note, penaltyType, suspensionDays });
 };
 
 export const deleteShow = async (id) => {

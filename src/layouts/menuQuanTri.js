@@ -4,7 +4,7 @@
 // tên và biểu tượng của menu, không chép một bảng tên thứ hai (chép thì sớm muộn hai nơi lệch nhau).
 //
 // GOM NHÓM (30/09/2026): 16 mục phẳng → 4 nhóm theo loại việc: duyệt nội dung, tiền, khiếu nại, hệ thống.
-import { LayoutDashboard, Music, Store, Package, Users, Receipt, MessageSquareWarning, SlidersHorizontal, ShieldAlert, Banknote, Landmark, ShieldCheck, Settings2, TrendingUp, Gavel, ExternalLink, UserCog, Building2 } from 'lucide-react'
+import { LayoutDashboard, Music, Store, Package, Users, Receipt, MessageSquareWarning, SlidersHorizontal, ShieldAlert, Banknote, Landmark, ShieldCheck, Settings2, TrendingUp, Gavel, ExternalLink, UserCog, Building2, CalendarX2 } from 'lucide-react'
 
 export const NHOM = [
   { ten: 'Tổng quan', muc: [
@@ -27,6 +27,8 @@ export const NHOM = [
   { ten: 'Khiếu nại', muc: [
     { to: '/admin/complaint', nhan: 'Xử lý khiếu nại', icon: MessageSquareWarning },
     { to: '/admin/penalty-appeals', nhan: 'Khiếu nại án phạt', icon: Gavel },
+    // MLACP-676: phòng trà huỷ buổi đã mở bán — xét lý do để miễn hay phạt.
+    { to: '/admin/show-cancellations', nhan: 'Lý do huỷ buổi', icon: CalendarX2 },
   ] },
   { ten: 'Hệ thống', muc: [
     { to: '/admin/accounts', nhan: 'Tài khoản người dùng', icon: Users },
