@@ -7,7 +7,6 @@ import ChatPanel from '../../components/livestream/ChatPanel'
 import { themTin, tuLichSu } from '../../utils/chatTrucTiep'
 import { getShowDetail, rateShow } from '../../services/showServices'
 import { getLivestreamDetail, getChatHistory, sendHeartbeat, terminateLivestream } from '../../services/livestreamServices'
-import { createDonation } from '../../services/donationServices'
 import { submitContentReport } from '../../services/contentReportServices'
 import { useAuthStore } from '../../store/useAuthStore'
 import { useLivestreamHub } from '../../hooks/useLivestreamHub'
@@ -15,7 +14,7 @@ import { useLivestreamHub } from '../../hooks/useLivestreamHub'
 import RatingModal from '../../components/livestream/RatingModal'
 import HopXacNhan from '../../components/shared/HopXacNhan'
 import { getLoungeTour } from '../../services/loungeServices'
-import { ghiNhoThanhToan, LOAI_THANH_TOAN } from '../../utils/paymentContext'
+import { guiUngHoQuaVnPay } from '../../utils/ungHo'
 import LienKetMuiTen from '../../components/shared/LienKetMuiTen'
 import BoDemNguoiXem from '../../components/livestream/BoDemNguoiXem'
 
@@ -242,26 +241,8 @@ const LivestreamWatchPage = () => {
   }
 
   // Donate đi qua VNPay thật — không thêm alert cục bộ, chờ sự kiện DonationAlert dội về cho mọi người.
-  const handleSendDonation = async (performerId, amount, message) => {
-    // NÉM lỗi lên cho DonateModal in ngay trong hộp (01/10/2026). Bản cũ tự toast rồi nuốt lỗi, nên hộp vẫn báo
-    // "Ủng hộ thành công!" dù khoản ủng hộ chưa được tạo.
-    const performance = showData?.performers?.find((p) => p.id === performerId)
-    if (!performance?.performanceId) throw new Error('Không xác định được phần trình diễn của nghệ sĩ này.')
-    let res
-    try {
-      res = await createDonation({
-        performanceId: performance.performanceId,
-        amount,
-        message: message || null,
-        isMessagePublic: true,
-      })
-    } catch (err) {
-      throw new Error(err.response?.data?.message || 'Chưa tạo được khoản ủng hộ. Hãy thử lại.', { cause: err })
-    }
-    if (!res.success || !res.data?.paymentUrl) throw new Error(res.message || 'Chưa nhận được đường dẫn thanh toán. Hãy thử lại.')
-    ghiNhoThanhToan(LOAI_THANH_TOAN.UNG_HO)
-    window.location.href = res.data.paymentUrl
-  }
+  // Logic tạo khoản + chuyển VNPay dùng chung với trang buổi diễn tại chỗ (utils/ungHo.js, MLACP-638).
+  const handleSendDonation = (performerId, amount, message) => guiUngHoQuaVnPay(showData?.performers, performerId, amount, message)
 
   // CẮT SÓNG — W22. Trạng thái Terminated là TRẠNG THÁI CUỐI: sau khi cắt, stream không thể phát
   // lại và buổi diễn bị đồng bộ sang Ended. Backend ghi lại ai cắt và lý do, rồi thông báo cho mọi

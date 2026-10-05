@@ -1,6 +1,6 @@
 // src/pages/events/EventDetailPage.jsx
 import { useState, useRef, useEffect } from 'react'
-import { useParams, Link } from 'react-router-dom'
+import { useParams, Link, useNavigate } from 'react-router-dom'
 import { MapPin, Heart, Share2, Check, X, Copy, Star } from 'lucide-react'
 import toast from 'react-hot-toast'
 import BiaDia from '../../components/program/BiaDia'
@@ -11,6 +11,8 @@ import ShowIntro from '../../components/mshow-detail/ShowIntro'
 import ShowRatings from '../../components/mshow-detail/ShowRatings'
 import Skeleton from '../../components/shared/Skeleton'
 import RatingModal from '../../components/livestream/RatingModal'
+import DonateModal from '../../components/livestream/DonateModal'
+import { guiUngHoQuaVnPay } from '../../utils/ungHo'
 import { getShowDetail, getSimilarShows, rateShow } from '../../services/showServices'
 import { nhoBuoiVuaXem } from '../../utils/buoiVuaXem'
 import { getFollowedLounges, toggleWishlist, toggleFollowLounge } from '../../services/interactionServices'
@@ -35,6 +37,8 @@ const EventDetailPage = () => {
 
   const [isShareModalOpen, setIsShareModalOpen] = useState(false)
   const [showRating, setShowRating] = useState(false)
+  const [showDonate, setShowDonate] = useState(false)
+  const navigate = useNavigate()
   const [isCopied, setIsCopied] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [apiError, setApiError] = useState(null)
@@ -219,6 +223,8 @@ const EventDetailPage = () => {
   // Nút chính trên khối sơn then: cùng vật liệu với nút "Đặt chỗ" của bảng giờ diễn.
   const NUT_CHINH = 'inline-flex items-center justify-center gap-2 min-h-[52px] px-8 bg-stock text-ink font-display text-2xl hover:bg-lamp transition-colors'
   const NUT_PHU = 'inline-flex items-center justify-center min-h-[52px] px-7 border-2 border-lamp text-lamp font-semibold hover:bg-lamp hover:text-board transition-colors'
+  // Nghệ sĩ nhận được ủng hộ: cùng điều kiện DonateModal lọc (backend từ chối người không nhận ủng hộ).
+  const nhanUngHo = (data.performers ?? []).filter((p) => p.acceptsDonation && p.performanceId)
 
   return (
     <div className="min-h-screen bg-stock text-ink pb-20">
@@ -260,9 +266,21 @@ const EventDetailPage = () => {
             <div className="mt-8 w-full">
               {data.isOngoing ? (
                 <div className="flex flex-wrap gap-3">
-                  <Link to={`/livestream/${id}`} className="inline-flex items-center justify-center gap-2 min-h-[52px] px-7 bg-ember text-board font-display text-2xl hover:bg-lamp transition-colors">
-                    Xem trực tiếp
-                  </Link>
+                  {/* MLACP-638: "Xem trực tiếp" chỉ khi buổi CÓ phát trực tuyến. Bản trước hiện cho mọi buổi đang diễn — buổi
+                      tại chỗ bấm vào chỉ gặp "Buổi diễn này không có phiên phát trực tuyến" (kiểm thử 05/10/2026). */}
+                  {data.format !== 'Offline' && (
+                    <Link to={`/livestream/${id}`} className="inline-flex items-center justify-center gap-2 min-h-[52px] px-7 bg-ember text-board font-display text-2xl hover:bg-lamp transition-colors">
+                      Xem trực tiếp
+                    </Link>
+                  )}
+                  {/* MLACP-638: ủng hộ nghệ sĩ ngay tại phòng trà. Trước đó nút ủng hộ chỉ có trong trang xem trực tuyến, nên
+                      khán giả ngồi tại chỗ không có đường nào để ủng hộ dù backend nhận ủng hộ cho mọi buổi đang diễn. */}
+                  {nhanUngHo.length > 0 && (
+                    <button type="button" onClick={() => (user ? setShowDonate(true) : navigate('/login', { state: { from: `/shows/${id}` } }))}
+                      className={data.format === 'Offline' ? NUT_CHINH : NUT_PHU}>
+                      Ủng hộ nghệ sĩ
+                    </button>
+                  )}
                   <button type="button" onClick={handleBookTicket} className={NUT_PHU}>Mua vé</button>
                 </div>
               ) : data.status === 'Ended' ? (
@@ -336,6 +354,12 @@ const EventDetailPage = () => {
             {relatedEvents.map((b) => <DongBuoiDien key={b.id} b={b} />)}
           </ol>
         </section>
+      )}
+
+      {/* ===== HỘP ỦNG HỘ — dùng lại DonateModal của trang xem trực tuyến (MLACP-638) ===== */}
+      {showDonate && (
+        <DonateModal performers={data.performers} onClose={() => setShowDonate(false)}
+          onSendDonation={(performerId, amount, message) => guiUngHoQuaVnPay(data.performers, performerId, amount, message)} />
       )}
 
       {/* ===== MODAL ĐÁNH GIÁ — reuse RatingModal của livestream ===== */}
