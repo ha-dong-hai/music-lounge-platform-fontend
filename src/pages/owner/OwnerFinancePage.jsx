@@ -29,6 +29,7 @@ import OChiSo from '../../components/bang/OChiSo'
 import ChonKy from '../../components/bang/ChonKy'
 import NhanTrangThai from '../../components/shared/NhanTrangThai'
 import { PhiThueLichChi } from '../../components/shared/DieuKhoanTien'
+import HangUyTin from '../../components/owner/HangUyTin'
 
 const fmtTien = (v) => `${Number(v || 0).toLocaleString('vi-VN')}đ`
 
@@ -116,6 +117,9 @@ const OwnerFinancePage = () => {
       ) : (
         <KhungTai loi tenVung="phần tổng quan (danh sách giao dịch bên dưới vẫn đúng)" taiLai={tongQuan.refetch} />
       )}
+
+      {/* MLACP-671: hạng uy tín — quyết định phần tiền vé chuyển trước ở đợt 1. */}
+      {earnings && <HangUyTin standings={earnings.standings} loungeNames={earnings.loungeNames} />}
 
       {/* MLACP-626: luật chia tiền và lịch chi, bằng số đang áp dụng — trước đây trang chỉ hiện kết quả, không nói luật. */}
       <PhiThueLichChi />
