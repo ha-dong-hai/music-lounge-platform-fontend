@@ -187,6 +187,19 @@ const PerformerConfirmationPage = () => {
             {(info.showName || info.venueName) && <div className="py-3 grid grid-cols-[9rem_minmax(0,1fr)] gap-3"><dt className="text-ink-mute">Buổi diễn</dt><dd>{[info.showName, info.venueName].filter(Boolean).join(' · ')}</dd></div>}
             {info.amount != null && <div className="py-3 grid grid-cols-[9rem_minmax(0,1fr)] gap-3"><dt className="text-ink-mute">Số tiền phòng trà báo đã chuyển</dt><dd className="font-mono text-2xl">{fmtTien(info.amount)}</dd></div>}
             {info.paymentRef && <div className="py-3 grid grid-cols-[9rem_minmax(0,1fr)] gap-3"><dt className="text-ink-mute">Mã tham chiếu</dt><dd className="font-mono break-all">{info.paymentRef}</dd></div>}
+            {/* MLACP-673: ảnh chứng từ phòng trà đã nộp — nghệ sĩ đối chiếu với sao kê của mình trước khi xác nhận. */}
+            {info.paymentEvidenceUrl && (
+              <div className="py-3 grid grid-cols-[9rem_minmax(0,1fr)] gap-3">
+                <dt className="text-ink-mute">Chứng từ chuyển khoản</dt>
+                <dd>
+                  <a href={info.paymentEvidenceUrl} target="_blank" rel="noopener noreferrer" className="block w-fit">
+                    <img src={info.paymentEvidenceUrl} alt="Ảnh chứng từ chuyển khoản phòng trà đã nộp"
+                      className="max-h-80 max-w-full border border-line" loading="lazy" />
+                  </a>
+                  <span className="block mt-1 text-sm text-ink-mute">Bấm vào ảnh để xem cỡ lớn.</span>
+                </dd>
+              </div>
+            )}
           </>
         )}
       </dl>
