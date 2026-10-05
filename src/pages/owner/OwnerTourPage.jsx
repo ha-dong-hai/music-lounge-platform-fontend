@@ -28,7 +28,6 @@ import { uploadImage, uploadModel } from '../../services/userServices'
 import ConfirmModal from '../../components/shared/ConfirmModal'
 import { TrangLoiTai } from '../../components/bang/KhungTai'
 import HopThoai, { TieuDeHop } from '../../components/shared/HopThoai'
-import { maNgan } from '../../utils/format'
 
 const inputCls = 'mt-1 w-full min-h-[44px] px-3 py-2 bg-card border-2 border-ink text-ink focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2'
 
@@ -74,7 +73,7 @@ const TenCanh = ({ loungeId, sc, onLuu }) => {
           placeholder="Ví dụ: Quầy bar, Sân khấu, Lối vào"
           className="mt-1 w-full min-h-[44px] px-3 py-2 bg-card border-2 border-ink text-ink font-normal focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2" />
       </label>
-      <button type="submit" disabled={!doi || dangLuu} aria-label={`Lưu tên điểm đứng ${sc.name || `#${maNgan(sc.id)}`}`}
+      <button type="submit" disabled={!doi || dangLuu} aria-label={`Lưu tên điểm đứng ${sc.name || 'Chưa đặt tên'}`}
         className="inline-flex items-center gap-1.5 justify-center min-h-[44px] px-3 border-2 border-ink bg-card text-ink text-sm font-semibold hover:bg-ink hover:text-lamp disabled:opacity-40">
         {dangLuu ? <Loader2 size={12} className="animate-spin" /> : <Save size={12} />} Lưu tên
       </button>
@@ -123,7 +122,7 @@ const HotspotModal = ({ loungeId, scene, scenes, zones = [], onClose, onSaved })
   return (
     <HopThoai onDong={onClose} className="max-w-md">
         <div className="flex justify-between items-center p-5 border-b border-line">
-          <TieuDeHop><h2 className="text-3xl text-ink truncate">Điểm bấm của {scene.name || `điểm đứng #${maNgan(scene.id)}`}</h2></TieuDeHop>
+          <TieuDeHop><h2 className="text-3xl text-ink truncate">Điểm bấm của {scene.name || 'điểm đứng chưa đặt tên'}</h2></TieuDeHop>
           <button onClick={onClose} className="inline-flex items-center justify-center w-11 h-11 flex-shrink-0 hover:bg-sunken text-ink-soft" aria-label="Đóng"><X size={20} /></button>
         </div>
 
@@ -145,7 +144,7 @@ const HotspotModal = ({ loungeId, scene, scenes, zones = [], onClose, onSaved })
                           {h.infoText || '(chú thích trống)'}
                         </p>
                       ) : (
-                        <p className="text-xs text-ink-mute">→ {dich?.name || `điểm đứng #${maNgan(h.targetSceneId)}`}</p>
+                        <p className="text-xs text-ink-mute">→ {dich?.name || 'điểm đứng chưa đặt tên'}</p>
                       )}
                     </div>
                     <button onClick={async () => {
@@ -204,7 +203,7 @@ const HotspotModal = ({ loungeId, scene, scenes, zones = [], onClose, onSaved })
                   <label className="text-sm font-semibold text-ink">Dẫn tới điểm đứng <span className="text-danger">*</span></label>
                   <select aria-label="Dẫn tới điểm đứng" value={form.targetSceneId} onChange={(e) => set('targetSceneId', e.target.value)} className={inputCls}>
                     <option value="">— chọn điểm đứng —</option>
-                    {khac.map((x) => <option key={x.id} value={x.id}>{x.name || `điểm đứng #${maNgan(x.id)}`}</option>)}
+                    {khac.map((x) => <option key={x.id} value={x.id}>{x.name || 'điểm đứng chưa đặt tên'}</option>)}
                   </select>
                   <p className="text-xs text-ink-mute mt-1">
                     Danh sách không có chính điểm đứng này — điểm bấm không dẫn về nơi đang đứng được.
@@ -519,12 +518,12 @@ const OwnerTourPage = () => {
                 const dangNham = sceneDangDat === sc.id
                 return (
                   <span key={sc.id}
-                    title={sc.name || `Điểm đứng #${maNgan(sc.id)}`}
+                    title={sc.name || 'Điểm đứng chưa đặt tên'}
                     className={`absolute -translate-x-1/2 -translate-y-1/2 px-1.5 py-0.5 rounded-md text-xs font-bold whitespace-nowrap ${
                       dangNham ? 'bg-ink text-lamp ring-2 ring-line-strong/50' : 'bg-ink/80 text-stock border border-ink/50'
                     }`}
                     style={{ left: `${o.x}%`, top: `${o.y}%` }}>
-                    {sc.name || `#${maNgan(sc.id)}`}
+                    {sc.name || 'Chưa đặt tên'}
                   </span>
                 )
               })}
@@ -570,7 +569,7 @@ const OwnerTourPage = () => {
                       {['x', 'y'].map((truc) => (
                         <div key={truc} className="w-16">
                           <label className="text-sm font-semibold text-ink">{truc}</label>
-                          <input aria-label={`Vị trí ${truc.toUpperCase()} trên mặt bằng (%) của ${sc.name || `cảnh #${maNgan(sc.id)}`}`} type="number" step="any" min="0" max="100"
+                          <input aria-label={`Vị trí ${truc.toUpperCase()} trên mặt bằng (%) của ${sc.name || 'điểm đứng chưa đặt tên'}`} type="number" step="any" min="0" max="100"
                             value={(viTri[sc.id] ?? {})[truc] ?? ''}
                             onChange={(e) => doiViTri(sc.id, truc, e.target.value)}
                             className="mt-1 w-full tabular-nums min-h-[44px] px-3 py-2 bg-card border-2 border-ink text-ink focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2" />
@@ -684,7 +683,7 @@ const OwnerTourPage = () => {
         <ConfirmModal
           isOpen
           title="Xoá điểm đứng này?"
-          message={`"${xoaScene.name || `điểm đứng #${maNgan(xoaScene.id)}`}" và các điểm bấm dẫn tới nó sẽ không còn trong tour.`}
+          message={`"${xoaScene.name || 'điểm đứng chưa đặt tên'}" và các điểm bấm dẫn tới nó sẽ không còn trong tour.`}
           confirmText="Xoá"
           processingText="Đang xoá..."
           isProcessing={busy === 'xoa'}

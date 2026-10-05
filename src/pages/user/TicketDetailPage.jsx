@@ -263,10 +263,13 @@ const TicketDetailPage = () => {
             {ticket.physicalDetail && (
               <Muc nhan="Vào cửa">{daVao ? <span className="font-mono">{gioTrongNgay(daVao)} {ngayDayDu(daVao)}</span> : 'Chưa soát vé'}</Muc>
             )}
-            {/* MLACP-629: dòng này in `id` của vé, KHÔNG phải mã vào cửa. Trước đây nhãn là "Mã vé" — trùng với ô "Mã vé"
-                ở màn soát vé của nhân viên, nên người ta gõ dãy này vào và nhận "không tìm thấy vé" (chủ dự án gặp
-                04/10/2026). Mã vào cửa là dãy in ngay dưới mã QR ở trên. */}
-            <Muc nhan="Số tham chiếu (khi cần hỗ trợ)"><span className="font-mono text-sm font-normal">{ticket.id}</span></Muc>
+            {/* MLACP-629 rồi MLACP-679: dòng này từng in `id` của vé (GUID) làm "số tham chiếu khi cần hỗ trợ" — lý do
+                duy nhất người dùng cần nó là để khiếu nại về vé. Nay là liên kết mở trang khiếu nại đã điền sẵn vé này (gọi
+                bằng tên buổi diễn), không bắt người dùng sao chép một dãy mã. Mã vào cửa vẫn in ngay dưới mã QR ở trên. */}
+            <Muc nhan="Cần hỗ trợ về vé này?">
+              <Link to={`/complaints?loai=ticket&ma=${ticket.id}&ten=${encodeURIComponent(`${ticket.tierName ?? ''} · ${ticket.showName ?? ''}`)}`}
+                className="underline underline-offset-4 font-semibold">Gửi khiếu nại về vé này</Link>
+            </Muc>
           </dl>
         </section>
 

@@ -11,7 +11,7 @@
 // GIỮ NGUYÊN: 6 loại đối tượng và 8 loại vấn đề đúng như backend; bằng chứng gửi dạng chuỗi JSON (backend không nhận mảng).
 import { useState, useRef } from 'react'
 import { parseAsStringLiteral, useQueryState } from 'nuqs'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { Loader2, Upload, X } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { createComplaint, lookupComplaint, getMyComplaints } from '../../services/complaintServices'
@@ -29,7 +29,7 @@ import LienKetMuiTen from '../../components/shared/LienKetMuiTen'
 const TARGET_TYPES = [
   { value: 'show', label: 'Buổi diễn', hint: 'Dãy mã ở cuối đường dẫn trang buổi diễn (…/shows/<mã>) — sao chép nguyên dãy.' },
   { value: 'venue', label: 'Phòng trà', hint: 'Dãy mã ở cuối đường dẫn trang phòng trà (…/lounge/<mã>) — sao chép nguyên dãy.' },
-  { value: 'ticket', label: 'Vé', hint: 'Mã vé nằm ở mục “Chi tiết vé” trong trang vé của bạn.' },
+  { value: 'ticket', label: 'Vé', hint: 'Nhanh hơn: mở trang vé của bạn rồi bấm “Gửi khiếu nại về vé này” — vé được điền sẵn.' },
   { value: 'donation', label: 'Lượt ủng hộ', hint: '' },
   { value: 'livestream', label: 'Buổi phát trực tuyến', hint: '' },
   { value: 'penalty', label: 'Án phạt', hint: '' },
@@ -68,6 +68,8 @@ const TABS = [
 const MUC = parseAsStringLiteral(TABS.map((t) => t.key)).withDefault('new').withOptions({ history: 'push' })
 
 const MO_TA_TOI_THIEU = 10
+// MLACP-679: gọi khiếu nại theo ngày gửi thay cho mã GUID ("Khiếu nại số 01a1…").
+const ngayGui = (t) => (t ? `gửi ngày ${ngayDayDu(t)}` : '')
 const NUT_DAC = 'inline-flex items-center justify-center gap-2 min-h-[48px] px-6 bg-ink text-lamp font-semibold hover:bg-board transition-colors disabled:opacity-60'
 const NUT_VIEN = 'inline-flex items-center justify-center gap-2 min-h-[44px] px-4 border-2 border-ink text-ink font-semibold hover:bg-ink hover:text-lamp transition-colors disabled:opacity-60'
 
@@ -92,7 +94,16 @@ const ComplaintPage = () => {
   const [tab, setTab] = useQueryState('muc', MUC)
 
   // --- gửi mới ---
-  const [form, setForm] = useState({ targetType: 'show', targetId: '', category: 'Other', description: '', contactPhone: '' })
+  // MLACP-679: mở từ một trang cụ thể (vd. "Khiếu nại về vé này") thì đối tượng đã biết — điền sẵn và gọi bằng TÊN, người
+  // dùng không phải đi tìm rồi dán một dãy mã. ?loai=ticket&ma=<id>&ten=<tên hiển thị>.
+  const [thamSo] = useSearchParams()
+  const [dienSan] = useState(() => {
+    const loai = thamSo.get('loai'), ma = thamSo.get('ma')
+    return loai && ma && TARGET_TYPES.some((t) => t.value === loai) && laGuid(ma) ? { loai, ma, ten: thamSo.get('ten') || '' } : null
+  })
+  const [form, setForm] = useState({
+    targetType: dienSan?.loai ?? 'show', targetId: dienSan?.ma ?? '', category: 'Other', description: '', contactPhone: '',
+  })
   const [loi, setLoi] = useState({})
   const [evidences, setEvidences] = useState([])
   const [isUploading, setIsUploading] = useState(false)
@@ -224,7 +235,8 @@ const ComplaintPage = () => {
           <section aria-labelledby="da-gui-td" className="border-2 border-ink bg-card p-6 sm:p-8">
             <div role="status">
               <p className="font-mono text-sm">Đã xong</p>
-              <h2 id="da-gui-td" className="text-4xl mt-1">Đã gửi khiếu nại số {ketQua.id}</h2>
+              {/* MLACP-679: bản cũ in "khiếu nại số <GUID>" — mã nội bộ, không tra cứu được bằng gì. Mã người dùng cần là mã tra cứu ngay dưới. */}
+              <h2 id="da-gui-td" className="text-4xl mt-1">Đã gửi khiếu nại</h2>
             </div>
             {ketQua.lookupReference && (
               <div className="mt-5 border-l-4 border-ink bg-sunken p-4">
@@ -248,6 +260,12 @@ const ComplaintPage = () => {
           </section>
         ) : (
           <form ref={oForm} onSubmit={guiKhieuNai} noValidate className="border-2 border-ink bg-card p-5 sm:p-8 space-y-6">
+            {dienSan && form.targetId === dienSan.ma ? (
+              <div className="border-l-4 border-ink bg-sunken p-4">
+                <p className="text-sm text-ink-soft">Khiếu nại về</p>
+                <p className="font-semibold mt-0.5">{TARGET_TYPES.find((t) => t.value === dienSan.loai)?.label}{dienSan.ten ? `: ${dienSan.ten}` : ''}</p>
+              </div>
+            ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <OTruong nhan="Khiếu nại về">
                 {(p) => (
@@ -260,6 +278,7 @@ const ComplaintPage = () => {
                 {(p) => <input {...p} value={form.targetId} onChange={(e) => set('targetId', e.target.value)} placeholder="Dán mã từ đường dẫn" spellCheck={false} autoComplete="off" className={`${p.className} font-mono`} />}
               </OTruong>
             </div>
+            )}
 
             <OTruong nhan="Loại vấn đề">
               {(p) => (
@@ -323,7 +342,7 @@ const ComplaintPage = () => {
             {ketQuaTraCuu && (
               <section aria-label="Kết quả tra cứu" className="border-2 border-ink bg-card p-5 sm:p-8">
                 <div className="flex flex-wrap items-center justify-between gap-3">
-                  <h2 className="text-3xl">Khiếu nại số {ketQuaTraCuu.id}</h2>
+                  <h2 className="text-3xl">Khiếu nại {ngayGui(ketQuaTraCuu.createdAt)}</h2>
                   <NhanKhieuNai status={ketQuaTraCuu.status} />
                 </div>
                 <PhanHoi c={ketQuaTraCuu} />
@@ -358,7 +377,7 @@ const ComplaintPage = () => {
                 <li key={c.id} className="py-5 border-t border-ink/20 first:border-t-0">
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="min-w-0">
-                      <h2 className="font-sans font-bold text-lg">Số {c.id} · {CATEGORIES.find((x) => x.value === c.category)?.label ?? c.category}</h2>
+                      <h2 className="font-sans font-bold text-lg">{CATEGORIES.find((x) => x.value === c.category)?.label ?? c.category} <span className="font-normal text-ink-soft">· {ngayGui(c.createdAt)}</span></h2>
                       <p className="text-sm text-ink-soft mt-0.5">
                         {TARGET_TYPES.find((t) => t.value === c.targetType)?.label ?? c.targetType}: {c.targetName || '(không còn tồn tại)'}
                       </p>
