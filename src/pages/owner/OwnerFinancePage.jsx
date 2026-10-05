@@ -134,10 +134,13 @@ const OwnerFinancePage = () => {
               const tt = TRANG_THAI_QUYET_TOAN[s.status]
               return (
                 <div key={s.id} className="flex flex-wrap items-center justify-between gap-3 bg-sunken border border-line px-4 py-3">
-                  <div>
-                    <p className="text-sm text-ink tabular-nums">{fmtTien(s.amount)}</p>
+                  {/* MLACP-658: `title` nói khoản này là tiền gì (vé buổi nào, đợt nào, mấy vé / ủng hộ nghệ sĩ nào). Bản cũ chỉ
+                      có số tiền và ngày — chủ phòng trà không biết khoản nào của buổi nào. Backend cũ chưa có thì bỏ trống dòng. */}
+                  <div className="min-w-0">
+                    {s.title && <p className="text-sm text-ink">{s.title}</p>}
+                    <p className="text-sm text-ink tabular-nums font-semibold mt-0.5">{fmtTien(s.amount)}</p>
                     <p className="text-xs text-ink-mute mt-0.5">
-                      Lên lịch {dayjs(s.scheduledAt).format('DD/MM/YYYY')}
+                      {s.status === 'Scheduled' && !s.paidAt ? 'Dự kiến chuyển' : 'Lên lịch'} {dayjs(s.scheduledAt).format('DD/MM/YYYY')}
                       {s.paidAt && ` · đã chuyển ${dayjs(s.paidAt).format('DD/MM/YYYY')}`}
                     </p>
                   </div>
