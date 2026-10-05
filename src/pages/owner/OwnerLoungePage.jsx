@@ -103,13 +103,23 @@ const OwnerLoungePage = () => {
       .catch(() => toast.error('Không tải được danh sách tỉnh/thành phố.'))
   }, [])
 
+  // MLACP-637: địa chỉ nhập trước khi có danh mục hành chính 2025 chỉ có TÊN phường, chưa có mã. Tên nào vẫn còn nguyên
+  // trong danh mục mới (vd "Phường Tân Định") thì tự chọn sẵn ngay khi danh sách phường về — chủ phòng trà không phải đi
+  // tìm lại thứ đã đúng. Tên đã biến mất sau sáp nhập (vd "Phường Bến Nghé") thì để trống và dòng gợi ý dưới ô nói rõ phải
+  // chọn lại. Lưu sau khi tự chọn KHÔNG phát thông báo "đổi địa chỉ" cho người giữ vé: backend coi gán mã lần đầu cho cùng
+  // số nhà/đường là dọn nhãn (MLACP-636).
   useEffect(() => {
     if (!form.provinceCode) return
+    const chuan = (s) => String(s ?? '').normalize('NFC').trim().toLocaleLowerCase('vi')
     getWardsOfProvince(form.provinceCode)
-      .then((r) => { if (r?.success) setWards(r.data) })
+      .then((r) => {
+        if (!r?.success) return
+        setWards(r.data)
+        const khop = diaChiCu.ward && r.data.find((w) => w.provinceCode === form.provinceCode && chuan(w.name) === chuan(diaChiCu.ward))
+        if (khop) setForm((p) => (p.wardCode ? p : { ...p, wardCode: khop.code }))
+      })
       .catch(() => toast.error('Không tải được danh sách phường/xã.'))
-  }, [form.provinceCode])
-
+  }, [form.provinceCode, diaChiCu.ward])
   const load = useCallback(async () => {
     setIsLoading(true)
     setLoiTai(false)
@@ -164,8 +174,18 @@ const OwnerLoungePage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    if (!form.name.trim() || !form.street.trim() || !form.provinceCode || !form.wardCode) {
-      toast.error('Cần điền tên phòng trà, số nhà/đường và chọn tỉnh/thành phố, phường/xã.')
+    // MLACP-637: nói đúng ô đang thiếu. Bản cũ gộp một câu chung cho bốn ô — chủ phòng trà có địa chỉ cũ (chưa có mã
+    // phường) bấm Lưu mà không đổi gì cũng bị chặn và không biết vì sao (đo 05/10 trên dữ liệu chép từ Azure).
+    const thieu = [
+      !form.name.trim() && 'tên phòng trà',
+      !form.street.trim() && 'số nhà, đường',
+      !form.provinceCode && 'tỉnh / thành phố',
+      !form.wardCode && 'phường / xã',
+    ].filter(Boolean)
+    if (thieu.length) {
+      toast.error(!form.wardCode && diaChiCu.ward && thieu.length === 1
+        ? `Phường cũ "${diaChiCu.ward}" không còn trong danh mục hành chính từ 01/7/2025. Chọn phường mới ở ô Phường / xã rồi lưu lại.`
+        : `Còn thiếu: ${thieu.join(', ')}.`)
       return
     }
     const tinh = provinces.find((p) => p.code === form.provinceCode)
