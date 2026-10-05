@@ -124,7 +124,7 @@ export const RevenueShareDonut = ({ month, measure }) => {
                 <Cell key={`cell-${i}`} fill={entry.color} stroke="none" />
               ))}
             </Pie>
-            <Tooltip content={<RevenueTooltip />} />
+            {/* <Tooltip content={<RevenueTooltip />} /> */}
           </PieChart>
         </ResponsiveContainer>
         {/* Tổng ở giữa doughnut — kiểu cũ */}
