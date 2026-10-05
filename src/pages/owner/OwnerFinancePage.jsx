@@ -131,7 +131,8 @@ const OwnerFinancePage = () => {
           </p>
           <div className="space-y-2">
             {earnings.recentSettlements.map((s) => {
-              const tt = TRANG_THAI_QUYET_TOAN[s.status]
+              // MLACP-662: còn yêu cầu hoàn tiền chờ xử lý thì job giải ngân GIỮ khoản này — không ghi "Đã lên lịch / dự kiến chuyển".
+              const tt = s.heldForRefund ? { chu: 'Đang giữ — chờ xử lý hoàn tiền', sacThai: 'cho' } : TRANG_THAI_QUYET_TOAN[s.status]
               return (
                 <div key={s.id} className="flex flex-wrap items-center justify-between gap-3 bg-sunken border border-line px-4 py-3">
                   {/* MLACP-658: `title` nói khoản này là tiền gì (vé buổi nào, đợt nào, mấy vé / ủng hộ nghệ sĩ nào). Bản cũ chỉ
@@ -140,8 +141,10 @@ const OwnerFinancePage = () => {
                     {s.title && <p className="text-sm text-ink">{s.title}</p>}
                     <p className="text-sm text-ink tabular-nums font-semibold mt-0.5">{fmtTien(s.amount)}</p>
                     <p className="text-xs text-ink-mute mt-0.5">
-                      {s.status === 'Scheduled' && !s.paidAt ? 'Dự kiến chuyển' : 'Lên lịch'} {dayjs(s.scheduledAt).format('DD/MM/YYYY')}
-                      {s.paidAt && ` · đã chuyển ${dayjs(s.paidAt).format('DD/MM/YYYY')}`}
+                      {s.heldForRefund
+                        ? 'Khách đang được hoàn tiền. Khoản này chỉ chuyển sau khi yêu cầu hoàn được xử lý, và trừ phần đã hoàn.'
+                        : <>{s.status === 'Scheduled' && !s.paidAt ? 'Dự kiến chuyển' : 'Lên lịch'} {dayjs(s.scheduledAt).format('DD/MM/YYYY')}
+                          {s.paidAt && ` · đã chuyển ${dayjs(s.paidAt).format('DD/MM/YYYY')}`}</>}
                     </p>
                   </div>
                   <NhanTrangThai sacThai={tt?.sacThai ?? 'trung'} icon={tt?.icon} className="flex-shrink-0">{tt?.chu ?? s.status}</NhanTrangThai>
