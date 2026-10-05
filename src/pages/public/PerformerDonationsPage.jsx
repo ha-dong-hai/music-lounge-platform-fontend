@@ -228,7 +228,8 @@ const TienTrinhKhoan = ({ d }) => {
     <ol className="mt-4 grid grid-cols-1 sm:grid-cols-5 gap-x-2 gap-y-3" aria-label={`Tiến trình của khoản #${maNgan(d.id)}`}>
       {buoc.map((x, i) => {
         const trangThai = x.xong ? 'xong' : x.tuChoi ? 'tuChoi' : i === hienTai ? 'cho' : 'chuaToi'
-        const vach = { xong: 'bg-ink', tuChoi: 'bg-danger', cho: x.xau ? 'bg-danger' : 'bg-warning', chuaToi: 'bg-ink/15' }[trangThai]
+        // Xong = xanh (chủ dự án 05/10/2026: "tích rồi thì chuyển màu xanh, đừng để đen") — cùng màu với dấu ✓ cạnh tên bước.
+        const vach = { xong: 'bg-success', tuChoi: 'bg-danger', cho: x.xau ? 'bg-danger' : 'bg-warning', chuaToi: 'bg-ink/15' }[trangThai]
         const dong2 = trangThai === 'xong' ? x.ghi
           : trangThai === 'tuChoi' ? `Báo chưa nhận ${x.ghi ?? ''}`
           : trangThai === 'cho' ? (x.choXau ?? x.cho)
