@@ -15,12 +15,14 @@
 // - PUT ghi đè toàn phần: form luôn gửi lại đủ name/type/genreIds/avatarUrl/bio/contactEmail.
 // - 05/10/2026 (quét 5 chủ phòng trà): trang này mở ra là trộn nghệ sĩ của MỌI phòng trà vào một danh sách, và hiện cả
 //   EMAIL LIÊN LẠC của nghệ sĩ do phòng trà khác quản lý (dữ liệu cá nhân — BE MLACP-651 nay không trả trường đó cho
-//   người không tạo hồ sơ). Mặc định giờ là tab "Nghệ sĩ của tôi" (?pham=cua-toi → createdByMe=true, MLACP-501); tab
-//   "Danh mục chung" vẫn có để tra cứu nghệ sĩ diễn khách. Email và cảnh báo thiếu email chỉ hiện trên hồ sơ của mình.
+//   người không tạo hồ sơ). Trang này nay CHỈ lấy hồ sơ do mình tạo (createdByMe=true, MLACP-501). Tab "Danh mục
+//   chung" từng có đã bỏ (chủ dự án 05/10): chọn nghệ sĩ diễn khách đã có ô tìm riêng ở line-up (OwnerShowDetailPage,
+//   searchPerformers), giữ tab ở đây chỉ làm chủ phòng trà tưởng nghệ sĩ phòng trà khác thuộc về mình. Nhánh !cuaToi
+//   bên dưới vẫn giữ để phòng backend cũ chưa có createdByMe (trả cả danh mục): khi đó thẻ lạ không có nút Sửa.
 // - Liên kết mạng xã hội chỉ có THÊM và XOÁ, backend không có endpoint sửa — muốn đổi thì xoá rồi
 //   thêm lại. Đừng dựng nút "Sửa liên kết".
 import { useState, useEffect } from 'react'
-import { parseAsString, parseAsStringLiteral } from 'nuqs'
+import { parseAsString } from 'nuqs'
 import { Loader2, Plus, Pencil, X, Music2, Mail, Link2, Trash2, AlertTriangle, Upload } from 'lucide-react'
 import { uploadImage } from '../../services/userServices'
 import toast from 'react-hot-toast'
@@ -32,7 +34,6 @@ import { getGenres } from '../../services/catalogServices'
 import { useAuthStore } from '../../store/useAuthStore'
 import { useDanhSachMayChu } from '../../hooks/useDanhSachMayChu'
 import { useOTimTre } from '../../hooks/useOTimTre'
-import NhomTab from '../../components/bang/NhomTab'
 import PhanTrang from '../../components/bang/PhanTrang'
 import HopThoai, { TieuDeHop } from '../../components/shared/HopThoai'
 
@@ -269,12 +270,8 @@ const SocialLinksModal = ({ performer, onClose, onSaved }) => {
   )
 }
 
-const PHAM_VI = [
-  { khoa: 'cua-toi', nhan: 'Nghệ sĩ của tôi' },
-  { khoa: 'tat-ca', nhan: 'Danh mục chung' },
-]
-const BO_LOC = { tim: parseAsString.withDefault(''), pham: parseAsStringLiteral(PHAM_VI.map((x) => x.khoa)).withDefault('cua-toi') }
-const goiNgheSi = ({ tim, pham, ...q }) => getMyPerformers({ ...q, search: tim.trim() || undefined, createdByMe: pham === 'cua-toi' || undefined })
+const BO_LOC = { tim: parseAsString.withDefault('') }
+const goiNgheSi = ({ tim, ...q }) => getMyPerformers({ ...q, search: tim.trim() || undefined, createdByMe: true })
 
 const OwnerPerformersPage = () => {
   const user = useAuthStore((st) => st.user)
@@ -317,8 +314,8 @@ const OwnerPerformersPage = () => {
         <div>
           <h1 className="text-4xl text-ink mb-1">Nghệ sĩ</h1>
           <p className="text-ink-soft text-sm leading-relaxed max-w-[65ch]">
-            Nghệ sĩ bạn quản lý — người được thêm vào line-up và nhận tiền ủng hộ. Tab "Danh mục chung" để tra cứu nghệ sĩ
-            của phòng trà khác khi mời diễn khách; hồ sơ đó bạn chỉ xem, không sửa.
+            Nghệ sĩ do phòng trà bạn tạo — người được thêm vào line-up và nhận tiền ủng hộ. Mời nghệ sĩ của phòng trà
+            khác diễn khách thì tìm tên ngay trong mục line-up của buổi diễn.
           </p>
         </div>
         <button onClick={() => setEditing(null)}
@@ -326,8 +323,6 @@ const OwnerPerformersPage = () => {
           <Plus size={14} /> Thêm nghệ sĩ
         </button>
       </div>
-
-      <NhomTab nhan="Phạm vi nghệ sĩ" dangChon={ds.boLoc.pham} cacTab={PHAM_VI} onChon={(k) => ds.datBoLoc({ pham: k })} />
 
       <div className="flex flex-wrap items-end gap-3">
         <label className="block w-full sm:w-80">
@@ -353,8 +348,7 @@ const OwnerPerformersPage = () => {
           <Music2 size={28} className="mx-auto mb-3 text-ink-mute" />
           <p role="status" className="text-sm text-ink-mute">
             {ds.boLoc.tim ? `Không có nghệ sĩ nào tên chứa “${ds.boLoc.tim}”. Kiểm tra chính tả, hoặc thêm nghệ sĩ mới.`
-              : ds.boLoc.pham === 'cua-toi' ? 'Bạn chưa tạo nghệ sĩ nào. Thêm nghệ sĩ để dựng line-up cho buổi diễn.'
-              : 'Chưa có nghệ sĩ nào trong danh mục.'}
+              : 'Bạn chưa tạo nghệ sĩ nào. Thêm nghệ sĩ để dựng line-up cho buổi diễn.'}
           </p>
         </div>
       ) : (
@@ -385,9 +379,6 @@ const OwnerPerformersPage = () => {
                 </div>
               )}
 
-              {!cuaToi(p) && (
-                <p className="mt-3 text-xs text-ink-mute">Hồ sơ của phòng trà khác — chỉ để chọn vào line-up.</p>
-              )}
               {cuaToi(p) && !p.contactEmail && (
                 <p className="mt-3 text-xs text-warning flex items-start gap-1.5 leading-relaxed">
                   <AlertTriangle size={12} className="mt-0.5 flex-shrink-0" />
