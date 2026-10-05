@@ -9,7 +9,12 @@
 //     Doanh thu gộp   = phát sinh trong kỳ
 //     Đã nhận về      = tiền thật sự đã giải ngân về ngân hàng (chậm hơn, theo đợt sau buổi diễn)
 //     Thu hộ nghệ sĩ  = tiền donate giữ hộ, PHẢI chuyển đi, không phải doanh thu của phòng trà
-// - Biểu đồ xu hướng lấy thẳng revenueTrend từ backend (6 tháng gần nhất), không tự tính ở FE.
+// - Biểu đồ xu hướng lấy thẳng revenueTrend từ backend, không tự tính ở FE.
+// - BỘ LỌC KỲ (MLACP-659, chủ dự án 05/10/2026: "không thấy bộ filter thời gian"): ChonKy + useKyBaoCao có sẵn (thư viện
+//   react-day-picker + Radix Popover, kỳ nằm trên URL ?tu=&den=), mặc định 12 tháng qua vì biểu đồ theo tháng. Kỳ áp cho
+//   tổng quan, doanh thu, ủng hộ theo nghệ sĩ và file xuất — backend lọc theo lúc phát sinh (mua vé / gọi món / VNPay xác
+//   nhận ủng hộ). KHÔNG áp cho: ô "Đang chờ bạn chuyển cho nghệ sĩ" (khoản đang nợ ngay lúc này) và lịch sử phát trực
+//   tiếp (API chưa nhận kỳ — 20 buổi gần nhất).
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import {
@@ -25,6 +30,9 @@ import {
 } from '../../services/analyticsServices'
 import KhungTai, { TrangLoiTai } from '../../components/bang/KhungTai'
 import OChiSo from '../../components/bang/OChiSo'
+import ChonKy from '../../components/bang/ChonKy'
+import { useKyBaoCao } from '../../hooks/useKyBaoCao'
+import { thamSoApi, nhanKhoang } from '../../utils/kyBaoCao'
 
 const fmtMoney = (v) => `${Number(v || 0).toLocaleString('vi-VN')}đ`
 const fmtAxis = (v) => {
@@ -68,6 +76,7 @@ const OwnerAnalyticsPage = () => {
   // Nguồn số liệu nào lỗi — bản cũ để khối đó trống mà không nói gì.
   const [nguonLoi, setNguonLoi] = useState([])
   const [lanTai, setLanTai] = useState(0)
+  const { tu, den, datKy } = useKyBaoCao('12t')
 
   useEffect(() => {
     const run = async () => {
@@ -85,17 +94,19 @@ const OwnerAnalyticsPage = () => {
         setLounge(mine)
 
         // allSettled: bon nguon doc lap, mot cai loi khong lam trong ca trang.
+        const ky = thamSoApi(tu, den)
         const kq = await Promise.allSettled([
-          getMyLoungeAnalytics(mine.id),
-          getRevenueReport(mine.id),
-          getArtistDonationStats(mine.id),
+          getMyLoungeAnalytics(mine.id, ky),
+          getRevenueReport(mine.id, ky),
+          getArtistDonationStats(mine.id, ky),
           getOwnerLivestreamHistory(mine.id, { pageSize: 20 }),
         ])
         const lay = (x) => (x.status === 'fulfilled' && x.value?.success ? x.value.data : null)
         const [sData, rData, dData, lData] = kq.map(lay)
-        if (sData) setStats(sData)
-        if (rData) setRevenue(rData)
-        if (dData) setArtistDonations(dData)
+        // Đổi kỳ thì nguồn lỗi phải về trống, không giữ số của kỳ trước.
+        setStats(sData)
+        setRevenue(rData)
+        setArtistDonations(dData)
         if (lData) { setLivestreamHistory(lData.items ?? []); setTongLichSu(lData.totalCount ?? (lData.items ?? []).length) }
         setNguonLoi(['tổng quan', 'doanh thu theo tháng', 'tiền ủng hộ theo nghệ sĩ', 'lịch sử phát trực tiếp'].filter((_, i) => kq[i].status === 'rejected' || !kq[i].value?.success))
       } catch {
@@ -106,18 +117,18 @@ const OwnerAnalyticsPage = () => {
       }
     }
     run()
-  }, [lanTai])
+  }, [lanTai, tu, den])
 
   // Xuat bao cao ra FILE: endpoint tra nhi phan nen phai xin blob, khong di qua duong JSON.
   const xuatBaoCao = async () => {
     if (!lounge) return
     setIsExporting(true)
     try {
-      const blob = await exportRevenueReport(lounge.id)
+      const blob = await exportRevenueReport(lounge.id, thamSoApi(tu, den))
       const url = URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
-      a.download = 'bao-cao-doanh-thu-' + lounge.id + '-' + dayjs().format('YYYYMMDD') + '.xlsx'
+      a.download = 'bao-cao-doanh-thu-' + tu + '_' + den + '.xlsx'
       a.click()
       URL.revokeObjectURL(url)
       toast.success('Đã tải báo cáo doanh thu.')
@@ -155,9 +166,12 @@ const OwnerAnalyticsPage = () => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-4xl text-ink mb-1">Báo cáo doanh thu</h1>
-        <p className="text-ink-soft text-sm">{lounge.name}</p>
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h1 className="text-4xl text-ink mb-1">Báo cáo doanh thu</h1>
+          <p className="text-ink-soft text-sm">{lounge.name} · số liệu từ {nhanKhoang(tu, den)}</p>
+        </div>
+        <ChonKy tu={tu} den={den} onChon={datKy} />
       </div>
       {nguonLoi.length > 0 && <KhungTai loi tenVung={`phần ${nguonLoi.join(', ')}`} taiLai={() => setLanTai((n) => n + 1)} />}
 
@@ -178,13 +192,13 @@ const OwnerAnalyticsPage = () => {
         <StatCard
           title="Buổi diễn"
           value={stats?.totalShows ?? 0}
-          note={`Sắp diễn ${stats?.upcomingShows ?? 0} · Đã diễn ${stats?.pastShows ?? 0}`}
+          note={`Sắp diễn ${stats?.upcomingShows ?? 0} · Đã diễn ${stats?.pastShows ?? 0} · mọi thời gian`}
           icon={Music2} color="text-ink" bg="bg-ink/10"
         />
         <StatCard
           title="Điểm đánh giá"
           value={stats?.averageRating != null ? Number(stats.averageRating).toFixed(1) : 'Chưa có'}
-          note={`${stats?.totalRatings ?? 0} lượt đánh giá`}
+          note={`${stats?.totalRatings ?? 0} lượt đánh giá · mọi thời gian`}
           icon={Star} color="text-warning" bg="bg-warning/10"
         />
       </div>
@@ -241,7 +255,7 @@ const OwnerAnalyticsPage = () => {
       {trend.length > 0 && (
         <div className="bg-card border border-line p-6">
           <h3 className="text-lg font-semibold text-ink mb-1">Doanh thu theo tháng</h3>
-          <p className="text-ink-mute text-xs mb-6">Tách theo vé tại chỗ, vé trực tuyến và gọi món.</p>
+          <p className="text-ink-mute text-xs mb-6">Tách theo vé tại chỗ, vé trực tuyến và gọi món · {nhanKhoang(tu, den)}.</p>
           <div className="h-[320px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={trend} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>

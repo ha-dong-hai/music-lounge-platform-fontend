@@ -40,8 +40,9 @@ export const getShowDemandForecast = async (showId) => {
 };
 
 // Tiền donate theo từng nghệ sĩ — tiền THU HỘ, không phải doanh thu của phòng trà.
-export const getArtistDonationStats = async (loungeId) => {
-  return axiosClient.get('/analytics/artist-donations', { params: { loungeId } });
+// params: { from, to } tuỳ chọn (MLACP-659) — lọc theo lúc VNPay xác nhận tiền ủng hộ.
+export const getArtistDonationStats = async (loungeId, params = {}) => {
+  return axiosClient.get('/analytics/artist-donations', { params: { loungeId, ...params } });
 };
 
 export const getOwnerLivestreamHistory = async (loungeId, params = {}) => {
@@ -70,8 +71,9 @@ export const getAiRecommendationPerformance = async (params = {}) => {
 // tham số này). Từ #317, token của chủ phòng trà có claim lounge_id và kết quả login/refresh có
 // loungeId — nhưng chủ tạo phòng trà SAU khi đã đăng nhập thì token hiện tại chưa có, tới lần refresh.
 // Vì vậy GET /lounges?mine=true vẫn là đường dự phòng cần giữ (backend xác nhận không bỏ nó).
-export const getMyLoungeAnalytics = async (loungeId) => {
-  return axiosClient.get('/analytics/my-lounge', { params: { loungeId } });
+// params: { from, to } tuỳ chọn (MLACP-659) — lọc theo lúc mua vé / lúc gọi món; bỏ trống = mọi thời gian.
+export const getMyLoungeAnalytics = async (loungeId, params = {}) => {
+  return axiosClient.get('/analytics/my-lounge', { params: { loungeId, ...params } });
 };
 
 // Báo cáo doanh thu gộp: vé + F&B + donate, tách theo buổi diễn và theo tháng.

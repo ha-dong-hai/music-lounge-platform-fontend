@@ -6,9 +6,11 @@
 import { parseAsString, useQueryStates } from 'nuqs'
 import { KY_MAC_DINH, khoangHopLe, kyTruoc, tinhKhoang } from '../utils/kyBaoCao'
 
-export const useKyBaoCao = () => {
+// `macDinh` (MLACP-659): khoá khoảng định sẵn khi URL không có kỳ — báo cáo doanh thu của chủ phòng trà dùng '12t' vì
+// biểu đồ của nó theo tháng; trang Admin giữ 30 ngày.
+export const useKyBaoCao = (macDinh = KY_MAC_DINH) => {
   const [q, setQ] = useQueryStates({ tu: parseAsString, den: parseAsString })
-  const ky = khoangHopLe(q.tu, q.den) ?? tinhKhoang(KY_MAC_DINH)
+  const ky = khoangHopLe(q.tu, q.den) ?? tinhKhoang(macDinh)
   const datKy = ({ tu, den }) => setQ({ tu, den })
   return { ...ky, truoc: kyTruoc(ky.tu, ky.den), datKy }
 }
