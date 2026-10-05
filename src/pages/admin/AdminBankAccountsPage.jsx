@@ -26,7 +26,7 @@
 // PHÂN TRANG (01/10/2026): dùng hooks/useDanhSachMayChu + components/bang/PhanTrang như mọi danh sách khác — bản cũ tự
 // giữ {page,totalPages} với hai nút trước/sau, trang và tab không lên URL (tải lại về trang 1) và không có dòng "Hiện x–y".
 import { useState } from 'react'
-import { parseAsBoolean } from 'nuqs'
+import { parseAsStringLiteral } from 'nuqs'
 import { Link } from 'react-router-dom'
 import {
   Loader2, Landmark, CheckCircle2, XCircle, AlertTriangle, RefreshCw, ShieldCheck, X, Ban,
@@ -43,8 +43,12 @@ import HopThoai, { TieuDeHop } from '../../components/shared/HopThoai'
 
 // Một điều kiện duyệt. `dat` = đã thoả. Hiện cả khi đạt lẫn khi chưa, vì "không thấy cảnh báo"
 // và "chưa kiểm" trông giống nhau nếu chỉ hiện lúc hỏng.
-// Tab trên URL (?daDuyet=true) — Quay lại/tải lại giữ đúng tab.
-const BO_LOC = { daDuyet: parseAsBoolean.withDefault(false) }
+// Tab trên URL (?tab=daDuyet / ?tab=tuChoi) — Quay lại/tải lại giữ đúng tab.
+// MLACP-668: thêm tab "Đã từ chối". Trước đó backend không lưu việc từ chối (chỉ ghi isVerified=false, đúng giá trị
+// đang có), nên tài khoản vừa bị từ chối nằm lại ở "Chờ duyệt" và Admin không xoá được nó khỏi hàng chờ. Nay tài khoản
+// bị từ chối rời hàng chờ cho tới khi chủ phòng trà sửa lại; tab này để xem lại chúng cùng lý do đã ghi.
+const TAB = ['cho', 'daDuyet', 'tuChoi']
+const BO_LOC = { tab: parseAsStringLiteral(TAB).withDefault('cho') }
 
 const CoDieuKien = ({ dat, chuDat, chuChuaDat }) => (
   <span className={`inline-flex items-center gap-1 text-xs ${dat ? 'text-success' : 'text-danger'}`}>
@@ -154,15 +158,21 @@ const ReviewModal = ({ item, approve, onClose, onSaved }) => {
 }
 
 const AdminBankAccountsPage = () => {
-  const ds = useDanhSachMayChu({ khoa: ['admin-tk-ngan-hang'], goi: ({ daDuyet, ...q }) => getAdminBankAccounts({ ...q, verified: daDuyet }), boLoc: BO_LOC })
-  const daDuyet = ds.boLoc.daDuyet
+  const ds = useDanhSachMayChu({
+    khoa: ['admin-tk-ngan-hang'],
+    goi: ({ tab, ...q }) => getAdminBankAccounts({ ...q, verified: tab === 'daDuyet', rejected: tab === 'tuChoi' }),
+    boLoc: BO_LOC,
+  })
+  const tab = ds.boLoc.tab
+  const daDuyet = tab === 'daDuyet'
+  const tuChoi = tab === 'tuChoi'
   const items = ds.items
   const isLoading = ds.dangTai
   const totalCount = ds.tong
   const load = () => ds.taiLai()
   const [target, setTarget] = useState(null) // { item, approve }
 
-  const doiTab = (v) => ds.datBoLoc({ daDuyet: v || null })
+  const doiTab = (v) => ds.datBoLoc({ tab: v === 'cho' ? null : v })
 
   return (
     <div className="space-y-6">
@@ -182,8 +192,12 @@ const AdminBankAccountsPage = () => {
         </button>
       </div>
 
-      <NhomTab nhan="Lọc tài khoản theo trạng thái duyệt" dangChon={daDuyet} onChon={doiTab}
-        cacTab={[{ khoa: false, nhan: 'Chờ duyệt', dem: !daDuyet && totalCount > 0 ? totalCount : undefined }, { khoa: true, nhan: 'Đã duyệt' }]} />
+      <NhomTab nhan="Lọc tài khoản theo trạng thái duyệt" dangChon={tab} onChon={doiTab}
+        cacTab={[
+          { khoa: 'cho', nhan: 'Chờ duyệt', dem: tab === 'cho' && totalCount > 0 ? totalCount : undefined },
+          { khoa: 'daDuyet', nhan: 'Đã duyệt' },
+          { khoa: 'tuChoi', nhan: 'Đã từ chối' },
+        ]} />
 
       {isLoading ? (
         <div className="py-20 flex justify-center"><Loader2 size={30} className="animate-spin text-ink" /></div>
@@ -196,7 +210,9 @@ const AdminBankAccountsPage = () => {
         <div className="bg-card border border-line p-12 text-center">
           <Landmark size={30} className="mx-auto mb-3 text-ink-mute" />
           <p className="text-sm text-ink-mute">
-            {daDuyet ? 'Chưa có tài khoản nào được duyệt.' : 'Không có tài khoản nào đang chờ duyệt.'}
+            {daDuyet ? 'Chưa có tài khoản nào được duyệt.'
+              : tuChoi ? 'Không có tài khoản nào đang bị từ chối.'
+              : 'Không có tài khoản nào đang chờ duyệt.'}
           </p>
         </div>
       ) : (
@@ -222,6 +238,11 @@ const AdminBankAccountsPage = () => {
                           <ShieldCheck size={11} /> Đã duyệt
                         </span>
                       )}
+                      {it.rejectedAt && (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-danger/10 text-danger text-xs">
+                          <Ban size={11} /> Đã từ chối {dayjs(mocUtc(it.rejectedAt)).format('DD/MM/YYYY')}
+                        </span>
+                      )}
                     </div>
 
                     <p className="text-sm text-ink-soft mt-1.5">
@@ -240,8 +261,11 @@ const AdminBankAccountsPage = () => {
                     </p>
                     <p className="text-xs text-ink-mute mt-0.5">
                       Khai báo {dayjs(mocUtc(it.createdAt)).format('DD/MM/YYYY')}
-                      {!daDuyet && <DaCho luc={mocUtc(it.createdAt)} className="ml-2" />}
+                      {tab === 'cho' && <DaCho luc={mocUtc(it.createdAt)} className="ml-2" />}
                     </p>
+                    {it.rejectionNote && (
+                      <p className="text-sm text-danger mt-1.5">Lý do từ chối: {it.rejectionNote}</p>
+                    )}
 
                     <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1">
                       <CoDieuKien dat={it.holderNameMatches}
@@ -261,10 +285,11 @@ const AdminBankAccountsPage = () => {
                         className="flex items-center gap-1.5 disabled:opacity-30 disabled:cursor-not-allowed justify-center min-h-[44px] px-4 border-2 border-success bg-card text-success text-sm font-semibold hover:bg-success hover:text-lamp">
                         <CheckCircle2 size={13} /> Duyệt
                       </button>
-                      <button onClick={() => setTarget({ item: it, approve: false })}
+                      {/* Đã từ chối rồi thì từ chối lần nữa không đổi gì; vẫn cho Duyệt nếu Admin đổi ý. */}
+                      {!it.rejectedAt && <button onClick={() => setTarget({ item: it, approve: false })}
                         className="flex items-center gap-1.5 justify-center min-h-[44px] px-4 border-2 border-danger bg-card text-danger text-sm font-semibold hover:bg-danger hover:text-lamp">
                         <Ban size={13} /> Từ chối
-                      </button>
+                      </button>}
                     </div>
                   )}
                 </div>
@@ -272,7 +297,7 @@ const AdminBankAccountsPage = () => {
                 {/* LIỆT KÊ ĐỦ MỌI LÝ DO, KHÔNG CHỈ MỘT. Dữ liệu thật đang có một hàng hỏng cả ba
                     điều kiện cùng lúc; nêu từng lý do một thì người duyệt đi sửa xong cái thứ nhất
                     lại quay lại gặp cái thứ hai. Mỗi lý do kèm luôn việc phải làm ở đâu. */}
-                {!duDieuKien && !it.isVerified && (
+                {!duDieuKien && !it.isVerified && !it.rejectedAt && (
                   <ul className="mt-3 pt-3 border-t border-line space-y-1.5">
                     {lyDoChuaDuyet(it).map((ly) => (
                       <li key={ly} className="text-xs text-warning/90 leading-relaxed flex items-start gap-1.5">

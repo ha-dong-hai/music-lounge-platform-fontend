@@ -10,6 +10,9 @@
 //   thay bằng thông báo chung.
 // - isVerified do ADMIN đặt khi duyệt, chủ phòng trà không tự bật được. Chưa duyệt thì tài khoản
 //   vẫn lưu được nhưng chưa dùng để chi trả.
+// - rejectedAt/rejectionNote (MLACP-668): Admin đã TỪ CHỐI và chủ chưa sửa lại. isVerified=false mà rejectedAt null
+//   mới là "Chờ Admin duyệt". Trước đó backend không lưu việc từ chối nên trang này hiện "Chờ Admin duyệt" mãi.
+//   Bấm Sửa và lưu là nộp lại — backend xoá dấu từ chối và đưa tài khoản về hàng chờ.
 // - accountNumberUnreadable: số tài khoản được mã hoá khi lưu; cờ này bật nghĩa là backend GIẢI MÃ
 //   KHÔNG ĐƯỢC (khoá mã hoá đã đổi hoặc dữ liệu hỏng), và accountNumber trả về null. Phải nói rõ là
 //   cần nhập lại, đừng hiển thị ô trống như thể chưa khai.
@@ -319,6 +322,10 @@ const OwnerBankAccountsPage = () => {
                       <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-success/10 text-success text-xs font-medium">
                         <ShieldCheck size={11} /> Đã duyệt
                       </span>
+                    ) : a.rejectedAt ? (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-danger/10 text-danger text-xs font-medium">
+                        <ShieldAlert size={11} /> Bị từ chối
+                      </span>
                     ) : (
                       <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-warning/10 text-warning text-xs font-medium">
                         <ShieldAlert size={11} /> {chuSoHuu?.type === 'Performer' ? 'Chờ nghệ sĩ xác nhận' : 'Chờ Admin duyệt'}
@@ -335,6 +342,15 @@ const OwnerBankAccountsPage = () => {
                     <p className="text-sm text-ink-soft mt-1 tabular-nums">{a.accountNumber}</p>
                   )}
                   <p className="text-xs text-ink-mute mt-0.5">{a.accountHolder}</p>
+                  {a.rejectedAt && (
+                    <p className="text-xs text-danger mt-1.5 flex items-start gap-1.5">
+                      <AlertTriangle size={13} className="mt-px flex-shrink-0" />
+                      <span>
+                        Admin đã từ chối tài khoản này{a.rejectionNote ? `: “${a.rejectionNote}”.` : '.'} Bấm Sửa để khai lại — lưu
+                        xong tài khoản quay lại hàng chờ duyệt.
+                      </span>
+                    </p>
+                  )}
                 </div>
 
                 <button onClick={() => setEditing(a)}
