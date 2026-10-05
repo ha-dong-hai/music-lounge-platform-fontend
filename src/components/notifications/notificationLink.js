@@ -39,10 +39,18 @@ export const buildLink = (notification, role) => {
     // nhận tìm thấy việc cần làm. Vai trò không có quyền vào thì không gắn link.
     case 'content_report_target':
       return isAdmin ? '/admin/content-reports' : null
+    // MLACP-674/675 (06/10/2026): trước đây chỉ Admin có đường; khán giả bấm thông báo hoàn tiền, chủ phòng trà bấm thông
+    // báo tiền ủng hộ / quyết toán thì không mở được gì. Nay mỗi vai về đúng màn có việc của mình.
     case 'refund_request':
-      return isAdmin ? '/admin/refunds' : null
+      return isAdmin ? '/admin/refunds' : isOwner ? '/owner/finance' : '/my-shows?muc=refunds'
     case 'settlement':
-      return isAdmin ? '/admin/settlements' : null
+      return isAdmin ? '/admin/settlements' : isOwner ? '/owner/finance' : null
+    case 'donation':
+      // Chủ phòng trà: xác nhận đã nhận / chuyển cho nghệ sĩ. Khán giả: khoản ủng hộ của mình.
+      return isAdmin ? null : isOwner ? '/owner/donations' : '/my-shows?muc=donations'
+    case 'show_cancellation_review':
+      // MLACP-676: lý do huỷ buổi hòa nhạc chờ Admin xét.
+      return isAdmin ? '/admin/show-cancellations' : null
     case 'complaint':
       return isAdmin ? '/admin/complaint' : null
     case 'subscription':
