@@ -213,7 +213,11 @@ const TienTrinhKhoan = ({ d }) => {
   const ngay = (v) => ngayDayDu(v)
   const buoc = [
     { ten: 'Khán giả thanh toán', xong: Boolean(d.paidAt), ghi: d.paidAt && ngay(d.paidAt), cho: 'Chờ thanh toán' },
-    { ten: 'Nền tảng chuyển phòng trà', xong: Boolean(d.platformPaidVenueAt), ghi: d.platformPaidVenueAt && ngay(d.platformPaidVenueAt), cho: 'Chờ kỳ giải ngân' },
+    // MLACP-664: backend báo lúc job giải ngân dự kiến chuyển (07:00 giờ VN hằng ngày), hoặc đang giữ vì phòng trà chưa đủ
+    // điều kiện nhận tiền — khi đó không hứa ngày nào.
+    { ten: 'Nền tảng chuyển phòng trà', xong: Boolean(d.platformPaidVenueAt), ghi: d.platformPaidVenueAt && ngay(d.platformPaidVenueAt),
+      cho: d.platformPayoutHeld ? 'Tạm giữ — phòng trà chưa đủ hồ sơ nhận tiền'
+        : d.platformPayoutExpectedAt ? `Dự kiến ${gioTrongNgay(d.platformPayoutExpectedAt)} ${ngay(d.platformPayoutExpectedAt)}` : 'Chờ kỳ giải ngân' },
     { ten: 'Phòng trà xác nhận đã nhận', xong: Boolean(d.venueAcknowledgedAt),
       ghi: d.venueAcknowledgedAt && ngay(d.venueAcknowledgedAt) + (d.venueAcknowledgedAutomatically ? ' · tự động' : ''), cho: 'Chờ phòng trà xác nhận' },
     { ten: 'Phòng trà chuyển nghệ sĩ', xong: Boolean(d.venueReportedPaidAt),
