@@ -92,6 +92,20 @@ axiosClient.interceptors.response.use(
     const status = error.response?.status;
     const isAuthEndpoint = originalRequest?.url?.includes('/auth/');
 
+    // 429 (giới hạn 100 lời gọi/phút/IP của backend): thử lại MỘT lần sau Retry-After, chỉ với lời gọi ĐỌC (GET) — lặp
+    // lại lệnh ghi có thể tạo đơn/thanh toán hai lần. Đo 05/10/2026: ngay sau khi 6 người mua vé từ cùng một mạng, màn
+    // "Phát trực tuyến" của chủ phòng trà báo "Chưa tải được danh sách" dù chỉ cần đợi vài giây là được. Trần 10 giây để
+    // người dùng không ngồi chờ vô hạn; quá trần thì để màn hình báo lỗi như cũ.
+    if (status === 429 && !originalRequest?._retry429 && (originalRequest?.method ?? 'get').toLowerCase() === 'get') {
+      const giay = Number(error.response?.headers?.['retry-after']);
+      const cho = Number.isFinite(giay) && giay > 0 ? giay * 1000 : 3000;
+      if (cho <= 10000) {
+        originalRequest._retry429 = true;
+        await new Promise((r) => setTimeout(r, cho));
+        return axiosClient(originalRequest);
+      }
+    }
+
     if (status === 401 && !originalRequest?._retry && !isAuthEndpoint) {
       const { refreshToken, logout, login } = useAuthStore.getState();
 
