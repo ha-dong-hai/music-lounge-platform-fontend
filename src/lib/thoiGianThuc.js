@@ -22,7 +22,14 @@ const HUB_URL = new URL('/hubs/notifications', axiosClient.defaults.baseURL).hre
 export const SU_KIEN = 'ml:thoi-gian-thuc'
 
 const phat = (detail) => window.dispatchEvent(new CustomEvent(SU_KIEN, { detail }))
-const lamMoiDangHien = () => queryClient.invalidateQueries({ refetchType: 'active' })
+// Một thao tác thường sinh vài sự kiện liền nhau (Admin từ chối = thông báo cho chủ + hàng chờ đổi). Gom trong 400 ms
+// thành MỘT lần làm mới: mỗi lần làm mới gọi lại mọi truy vấn đang hiện, và hạn mức API tính trên từng yêu cầu
+// (MLACP-670: 100/phút mỗi tài khoản).
+let henLamMoi = null
+const lamMoiDangHien = () => {
+  clearTimeout(henLamMoi)
+  henLamMoi = setTimeout(() => queryClient.invalidateQueries({ refetchType: 'active' }), 400)
+}
 
 let ketNoi = null
 
