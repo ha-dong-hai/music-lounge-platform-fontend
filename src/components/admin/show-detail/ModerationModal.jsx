@@ -3,7 +3,6 @@ import { X, Check, Loader2, ShieldAlert, AlertTriangle } from 'lucide-react'
 import dayjs from 'dayjs'
 import { AIScoreCircle, RiskLevelBadge, AiRecommendationBadge } from '../shows/ShowBadges'
 import HopThoai, { TieuDeHop } from '../../shared/HopThoai'
-import { maNgan } from '../../../utils/format'
 
 // SỬA 01/10/2026: ReviewShowCommandValidator BẮT BUỘC ReviewNote khi Rejected, và ReviewShowCommandHandler gửi nguyên văn
 // lý do cho chủ phòng trà. Bản cũ ghi "Ghi chú duyệt (không bắt buộc)" → bấm Từ chối không lý do thì nhận 400. Nay chặn
@@ -30,7 +29,7 @@ const ModerationModal = ({ moderation, onClose, onDecision, isProcessing }) => {
           </div>
           <div className="flex-1 min-w-0">
             <TieuDeHop><h2 className="text-3xl text-ink">Duyệt nội dung</h2></TieuDeHop>
-            <p className="text-sm text-ink-mute">Buổi diễn #{maNgan(moderation.targetId)} · chờ quản trị viên duyệt</p>
+            <p className="text-sm text-ink-mute">{moderation.targetName || 'Buổi diễn'} · chờ quản trị viên duyệt</p>
           </div>
           <button onClick={onClose} disabled={isProcessing} className="inline-flex items-center justify-center w-11 h-11 flex-shrink-0 hover:bg-sunken text-ink-soft disabled:opacity-30" aria-label="Đóng">
             <X size={20} />

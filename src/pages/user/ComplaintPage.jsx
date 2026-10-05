@@ -22,7 +22,7 @@ import NhanTrangThai from '../../components/shared/NhanTrangThai'
 import { useDanhSachMayChu } from '../../hooks/useDanhSachMayChu'
 import PhanTrang from '../../components/bang/PhanTrang'
 import { ngayDayDu, gioTrongNgay } from '../../utils/ngayVietNam'
-import { laGuid, maNgan } from '../../utils/format'
+import { laGuid } from '../../utils/format'
 import LienKetMuiTen from '../../components/shared/LienKetMuiTen'
 
 // Đúng 6 giá trị targetType backend nhận.
@@ -360,7 +360,7 @@ const ComplaintPage = () => {
                     <div className="min-w-0">
                       <h2 className="font-sans font-bold text-lg">Số {c.id} · {CATEGORIES.find((x) => x.value === c.category)?.label ?? c.category}</h2>
                       <p className="text-sm text-ink-soft mt-0.5">
-                        {TARGET_TYPES.find((t) => t.value === c.targetType)?.label ?? c.targetType} mã {maNgan(c.targetId)}
+                        {TARGET_TYPES.find((t) => t.value === c.targetType)?.label ?? c.targetType}: {c.targetName || '(không còn tồn tại)'}
                       </p>
                     </div>
                     <NhanKhieuNai status={c.status} />

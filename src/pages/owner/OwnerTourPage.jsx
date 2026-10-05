@@ -614,7 +614,7 @@ const OwnerTourPage = () => {
         {donGhep ? (
           <div className="mt-4 bg-sunken border border-line p-4">
             <p className="text-sm text-ink flex items-center gap-2">
-              <Clock size={14} className="text-warning" /> Đơn ghép #{maNgan(donGhep.id)} — {donGhep.status}
+              <Clock size={14} className="text-warning" /> Đơn ghép ảnh — {donGhep.status}
             </p>
             {donGhep.errorMessage && <p className="text-xs text-danger mt-1">{donGhep.errorMessage}</p>}
             <button onClick={kiemTraDonGhep} disabled={busy !== null}

@@ -1,9 +1,9 @@
 import { X, Phone, Paperclip, User, ShieldCheck, Clock } from 'lucide-react'
 import dayjs from 'dayjs'
-import { CategoryBadge, StatusBadge, TARGET_TYPE_LABELS } from './ComplaintBadges'
+import { CategoryBadge, StatusBadge } from './ComplaintBadges'
 import HopThoai, { TieuDeHop } from '../../shared/HopThoai'
-import { maNgan } from '../../../utils/format'
 import LienKetMuiTen from '../../shared/LienKetMuiTen'
+import { tenDoiTuong } from '../../../utils/tenDoiTuong'
 
 // Component thuần UI: nhận complaint + onClose từ cha
 const ComplaintDetailModal = ({ complaint, onClose, onResolve }) => {
@@ -30,7 +30,7 @@ const ComplaintDetailModal = ({ complaint, onClose, onResolve }) => {
         <div className="flex-none flex justify-between items-start p-6 border-b border-line">
           <div>
             <p className="text-sm text-ink-mute mb-1">Chi tiết khiếu nại</p>
-            <TieuDeHop><h2 className="text-xl text-ink font-mono">#{maNgan(c.id)}</h2></TieuDeHop>
+            <TieuDeHop><h2 className="text-xl text-ink">Khiếu nại của {c.complainantName || 'khách chưa đăng nhập'}</h2></TieuDeHop>
           </div>
           <button onClick={onClose} className="inline-flex items-center justify-center w-11 h-11 flex-shrink-0 hover:bg-sunken text-ink-soft" aria-label="Đóng">
             <X size={20} />
@@ -43,7 +43,7 @@ const ComplaintDetailModal = ({ complaint, onClose, onResolve }) => {
             <div>
               <p className="text-xs text-ink-mute mb-1.5">Đối tượng bị khiếu nại</p>
               <p className="text-sm text-ink font-medium">
-                {TARGET_TYPE_LABELS[c.targetType] || c.targetType} <span className="text-ink-mute">#{maNgan(c.targetId)}</span>
+                {tenDoiTuong(c)}
               </p>
             </div>
             <div>

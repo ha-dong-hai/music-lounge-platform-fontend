@@ -3,7 +3,6 @@ import dayjs from 'dayjs'
 import DaCho from '../../bang/DaCho'
 import { VenueStatusBadge, LicenseBadge } from './VenueBadges'
 import { anhChuCai } from '../../../utils/anhChuCai'
-import { maNgan } from '../../../utils/format'
 
 // Component thuần UI: nhận data đã lọc + callbacks từ cha.
 // `onViewDossier` mở HỒ SƠ ĐÃ NỘP. Bản trước nút này là <Link to={`/lounge/{id}`}> mở thẳng trang
@@ -43,7 +42,7 @@ const VenuesTable = ({ venues, isLoading, onViewDossier, onReview, onPenalize })
                       />
                       <div className="min-w-0">
                         <p className="text-sm text-ink font-medium truncate">{v.name}</p>
-                        <p className="text-xs text-ink-mute">#{maNgan(v.loungeId)}</p>
+                        {v.fullAddress && <p className="text-xs text-ink-mute truncate">{v.fullAddress}</p>}
                       </div>
                     </div>
                   </td>

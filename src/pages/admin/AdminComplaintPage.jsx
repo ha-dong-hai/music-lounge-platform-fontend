@@ -21,7 +21,7 @@ import { parseAsString, parseAsStringLiteral } from 'nuqs'
 import dayjs from 'dayjs'
 import toast from 'react-hot-toast'
 import { getComplaintHistory } from '../../services/adminServices'
-import { CATEGORY_CONFIG, STATUS_CONFIG, TARGET_TYPE_LABELS } from '../../components/admin/complaints/ComplaintBadges'
+import { CATEGORY_CONFIG, STATUS_CONFIG } from '../../components/admin/complaints/ComplaintBadges'
 import ComplaintsFilterBar from '../../components/admin/complaints/ComplaintsFilterBar'
 import ComplaintsTable from '../../components/admin/complaints/ComplaintsTable'
 import ComplaintDetailModal from '../../components/admin/complaints/ComplaintDetailModal'
@@ -33,7 +33,7 @@ import ChipBoLoc from '../../components/bang/ChipBoLoc'
 import { khoangHopLe, nhanKhoang, thamSoApi } from '../../utils/kyBaoCao'
 import PhanTrang from '../../components/bang/PhanTrang'
 import KhungTai from '../../components/bang/KhungTai'
-import { maNgan } from '../../utils/format'
+import { tenDoiTuong } from '../../utils/tenDoiTuong'
 
 const BO_LOC = {
     trangThai: parseAsStringLiteral(Object.keys(STATUS_CONFIG)),
@@ -85,7 +85,7 @@ const AdminComplaintPage = () => {
         const rows = filteredComplaints.map(c => [
             c.id,
             CATEGORY_CONFIG[c.category]?.label || c.category,
-            `${TARGET_TYPE_LABELS[c.targetType] || c.targetType} #${maNgan(c.targetId)}`,
+            tenDoiTuong(c),
             (c.description || '').replace(/"/g, '""'),
             c.contactPhone || '',
             STATUS_CONFIG[c.status]?.label || c.status,

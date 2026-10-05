@@ -8,7 +8,6 @@ import HopXacNhan from '../../shared/HopXacNhan'
 import { getPendingModerations, reviewLivestreamModeration, reviewTicketTier } from '../../../services/adminServices'
 import { FormatBadge } from './ShowBadges'
 import NhomTab from '../../bang/NhomTab'
-import { maNgan } from '../../../utils/format'
 
 // Vòng tròn điểm AI (0 -> 100)
 const AIScoreCircle = ({ score }) => {
@@ -142,7 +141,8 @@ const PendingModerationTab = () => {
                 items.map(item => (
                   <tr key={item.id} className="border-b border-line hover:bg-card/50 transition-colors">
                     <td className="p-4 text-ink font-medium">
-                      {{ Show: 'Buổi diễn', Livestream: 'Buổi phát', TicketTier: 'Hạng vé' }[targetType] ?? targetType} #{maNgan(item.targetId)}
+                      {/* MLACP-672: backend trả tên (hạng vé/buổi phát đã kèm loại); buổi diễn chỉ là tên nên thêm loại ở đây. */}
+                      {item.targetName ? (targetType === 'Show' ? `Buổi diễn: ${item.targetName}` : item.targetName) : '(không còn tồn tại)'}
                       <p className="text-xs text-ink-mute mt-1">Tạo lúc {dayjs(item.createdAt).format('HH:mm DD/MM/YYYY')}</p>
                       <DaCho luc={item.createdAt} han={item.slaDeadline} className="mt-1" />
                     </td>
@@ -172,7 +172,7 @@ const PendingModerationTab = () => {
                             <Check size={14} /> Duyệt
                           </button>
                           <button
-                            type="button" onClick={() => { setLyDo(''); setLoiLyDo(null); setTuChoi({ loai: 'tier', id: item.targetId }) }}
+                            type="button" onClick={() => { setLyDo(''); setLoiLyDo(null); setTuChoi({ loai: 'tier', id: item.targetId, ten: item.targetName }) }}
                             disabled={busyId === item.targetId}
                             className="inline-flex items-center gap-1.5 disabled:opacity-50 justify-center min-h-[44px] px-4 border-2 border-danger bg-card text-danger text-sm font-semibold hover:bg-danger hover:text-lamp"
                           >
@@ -196,7 +196,7 @@ const PendingModerationTab = () => {
                             <Check size={14} aria-hidden="true" /> Duyệt
                           </button>
                           <button
-                            type="button" onClick={() => { setLyDo(''); setLoiLyDo(null); setTuChoi({ loai: 'ls', id: item.targetId }) }}
+                            type="button" onClick={() => { setLyDo(''); setLoiLyDo(null); setTuChoi({ loai: 'ls', id: item.targetId, ten: item.targetName }) }}
                             disabled={busyId === item.targetId}
                             className="inline-flex items-center gap-1.5 disabled:opacity-50 justify-center min-h-[44px] px-4 border-2 border-danger bg-card text-danger text-sm font-semibold hover:bg-danger hover:text-lamp"
                           >
@@ -241,7 +241,7 @@ const PendingModerationTab = () => {
         )}
       </div>
       <HopXacNhan mo={!!tuChoi} dangXuLy={busyId != null} nhanGiu="Không, quay lại"
-        tieuDe={tuChoi?.loai === 'tier' ? `Từ chối hạng vé #${maNgan(tuChoi?.id)}?` : `Từ chối buổi phát #${maNgan(tuChoi?.id)}?`}
+        tieuDe={`Từ chối ${tuChoi?.ten || (tuChoi?.loai === 'tier' ? 'hạng vé này' : 'buổi phát này')}?`}
         nhanXacNhan="Từ chối" onDong={() => setTuChoi(null)} onXacNhan={guiTuChoi}>
         <label htmlFor="ly-do-tu-choi" className="block font-semibold text-ink">Lý do <span className="text-danger" aria-hidden="true">*</span><span className="sr-only"> (bắt buộc)</span></label>
         <p id="ly-do-tu-choi-goi-y" className="text-sm">Gửi nguyên văn cho chủ phòng trà.</p>

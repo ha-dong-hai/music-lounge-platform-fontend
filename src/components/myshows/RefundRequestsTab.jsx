@@ -16,7 +16,6 @@ import dayjs from 'dayjs'
 import toast from 'react-hot-toast'
 import { getMyRefundRequests, provideRefundPayoutAccount } from '../../services/ticketServices'
 import HopThoai, { TieuDeHop } from '../shared/HopThoai'
-import { maNgan } from '../../utils/format'
 import NhanTrangThai from '../shared/NhanTrangThai'
 
 const fmtMoney = (v) => `${Number(v || 0).toLocaleString('vi-VN')}đ`
@@ -140,7 +139,7 @@ const RefundRequestsTab = () => {
           <div key={r.id} className="bg-card border border-line p-5">
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div className="min-w-0">
-                <p className="text-ink font-bold">Yêu cầu hoàn tiền #{maNgan(r.id)}</p>
+                <p className="text-ink font-bold">Hoàn tiền {r.ticketCount > 0 ? `${r.ticketCount} vé ` : ''}{r.showName || 'vé'}</p>
                 <p className="text-xs text-ink-mute mt-1">
                   Gửi lúc {dayjs(r.createdAt).format('HH:mm DD/MM/YYYY')}
                 </p>

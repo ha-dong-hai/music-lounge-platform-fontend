@@ -35,7 +35,6 @@ import { useDanhSachMayChu } from '../../hooks/useDanhSachMayChu'
 import PhanTrang from '../../components/bang/PhanTrang'
 import NutHuyDon from '../../components/shared/NutHuyDon'
 import NhomTab from '../../components/bang/NhomTab'
-import { maNgan } from '../../utils/format'
 import NhanTrangThai from '../../components/shared/NhanTrangThai'
 
 const fmtMoney = (v) => `${Number(v || 0).toLocaleString('vi-VN')}đ`
@@ -118,7 +117,7 @@ const OwnerFnbOrdersPage = () => {
     setBusyId(order.id)
     try {
       await updateFnbOrderStatus(order.id, status, lyDo)
-      toast.success(`Đã chuyển đơn #${maNgan(order.id)} sang “${TAB.find((t) => t.key === status)?.label ?? status}”.`)
+      toast.success(`Đã chuyển đơn của ${order.customerName || 'khách'} sang “${TAB.find((t) => t.key === status)?.label ?? status}”.`)
       await ds.taiLai()
     } catch (err) {
       toast.error(err.response?.data?.message || 'Không cập nhật được đơn.')
@@ -185,7 +184,7 @@ const OwnerFnbOrdersPage = () => {
               <div key={o.id} className="bg-card border border-line p-5 flex flex-col">
                 <div className="flex items-start justify-between gap-2">
                   <div>
-                    <p className="text-ink font-bold">#{maNgan(o.id)}</p>
+                    <p className="text-ink font-bold">{o.customerName || 'Khách tại quầy'}</p>
                     <p className="text-xs text-ink-mute mt-0.5">
                       {/* MLACP-630: khu khách ngồi (máy chủ lấy từ vé của khách) đứng trước dòng khách tự ghi. */}
                       {[o.zoneName, o.tableNote].filter(Boolean).join(' · ') || 'Không ghi bàn'} · {dayjs(o.createdAt).format('HH:mm DD/MM')}
@@ -265,13 +264,13 @@ const OwnerFnbOrdersPage = () => {
                     // Huỷ là trạng thái cuối (không lùi được); đơn đã trả online thì backend tạo yêu cầu hoàn 100%
                     // (MLACP-351) — hỏi lại, nói đúng hậu quả, và bắt chọn lý do (MLACP-631).
                     <NutHuyDon onHuy={(lyDo) => doiTrangThai(o, 'Cancelled', lyDo)} disabled={dangBan || conLinkOnline}
-                      tieuDe={`Huỷ đơn #${maNgan(o.id)}?`}
+                      tieuDe={`Huỷ đơn của ${o.customerName || 'khách'}?`}
                       noiDung={o.isPaid
                         ? 'Khách đã trả tiền online cho đơn này: hệ thống tạo yêu cầu hoàn 100% và báo cho khách. Không hoàn tác được.'
                         : o.status === 'Pending' ? 'Đơn chuyển sang Đã huỷ và khách được báo. Không hoàn tác được.'
                           : 'Món đã bắt đầu làm — huỷ là ghi nhận một khoản mất. Không hoàn tác được.'}
                       title={conLinkOnline ? 'Không huỷ được khi khách còn liên kết thanh toán online' : undefined}
-                      aria-label={conLinkOnline ? 'Không huỷ được khi khách còn liên kết thanh toán online' : `Huỷ đơn #${maNgan(o.id)}`}
+                      aria-label={conLinkOnline ? 'Không huỷ được khi khách còn liên kết thanh toán online' : `Huỷ đơn của ${o.customerName || 'khách'}`}
                       className="flex items-center gap-1.5 min-h-[44px] px-3 border-2 border-ink/40 text-ink-soft text-sm font-semibold hover:border-danger hover:text-danger disabled:opacity-40 disabled:cursor-not-allowed">
                       <XCircle size={14} aria-hidden="true" /> Huỷ đơn
                     </NutHuyDon>

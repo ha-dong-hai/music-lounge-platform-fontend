@@ -31,7 +31,6 @@ import NhanTrangThai from '../../components/shared/NhanTrangThai'
 import { useDanhSachMayChu } from '../../hooks/useDanhSachMayChu'
 import PhanTrang from '../../components/bang/PhanTrang'
 import { ngayDayDu, gioTrongNgay } from '../../utils/ngayVietNam'
-import { maNgan } from '../../utils/format'
 
 const tien = (v) => `${Number(v || 0).toLocaleString('vi-VN')} đ`
 const duong = (r) => (r.payoutAccountRequired ? 'cho' : r.payoutConsentAt ? 'ck' : 'vnpay')
@@ -77,7 +76,7 @@ const AdminRefundsPage = () => {
     }
   }
 
-  const tieuDeHoi = !hoi ? '' : hoi.decision === 'Rejected' ? `Từ chối yêu cầu #${maNgan(hoi.r.id)}?`
+  const tieuDeHoi = !hoi ? '' : hoi.decision === 'Rejected' ? `Từ chối yêu cầu hoàn tiền của ${hoi.r.requesterName || 'khách'}?`
     : duong(hoi.r) === 'ck' ? `Ghi nhận đã chuyển khoản ${tien(hoi.r.amountRequested)}?` : `Hoàn ${tien(hoi.r.amountRequested)} qua VNPay?`
 
   return (
@@ -117,7 +116,7 @@ const AdminRefundsPage = () => {
                     </div>
                     <p className="mt-2 break-words">{r.reason}</p>
                     <p className="mt-1 text-sm text-ink-mute">
-                      Yêu cầu #{maNgan(r.id)} · thanh toán #{maNgan(r.paymentId)} · tạo <span className="font-mono">{gioTrongNgay(r.createdAt)} {ngayDayDu(r.createdAt)}</span>
+                      {r.requesterName || 'Khách'} · {r.ticketCount > 0 ? `${r.ticketCount} vé ` : ''}{r.showName || '(buổi diễn không còn tồn tại)'} · tạo <span className="font-mono">{gioTrongNgay(r.createdAt)} {ngayDayDu(r.createdAt)}</span>
                       {r.expectedResolutionBy && <> · hạn trả lời <span className={`font-mono ${quaHan ? 'text-danger font-semibold' : ''}`}>{gioTrongNgay(r.expectedResolutionBy)} {ngayDayDu(r.expectedResolutionBy)}</span></>}
                     </p>
 

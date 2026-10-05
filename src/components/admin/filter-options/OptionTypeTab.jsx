@@ -7,7 +7,6 @@ import OptionFormModal from './OptionFormModal'
 import AnhTheLoai from './AnhTheLoai'
 import KhungTai from '../../bang/KhungTai'
 import { HEP } from '../../bang/lopBangHep'
-import { maNgan } from '../../../utils/format'
 
 
 // hasImage: chỉ thể loại nhạc có ảnh riêng (MLACP-581) — ảnh thẻ thể loại ở trang chủ.
@@ -137,7 +136,6 @@ const OptionTypeTab = ({ typeKey, typeLabel, hasNameEn, hasDescription, hasImage
           <table role="table" className={`w-full text-left md:whitespace-nowrap ${HEP.bang}`}>
             <thead role="rowgroup" className={`bg-sunken border-b-2 border-ink ${HEP.dau}`}>
               <tr role="row">
-                <th scope="col" role="columnheader" className="p-4 text-sm font-semibold text-ink w-24">ID</th>
                 <th scope="col" role="columnheader" className="p-4 text-sm font-semibold text-ink">Tên</th>
                 {hasNameEn && (
                   <th scope="col" role="columnheader" className="p-4 text-sm font-semibold text-ink">Tên tiếng Anh</th>
@@ -158,7 +156,6 @@ const OptionTypeTab = ({ typeKey, typeLabel, hasNameEn, hasDescription, hasImage
               {options.length > 0 ? (
                 options.map(opt => (
                   <tr key={opt.id} role="row" className={`hover:bg-sunken transition-colors group ${HEP.dong}`}>
-                    <td role="cell" data-nhan="ID" className={`p-4 text-xs text-ink-mute font-mono ${HEP.o}`}>#{maNgan(opt.id)}</td>
                     <td role="cell" className={`p-4 text-sm text-ink font-semibold ${HEP.oTron}`}>{opt.name}</td>
                     {hasNameEn && (
                       <td role="cell" data-nhan="Tên tiếng Anh" className={`p-4 text-sm text-ink-soft ${HEP.o}`}>{opt.nameEn || <span className="text-ink-mute italic">—</span>}</td>

@@ -7,7 +7,6 @@ import { getLoungeDetail } from '../../services/loungeServices'
 import { getMenus, getMenuItems, createFnbOrder, getMyFnbOrders, payFnbOrder, cancelMyFnbOrder } from '../../services/fnbServices'
 import { useAuthStore } from '../../store/useAuthStore'
 import { ghiNhoThanhToan, LOAI_THANH_TOAN } from '../../utils/paymentContext'
-import { maNgan } from '../../utils/format'
 import NhanTrangThai from '../../components/shared/NhanTrangThai'
 import NutXacNhan from '../../components/shared/NutXacNhan'
 
@@ -310,7 +309,7 @@ const FnbOrderPage = () => {
                   {orders.map((o) => (
                     <div key={o.id} className="border border-line p-3">
                       <div className="flex items-center justify-between mb-1">
-                        <span className="text-sm font-medium">#{maNgan(o.id)}</span>
+                        <span className="text-sm font-medium">Đơn lúc {dayjs(o.createdAt).format('HH:mm DD/MM')}</span>
                         <NhanTrangThai sacThai={SAC_THAI_DON[o.status] ?? 'trung'}>{STATUS_LABELS[o.status] || o.status}</NhanTrangThai>
                       </div>
                       <p className="text-xs text-ink-mute">{dayjs(o.createdAt).format('HH:mm DD/MM/YYYY')}</p>
@@ -334,7 +333,7 @@ const FnbOrderPage = () => {
                       )}
                       {o.status === 'Pending' && (
                         <NutXacNhan onXacNhan={() => handleCancel(o.id)} disabled={!!busy}
-                          tieuDe={`Huỷ đơn #${maNgan(o.id)}?`} nhanXacNhan="Huỷ đơn" nhanGiu="Không, giữ đơn"
+                          tieuDe={`Huỷ đơn lúc ${dayjs(o.createdAt).format('HH:mm')}?`} nhanXacNhan="Huỷ đơn" nhanGiu="Không, giữ đơn"
                           noiDung={o.isPaid
                             ? 'Quầy chưa nhận đơn nên bạn huỷ được. Bạn đã trả online: hệ thống tạo yêu cầu hoàn 100% về phương thức bạn đã trả.'
                             : 'Quầy chưa nhận đơn nên bạn huỷ được. Khi quầy đã bắt đầu làm, muốn huỷ hãy nói với nhân viên.'}

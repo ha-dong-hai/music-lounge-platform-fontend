@@ -1,8 +1,8 @@
 import { Eye, Loader2, MessageSquareWarning } from 'lucide-react'
 import dayjs from 'dayjs'
 import DaCho from '../../bang/DaCho'
-import { CategoryBadge, StatusBadge, TARGET_TYPE_LABELS } from './ComplaintBadges'
-import { maNgan } from '../../../utils/format'
+import { CategoryBadge, StatusBadge } from './ComplaintBadges'
+import { tenDoiTuong } from '../../../utils/tenDoiTuong'
 
 // Component thuần UI: nhận data đã lọc + callbacks từ cha
 const ComplaintsTable = ({ complaints, isLoading, onViewDetail }) => {
@@ -15,7 +15,7 @@ const ComplaintsTable = ({ complaints, isLoading, onViewDetail }) => {
         <table className="w-full text-left">
           <thead className="bg-sunken border-b-2 border-ink">
             <tr>
-              <th scope="col" className="p-4 text-sm font-semibold text-ink">Mã</th>
+              <th scope="col" className="p-4 text-sm font-semibold text-ink">Người gửi</th>
               <th scope="col" className="p-4 text-sm font-semibold text-ink">Phân loại</th>
               <th scope="col" className="p-4 text-sm font-semibold text-ink">Nội dung</th>
               <th scope="col" className="p-4 text-sm font-semibold text-ink">Đối tượng</th>
@@ -35,14 +35,14 @@ const ComplaintsTable = ({ complaints, isLoading, onViewDetail }) => {
             ) : complaints.length > 0 ? (
               complaints.map(c => (
                 <tr key={c.id} className="hover:bg-sunken transition-colors cursor-pointer" onClick={() => onViewDetail(c)}>
-                  <td className="p-4 font-mono text-xs text-ink whitespace-nowrap">#{maNgan(c.id)}</td>
+                  <td className="p-4 text-sm text-ink whitespace-nowrap">{c.complainantName || 'Khách chưa đăng nhập'}</td>
                   <td className="p-4"><CategoryBadge category={c.category} /></td>
                   <td className="p-4 min-w-[200px] max-w-[320px]">
                     <p className="text-sm text-ink-soft line-clamp-2">{c.description || '—'}</p>
                   </td>
                   <td className="p-4">
                     <p className="text-sm text-ink-soft">
-                      {TARGET_TYPE_LABELS[c.targetType] || c.targetType} <span className="text-ink-mute">#{maNgan(c.targetId)}</span>
+                      {tenDoiTuong(c)}
                     </p>
                   </td>
                   <td className="p-4 text-sm text-ink-soft font-mono whitespace-nowrap">{c.contactPhone || '—'}</td>
@@ -56,7 +56,7 @@ const ComplaintsTable = ({ complaints, isLoading, onViewDetail }) => {
                   <td className="p-4 text-center">
                     {/* Cả hàng bấm được bằng chuột, nhưng <tr> không nhận focus: nút này là lối vào cho bàn phím và trình đọc màn
                         hình. Bản cũ là một nút KHÔNG có onClick (chỉ ăn theo sự kiện của hàng) và không có tên. */}
-                    <button type="button" onClick={(e) => { e.stopPropagation(); onViewDetail(c) }} aria-label={`Xem khiếu nại #${maNgan(c.id)}`} className="w-11 h-11 border-2 border-ink text-ink hover:bg-ink hover:text-lamp transition-colors inline-flex items-center justify-center">
+                    <button type="button" onClick={(e) => { e.stopPropagation(); onViewDetail(c) }} aria-label={`Xem khiếu nại của ${c.complainantName || 'khách chưa đăng nhập'}`} className="w-11 h-11 border-2 border-ink text-ink hover:bg-ink hover:text-lamp transition-colors inline-flex items-center justify-center">
                       <Eye size={16} />
                     </button>
                   </td>
