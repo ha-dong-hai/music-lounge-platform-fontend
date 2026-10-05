@@ -90,6 +90,14 @@ export const useAuth = () => {
     }
   };
 
+  // Lỗi Firebase thường gặp khi chạy trên tên miền mới — mã lấy từ tài liệu Firebase Auth (AuthErrorCodes).
+  const cauLoiFirebase = (ma) => ({
+    'auth/unauthorized-domain': 'Tên miền này chưa được phép đăng nhập Google (Firebase → Authentication → Authorized domains).',
+    'auth/popup-blocked': 'Trình duyệt đã chặn cửa sổ đăng nhập Google — hãy cho phép cửa sổ bật lên rồi thử lại.',
+    'auth/network-request-failed': 'Mất kết nối tới Google — kiểm tra mạng rồi thử lại.',
+    'auth/operation-not-allowed': 'Đăng nhập Google chưa được bật trong Firebase (Authentication → Sign-in method).',
+  }[ma] || `Đăng nhập Google thất bại${ma ? ` (mã: ${ma})` : ''}.`);
+
   // Mở popup đăng nhập Google qua Firebase, lấy Firebase ID token rồi gửi cho backend — không dùng
   // trực tiếp token của thư viện Google OAuth thuần vì backend chỉ verify được Firebase ID token.
   const handleGoogleSignIn = async (acceptTerms = false) => {
@@ -103,8 +111,10 @@ export const useAuth = () => {
       const idToken = await credential.user.getIdToken();
       return await handleGoogleLogin(idToken, acceptTerms);
     } catch (err) {
-      if (err?.code !== 'auth/popup-closed-by-user') {
-        toast.error('Đăng nhập Google thất bại.');
+      // 05/10/2026: bản cũ in một câu chung cho MỌI lỗi (Firebase lẫn backend) — trên web vừa deploy không ai biết hỏng ở
+      // đâu. Nay: lỗi backend đã được handleGoogleLogin báo (err.daBao), lỗi Firebase báo kèm mã gốc.
+      if (err?.code !== 'auth/popup-closed-by-user' && !err?.daBao) {
+        toast.error(cauLoiFirebase(err?.code));
       }
       throw err;
     } finally {
@@ -123,7 +133,10 @@ export const useAuth = () => {
       }
       return res;
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Đăng nhập Google thất bại.');
+      // Không có câu từ backend thì nói rõ là backend trả mã gì, hay không phản hồi (mất mạng / CORS chặn).
+      toast.error(err.response?.data?.message
+        || (err.response ? `Máy chủ từ chối đăng nhập Google (mã ${err.response.status}).` : 'Không kết nối được máy chủ để hoàn tất đăng nhập Google.'));
+      err.daBao = true;
       throw err;
     } finally {
       setIsSubmitting(false);
