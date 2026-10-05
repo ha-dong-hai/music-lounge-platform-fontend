@@ -11,7 +11,11 @@ import { anhChuCai } from '../../utils/anhChuCai'
 
 const accountSchema = z.object({
   name: z.string().min(1, "Họ tên không được để trống"),
-  phone: z.string().min(1, "Số điện thoại không được để trống").regex(/^[0-9]+$/, "Số điện thoại chỉ gồm chữ số").min(9, "Số điện thoại không hợp lệ").max(11, "Số điện thoại không hợp lệ"),
+  // Số điện thoại KHÔNG bắt buộc (05/10/2026): backend để trống được cả lúc đăng ký lẫn sửa hồ sơ
+  // (UpdateMyProfileCommandValidator chỉ kiểm khi có giá trị), và không chức năng nào đòi số — chỉ cần khi người dùng tự
+  // xin xác minh qua SMS. Bản cũ bắt buộc ở đây nên ai chưa có số (đăng nhập Google) không lưu được tên/ảnh đại diện.
+  // Có nhập thì vẫn phải là 9–11 chữ số.
+  phone: z.string().trim().refine((v) => v === '' || /^[0-9]{9,11}$/.test(v), "Số điện thoại gồm 9–11 chữ số, hoặc để trống"),
 })
 
 const ProfileTab = () => {
@@ -100,7 +104,9 @@ const ProfileTab = () => {
   }
 
   const onSubmit = async (data) => {
-    if (!avatarUrlToSave) {
+    // Chỉ chặn khi ảnh ĐANG tải lên. Bản cũ chặn khi avatarUrlToSave rỗng — tài khoản chưa từng đặt ảnh đại diện thì
+    // không bao giờ lưu được hồ sơ, luôn báo "đợi ảnh tải lên" (lộ 05/10/2026). Backend nhận avatarUrl null.
+    if (isUploading) {
       toast.error('Vui lòng đợi ảnh tải lên xong')
       return
     }
@@ -109,7 +115,8 @@ const ProfileTab = () => {
     try {
       const payload = {
         fullName: data.name,
-        phone: data.phone, 
+        // Trống gửi null (không gửi chuỗi rỗng): backend coi null là "không có số" và xoá số cũ nếu người dùng vừa xoá.
+        phone: data.phone || null,
         avatarUrl: avatarUrlToSave
       }
       
@@ -174,7 +181,7 @@ const ProfileTab = () => {
           </div>
           
           <div>
-            <label htmlFor="ho-so-sdt" className="block font-semibold text-ink mb-1">Số điện thoại</label>
+            <label htmlFor="ho-so-sdt" className="block font-semibold text-ink mb-1">Số điện thoại <span className="font-normal text-ink-soft">(không bắt buộc)</span></label>
             <input type="tel" {...register('phone')} id="ho-so-sdt" aria-invalid={errors.phone ? 'true' : undefined} aria-describedby={errors.phone ? 'ho-so-sdt-loi' : undefined} className={`w-full px-4 py-2.5 bg-card border-2 text-ink focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2 ${errors.phone ? 'border-danger' : 'border-ink'}`} />
             {errors.phone && <p id="ho-so-sdt-loi" className="mt-1.5 text-sm font-semibold text-danger">{errors.phone.message}</p>}
           </div>
