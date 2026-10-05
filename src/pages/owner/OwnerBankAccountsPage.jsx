@@ -81,7 +81,9 @@ const AccountFormModal = ({ initial, chuSoHuu, onClose, onSaved }) => {
         toast.success('Đã lưu tài khoản.')
       } else {
         await createBankAccount({ ownerType: chuSoHuu.type, ownerId: chuSoHuu.id, ...payload })
-        toast.success('Đã thêm tài khoản. Tài khoản cần Admin duyệt trước khi dùng để chi trả.')
+        toast.success(chuSoHuu.type === 'Performer'
+          ? 'Đã thêm tài khoản của nghệ sĩ. Nghệ sĩ có email sẽ nhận liên kết để tự xác nhận.'
+          : 'Đã thêm tài khoản. Tài khoản cần Admin duyệt trước khi dùng để chi trả.')
       }
       onSaved()
       onClose()
@@ -115,8 +117,13 @@ const AccountFormModal = ({ initial, chuSoHuu, onClose, onSaved }) => {
           <div>
             <label className="text-sm font-semibold text-ink">Tên chủ tài khoản <span className="text-danger">*</span></label>
             <input aria-label="Tên chủ tài khoản" value={form.accountHolder} onChange={(e) => set('accountHolder', e.target.value)} className={inputCls} />
+            {/* B6 (05/10/2026): câu cũ hiện cho CẢ tài khoản của nghệ sĩ — sai: tài khoản nghệ sĩ mang tên nghệ sĩ, và
+                Admin không duyệt nó (nghệ sĩ tự xác nhận qua liên kết email — ReviewPayoutBankAccount từ chối tài khoản
+                nghệ sĩ). Chủ làm theo câu cũ là khai sai tên người nhận. */}
             <p className="text-xs text-warning/80 mt-1 leading-relaxed">
-              Phải trùng tên trên giấy tờ định danh của chủ phòng trà. Lệch tên thì Admin sẽ từ chối khi duyệt.
+              {chuSoHuu?.type === 'Performer'
+                ? 'Ghi đúng tên chủ tài khoản của chính nghệ sĩ như trên thẻ ngân hàng. Nghệ sĩ có email liên lạc sẽ nhận liên kết để tự xác nhận tài khoản này.'
+                : 'Phải trùng tên trên giấy tờ định danh của chủ phòng trà. Lệch tên thì Admin sẽ từ chối khi duyệt.'}
             </p>
           </div>
           <label className="flex items-center gap-2 text-sm text-ink-soft cursor-pointer">
@@ -176,7 +183,12 @@ const OwnerBankAccountsPage = () => {
       setPerformers(pds?.cuaToi ?? [])
       setNgheSiVuotTran(Boolean(pds?.vuotTran))
 
-      if (cuaToi) setChuSoHuu({ type: 'Lounge', id: cuaToi.id, label: cuaToi.name })
+      // C2 (05/10/2026): đi từ cảnh báo "nghệ sĩ chưa có tài khoản" ở trang Tiền ủng hộ (?nghesi=<id>) thì mở thẳng danh
+      // sách của nghệ sĩ đó — chủ không phải tìm lại trong ô chọn.
+      const ngheSiCanMo = new URLSearchParams(window.location.search).get('nghesi')
+      const ns = ngheSiCanMo ? (pds?.cuaToi ?? []).find((p) => String(p.id).toLowerCase() === ngheSiCanMo.toLowerCase()) : null
+      if (ns) setChuSoHuu({ type: 'Performer', id: ns.id, label: ns.name })
+      else if (cuaToi) setChuSoHuu({ type: 'Lounge', id: cuaToi.id, label: cuaToi.name })
     } catch {
       setLoiTai(true)
     } finally {
@@ -309,7 +321,7 @@ const OwnerBankAccountsPage = () => {
                       </span>
                     ) : (
                       <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-warning/10 text-warning text-xs font-medium">
-                        <ShieldAlert size={11} /> Chờ Admin duyệt
+                        <ShieldAlert size={11} /> {chuSoHuu?.type === 'Performer' ? 'Chờ nghệ sĩ xác nhận' : 'Chờ Admin duyệt'}
                       </span>
                     )}
                   </div>

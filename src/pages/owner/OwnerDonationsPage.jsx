@@ -20,7 +20,13 @@
 //   không phải mảng trần như hai tab kia. Đừng dùng chung chỗ đọc dữ liệu.
 // - GỠ LỜI NHẮN chỉ ẩn lời nhắn khỏi livestream; KHÔNG hoàn tiền, và lời nhắn gốc vẫn được lưu để
 //   đối chiếu. Người đang xem nhận sự kiện SignalR DonationMessageHidden.
+// - 05/10/2026 (kiểm 5 khoản ủng hộ cho 3 nghệ sĩ): chủ phải bấm + xác nhận TỪNG khoản một (10 lần bấm, 5 lần gõ mã giao
+//   dịch) trong khi ngoài đời họ chuyển MỘT lần cho mỗi nghệ sĩ. Nay có "Xác nhận tất cả" (tab chờ nhận) và "Đã trả tất
+//   cả cho <nghệ sĩ>" — vẫn gọi đúng API từng khoản (backend ghi sổ và bằng chứng theo khoản), chỉ gộp thao tác. Và
+//   nghệ sĩ chưa có tài khoản nhận tiền mặc định (backend trả 422 khi báo đã trả) được báo TRƯỚC, kèm lối đi khai tài
+//   khoản — bản cũ chỉ báo sau khi chủ đã chuyển tiền và gõ mã (performerHasPayoutAccount, BE MLACP-644).
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { parseAsStringLiteral } from 'nuqs'
 import { Loader2, HeartHandshake, CheckCircle2, Clock, AlertTriangle, X, Send, RefreshCw, EyeOff, History } from 'lucide-react'
 import dayjs from 'dayjs'
@@ -70,7 +76,9 @@ const TRANG_THAI_CHUYEN = {
   Overdue: { chu: 'Quá hạn', mau: 'text-danger bg-danger/10' },
 }
 
-const ConfirmPaidModal = ({ donation, onClose, onSaved }) => {
+const ConfirmPaidModal = ({ donation, donations, onClose, onSaved }) => {
+  const ds = donations ?? [donation]
+  const tong = ds.reduce((s, d) => s + Number(d.amountToPayPerformer || 0), 0)
   const [paymentRef, setPaymentRef] = useState('')
   const [evidenceUrl, setEvidenceUrl] = useState('')
   const [isUploading, setIsUploading] = useState(false)
@@ -96,14 +104,18 @@ const ConfirmPaidModal = ({ donation, onClose, onSaved }) => {
     if (!paymentRef.trim()) { toast.error('Cần nhập mã giao dịch chuyển khoản.'); return }
     setIsBusy(true)
     try {
-      await confirmDonationPaid(donation.id, {
-        paymentRef: paymentRef.trim(),
-        paymentEvidenceUrl: evidenceUrl || null,
-      })
-      toast.success('Đã ghi nhận việc chuyển tiền cho nghệ sĩ.')
+      // Một lần chuyển khoản cho nhiều khoản ủng hộ của cùng nghệ sĩ: cùng mã giao dịch, ghi từng khoản (tuần tự để dừng
+      // đúng chỗ nếu một khoản bị từ chối — các khoản đã ghi không bị lặp khi bấm lại vì chúng rời khỏi danh sách).
+      let xong = 0
+      for (const d of ds) {
+        await confirmDonationPaid(d.id, { paymentRef: paymentRef.trim(), paymentEvidenceUrl: evidenceUrl || null })
+        xong++
+      }
+      toast.success(xong > 1 ? `Đã ghi nhận ${xong} khoản đã chuyển cho nghệ sĩ.` : 'Đã ghi nhận việc chuyển tiền cho nghệ sĩ.')
       onSaved(); onClose()
     } catch (err) {
       toast.error(err.response?.data?.message || 'Không ghi nhận được.')
+      onSaved()
     } finally { setIsBusy(false) }
   }
 
@@ -116,10 +128,10 @@ const ConfirmPaidModal = ({ donation, onClose, onSaved }) => {
 
         <form onSubmit={submit} className="p-5 space-y-4">
           <div className="bg-sunken border border-line p-4">
-            <p className="text-sm text-ink font-medium">{donation.performerName}</p>
-            <p className="text-xs text-ink-mute mt-0.5">{donation.showName}</p>
-            <p className="text-lg text-ink font-bold mt-2 tabular-nums">{fmtMoney(donation.amountToPayPerformer)}</p>
-            <p className="text-xs text-ink-mute">Số phải chuyển cho nghệ sĩ</p>
+            <p className="text-sm text-ink font-medium">{ds[0].performerName}</p>
+            <p className="text-xs text-ink-mute mt-0.5">{ds.length > 1 ? `${ds.length} khoản ủng hộ` : ds[0].showName}</p>
+            <p className="text-lg text-ink font-bold mt-2 tabular-nums">{fmtMoney(tong)}</p>
+            <p className="text-xs text-ink-mute">Số phải chuyển cho nghệ sĩ{ds.length > 1 ? ' — một lần chuyển, một mã giao dịch' : ''}</p>
           </div>
 
           <div>
@@ -155,7 +167,7 @@ const ConfirmPaidModal = ({ donation, onClose, onSaved }) => {
 
 const OwnerDonationsPage = () => {
   const [busyId, setBusyId] = useState(null)
-  const [traNgheSi, setTraNgheSi] = useState(null)
+  const [traNgheSi, setTraNgheSi] = useState(null) // một khoản, hoặc { nhieu: [...] }
   const ds = useDanhSachMayChu({ khoa: ['ung-ho'], goi: goiDanhSach, boLoc: BO_LOC })
   const { tab } = ds.boLoc
   const items = ds.items
@@ -164,6 +176,19 @@ const OwnerDonationsPage = () => {
   const tongHop = tab === 'history' ? ds.duLieu?.tongHop ?? null : null
   const load = () => ds.taiLai()
 
+
+  // C1: xác nhận đã nhận cho mọi khoản ĐÃ VỀ trên trang này (khoản chưa về thì backend từ chối — bỏ qua chúng).
+  const xacNhanNhanTatCa = async () => {
+    const daVe = items.filter((d) => d.payoutReceivedAt)
+    setBusyId('tat-ca')
+    let xong = 0
+    try {
+      for (const d of daVe) { await acknowledgeDonation(d.id); xong++ }
+      toast.success(`Đã xác nhận nhận được ${xong} khoản.`)
+    } catch (err) {
+      toast.error(err.response?.data?.message || `Mới xác nhận được ${xong} khoản.`)
+    } finally { setBusyId(null); await load() }
+  }
 
   const xacNhanNhan = async (d) => {
     setBusyId(d.id)
@@ -294,6 +319,40 @@ const OwnerDonationsPage = () => {
         </>
       ) : (
         <>
+        {tab === 'ack' && items.filter((d) => d.payoutReceivedAt).length > 1 && (
+          <div className="flex flex-wrap items-center gap-3 border-2 border-ink p-4">
+            <p className="text-sm flex-1 min-w-[16rem]">{items.filter((d) => d.payoutReceivedAt).length} khoản đã về tài khoản phòng trà. Kiểm sao kê ngân hàng rồi xác nhận một lần.</p>
+            <NutXacNhan onXacNhan={xacNhanNhanTatCa} disabled={busyId === 'tat-ca'} nguyHiem={false}
+              tieuDe="Xác nhận đã nhận tất cả?" nhanXacNhan="Tôi đã nhận đủ" nhanGiu="Chưa, để kiểm tra lại"
+              noiDung="Chỉ bấm khi toàn bộ số tiền đã về tài khoản ngân hàng của phòng trà. Mỗi khoản được ghi vào nhật ký bằng chứng công khai và không sửa được."
+              className="flex items-center gap-2 px-4 min-h-[44px] bg-ink text-lamp text-sm font-bold hover:bg-board disabled:opacity-50">
+              {busyId === 'tat-ca' ? <Loader2 size={15} className="animate-spin" /> : <CheckCircle2 size={15} />} Xác nhận tất cả
+            </NutXacNhan>
+          </div>
+        )}
+        {tab === 'payout' && (() => {
+          const theoNgheSi = Object.values(items.reduce((m, d) => {
+            const k = d.performerId ?? d.performerName
+            ;(m[k] ??= []).push(d)
+            return m
+          }, {})).filter((g) => g.length > 1 && g.every((d) => d.payoutReceivedAt && d.performerHasPayoutAccount))
+          return theoNgheSi.length > 0 && (
+            <div className="space-y-2">
+              {theoNgheSi.map((g) => (
+                <div key={g[0].performerId ?? g[0].performerName} className="flex flex-wrap items-center gap-3 border-2 border-ink p-4">
+                  <p className="text-sm flex-1 min-w-[16rem]">
+                    <span className="font-bold">{g[0].performerName}</span>: {g.length} khoản, tổng{' '}
+                    <span className="font-mono">{fmtMoney(g.reduce((s, d) => s + Number(d.amountToPayPerformer || 0), 0))}</span> — chuyển một lần.
+                  </p>
+                  <button onClick={() => setTraNgheSi({ nhieu: g })}
+                    className="flex items-center gap-2 min-h-[44px] px-4 bg-ink text-lamp text-sm font-semibold hover:bg-board">
+                    <Send size={15} /> Đã trả tất cả cho {g[0].performerName}
+                  </button>
+                </div>
+              ))}
+            </div>
+          )
+        })()}
         <PhanTrang ds={ds} tenDonVi="khoản" idDanhSach="ds-ung-ho" />
         <ul id="ds-ung-ho" tabIndex={-1} className={`space-y-3 focus:outline-none ${ds.laDuLieuCu ? 'opacity-60' : ''}`}>
           {items.map((d) => {
@@ -356,6 +415,13 @@ const OwnerDonationsPage = () => {
                   )}
                 </div>
 
+                {tab === 'payout' && !d.performerHasPayoutAccount && (
+                  <p role="note" className="mt-2 text-sm font-semibold text-danger leading-relaxed">
+                    {d.performerName} chưa có tài khoản nhận tiền mặc định — hệ thống chưa ghi nhận được việc chuyển tiền.{' '}
+                    <Link to={`/owner/bank-accounts${d.performerId ? `?nghesi=${d.performerId}` : ''}`} className="underline">Thêm tài khoản cho nghệ sĩ</Link>
+                  </p>
+                )}
+
                 {quaHan && (
                   <p className="mt-2 text-xs text-danger/90 leading-relaxed">
                     Quá hạn này là căn cứ để nghệ sĩ khiếu nại và để hệ thống cảnh cáo phòng trà. Hãy chuyển tiền và xác nhận sớm.
@@ -382,8 +448,9 @@ const OwnerDonationsPage = () => {
                       Tôi đã nhận được tiền
                     </NutXacNhan>
                   ) : (
-                    <button onClick={() => setTraNgheSi(d)} disabled={dangBan || chuaNhanTien}
-                      title={chuaNhanTien ? 'Nền tảng chưa chuyển tiền về cho bạn' : undefined} aria-label={chuaNhanTien ? 'Nền tảng chưa chuyển tiền về cho bạn' : undefined}
+                    <button onClick={() => setTraNgheSi(d)} disabled={dangBan || chuaNhanTien || !d.performerHasPayoutAccount}
+                      title={chuaNhanTien ? 'Nền tảng chưa chuyển tiền về cho bạn' : !d.performerHasPayoutAccount ? 'Nghệ sĩ chưa có tài khoản nhận tiền mặc định' : undefined}
+                      aria-label={chuaNhanTien ? 'Nền tảng chưa chuyển tiền về cho bạn' : !d.performerHasPayoutAccount ? 'Nghệ sĩ chưa có tài khoản nhận tiền mặc định' : undefined}
                       className="flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed justify-center min-h-[44px] px-4 bg-ink text-lamp text-sm font-semibold hover:bg-board">
                       <Send size={15} /> Xác nhận đã trả nghệ sĩ
                     </button>
@@ -398,7 +465,7 @@ const OwnerDonationsPage = () => {
       )}
 
       {traNgheSi && (
-        <ConfirmPaidModal donation={traNgheSi} onClose={() => setTraNgheSi(null)} onSaved={load} />
+        <ConfirmPaidModal donation={traNgheSi.nhieu ? null : traNgheSi} donations={traNgheSi.nhieu} onClose={() => setTraNgheSi(null)} onSaved={load} />
       )}
       <HopXacNhan mo={!!canGo} tieuDe="Gỡ lời nhắn này khỏi buổi phát trực tuyến?" nhanXacNhan="Gỡ lời nhắn" nhanGiu="Giữ lại"
         onDong={() => setCanGo(null)} onXacNhan={() => goLoiNhan(canGo)}>
