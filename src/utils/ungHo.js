@@ -1,8 +1,9 @@
 // src/utils/ungHo.js
 //
-// MỘT nơi tạo khoản ủng hộ rồi chuyển sang VNPay — dùng chung cho trang xem trực tuyến và trang buổi diễn tại chỗ
-// (MLACP-638). Trước đó logic này chỉ nằm trong LivestreamWatchPage, nên khán giả ngồi tại phòng trà không có đường nào
-// để ủng hộ dù backend nhận ủng hộ cho mọi buổi ĐANG DIỄN (CreateDonationCommandHandler chỉ hỏi show.Status = Ongoing).
+// Tạo khoản ủng hộ rồi chuyển sang VNPay. Ủng hộ nghệ sĩ CHỈ có trong màn xem trực tuyến, cạnh khung chat — quyết định
+// của chủ dự án 05/10/2026: trang chi tiết buổi diễn KHÔNG có nút ủng hộ (MLACP-638 từng thêm, đã gỡ). Backend vẫn nhận
+// ủng hộ cho mọi buổi ĐANG DIỄN (CreateDonationCommandHandler chỉ hỏi show.Status = Ongoing) — đó là giới hạn phía máy
+// chủ, không phải lời mời mở thêm lối vào ở web. Tách khỏi LivestreamWatchPage để trang đó gọn và lỗi được ném ra rõ ràng.
 //
 // NÉM lỗi có câu tiếng Việt để DonateModal in ngay trong hộp (01/10/2026): bản cũ tự toast rồi nuốt lỗi, nên hộp vẫn báo
 // thành công dù khoản ủng hộ chưa được tạo. Thành công thì chuyển hẳn trang sang VNPay — không trả về gì.
