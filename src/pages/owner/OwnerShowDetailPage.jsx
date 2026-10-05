@@ -278,7 +278,9 @@ const OwnerShowDetailPage = () => {
   // LOẠI HẠNG VÉ THEO HÌNH THỨC (01/10/2026, M-435 — backend MLACP-509/PR #370 chặn ở mọi trạng thái): buổi tại chỗ chỉ có
   // vé vào xem tại chỗ, buổi trực tuyến chỉ có vé xem trực tuyến, buổi Hybrid chọn được cả hai. Backend đang chạy mới chỉ
   // chặn sau khi đăng, nên giới hạn ở đây trước; khi PR #370 deploy thì hai bên khớp nhau.
-  const loaiVeHop = (chon) => (show?.format === 'Online' ? 'Livestream' : show?.format === 'Offline' ? 'Physical' : chon)
+  // MLACP-639: buổi kết hợp đã đăng chỉ thêm được hạng xem trực tuyến (luật backend) — ép loại, kể cả khi state còn giữ 'Physical'.
+  const loaiVeHop = (chon) => (show?.format === 'Online' ? 'Livestream' : show?.format === 'Offline' ? 'Physical'
+    : show && show.status !== 'Draft' ? 'Livestream' : chon)
   const loaiVe = loaiVeHop(tierForm.accessType)
 
   const handleCreateTier = async (e) => {
@@ -310,7 +312,7 @@ const OwnerShowDetailPage = () => {
           saleEnd: null, // bỏ trống = bán tới khi buổi diễn kết thúc (BR-31)
         }],
       })
-      toast.success('Đã tạo hạng vé.')
+      toast.success(isDraft ? 'Đã tạo hạng vé.' : 'Đã tạo hạng vé. Hạng này chờ Admin duyệt rồi mới mở bán.', { duration: isDraft ? 4000 : 7000 })
       setShowTierForm(false)
       setTierForm({ name: '', accessType: 'Physical', totalCapacity: '', zoneId: '', priceName: 'Vé thường', price: '', quota: '', purchaseChannel: 'Both' })
       await load()
@@ -376,6 +378,12 @@ const OwnerShowDetailPage = () => {
   const daKhaiVanBan = !!vanHanh?.legalApprovalReference
 
   const isDraft = show.status === 'Draft'
+  // MLACP-639: đúng luật backend (CreateTicketTierCommandHandler): buổi ĐÃ ĐĂNG / ĐANG DIỄN vẫn thêm được hạng vé, nhưng CHỈ
+  // hạng xem trực tuyến và chỉ khi buổi là trực tuyến hoặc kết hợp; hạng mới chưa mở bán, vào hàng đợi 'Hạng vé' của Admin.
+  // Hạng vé vào cửa và giá đã công bố thì giữ nguyên như đã hứa với người mua. Trước đó nút chỉ hiện ở bản Nháp, nên buổi
+  // kết hợp đã đăng không có đường nào để mở thêm vé xem trực tuyến, và hàng đợi duyệt hạng vé của Admin không bao giờ có việc.
+  const chiThemTrucTuyen = !isDraft && ['Published', 'Ongoing'].includes(show.status) && show.format !== 'Offline'
+  const themHangVeDuoc = isDraft || chiThemTrucTuyen
   const hasTiers = tiers.length > 0
   const hasPerformers = (show.performers?.length || 0) > 0
   // Chỉ chặn theo 2 điều kiện ĐỌC ĐƯỢC. Hai điều kiện còn lại để backend trả lời (xem ghi chú đầu file).
@@ -456,7 +464,7 @@ const OwnerShowDetailPage = () => {
 
       {!isDraft && (
         <div className="bg-warning/5 border border-warning/20 p-4 text-sm text-warning">
-          Buổi diễn không còn ở trạng thái Nháp nên không sửa được nữa. Trang này chỉ còn để xem.
+          Buổi diễn không còn ở trạng thái Nháp nên thông tin đã đăng không sửa được nữa.{chiThemTrucTuyen && ' Vẫn thêm được hạng vé xem trực tuyến — hạng mới chờ Admin duyệt rồi mới mở bán.'}
         </div>
       )}
 
@@ -675,7 +683,7 @@ const OwnerShowDetailPage = () => {
           <h2 className="text-3xl text-ink flex items-center gap-2">
             <Ticket size={18} className="text-ink" /> Hạng vé
           </h2>
-          {isDraft && !showTierForm && (
+          {themHangVeDuoc && !showTierForm && (
             <button onClick={() => setShowTierForm(true)}
               className="flex items-center gap-1.5 justify-center min-h-[44px] px-4 border-2 border-ink bg-card text-ink text-sm font-semibold hover:bg-ink hover:text-lamp">
               <Plus size={14} /> Thêm hạng vé
@@ -797,7 +805,7 @@ const OwnerShowDetailPage = () => {
           </div>
         ) : <p className="text-ink-mute text-sm mb-4">Chưa có hạng vé nào.</p>}
 
-        {showTierForm && isDraft && (
+        {showTierForm && themHangVeDuoc && (
           <form onSubmit={handleCreateTier} className="border-t border-line pt-4 space-y-3">
             <div className="grid grid-cols-2 gap-3">
               <div>
@@ -810,7 +818,7 @@ const OwnerShowDetailPage = () => {
                 <label className="text-sm font-semibold text-ink">Loại</label>
                 <select aria-label="Loại" value={loaiVe} onChange={(e) => setTierForm((p) => ({ ...p, accessType: e.target.value }))}
                   className="mt-1 w-full min-h-[44px] px-3 py-2 bg-card border-2 border-ink text-ink focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2">
-                  {show.format !== 'Online' && <option value="Physical">Vào xem tại chỗ</option>}
+                  {show.format !== 'Online' && !chiThemTrucTuyen && <option value="Physical">Vào xem tại chỗ</option>}
                   {show.format !== 'Offline' && <option value="Livestream">Xem trực tuyến</option>}
                 </select>
               </div>
