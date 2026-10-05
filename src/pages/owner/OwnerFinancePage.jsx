@@ -41,6 +41,8 @@ const LOAI = [
   { value: 'settlement', label: 'Quyết toán', icon: Landmark },
 ]
 
+const nhanLoai = (type) => LOAI.find((l) => l.value && l.value === String(type || '').toLowerCase())?.label ?? 'Giao dịch'
+
 const iconTheoLoai = (type) => {
   const t = String(type || '').toLowerCase()
   if (t.includes('payment') || t.includes('ticket')) return Ticket
@@ -192,10 +194,13 @@ const OwnerFinancePage = () => {
                   <div className="flex items-start gap-3 min-w-0">
                     <Icon size={15} className="text-ink-mute mt-0.5 flex-shrink-0" />
                     <div className="min-w-0">
-                      <p className="text-sm text-ink">{r.description || r.type}</p>
-                      <p className="text-xs text-ink-mute mt-0.5 break-all">
+                      {/* MLACP-655: `title` là câu tiếng Việt backend dựng (loại tiền, đợt, buổi diễn, nghệ sĩ). `description`
+                          là chú thích nội bộ của sổ cái ("Settlement #<mã> payout") và mã tham chiếu là GUID — chủ phòng trà
+                          không đọc được, nên không in nữa (chủ dự án 05/10/2026: "xem không hiểu gì cả"). Backend cũ chưa
+                          có `title` thì rơi về nhãn loại, không in chuỗi nội bộ. */}
+                      <p className="text-sm text-ink">{r.title || nhanLoai(r.type)}</p>
+                      <p className="text-xs text-ink-mute mt-0.5">
                         {dayjs(r.createdAt).format('HH:mm DD/MM/YYYY')}
-                        {r.referenceId && ` · ${r.referenceId}`}
                       </p>
                     </div>
                   </div>
