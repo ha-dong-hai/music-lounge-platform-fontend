@@ -24,6 +24,8 @@
 // - Tải hỏng cả hai nguồn là một trạng thái riêng có nút thử lại (bản cũ: một toast rồi in "Chưa có khoản nào" — nói sai).
 // - Nhật ký bằng chứng mở trong <dialog> của trình duyệt (giữ focus, Esc đóng) thay cho lớp phủ tự vẽ.
 // - Chữ "donate" đổi thành "tiền ủng hộ": trang cho khán giả Việt, backend chưa có i18n.
+import { useBieuPhi } from '../../hooks/useBieuPhi'
+import { chiaUngHo, dong, phanTram } from '../../utils/bieuPhi'
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { AlertTriangle, CheckCircle2, XCircle, Clock, FileCheck2, ShieldCheck, Link2Off, RefreshCw, X } from 'lucide-react'
@@ -36,7 +38,6 @@ import { maNgan } from '../../utils/format'
 import LienKetMuiTen from '../../components/shared/LienKetMuiTen'
 
 const fmtTien = (v) => `${Number(v || 0).toLocaleString('vi-VN')} đ`
-const fmtPhanTram = (r) => `${(Number(r || 0) * 100).toLocaleString('vi-VN', { maximumFractionDigits: 2 })}%`
 const NUT_VIEN = 'inline-flex items-center justify-center gap-2 min-h-[44px] px-4 border-2 border-ink font-semibold hover:bg-ink hover:text-lamp transition-colors disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-ink'
 
 // Sắc thái theo chặng: còn trên đường = chờ, nghệ sĩ đã xác nhận = tốt, nghệ sĩ nói chưa nhận = xấu.
@@ -149,10 +150,69 @@ const HopNhatKy = ({ donationId, onClose }) => {
   )
 }
 
+// MLACP-661 (chủ dự án 05/10/2026: "minh bạch mỗi khoản trừ trên tiền ủng hộ… rõ ràng, ngắn gọn, đủ"). Một khoản ủng hộ được
+// chia thế nào — số của CHÍNH khoản đó. Thiếu một phần (khoản cũ trước khi có bản ghi thanh toán) thì chỉ in phần nghệ sĩ.
+const ChiaKhoan = ({ d }) => {
+  const du = [d.gross, d.platformFee, d.taxWithheld, d.venueRetained, d.performerAmount].every((v) => v != null)
+  if (!du) {
+    return d.performerAmount != null
+      ? <p className="text-sm text-ink-mute mt-0.5">nghệ sĩ nhận <span className="font-mono text-ink">{fmtTien(d.performerAmount)}</span></p>
+      : null
+  }
+  const dong4 = [
+    ['Phí nền tảng', d.platformFee],
+    ['Thuế khấu trừ', d.taxWithheld],
+    ['Phòng trà giữ lại', d.venueRetained],
+  ].filter(([, v]) => Number(v) > 0)
+  return (
+    <dl className="mt-1 grid grid-cols-[auto_auto] justify-end gap-x-3 text-sm">
+      {dong4.map(([nhan, v]) => (
+        <div key={nhan} className="contents">
+          <dt className="text-ink-mute">{nhan}</dt><dd className="font-mono text-ink-soft text-right">−{fmtTien(v)}</dd>
+        </div>
+      ))}
+      <dt className="font-semibold border-t border-ink/30 pt-0.5">Nghệ sĩ nhận</dt>
+      <dd className="font-mono font-semibold border-t border-ink/30 pt-0.5 text-right">{fmtTien(d.performerAmount)}</dd>
+    </dl>
+  )
+}
+
+// Mỗi 100.000đ ủng hộ (mức đang áp dụng cho khoản MỚI) được chia thế nào. Chưa tải được biểu phí thì không in số.
+const ViDuChia = () => {
+  const { data } = useBieuPhi()
+  if (!data) return null
+  const dk = data.donation
+  const c = chiaUngHo(dk, 100000)
+  const hang = [
+    ['Nghệ sĩ nhận', dk.performerShareRate, c.ngheSi, true],
+    ['Phí nền tảng', dk.platformCommissionRate, c.phi],
+    ['Thuế GTGT khấu trừ', dk.vatRate, c.gtgt],
+    ['Thuế TNCN khấu trừ', dk.personalIncomeTaxRate, c.tncn],
+    ['Phòng trà giữ lại', dk.venueShareRate, c.phongTra],
+  ].filter(([, , v]) => v > 0)
+  return (
+    <div className="mt-4 max-w-md">
+      <p className="font-semibold">Mỗi {dong(c.tong)} ủng hộ được chia:</p>
+      <dl className="mt-2 grid grid-cols-[1fr_auto_auto] gap-x-4 gap-y-1 text-sm">
+        {hang.map(([nhan, r, v, dam]) => (
+          <div key={nhan} className="contents">
+            <dt className={dam ? 'font-semibold' : 'text-ink-soft'}>{nhan}</dt>
+            <dd className="font-mono text-ink-mute text-right">{phanTram(r)}</dd>
+            <dd className={`font-mono text-right ${dam ? 'font-semibold' : ''}`}>{dong(v)}</dd>
+          </div>
+        ))}
+      </dl>
+      <p className="mt-2 text-sm text-ink-soft">Thuế chỉ khấu trừ khi phòng trà là hộ hoặc cá nhân kinh doanh; phòng trà là doanh nghiệp tự kê khai thuế nên giữ luôn phần đó. Tỉ lệ được chốt lúc thanh toán thành công.</p>
+    </div>
+  )
+}
+
 const PerformerDonationsPage = () => {
   const { performerId } = useParams()
   const role = useAuthStore((s) => s.user?.role)
   const laAdmin = role === 'Admin'
+  // Cùng truy vấn với ViDuChia (react-query dùng chung bộ nhớ đệm) — có biểu phí thì ví dụ bằng tiền thay câu chia tiền chung.
+  const coBieuPhi = Boolean(useBieuPhi().data)
 
   const [summary, setSummary] = useState(null)
   const [rows, setRows] = useState([])
@@ -341,16 +401,16 @@ const PerformerDonationsPage = () => {
             {summary.policy && (
               <section aria-labelledby="chinh-sach-td" className="mt-10">
                 <h2 id="chinh-sach-td" className="text-4xl">Chính sách đang áp dụng</h2>
+                {/* MLACP-661: một ví dụ bằng tiền thay dãy phần trăm rời — câu "phần còn lại gồm phí, thuế theo loại hình và phần
+                    phòng trà giữ lại" không cho người đọc biết mỗi phần bao nhiêu. Số đọc từ biểu phí máy chủ (useBieuPhi).
+                    Có ví dụ thì bỏ câu chia tiền chung chung của backend (bắt đầu "Nghệ sĩ nhận …") — mọi ý của nó đã nằm trong
+                    bảng; câu đó vẫn giữ ở backend cho bản web khác đang đọc. Backend đổi câu thì chỉ hiện thừa, không mất ý. */}
+                <ViDuChia />
                 <ul className="mt-4 max-w-[65ch] list-disc pl-5 space-y-2 text-ink-soft">
-                  {(summary.policy.statements ?? []).map((c, i) => <li key={i}>{c}</li>)}
+                  {(summary.policy.statements ?? [])
+                    .filter((c) => !(coBieuPhi && c.startsWith('Nghệ sĩ nhận')))
+                    .map((c, i) => <li key={i}>{c}</li>)}
                 </ul>
-                <dl className="mt-5 grid grid-cols-[auto_minmax(0,1fr)] sm:grid-cols-[auto_auto_auto_auto] gap-x-6 gap-y-2 border-t border-ink/20 pt-4 text-sm">
-                  <dt className="text-ink-mute">Nghệ sĩ nhận</dt><dd className="font-mono">{fmtPhanTram(summary.policy.performerShareRate)}</dd>
-                  <dt className="text-ink-mute">Phí nền tảng</dt><dd className="font-mono">{fmtPhanTram(summary.policy.platformCommissionRate)}</dd>
-                  <dt className="text-ink-mute">Hạn phòng trà chuyển</dt><dd className="font-mono">{summary.policy.venuePayoutDays} ngày</dd>
-                  <dt className="text-ink-mute">Nhắc trước hạn</dt><dd className="font-mono">{summary.policy.venueWarningDays} ngày</dd>
-                  <dt className="text-ink-mute">Hoàn tiền ủng hộ</dt><dd>{summary.policy.refundable ? 'Có' : 'Không'}</dd>
-                </dl>
               </section>
             )}
           </>
@@ -394,9 +454,9 @@ const PerformerDonationsPage = () => {
                       {d.gross != null
                         ? <p className="font-mono text-lg">{fmtTien(d.gross)}</p>
                         : <p className="text-sm text-ink-mute">Không công khai số tiền</p>}
-                      {d.performerAmount != null && (
-                        <p className="text-sm text-ink-mute mt-0.5">nghệ sĩ nhận <span className="font-mono text-ink">{fmtTien(d.performerAmount)}</span></p>
-                      )}
+                      {/* MLACP-661: chia đủ từng phần của chính khoản này (số backend chốt lúc VNPay xác nhận) — bản cũ chỉ in
+                          "nghệ sĩ nhận", phần chênh không ai giải thích. Năm dòng cộng đúng bằng số khán giả trả. */}
+                      <ChiaKhoan d={d} />
                       {laAdmin && (
                         <button type="button" onClick={() => setEvidenceId(d.id)} className={`${NUT_VIEN} mt-2 text-sm`}>
                           <ShieldCheck size={15} aria-hidden="true" /> Nhật ký bằng chứng
