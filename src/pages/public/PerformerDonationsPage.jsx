@@ -28,7 +28,7 @@ import { useBieuPhi } from '../../hooks/useBieuPhi'
 import { chiaUngHo, dong, phanTram } from '../../utils/bieuPhi'
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { AlertTriangle, CheckCircle2, XCircle, Clock, FileCheck2, ShieldCheck, Link2Off, RefreshCw, X } from 'lucide-react'
+import { AlertTriangle, CheckCircle2, XCircle, FileCheck2, ShieldCheck, Link2Off, RefreshCw, X } from 'lucide-react'
 import { getPerformerPublicDonations, getPerformerDonationSummary } from '../../services/donationServices'
 import { getDonationEvidence } from '../../services/adminServices'
 import { useAuthStore } from '../../store/useAuthStore'
@@ -204,6 +204,52 @@ const ViDuChia = () => {
       </dl>
       <p className="mt-2 text-sm text-ink-soft">Thuế chỉ khấu trừ khi phòng trà là hộ hoặc cá nhân kinh doanh; phòng trà là doanh nghiệp tự kê khai thuế nên giữ luôn phần đó. Tỉ lệ được chốt lúc thanh toán thành công.</p>
     </div>
+  )
+}
+
+// MLACP-663. Năm chặng của một khoản ủng hộ, luôn hiện đủ năm để người đọc thấy tiền đang ở đâu: xong (vạch đậm, ✓, ngày),
+// đang chờ (bước đầu tiên chưa xong — nói rõ chờ gì và hạn), chưa tới (mờ). Báo "chưa nhận" của nghệ sĩ và quá hạn tô đỏ.
+const TienTrinhKhoan = ({ d }) => {
+  const ngay = (v) => ngayDayDu(v)
+  const buoc = [
+    { ten: 'Khán giả thanh toán', xong: Boolean(d.paidAt), ghi: d.paidAt && ngay(d.paidAt), cho: 'Chờ thanh toán' },
+    { ten: 'Nền tảng chuyển phòng trà', xong: Boolean(d.platformPaidVenueAt), ghi: d.platformPaidVenueAt && ngay(d.platformPaidVenueAt), cho: 'Chờ kỳ giải ngân' },
+    { ten: 'Phòng trà xác nhận đã nhận', xong: Boolean(d.venueAcknowledgedAt),
+      ghi: d.venueAcknowledgedAt && ngay(d.venueAcknowledgedAt) + (d.venueAcknowledgedAutomatically ? ' · tự động' : ''), cho: 'Chờ phòng trà xác nhận' },
+    { ten: 'Phòng trà chuyển nghệ sĩ', xong: Boolean(d.venueReportedPaidAt),
+      ghi: d.venueReportedPaidAt && ngay(d.venueReportedPaidAt) + (d.paidLate ? ' · sau hạn' : ''), canhBao: d.paidLate,
+      cho: d.payoutDueAt ? `Hạn ${ngay(d.payoutDueAt)}` : 'Chờ phòng trà chuyển', xau: d.overdue, choXau: d.overdue && d.payoutDueAt ? `Quá hạn — hạn ${ngay(d.payoutDueAt)}` : null },
+    { ten: 'Nghệ sĩ xác nhận', xong: d.performerResponse === 'Confirmed', ghi: d.performerRespondedAt && ngay(d.performerRespondedAt),
+      tuChoi: d.performerResponse === 'Disputed',
+      cho: d.performerAskedToConfirm ? 'Đang chờ nghệ sĩ' : 'Nghệ sĩ chưa được mời xác nhận' },
+  ]
+  const hienTai = buoc.findIndex((x) => !x.xong)
+  return (
+    <ol className="mt-4 grid grid-cols-1 sm:grid-cols-5 gap-x-2 gap-y-3" aria-label={`Tiến trình của khoản #${maNgan(d.id)}`}>
+      {buoc.map((x, i) => {
+        const trangThai = x.xong ? 'xong' : x.tuChoi ? 'tuChoi' : i === hienTai ? 'cho' : 'chuaToi'
+        const vach = { xong: 'bg-ink', tuChoi: 'bg-danger', cho: x.xau ? 'bg-danger' : 'bg-warning', chuaToi: 'bg-ink/15' }[trangThai]
+        const dong2 = trangThai === 'xong' ? x.ghi
+          : trangThai === 'tuChoi' ? `Báo chưa nhận ${x.ghi ?? ''}`
+          : trangThai === 'cho' ? (x.choXau ?? x.cho)
+          : 'Chưa tới'
+        const mau2 = trangThai === 'xong' ? (x.canhBao ? 'text-warning' : 'text-ink-soft')
+          : trangThai === 'tuChoi' || (trangThai === 'cho' && x.xau) ? 'text-danger font-semibold'
+          : trangThai === 'cho' ? 'text-warning font-semibold' : 'text-ink-mute'
+        return (
+          <li key={x.ten} className="min-w-0" aria-current={trangThai === 'cho' ? 'step' : undefined}>
+            <span className={`block h-1.5 ${vach}`} aria-hidden="true" />
+            <p className={`mt-2 text-sm leading-snug ${trangThai === 'chuaToi' ? 'text-ink-mute' : 'text-ink font-semibold'}`}>
+              <span className="font-mono text-xs text-ink-mute mr-1.5" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+              {x.ten}
+              {trangThai === 'xong' && <CheckCircle2 size={14} className="inline ml-1 -mt-0.5 text-success" aria-label="đã xong" />}
+              {trangThai === 'tuChoi' && <XCircle size={14} className="inline ml-1 -mt-0.5 text-danger" aria-label="nghệ sĩ báo chưa nhận" />}
+            </p>
+            <p className={`text-sm font-mono ${mau2}`}>{dong2}</p>
+          </li>
+        )
+      })}
+    </ol>
   )
 }
 
@@ -465,25 +511,9 @@ const PerformerDonationsPage = () => {
                     </div>
                   </div>
 
-                  {/* DÒNG THỜI GIAN CỦA MỘT KHOẢN — mốc nào chưa có thì không hiện, không hiện "—" */}
-                  <ul className="mt-3 flex flex-wrap gap-x-6 gap-y-1 text-sm text-ink-mute" aria-label={`Các mốc của khoản #${maNgan(d.id)}`}>
-                    {d.paidAt && <li>Thanh toán {ngayDayDu(d.paidAt)}</li>}
-                    {d.platformPaidVenueAt && <li>Nền tảng chuyển phòng trà {ngayDayDu(d.platformPaidVenueAt)}</li>}
-                    {d.venueAcknowledgedAt && <li>Phòng trà xác nhận {ngayDayDu(d.venueAcknowledgedAt)}{d.venueAcknowledgedAutomatically && ' (tự động)'}</li>}
-                    {d.payoutDueAt && <li>Hạn chuyển nghệ sĩ {ngayDayDu(d.payoutDueAt)}</li>}
-                    {d.venueReportedPaidAt && <li>Phòng trà báo đã chuyển {ngayDayDu(d.venueReportedPaidAt)}</li>}
-                    {d.performerRespondedAt && (
-                      <li className="inline-flex items-center gap-1">
-                        {d.performerResponse === 'Confirmed'
-                          ? <CheckCircle2 size={14} className="text-success" aria-hidden="true" />
-                          : <XCircle size={14} className="text-danger" aria-hidden="true" />}
-                        Nghệ sĩ {d.performerResponse === 'Confirmed' ? 'xác nhận đã nhận' : 'báo chưa nhận'} {ngayDayDu(d.performerRespondedAt)}
-                      </li>
-                    )}
-                    {d.performerAskedToConfirm && !d.performerRespondedAt && (
-                      <li className="inline-flex items-center gap-1 text-warning"><Clock size={14} aria-hidden="true" /> Đang chờ nghệ sĩ xác nhận</li>
-                    )}
-                  </ul>
+                  {/* MLACP-663: tiến trình 5 bước thay dòng chữ xám liền nhau (chủ dự án 05/10/2026: "các giai đoạn chưa được làm
+                      nổi bật") — bước chưa xảy ra trước đây biến mất nên không ai thấy tiền còn kẹt ở đâu. */}
+                  <TienTrinhKhoan d={d} />
                 </li>
               ))}
             </ol>
