@@ -216,9 +216,9 @@ const AdminDashboard = () => {
               <RevenueByMonthChart months={dashboard.months} measure={measure} />
             </div>
             <div className="lg:col-span-1 bg-card border border-line rounded-xl p-6 flex flex-col">
-              <h3 className="text-base font-semibold text-ink">This month revenue</h3>
+              <h3 className="text-base font-semibold text-ink">Doanh thu tháng</h3>
               <p className="text-xs text-ink-mute mt-0.5 mb-2">
-                Tháng {dayjs(`${dashboard.months.at(-1)?.month}-01`).format('MM/YYYY')}, chưa trọn tháng
+                Tháng {dayjs(`${dashboard.months.at(-1)?.month}-01`).format('MM/YYYY')}
               </p>
               <RevenueShareDonut month={dashboard.months.at(-1)} measure={measure} />
             </div>
