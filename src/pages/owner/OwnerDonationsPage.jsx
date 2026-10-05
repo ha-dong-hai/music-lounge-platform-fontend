@@ -69,12 +69,15 @@ const goiDanhSach = async ({ tab, ...q }) => {
   return tab === 'ack' ? getDonationsPendingAck(q) : getDonationsAwaitingPayout(q)
 }
 
-// Trạng thái chuyển tiếp trong lịch sử — chuỗi của backend, chỉ ánh xạ giá trị đã biết.
+// Trạng thái chuyển tiếp trong lịch sử — đúng 3 chuỗi backend trả (GetOwnerDonationHistoryQueryHandler.PayoutStatusOf:
+// Paid / Overdue / WithinHoldPeriod). Bản cũ khai "Pending" (backend không bao giờ gửi) nên khoản còn trong hạn
+// in thô "WithinHoldPeriod" (lộ 05/10/2026). Giá trị lạ hiện "Chưa chuyển", không in chuỗi gốc.
 const TRANG_THAI_CHUYEN = {
   Paid: { chu: 'Đã chuyển nghệ sĩ', mau: 'text-success bg-success/10' },
-  Pending: { chu: 'Chưa chuyển', mau: 'text-warning bg-warning/10' },
-  Overdue: { chu: 'Quá hạn', mau: 'text-danger bg-danger/10' },
+  WithinHoldPeriod: { chu: 'Chưa chuyển — còn trong hạn', mau: 'text-warning bg-warning/10' },
+  Overdue: { chu: 'Quá hạn chuyển', mau: 'text-danger bg-danger/10' },
 }
+const TRANG_THAI_LA = { chu: 'Chưa chuyển', mau: 'text-ink-soft bg-line-strong/10' }
 
 const ConfirmPaidModal = ({ donation, donations, onClose, onSaved }) => {
   const ds = donations ?? [donation]
@@ -288,14 +291,14 @@ const OwnerDonationsPage = () => {
           <PhanTrang ds={ds} tenDonVi="khoản" idDanhSach="ds-ung-ho" />
           <ul id="ds-ung-ho" tabIndex={-1} className={`space-y-2 focus:outline-none ${ds.laDuLieuCu ? 'opacity-60' : ''}`}>
             {items.map((d) => {
-              const tt = TRANG_THAI_CHUYEN[d.payoutStatus]
+              const tt = TRANG_THAI_CHUYEN[d.payoutStatus] ?? TRANG_THAI_LA
               return (
                 <li key={d.id} className="bg-card border border-line p-4 flex flex-wrap items-start justify-between gap-4">
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="text-ink text-sm font-semibold">{d.performerName}</span>
-                      <span className={`px-2 py-0.5 rounded-md text-xs font-medium ${tt?.mau ?? 'text-ink-soft bg-line-strong/10'}`}>
-                        {tt?.chu ?? d.payoutStatus}
+                      <span className={`px-2 py-0.5 rounded-md text-xs font-medium ${tt.mau}`}>
+                        {tt.chu}
                       </span>
                     </div>
                     <p className="text-xs text-ink-mute mt-0.5">{d.showName}</p>
