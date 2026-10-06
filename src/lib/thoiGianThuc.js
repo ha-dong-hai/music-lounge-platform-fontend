@@ -66,6 +66,18 @@ export const KetNoiThoiGianThuc = () => {
   return null
 }
 
+// MLACP-699 — TẢI NỀN. Hook dưới đây gọi hàm tải lại của trang kèm đối số TAI_NEN. Hàm tải nào có bật khung chờ toàn trang
+// (`setIsLoading(true)` rồi `if (isLoading) return <vòng xoay>`) PHẢI hỏi laTaiNen(đối số) và khi đó:
+//   - KHÔNG bật khung chờ: bật là cả trang bị gỡ ra dựng lại — người dùng thấy như trang tự tải lại, mất chữ đang gõ, hộp
+//     thoại đang mở, vị trí cuộn. Chủ dự án gặp 06/10/2026 ở trang cài đặt buổi diễn: poster AI tạo xong → máy chủ phát
+//     sự kiện 'show' → load() bật isLoading → trang "reload".
+//   - KHÔNG ghi đè ô nhập bằng dữ liệu máy chủ (người dùng có thể đang gõ dở).
+//   - Lỗi thì im lặng, giữ nguyên màn đang xem (đây không phải thao tác của người dùng).
+// Dùng `?.nen === true` chứ không destructure: hàm tải còn được gọi kiểu onClick={load} (nhận event) hay .then(load)
+// (nhận kết quả, có thể null).
+export const TAI_NEN = Object.freeze({ nen: true })
+export const laTaiNen = (doiSo) => doiSo?.nen === true
+
 // Trang tự tải bằng useEffect gọi hook này để tải lại khi có thay đổi liên quan.
 //   loai: danh sách referenceType (vd ['bank_account']) hoặc topic hàng chờ Admin (vd 'bank-accounts');
 //         bỏ trống = mọi sự kiện. Gom các sự kiện dồn dập trong 300 ms thành MỘT lần tải.
@@ -81,7 +93,7 @@ export const useTaiLaiKhiDoi = (taiLai, loai) => {
       const lienQuan = d.kenh === 'reconnected' || !ds || ds.includes(d.referenceType) || ds.includes(d.topic)
       if (!lienQuan) return
       clearTimeout(hen)
-      hen = setTimeout(() => hamRef.current?.(), 300)
+      hen = setTimeout(() => hamRef.current?.(TAI_NEN), 300)
     }
     window.addEventListener(SU_KIEN, nghe)
     return () => { clearTimeout(hen); window.removeEventListener(SU_KIEN, nghe) }

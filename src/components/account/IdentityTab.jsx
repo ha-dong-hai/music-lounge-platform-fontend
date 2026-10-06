@@ -30,7 +30,7 @@ import {
 import OTruong from '../shared/OTruong'
 import NhanTrangThai from '../shared/NhanTrangThai'
 import { loiNgaySinh, ngaySinhToiDa } from '../../utils/rangBuocNgay'
-import { useTaiLaiKhiDoi } from '../../lib/thoiGianThuc'
+import { useTaiLaiKhiDoi, laTaiNen } from '../../lib/thoiGianThuc'
 
 const NUT_VIEN = 'inline-flex items-center justify-center gap-2 min-h-[44px] px-4 border-2 border-ink font-semibold hover:bg-ink hover:text-lamp transition-colors disabled:opacity-60'
 const NUT_DAC = 'inline-flex items-center justify-center gap-2 min-h-[48px] px-5 bg-ink text-lamp font-semibold hover:bg-board transition-colors disabled:opacity-60'
@@ -89,16 +89,18 @@ const IdentityTab = () => {
   const [busyTax, setBusyTax] = useState(false)
   const [moFormThue, setMoFormThue] = useState(false)
 
-  const load = useCallback(async () => {
-    setIsLoading(true)
+  // MLACP-699: tải nền (Admin vừa duyệt/từ chối hồ sơ) thì không bật khung chờ và không đổ lại ô hồ sơ thuế đang gõ dở.
+  const load = useCallback(async (doiSo) => {
+    const nen = laTaiNen(doiSo)
+    if (!nen) setIsLoading(true)
     const [pRes, tRes] = await Promise.allSettled([getMyProfile(), getMyTaxProfile()])
     if (pRes.status === 'fulfilled' && pRes.value?.success) setProfile(pRes.value.data)
     if (tRes.status === 'fulfilled' && tRes.value?.success) {
       const t = tRes.value.data
       setTaxProfile(t)
-      setTax({ businessType: t?.businessType ?? '', taxCode: t?.taxCode ?? '', legalName: t?.legalName ?? '' })
+      if (!nen) setTax({ businessType: t?.businessType ?? '', taxCode: t?.taxCode ?? '', legalName: t?.legalName ?? '' })
     }
-    setIsLoading(false)
+    if (!nen) setIsLoading(false)
   }, [])
   // MLACP-669: tải lại khi dữ liệu liên quan đổi ở phía người khác (không cần F5).
   useTaiLaiKhiDoi(load, ['kyc_review', 'user'])

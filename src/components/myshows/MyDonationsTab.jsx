@@ -7,7 +7,7 @@ import dayjs from 'dayjs'
 import toast from 'react-hot-toast'
 import { getMyDonations } from '../../services/donationServices'
 import NhanTrangThai from '../shared/NhanTrangThai'
-import { useTaiLaiKhiDoi } from '../../lib/thoiGianThuc'
+import { useTaiLaiKhiDoi, laTaiNen } from '../../lib/thoiGianThuc'
 import { lamMoiDemTab } from '../../hooks/useDemTab'
 
 const fmtTien = (v) => `${Number(v || 0).toLocaleString('vi-VN')}đ`
@@ -30,8 +30,10 @@ const MyDonationsTab = () => {
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
 
-  const load = useCallback(async () => {
-    setIsLoading(true)
+  // MLACP-699: tải nền (kênh thời gian thực) thì không bật khung chờ, lỗi thì im lặng.
+  const load = useCallback(async (doiSo) => {
+    const nen = laTaiNen(doiSo)
+    if (!nen) setIsLoading(true)
     try {
       const res = await getMyDonations({ page, pageSize: 10 })
       if (res.success) {
@@ -40,9 +42,9 @@ const MyDonationsTab = () => {
         lamMoiDemTab() // MLACP-685: số trên tab theo danh sách vừa tải
       }
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Chưa tải được lịch sử ủng hộ.')
+      if (!nen) toast.error(err.response?.data?.message || 'Chưa tải được lịch sử ủng hộ.')
     } finally {
-      setIsLoading(false)
+      if (!nen) setIsLoading(false)
     }
   }, [page])
   // MLACP-669: tải lại khi dữ liệu liên quan đổi ở phía người khác (không cần F5).

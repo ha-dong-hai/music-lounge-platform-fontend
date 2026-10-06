@@ -37,7 +37,7 @@ import PhanTrang from '../../components/bang/PhanTrang'
 import OChiSo from '../../components/bang/OChiSo'
 import NhanTrangThai from '../../components/shared/NhanTrangThai'
 import { StatusBadge } from '../../components/admin/shows/ShowBadges'
-import { useTaiLaiKhiDoi } from '../../lib/thoiGianThuc'
+import { useTaiLaiKhiDoi, laTaiNen } from '../../lib/thoiGianThuc'
 
 const fmtMoney = (v) => `${Number(v || 0).toLocaleString('vi-VN')}đ`
 
@@ -105,8 +105,11 @@ const OwnerOperatePage = () => {
 
   const showDangChon = shows.find((s) => s.id === showId) ?? null
 
-  const loadShows = useCallback(async () => {
-    setIsLoading(true)
+  // MLACP-699: tải nền (kênh thời gian thực) thì KHÔNG bật khung chờ — đây là màn người trực cửa đang soát vé/bán vé; bật
+  // là cả màn bị gỡ ra dựng lại, mất mã QR đang nhập và vé đang tra cứu.
+  const loadShows = useCallback(async (doiSo) => {
+    const nen = laTaiNen(doiSo)
+    if (!nen) setIsLoading(true)
     try {
       // GET /lounge-shows?mine=true chứ KHÔNG phải /lounge-shows/mine: route /mine gắn RequireOwner nên
       // nhân viên nhận 403 và màn này hiện "chưa có buổi diễn" dù phòng trà có (đo 30/09 trên backend
@@ -134,9 +137,9 @@ const OwnerOperatePage = () => {
         setShowId((cu) => cu ?? (dangDien ?? sapDien)?.id ?? items[0]?.id ?? null)
       }
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Không tải được danh sách buổi diễn.')
+      if (!nen) toast.error(err.response?.data?.message || 'Không tải được danh sách buổi diễn.')
     } finally {
-      setIsLoading(false)
+      if (!nen) setIsLoading(false)
     }
   }, [])
   // MLACP-669: tải lại khi dữ liệu liên quan đổi ở phía người khác (không cần F5).
@@ -201,20 +204,23 @@ const OwnerOperatePage = () => {
   const coLivestream = !!chiTietBuoi?.livestreamId
   const thieuVcpmc = chiTietBuoi?.operatorInfo != null && !chiTietBuoi.operatorInfo.vcpmcDeclared
 
-  const loadStats = useCallback(async () => {
+  // MLACP-699: tải nền (vừa có vé bán/soát) thì cập nhật số tại chỗ; lỗi tải nền giữ nguyên số đang hiện, không báo đỏ.
+  const loadStats = useCallback(async (doiSo) => {
     if (!showId || !xemDuocSoLieu) { setStats(null); return }
-    setIsLoadingStats(true)
+    const nen = laTaiNen(doiSo)
+    if (!nen) setIsLoadingStats(true)
     try {
       const res = await getShowTicketStats(showId)
       if (res.success) setStats(res.data)
     } catch (err) {
+      if (nen) return
       // Buổi chưa có vé nào hoặc chưa tới lúc — không dựng cảnh báo đỏ cho việc bình thường này.
       setStats(null)
       if (err.response?.status !== 404) {
         toast.error(err.response?.data?.message || 'Không tải được thống kê vé.')
       }
     } finally {
-      setIsLoadingStats(false)
+      if (!nen) setIsLoadingStats(false)
     }
   }, [showId, xemDuocSoLieu])
   // MLACP-669: tải lại khi dữ liệu liên quan đổi ở phía người khác (không cần F5).

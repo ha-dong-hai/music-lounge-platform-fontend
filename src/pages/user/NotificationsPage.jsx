@@ -5,7 +5,7 @@
 // utils/ngayVietNam.
 
 import { useState, useEffect, useCallback } from 'react'
-import { useTaiLaiKhiDoi } from '../../lib/thoiGianThuc'
+import { useTaiLaiKhiDoi, laTaiNen } from '../../lib/thoiGianThuc'
 import { Link } from 'react-router-dom'
 import { Bell, Loader2, CheckCheck, ArrowLeft, Inbox } from 'lucide-react'
 import { ngayDayDu, gioTrongNgay } from '../../utils/ngayVietNam'
@@ -30,9 +30,10 @@ const NotificationsPage = () => {
   const [isBusy, setIsBusy] = useState(false)
   const [loiTai, setLoiTai] = useState(false)
 
-  const load = useCallback(async () => {
-    setIsLoading(true)
-    setLoiTai(false)
+  // MLACP-699: tải nền (có thông báo mới) thì không bật khung chờ — danh sách đang đọc không chớp mất rồi hiện lại.
+  const load = useCallback(async (doiSo) => {
+    const nen = laTaiNen(doiSo)
+    if (!nen) { setIsLoading(true); setLoiTai(false) }
     try {
       const res = await getMyNotifications({ page, pageSize: TRANG })
       if (!res.success) throw new Error('thong-bao')
@@ -42,10 +43,9 @@ const NotificationsPage = () => {
         setTotalCount(res.data?.totalCount ?? 0)
       }
     } catch {
-      setLoiTai(true)
-      setItems([])
+      if (!nen) { setLoiTai(true); setItems([]) }
     } finally {
-      setIsLoading(false)
+      if (!nen) setIsLoading(false)
     }
   }, [page])
   // MLACP-669: tải lại khi dữ liệu liên quan đổi ở phía người khác (không cần F5).

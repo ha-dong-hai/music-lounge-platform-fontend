@@ -5,7 +5,7 @@ import { Loader2, Inbox, CheckCircle2, Calendar, MapPin } from 'lucide-react'
 import dayjs from 'dayjs'
 import toast from 'react-hot-toast'
 import { getIncomingTicketTransfers, acceptTicketTransfer } from '../../services/ticketServices'
-import { useTaiLaiKhiDoi } from '../../lib/thoiGianThuc'
+import { useTaiLaiKhiDoi, laTaiNen } from '../../lib/thoiGianThuc'
 import { lamMoiDemTab } from '../../hooks/useDemTab'
 
 const fmtMoney = (v) => `${Number(v || 0).toLocaleString('vi-VN')}đ`
@@ -15,15 +15,17 @@ const IncomingTransfersTab = () => {
   const [isLoading, setIsLoading] = useState(true)
   const [busyId, setBusyId] = useState(null)
 
-  const load = useCallback(async () => {
-    setIsLoading(true)
+  // MLACP-699: tải nền (kênh thời gian thực) thì không bật khung chờ, lỗi thì im lặng.
+  const load = useCallback(async (doiSo) => {
+    const nen = laTaiNen(doiSo)
+    if (!nen) setIsLoading(true)
     try {
       const res = await getIncomingTicketTransfers()
       if (res.success) { setItems(res.data ?? []); lamMoiDemTab() } // MLACP-685: số trên tab theo danh sách vừa tải
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Không tải được danh sách vé chuyển đến.')
+      if (!nen) toast.error(err.response?.data?.message || 'Không tải được danh sách vé chuyển đến.')
     } finally {
-      setIsLoading(false)
+      if (!nen) setIsLoading(false)
     }
   }, [])
   // MLACP-669: tải lại khi dữ liệu liên quan đổi ở phía người khác (không cần F5).

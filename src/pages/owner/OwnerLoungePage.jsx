@@ -35,7 +35,7 @@ import CustomCriteriaSection from '../../components/owner/CustomCriteriaSection'
 import ThePhongTra from '../../components/program/ThePhongTra'
 import ConfirmModal from '../../components/shared/ConfirmModal'
 import { TrangLoiTai } from '../../components/bang/KhungTai'
-import { useTaiLaiKhiDoi } from '../../lib/thoiGianThuc'
+import { useTaiLaiKhiDoi, laTaiNen } from '../../lib/thoiGianThuc'
 
 // Trạng thái hồ sơ phòng trà — đúng 6 giá trị LoungeStatus của backend.
 const STATUS_VIEW = {
@@ -121,9 +121,11 @@ const OwnerLoungePage = () => {
       })
       .catch(() => toast.error('Không tải được danh sách phường/xã.'))
   }, [form.provinceCode, diaChiCu.ward])
-  const load = useCallback(async () => {
-    setIsLoading(true)
-    setLoiTai(false)
+  // MLACP-699: tải nền (kênh thời gian thực — vd. Admin vừa duyệt, án phạt đổi) thì không bật khung chờ và KHÔNG đổ lại
+  // biểu mẫu: chủ phòng trà có thể đang sửa dở tên/địa chỉ. Xem lib/thoiGianThuc.js.
+  const load = useCallback(async (doiSo) => {
+    const nen = laTaiNen(doiSo)
+    if (!nen) { setIsLoading(true); setLoiTai(false) }
     try {
       const [dsRes, khongGianRes] = await Promise.allSettled([
         getLounges({ mine: true }),
@@ -141,7 +143,7 @@ const OwnerLoungePage = () => {
       const cuaToi = items?.[0]
       if (!cuaToi) {
         setLounge(null)
-        setForm(emptyForm)
+        if (!nen) setForm(emptyForm)
         return
       }
 
@@ -150,6 +152,7 @@ const OwnerLoungePage = () => {
       if (!chiTiet.success) throw new Error('detail')
       const d = chiTiet.data
       setLounge(d)
+      if (nen) return
       setDiaChiCu({ city: d.provinceCode ? null : d.city || null, ward: d.wardCode ? null : d.ward || null })
 
       const khop = dsKhongGian.find((a) => a.name === d.atmosphereName)
@@ -165,9 +168,9 @@ const OwnerLoungePage = () => {
         longitude: d.longitude ?? '',
       })
     } catch {
-      setLoiTai(true)
+      if (!nen) setLoiTai(true)
     } finally {
-      setIsLoading(false)
+      if (!nen) setIsLoading(false)
     }
   }, [])
   // MLACP-669: tải lại khi dữ liệu liên quan đổi ở phía người khác (không cần F5).

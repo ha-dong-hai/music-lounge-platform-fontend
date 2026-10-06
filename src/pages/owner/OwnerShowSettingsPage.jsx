@@ -44,7 +44,7 @@ import { getMySubscription } from '../../services/packageServices'
 import ShowCustomValuesSection from '../../components/owner/ShowCustomValuesSection'
 import VcpmcRoyaltyCard from '../../components/owner/VcpmcRoyaltyCard'
 import { TrangLoiTai } from '../../components/bang/KhungTai'
-import { useTaiLaiKhiDoi } from '../../lib/thoiGianThuc'
+import { useTaiLaiKhiDoi, laTaiNen, TAI_NEN } from '../../lib/thoiGianThuc'
 
 const inputCls = 'mt-1 w-full min-h-[44px] px-3 py-2 bg-card border-2 border-ink text-ink focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2'
 
@@ -116,9 +116,10 @@ const OwnerShowSettingsPage = () => {
     }
   }, [id])
 
-  const load = useCallback(async () => {
-    setIsLoading(true)
-    setLoiTai(false)
+  // MLACP-699: `doiSo` = TAI_NEN khi kênh thời gian thực gọi (vd. poster AI vừa tạo xong) — xem lib/thoiGianThuc.js.
+  const load = useCallback(async (doiSo) => {
+    const nen = laTaiNen(doiSo)
+    if (!nen) { setIsLoading(true); setLoiTai(false) }
     try {
       const [sRes, hRes, gRes] = await Promise.allSettled([
         getShowDetail(id), getAiPosterHistory(id), getMySubscription(),
@@ -128,8 +129,11 @@ const OwnerShowSettingsPage = () => {
       if (sRes.status === 'fulfilled' && sRes.value?.success) {
         const d = sRes.value.data
         setShow(d)
-        setNewStart(dayjs(d.scheduledStart).format('YYYY-MM-DDTHH:mm'))
-        setNewFormat(d.format)
+        // Tải nền thì giữ nguyên hai ô dời lịch / đổi hình thức: người dùng có thể đang chọn dở.
+        if (!nen) {
+          setNewStart(dayjs(d.scheduledStart).format('YYYY-MM-DDTHH:mm'))
+          setNewFormat(d.format)
+        }
       }
       // Chưa từng tạo poster AI thì backend có thể trả rỗng — đó là trạng thái bình thường.
       if (hRes.status === 'fulfilled' && hRes.value?.success) setHistory(hRes.value.data ?? [])
@@ -137,9 +141,9 @@ const OwnerShowSettingsPage = () => {
       // từ chối còn hơn tự chặn oan vì một lần gọi lỗi.
       if (gRes.status === 'fulfilled' && gRes.value?.success) setGoi(gRes.value.data ?? null)
     } catch {
-      setLoiTai(true)
+      if (!nen) setLoiTai(true)
     } finally {
-      setIsLoading(false)
+      if (!nen) setIsLoading(false)
     }
   }, [id])
   // MLACP-669: tải lại khi dữ liệu liên quan đổi ở phía người khác (không cần F5).
@@ -179,7 +183,7 @@ const OwnerShowSettingsPage = () => {
     try {
       await setShowPoster(id, imageUrl)
       toast.success('Đã đặt ảnh này làm poster.')
-      await load()
+      await load(TAI_NEN) // MLACP-699: cập nhật tại chỗ, không gỡ cả trang ra dựng lại
     } catch (err) {
       toast.error(err.response?.data?.message || 'Không đặt được poster.')
     } finally { setBusy(null) }
@@ -197,7 +201,7 @@ const OwnerShowSettingsPage = () => {
       } else {
         toast.success('Đã tạo poster.')
       }
-      await load()
+      await load(TAI_NEN) // MLACP-699: cập nhật tại chỗ, không gỡ cả trang ra dựng lại
     } catch (err) {
       const status = err.response?.status
       if (status === 409) {
@@ -218,7 +222,7 @@ const OwnerShowSettingsPage = () => {
       if (!up.success) throw new Error(up.message)
       await setShowPoster(id, up.data?.url ?? up.data)
       toast.success('Đã đặt poster.')
-      await load()
+      await load(TAI_NEN) // MLACP-699: cập nhật tại chỗ, không gỡ cả trang ra dựng lại
     } catch (err) {
       toast.error(err.response?.data?.message || 'Không đặt được poster.')
     } finally { setBusy(null) }
@@ -233,7 +237,7 @@ const OwnerShowSettingsPage = () => {
       await rescheduleShow(id, new Date(newStart).toISOString())
       toast.success('Đã dời lịch buổi diễn.')
       setXacNhanDoiLich(false)
-      await load()
+      await load(TAI_NEN) // MLACP-699: cập nhật tại chỗ, không gỡ cả trang ra dựng lại
     } catch (err) {
       toast.error(err.response?.data?.message || 'Không dời được lịch.', { duration: 6000 })
     } finally { setBusy(null) }
@@ -245,7 +249,7 @@ const OwnerShowSettingsPage = () => {
       await changeShowFormat(id, newFormat)
       toast.success('Đã đổi hình thức buổi diễn.')
       setXacNhanDoiHinhThuc(false)
-      await load()
+      await load(TAI_NEN) // MLACP-699: cập nhật tại chỗ, không gỡ cả trang ra dựng lại
     } catch (err) {
       toast.error(err.response?.data?.message || 'Không đổi được hình thức.', { duration: 6000 })
     } finally { setBusy(null) }
@@ -256,7 +260,7 @@ const OwnerShowSettingsPage = () => {
     try {
       await setShowPlaybackMode(id, mode)
       toast.success('Đã đổi chế độ phát.')
-      await load()
+      await load(TAI_NEN) // MLACP-699: cập nhật tại chỗ, không gỡ cả trang ra dựng lại
     } catch (err) {
       toast.error(err.response?.data?.message || 'Không đổi được chế độ phát.')
     } finally { setBusy(null) }

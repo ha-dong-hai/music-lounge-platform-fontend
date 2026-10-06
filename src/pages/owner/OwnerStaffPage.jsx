@@ -20,7 +20,7 @@ import { getLounges, getLoungeStaff, lookupUserByEmail, assignStaff, deactivateS
 import ConfirmModal from '../../components/shared/ConfirmModal'
 import { TrangLoiTai } from '../../components/bang/KhungTai'
 import HopThoai, { TieuDeHop } from '../../components/shared/HopThoai'
-import { useTaiLaiKhiDoi } from '../../lib/thoiGianThuc'
+import { useTaiLaiKhiDoi, laTaiNen } from '../../lib/thoiGianThuc'
 
 const inputCls = 'min-h-[44px] px-3 py-2 bg-card border-2 border-ink text-ink focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2'
 
@@ -101,9 +101,10 @@ const OwnerStaffPage = () => {
   const [goTarget, setGoTarget] = useState(null)
   const [isRemoving, setIsRemoving] = useState(false)
 
-  const load = useCallback(async () => {
-    setIsLoading(true)
-    setLoiTai(false)
+  // MLACP-699: tải nền (kênh thời gian thực) thì không bật khung chờ toàn trang; lỗi tải nền thì giữ nguyên màn đang xem.
+  const load = useCallback(async (doiSo) => {
+    const nen = laTaiNen(doiSo)
+    if (!nen) { setIsLoading(true); setLoiTai(false) }
     try {
       const res = await getLounges({ mine: true })
       if (!res.success) throw new Error('lounges')
@@ -116,9 +117,9 @@ const OwnerStaffPage = () => {
       if (!sRes.success) throw new Error('staff')
       setStaff(sRes.data ?? [])
     } catch {
-      setLoiTai(true)
+      if (!nen) setLoiTai(true)
     } finally {
-      setIsLoading(false)
+      if (!nen) setIsLoading(false)
     }
   }, [])
   // MLACP-669: tải lại khi dữ liệu liên quan đổi ở phía người khác (không cần F5).

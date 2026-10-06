@@ -26,7 +26,7 @@ import { getMyPerformers } from '../../services/performerServices'
 import KhungTai, { TrangLoiTai } from '../../components/bang/KhungTai'
 import HopThoai, { TieuDeHop } from '../../components/shared/HopThoai'
 import { maNgan } from '../../utils/format'
-import { useTaiLaiKhiDoi } from '../../lib/thoiGianThuc'
+import { useTaiLaiKhiDoi, laTaiNen } from '../../lib/thoiGianThuc'
 
 // NGHỆ SĨ NÀO ĐƯỢC CHỌN (sửa 01/10/2026): GET /performers là danh mục DÙNG CHUNG của mọi phòng trà, sắp theo Id, kẹp
 // 50/trang. Bản cũ lấy một trang pageSize 100 (nhận 50) và cho chọn TẤT CẢ: chọn hồ sơ phòng trà khác tạo thì backend trả
@@ -203,19 +203,19 @@ const OwnerBankAccountsPage = () => {
   useEffect(() => { const chay = async () => { await loadChuSoHuu() }; chay() }, [loadChuSoHuu])
 
   // Bước 2: danh sách tài khoản của chủ sở hữu đang chọn.
-  const loadAccounts = useCallback(async () => {
+  // MLACP-699: tải nền (Admin vừa duyệt/từ chối) thì cập nhật tại chỗ — không thay danh sách bằng khung chờ, lỗi thì giữ nguyên.
+  const loadAccounts = useCallback(async (doiSo) => {
     if (!chuSoHuu) return
-    setIsLoadingList(true)
-    setLoiTaiKhoan(false)
+    const nen = laTaiNen(doiSo)
+    if (!nen) { setIsLoadingList(true); setLoiTaiKhoan(false) }
     try {
       const res = await getBankAccounts(chuSoHuu.type, chuSoHuu.id)
       if (!res.success) throw new Error('accounts')
       setAccounts(res.data ?? [])
     } catch {
-      setLoiTaiKhoan(true)
-      setAccounts([])
+      if (!nen) { setLoiTaiKhoan(true); setAccounts([]) }
     } finally {
-      setIsLoadingList(false)
+      if (!nen) setIsLoadingList(false)
     }
   }, [chuSoHuu])
   // MLACP-669: tải lại khi dữ liệu liên quan đổi ở phía người khác (không cần F5).
