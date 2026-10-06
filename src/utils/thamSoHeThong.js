@@ -35,7 +35,7 @@ const THAM_SO = {
   ticket_transfer_expiry_hours: { nhom: 've', ten: 'Hạn trả lời lời mời nhận vé chuyển nhượng', kieu: 'so', donVi: 'giờ', moTa: 'Người được tặng/chuyển vé không trả lời trong khoảng này thì yêu cầu tự huỷ, vé về lại người gửi.' },
   rating_window_days: { nhom: 've', ten: 'Thời gian khán giả còn được đánh giá', kieu: 'so', donVi: 'ngày', moTa: 'Tính từ lúc buổi diễn kết thúc.' },
   // ---- Lịch diễn
-  publish_min_business_days_lead_time: { nhom: 'lich', ten: 'Đăng lịch trước ngày diễn ít nhất', kieu: 'so', donVi: 'ngày làm việc', moTa: 'Phòng trà phải đăng (hoặc dời) buổi diễn sớm ít nhất chừng này ngày làm việc — theo Nghị định 144/2020, Điều 10.' },
+  publish_min_business_days_lead_time: { nhom: 'lich', ten: 'Đăng lịch trước ngày diễn ít nhất', kieu: 'so', donVi: 'ngày làm việc', cho0: true, moTa: 'Phòng trà phải đăng buổi diễn sớm ít nhất chừng này ngày làm việc — Nghị định 144/2020, Điều 10 quy định 7. Đặt 0 là bỏ yêu cầu này: chỉ dùng khi thử nghiệm, xong thì đặt lại 7.' },
   venue_changeover_minutes: { nhom: 'lich', ten: 'Khoảng nghỉ giữa hai buổi diễn liền nhau', kieu: 'so', donVi: 'phút', moTa: 'Ở cùng một phòng trà, để tiễn khán giả buổi trước và đón khán giả buổi sau.' },
   // ---- Hoa hồng và thuế
   platform_commission_rate: { nhom: 'phi', ten: 'Hoa hồng nền tảng', kieu: 'tile', moTa: 'Phần MusicLounge giữ lại trên mỗi vé bán online.', viDu: (v) => `Vé 200.000đ → nền tảng giữ ${dong(200000 * v)}` },
@@ -144,7 +144,9 @@ export function guiLen(m, nhap) {
     case 'so': {
       if (!/^\d+$/.test(s.replace(/[.\s]/g, ''))) return { ok: false, loi: 'Nhập một số nguyên, ví dụ 15.' }
       const n = Number(s.replace(/[.\s]/g, ''))
-      if (n <= 0) return { ok: false, loi: 'Giá trị phải lớn hơn 0.' }
+      // MLACP-698: 0 chỉ hợp lệ với tham số có cờ `cho0` — khớp danh sách ZeroAllowedKeys của backend (SystemConfigValidation).
+      // Thêm cờ ở đây mà backend chưa cho thì bấm Lưu sẽ nhận lỗi của máy chủ.
+      if (n < 0 || (n === 0 && !m.cho0)) return { ok: false, loi: 'Giá trị phải lớn hơn 0.' }
       return { ok: true, value: String(n) }
     }
     case 'thapPhan': {
