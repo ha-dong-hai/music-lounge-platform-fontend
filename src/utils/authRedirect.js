@@ -27,12 +27,23 @@ export const duongDanNoiBoHopLe = (p) =>
   typeof p === 'string' && p.startsWith('/') && !p.startsWith('//');
 
 // Khu vực có giới hạn vai, lấy đúng theo guard trong routes/AppRouter.jsx:
-//   - `/admin…`  requiredRoles={['Admin']}          (AppRouter.jsx:151)
-//   - `/owner…`  requiredRoles={['Owner','Staff']}  (AppRouter.jsx:114)
+//   - `/admin…`  requiredRoles={['Admin']}
+//   - `/owner…`  requiredRoles={['Owner','Staff']} ở cổng ngoài, NHƯNG phần lớn trang con tự siết lại chỉ cho Owner.
 // Mọi đường dẫn khác: ai đăng nhập cũng vào được.
+//
+// MLACP-687 (chủ dự án 06/10/2026: "đăng nhập staff thì vào trang quản lý staff của owner" → trang 403): bảng cũ chỉ có hai
+// khu thô, coi CẢ khu /owner là Staff vào được. Chủ phòng trà đang ở /owner/staff thì đăng xuất → trang bị chặn đẩy ra
+// /login kèm from=/owner/staff → nhân viên đăng nhập → hàm này trả lại /owner/staff → 403. Nay liệt kê đủ các trang con
+// chỉ-Owner; khớp theo TIỀN TỐ DÀI NHẤT nên /owner/staff thắng /owner. Bảng này phải khớp router — authRedirect.test.mjs
+// đọc thẳng AppRouter.jsx và đỏ ngay khi router thêm một trang chỉ-Owner mà bảng chưa có.
+export const TRANG_CHI_CHU_PHONG_TRA = [
+  'lounge', 'bank-accounts', 'zones', 'tour', 'shows', 'fnb-menus', 'staff', 'performers',
+  'donations', 'penalties', 'subscription', 'analytics', 'finance',
+];
 const KHU_VUC_THEO_VAI = [
   { tien_to: '/admin', vai: ['Admin'] },
   { tien_to: '/owner', vai: ['Owner', 'Staff'] },
+  ...TRANG_CHI_CHU_PHONG_TRA.map((p) => ({ tien_to: `/owner/${p}`, vai: ['Owner'] })),
 ];
 
 // `path` có vừa với `tien_to` không — so theo RANH GIỚI ĐOẠN đường dẫn, không so tiền tố trần.
@@ -43,7 +54,10 @@ export const vaiVaoDuoc = (role, path) => {
   if (!duongDanNoiBoHopLe(path)) return false;
   // Bỏ query string trước khi so khu vực: `/admin?x=1` vẫn là khu admin.
   const chiDuongDan = path.split('?')[0];
-  const khu = KHU_VUC_THEO_VAI.find((k) => thuocKhu(chiDuongDan, k.tien_to));
+  // Tiền tố DÀI NHẤT thắng: /owner/staff (chỉ Owner) phải thắng /owner (Owner + Staff).
+  const khu = KHU_VUC_THEO_VAI
+    .filter((k) => thuocKhu(chiDuongDan, k.tien_to))
+    .sort((a, b) => b.tien_to.length - a.tien_to.length)[0];
   return khu ? khu.vai.includes(role) : true;
 };
 
