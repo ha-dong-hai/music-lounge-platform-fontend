@@ -18,6 +18,7 @@ import AdminLayout from '../layouts/AdminLayout'
 import LoginPage from '../pages/auth/LoginPage'
 import OwnerLayout from '../layouts/OwnerLayout'
 import NotFoundPage from '../pages/NotFoundPage'
+import TrangLoiUngDung from '../pages/TrangLoiUngDung'
 import TrangDauKhuPhongTra from './TrangDauKhuPhongTra'
 import GocUngDung from './GocUngDung'
 
@@ -77,7 +78,9 @@ const FnbOrderPage = lazy(() => import('../pages/fnb/FnbOrderPage'))
 const TrangVanBan = lazy(() => import('../pages/public/TrangVanBan'))
 
 // MLACP-602: MỌI route nằm trong một route gốc không đường dẫn (GocUngDung) — nơi in <title> theo trang.
-const AppRouter = createBrowserRouter([{ element: <GocUngDung />, children: [
+// MLACP-697: errorElement ở route GỐC — mọi lỗi lúc dựng trang (kể cả không tải được tệp của trang sau một lần deploy)
+// hiện trang lỗi của mình, không phải màn "Unexpected Application Error!" mặc định của React Router.
+const AppRouter = createBrowserRouter([{ element: <GocUngDung />, errorElement: <TrangLoiUngDung />, children: [
   {
     path: '/',
     element: <MainLayout />,
