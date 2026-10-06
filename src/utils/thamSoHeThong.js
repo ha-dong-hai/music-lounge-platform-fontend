@@ -40,7 +40,9 @@ const THAM_SO = {
   // ---- Hoa hồng và thuế
   platform_commission_rate: { nhom: 'phi', ten: 'Hoa hồng nền tảng', kieu: 'tile', moTa: 'Phần MusicLounge giữ lại trên mỗi vé bán online.', viDu: (v) => `Vé 200.000đ → nền tảng giữ ${dong(200000 * v)}` },
   tax_rate: { nhom: 'phi', ten: 'Thuế GTGT khấu trừ tại nguồn', kieu: 'tile', moTa: 'Chỉ khấu trừ với phòng trà là hộ/cá nhân kinh doanh — Nghị định 117/2025 quy định 5% cho dịch vụ.', viDu: (v) => `Vé 200.000đ → khấu trừ ${dong(200000 * v)}` },
-  personal_income_tax_rate: { nhom: 'phi', ten: 'Thuế thu nhập cá nhân khấu trừ tại nguồn', kieu: 'tile', moTa: 'Đang để 0% có chủ đích: nghị định quy định 2%, nhưng bật lên phải quyết trước 2% đó trừ vào phần của ai.', viDu: (v) => `Vé 200.000đ → khấu trừ ${dong(200000 * v)}` },
+  personal_income_tax_rate: { nhom: 'phi', ten: 'Thuế thu nhập cá nhân khấu trừ tại nguồn', kieu: 'tile', // MLACP-691: câu cũ "Đang để 0% có chủ đích…" sai từ 04/10/2026 — tham số đã đổi 0 → 0.02 (system_config_history) và vé
+  // bán từ đó bị khấu trừ 2% thật. Mô tả không được khẳng định giá trị hiện tại (giá trị nằm ngay ô bên cạnh) — chỉ nói luật.
+  moTa: 'Chỉ khấu trừ với phòng trà là hộ/cá nhân kinh doanh (doanh nghiệp đã được xác minh tự khai thuế) — Nghị định 117/2025 quy định 2% với cá nhân cư trú. Trừ vào phần phòng trà nhận.', viDu: (v) => `Vé 200.000đ → khấu trừ ${dong(200000 * v)}` },
   // ---- Chi trả cho phòng trà
   settlement_partial_hours_after_show: { nhom: 'chiTra', ten: 'Chi trả đợt đầu sau buổi diễn', kieu: 'so', donVi: 'giờ', moTa: 'Bao lâu sau khi buổi diễn kết thúc thì chuyển đợt đầu cho phòng trà. Tỉ lệ đợt đầu tuỳ hạng phòng trà (bên dưới).' },
   settlement_final_days_after_show: { nhom: 'chiTra', ten: 'Chi trả phần còn lại sau buổi diễn', kieu: 'so', donVi: 'ngày', moTa: 'Khoảng chờ để khách kịp khiếu nại trước khi chuyển nốt tiền.' },

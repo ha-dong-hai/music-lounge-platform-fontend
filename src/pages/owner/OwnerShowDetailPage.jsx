@@ -419,7 +419,7 @@ const OwnerShowDetailPage = () => {
         </div>
         <section aria-labelledby="dg-tieu-de" className="bg-card border border-line p-6">
           <h2 id="dg-tieu-de" className="text-3xl text-ink mb-1">Phản hồi và đánh giá</h2>
-          <p className="text-ink-mute text-sm mb-4">Khán giả đã vào xem chấm sao và nhận xét trong 7 ngày sau buổi diễn.</p>
+          <p className="text-ink-mute text-sm mb-4">Khán giả đã vào xem chấm sao và nhận xét trong thời hạn đánh giá sau buổi diễn.</p>
           <ShowRatings showId={id} />
         </section>
         <ShowAnalyticsSection showId={id} />
