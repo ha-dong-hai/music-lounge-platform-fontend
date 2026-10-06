@@ -181,6 +181,7 @@ const AdminAccountsPage = () => {
         searchQuery={oTim} setSearchQuery={setOTim}
         roleFilter={vaiTro ?? 'all'} setRoleFilter={(v) => ds.datBoLoc({ vaiTro: v === 'all' ? null : v })}
         statusFilter={trangThai ?? 'all'} setStatusFilter={(v) => ds.datBoLoc({ trangThai: v === 'all' ? null : v })}
+        stats={thongKe.data}
       />
 
       <ChonKy coTheBoTrong tenLoc="Ngày đăng ký" tu={kyLoc?.tu} den={kyLoc?.den}

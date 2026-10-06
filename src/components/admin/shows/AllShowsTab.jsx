@@ -4,6 +4,7 @@ import { Loader2, ChevronLeft, ChevronRight, Music2, Search } from 'lucide-react
 import dayjs from 'dayjs'
 import toast from 'react-hot-toast'
 import { getShows } from '../../../services/showServices'
+import { lamMoiDemTab } from '../../../hooks/useDemTab'
 // Badge dùng chung — bản sao riêng trước đây ở file này in trạng thái bằng tiếng Anh (Published/Ongoing…).
 import { FormatBadge, StatusBadge } from './ShowBadges'
 import { anhChuCai } from '../../../utils/anhChuCai'
@@ -28,6 +29,7 @@ const AllShowsTab = () => {
         if (res.success) {
           setShows(res.data.items)
           setPagination(prev => ({ ...prev, totalPages: res.data.totalPages, totalCount: res.data.totalCount }))
+          lamMoiDemTab() // MLACP-685
         }
       } catch {
         toast.error('Không thể tải danh sách chương trình')

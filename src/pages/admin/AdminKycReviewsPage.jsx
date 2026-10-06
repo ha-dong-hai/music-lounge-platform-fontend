@@ -13,11 +13,14 @@ import { KYC_TABS } from '../../components/admin/kyc/KycBadges'
 import KycUserCard from '../../components/admin/kyc/KycUserCard'
 import KycReviewModal from '../../components/admin/kyc/KycReviewModal'
 import { useDanhSachMayChu } from '../../hooks/useDanhSachMayChu'
+import { useDemTab } from '../../hooks/useDemTab'
 import PhanTrang from '../../components/bang/PhanTrang'
 import NhomTab from '../../components/bang/NhomTab'
 
 const BO_LOC = { tab: parseAsStringLiteral(KYC_TABS.map((t) => t.key)).withDefault('Pending') }
 const goiHangDoi = ({ tab, ...q }) => getKycReviewQueue({ ...q, status: tab })
+// MLACP-685: số trên từng tab — cùng hàm gọi của danh sách, pageSize 1.
+const DEM_KYC = Object.fromEntries(KYC_TABS.map((t) => [t.key, () => goiHangDoi({ tab: t.key, page: 1, pageSize: 1 })]))
 
 const AdminKycReviewsPage = () => {
   const ds = useDanhSachMayChu({ khoa: ['admin-kyc'], goi: goiHangDoi, boLoc: BO_LOC })
@@ -25,6 +28,7 @@ const AdminKycReviewsPage = () => {
   const items = ds.items
   const isLoading = ds.dangTai
   const load = () => ds.taiLai()
+  const dem = useDemTab('admin-kyc', DEM_KYC)
   const [target, setTarget] = useState(null) // { item, document, approve }
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -66,7 +70,7 @@ const AdminKycReviewsPage = () => {
       </div>
 
       {/* TABS */}
-      <NhomTab nhan="Lọc hồ sơ theo trạng thái" dangChon={tab} cacTab={KYC_TABS.map((t) => ({ khoa: t.key, nhan: t.label }))}
+      <NhomTab nhan="Lọc hồ sơ theo trạng thái" dangChon={tab} cacTab={KYC_TABS.map((t) => ({ khoa: t.key, nhan: t.label, dem: dem[t.key] }))}
         onChon={(k) => ds.datBoLoc({ tab: k })} />
 
       {isLoading ? (

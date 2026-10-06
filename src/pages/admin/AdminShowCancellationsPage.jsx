@@ -10,6 +10,7 @@ import { Loader2, CalendarX2, RefreshCw } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { getShowCancellationReviews, decideShowCancellationReview } from '../../services/showServices'
 import { useDanhSachMayChu } from '../../hooks/useDanhSachMayChu'
+import { useDemTab } from '../../hooks/useDemTab'
 import PhanTrang from '../../components/bang/PhanTrang'
 import NhomTab from '../../components/bang/NhomTab'
 import HopThoai, { TieuDeHop } from '../../components/shared/HopThoai'
@@ -17,6 +18,7 @@ import { ngayDayDu, gioTrongNgay } from '../../utils/ngayVietNam'
 
 const TRANG_THAI = ['Pending', 'Excused', 'Penalized']
 const BO_LOC = { trangThai: parseAsStringLiteral(TRANG_THAI).withDefault('Pending') }
+const DEM_XET_HUY = Object.fromEntries(TRANG_THAI.map((k) => [k, () => getShowCancellationReviews({ page: 1, pageSize: 1, status: k })]))
 const NHAN = { Pending: 'Chờ xét', Excused: 'Đã miễn phạt', Penalized: 'Đã phạt' }
 const MUC_PHAT = [['Warning', 'Cảnh cáo'], ['Suspension', 'Tạm khoá'], ['Ban', 'Khoá vĩnh viễn']]
 const tien = (v) => `${Number(v || 0).toLocaleString('vi-VN')}đ`
@@ -29,6 +31,8 @@ const AdminShowCancellationsPage = () => {
     boLoc: BO_LOC,
   })
   const trangThai = ds.boLoc.trangThai
+  // MLACP-685: số trên cả ba tab (trước chỉ tab đang mở).
+  const dem = useDemTab('admin-xet-huy-buoi', DEM_XET_HUY)
   const [chon, setChon] = useState(null) // { item, quyetDinh: 'Excuse' | 'Penalize' }
   const [ghiChu, setGhiChu] = useState('')
   const [mucPhat, setMucPhat] = useState('Warning')
@@ -76,7 +80,7 @@ const AdminShowCancellationsPage = () => {
       </div>
 
       <NhomTab nhan="Lọc theo trạng thái" dangChon={trangThai} onChon={(k) => ds.datBoLoc({ trangThai: k === 'Pending' ? null : k })}
-        cacTab={TRANG_THAI.map((k) => ({ khoa: k, nhan: NHAN[k], dem: k === trangThai && ds.tong > 0 ? ds.tong : undefined }))} />
+        cacTab={TRANG_THAI.map((k) => ({ khoa: k, nhan: NHAN[k], dem: dem[k] }))} />
 
       {ds.dangTai ? (
         <div className="py-20 flex justify-center"><Loader2 size={30} className="animate-spin text-ink" /></div>

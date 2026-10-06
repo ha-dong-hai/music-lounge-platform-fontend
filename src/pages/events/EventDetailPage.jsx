@@ -11,7 +11,8 @@ import ShowIntro from '../../components/mshow-detail/ShowIntro'
 import ShowRatings from '../../components/mshow-detail/ShowRatings'
 import Skeleton from '../../components/shared/Skeleton'
 import RatingModal from '../../components/livestream/RatingModal'
-import { getShowDetail, getSimilarShows, rateShow } from '../../services/showServices'
+import { getShowDetail, getSimilarShows, rateShow, getShowRatings } from '../../services/showServices'
+import { useDemTab } from '../../hooks/useDemTab'
 import { nhoBuoiVuaXem } from '../../utils/buoiVuaXem'
 import { getFollowedLounges, toggleWishlist, toggleFollowLounge } from '../../services/interactionServices'
 
@@ -31,6 +32,8 @@ const EventDetailPage = () => {
   const [activeTab, setActiveTab] = useState('intro')
   // Bàn phím cho tablist (APG): gọi TRƯỚC mọi return sớm của trang — luật hook.
   const phimTab = usePhimTab(KHOA_TAB, activeTab, setActiveTab)
+  // MLACP-685: số đánh giá trên tab "Đánh giá" (cùng API khối ShowRatings đọc; chỉ tính đánh giá còn hiệu lực).
+  const demDanhGia = useDemTab(`danh-gia-${id}`, { ratings: () => getShowRatings(id, { page: 1, pageSize: 1 }) })
   const tabsRef = useRef(null)
 
   const [isShareModalOpen, setIsShareModalOpen] = useState(false)
@@ -323,6 +326,7 @@ const EventDetailPage = () => {
               {...phimTab(khoa)} onClick={() => setActiveTab(khoa)}
               className={`min-h-[48px] pb-3 text-lg font-semibold whitespace-nowrap border-b-4 -mb-[2px] transition-colors ${activeTab === khoa ? 'border-ink text-ink' : 'border-transparent text-ink-mute hover:text-ink'}`}>
               {nhan}
+              {demDanhGia[khoa] != null && <span className="ml-2 font-mono text-sm tabular-nums">{demDanhGia[khoa]}</span>}
             </button>
           ))}
         </div>

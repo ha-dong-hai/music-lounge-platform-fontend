@@ -24,6 +24,7 @@ import NhomTab from '../../components/bang/NhomTab'
 import KhungTai from '../../components/bang/KhungTai'
 import PhanTrang from '../../components/bang/PhanTrang'
 import { useDanhSachMayChu } from '../../hooks/useDanhSachMayChu'
+import { useDemTab } from '../../hooks/useDemTab'
 import { loiKhoangNgay } from '../../utils/boLocBuoiDien'
 import OChiSo from '../../components/bang/OChiSo'
 import ChonKy from '../../components/bang/ChonKy'
@@ -88,6 +89,9 @@ const OwnerFinancePage = () => {
   const ds = useDanhSachMayChu({ khoa: ['giao-dich-cua-toi'], goi: goiGiaoDich, boLoc: BO_LOC })
   const { loai, tu: tuNgay, den: denNgay } = ds.boLoc
   const rows = ds.items
+  // MLACP-685: số trên từng loại khoản — CÙNG khoảng ngày đang lọc (đổi ngày thì số đổi theo, khoá truy vấn mang ngày).
+  const dem = useDemTab(`giao-dich-${tuNgay}-${denNgay}`, Object.fromEntries(LOAI.map((l) =>
+    [l.value, () => goiGiaoDich({ loai: l.value, tu: tuNgay, den: denNgay, page: 1, pageSize: 1 })])))
   const coLoc = Boolean(loai || tuNgay || denNgay)
   const loiNgay = loiKhoangNgay({ tu: tuNgay, den: denNgay })
 
@@ -175,7 +179,7 @@ const OwnerFinancePage = () => {
 
         {/* BỘ LỌC */}
         <div className="mt-4 flex flex-wrap items-end gap-3">
-          <NhomTab nhan="Lọc theo loại khoản" dangChon={loai ?? ''} cacTab={LOAI.map((l) => ({ khoa: l.value, nhan: l.label }))}
+          <NhomTab nhan="Lọc theo loại khoản" dangChon={loai ?? ''} cacTab={LOAI.map((l) => ({ khoa: l.value, nhan: l.label, dem: dem[l.value] }))}
             onChon={(v) => ds.datBoLoc({ loai: v || null })} />
           {/* MLACP-612: một bộ chọn khoảng ngày dùng chung cả web (components/bang/ChonKy — Radix Popover + react-day-picker)
               thay cho hai ô <input type="date"> của trình duyệt: hai ô gốc hiện định dạng theo ngôn ngữ MÁY (yyyy-mm-dd

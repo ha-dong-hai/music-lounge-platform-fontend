@@ -601,7 +601,8 @@ const OwnerShowsPage = () => {
           loungeId={lounge.id}
           catalog={catalog}
           onClose={() => setEditing(undefined)}
-          onSaved={loadShows}
+          // MLACP-685: tạo/sửa bản nháp đổi số "Tất cả"/"Nháp" — đếm lại cùng lúc với tải danh sách.
+          onSaved={() => Promise.all([loadShows(), taiDem()])}
         />
       )}
     </div>

@@ -6,6 +6,7 @@ import dayjs from 'dayjs'
 import toast from 'react-hot-toast'
 import { getIncomingTicketTransfers, acceptTicketTransfer } from '../../services/ticketServices'
 import { useTaiLaiKhiDoi } from '../../lib/thoiGianThuc'
+import { lamMoiDemTab } from '../../hooks/useDemTab'
 
 const fmtMoney = (v) => `${Number(v || 0).toLocaleString('vi-VN')}đ`
 
@@ -18,7 +19,7 @@ const IncomingTransfersTab = () => {
     setIsLoading(true)
     try {
       const res = await getIncomingTicketTransfers()
-      if (res.success) setItems(res.data ?? [])
+      if (res.success) { setItems(res.data ?? []); lamMoiDemTab() } // MLACP-685: số trên tab theo danh sách vừa tải
     } catch (err) {
       toast.error(err.response?.data?.message || 'Không tải được danh sách vé chuyển đến.')
     } finally {

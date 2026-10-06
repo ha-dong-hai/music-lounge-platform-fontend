@@ -11,19 +11,25 @@ import { getPenaltyAppeals, reviewPenaltyAppeal } from '../../services/penaltySe
 import PenaltyAppealCard from '../../components/admin/penalty-appeals/PenaltyAppealCard'
 import PenaltyAppealReviewModal from '../../components/admin/penalty-appeals/PenaltyAppealReviewModal'
 import { useDanhSachMayChu } from '../../hooks/useDanhSachMayChu'
+import { useDemTab } from '../../hooks/useDemTab'
 import PhanTrang from '../../components/bang/PhanTrang'
 import NhomTab from '../../components/bang/NhomTab'
 
 // Tab trên URL (?daXuLy=true) — Quay lại/tải lại giữ đúng tab.
 const BO_LOC = { daXuLy: parseAsBoolean.withDefault(false) }
+const DEM_KHANG_CAO = {
+  cho: () => getPenaltyAppeals({ page: 1, pageSize: 1, resolved: false }),
+  xong: () => getPenaltyAppeals({ page: 1, pageSize: 1, resolved: true }),
+}
 
 const AdminPenaltyAppealsPage = () => {
   const ds = useDanhSachMayChu({ khoa: ['admin-khieu-nai-an-phat'], goi: ({ daXuLy, ...q }) => getPenaltyAppeals({ ...q, resolved: daXuLy }), boLoc: BO_LOC })
   const daXuLy = ds.boLoc.daXuLy
   const items = ds.items
   const isLoading = ds.dangTai
-  const totalCount = ds.tong
   const load = () => ds.taiLai()
+  // MLACP-685: số trên CẢ HAI tab (trước chỉ tab đang mở có số).
+  const dem = useDemTab('admin-khieu-nai-an-phat', DEM_KHANG_CAO)
   const [target, setTarget] = useState(null) // { item, decision }
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -66,7 +72,7 @@ const AdminPenaltyAppealsPage = () => {
 
       {/* TABS */}
       <NhomTab nhan="Lọc khiếu nại theo trạng thái" dangChon={daXuLy} onChon={doiTab}
-        cacTab={[{ khoa: false, nhan: 'Chờ xử lý', dem: !daXuLy && totalCount > 0 ? totalCount : undefined }, { khoa: true, nhan: 'Đã xử lý' }]} />
+        cacTab={[{ khoa: false, nhan: 'Chờ xử lý', dem: dem.cho }, { khoa: true, nhan: 'Đã xử lý', dem: dem.xong }]} />
 
       {isLoading ? (
         <div className="py-20 flex justify-center"><Loader2 size={30} className="animate-spin text-ink" /></div>

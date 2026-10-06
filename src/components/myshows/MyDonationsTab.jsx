@@ -8,6 +8,7 @@ import toast from 'react-hot-toast'
 import { getMyDonations } from '../../services/donationServices'
 import NhanTrangThai from '../shared/NhanTrangThai'
 import { useTaiLaiKhiDoi } from '../../lib/thoiGianThuc'
+import { lamMoiDemTab } from '../../hooks/useDemTab'
 
 const fmtTien = (v) => `${Number(v || 0).toLocaleString('vi-VN')}đ`
 
@@ -36,6 +37,7 @@ const MyDonationsTab = () => {
       if (res.success) {
         setItems(res.data?.items ?? [])
         setTotalPages(res.data?.totalPages ?? 1)
+        lamMoiDemTab() // MLACP-685: số trên tab theo danh sách vừa tải
       }
     } catch (err) {
       toast.error(err.response?.data?.message || 'Chưa tải được lịch sử ủng hộ.')

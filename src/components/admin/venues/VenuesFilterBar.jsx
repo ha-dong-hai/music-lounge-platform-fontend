@@ -1,7 +1,8 @@
 import { VENUE_STATUS_CONFIG } from './VenueBadges'
 
 // Bỏ search (tạm ẩn) — chỉ còn dropdown status để đi sâu từng loại
-const VenuesFilterBar = ({ statusFilter, setStatusFilter }) => {
+// MLACP-685: mỗi lựa chọn kèm số phòng trà ở trạng thái đó (counts từ AdminVenuesPage — hooks/useDemTab).
+const VenuesFilterBar = ({ statusFilter, setStatusFilter, counts = {} }) => {
   return (
     <div className="bg-card border border-line p-4 flex flex-col md:flex-row gap-4 items-center justify-between">
       <div className="flex items-center gap-3">
@@ -12,7 +13,7 @@ const VenuesFilterBar = ({ statusFilter, setStatusFilter }) => {
           className="cursor-pointer min-h-[44px] px-3 py-2 bg-card border-2 border-ink text-ink focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2"
         >
           {Object.keys(VENUE_STATUS_CONFIG).map(key => (
-            <option key={key} value={key}>{VENUE_STATUS_CONFIG[key].label}</option>
+            <option key={key} value={key}>{VENUE_STATUS_CONFIG[key].label}{counts[key] != null ? ` (${counts[key]})` : ''}</option>
           ))}
         </select>
       </div>

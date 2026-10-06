@@ -16,6 +16,20 @@ import IncomingTransfersTab from '../../components/myshows/IncomingTransfersTab'
 import RefundRequestsTab from '../../components/myshows/RefundRequestsTab'
 import MyDonationsTab from '../../components/myshows/MyDonationsTab'
 import usePhimTab from '../../hooks/usePhimTab'
+import { useDemTab } from '../../hooks/useDemTab'
+import { getMyTickets, getIncomingTicketTransfers, getMyRefundRequests } from '../../services/ticketServices'
+import { getWishlist } from '../../services/interactionServices'
+import { getMyDonations } from '../../services/donationServices'
+
+// MLACP-685: số trên từng tab = đúng danh sách tab đó hiện (cùng API, cùng bộ lọc) — xem hooks/useDemTab.
+const DEM = {
+  // Cùng khoá với ô "Tất cả × Mọi loại" trong TicketsTab → một lệnh cho cả hai.
+  shows: { khoa: 've|all|all|', goi: () => getMyTickets({ page: 1, pageSize: 1 }) },
+  wishlist: () => getWishlist({ page: 1, pageSize: 1 }),
+  transfers: () => getIncomingTicketTransfers(),
+  refunds: () => getMyRefundRequests({ page: 1, pageSize: 1 }),
+  donations: () => getMyDonations({ page: 1, pageSize: 1 }),
+}
 
 const TAB = [
   ['shows', 'Vé'],
@@ -34,6 +48,7 @@ const MyShowsPage = () => {
   const [activeMainTab, setActiveMainTab] = useQueryState('muc', MUC.withOptions({ history: 'push' }))
   // Bàn phím cho tablist (APG). Tab 'shows' là mặc định nên ghi null lên URL — giữ đúng quy ước của onClick.
   const phimTab = usePhimTab(KHOA_TAB, activeMainTab, (k) => setActiveMainTab(k === 'shows' ? null : k))
+  const dem = useDemTab('cua-toi', DEM, { batDau: !!user })
 
   return (
     <div className="min-h-[60vh] bg-stock text-ink pb-20">
@@ -56,6 +71,7 @@ const MyShowsPage = () => {
                     {...phimTab(khoa)} onClick={() => setActiveMainTab(khoa === 'shows' ? null : khoa)}
                     className={`min-h-[48px] min-w-[44px] pb-3 text-lg font-semibold whitespace-nowrap border-b-4 -mb-[2px] transition-colors ${activeMainTab === khoa ? 'border-ink text-ink' : 'border-transparent text-ink-mute hover:text-ink'}`}>
                     {nhan}
+                    {dem[khoa] != null && <span className="ml-2 font-mono text-sm tabular-nums">{dem[khoa].toLocaleString('vi-VN')}</span>}
                   </button>
                 ))}
               </div>

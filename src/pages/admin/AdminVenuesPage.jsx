@@ -4,7 +4,7 @@
 // thấy. Backend chưa có cách liệt kê mọi trạng thái, nên bỏ lựa chọn "Tất cả"; mặc định "Chờ duyệt". ĐƯỜNG NÂNG CẤP: khi
 // backend cho status tuỳ chọn (đề nghị gộp vào T-BE-12, kèm keyword) thì thêm lại "Tất cả" và ô tìm.
 // Ô tìm trong trang đã bị ẩn từ trước (VenuesFilterBar) nên bỏ luôn phần lọc phía trình duyệt đi kèm.
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { parseAsStringLiteral } from 'nuqs'
 import { getAdminVenues } from '../../services/adminServices'
 import VenuesStatsCards from '../../components/admin/venues/VenuesStatsCards'
@@ -14,12 +14,14 @@ import ReviewVenueModal from '../../components/admin/venues/ReviewVenueModal'
 import IssuePenaltyModal from '../../components/admin/venues/IssuePenaltyModal'
 import VenueDossierModal from '../../components/admin/venues/VenueDossierModal'
 import { useDanhSachMayChu } from '../../hooks/useDanhSachMayChu'
+import { useDemTab } from '../../hooks/useDemTab'
 import PhanTrang from '../../components/bang/PhanTrang'
 import KhungTai from '../../components/bang/KhungTai'
 
 // 6 status BE hỗ trợ
 const ALL_STATUSES = ['Pending', 'Approved', 'Warned', 'Suspended', 'Locked', 'Rejected']
 const BO_LOC = { trangThai: parseAsStringLiteral(ALL_STATUSES).withDefault('Pending') }
+const DEM_PHONG_TRA = Object.fromEntries(ALL_STATUSES.map((status) => [status, () => getAdminVenues({ status, page: 1, pageSize: 1 })]))
 const goiPhongTra = ({ trangThai, ...q }) => getAdminVenues({ ...q, status: trangThai })
 
 const AdminVenuesPage = () => {
@@ -28,30 +30,17 @@ const AdminVenuesPage = () => {
   const doiTrangThai = (v) => ds.datBoLoc({ trangThai: v === 'Pending' ? null : v })
 
   const [penalizeTarget, setPenalizeTarget] = useState(null)
-  // Stats cho các thẻ (song song 6 request pageSize=1 — pattern getAdminStats)
-  const [counts, setCounts] = useState({ total: 0 })
-  const [lanDem, setLanDem] = useState(0)
+  // Stats cho các thẻ (song song 6 request pageSize=1 — pattern getAdminStats). MLACP-685: chuyển sang hooks/useDemTab để số
+  // cũng đổi khi CHỦ PHÒNG TRÀ gửi/sửa hồ sơ (kênh thời gian thực), không chỉ sau thao tác của chính Admin như bản cũ.
+  const demTT = useDemTab('admin-phong-tra', DEM_PHONG_TRA)
+  const counts = { ...demTT, total: ALL_STATUSES.reduce((a, s) => a + (demTT[s] ?? 0), 0) }
 
   // Duyet ho so phong tra: khong duyet thi phong tra treo mai o Pending, khong ban ve duoc.
   const [reviewTarget, setReviewTarget] = useState(null) // { venue, decision }
   const [dossierTarget, setDossierTarget] = useState(null) // ho so dang mo de doc truoc khi duyet
 
-  // 1. ĐẾM theo trạng thái — mỗi status 1 request chỉ lấy totalCount; tải lại sau mỗi lần duyệt/phạt.
-  useEffect(() => {
-    const fetchCounts = async () => {
-      const results = await Promise.all(ALL_STATUSES.map((status) => getAdminVenues({ status, page: 1, pageSize: 1 }).catch(() => null)))
-      const nextCounts = { total: 0 }
-      results.forEach((res, i) => {
-        const count = res?.success ? (res.data.totalCount || 0) : 0
-        nextCounts[ALL_STATUSES[i]] = count
-        nextCounts.total += count
-      })
-      setCounts(nextCounts)
-    }
-    fetchCounts()
-  }, [lanDem])
-
-  const daDoi = () => { ds.taiLai(); setLanDem((n) => n + 1) }
+  // Duyệt/phạt xong: danh sách tải lại → hooks/useDemTab tự đếm lại.
+  const daDoi = () => { ds.taiLai() }
 
   return (
     <div className="space-y-6">
@@ -71,7 +60,7 @@ const AdminVenuesPage = () => {
       />
 
       {/* FILTERS */}
-      <VenuesFilterBar statusFilter={statusFilter} setStatusFilter={doiTrangThai} />
+      <VenuesFilterBar statusFilter={statusFilter} setStatusFilter={doiTrangThai} counts={demTT} />
 
       {/* TABLE */}
       <KhungTai loi={ds.loi} taiLai={ds.taiLai} tenVung="danh sách phòng trà">

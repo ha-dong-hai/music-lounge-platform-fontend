@@ -27,6 +27,7 @@ import ComplaintsTable from '../../components/admin/complaints/ComplaintsTable'
 import ComplaintDetailModal from '../../components/admin/complaints/ComplaintDetailModal'
 import ResolveComplaintModal from '../../components/admin/complaints/ResolveComplaintModal'
 import { useDanhSachMayChu } from '../../hooks/useDanhSachMayChu'
+import { useDemTab } from '../../hooks/useDemTab'
 import { useOTimTre } from '../../hooks/useOTimTre'
 import ChonKy from '../../components/bang/ChonKy'
 import ChipBoLoc from '../../components/bang/ChipBoLoc'
@@ -57,6 +58,11 @@ const AdminComplaintPage = () => {
     const ds = useDanhSachMayChu({ khoa: ['admin-khieu-nai'], goi: goiKhieuNai, boLoc: BO_LOC, coMacDinh: 20 })
     const statusFilter = ds.boLoc.trangThai ?? 'all'
     const setStatusFilter = (v) => ds.datBoLoc({ trangThai: v === 'all' ? null : v })
+    // MLACP-685: số khiếu nại theo từng trạng thái, CÙNG từ khoá + khoảng ngày đang lọc (khoá truy vấn mang các giá trị đó).
+    // Loại vấn đề lọc trong trang (backend chưa có tham số) nên không đếm được đúng — không in số cho ô đó.
+    const { q: tuKhoa, tu: tuNgay, den: denNgay } = ds.boLoc
+    const demTT = useDemTab(`admin-khieu-nai-${tuKhoa}-${tuNgay}-${denNgay}`, Object.fromEntries(['all', ...Object.keys(STATUS_CONFIG)].map((k) =>
+        [k, () => goiKhieuNai({ trangThai: k === 'all' ? null : k, q: tuKhoa, tu: tuNgay, den: denNgay, page: 1, pageSize: 1 })])))
 
     // Tìm kiếm chạy phía máy chủ (keyword); loại vấn đề vẫn lọc trong trang hiện tại (BE chưa có tham số).
     const [searchQuery, setSearchQuery] = useOTimTre(ds, 'q')
@@ -117,6 +123,7 @@ const AdminComplaintPage = () => {
                 searchQuery={searchQuery} setSearchQuery={setSearchQuery}
                 categoryFilter={categoryFilter} setCategoryFilter={setCategoryFilter}
                 statusFilter={statusFilter} setStatusFilter={setStatusFilter}
+                demTrangThai={demTT}
                 onExportCSV={handleExportCSV}
             />
 

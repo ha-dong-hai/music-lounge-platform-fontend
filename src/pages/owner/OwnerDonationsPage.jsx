@@ -39,6 +39,7 @@ import { uploadImage } from '../../services/userServices'
 import NutXacNhan from '../../components/shared/NutXacNhan'
 import HopXacNhan from '../../components/shared/HopXacNhan'
 import { useDanhSachMayChu } from '../../hooks/useDanhSachMayChu'
+import { useDemTab } from '../../hooks/useDemTab'
 import PhanTrang from '../../components/bang/PhanTrang'
 import NhomTab from '../../components/bang/NhomTab'
 import HopThoai, { TieuDeHop } from '../../components/shared/HopThoai'
@@ -68,6 +69,8 @@ const goiDanhSach = async ({ tab, ...q }) => {
   }
   return tab === 'ack' ? getDonationsPendingAck(q) : getDonationsAwaitingPayout(q)
 }
+
+const DEM_UNG_HO = Object.fromEntries(TABS.map((t) => [t.key, () => goiDanhSach({ tab: t.key, page: 1, pageSize: 1 })]))
 
 // Trạng thái chuyển tiếp trong lịch sử — đúng 3 chuỗi backend trả (GetOwnerDonationHistoryQueryHandler.PayoutStatusOf:
 // Paid / Overdue / WithinHoldPeriod). Bản cũ khai "Pending" (backend không bao giờ gửi) nên khoản còn trong hạn
@@ -174,6 +177,8 @@ const OwnerDonationsPage = () => {
   const ds = useDanhSachMayChu({ khoa: ['ung-ho'], goi: goiDanhSach, boLoc: BO_LOC })
   const { tab } = ds.boLoc
   const items = ds.items
+  // MLACP-685: số trên từng tab — cùng hàm gọi của danh sách (goiDanhSach), pageSize 1.
+  const dem = useDemTab('ung-ho', DEM_UNG_HO)
   const isLoading = ds.dangTai
   // Chỉ có ở tab Lịch sử: các con số đếm nằm NGOÀI mảng items của bản tổng hợp.
   const tongHop = tab === 'history' ? ds.duLieu?.tongHop ?? null : null
@@ -235,7 +240,7 @@ const OwnerDonationsPage = () => {
         </button>
       </div>
 
-      <NhomTab nhan="Lọc tiền ủng hộ" dangChon={tab} cacTab={TABS.map((t) => ({ khoa: t.key, nhan: t.label }))}
+      <NhomTab nhan="Lọc tiền ủng hộ" dangChon={tab} cacTab={TABS.map((t) => ({ khoa: t.key, nhan: t.label, dem: dem[t.key] }))}
         onChon={(k) => ds.datBoLoc({ tab: k })} />
 
       {isLoading ? (

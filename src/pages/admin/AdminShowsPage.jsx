@@ -1,8 +1,17 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { ShieldAlert } from 'lucide-react'
 import AllShowsTab from '../../components/admin/shows/AllShowsTab'
 import PendingModerationTab from '../../components/admin/shows/PendingModerationTab'
 import { getPendingModerations } from '../../services/adminServices'
+import { getShows } from '../../services/showServices'
+import { useDemTab } from '../../hooks/useDemTab'
+
+// MLACP-685: số trên cả hai tab, cùng API + tham số của danh sách bên dưới (AllShowsTab gửi includeSoldOut: true). Trước
+// đây số "Chờ duyệt" chỉ được đếm lại khi đổi tab — Admin duyệt xong hay chủ phòng trà gửi thêm thì số đứng yên.
+const DEM = {
+  all: () => getShows({ page: 1, pageSize: 1, includeSoldOut: true }),
+  pending: () => getPendingModerations({ page: 1, pageSize: 1 }),
+}
 
 // Tab thứ hai là HÀNG ĐỢI DUYỆT mọi thứ chủ phòng trà gửi lên (buổi diễn, hạng vé, livestream —
 // GET /moderations/pending). Trước đây tab mang nhãn "Hệ thống gắn cờ", nên Admin tìm buổi diễn chủ vừa
@@ -10,15 +19,8 @@ import { getPendingModerations } from '../../services/adminServices'
 // (đo 30/09: buổi #15 ở trạng thái Pending không hiện ở tab mặc định). Nay gọi đúng tên và hiện số đang chờ.
 const AdminShowsPage = () => {
   const [activeTab, setActiveTab] = useState('all')
-  const [soChoDuyet, setSoChoDuyet] = useState(null)
-
-  useEffect(() => {
-    let huy = false
-    getPendingModerations({ page: 1, pageSize: 1 })
-      .then((res) => { if (!huy && res.success) setSoChoDuyet(res.data?.totalCount ?? null) })
-      .catch(() => {}) // không đếm được thì chỉ không hiện số, không chặn gì
-    return () => { huy = true }
-  }, [activeTab])
+  const dem = useDemTab('admin-buoi-dien', DEM)
+  const soChoDuyet = dem.pending
 
   return (
     <div>
@@ -38,6 +40,7 @@ const AdminShowsPage = () => {
             className={`min-h-[44px] pb-3 text-base font-bold border-b-2 transition-colors ${activeTab === 'all' ? 'border-ink text-ink' : 'border-transparent text-ink-mute hover:text-ink'}`}
           >
             Buổi diễn đang mở bán
+            {dem.all != null && <span className="ml-2 font-mono text-sm tabular-nums">{dem.all.toLocaleString('vi-VN')}</span>}
           </button>
           <button
             onClick={() => setActiveTab('pending')} aria-pressed={activeTab === 'pending'}

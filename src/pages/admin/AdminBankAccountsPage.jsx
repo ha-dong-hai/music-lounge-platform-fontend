@@ -37,6 +37,7 @@ import toast from 'react-hot-toast'
 import { getAdminBankAccounts, reviewPayoutBankAccount } from '../../services/adminServices'
 import { mocUtc } from '../../utils/format'
 import { useDanhSachMayChu } from '../../hooks/useDanhSachMayChu'
+import { useDemTab } from '../../hooks/useDemTab'
 import PhanTrang from '../../components/bang/PhanTrang'
 import NhomTab from '../../components/bang/NhomTab'
 import HopThoai, { TieuDeHop } from '../../components/shared/HopThoai'
@@ -49,6 +50,8 @@ import HopThoai, { TieuDeHop } from '../../components/shared/HopThoai'
 // bị từ chối rời hàng chờ cho tới khi chủ phòng trà sửa lại; tab này để xem lại chúng cùng lý do đã ghi.
 const TAB = ['cho', 'daDuyet', 'tuChoi']
 const BO_LOC = { tab: parseAsStringLiteral(TAB).withDefault('cho') }
+const goiTk = ({ tab, ...q }) => getAdminBankAccounts({ ...q, verified: tab === 'daDuyet', rejected: tab === 'tuChoi' })
+const DEM_TK = Object.fromEntries(TAB.map((k) => [k, () => goiTk({ tab: k, page: 1, pageSize: 1 })]))
 
 const CoDieuKien = ({ dat, chuDat, chuChuaDat }) => (
   <span className={`inline-flex items-center gap-1 text-xs ${dat ? 'text-success' : 'text-danger'}`}>
@@ -160,7 +163,7 @@ const ReviewModal = ({ item, approve, onClose, onSaved }) => {
 const AdminBankAccountsPage = () => {
   const ds = useDanhSachMayChu({
     khoa: ['admin-tk-ngan-hang'],
-    goi: ({ tab, ...q }) => getAdminBankAccounts({ ...q, verified: tab === 'daDuyet', rejected: tab === 'tuChoi' }),
+    goi: goiTk,
     boLoc: BO_LOC,
   })
   const tab = ds.boLoc.tab
@@ -168,9 +171,10 @@ const AdminBankAccountsPage = () => {
   const tuChoi = tab === 'tuChoi'
   const items = ds.items
   const isLoading = ds.dangTai
-  const totalCount = ds.tong
   const load = () => ds.taiLai()
   const [target, setTarget] = useState(null) // { item, approve }
+  // MLACP-685: số trên cả ba tab (trước chỉ "Chờ duyệt" lúc đang mở).
+  const dem = useDemTab('admin-tk-ngan-hang', DEM_TK)
 
   const doiTab = (v) => ds.datBoLoc({ tab: v === 'cho' ? null : v })
 
@@ -194,9 +198,9 @@ const AdminBankAccountsPage = () => {
 
       <NhomTab nhan="Lọc tài khoản theo trạng thái duyệt" dangChon={tab} onChon={doiTab}
         cacTab={[
-          { khoa: 'cho', nhan: 'Chờ duyệt', dem: tab === 'cho' && totalCount > 0 ? totalCount : undefined },
-          { khoa: 'daDuyet', nhan: 'Đã duyệt' },
-          { khoa: 'tuChoi', nhan: 'Đã từ chối' },
+          { khoa: 'cho', nhan: 'Chờ duyệt', dem: dem.cho },
+          { khoa: 'daDuyet', nhan: 'Đã duyệt', dem: dem.daDuyet },
+          { khoa: 'tuChoi', nhan: 'Đã từ chối', dem: dem.tuChoi },
         ]} />
 
       {isLoading ? (

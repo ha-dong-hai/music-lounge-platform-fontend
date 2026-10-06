@@ -8,6 +8,10 @@ import HopXacNhan from '../../shared/HopXacNhan'
 import { getPendingModerations, reviewLivestreamModeration, reviewTicketTier } from '../../../services/adminServices'
 import { FormatBadge } from './ShowBadges'
 import NhomTab from '../../bang/NhomTab'
+import { useDemTab, lamMoiDemTab } from '../../../hooks/useDemTab'
+
+const DEM_KIEM_DUYET = Object.fromEntries(['Show', 'Livestream', 'TicketTier'].map((k) =>
+  [k, () => getPendingModerations({ page: 1, pageSize: 1, targetType: k })]))
 
 // Vòng tròn điểm AI (0 -> 100)
 const AIScoreCircle = ({ score }) => {
@@ -51,6 +55,7 @@ const PendingModerationTab = () => {
       if (res.success) {
         setItems(res.data.items)
         setPagination(prev => ({ ...prev, totalPages: res.data.totalPages, totalCount: res.data.totalCount }))
+        lamMoiDemTab() // MLACP-685: duyệt/từ chối xong danh sách tải lại → số trên tab đổi theo
       }
     } catch {
       toast.error('Không thể tải danh sách chờ duyệt')
@@ -60,6 +65,9 @@ const PendingModerationTab = () => {
   }
 
   useEffect(() => { const chay = async () => { await fetchPending() }; chay() }, [pagination.page, targetType]) // eslint-disable-line react-hooks/exhaustive-deps -- fetchPending tạo mới mỗi lần vẽ; đổi sang useCallback là việc riêng
+
+  // MLACP-685: số việc chờ trên từng loại — cùng API của danh sách, pageSize 1.
+  const dem = useDemTab('cho-kiem-duyet', DEM_KIEM_DUYET)
 
   const handleTabChange = (type) => {
     setTargetType(type)
@@ -115,7 +123,8 @@ const PendingModerationTab = () => {
       {/* NhomTab chung (01/10/2026): bản cũ cao ~36px, chữ tiếng Anh "Show"/"Livestream", không báo tab đang chọn.
           Chạy thật luồng Mux mới mở tới tab này nên bản quét chất lượng (chỉ mở tab mặc định) không thấy. */}
       <NhomTab className="mb-4" nhan="Loại nội dung chờ duyệt" dangChon={targetType} onChon={handleTabChange}
-        cacTab={[{ khoa: 'Show', nhan: 'Buổi diễn' }, { khoa: 'Livestream', nhan: 'Buổi phát' }, { khoa: 'TicketTier', nhan: 'Hạng vé' }]} />
+        cacTab={[{ khoa: 'Show', nhan: 'Buổi diễn' }, { khoa: 'Livestream', nhan: 'Buổi phát' }, { khoa: 'TicketTier', nhan: 'Hạng vé' }]
+          .map((t) => ({ ...t, dem: dem[t.khoa] }))} />
 
       <div className="bg-card border border-line overflow-hidden">
         <div className="overflow-x-auto">

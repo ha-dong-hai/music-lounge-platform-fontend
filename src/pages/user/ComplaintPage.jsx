@@ -20,6 +20,7 @@ import { useAuthStore } from '../../store/useAuthStore'
 import OTruong from '../../components/shared/OTruong'
 import NhanTrangThai from '../../components/shared/NhanTrangThai'
 import { useDanhSachMayChu } from '../../hooks/useDanhSachMayChu'
+import { useDemTab } from '../../hooks/useDemTab'
 import PhanTrang from '../../components/bang/PhanTrang'
 import { ngayDayDu, gioTrongNgay } from '../../utils/ngayVietNam'
 import { laGuid } from '../../utils/format'
@@ -127,6 +128,8 @@ const ComplaintPage = () => {
   const dsMine = useDanhSachMayChu({ khoa: ['khieu-nai-cua-toi', user?.id], goi: getMyComplaints, tien: 'kn', coMacDinh: 10, batDau: Boolean(user) && tab === 'mine' })
   const mine = dsMine.items
   const loadMine = () => dsMine.taiLai()
+  // MLACP-685: số khiếu nại của tôi hiện ngay trên nút, không phải bấm vào mới thấy (hai việc còn lại không có danh sách).
+  const demCuaToi = useDemTab(`khieu-nai-cua-toi-${user?.id}`, { mine: () => getMyComplaints({ page: 1, pageSize: 1 }) }, { batDau: Boolean(user) })
 
   const taiBangChung = async (file) => {
     if (!file) return
@@ -229,6 +232,7 @@ const ComplaintPage = () => {
             <button key={t.key} type="button" aria-pressed={tab === t.key} onClick={() => { setTab(t.key === 'new' ? null : t.key); if (t.key !== 'mine') dsMine.datTrang(1) }}
               className={`min-h-[44px] px-4 border-2 border-ink font-semibold transition-colors ${tab === t.key ? 'bg-ink text-lamp' : 'bg-card text-ink hover:bg-sunken'}`}>
               {t.label}
+              {demCuaToi[t.key] != null && <span className="ml-2 font-mono text-sm tabular-nums">{demCuaToi[t.key]}</span>}
             </button>
           ))}
         </div>

@@ -32,6 +32,7 @@ import { getLounges, getLoungeDetail } from '../../services/loungeServices'
 import { useAuthStore } from '../../store/useAuthStore'
 import { getLoungeFnbOrders, updateFnbOrderStatus } from '../../services/fnbServices'
 import { useDanhSachMayChu } from '../../hooks/useDanhSachMayChu'
+import { useDemTab } from '../../hooks/useDemTab'
 import PhanTrang from '../../components/bang/PhanTrang'
 import NutHuyDon from '../../components/shared/NutHuyDon'
 import NhomTab from '../../components/bang/NhomTab'
@@ -109,6 +110,12 @@ const OwnerFnbOrdersPage = () => {
     lamMoiMoi: 30_000,
   })
   const tab = ds.boLoc.tab
+  // MLACP-685: số trên từng tab. "Tất cả" = tổng 5 trạng thái — FnbOrderStatus có đúng 5 giá trị đó, nên cộng lại là đủ và
+  // đỡ một lệnh (danh sách này tự làm mới 30 giây/lần, số đếm đi theo nó).
+  const demTrangThai = useDemTab(`don-mon-${lounge?.id}`, Object.fromEntries(TAB.filter((t) => t.key !== 'TatCa').map((t) =>
+    [t.key, () => getLoungeFnbOrders(lounge.id, { page: 1, pageSize: 1, status: t.key })])), { batDau: Boolean(lounge) })
+  const cacSo = Object.values(demTrangThai)
+  const dem = { ...demTrangThai, TatCa: cacSo.every((x) => x != null) ? cacSo.reduce((a, b) => a + b, 0) : undefined }
   const hienThi = BEP.includes(tab) ? [...ds.items].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt)) /* MLACP-516: id GUID không trừ được — đơn cũ lên trước theo giờ đặt */ : ds.items
 
   useEffect(() => { const chay = async () => { await loadLounge() }; chay() }, [loadLounge])
@@ -154,7 +161,7 @@ const OwnerFnbOrdersPage = () => {
         </button>
       </div>
 
-      <NhomTab nhan="Lọc đơn theo trạng thái" dangChon={tab} cacTab={TAB.map((t) => ({ khoa: t.key, nhan: t.label }))}
+      <NhomTab nhan="Lọc đơn theo trạng thái" dangChon={tab} cacTab={TAB.map((t) => ({ khoa: t.key, nhan: t.label, dem: dem[t.key] }))}
         onChon={(k) => ds.datBoLoc({ tab: k })} />
 
       {/* MLACP-604: danh sách rỗng thì chỉ khung bên dưới báo (có tên mục đang lọc) — trước đây dòng phân trang cũng in

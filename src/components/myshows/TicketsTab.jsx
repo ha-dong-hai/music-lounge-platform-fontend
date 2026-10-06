@@ -8,12 +8,13 @@
 //    trạng thái còn lại in nguyên chữ tiếng Anh.
 //  - DẤU MỘC cho hai trạng thái TIỀN: đã trả và đã hoàn (luật của thế giới: dấu mộc chỉ nói về tiền).
 //  - Ngày giờ đi qua utils/ngayVietNam; bỏ màu tím/xanh/lục/vàng mặc định của Tailwind.
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { ChevronLeft, ChevronRight, Search, MapPin, Video, QrCode, X } from 'lucide-react'
 import dayjs from 'dayjs'
 import DauMoc from '../program/DauMoc'
 import { getMyTickets } from '../../services/ticketServices'
+import { lamMoiDemTab, useDemTab } from '../../hooks/useDemTab'
 import KyNiemDemDaDen from './KyNiemDemDaDen'
 import { thuVietHoa, ngayGon, gioTrongNgay, ngayDayDu } from '../../utils/ngayVietNam'
 import { TRANG_THAI_VE, laVeTrucTuyen } from '../../utils/trangThaiVe'
@@ -44,6 +45,27 @@ const TicketsTab = () => {
   const [lanTai, setLanTai] = useState(0)
   const [tickets, setTickets] = useState([])
   const [pagination, setPagination] = useState({ page: 1, totalPages: 1, totalCount: 0 })
+  // Từ khoá gửi lên máy chủ sau khi ngừng gõ 300 ms (mỗi phím một lệnh thì tốn hạn mức API).
+  const [tuKhoa, setTuKhoa] = useState('')
+  useEffect(() => { const h = setTimeout(() => setTuKhoa(searchQuery.trim()), 300); return () => clearTimeout(h) }, [searchQuery])
+  // Đổi bộ lọc → về trang 1 (giữ trang 5 thì trang mới có thể rỗng). Ghi ở hàm đổi lọc, không ở effect.
+  const doiThoiGian = (k) => { setActiveSubTab(k); setPagination((p) => ({ ...p, page: 1 })) }
+  const doiLoai = (k) => { setTypeFilter(k); setPagination((p) => ({ ...p, page: 1 })) }
+
+  // MLACP-685: LỌC Ở MÁY CHỦ. Bản trước lọc thời gian / loại vé / từ khoá TRONG TRANG HIỆN TẠI (10 vé) — "Sắp diễn ra" bỏ
+  // sót vé nằm ở trang khác, và số đếm trên nút lọc không thể đúng. Backend đã có sẵn bộ lọc (MLACP-499, MyTicketFilter:
+  // when = Upcoming/Past so giờ BẮT ĐẦU — đúng luật bản cũ dùng; accessType; keyword trên tên buổi, phòng trà, hạng vé, mã vé
+  // — đúng bốn thứ ô tìm kiếm cũ tìm).
+  const thamSoLoc = (thoiGian, loai) => ({
+    when: { upcoming: 'Upcoming', ended: 'Past' }[thoiGian],
+    accessType: { offline: 'Physical', online: 'Livestream' }[loai],
+    keyword: tuKhoa || undefined,
+  })
+  // Khoá theo THAM SỐ (ve|thờiGian|loại|từKhoá): ô "Tất cả × Mọi loại" của hai nhóm và tab "Vé" ở MyShowsPage là cùng một
+  // truy vấn → TanStack gộp thành một lệnh.
+  const dem1 = (tg, loai) => ({ khoa: `ve|${tg}|${loai}|${tuKhoa}`, goi: () => getMyTickets({ page: 1, pageSize: 1, ...thamSoLoc(tg, loai) }) })
+  const demThoiGian = useDemTab('ve-thoi-gian', Object.fromEntries(['all', 'upcoming', 'ended'].map((k) => [k, dem1(k, typeFilter)])))
+  const demLoai = useDemTab('ve-loai', Object.fromEntries(['all', 'offline', 'online'].map((k) => [k, dem1(activeSubTab, k)])))
 
   // GỌI API VÉ
   useEffect(() => {
@@ -51,7 +73,7 @@ const TicketsTab = () => {
       setIsLoading(true)
       setLoi(false)
       try {
-        const res = await getMyTickets({ page: pagination.page, pageSize: ITEMS_PER_PAGE })
+        const res = await getMyTickets({ page: pagination.page, pageSize: ITEMS_PER_PAGE, ...thamSoLoc(activeSubTab, typeFilter) })
         if (res.success) {
           const mapped = res.data.items.map(t => ({
             id: t.id,
@@ -66,6 +88,7 @@ const TicketsTab = () => {
           }))
           setTickets(mapped)
           setPagination(prev => ({ ...prev, totalPages: res.data.totalPages, totalCount: res.data.totalCount }))
+          lamMoiDemTab() // MLACP-685: số trên tab theo danh sách vừa tải
         } else {
           setLoi(true)
         }
@@ -78,29 +101,10 @@ const TicketsTab = () => {
       }
     }
     fetchTickets()
-  }, [pagination.page, lanTai])
+  }, [pagination.page, lanTai, activeSubTab, typeFilter, tuKhoa]) // eslint-disable-line react-hooks/exhaustive-deps -- thamSoLoc chỉ đọc đúng ba giá trị lọc đã liệt kê
 
-  // LỌC KẾT HỢP: thời gian + loại vé + search (client-side trong trang hiện tại)
-  const filteredTickets = useMemo(() => {
-    const q = searchQuery.toLowerCase().trim()
-    return tickets.filter(t => {
-      // 1. Thời gian
-      if (activeSubTab === 'upcoming' && !dayjs(t.start_date).isAfter(dayjs())) return false
-      if (activeSubTab === 'ended' && !dayjs(t.start_date).isBefore(dayjs())) return false
-
-      // 2. Loại vé
-      const online = isOnlineTicket(t.accessType)
-      if (typeFilter === 'offline' && online) return false
-      if (typeFilter === 'online' && !online) return false
-
-      // 3. Tìm kiếm: tên show, phòng trà, loại vé, mã vé
-      if (q) {
-        const haystack = `${t.title || ''} ${t.loungeName || ''} ${t.tierName || ''} ${t.id}`.toLowerCase()
-        if (!haystack.includes(q)) return false
-      }
-      return true
-    })
-  }, [tickets, activeSubTab, typeFilter, searchQuery])
+  // Máy chủ đã lọc (xem trên) — danh sách hiện nguyên trang trả về.
+  const filteredTickets = tickets
 
   const subTabs = [
     { key: 'all', label: 'Tất cả' },
@@ -119,8 +123,8 @@ const TicketsTab = () => {
 
   const resetFilters = () => {
     setSearchQuery('')
-    setTypeFilter('all')
-    setActiveSubTab('all')
+    doiLoai('all')
+    doiThoiGian('all')
   }
 
   const renderPagination = () => {
@@ -153,7 +157,7 @@ const TicketsTab = () => {
         <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-mute" aria-hidden="true" />
         <input
           type="search"
-          aria-label="Tìm vé trong trang hiện tại"
+          aria-label="Tìm vé"
           placeholder="Tìm theo tên buổi diễn, phòng trà hoặc mã vé"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
@@ -170,15 +174,17 @@ const TicketsTab = () => {
       <div className="flex flex-wrap items-center gap-x-6 gap-y-3 mb-8">
         <div className="flex flex-wrap gap-2" role="group" aria-label="Lọc theo thời gian">
           {subTabs.map(tab => (
-            <button type="button" key={tab.key} aria-pressed={activeSubTab === tab.key} onClick={() => setActiveSubTab(tab.key)} className={nutLoc(activeSubTab === tab.key)}>
+            <button type="button" key={tab.key} aria-pressed={activeSubTab === tab.key} onClick={() => doiThoiGian(tab.key)} className={nutLoc(activeSubTab === tab.key)}>
               {tab.label}
+              {demThoiGian[tab.key] != null && <span className="ml-2 font-mono text-xs tabular-nums">{demThoiGian[tab.key]}</span>}
             </button>
           ))}
         </div>
         <div className="flex flex-wrap gap-2" role="group" aria-label="Lọc theo loại vé">
           {typeTabs.map(tab => (
-            <button type="button" key={tab.key} aria-pressed={typeFilter === tab.key} onClick={() => setTypeFilter(tab.key)} className={nutLoc(typeFilter === tab.key)}>
+            <button type="button" key={tab.key} aria-pressed={typeFilter === tab.key} onClick={() => doiLoai(tab.key)} className={nutLoc(typeFilter === tab.key)}>
               {tab.label}
+              {demLoai[tab.key] != null && <span className="ml-2 font-mono text-xs tabular-nums">{demLoai[tab.key]}</span>}
             </button>
           ))}
         </div>

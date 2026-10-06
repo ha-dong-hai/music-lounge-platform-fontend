@@ -18,6 +18,7 @@ import {
 } from '../../services/fnbServices'
 import ConfirmModal from '../../components/shared/ConfirmModal'
 import NhomTab from '../../components/bang/NhomTab'
+import { useDemTab, lamMoiDemTab } from '../../hooks/useDemTab'
 import KhungTai, { TrangLoiTai } from '../../components/bang/KhungTai'
 import HopThoai, { TieuDeHop } from '../../components/shared/HopThoai'
 
@@ -236,6 +237,7 @@ const OwnerFnbMenusPage = () => {
       const res = await getMenuItems(menuId)
       if (!res.success) throw new Error('items')
       setItems(Array.isArray(res.data) ? res.data : res.data?.items ?? [])
+      lamMoiDemTab() // MLACP-685: thêm/xoá món xong thì số món trên tab thực đơn đổi theo
     } catch {
       // Bản cũ: toast rồi "Thực đơn này chưa có món nào" — chủ phòng trà tưởng món đã mất.
       setLoiMon(true)
@@ -244,6 +246,10 @@ const OwnerFnbMenusPage = () => {
       setIsLoadingItems(false)
     }
   }, [menuId])
+
+  // MLACP-685: số món trên từng tab thực đơn (FnbMenuDto không mang số món — đếm bằng chính API danh sách món).
+  const demMon = useDemTab(`thuc-don-${lounge?.id}`, Object.fromEntries(menus.map((m) => [m.id, () => getMenuItems(m.id)])),
+    { batDau: menus.length > 0 })
 
   useEffect(() => { const chay = async () => { await loadMenus() }; chay() }, [loadMenus])
   useEffect(() => { const chay = async () => { await loadItems() }; chay() }, [loadItems])
@@ -308,7 +314,7 @@ const OwnerFnbMenusPage = () => {
       ) : (
         <>
           <NhomTab nhan="Chọn thực đơn" dangChon={menuId} onChon={setMenuId}
-            cacTab={menus.map((m) => ({ khoa: m.id, nhan: m.isActive ? m.name : `${m.name} (đang tắt)` }))} />
+            cacTab={menus.map((m) => ({ khoa: m.id, nhan: m.isActive ? m.name : `${m.name} (đang tắt)`, dem: demMon[m.id] }))} />
 
           {menuId && (
             <div className="bg-card border border-line p-6">
