@@ -16,11 +16,11 @@
 // - Backend BẮT X/Y/Z PHẢI CÙNG CÓ GIÁ TRỊ HOẶC CÙNG TRỐNG (trống cả ba = xoá vị trí 3D). Điền hai
 //   ô rồi bỏ trống ô thứ ba là bị từ chối — cố tình như vậy để không lưu dữ liệu nửa vời.
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { Loader2, Plus, Pencil, Ban, X, LayoutGrid, Save, Image as ImageIcon, Box, Eraser, PenTool, Undo2 } from 'lucide-react'
+import { Loader2, Plus, Pencil, Ban, X, LayoutGrid, Save, Image as ImageIcon, PenTool, Undo2 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import {
   getLounges, getLoungeZones, createZone, updateZone, deactivateZone,
-  setZoneLayout2D, setZoneLayout3D, setAreaLayoutImage, getLoungeDetail,
+  setZoneLayout2D, setAreaLayoutImage, getLoungeDetail,
 } from '../../services/loungeServices'
 import { uploadImage } from '../../services/userServices'
 import ConfirmModal from '../../components/shared/ConfirmModal'
@@ -106,8 +106,6 @@ const OwnerZonesPage = () => {
 
   // Sơ đồ 2D: giữ bản nháp trong state, chỉ gửi lên khi bấm Lưu sơ đồ.
   const [layout, setLayout] = useState({}) // { [zoneId]: {x,y,width,height,rotationDeg,color} }
-  const [layout3D, setLayout3D] = useState({}) // { [zoneId]: {x,y,z} } — chuỗi, '' = chưa điền
-  const [busy3D, setBusy3D] = useState(null)
   const [isSavingLayout, setIsSavingLayout] = useState(false)
   const [isUploadingBg, setIsUploadingBg] = useState(false)
   const keoRef = useRef(null) // { zoneId, offsetX, offsetY }
@@ -153,18 +151,6 @@ const OwnerZonesPage = () => {
         }
       })
       setLayout(nhap)
-
-      // Toạ độ 3D nạp riêng, KHÔNG có giá trị mặc định: chưa đặt thì để trống thật, vì backend
-      // phân biệt "chưa đặt vị trí 3D" với "đặt ở gốc toạ độ 0,0,0".
-      const nhap3D = {}
-      dsZone.forEach((z) => {
-        nhap3D[z.id] = {
-          x: z.layout3DX ?? '',
-          y: z.layout3DY ?? '',
-          z: z.layout3DZ ?? '',
-        }
-      })
-      setLayout3D(nhap3D)
     } catch {
       setLoiTai(true)
     } finally {
@@ -219,31 +205,6 @@ const OwnerZonesPage = () => {
 
   const doiKichThuoc = (zoneId, key, value) => {
     setLayout((p) => ({ ...p, [zoneId]: { ...p[zoneId], [key]: Number(value) } }))
-  }
-
-  // Toạ độ 3D giữ riêng khỏi `layout` (2D) vì hai endpoint khác nhau, lưu độc lập.
-  // Chuỗi rỗng = chưa điền; chỉ gửi khi ĐỦ cả ba, hoặc gửi cả ba null để xoá.
-  const doiToaDo3D = (zoneId, truc, value) => {
-    setLayout3D((p) => ({ ...p, [zoneId]: { ...(p[zoneId] ?? {}), [truc]: value } }))
-  }
-
-  const luuToaDo3D = async (zoneId) => {
-    const o = layout3D[zoneId] ?? {}
-    const so = (v) => (v === '' || v == null ? null : Number(v))
-    const [x, y, z] = [so(o.x), so(o.y), so(o.z)]
-    const soOTrong = [x, y, z].filter((v) => v === null).length
-    if (soOTrong !== 0 && soOTrong !== 3) {
-      toast.error('X, Y, Z phải điền đủ cả ba, hoặc để trống cả ba để xoá vị trí 3D.')
-      return
-    }
-    setBusy3D(zoneId)
-    try {
-      await setZoneLayout3D(lounge.id, zoneId, { x, y, z })
-      toast.success(soOTrong === 3 ? 'Đã xoá vị trí 3D.' : 'Đã lưu vị trí 3D.')
-      await load()
-    } catch (err) {
-      toast.error(err.response?.data?.message || 'Không lưu được vị trí 3D.')
-    } finally { setBusy3D(null) }
   }
 
   const luuSoDo = async () => {
@@ -531,38 +492,12 @@ const OwnerZonesPage = () => {
                       </div>
                     </div>
 
-                    {/* VỊ TRÍ 3D — endpoint riêng, lưu riêng từng khu vực, không đi cùng nút Lưu sơ đồ 2D */}
-                    <div className="mt-3 pt-3 border-t border-line">
-                      <p className="text-xs text-ink-mute flex items-center gap-1.5">
-                        <Box size={12} /> Vị trí trong mô hình 3D
-                        <span className="text-ink-mute">— dùng cho mô hình 3D, không phải sơ đồ chọn chỗ</span>
-                      </p>
-                      <div className="mt-2 flex flex-wrap items-end gap-2">
-                        {['x', 'y', 'z'].map((truc) => (
-                          <div key={truc} className="w-20">
-                            <label className="text-sm font-semibold text-ink">{truc}</label>
-                            <input aria-label={`Toạ độ ${truc.toUpperCase()} trong không gian 3D của ${z.name}`} type="number" step="any"
-                              value={(layout3D[z.id] ?? {})[truc] ?? ''}
-                              onChange={(e) => doiToaDo3D(z.id, truc, e.target.value)}
-                              className="mt-1 w-full tabular-nums min-h-[44px] px-3 py-2 bg-card border-2 border-ink text-ink focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2" />
-                          </div>
-                        ))}
-                        <button onClick={() => luuToaDo3D(z.id)} disabled={busy3D === z.id}
-                          className="flex items-center gap-1.5 disabled:opacity-50 justify-center min-h-[44px] px-4 border-2 border-ink bg-card text-ink text-sm font-semibold hover:bg-ink hover:text-lamp">
-                          {busy3D === z.id ? <Loader2 size={13} className="animate-spin" /> : <Save size={13} />} Lưu 3D
-                        </button>
-                        <button
-                          onClick={() => { doiToaDo3D(z.id, 'x', ''); doiToaDo3D(z.id, 'y', ''); doiToaDo3D(z.id, 'z', '') }}
-                          disabled={busy3D === z.id}
-                          title="Xoá trống cả ba ô rồi bấm Lưu 3D để xoá vị trí" aria-label="Xoá trống cả ba ô rồi bấm Lưu 3D để xoá vị trí"
-                          className="flex items-center gap-1.5 disabled:opacity-50 justify-center min-h-[44px] px-4 border-2 border-ink bg-card text-ink text-sm font-semibold hover:bg-ink hover:text-lamp">
-                          <Eraser size={13} /> Xoá trống
-                        </button>
-                      </div>
-                      <p className="text-xs text-ink-mute mt-1.5">
-                        Phải điền đủ cả ba, hoặc để trống cả ba rồi Lưu để xoá vị trí 3D.
-                      </p>
-                    </div>
+                    {/* MLACP-688 (chủ dự án 06/10/2026: "có bắt buộc cần không không thì bỏ"): đã gỡ ba ô nhập toạ độ x/y/z
+                        "Vị trí trong mô hình 3D". Không chỗ nào đọc giá trị đó — sơ đồ 3D chọn chỗ dựng từ sơ đồ 2D
+                        (SoDoCho3D: "không dựng từ layout3DX/Y/Z"), app di động không dùng, Azure 03/10 có 0 khu nhập. Bắt chủ
+                        phòng trà gõ ba con số không làm gì là bắt làm việc thừa. Backend (SeatingZone.Layout3DX/Y/Z +
+                        PUT /zones/{id}/layout-3d) giữ nguyên, chưa xoá cột. ĐƯỜNG NÂNG CẤP: khi mô hình 3D thật (model3DUrl) cần
+                        đặt nhãn khu, cho chủ BẤM vào mô hình để đặt điểm thay vì gõ số. */}
                   </li>
                 )
               })}
