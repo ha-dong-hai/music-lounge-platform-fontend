@@ -613,7 +613,8 @@ const OwnerTourPage = () => {
         {donGhep ? (
           <div className="mt-4 bg-sunken border border-line p-4">
             <p className="text-sm text-ink flex items-center gap-2">
-              <Clock size={14} className="text-warning" /> Đơn ghép ảnh — {donGhep.status}
+              {/* MLACP-684: trước đây in thẳng tên trạng thái của backend ("Pending") — nhãn đủ 3 giá trị của VenueTourStitchStatus. */}
+              <Clock size={14} className="text-warning" /> Đơn ghép ảnh — {{ Pending: 'đang ghép', Succeeded: 'đã ghép xong', Failed: 'ghép không thành công' }[donGhep.status] ?? 'đang ghép'}
             </p>
             {donGhep.errorMessage && <p className="text-xs text-danger mt-1">{donGhep.errorMessage}</p>}
             <button onClick={kiemTraDonGhep} disabled={busy !== null}
