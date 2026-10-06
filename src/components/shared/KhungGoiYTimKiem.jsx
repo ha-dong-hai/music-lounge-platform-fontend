@@ -45,23 +45,32 @@ const KhungGoiYTimKiem = ({ idKhung, tuKhoa, dangTai, goiY, macDinh, chiSoChon, 
 
   if (dangGo && dangTai) return <div className={`${lop} py-6 text-center text-sm text-ink-mute`} role="status">{t('Đang tìm…')}</div>
   if (dangGo && ds.length === 0) {
-    return <p className={`${lop} px-4 py-4 text-sm text-ink-mute`} role="status">{t('Không có buổi diễn nào khớp. Nhấn Enter để tìm rộng hơn.')}</p>
+    return <p className={`${lop} px-4 py-4 text-sm text-ink-mute`} role="status">{t('Không có buổi diễn, phòng trà hay nghệ sĩ nào khớp. Nhấn Enter để tìm buổi diễn rộng hơn.')}</p>
   }
   if (ds.length === 0) return null
 
+  // MLACP-682: khi đang gõ, gợi ý chia NHÓM (buổi diễn / phòng trà / nghệ sĩ — Algolia federated autocomplete), mỗi nhóm
+  // một tiêu đề; listbox chứa các role="group" có nhãn (WAI-ARIA APG, "listbox with grouped options"). Chỉ số chọn bằng
+  // phím vẫn là chỉ số trong danh sách PHẲNG mà Header giữ, nên mũi tên đi liền qua các nhóm.
+  const NHOM = [['show', t('BUỔI DIỄN')], ['lounge', t('PHÒNG TRÀ')], ['performer', t('NGHỆ SĨ')]]
+  const cacNhom = dangGo
+    ? NHOM.map(([loai, nhan]) => ({ loai, nhan, dong: ds.map((b, i) => ({ b, i })).filter((x) => (x.b.loai ?? 'show') === loai) })).filter((n) => n.dong.length > 0)
+    : [{ loai: 'macdinh', nhan: caNhan ? t('GỢI Ý RIÊNG CHO BẠN') : t('NHIỀU NGƯỜI ĐANG GIỮ CHỖ'), dong: ds.map((b, i) => ({ b, i })) }]
+
   return (
     <div className={lop}>
-      <p id={`${idKhung}-nhan`} className="px-4 pt-3 pb-2 font-mono text-xs tracking-[0.15em] text-ink-mute border-b border-ink/15">
-        {dangGo ? t('BUỔI DIỄN KHỚP') : caNhan ? t('GỢI Ý RIÊNG CHO BẠN') : t('NHIỀU NGƯỜI ĐANG GIỮ CHỖ')}
-      </p>
-      <ul id={idKhung} role="listbox" aria-labelledby={`${idKhung}-nhan`}>
-        {ds.map((b, i) => {
+      <ul id={idKhung} role="listbox" aria-label={t('Gợi ý tìm kiếm')}>
+        {cacNhom.map((n) => (
+          <li key={n.loai} role="presentation">
+            <p id={`${idKhung}-nhom-${n.loai}`} className="px-4 pt-3 pb-2 font-mono text-xs tracking-[0.15em] text-ink-mute border-b border-ink/15">{n.nhan}</p>
+            <ul role="group" aria-labelledby={`${idKhung}-nhom-${n.loai}`}>
+        {n.dong.map(({ b, i }) => {
           const dangTro = i === chiSoChon
           const laAi = b.recommendationSource === 'Ai'
           // Lý do chỉ in khi là lời riêng, không in nhãn chung "Đang thịnh hành" (tiêu đề khung đã nói điều đó).
           const lyDo = caNhan && b.recommendationReason && b.recommendationReason !== 'Đang thịnh hành' ? b.recommendationReason : null
           return (
-            <li key={b.id} id={`${idKhung}-${i}`} role="option" aria-selected={dangTro}
+            <li key={`${b.loai ?? 'show'}-${b.id}`} id={`${idKhung}-${i}`} role="option" aria-selected={dangTro}
               // mousedown + preventDefault: giữ focus ở ô nhập (APG), và bấm không bị "bấm ra ngoài" đóng khung trước.
               onMouseDown={(e) => { e.preventDefault(); onChon(b) }}
               onMouseEnter={() => setChiSoChon(i)}
@@ -74,6 +83,7 @@ const KhungGoiYTimKiem = ({ idKhung, tuKhoa, dangTai, goiY, macDinh, chiSoChon, 
                     {ngayTrongLich(b.scheduledStart)} · {khungGio(b.scheduledStart, b.effectiveEnd)}{b.loungeName ? ` · ${t('tại {{x}}', { x: b.loungeName })}` : ''}
                   </span>
                 )}
+                {b.phu && <span className="block font-mono text-xs text-ink-mute mt-1">{b.phu}</span>}
                 {lyDo && (
                   <span className="block text-sm text-ink-soft leading-snug mt-1.5">
                     {laAi && <span className="font-mono text-xs text-ink mr-1.5">{t('AI chọn ·')}</span>}{lyDo}
@@ -83,6 +93,9 @@ const KhungGoiYTimKiem = ({ idKhung, tuKhoa, dangTai, goiY, macDinh, chiSoChon, 
             </li>
           )
         })}
+            </ul>
+          </li>
+        ))}
       </ul>
       <Link to={dangGo ? `/shows?q=${encodeURIComponent(tuKhoa)}` : '/shows'} tabIndex={-1}
         onMouseDown={(e) => e.preventDefault()} onClick={onDong}

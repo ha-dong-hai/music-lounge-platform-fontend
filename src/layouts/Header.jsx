@@ -6,7 +6,8 @@ import { useAuthStore } from '../store/useAuthStore'
 import toast from 'react-hot-toast'
 import NotificationBell from '../components/notifications/NotificationBell'
 import { getMyProfile } from '../services/userServices'
-import { getShowSuggestions, getTrendingShows, getRecommendedShows } from '../services/showServices'
+import { getShowSuggestions, getTrendingShows, getRecommendedShows, getPerformerSuggestions } from '../services/showServices'
+import { getLounges } from '../services/loungeServices'
 import Wordmark from '../components/brand/Wordmark'
 import KhungGoiYTimKiem from '../components/shared/KhungGoiYTimKiem'
 import { useTranslation } from 'react-i18next'
@@ -94,15 +95,21 @@ const Header = () => {
         setDangTaiGoiY(false)
         return
       }
-      try {
-        const res = await getShowSuggestions(tuKhoa, 8)
-        // Bỏ kết quả của lượt đã bị thay thế: phản hồi về không theo thứ tự sẽ làm danh sách nhảy.
-        if (conHieuLuc && res.success) setGoiY(res.data ?? [])
-      } catch {
-        if (conHieuLuc) setGoiY([])
-      } finally {
-        if (conHieuLuc) setDangTaiGoiY(false)
+      // MLACP-682 (chủ dự án 06/10/2026: "thanh search chỉ đang search được show, không có phòng trà, nghệ sĩ"): gợi ý
+      // theo ba nhóm như ô tìm kiếm gộp (Algolia federated autocomplete — xem KhungGoiYTimKiem). Ba lời gọi song song;
+      // nhóm nào lỗi thì chỉ nhóm đó rỗng, không kéo cả khung về "không có kết quả". Tổng tối đa 4 + 3 + 3 = 10 dòng,
+      // đúng trần 10 gợi ý của Baymard; buổi diễn được nhiều dòng nhất vì vẫn là thứ người ta tìm nhiều nhất.
+      const nhom = async (loai, goi, lay) => {
+        try { const res = await goi(); return res.success ? lay(res.data).map((x) => ({ ...x, loai })) : [] } catch { return [] }
       }
+      const [buoi, phongTra, ngheSi] = await Promise.all([
+        nhom('show', () => getShowSuggestions(tuKhoa, 4), (d) => d ?? []),
+        nhom('lounge', () => getLounges({ keyword: tuKhoa, page: 1, pageSize: 3 }),
+          (d) => (d?.items ?? []).map((l) => ({ id: l.id, name: l.name, coverImageUrl: l.primaryImageUrl, phu: [l.district, l.city].filter(Boolean).join(', ') }))),
+        nhom('performer', () => getPerformerSuggestions(tuKhoa, 3), (d) => (d ?? []).map((p) => ({ id: p.id, name: p.name, coverImageUrl: p.avatarUrl }))),
+      ])
+      // Bỏ kết quả của lượt đã bị thay thế: phản hồi về không theo thứ tự sẽ làm danh sách nhảy.
+      if (conHieuLuc) { setGoiY([...buoi, ...phongTra, ...ngheSi]); setDangTaiGoiY(false) }
     }, DO_TRE_GOI_Y)
     return () => { conHieuLuc = false; clearTimeout(hen) }
   }, [localSearch])
@@ -142,7 +149,7 @@ const Header = () => {
   const chonGoiY = (item) => {
     setMoGoiY(false)
     setLocalSearch('')
-    navigate(`/shows/${item.id}`)
+    navigate(item.loai === 'lounge' ? `/lounge/${item.id}` : item.loai === 'performer' ? `/performers/${item.id}` : `/shows/${item.id}`)
   }
 
   // Điều hướng bằng bàn phím: mũi tên lên/xuống chọn, Enter mở, Esc đóng. Không có phần này thì

@@ -208,6 +208,11 @@ export const getShowSuggestions = async (q, limit = 8) => {
   return axiosClient.get('/lounge-shows/suggestions', { params: { q, limit } });
 };
 
+// MLACP-682: gợi ý nghệ sĩ cho ô tìm kiếm đầu trang (chỉ nghệ sĩ đã có buổi diễn công khai). Trả { id, name, avatarUrl }.
+export const getPerformerSuggestions = async (q, limit = 4) => {
+  return axiosClient.get('/performers/suggestions', { params: { q, limit } });
+};
+
 export const getShowsByLounge = async (loungeId, params = {}) => {
   return axiosClient.get(`/lounge-shows/by-lounge/${loungeId}`, { params });
 };
