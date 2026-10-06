@@ -253,7 +253,10 @@ const ComplaintPage = () => {
                   <button type="button" onClick={saoChepMa} className={NUT_VIEN}>Sao chép mã</button>
                 </div>
                 <p className="text-ink-soft mt-3">
-                  Hãy lưu lại mã này. Nếu bạn không có tài khoản, đây là cách duy nhất để tra lại kết quả: hệ thống không gửi tin nhắn thông báo.
+                  {/* MLACP-690: từ nay ai gửi cũng có mã (trước chỉ khách chưa đăng nhập). */}
+                  {user
+                    ? 'Mã này cũng nằm trong mục “Khiếu nại của tôi”. Dùng nó khi cần nhắc tới khiếu nại này, hoặc tra kết quả trên máy khác bằng mục “Tra cứu bằng mã”.'
+                    : 'Hãy lưu lại mã này. Bạn không có tài khoản nên đây là cách duy nhất để tra lại kết quả: hệ thống không gửi tin nhắn thông báo.'}
                 </p>
               </div>
             )}
@@ -335,7 +338,7 @@ const ComplaintPage = () => {
         {tab === 'lookup' && (
           <div className="space-y-6">
             <form onSubmit={traCuu} noValidate className="border-2 border-ink bg-card p-5 sm:p-8">
-              <OTruong nhan="Mã tra cứu nhận được lúc gửi" goiY="Dành cho người gửi khiếu nại khi chưa có tài khoản." loi={loiTraCuu}>
+              <OTruong nhan="Mã tra cứu nhận được lúc gửi" goiY="Mã hiện ngay sau khi gửi khiếu nại (và trong “Khiếu nại của tôi” nếu bạn có tài khoản)." loi={loiTraCuu}>
                 {(p) => (
                   <div className="flex gap-2">
                     <input {...p} autoCapitalize="characters" spellCheck={false} value={maTraCuu}
@@ -390,6 +393,10 @@ const ComplaintPage = () => {
                       <p className="text-sm text-ink-soft mt-0.5">
                         {TARGET_TYPES.find((t) => t.value === c.targetType)?.label ?? c.targetType}: {c.targetName || '(không còn tồn tại)'}
                       </p>
+                      {/* MLACP-690: mã tra cứu của từng khiếu nại (backend cũ không trả → không in dòng). */}
+                      {c.lookupReference && (
+                        <p className="text-sm text-ink-soft mt-0.5">Mã tra cứu: <code className="font-mono text-ink select-all">{c.lookupReference}</code></p>
+                      )}
                     </div>
                     <NhanKhieuNai status={c.status} />
                   </div>
