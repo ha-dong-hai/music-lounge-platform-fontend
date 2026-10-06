@@ -273,6 +273,14 @@ export const reviewTicketTier = async (tierId, decision, reviewNote = '') => {
   return axiosClient.post(`/moderations/ticket-tiers/${tierId}/review`, { decision, reviewNote });
 };
 
+// MLACP-692: duyệt ẢNH THƯ VIỆN / CẢNH 360 bị AI gắn cờ. loai: 'GalleryImage' | 'TourScene'.
+// Approved giữ nội dung; Rejected (bắt buộc lý do) gỡ nội dung và báo chủ phòng trà.
+export const reviewLoungeMedia = async (loai, id, decision, reviewNote = '') => {
+  const doan = { GalleryImage: 'gallery-images', TourScene: 'tour-scenes' }[loai];
+  if (!doan) return Promise.reject(new Error('loai chỉ nhận "GalleryImage" hoặc "TourScene"'));
+  return axiosClient.post(`/moderations/${doan}/${id}/review`, { decision, reviewNote });
+};
+
 // ===== SOÁT CẤU HÌNH HỆ THỐNG =====
 // Trả về DANH SÁCH CÁI ĐANG THIẾU, không bao giờ trả giá trị cấu hình (không lộ secret).
 // Mỗi dòng: { feature, key, impact, severity } với severity: 'Broken' = tính năng không dùng được,

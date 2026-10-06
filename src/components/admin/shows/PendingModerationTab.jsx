@@ -5,12 +5,18 @@ import dayjs from 'dayjs'
 import DaCho from '../../bang/DaCho'
 import toast from 'react-hot-toast'
 import HopXacNhan from '../../shared/HopXacNhan'
-import { getPendingModerations, reviewLivestreamModeration, reviewTicketTier } from '../../../services/adminServices'
-import { FormatBadge } from './ShowBadges'
+import { getPendingModerations, reviewLivestreamModeration, reviewTicketTier, reviewLoungeMedia } from '../../../services/adminServices'
 import NhomTab from '../../bang/NhomTab'
 import { useDemTab, lamMoiDemTab } from '../../../hooks/useDemTab'
 
-const DEM_KIEM_DUYET = Object.fromEntries(['Show', 'Livestream', 'TicketTier'].map((k) =>
+// MLACP-692: thêm ẢNH THƯ VIỆN và CẢNH 360 — AI gắn cờ hai loại này từ trước nhưng không có tab/nút nào để duyệt, nên
+// chúng kẹt trong hàng chờ và số "Chờ duyệt" ở trên lớn hơn tổng các tab (Azure 06/10: 3 so với 2).
+const LOAI_CHO_DUYET = [
+  { khoa: 'Show', nhan: 'Buổi diễn' }, { khoa: 'Livestream', nhan: 'Buổi phát' }, { khoa: 'TicketTier', nhan: 'Hạng vé' },
+  { khoa: 'GalleryImage', nhan: 'Ảnh phòng trà' }, { khoa: 'TourScene', nhan: 'Cảnh 360°' },
+]
+const LA_ANH = ['GalleryImage', 'TourScene']
+const DEM_KIEM_DUYET = Object.fromEntries(LOAI_CHO_DUYET.map(({ khoa: k }) =>
   [k, () => getPendingModerations({ page: 1, pageSize: 1, targetType: k })]))
 
 // Vòng tròn điểm AI (0 -> 100)
@@ -87,6 +93,7 @@ const PendingModerationTab = () => {
     if (!lyDo.trim()) { setLoiLyDo('Ghi lý do — chủ phòng trà đọc đúng câu này để sửa.'); return }
     const { loai, id } = tuChoi
     if (loai === 'tier') await handleReviewTier(id, 'Rejected', lyDo.trim())
+    else if (loai === 'media') await handleReviewMedia(id, 'Rejected', lyDo.trim())
     else await handleReviewLivestream(id, 'Rejected', lyDo.trim())
     setTuChoi(null)
   }
@@ -99,6 +106,20 @@ const PendingModerationTab = () => {
       await fetchPending()
     } catch (err) {
       toast.error(err.response?.data?.message || 'Không xử lý được hạng vé.')
+    } finally {
+      setBusyId(null)
+    }
+  }
+
+  // MLACP-692: ảnh thư viện / cảnh 360. Đồng ý = giữ; từ chối = gỡ khỏi trang phòng trà (backend báo chủ phòng trà).
+  const handleReviewMedia = async (id, decision, note = '') => {
+    setBusyId(id)
+    try {
+      await reviewLoungeMedia(targetType, id, decision, note)
+      toast.success(decision === 'Approved' ? 'Đã giữ nội dung.' : 'Đã gỡ nội dung và báo chủ phòng trà.')
+      await fetchPending()
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Không xử lý được.')
     } finally {
       setBusyId(null)
     }
@@ -123,15 +144,16 @@ const PendingModerationTab = () => {
       {/* NhomTab chung (01/10/2026): bản cũ cao ~36px, chữ tiếng Anh "Show"/"Livestream", không báo tab đang chọn.
           Chạy thật luồng Mux mới mở tới tab này nên bản quét chất lượng (chỉ mở tab mặc định) không thấy. */}
       <NhomTab className="mb-4" nhan="Loại nội dung chờ duyệt" dangChon={targetType} onChon={handleTabChange}
-        cacTab={[{ khoa: 'Show', nhan: 'Buổi diễn' }, { khoa: 'Livestream', nhan: 'Buổi phát' }, { khoa: 'TicketTier', nhan: 'Hạng vé' }]
-          .map((t) => ({ ...t, dem: dem[t.khoa] }))} />
+        cacTab={LOAI_CHO_DUYET.map((t) => ({ ...t, dem: dem[t.khoa] }))} />
 
       <div className="bg-card border border-line overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left whitespace-nowrap">
             <thead className="bg-sunken border-b-2 border-ink">
               <tr>
-                <th scope="col" className="p-4 text-ink font-semibold text-sm">{targetType} ({targetType} ID)</th>
+                {/* Bản cũ in thô "Show (Show ID)" và thân bảng có thêm một ô FormatBadge luôn trống (DTO không có format) nên
+                    các cột lệch nhau — sửa cùng MLACP-692. */}
+                <th scope="col" className="p-4 text-ink font-semibold text-sm">{LOAI_CHO_DUYET.find((l) => l.khoa === targetType)?.nhan ?? 'Nội dung'}</th>
                 <th scope="col" className="p-4 text-ink font-semibold text-sm">Mức rủi ro</th>
                 <th scope="col" className="p-4 text-ink font-semibold text-sm">Lý do gắn cờ</th>
                 <th scope="col" className="p-4 text-ink font-semibold text-sm">Điểm AI</th>
@@ -150,12 +172,22 @@ const PendingModerationTab = () => {
                 items.map(item => (
                   <tr key={item.id} className="border-b border-line hover:bg-card/50 transition-colors">
                     <td className="p-4 text-ink font-medium">
-                      {/* MLACP-672: backend trả tên (hạng vé/buổi phát đã kèm loại); buổi diễn chỉ là tên nên thêm loại ở đây. */}
-                      {item.targetName ? (targetType === 'Show' ? `Buổi diễn: ${item.targetName}` : item.targetName) : '(không còn tồn tại)'}
-                      <p className="text-xs text-ink-mute mt-1">Tạo lúc {dayjs(item.createdAt).format('HH:mm DD/MM/YYYY')}</p>
-                      <DaCho luc={item.createdAt} han={item.slaDeadline} className="mt-1" />
+                      <div className="flex items-start gap-3">
+                        {/* MLACP-692: duyệt ảnh thì phải NHÌN THẤY ảnh — bấm mở cỡ đầy đủ ở tab mới. */}
+                        {LA_ANH.includes(targetType) && item.targetImageUrl && (
+                          <a href={item.targetImageUrl} target="_blank" rel="noreferrer" className="flex-shrink-0" aria-label="Mở ảnh cỡ đầy đủ">
+                            <img src={item.targetImageUrl} alt="" className="w-28 h-16 object-cover border border-line" />
+                          </a>
+                        )}
+                        <div>
+                          {/* MLACP-672: backend trả tên (hạng vé/buổi phát đã kèm loại); buổi diễn chỉ là tên nên thêm loại ở đây. */}
+                          {item.targetName ? (targetType === 'Show' ? `Buổi diễn: ${item.targetName}` : item.targetName) : '(đã bị chủ phòng trà xoá)'}
+                          {item.loungeName && <p className="text-sm text-ink-soft">{item.loungeName}</p>}
+                          <p className="text-xs text-ink-mute mt-1">Tạo lúc {dayjs(item.createdAt).format('HH:mm DD/MM/YYYY')}</p>
+                          <DaCho luc={item.createdAt} han={item.slaDeadline} className="mt-1" />
+                        </div>
+                      </div>
                     </td>
-                    <td className="p-4"><FormatBadge format={item.format} /></td>
                     <td className="p-4"><RiskLevelBadge level={item.riskLevel} /></td>
                     <td className="p-4">
                       {item.flagReason ? (
@@ -171,7 +203,24 @@ const PendingModerationTab = () => {
                       {item.slaDeadline ? dayjs(item.slaDeadline).format('HH:mm DD/MM') : '-'}
                     </td>
                     <td className="p-4 text-right">
-                      {targetType === 'TicketTier' ? (
+                      {LA_ANH.includes(targetType) ? (
+                        <div className="flex items-center justify-end gap-2 flex-wrap">
+                          <button
+                            onClick={() => handleReviewMedia(item.targetId, 'Approved')}
+                            disabled={busyId === item.targetId}
+                            className="inline-flex items-center gap-1.5 disabled:opacity-50 justify-center min-h-[44px] px-4 border-2 border-success bg-card text-success text-sm font-semibold hover:bg-success hover:text-lamp"
+                          >
+                            <Check size={14} aria-hidden="true" /> Giữ
+                          </button>
+                          <button
+                            type="button" onClick={() => { setLyDo(''); setLoiLyDo(null); setTuChoi({ loai: 'media', id: item.targetId, ten: item.targetName }) }}
+                            disabled={busyId === item.targetId}
+                            className="inline-flex items-center gap-1.5 disabled:opacity-50 justify-center min-h-[44px] px-4 border-2 border-danger bg-card text-danger text-sm font-semibold hover:bg-danger hover:text-lamp"
+                          >
+                            <X size={14} aria-hidden="true" /> Gỡ
+                          </button>
+                        </div>
+                      ) : targetType === 'TicketTier' ? (
                         <div className="flex items-center justify-end gap-2 flex-wrap">
                           <button
                             onClick={() => handleReviewTier(item.targetId, 'Approved')}
@@ -231,7 +280,7 @@ const PendingModerationTab = () => {
         {/* PAGINATION */}
         {!isLoading && items.length > 0 && pagination.totalPages > 1 && (
           <div className="flex items-center justify-between p-4 border-t border-line">
-            <p className="text-sm text-ink-mute">Page {pagination.page} / {pagination.totalPages}</p>
+            <p className="text-sm text-ink-mute">Trang {pagination.page} / {pagination.totalPages}</p>
             <div className="flex gap-2">
               <button
                 onClick={() => setPagination(prev => ({ ...prev, page: prev.page - 1 }))}
@@ -250,8 +299,10 @@ const PendingModerationTab = () => {
         )}
       </div>
       <HopXacNhan mo={!!tuChoi} dangXuLy={busyId != null} nhanGiu="Không, quay lại"
-        tieuDe={`Từ chối ${tuChoi?.ten || (tuChoi?.loai === 'tier' ? 'hạng vé này' : 'buổi phát này')}?`}
-        nhanXacNhan="Từ chối" onDong={() => setTuChoi(null)} onXacNhan={guiTuChoi}>
+        tieuDe={tuChoi?.loai === 'media'
+          ? `Gỡ ${tuChoi?.ten || 'nội dung này'} khỏi trang phòng trà?`
+          : `Từ chối ${tuChoi?.ten || (tuChoi?.loai === 'tier' ? 'hạng vé này' : 'buổi phát này')}?`}
+        nhanXacNhan={tuChoi?.loai === 'media' ? 'Gỡ' : 'Từ chối'} onDong={() => setTuChoi(null)} onXacNhan={guiTuChoi}>
         <label htmlFor="ly-do-tu-choi" className="block font-semibold text-ink">Lý do <span className="text-danger" aria-hidden="true">*</span><span className="sr-only"> (bắt buộc)</span></label>
         <p id="ly-do-tu-choi-goi-y" className="text-sm">Gửi nguyên văn cho chủ phòng trà.</p>
         <textarea id="ly-do-tu-choi" rows={3} maxLength={1000} value={lyDo} onChange={(e) => { setLyDo(e.target.value); setLoiLyDo(null) }}
