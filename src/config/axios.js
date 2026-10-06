@@ -1,7 +1,18 @@
 import axios from 'axios';
+import { useAuthStore } from '../store/useAuthStore';
 
+// ĐỊA CHỈ MÁY CHỦ — đọc từ biến môi trường, rơi về máy chủ hiện tại nếu không đặt.
+// Vì sao cần: trước đây địa chỉ này dán cứng, nên muốn trỏ sang môi trường khác (máy cá nhân, bản
+// thử) là phải sửa mã rồi build lại. Dự án đã có sẵn cơ chế biến môi trường (Firebase đang dùng),
+// chỉ chỗ này là chưa theo.
+// GIÁ TRỊ MẶC ĐỊNH GIỮ NGUYÊN máy chủ đang chạy, nên không đặt biến thì mọi thứ y như cũ.
+//
+// LƯU Ý KHI ĐƯA FE LÊN TÊN MIỀN THẬT: máy chủ hiện chỉ cho ĐÚNG MỘT origin là http://localhost:5173
+// (Cors__AllowedOrigins__0). Đổi địa chỉ này sang tên miền thật mà chưa thêm origin đó ở máy chủ thì
+// trình duyệt chặn mọi lời gọi — và nó hiện ra dưới dạng "lỗi mạng" khó đoán, không phải lỗi CORS
+// rõ ràng. Phải nhờ backend thêm origin TRƯỚC khi đổi.
 const axiosClient = axios.create({
-  baseURL: 'https://musiclounge-api.azurewebsites.net/api/v1',
+  baseURL: import.meta.env.VITE_API_BASE_URL || 'https://musiclounge-api.azurewebsites.net/api/v1',
   headers: {
     'Content-Type': 'application/json',
   },
@@ -22,10 +33,10 @@ const axiosClient = axios.create({
   }
 });
 
-// Interceptor Request: Tự động gắn token
+// Interceptor Request: Tự động gắn token (đọc từ store, không phải localStorage thô)
 axiosClient.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
+    const token = useAuthStore.getState().token;
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -34,14 +45,56 @@ axiosClient.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Interceptor Response: Trả về thẳng data để service xử lý
+// Gọi refresh token thô, không qua axiosClient để tránh lặp lại chính interceptor này
+const refreshAuthToken = async (refreshToken) => {
+  const res = await axios.post(
+    `${axiosClient.defaults.baseURL}/auth/refresh`,
+    { refreshToken }
+  );
+  return res.data.data; // AuthResultDto
+};
+
+let refreshPromise = null;
+
+// Interceptor Response: Trả về thẳng data để service xử lý; 401 thì thử refresh 1 lần trước khi logout
 axiosClient.interceptors.response.use(
-  (response) => response.data,
-  (error) => {
-    // Xử lý lỗi tập trung (VD: 401 thì logout)
-    if (error.response?.status === 401) {
-      console.warn('Unauthorized! Cần đăng nhập lại.');
+  (response) => {
+    // 204 hoặc body rỗng: trả về phong bì chuẩn để service không phải kiểm undefined riêng.
+    if (response.status === 204 || response.data === '' || response.data == null) {
+      return { success: true, data: null, message: null };
     }
+    return response.data;
+  },
+  async (error) => {
+    const originalRequest = error.config;
+    const status = error.response?.status;
+    const isAuthEndpoint = originalRequest?.url?.includes('/auth/');
+
+    if (status === 401 && !originalRequest?._retry && !isAuthEndpoint) {
+      const { refreshToken, logout, login } = useAuthStore.getState();
+
+      if (!refreshToken) {
+        logout();
+        return Promise.reject(error);
+      }
+
+      originalRequest._retry = true;
+      try {
+        if (!refreshPromise) {
+          refreshPromise = refreshAuthToken(refreshToken).finally(() => {
+            refreshPromise = null;
+          });
+        }
+        const authResult = await refreshPromise;
+        login(authResult);
+        originalRequest.headers.Authorization = `Bearer ${authResult.token}`;
+        return axiosClient(originalRequest);
+      } catch (refreshError) {
+        logout();
+        return Promise.reject(refreshError);
+      }
+    }
+
     return Promise.reject(error);
   }
 );

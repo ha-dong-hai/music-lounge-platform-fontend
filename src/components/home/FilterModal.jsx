@@ -7,20 +7,20 @@ import { getFilterOptions } from '../../services/showServices'
 import { getProvinces, getWardsOfProvince } from '../../services/catalogServices'
 
 const baseButtonClasses = "px-4 py-2 rounded-lg border text-sm font-medium transition-all"
-const activeBtnClasses = "bg-gray-900 text-white border-gray-900"
-const inactiveBtnClasses = "bg-white text-gray-700 border-gray-300 hover:border-gray-400 active:bg-gray-50"
+const activeBtnClasses = "bg-[#C3B665] text-black border-[#C3B665] font-bold"
+const inactiveBtnClasses = "bg-black/30 text-gray-300 border-gray-700 hover:border-[#C3B665] hover:text-[#C3B665]"
 
 const FilterModal = ({ isOpen, onClose, initialFilters, onApply }) => {
   const [localFilters, setLocalFilters] = useState(initialFilters)
   
-  // ⭐ STATE CHỨA DATA TỪ BE
+  // STATE CHỨA DATA TỪ BE
   const [options, setOptions] = useState({ genres: [], moods: [], atmospheres: [], cities: [] })
   // MLACP-522: tỉnh và phường/xã lấy từ danh mục hành chính chính thức (không còn cấp quận/huyện). Lưu cả TÊN (để hiện
-  // nhãn) lẫn MÃ (để gửi lên tìm kiếm).
+  // nhãn) lẫn MÃ (để gửi lên tìm kiếm) — tìm theo mã thì "TP.HCM" và "Thành phố Hồ Chí Minh" không còn là hai nơi.
   const [provinces, setProvinces] = useState([])
   const [wards, setWards] = useState([])
 
-  // ⭐ GỌI API LẤY FILTER OPTIONS LẦN ĐẦU
+  // GỌI API LẤY FILTER OPTIONS LẦN ĐẦU
   useEffect(() => {
     const fetchOptions = async () => {
       try {
@@ -29,7 +29,7 @@ const FilterModal = ({ isOpen, onClose, initialFilters, onApply }) => {
           setOptions(res.data)
         }
       } catch (err) {
-        console.error('Lỗi tải filter options:', err)
+        console.error('Error loading filter options:', err)
       }
     }
     fetchOptions()
@@ -38,7 +38,7 @@ const FilterModal = ({ isOpen, onClose, initialFilters, onApply }) => {
   useEffect(() => {
     getProvinces()
       .then(res => { if (res.success) setProvinces(res.data) })
-      .catch(err => console.error('Lỗi tải danh sách tỉnh/thành:', err))
+      .catch(err => console.error('Error loading provinces:', err))
   }, [])
 
   // Chọn tỉnh xong mới tải phường/xã của tỉnh đó.
@@ -46,7 +46,7 @@ const FilterModal = ({ isOpen, onClose, initialFilters, onApply }) => {
     if (!localFilters.selectedProvinceCode) return
     getWardsOfProvince(localFilters.selectedProvinceCode)
       .then(res => { if (res.success) setWards(res.data) })
-      .catch(err => console.error('Lỗi tải phường/xã:', err))
+      .catch(err => console.error('Error loading wards:', err))
   }, [localFilters.selectedProvinceCode])
 
   useEffect(() => {
@@ -93,13 +93,14 @@ const FilterModal = ({ isOpen, onClose, initialFilters, onApply }) => {
 
   return (
     <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center">
-      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity" onClick={onClose} />
+      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm transition-opacity" onClick={onClose} />
       
-      <div className="relative bg-white w-full max-w-3xl h-[90vh] max-h-[90vh] sm:h-auto sm:max-h-[85vh] flex flex-col rounded-t-2xl sm:rounded-2xl shadow-2xl animate-in slide-in-from-bottom duration-300 overflow-hidden">
+      <div className="relative bg-[#1a1a1a] w-full max-w-3xl h-[90vh] max-h-[90vh] sm:h-auto sm:max-h-[85vh] flex flex-col rounded-t-2xl sm:rounded-2xl shadow-2xl animate-in slide-in-from-bottom duration-300 overflow-hidden border border-[#C3B665]/30">
         
-        <div className="flex-none w-full flex items-center justify-between p-6 border-b border-gray-100 bg-white z-10">
-          <h2 className="text-xl font-bold text-gray-900">Filter</h2>
-          <button onClick={onClose} className="p-2 hover:bg-gray-100 text-gray-500 rounded-full transition-colors">
+        {/* HEADER */}
+        <div className="flex-none w-full flex items-center justify-between p-6 border-b border-[#C3B665]/20 bg-[#1a1a1a] z-10">
+          <h2 className="text-xl font-bold text-white">Filter</h2>
+          <button onClick={onClose} className="p-2 hover:bg-white/10 text-gray-400 hover:text-[#C3B665] rounded-full transition-colors">
             <X size={24} strokeWidth={2} />
           </button>
         </div>
@@ -108,7 +109,7 @@ const FilterModal = ({ isOpen, onClose, initialFilters, onApply }) => {
           
           <section className="space-y-4 relative">
             <SearchableDropdown
-              label="City"
+              label="Tỉnh/Thành phố"
               options={provinces.map(p => p.name)}
               selectedItems={localFilters.selectedProvince ? [localFilters.selectedProvince] : []}
               onAdd={(val) => setLocalFilters(prev => ({
@@ -118,11 +119,11 @@ const FilterModal = ({ isOpen, onClose, initialFilters, onApply }) => {
               onRemove={() => setLocalFilters(prev => ({
                 ...prev, selectedProvince: null, selectedProvinceCode: null, selectedWard: null, selectedWardCode: null,
               }))}
-              placeholder="Tỉnh thành"
+              placeholder="Tỉnh/Thành phố"
               multiSelect={false}
             />
             <SearchableDropdown
-              label="Ward"
+              label="Phường/Xã"
               options={localFilters.selectedProvinceCode ? wards.map(w => w.name) : []}
               selectedItems={localFilters.selectedWard ? [localFilters.selectedWard] : []}
               onAdd={(val) => setLocalFilters(prev => ({
@@ -135,12 +136,12 @@ const FilterModal = ({ isOpen, onClose, initialFilters, onApply }) => {
             />
           </section>
 
-          <hr className="border-gray-200"/>
+          <hr className="border-gray-800"/>
 
           <section className="space-y-6">
-            <h3 className="font-bold text-lg text-gray-900">Music</h3>
+            <h3 className="font-bold text-lg text-white">Âm nhạc</h3>
             <HorizontalTagSlider
-              label="Genre"
+              label="Thể loại"
               options={options.genres}
               selectedItems={localFilters.selectedGenres}
               onSelect={(val) => toggleArrItem('selectedGenres', val)}
@@ -148,41 +149,45 @@ const FilterModal = ({ isOpen, onClose, initialFilters, onApply }) => {
             />
           </section>
 
-          <hr className="border-gray-200"/>
+          <hr className="border-gray-800"/>
 
           <section className="space-y-4">
-            <h3 className="font-bold text-lg text-gray-900">Pricing</h3>
+            <h3 className="font-bold text-lg text-white">Mức giá</h3>
             <div className="flex items-center gap-3">
               <div className="relative flex-1">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm font-medium">đ</span>
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm font-medium">đ</span>
                 <input 
                   type="number"
-                  placeholder="From"
+                  min="0"
+                  step="1"
+                  placeholder="Từ"
                   value={localFilters.minPrice}
                   onChange={e => setLocalFilters(prev => ({ ...prev, minPrice: e.target.value }))}
-                  className="w-full pl-7 pr-3 py-2.5 border border-gray-300 rounded-lg text-sm text-black focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  className="w-full pl-7 pr-3 py-2.5 bg-black border border-gray-800 rounded-lg text-sm text-white placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-[#C3B665] focus:border-transparent [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 />
               </div>
-              <span className="text-gray-400 font-light">—</span>
+              <span className="text-gray-600 font-light">—</span>
               <div className="relative flex-1">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm font-medium">đ</span>
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm font-medium">đ</span>
                 <input 
                   type="number"
-                  placeholder="To"
+                  min="0"
+                  step="1"
+                  placeholder="Đến"
                   value={localFilters.maxPrice}
                   onChange={e => setLocalFilters(prev => ({ ...prev, maxPrice: e.target.value }))}
-                  className="w-full pl-7 pr-3 py-2.5 border border-gray-300 rounded-lg text-sm text-black focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  className="w-full pl-7 pr-3 py-2.5 bg-black border border-gray-800 rounded-lg text-sm text-white placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-[#C3B665] focus:border-transparent [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 />
               </div>
             </div>
           </section>
 
-          <hr className="border-gray-200"/>
+          <hr className="border-gray-800"/>
 
           <section className="space-y-5">
-            <h3 className="font-bold text-lg text-gray-900">Music Lounge</h3>
+            <h3 className="font-bold text-lg text-white">Phòng trà</h3>
             <div className="space-y-2">
-              <label className="block text-sm font-semibold text-gray-900">Atmosphere</label>
+              <label className="block text-sm font-semibold text-gray-300">Không gian</label>
               <div className="flex flex-wrap gap-2">
                 {options.atmospheres.map((space) => {
                   const isSelected = localFilters.selectedSpaces.includes(space.name)
@@ -200,7 +205,7 @@ const FilterModal = ({ isOpen, onClose, initialFilters, onApply }) => {
             </div>
 
             <div className="space-y-2 pt-2">
-              <label className="block text-sm font-semibold text-gray-900">Mood</label>
+              <label className="block text-sm font-semibold text-gray-300">Tâm trạng</label>
               <div className="flex flex-wrap gap-2">
                 {options.moods.map((mood) => {
                   const isSelected = localFilters.selectedMoods.includes(mood.name)
@@ -220,18 +225,19 @@ const FilterModal = ({ isOpen, onClose, initialFilters, onApply }) => {
           <div className="h-4"></div>
         </div>
 
-        <div className="flex-none w-full bg-white border-t border-gray-100 p-6 grid grid-cols-2 gap-4 z-10">
+        {/* FOOTER */}
+        <div className="flex-none w-full bg-[#1a1a1a] border-t border-[#C3B665]/20 p-6 grid grid-cols-2 gap-4 z-10">
           <button
             onClick={handleReset}
-            className="py-3 rounded-xl border border-gray-300 text-gray-700 font-semibold hover:bg-gray-50 transition-colors cursor-pointer"
+            className="py-3 rounded-xl border border-gray-700 text-gray-300 font-semibold hover:bg-gray-800 hover:border-gray-600 transition-colors cursor-pointer"
           >
-            Reset
+            Đặt lại
           </button>
           <button
             onClick={handleApplyClick}
-            className="py-3 rounded-xl bg-gray-900 text-white font-semibold hover:bg-gray-800 transition-colors shadow-lg cursor-pointer"
+            className="py-3 rounded-xl bg-[#C3B665] text-black font-semibold hover:bg-[#d4c87f] transition-colors shadow-lg shadow-[#C3B665]/20 cursor-pointer"
           >
-            Apply
+            Áp dụng
           </button>
         </div>
       </div>

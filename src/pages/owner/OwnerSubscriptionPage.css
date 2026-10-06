@@ -1,0 +1,225 @@
+.owner-sub-page {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.owner-sub-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.owner-sub-title-group {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.owner-sub-icon {
+  color: var(--primary-color, #3b82f6);
+}
+
+.owner-sub-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin: 0;
+  color: var(--text-primary, #ffffff);
+}
+
+.owner-sub-subtitle {
+  margin: 0;
+  color: var(--text-secondary, #9ca3af);
+  font-size: 0.95rem;
+  margin-top: 0.25rem;
+}
+
+.owner-sub-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 400px;
+  gap: 1rem;
+  color: var(--text-secondary, #9ca3af);
+}
+
+/* Current Subscription Status */
+.current-sub-card {
+  background: var(--bg-card, #1f2937);
+  border: 1px solid var(--border-color, #374151);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 3rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.current-sub-info h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary, #ffffff);
+  margin-bottom: 0.5rem;
+}
+
+.current-sub-info p {
+  margin: 0;
+  color: var(--text-secondary, #9ca3af);
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.sub-status-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  background: var(--bg-surface, #374151);
+  color: var(--text-primary, #ffffff);
+}
+
+.sub-status-badge.active {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+}
+
+.sub-status-badge.expired {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+}
+
+/* Pricing Grid */
+.packages-section h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.packages-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  padding: 1rem 0;
+}
+
+.package-card {
+  background: var(--bg-card, #1f2937);
+  border: 1px solid var(--border-color, #374151);
+  border-radius: 16px;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.package-card:hover {
+  transform: translateY(-5px);
+  border-color: var(--primary-color, #3b82f6);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2);
+}
+
+.package-header {
+  text-align: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border-color, #374151);
+}
+
+.package-name {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary, #ffffff);
+  margin: 0 0 1rem 0;
+}
+
+.package-price {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.25rem;
+}
+
+.price-amount {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: var(--text-primary, #ffffff);
+}
+
+.price-currency {
+  font-size: 1rem;
+  color: var(--text-secondary, #9ca3af);
+  font-weight: 600;
+}
+
+.package-desc {
+  margin: 1rem 0 0 0;
+  color: var(--text-secondary, #9ca3af);
+  font-size: 0.95rem;
+}
+
+.package-features {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 2rem 0;
+  flex-grow: 1;
+}
+
+.package-features li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  color: var(--text-primary, #e5e7eb);
+  font-size: 0.95rem;
+}
+
+.feature-icon {
+  color: var(--primary-color, #3b82f6);
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+
+.btn-subscribe {
+  width: 100%;
+  padding: 1rem;
+  border: none;
+  border-radius: 8px;
+  background: var(--primary-color, #3b82f6);
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.btn-subscribe:hover:not(:disabled) {
+  background: var(--primary-hover, #2563eb);
+}
+
+.btn-subscribe:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.spinner-icon {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}

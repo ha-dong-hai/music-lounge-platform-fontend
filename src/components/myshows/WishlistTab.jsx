@@ -1,0 +1,84 @@
+// src/components/myshows/WishlistTab.jsx
+
+import { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
+import { Heart } from 'lucide-react'
+import ShowCard from '../home/ShowCard'
+import Skeleton from '../shared/Skeleton'
+import { getWishlist } from '../../services/interactionServices'
+import { formatMinPrice } from '../../utils/formatPrice'
+
+const WishlistTab = () => {
+  const [isLoading, setIsLoading] = useState(true)
+  const [wishlistShows, setWishlistShows] = useState([])
+
+  // GỌI API WISHLIST
+  useEffect(() => {
+    const fetchWishlist = async () => {
+      setIsLoading(true)
+      try {
+        const res = await getWishlist()
+        if (res.success) {
+          const items = res.data.items || res.data || []
+          const mapped = items.map(show => ({
+            id: show.id,
+            title: show.name,
+            format: show.format,
+            thumbnail: show.coverImageUrl,
+            start_date: show.scheduledStart,
+            price: formatMinPrice(show),
+            isWishlisted: true // MỌI item trong tab này đều đang được wishlist
+          }))
+          setWishlistShows(mapped)
+        }
+      } catch (err) {
+        console.error('Lỗi load wishlist:', err)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    fetchWishlist()
+  }, [])
+
+  // CALLBACK từ ShowCard sau khi toggle wishlist thành công
+  const handleWishlistChange = (id, isNowWishlisted) => {
+    // Bỏ wishlist → gỡ item khỏi danh sách hiển thị ngay lập tức
+    if (!isNowWishlisted) {
+      setWishlistShows(prev => prev.filter(ev => ev.id !== id))
+    }
+  }
+
+  return (
+    <div>
+      {isLoading ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-5 md:gap-x-6 gap-y-8">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="flex flex-col gap-3">
+              <Skeleton className="w-full aspect-video rounded-xl" />
+              <Skeleton className="h-4 w-3/4" />
+              <Skeleton className="h-3 w-1/2" />
+            </div>
+          ))}
+        </div>
+      ) : wishlistShows.length > 0 ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-5 md:gap-x-6 gap-y-8">
+          {wishlistShows.map(ev => (
+            <ShowCard
+              key={ev.id}
+              {...ev}
+              onWishlistChange={(newStatus) => handleWishlistChange(ev.id, newStatus)}
+            />
+          ))}
+        </div>
+      ) : (
+        <div className="bg-card border border-line rounded-2xl p-12 text-center min-h-[300px] flex flex-col items-center justify-center">
+          <Heart size={40} className="text-ink-mute mb-4" />
+          <p className="text-ink-soft text-lg">Danh sách yêu thích đang trống.</p>
+          <Link to="/" className="mt-4 text-brand-text font-semibold underline hover:text-brand-text">Tìm đêm diễn bạn yêu thích</Link>
+        </div>
+      )}
+    </div>
+  )
+}
+
+export default WishlistTab

@@ -1,0 +1,151 @@
+// src/layouts/OwnerLayout.jsx
+// GHI CHÚ CHO ĐỘI FE: layout phỏng theo AdminLayout.jsx. Chỉ thêm mục nav khi trang đã thật sự
+// tồn tại, tránh link chết.
+// ĐÃ CÓ: buổi diễn (tạo/sửa/gửi duyệt + line-up + hạng vé), vận hành livestream, báo cáo doanh thu,
+// gói dịch vụ.
+// Các mục từng thiếu (thực đơn F&B, màn bếp, tài khoản nhận tiền, nhân viên, hồ sơ phòng trà,
+// khu vực/zone, tour 360°, donate phía chủ, án phạt venue, tiền & quyết toán) NAY ĐÃ CÓ ĐỦ.
+import { Outlet, NavLink, Link } from 'react-router-dom'
+import { Radio, LogOut, Package, BarChart3, CalendarDays, Store, Landmark, ScanLine, UtensilsCrossed, BookOpen, Mic2, Users, HeartHandshake, ShieldAlert, LayoutGrid, Box, Wallet, ShieldCheck, ExternalLink } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import { useAuthStore } from '../store/useAuthStore'
+
+const OwnerLayout = () => {
+  const navigate = useNavigate()
+  const logout = useAuthStore((s) => s.logout)
+  // Staff chỉ vận hành được livestream (RequireVenueOperator). Buổi diễn, báo cáo doanh thu và
+  // gói dịch vụ gọi endpoint RequireOwner — không hiện cửa mà Staff bấm vào sẽ bị đẩy ra.
+  // Phải khớp với guard từng route trong AppRouter.jsx.
+  const isOwner = useAuthStore((s) => s.user?.role) === 'Owner'
+
+  const handleLogout = () => {
+    logout()
+    navigate('/login')
+  }
+
+  const linkClasses = ({ isActive }) =>
+    `flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${isActive
+      ? 'bg-sunken text-brand-text'
+      : 'text-ink-soft hover:text-ink hover:bg-sunken/50'
+    }`
+
+  return (
+    <div className="flex h-screen bg-page overflow-hidden">
+
+      <aside className="w-64 bg-card text-ink flex flex-col h-full flex-shrink-0 border-r border-line">
+        <div className="h-16 flex items-center px-6 border-b border-line">
+          <h1 className="text-xl font-bold tracking-wider text-brand-text">OWNER PORTAL</h1>
+        </div>
+
+        <nav className="flex-1 overflow-y-auto py-6 space-y-2 px-4">
+          {isOwner && (
+            <NavLink to="/owner/lounge" className={linkClasses}>
+              <Store size={18} /> Hồ sơ phòng trà
+            </NavLink>
+          )}
+          {isOwner && (
+            <NavLink to="/owner/zones" className={linkClasses}>
+              <LayoutGrid size={18} /> Khu vực chỗ ngồi
+            </NavLink>
+          )}
+          {isOwner && (
+            <NavLink to="/owner/tour" className={linkClasses}>
+              <Box size={18} /> Tour 360°
+            </NavLink>
+          )}
+          {isOwner && (
+            <NavLink to="/owner/performers" className={linkClasses}>
+              <Mic2 size={18} /> Nghệ sĩ
+            </NavLink>
+          )}
+          {isOwner && (
+            <NavLink to="/owner/staff" className={linkClasses}>
+              <Users size={18} /> Nhân viên
+            </NavLink>
+          )}
+          {isOwner && (
+            <NavLink to="/owner/fnb-menus" className={linkClasses}>
+              <BookOpen size={18} /> Thực đơn
+            </NavLink>
+          )}
+          {isOwner && (
+            <NavLink to="/owner/shows" className={linkClasses}>
+              <CalendarDays size={18} /> Buổi diễn
+            </NavLink>
+          )}
+          {/* Nhân viên dùng được: soát vé, bán vé quầy, bắt đầu/kết thúc đều là RequireVenueOperator */}
+          <NavLink to="/owner/operate" className={linkClasses}>
+            <ScanLine size={18} /> Vận hành đêm diễn
+          </NavLink>
+          <NavLink to="/owner/fnb-orders" className={linkClasses}>
+            <UtensilsCrossed size={18} /> Đơn gọi món
+          </NavLink>
+          <NavLink to="/owner/livestreams" className={linkClasses}>
+            <Radio size={18} /> Livestreams
+          </NavLink>
+          {isOwner && (
+            <>
+              <NavLink to="/owner/donations" className={linkClasses}>
+                <HeartHandshake size={18} /> Tiền donate
+              </NavLink>
+              <NavLink to="/owner/penalties" className={linkClasses}>
+                <ShieldAlert size={18} /> Án phạt
+              </NavLink>
+              <NavLink to="/owner/analytics" className={linkClasses}>
+                <BarChart3 size={18} /> Báo cáo doanh thu
+              </NavLink>
+              <NavLink to="/owner/finance" className={linkClasses}>
+                <Wallet size={18} /> Tiền &amp; quyết toán
+              </NavLink>
+              <NavLink to="/owner/bank-accounts" className={linkClasses}>
+                <Landmark size={18} /> Tài khoản nhận tiền
+              </NavLink>
+              <NavLink to="/owner/subscription" className={linkClasses}>
+                <Package size={18} /> Gói dịch vụ
+              </NavLink>
+            </>
+          )}
+
+          {/* HAI LỐI RA, ĐỂ NGOÀI KHỐI CHỈ-DÀNH-CHO-CHỦ vì cả nhân viên cũng cần:
+              - Tài khoản: nhân viên cũng có hồ sơ riêng, và với chủ phòng trà thì XÁC MINH DANH
+                TÍNH là cửa BẮT BUỘC để bán vé (MLACP-397) mà lại nằm ở trang tài khoản chung —
+                không có lối này thì bị chặn lúc bán vé mà không biết đi đâu mở khoá.
+              - Trang công khai: trước đây vào khu này rồi thì chỉ còn cách Đăng xuất, bấm Back,
+                hoặc tự gõ URL mới ra được. Chủ phòng trà muốn xem trang phòng trà của mình hiện
+                ra sao với khách thì không có đường nào.
+              Dùng Link chứ không NavLink: đây là đường RA KHỎI khu vực này nên không bao giờ ở
+              trạng thái "đang chọn". */}
+          <div className="pt-2 mt-2 border-t border-line space-y-2">
+            <Link to="/account?tab=identity" className={linkClasses({ isActive: false })}>
+              <ShieldCheck size={18} /> Định danh &amp; tài khoản
+            </Link>
+            <Link to="/" className={linkClasses({ isActive: false })}>
+              <ExternalLink size={18} /> Về trang công khai
+            </Link>
+          </div>
+        </nav>
+
+        <div className="p-4 border-t border-line">
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-3 px-4 py-3 w-full rounded-lg text-sm font-medium text-danger hover:text-ink hover:bg-red-500/10 transition-colors"
+          >
+            <LogOut size={18} /> Logout
+          </button>
+        </div>
+      </aside>
+
+      <div className="flex-1 flex flex-col h-full overflow-hidden">
+        <header className="h-16 bg-card border-b border-line flex items-center justify-between px-8 flex-shrink-0">
+          <h2 className="text-lg font-semibold text-ink">Quản lý vận hành phòng trà</h2>
+        </header>
+
+        <main className="flex-1 overflow-y-auto p-8 bg-page">
+          <Outlet />
+        </main>
+      </div>
+    </div>
+  )
+}
+
+export default OwnerLayout

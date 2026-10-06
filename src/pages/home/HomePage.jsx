@@ -1,12 +1,19 @@
 // src/pages/home/HomePage.jsx
 import { useState, useEffect, useMemo } from 'react'
-import { useNavigate } from 'react-router-dom' // ⭐ THÊM useNavigate
+import { useNavigate, Link } from 'react-router-dom'
+import { ArrowRight } from 'lucide-react'
 import EventCarousel from '../../components/home/ShowCarousel'
 import SectionHeader from '../../components/home/SectionHeader'
 import FilterModal from '../../components/home/FilterModal'
 import Skeleton from '../../components/shared/Skeleton'
 import HeroBanner from '../../components/home/HeroBanner'
-import { getShows, getTrendingShows } from '../../services/showServices'
+import TonightStrip from '../../components/home/TonightStrip'
+import MoodExplorer from '../../components/home/MoodExplorer'
+import EditorialSpotlight from '../../components/home/EditorialSpotlight'
+import TrustStrip from '../../components/home/TrustStrip'
+import { getShows, getTrendingShows, getRecommendedShows, getFilterOptions } from '../../services/showServices'
+import { getLounges } from '../../services/loungeServices'
+import { formatMinPrice } from '../../utils/formatPrice'
 
 const initialFilterState = {
   // MLACP-522: tỉnh/phường theo danh mục hành chính 2 cấp (không còn quận/huyện).
@@ -16,7 +23,7 @@ const initialFilterState = {
 }
 
 const HomePage = () => {
-  const navigate = useNavigate() // ⭐
+  const navigate = useNavigate() 
 
   const [isLoading, setIsLoading] = useState(true)
   const [allEvents, setAllEvents] = useState([]) 
@@ -27,6 +34,24 @@ const HomePage = () => {
   const [appliedFilters, setAppliedFilters] = useState(initialFilterState)
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
+
+  // Danh mục tâm trạng/không gian thật cho MoodExplorer — cùng nguồn dữ liệu FilterModal đang dùng,
+  // không gọi API riêng nào mới ở backend.
+  // Phòng trà có ảnh không gian thật, cho khối biên tập — lấy phòng trà đầu tiên có ảnh.
+  const [spotlightLounge, setSpotlightLounge] = useState(null)
+  useEffect(() => {
+    getLounges({ pageSize: 10 })
+      .then(res => { if (res.success) setSpotlightLounge((res.data.items || []).find(l => l.primaryImageUrl) || null) })
+      .catch(err => console.error('Lỗi tải phòng trà cho khối biên tập:', err))
+  }, [])
+
+  const [moods, setMoods] = useState([])
+  const [atmospheres, setAtmospheres] = useState([])
+  useEffect(() => {
+    getFilterOptions()
+      .then(res => { if (res.success) { setMoods(res.data.moods || []); setAtmospheres(res.data.atmospheres || []) } })
+      .catch(err => console.error('Lỗi tải danh mục không khí:', err))
+  }, [])
 
   // 1. GỌI API TRENDING CHO HERO BANNER
   useEffect(() => {
@@ -39,17 +64,21 @@ const HomePage = () => {
     fetchTrending()
   }, [])
 
-  // 2. GỌI API TRENDING CHO RECOMMEND CAROUSEL
+  // 2. GỌI API GỢI Ý CÁ NHÂN HOÁ CHO RECOMMEND CAROUSEL
+  // Trước đây mục này gọi /lounge-shows/trending — tức là hiển thị đúng thứ đang hot chung cho mọi
+  // người, không hề cá nhân hoá, dù backend đã có sẵn /recommendations thật (3 mức, xem showServices).
   useEffect(() => {
     const fetchRecommend = async () => {
       try {
-        const res = await getTrendingShows({ limit: 10 })
+        const res = await getRecommendedShows({ limit: 10 })
         if (res.success) {
           const mapped = res.data.map(show => ({
             id: show.id, title: show.name, thumbnail: show.coverImageUrl,
-            start_date: show.scheduledStart, province: show.loungeCity,
+            start_date: show.scheduledStart, province: show.loungeCity, loungeName: show.loungeName,
             genre: show.genres?.[0]?.name || 'Khác', genreId: show.genres?.[0]?.id || null,
-            price: show.minPrice === 0 && show.maxPrice === 0 ? 'Miễn phí' : `${show.minPrice.toLocaleString('vi-VN')}đ`,
+            // Show chưa có hạng vé nào thì minPrice/maxPrice là null — gọi thẳng .toLocaleString()
+            // trên null sẽ làm vỡ cả carousel, nên phải chặn trước khi format.
+            price: formatMinPrice(show),
             format: show.format, isWishlisted: show.isWishlisted
           }))
           setRecommendEvents(mapped)
@@ -68,14 +97,16 @@ const HomePage = () => {
         if (res.success) {
           const mapped = res.data.items.map(show => ({
             id: show.id, title: show.name, thumbnail: show.coverImageUrl,
-            start_date: show.scheduledStart, province: show.loungeCity,
+            start_date: show.scheduledStart, province: show.loungeCity, loungeName: show.loungeName,
             genre: show.genres?.[0]?.name || 'Khác', genreId: show.genres?.[0]?.id || null,
-            price: show.minPrice === 0 && show.maxPrice === 0 ? 'Miễn phí' : `${show.minPrice.toLocaleString('vi-VN')}đ`,
+            // Cùng lý do chặn null như mục Recommend ở trên: show chưa mở bán hạng vé nào thì
+            // minPrice/maxPrice là null, gọi thẳng .toLocaleString() sẽ ném lỗi và vỡ cả carousel.
+            price: formatMinPrice(show),
             format: show.format, isWishlisted: show.isWishlisted
           }))
           setAllEvents(mapped)
         }
-      } catch (err) { console.error('Lỗi API mặc định:', err) } 
+      } catch (err) { console.error('Recommendation API Error:', err) } 
       finally { setIsLoading(false) }
     }
     fetchDefaultShows()
@@ -93,29 +124,29 @@ const HomePage = () => {
       return {
         genreId: genreId ? String(genreId) : genreName.toLowerCase(),
         genreName: genreName,
-        slug: genreId ? `/shows/search?genreId=${genreId}` : `/shows/search?genre=${genreName.toLowerCase()}`, // ⭐ ĐỔI SLUG
+        slug: genreId ? `/shows/search?genreId=${genreId}` : `/shows/search?genre=${genreName.toLowerCase()}`, // ĐỔI SLUG
         events: limitedEvents
       }
     })
   }, [allEvents])
 
-  // ⭐ KHI BẤM APPLY TRONG MODAL FILTER, CHUYỂN TRANG
+  // KHI BẤM APPLY TRONG MODAL FILTER, CHUYỂN TRANG
   const handleApplyFilters = (filters) => {
     setAppliedFilters(filters)
     setIsFilterOpen(false)
     navigate('/shows/search', { state: { appliedFilters: filters } })
   }
 
-  // ⭐ KHI CHỌN NGÀY XONG, CHUYỂN TRANG
-  const handleApplyDates = () => {
-    if (startDate || endDate) {
-      navigate('/shows/search', { state: { startDate, endDate } })
+  // KHI CHỌN NGÀY XONG, CHUYỂN TRANG
+  const handleApplyDates = (start, end) => {
+    if (start || end) {
+      navigate('/shows/search', { state: { startDate: start, endDate: end } })
     }
   }
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-black px-4 sm:px-6 pt-6 max-w-[1600px] mx-auto">
+      <div className="min-h-[60vh] bg-page px-4 sm:px-6 pt-6 max-w-[1600px] mx-auto">
         <div className="flex justify-between items-center mb-8">
           <Skeleton className="h-8 w-40" />
           <Skeleton className="h-10 w-48 rounded-full" />
@@ -137,30 +168,48 @@ const HomePage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-[60vh] bg-page text-ink">
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 pt-4 sm:pt-6">
         <SectionHeader 
           onOpenFilter={() => setIsFilterOpen(true)} 
           appliedFilters={appliedFilters}
           startDate={startDate} setStartDate={setStartDate} 
           endDate={endDate} setEndDate={setEndDate}
-          onApplyDates={handleApplyDates} // ⭐ TRUYỀN PROP MỚI
+          onApplyDates={handleApplyDates} // TRUYỀN PROP MỚI
         />
       </div>
 
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 pb-10 sm:pb-16 space-y-8 sm:space-y-12 lg:space-y-16">
         <>
           {trendingEvents.length > 0 && <HeroBanner events={trendingEvents} />}
+
+          <TrustStrip />
+
+          <TonightStrip events={allEvents} />
+
+          {spotlightLounge && <EditorialSpotlight lounge={spotlightLounge} />}
+
+          <MoodExplorer moods={moods} atmospheres={atmospheres} />
+
           {recommendEvents.length > 0 && (
             <section>
-              <EventCarousel title="Recommend" events={recommendEvents} />
+              <EventCarousel title="Dành riêng cho bạn" events={recommendEvents} />
             </section>
           )}
           {genreSections.map((section) => (
             <section key={section.genreId}>
-              <EventCarousel title={`Genre ${section.genreName}`} events={section.events} showViewMore={true} viewMoreLink={section.slug} />
+              <EventCarousel title={`Thể loại ${section.genreName}`} events={section.events} showViewMore={true} viewMoreLink={section.slug} />
             </section>
           ))}
+
+          {/* Đường vào trang xem tất cả. Trước đây /shows không có chỗ nào dẫn tới, nên nó hỏng mà
+              không ai thấy — có link thì lỗi ở đó sẽ lộ ra ngay lần sau. */}
+          <div className="flex justify-center pt-2">
+            <Link to="/shows"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg border border-brand/40 text-brand-text text-sm font-bold hover:bg-brand-hover/10 transition-colors">
+              Xem tất cả buổi diễn <ArrowRight size={16} />
+            </Link>
+          </div>
         </>
       </div>
 
