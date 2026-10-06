@@ -44,6 +44,7 @@ import { getTiers, createTier, deleteTier, updateTier, assignTierZone } from '..
 import { getLoungeZones } from '../../services/loungeServices'
 import ChonKhuTrenSoDo from '../../components/owner/ChonKhuTrenSoDo'
 import ShowAnalyticsSection from '../../components/owner/ShowAnalyticsSection'
+import ShowRatings from '../../components/mshow-detail/ShowRatings'
 import { StatusBadge } from '../../components/admin/shows/ShowBadges'
 import { searchPerformers } from '../../services/catalogServices'
 import { TrangLoiTai } from '../../components/bang/KhungTai'
@@ -399,6 +400,32 @@ const OwnerShowDetailPage = () => {
   // Nên chỉ tính nó khi thực sự đọc được khối operatorInfo; không đọc được thì để máy chủ từ chối
   // kèm lý do, y như trước đây.
   const readyToSubmit = hasTiers && hasPerformers && (!vanHanh || daKhaiVanBan)
+
+  // MLACP-683 (chủ dự án 06/10/2026): buổi ĐÃ KẾT THÚC thì việc chuẩn bị (điều kiện gửi duyệt, văn bản chấp thuận, line-up,
+  // hạng vé) không còn gì để làm — trước đây trang vẫn hiện nguyên các khối đó. Thứ chủ phòng trà cần lúc này là THEO DÕI:
+  // khán giả chấm bao nhiêu sao, nói gì, và buổi bán được thế nào. Dùng lại đúng hai khối đã có (ShowRatings của trang
+  // công khai, ShowAnalyticsSection), không vẽ khối mới.
+  if (show.status === 'Ended') {
+    return (
+      <div className="space-y-6">
+        <Link to="/owner/shows" className="inline-flex items-center gap-2 min-h-[44px] text-ink-soft hover:text-ink text-sm">
+          <ArrowLeft size={16} aria-hidden="true" /> Danh sách buổi diễn
+        </Link>
+        <div>
+          <h1 className="text-4xl text-ink mb-1">{show.name}</h1>
+          <p className="text-ink-soft text-sm">
+            {dayjs(show.scheduledStart).format('HH:mm DD/MM/YYYY')} · {show.lounge?.name} · <StatusBadge status={show.status} />
+          </p>
+        </div>
+        <section aria-labelledby="dg-tieu-de" className="bg-card border border-line p-6">
+          <h2 id="dg-tieu-de" className="text-3xl text-ink mb-1">Phản hồi và đánh giá</h2>
+          <p className="text-ink-mute text-sm mb-4">Khán giả đã vào xem chấm sao và nhận xét trong 7 ngày sau buổi diễn.</p>
+          <ShowRatings showId={id} />
+        </section>
+        <ShowAnalyticsSection showId={id} />
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-6">

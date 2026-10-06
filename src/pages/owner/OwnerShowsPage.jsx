@@ -23,7 +23,7 @@
 // - Nhãn trạng thái dùng StatusBadge chung (components/admin/shows/ShowBadges) — một bảng nhãn cho cả Admin và chủ.
 import { useState, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
-import { Plus, Loader2, Pencil, Send, X, Trash2, Settings2, Image as ImageIcon } from 'lucide-react'
+import { Plus, Loader2, Pencil, Send, X, Trash2, Settings2, Image as ImageIcon, Star } from 'lucide-react'
 import HopXacNhan from '../../components/shared/HopXacNhan'
 import { StatusBadge, FormatBadge } from '../../components/admin/shows/ShowBadges'
 import { ngayDayDu, gioTrongNgay, khungGio } from '../../utils/ngayVietNam'
@@ -488,15 +488,26 @@ const OwnerShowsPage = () => {
                       {isBusy ? <Loader2 size={14} className="animate-spin" aria-hidden="true" /> : <Send size={14} aria-hidden="true" />} Gửi duyệt
                     </button>
                   )}
-                  <Link to={`/owner/shows/${s.id}`}
-                    className="inline-flex items-center gap-1.5 min-h-[44px] px-4 border-2 border-ink bg-card text-ink text-sm font-semibold hover:bg-ink hover:text-lamp">
-                    <Settings2 size={14} aria-hidden="true" /> Chuẩn bị
-                  </Link>
-                  {/* Poster, dời lịch, đổi hình thức, chế độ phát — những thứ đổi được SAU khi đã đăng */}
-                  <Link to={`/owner/shows/${s.id}/settings`}
-                    className="inline-flex items-center gap-1.5 min-h-[44px] px-4 border-2 border-ink bg-card text-ink text-sm font-semibold hover:bg-ink hover:text-lamp">
-                    <ImageIcon size={14} aria-hidden="true" /> Poster và cài đặt
-                  </Link>
+                  {/* MLACP-683: buổi ĐÃ KẾT THÚC không còn gì để chuẩn bị hay đổi poster/lịch/hình thức — chỉ còn theo dõi
+                      khán giả chấm và nói gì. Buổi đã huỷ cũng không còn gì để chuẩn bị, nên ẩn hai nút đó luôn. */}
+                  {s.status === 'Ended' ? (
+                    <Link to={`/owner/shows/${s.id}`}
+                      className="inline-flex items-center gap-1.5 min-h-[44px] px-4 border-2 border-ink bg-card text-ink text-sm font-semibold hover:bg-ink hover:text-lamp">
+                      <Star size={14} aria-hidden="true" /> Phản hồi và đánh giá
+                    </Link>
+                  ) : s.status !== 'Cancelled' && (
+                    <>
+                      <Link to={`/owner/shows/${s.id}`}
+                        className="inline-flex items-center gap-1.5 min-h-[44px] px-4 border-2 border-ink bg-card text-ink text-sm font-semibold hover:bg-ink hover:text-lamp">
+                        <Settings2 size={14} aria-hidden="true" /> Chuẩn bị
+                      </Link>
+                      {/* Poster, dời lịch, đổi hình thức, chế độ phát — những thứ đổi được SAU khi đã đăng */}
+                      <Link to={`/owner/shows/${s.id}/settings`}
+                        className="inline-flex items-center gap-1.5 min-h-[44px] px-4 border-2 border-ink bg-card text-ink text-sm font-semibold hover:bg-ink hover:text-lamp">
+                        <ImageIcon size={14} aria-hidden="true" /> Poster và cài đặt
+                      </Link>
+                    </>
+                  )}
                   {isDraft && (
                     <button onClick={() => openEdit(s)} disabled={isBusy}
                       className="inline-flex items-center gap-1.5 min-h-[44px] px-4 border-2 border-ink bg-card text-ink text-sm font-semibold hover:bg-ink hover:text-lamp disabled:opacity-50">

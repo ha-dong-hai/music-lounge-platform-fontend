@@ -280,6 +280,29 @@ const OwnerShowSettingsPage = () => {
     )
   }
 
+  // MLACP-683: mở thẳng địa chỉ này (thông báo cũ, đánh dấu trang) với buổi đã kết thúc/đã huỷ thì không còn gì để đổi —
+  // poster, dời lịch, đổi hình thức đều vô nghĩa sau buổi diễn. Chỉ đường về trang theo dõi thay vì hiện các nút bấm.
+  if (['Ended', 'Cancelled'].includes(show.status)) {
+    return (
+      <div className="max-w-2xl mx-auto">
+        <Link to="/owner/shows" className="inline-flex items-center gap-1.5 text-sm text-ink-mute hover:text-ink mb-4">
+          <ArrowLeft size={16} /> Về danh sách buổi diễn
+        </Link>
+        <div className="bg-card border border-line p-6">
+          <p className="font-semibold text-ink">{show.name}</p>
+          <p className="text-sm text-ink-soft mt-1">
+            Buổi diễn đã {show.status === 'Ended' ? 'kết thúc' : 'bị huỷ'} nên poster và cài đặt không đổi được nữa.
+          </p>
+          {show.status === 'Ended' && (
+            <Link to={`/owner/shows/${show.id}`} className="inline-flex items-center min-h-[44px] mt-3 px-4 border-2 border-ink font-semibold hover:bg-ink hover:text-lamp">
+              Xem phản hồi và đánh giá
+            </Link>
+          )}
+        </div>
+      </div>
+    )
+  }
+
   const laTrucTuyen = ['Online', 'Hybrid'].includes(show.format)
   const donChoXuLy = history.find((h) => ['Queued', 'Rendering'].includes(h.status))
   const daNgungTuHoi = !!donChoXuLy
