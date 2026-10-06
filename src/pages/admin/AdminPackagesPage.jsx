@@ -74,8 +74,8 @@ const AdminPackagesPage = () => {
       toast.success(`${!pkg.isActive ? 'Đã hiện' : 'Đã ẩn'} gói ${pkg.name}`)
       setPackages(prev => prev.map(p => p.id === pkg.id ? { ...p, isActive: !pkg.isActive } : p))
       setConfirmPkg(null)
-    } catch {
-      toast.error('Thao tác không thành công.')
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Thao tác không thành công.', { duration: 9000 })
     }
   }
 
@@ -116,7 +116,7 @@ const AdminPackagesPage = () => {
         }
         const res = await createPackage(payload)
         if (!res.success) {
-          toast.success(res.message || 'Thao tác không thành công.')
+          toast.error(res.message || 'Thao tác không thành công.') // bản cũ gọi toast.success cho một lần THẤT BẠI
           return
         } 
       }
@@ -132,7 +132,10 @@ const AdminPackagesPage = () => {
 
     } catch (err) {
       console.error(err)
-      toast.error('Thao tác không thành công. Vui lòng thử lại.')
+      // MLACP-700: hiện NGUYÊN VĂN lý do máy chủ trả. Bản cũ chỉ in câu chung "Vui lòng thử lại" — trong khi lý do thật là
+      // quy tắc D12 (gói đang có chủ phòng trà dùng thì không sửa được giá/số vé/poster AI/tour), thử lại bao nhiêu lần
+      // cũng vậy. Chủ dự án gặp 06/10/2026 khi nâng số poster của gói "Chuyên nghiệp".
+      toast.error(err.response?.data?.message || 'Thao tác không thành công. Vui lòng thử lại.', { duration: 9000 })
     } finally {
       setIsSaving(false)
     }
