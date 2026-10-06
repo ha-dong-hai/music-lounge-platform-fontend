@@ -9,8 +9,10 @@ import { holdTicket, cancelHold, purchaseTicket } from '../../services/ticketSer
 import { useAuthStore } from '../../store/useAuthStore'
 import Skeleton from '../shared/Skeleton'
 import SeatingMapView from './SeatingMapView'
+import { useTranslation } from 'react-i18next'
+import { formatMoney } from '../../i18n/format'
 
-const formatVnd = (amount) => `${Number(amount || 0).toLocaleString('vi-VN')}đ`
+const formatVnd = formatMoney
 
 const formatCountdown = (secondsLeft) => {
   const m = Math.max(0, Math.floor(secondsLeft / 60))
@@ -20,6 +22,7 @@ const formatCountdown = (secondsLeft) => {
 
 const ShowMap = ({ showData }) => {
   const { user } = useAuthStore()
+  const { t } = useTranslation()
 
   const [isLoading, setIsLoading] = useState(true)
   const [tiers, setTiers] = useState([])
@@ -68,7 +71,7 @@ const ShowMap = ({ showData }) => {
       if (left <= 0) {
         clearInterval(countdownRef.current)
         setHold(null)
-        toast.error('Đã hết thời gian giữ chỗ, vui lòng chọn lại.')
+        toast.error(t('showMap.holdExpired'))
       }
     }
     tick()
@@ -110,10 +113,10 @@ const ShowMap = ({ showData }) => {
       const res = await holdTicket(selectedPrice.id, quantity)
       if (res.success) {
         setHold({ holdId: res.data.holdId, expiresAt: res.data.expiresAt })
-        toast.success('Đã giữ chỗ! Vui lòng thanh toán trước khi hết hạn.')
+        toast.success(t('showMap.held'))
       }
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Không thể giữ chỗ, vé có thể đã hết.')
+      toast.error(err.response?.data?.message || t('showMap.holdFailed'))
     } finally {
       setIsProcessing(false)
     }
@@ -141,7 +144,7 @@ const ShowMap = ({ showData }) => {
         window.location.href = res.data.paymentUrl
       }
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Không thể khởi tạo thanh toán.')
+      toast.error(err.response?.data?.message || t('showMap.paymentFailed'))
       setIsProcessing(false)
     }
   }
@@ -168,7 +171,7 @@ const ShowMap = ({ showData }) => {
           onSelectZone={(id) => {
             // Đang giữ chỗ dở dang thì không cho đổi khu vực: đổi là lựa chọn hiện tại biến khỏi
             // danh sách trong khi vé vẫn đang bị giữ.
-            if (hold) { toast.error('Đang giữ chỗ — hãy hoàn tất hoặc huỷ trước khi đổi khu vực.'); return }
+            if (hold) { toast.error(t('showMap.zoneLocked')); return }
             setZoneDangChon(id)
             setSelectedPriceId(null)
           }}
@@ -180,7 +183,7 @@ const ShowMap = ({ showData }) => {
         {/* DANH SÁCH HẠNG VÉ */}
         <div className="lg:col-span-2 bg-card border border-line rounded-2xl p-4 md:p-8">
           <h3 className="text-xl font-bold text-brand-text mb-6 flex items-center gap-2">
-            <Ticket size={20} /> Ticket tiers
+            <Ticket size={20} /> {t('showMap.tiers')}
           </h3>
 
           {allPrices.length === 0 ? (
@@ -188,8 +191,8 @@ const ShowMap = ({ showData }) => {
               <MapPin size={40} className="text-ink-mute mb-4" />
               <p className="text-ink-mute font-medium">
                 {zoneDangChon != null
-                  ? 'Khu vực này không còn hạng vé nào bán trực tuyến.'
-                  : 'No tickets available for this show yet.'}
+                  ? t('showMap.zoneEmpty')
+                  : t('showMap.noTickets')}
               </p>
             </div>
           ) : (
@@ -212,7 +215,7 @@ const ShowMap = ({ showData }) => {
                     <div className="min-w-0">
                       <p className="text-ink font-semibold truncate">{price.tierName} — {price.name}</p>
                       <p className="text-ink-mute text-xs mt-1">
-                        {isSoldOut ? 'Sold out' : price.availableSlots != null ? `${price.availableSlots} left` : 'Available'}
+                        {isSoldOut ? t('showMap.soldOut') : price.availableSlots != null ? t('showMap.left', { count: price.availableSlots }) : t('showMap.available')}
                       </p>
                     </div>
                     <div className="flex items-center gap-3 flex-shrink-0">
@@ -228,13 +231,13 @@ const ShowMap = ({ showData }) => {
 
         {/* THÔNG TIN VÉ ĐÃ CHỌN + THANH TOÁN */}
         <div className="lg:col-span-1 bg-card border border-line rounded-2xl p-6 flex flex-col">
-          <h3 className="text-xl font-bold text-brand-text mb-6">Đơn của bạn</h3>
+          <h3 className="text-xl font-bold text-brand-text mb-6">{t('showMap.yourOrder')}</h3>
 
           {!selectedPrice ? (
             <div className="flex-1 flex flex-col items-center justify-center text-center">
               <MapPin size={40} className="text-ink-mute mb-4" />
-              <p className="text-ink-mute font-medium">Chưa chọn vé</p>
-              <p className="text-ink-mute text-sm mt-1">Chọn một hạng vé ở bên trái.</p>
+              <p className="text-ink-mute font-medium">{t('showMap.noSelection')}</p>
+              <p className="text-ink-mute text-sm mt-1">{t('showMap.pickTier')}</p>
             </div>
           ) : (
             <div className="flex-1 flex flex-col gap-5">
@@ -244,7 +247,7 @@ const ShowMap = ({ showData }) => {
               </div>
 
               <div className="flex items-center justify-between">
-                <span className="text-ink-soft text-sm">Số lượng</span>
+                <span className="text-ink-soft text-sm">{t('showMap.quantity')}</span>
                 <div className="flex items-center gap-3">
                   <button
                     type="button"
@@ -267,7 +270,7 @@ const ShowMap = ({ showData }) => {
               </div>
 
               <div className="border-t border-line pt-4 flex items-center justify-between">
-                <span className="text-ink-soft text-sm">Tổng cộng</span>
+                <span className="text-ink-soft text-sm">{t('showMap.total')}</span>
                 <span className="text-brand-text font-bold text-lg">
                   {formatVnd(selectedPrice.price * quantity)}
                 </span>
@@ -288,17 +291,17 @@ const ShowMap = ({ showData }) => {
                     : 'bg-yellow-500/5 border-yellow-500/30'
                 }`}>
                   <p className="text-xs font-bold text-ink-soft flex items-center gap-1.5">
-                    <Info size={12} /> Điều kiện huỷ vé
+                    <Info size={12} /> {t('showMap.refundPolicy')}
                   </p>
                   <p className="text-xs text-ink-soft mt-1.5 leading-relaxed">{chinhSach.summary}</p>
                   {chinhSach.cancellationAllowed && chinhSach.cancelBefore && (
                     <p className="text-xs text-ink-mute mt-1.5">
-                      Huỷ được tới {dayjs(chinhSach.cancelBefore).format('HH:mm DD/MM/YYYY')}.
+                      {t('showMap.cancelUntil', { time: dayjs(chinhSach.cancelBefore).format('HH:mm DD/MM/YYYY') })}
                     </p>
                   )}
                   {chinhSach.alwaysFullRefundIfVenueCancels && (
                     <p className="text-xs text-ink-mute mt-1">
-                      Nếu phòng trà huỷ buổi diễn thì bạn được hoàn 100%, bất kể điều kiện trên.
+                      {t('showMap.venueCancelFull')}
                     </p>
                   )}
                 </div>
@@ -309,21 +312,21 @@ const ShowMap = ({ showData }) => {
                   <div className="flex items-center justify-center gap-2 bg-sunken/70 border border-brand/40 rounded-lg py-2.5">
                     <Timer size={16} className="text-brand-text" />
                     <span className="text-brand-text font-mono font-bold">{formatCountdown(secondsLeft)}</span>
-                    <span className="text-ink-mute text-xs">còn lại để thanh toán</span>
+                    <span className="text-ink-mute text-xs">{t('showMap.timeLeft')}</span>
                   </div>
                   <button
                     onClick={handlePurchase}
                     disabled={isProcessing}
                     className="w-full py-3 bg-brand text-on-brand rounded-lg font-bold hover:bg-brand-hover transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                   >
-                    {isProcessing ? <Loader2 size={18} className="animate-spin" /> : 'Pay now'}
+                    {isProcessing ? <Loader2 size={18} className="animate-spin" /> : t('showMap.payNow')}
                   </button>
                   <button
                     onClick={handleCancelHold}
                     disabled={isProcessing}
                     className="w-full py-2.5 border border-line text-ink-soft rounded-lg font-medium hover:bg-sunken transition-colors"
                   >
-                    Huỷ giữ chỗ
+                    {t('showMap.cancelHold')}
                   </button>
                 </>
               ) : (
@@ -332,7 +335,7 @@ const ShowMap = ({ showData }) => {
                   disabled={isProcessing}
                   className="w-full py-3 bg-brand text-on-brand rounded-lg font-bold hover:bg-brand-hover transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                 >
-                  {isProcessing ? <Loader2 size={18} className="animate-spin" /> : 'Mua Vé'}
+                  {isProcessing ? <Loader2 size={18} className="animate-spin" /> : t('showMap.buy')}
                 </button>
               )}
             </div>
@@ -348,14 +351,14 @@ const ShowMap = ({ showData }) => {
             <div className="w-16 h-16 mx-auto bg-brand/10 rounded-full flex items-center justify-center mb-4 border border-brand/30">
               <Lock size={28} className="text-brand-text" />
             </div>
-            <h2 className="text-xl font-bold text-ink mb-2">Cần đăng nhập</h2>
-            <p className="text-ink-soft mb-6">Vui lòng đăng nhập để mua vé.</p>
+            <h2 className="text-xl font-bold text-ink mb-2">{t('showMap.loginRequired')}</h2>
+            <p className="text-ink-soft mb-6">{t('showMap.loginToBuy')}</p>
             <div className="flex gap-3">
               <button onClick={() => setIsLoginModalOpen(false)} className="flex-1 py-2.5 border border-line text-ink-soft rounded-lg font-medium hover:bg-sunken transition-colors">
-                Huỷ
+                {t('common.cancel')}
               </button>
               <Link to="/login" className="flex-1 py-2.5 bg-brand text-on-brand rounded-lg font-bold hover:bg-brand-hover transition-colors flex items-center justify-center">
-                Đăng nhập
+                {t('common.login')}
               </Link>
             </div>
           </div>

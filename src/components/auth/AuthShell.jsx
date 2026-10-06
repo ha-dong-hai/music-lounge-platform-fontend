@@ -2,14 +2,17 @@
 
 import { Link } from 'react-router-dom'
 import { Armchair, Rotate3d, Heart } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 const POINTS = [
-  { icon: Armchair, text: 'Chọn chỗ ngồi ngay trên sơ đồ phòng trà' },
-  { icon: Rotate3d, text: 'Dạo quanh phòng trà bằng ảnh 360° trước khi đặt vé' },
-  { icon: Heart, text: 'Theo dõi phòng trà và nghệ sĩ bạn yêu thích' },
+  { icon: Armchair, key: 'authShell.point1' },
+  { icon: Rotate3d, key: 'authShell.point2' },
+  { icon: Heart, key: 'authShell.point3' },
 ]
 
-const Aside = () => (
+const Aside = () => {
+  const { t } = useTranslation()
+  return (
   <aside className="hidden lg:flex flex-col justify-between relative overflow-hidden rounded-2xl bg-espresso text-cream p-10 xl:p-12">
     {/* Ánh đèn sân khấu: hai vệt sáng ấm, không phải ảnh giả. */}
     <div
@@ -19,29 +22,32 @@ const Aside = () => (
     <div className="relative">
       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-on-dark mb-5">Phòng Trà Sài Gòn</p>
       <p className="font-display text-3xl xl:text-4xl leading-snug text-cream">
-        Những đêm nhạc mộc, ngồi đúng chỗ mình chọn.
+        {t('authShell.headline')}
       </p>
     </div>
     <ul className="relative mt-12 space-y-4">
-      {POINTS.map(({ icon: Icon, text }) => (
-        <li key={text} className="flex items-center gap-3.5 text-cream-mute text-sm leading-relaxed">
+      {POINTS.map(({ icon: Icon, key }) => (
+        <li key={key} className="flex items-center gap-3.5 text-cream-mute text-sm leading-relaxed">
           <span className="w-10 h-10 rounded-full bg-espresso-soft border border-cream/15 flex items-center justify-center flex-shrink-0">
             <Icon size={18} className="text-brand-on-dark" />
           </span>
-          {text}
+          {t(key)}
         </li>
       ))}
     </ul>
   </aside>
-)
+  )
+}
 
-const AuthShell = ({ children, withAside = false }) => (
+const AuthShell = ({ children, withAside = false }) => {
+  const { t } = useTranslation()
+  return (
   <div className="min-h-screen flex flex-col bg-page text-ink">
     <header className="w-full border-b border-line bg-card/90 backdrop-blur-md sticky top-0 z-40">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 h-16 flex items-center">
         <Link
           to="/"
-          aria-label="Phòng Trà Sài Gòn — về trang chủ"
+          aria-label={t('common.brandHome')}
           className="font-display text-xl sm:text-2xl leading-none tracking-tight text-ink inline-flex items-center min-h-[44px]"
         >
           Phòng Trà <span className="text-brand-text ml-1.5">Sài Gòn</span>
@@ -68,6 +74,7 @@ const AuthShell = ({ children, withAside = false }) => (
       © 2026 Phòng Trà Sài Gòn
     </footer>
   </div>
-)
+  )
+}
 
 export default AuthShell

@@ -1,6 +1,7 @@
 import { Search, User, ChevronDown, LogOut, Ticket, Settings, X, Languages, Check, Loader2, Store, LayoutDashboard, Bell, MessageSquareWarning } from 'lucide-react'
 import { useState, useEffect, useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom' 
+import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '../store/useAuthStore'
 import toast from 'react-hot-toast'
 import NotificationBell from '../components/notifications/NotificationBell'
@@ -17,6 +18,7 @@ const DO_TRE_GOI_Y = 300
 
 // BỎ PROPS searchQuery, setSearchQuery ĐI
 const Header = () => {
+  const { t, i18n } = useTranslation()
   const { user, logout } = useAuthStore()
   const navigate = useNavigate() //
   
@@ -34,7 +36,8 @@ const Header = () => {
   // của người trước. Không gọi lại mỗi lần mở ô tìm kiếm — chỉ lấy một lần cho mỗi người.
   const [goiYMacDinh, setGoiYMacDinh] = useState({ khoa: null, kieu: 'trending', items: [] })
   const [isLangOpen, setIsLangOpen] = useState(false)
-  const [currentLang, setCurrentLang] = useState(localStorage.getItem('lang') || 'vi')
+  // Ngôn ngữ hiện tại lấy thẳng từ i18n (nguồn duy nhất) — không giữ state riêng dễ lệch nhau.
+  const currentLang = i18n.language === 'en' ? 'en' : 'vi'
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
 
   // Gõ tới đâu gợi ý tới đó, nhưng chỉ gọi API sau khi người dùng ngừng gõ 300ms.
@@ -121,7 +124,7 @@ const Header = () => {
   const handleLogout = () => {
     logout()
     setIsUserMenuOpen(false)
-    toast.success('Đã đăng xuất')
+    toast.success(t('header.loggedOut'))
   }
 
   // ÀM SUBMIT TÌM KIẾM SẼ CHUYỂN TRANG
@@ -132,24 +135,25 @@ const Header = () => {
     }
   }
 
-  const handleChangeLang = (lang) => {
-    setCurrentLang(lang)
-    localStorage.setItem('lang', lang)
+  // changeLanguage tự lưu localStorage, đổi <html lang> và locale dayjs (xem src/i18n/index.js).
+  const handleChangeLang = async (lang) => {
     setIsLangOpen(false)
-    toast.success(lang === 'vi' ? 'Đã chuyển sang Tiếng Việt' : 'Switched to English')
+    if (lang === currentLang) return
+    await i18n.changeLanguage(lang)
+    toast.success(i18n.t('header.switchedLang'))
   }
 
   return (
     <header className="sticky top-0 z-50 w-full bg-page/95 backdrop-blur border-b border-line px-4 sm:px-6 py-3 shadow-soft">
       <div className="flex items-center justify-between gap-4 sm:gap-8">
         <div className="flex items-center gap-4 sm:gap-8 flex-1 min-w-0">
-          <Link to="/" aria-label="Phòng Trà Sài Gòn — về trang chủ" className="font-display text-xl sm:text-2xl leading-none tracking-tight text-ink whitespace-nowrap flex-shrink-0 inline-flex items-center min-h-[44px]">
+          <Link to="/" aria-label={t('common.brandHome')} className="font-display text-xl sm:text-2xl leading-none tracking-tight text-ink whitespace-nowrap flex-shrink-0 inline-flex items-center min-h-[44px]">
             {/* ml-1.5 chứ không phải dấu cách đầu chuỗi: trong `inline-flex` khoảng trắng đầu của phần tử con bị nuốt. */}
             Phòng Trà<span className="hidden min-[400px]:inline ml-1.5 text-brand-text">Sài Gòn</span>
           </Link>
 
           <form onSubmit={handleSearchSubmit} ref={oTimKiemRef} className="relative w-full max-w-md hidden md:block">
-            <button type="submit" className="absolute left-1 top-1/2 -translate-y-1/2 w-10 h-10 inline-flex items-center justify-center text-brand-text cursor-pointer" aria-label="Tìm kiếm">
+            <button type="submit" className="absolute left-1 top-1/2 -translate-y-1/2 w-10 h-10 inline-flex items-center justify-center text-brand-text cursor-pointer" aria-label={t('header.search')}>
               <Search size={18} strokeWidth={2.5}/>
             </button>
             <input
@@ -164,7 +168,7 @@ const Header = () => {
               onFocus={() => setMoGoiY(true)}
               onKeyDown={handleKeyDown}
               autoComplete="off"
-              placeholder="Tìm đêm nhạc, phòng trà, nghệ sĩ…"
+              placeholder={t('header.searchPlaceholder')}
               className="w-full pl-11 pr-11 py-2.5 min-h-[44px] bg-sunken text-ink placeholder:text-ink-mute rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-brand transition-all"
             />
             {localSearch && (
@@ -182,7 +186,7 @@ const Header = () => {
                   </div>
                 ) : goiY.length === 0 ? (
                   <p className="px-4 py-4 text-sm text-ink-mute">
-                    Không có buổi diễn nào khớp. Nhấn Enter để tìm rộng hơn.
+                    {t('header.noSuggestions')}
                   </p>
                 ) : (
                   <ul>
@@ -208,7 +212,7 @@ const Header = () => {
             {moGoiY && localSearch.trim().length < 2 && goiYMacDinh.items.length > 0 && (
               <div className="absolute top-full left-0 right-0 mt-2 bg-card border border-line rounded-xl shadow-lift overflow-hidden z-50">
                 <p className="px-4 pt-3 pb-1 text-xs font-semibold uppercase tracking-[0.12em] text-ink-mute">
-                  {goiYMacDinh.kieu === 'ca-nhan' ? 'Gợi ý riêng cho bạn' : 'Đang được quan tâm'}
+                  {goiYMacDinh.kieu === 'ca-nhan' ? t('header.forYou') : t('header.trending')}
                 </p>
                 <ul>
                   {goiYMacDinh.items.map((item) => (
@@ -238,24 +242,24 @@ const Header = () => {
         </div>
 
         <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
-          <Link to="/shows/search" aria-label="Tìm kiếm" className="md:hidden w-11 h-11 inline-flex items-center justify-center rounded-full text-ink-soft hover:bg-sunken hover:text-ink transition-colors">
+          <Link to="/shows/search" aria-label={t('header.search')} className="md:hidden w-11 h-11 inline-flex items-center justify-center rounded-full text-ink-soft hover:bg-sunken hover:text-ink transition-colors">
             <Search size={20} />
           </Link>
           <Link to="/my-shows" className="bg-transparent hover:bg-brand-hover hover:text-on-brand text-brand-text border border-brand px-5 min-h-[44px] rounded-full text-sm font-medium transition-colors hidden sm:inline-flex items-center">
-            Vé của tôi
+            {t('header.myTickets')}
           </Link>
 
           {!user ? (
             <div className="flex items-center gap-2">
-              <Link to="/login" className="text-sm font-medium text-ink-soft hover:text-ink px-3 min-h-[44px] inline-flex items-center rounded-xl border border-transparent hover:bg-sunken transition-all">Đăng nhập</Link>
-              <Link to="/register" className="bg-brand text-on-brand px-4 min-h-[44px] inline-flex items-center rounded-full text-sm font-semibold hover:bg-brand-hover transition-colors shadow-soft">Đăng ký</Link>
+              <Link to="/login" className="text-sm font-medium text-ink-soft hover:text-ink px-3 min-h-[44px] inline-flex items-center rounded-xl border border-transparent hover:bg-sunken transition-all">{t('common.login')}</Link>
+              <Link to="/register" className="bg-brand text-on-brand px-4 min-h-[44px] inline-flex items-center rounded-full text-sm font-semibold hover:bg-brand-hover transition-colors shadow-soft">{t('common.register')}</Link>
             </div>
           ) : (
             <>
             {/* Thông báo chỉ có nghĩa với người đã đăng nhập — API /notifications yêu cầu xác thực. */}
             <NotificationBell />
             <div className="relative">
-              <button onClick={() => setIsUserMenuOpen(!isUserMenuOpen)} aria-haspopup="menu" aria-expanded={isUserMenuOpen} aria-label="Menu tài khoản" className="flex items-center gap-2 min-h-[44px] hover:text-ink transition-colors focus:outline-none">
+              <button onClick={() => setIsUserMenuOpen(!isUserMenuOpen)} aria-haspopup="menu" aria-expanded={isUserMenuOpen} aria-label={t('header.accountMenu')} className="flex items-center gap-2 min-h-[44px] hover:text-ink transition-colors focus:outline-none">
                 {user.avatarUrl ? (
                   <img src={user.avatarUrl} alt="avatar" className="w-9 h-9 rounded-full object-cover border border-brand" />
                 ) : (
@@ -269,20 +273,20 @@ const Header = () => {
               {isUserMenuOpen && (
                 <div className="absolute right-0 top-full mt-3 w-56 bg-card rounded-xl shadow-lift border border-line py-2 z-50 animate-in fade-in slide-in-from-top-2">
                   <div className="px-4 py-2 border-b border-line mb-1">
-                    <p className="text-xs text-ink-mute">Xin chào,</p>
+                    <p className="text-xs text-ink-mute">{t('header.hello')}</p>
                     <p className="text-sm font-semibold text-ink truncate">{user.email}</p>
                   </div>
                   <Link to="/account" className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-ink-soft hover:bg-sunken hover:text-ink transition-colors text-left">
-                    <Settings size={18} className="text-brand-text" /> Thông tin tài khoản
+                    <Settings size={18} className="text-brand-text" /> {t('header.account')}
                   </Link>
                   <Link to="/my-shows" className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-ink-soft hover:bg-sunken transition-colors text-left">
-                    <Ticket size={18} className="text-brand-text" /> Vé của tôi
+                    <Ticket size={18} className="text-brand-text" /> {t('header.myTickets')}
                   </Link>
                   <Link to="/notifications" className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-ink-soft hover:bg-sunken transition-colors text-left">
-                    <Bell size={18} className="text-brand-text" /> Thông báo
+                    <Bell size={18} className="text-brand-text" /> {t('header.notifications')}
                   </Link>
                   <Link to="/complaints" className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-ink-soft hover:bg-sunken transition-colors text-left">
-                    <MessageSquareWarning size={18} className="text-brand-text" /> Khiếu nại
+                    <MessageSquareWarning size={18} className="text-brand-text" /> {t('header.complaints')}
                   </Link>
 
                   {/* LỐI VÀO KHU LÀM VIỆC THEO VAI TRÒ.
@@ -295,7 +299,7 @@ const Header = () => {
                     <>
                       <div className="my-1 border-t border-line"></div>
                       <Link to="/owner" className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-brand-text hover:bg-sunken transition-colors text-left font-medium">
-                        <Store size={18} /> Khu vực phòng trà
+                        <Store size={18} /> {t('header.ownerArea')}
                       </Link>
                     </>
                   )}
@@ -303,14 +307,14 @@ const Header = () => {
                     <>
                       <div className="my-1 border-t border-line"></div>
                       <Link to="/admin" className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-brand-text hover:bg-sunken transition-colors text-left font-medium">
-                        <LayoutDashboard size={18} /> Trang quản trị
+                        <LayoutDashboard size={18} /> {t('header.adminArea')}
                       </Link>
                     </>
                   )}
 
                   <div className="my-1 border-t border-line"></div>
                   <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-danger hover:bg-danger/10 transition-colors text-left font-medium">
-                    <LogOut size={18} /> Đăng xuất
+                    <LogOut size={18} /> {t('header.logout')}
                   </button>
                 </div>
               )}
@@ -319,7 +323,7 @@ const Header = () => {
           )}
 
           <div className="relative hidden sm:block">
-            <button onClick={() => setIsLangOpen(!isLangOpen)} className="flex items-center gap-1.5 px-3 min-h-[44px] rounded-full border border-line hover:border-brand text-sm font-medium text-ink-soft hover:text-brand-text transition-colors">
+            <button onClick={() => setIsLangOpen(!isLangOpen)} aria-haspopup="menu" aria-expanded={isLangOpen} aria-label={t('header.language')} className="flex items-center gap-1.5 px-3 min-h-[44px] rounded-full border border-line hover:border-brand text-sm font-medium text-ink-soft hover:text-brand-text transition-colors">
               <Languages size={16} />
               <span>{currentLang === 'vi' ? 'VN' : 'EN'}</span>
               <ChevronDown size={14} className={`transition-transform duration-200 ${isLangOpen ? 'rotate-180' : ''}`} />

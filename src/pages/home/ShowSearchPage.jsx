@@ -9,6 +9,8 @@ import FilterModal from '../../components/home/FilterModal'
 import { getShows, searchShows, getFilterOptions } from '../../services/showServices'
 import dayjs from 'dayjs'
 import { formatMinPrice } from '../../utils/formatPrice'
+import { useTranslation } from 'react-i18next'
+import { formatMoney } from '../../i18n/format'
 
 const initialFilterState = {
   // MLACP-522: tỉnh/phường theo danh mục hành chính — tên để hiện nhãn, mã để gửi lên tìm kiếm.
@@ -32,14 +34,14 @@ const namesToIds = (names, options) => {
   return ids.length > 0 ? ids : undefined
 }
 
-const fmtVnd = (v) => `${Number(v).toLocaleString('vi-VN')}đ`
+const fmtVnd = formatMoney
 
 // Cả viên là một nút: bấm đâu cũng bỏ được bộ lọc đó (trước đây chỉ có nút X 12px).
-const RemovableTag = ({ label, onRemove, icon: Icon }) => (
+const RemovableTag = ({ label, onRemove, ariaLabel, icon: Icon }) => (
   <button
     type="button"
     onClick={onRemove}
-    aria-label={`Bỏ lọc ${label}`}
+    aria-label={ariaLabel || `Bỏ lọc ${label}`}
     className="group inline-flex items-center gap-1.5 min-h-[44px] pl-4 pr-3 bg-card rounded-full text-sm font-medium text-ink border border-line-strong hover:border-danger/60 hover:text-danger transition-colors max-w-full"
   >
     {Icon && <Icon size={14} className="text-brand-text group-hover:text-danger flex-shrink-0" />}
@@ -49,6 +51,7 @@ const RemovableTag = ({ label, onRemove, icon: Icon }) => (
 )
 
 const ShowSearchPage = () => {
+  const { t } = useTranslation()
   const [searchParams] = useSearchParams()
   const location = useLocation()
 
@@ -82,10 +85,10 @@ const ShowSearchPage = () => {
 
   // TIÊU ĐỀ TRANG — suy ra từ dữ liệu, không cần state + effect.
   const pageTitle = useMemo(() => {
-    if (!genreId) return keyword ? `Kết quả cho “${keyword}”` : 'Tìm buổi diễn'
+    if (!genreId) return keyword ? t('search.resultsFor', { keyword }) : t('search.title')
     const genre = filterOptions.genres.find(g => String(g.id) === String(genreId))
-    return genre ? `Thể loại ${genre.name}` : 'Tìm buổi diễn'
-  }, [genreId, keyword, filterOptions])
+    return genre ? t('search.genreTitle', { name: genre.name }) : t('search.title')
+  }, [genreId, keyword, filterOptions, t])
 
   const isFiltering = Object.values(appliedFilters).some(val => Array.isArray(val) ? val.length > 0 : val !== null && val !== '') || Boolean(startDate || endDate)
 
@@ -161,7 +164,7 @@ const ShowSearchPage = () => {
         setApiError(
           status >= 400 && status < 500 && beMessage
             ? beMessage
-            : 'Không kết nối được máy chủ. Vui lòng thử lại sau ít phút.'
+            : t('search.connectionError')
         )
       } finally {
         setIsLoading(false)
@@ -190,7 +193,7 @@ const ShowSearchPage = () => {
 
   const priceLabel = appliedFilters.minPrice && appliedFilters.maxPrice
     ? `${fmtVnd(appliedFilters.minPrice)} – ${fmtVnd(appliedFilters.maxPrice)}`
-    : appliedFilters.minPrice ? `Từ ${fmtVnd(appliedFilters.minPrice)}` : appliedFilters.maxPrice ? `Đến ${fmtVnd(appliedFilters.maxPrice)}` : ''
+    : appliedFilters.minPrice ? `${t('common.from', { value: fmtVnd(appliedFilters.minPrice) })}` : appliedFilters.maxPrice ? `${t('common.to', { value: fmtVnd(appliedFilters.maxPrice) })}` : ''
 
   const fmtNgay = (d) => dayjs(d).format('DD/MM/YYYY')
 
@@ -206,10 +209,10 @@ const ShowSearchPage = () => {
           <h1 className="font-display text-3xl sm:text-4xl font-semibold text-ink break-words">{pageTitle}</h1>
           <p className="text-ink-soft mt-1.5 leading-relaxed" aria-live="polite">
             {isLoading
-              ? 'Đang tìm…'
+              ? t('search.searching')
               : totalCount != null
-                ? `${totalCount.toLocaleString('vi-VN')} buổi diễn`
-                : 'Lọc theo thể loại, tâm trạng, không gian, giá hoặc ngày để tìm đêm nhạc hợp với bạn.'}
+                ? t('common.showsCount', { n: totalCount, count: totalCount })
+                : t('search.hint')}
           </p>
         </div>
 
@@ -222,16 +225,17 @@ const ShowSearchPage = () => {
 
         {isFiltering && (
           <div className="flex flex-wrap gap-2 items-center pb-4">
-            {appliedFilters.selectedProvince && (<RemovableTag label={appliedFilters.selectedProvince} onRemove={() => setAppliedFilters(prev => ({ ...prev, selectedProvince: null, selectedProvinceCode: null, selectedWard: null, selectedWardCode: null }))} />)}
-            {appliedFilters.selectedWard && (<RemovableTag label={appliedFilters.selectedWard} onRemove={() => setAppliedFilters(prev => ({ ...prev, selectedWard: null, selectedWardCode: null }))} />)}
-            {appliedFilters.selectedGenres.map(g => (<RemovableTag key={g} label={g} onRemove={() => removeFromFilterArray('selectedGenres', g)} />))}
-            {appliedFilters.selectedSpaces.map(s => (<RemovableTag key={s} label={s} onRemove={() => removeFromFilterArray('selectedSpaces', s)} />))}
-            {appliedFilters.selectedMoods.map(m => (<RemovableTag key={m} label={m} onRemove={() => removeFromFilterArray('selectedMoods', m)} />))}
-            {(appliedFilters.minPrice || appliedFilters.maxPrice) && (<RemovableTag label={priceLabel} onRemove={() => setAppliedFilters(prev => ({ ...prev, minPrice: '', maxPrice: '' }))} />)}
+            {appliedFilters.selectedProvince && (<RemovableTag label={appliedFilters.selectedProvince} ariaLabel={t('search.removeFilter', { label: appliedFilters.selectedProvince })} onRemove={() => setAppliedFilters(prev => ({ ...prev, selectedProvince: null, selectedProvinceCode: null, selectedWard: null, selectedWardCode: null }))} />)}
+            {appliedFilters.selectedWard && (<RemovableTag label={appliedFilters.selectedWard} ariaLabel={t('search.removeFilter', { label: appliedFilters.selectedWard })} onRemove={() => setAppliedFilters(prev => ({ ...prev, selectedWard: null, selectedWardCode: null }))} />)}
+            {appliedFilters.selectedGenres.map(g => (<RemovableTag key={g} label={g} ariaLabel={t('search.removeFilter', { label: g })} onRemove={() => removeFromFilterArray('selectedGenres', g)} />))}
+            {appliedFilters.selectedSpaces.map(s => (<RemovableTag key={s} label={s} ariaLabel={t('search.removeFilter', { label: s })} onRemove={() => removeFromFilterArray('selectedSpaces', s)} />))}
+            {appliedFilters.selectedMoods.map(m => (<RemovableTag key={m} label={m} ariaLabel={t('search.removeFilter', { label: m })} onRemove={() => removeFromFilterArray('selectedMoods', m)} />))}
+            {(appliedFilters.minPrice || appliedFilters.maxPrice) && (<RemovableTag label={priceLabel} ariaLabel={t('search.removeFilter', { label: priceLabel })} onRemove={() => setAppliedFilters(prev => ({ ...prev, minPrice: '', maxPrice: '' }))} />)}
             {(startDate || endDate) && (
               <RemovableTag
                 icon={CalendarDays}
-                label={startDate && endDate ? `${fmtNgay(startDate)} → ${fmtNgay(endDate)}` : startDate ? `Từ ${fmtNgay(startDate)}` : `Đến ${fmtNgay(endDate)}`}
+                label={startDate && endDate ? `${fmtNgay(startDate)} → ${fmtNgay(endDate)}` : startDate ? `${t('common.from', { value: fmtNgay(startDate) })}` : `${t('common.to', { value: fmtNgay(endDate) })}`}
+                ariaLabel={t('search.removeFilter', { label: 'Date' })}
                 onRemove={() => { setStartDate(''); setEndDate('') }}
               />
             )}
@@ -240,7 +244,7 @@ const ShowSearchPage = () => {
               onClick={clearAllFilters}
               className="min-h-[44px] px-3 text-sm font-medium text-brand-text hover:underline underline-offset-4"
             >
-              Xoá tất cả bộ lọc
+              {t('search.clearAll')}
             </button>
           </div>
         )}
@@ -248,7 +252,7 @@ const ShowSearchPage = () => {
 
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 pb-10 sm:pb-16">
         {isLoading ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-5 md:gap-x-6 gap-y-8" aria-busy="true" aria-label="Đang tải kết quả">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-5 md:gap-x-6 gap-y-8" aria-busy="true" aria-label={t('search.loadingResults')}>
             {[...Array(8)].map((_, i) => (
               <div key={i} className="flex flex-col gap-3">
                 <Skeleton className="w-full aspect-video rounded-xl" />
@@ -261,11 +265,11 @@ const ShowSearchPage = () => {
           // Lỗi hiện NGAY TRONG vùng kết quả, bộ lọc phía trên vẫn dùng được để sửa (ví dụ khoảng giá sai).
           <div role="alert" className="max-w-lg mx-auto bg-card border border-danger/30 rounded-2xl p-8 text-center">
             <AlertCircle size={32} className="mx-auto mb-3 text-danger" />
-            <p className="font-display text-xl text-ink mb-1">Chưa tìm được kết quả</p>
+            <p className="font-display text-xl text-ink mb-1">{t('search.errorTitle')}</p>
             <p className="text-sm text-ink-soft mb-5 leading-relaxed">{apiError}</p>
             {isFiltering && (
               <button onClick={clearAllFilters} className="inline-flex items-center min-h-[44px] px-6 rounded-full bg-brand text-on-brand font-bold text-sm hover:bg-brand-hover transition-colors">
-                Xoá bộ lọc và thử lại
+                {t('search.clearAndRetry')}
               </button>
             )}
           </div>
@@ -276,19 +280,19 @@ const ShowSearchPage = () => {
         ) : (
           <div className="max-w-lg mx-auto text-center py-16">
             <SearchX size={34} className="mx-auto mb-4 text-ink-mute" />
-            <p className="font-display text-2xl text-ink mb-1.5">Chưa thấy buổi diễn phù hợp</p>
+            <p className="font-display text-2xl text-ink mb-1.5">{t('search.emptyTitle')}</p>
             <p className="text-ink-soft leading-relaxed mb-6">
               {isFiltering || keyword || genreId
-                ? 'Thử bỏ bớt một bộ lọc, hoặc đổi từ khoá ngắn hơn.'
-                : 'Hiện chưa có buổi diễn nào đang mở. Quay lại sau nhé.'}
+                ? t('search.emptyFiltered')
+                : t('search.emptyAll')}
             </p>
             {isFiltering ? (
               <button onClick={clearAllFilters} className="inline-flex items-center min-h-[44px] px-6 rounded-full bg-brand text-on-brand font-bold text-sm hover:bg-brand-hover transition-colors">
-                Xoá tất cả bộ lọc
+                {t('search.clearAll')}
               </button>
             ) : (
               <Link to="/lounges" className="inline-flex items-center min-h-[44px] px-6 rounded-full bg-brand text-on-brand font-bold text-sm hover:bg-brand-hover transition-colors">
-                Xem các phòng trà
+                {t('common.viewLounges')}
               </Link>
             )}
           </div>
@@ -296,12 +300,12 @@ const ShowSearchPage = () => {
 
         {!isLoading && !apiError && events.length > 0 && totalPages > 1 && (
           <nav aria-label="Phân trang" className="flex items-center justify-between p-4 mt-8">
-            <p className="text-sm text-ink-soft tabular-nums" aria-live="polite">Trang {page} / {totalPages}</p>
+            <p className="text-sm text-ink-soft tabular-nums" aria-live="polite">{t('search.pageOf', { page, total: totalPages })}</p>
             <div className="flex gap-2">
-              <button onClick={() => sangTrang(-1)} disabled={page === 1} aria-label="Trang trước" className={pagerBtn}>
+              <button onClick={() => sangTrang(-1)} disabled={page === 1} aria-label={t('common.prevPage')} className={pagerBtn}>
                 <ChevronLeft size={18} />
               </button>
-              <button onClick={() => sangTrang(1)} disabled={page === totalPages} aria-label="Trang sau" className={pagerBtn}>
+              <button onClick={() => sangTrang(1)} disabled={page === totalPages} aria-label={t('common.nextPage')} className={pagerBtn}>
                 <ChevronRight size={18} />
               </button>
             </div>

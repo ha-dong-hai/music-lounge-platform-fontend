@@ -6,40 +6,46 @@ import { Ticket, ChevronLeft, ChevronRight, Clock, Search, MapPin, Video, QrCode
 import Skeleton from '../shared/Skeleton'
 import dayjs from 'dayjs'
 import { getMyTickets } from '../../services/ticketServices'
+import { useTranslation } from 'react-i18next'
+import { formatMoney } from '../../i18n/format'
 
 const ITEMS_PER_PAGE = 10 
 
 const isOnlineTicket = (accessType) => !!accessType && accessType !== 'Physical'
 
 // ===== BADGE: LOẠI VÉ =====
-const AccessTypeBadge = ({ accessType }) => (
-  isOnlineTicket(accessType)
-    ? <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-purple-500/15 text-purple-400 border border-purple-500/30"><Video size={12} /> Vé Livestream</span>
-    : <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-blue-500/15 text-sky-400 border border-blue-500/30"><MapPin size={12} /> Vé tại chỗ</span>
-)
+const AccessTypeBadge = ({ accessType }) => {
+  const { t } = useTranslation()
+  return isOnlineTicket(accessType)
+    ? <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-purple-500/15 text-purple-400 border border-purple-500/30"><Video size={12} /> {t('myShows.tickets.livestream')}</span>
+    : <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-blue-500/15 text-sky-400 border border-blue-500/30"><MapPin size={12} /> {t('myShows.tickets.onsite')}</span>
+}
 
 // ===== BADGE: THỜI GIAN (Sắp diễn ra / Hôm nay / Đã diễn ra) =====
 const TimeBadge = ({ startDate }) => {
+  const { t } = useTranslation()
   if (!startDate) return null
   const d = dayjs(startDate)
   if (d.isAfter(dayjs()))
-    return <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-green-500/15 text-success border border-green-500/30">Sắp diễn ra</span>
+    return <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-green-500/15 text-success border border-green-500/30">{t('myShows.tickets.upcoming')}</span>
   if (d.isSame(dayjs(), 'day'))
-    return <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-yellow-500/15 text-warning border border-yellow-500/30">Hôm nay</span>
-  return <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-line-strong/15 text-ink-mute border border-line-strong/30">Đã diễn ra</span>
+    return <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-yellow-500/15 text-warning border border-yellow-500/30">{t('myShows.tickets.today')}</span>
+  return <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-line-strong/15 text-ink-mute border border-line-strong/30">{t('myShows.tickets.past')}</span>
 }
 
 // ===== BADGE: THANH TOÁN =====
 const PayStatusBadge = ({ status }) => {
+  const { t } = useTranslation()
   const isConfirmed = status === 'Confirmed'
   return (
     <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold border ${isConfirmed ? 'bg-green-500/15 text-success border-green-500/30' : 'bg-line-strong/15 text-ink-soft border-line-strong/30'}`}>
-      {isConfirmed ? 'Đã thanh toán' : (status || '—')}
+      {isConfirmed ? t('myShows.tickets.paid') : (status || '—')}
     </span>
   )
 }
 
 const TicketsTab = () => {
+  const { t } = useTranslation()
   const [activeSubTab, setActiveSubTab] = useState('all')        // all | upcoming | ended
   const [typeFilter, setTypeFilter] = useState('all')            // all | offline | online
   const [searchQuery, setSearchQuery] = useState('')        
@@ -100,14 +106,14 @@ const TicketsTab = () => {
   }, [tickets, activeSubTab, typeFilter, searchQuery])
 
   const subTabs = [
-    { key: 'all', label: 'Tất cả' },
-    { key: 'upcoming', label: 'Sắp diễn ra' },
-    { key: 'ended', label: 'Đã kết thúc' }
+    { key: 'all', label: t('myShows.tickets.all') },
+    { key: 'upcoming', label: t('myShows.tickets.upcoming') },
+    { key: 'ended', label: t('myShows.tickets.ended') }
   ]
   const typeTabs = [
-    { key: 'all', label: 'Tất cả' },
-    { key: 'offline', label: 'Tại chỗ' },
-    { key: 'online', label: 'Trực tuyến' }
+    { key: 'all', label: t('myShows.tickets.all') },
+    { key: 'offline', label: t('myShows.tickets.offline') },
+    { key: 'online', label: t('myShows.tickets.online') }
   ]
 
   const pillCls = (active) => `px-4 min-h-[44px] inline-flex items-center rounded-full text-sm font-medium transition-all border ${
@@ -147,7 +153,7 @@ const TicketsTab = () => {
         <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-mute" />
         <input
           type="text"
-          placeholder="Tìm vé (trong trang hiện tại)"
+          placeholder={t('myShows.tickets.searchPlaceholder')}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="w-full pl-10 pr-10 py-2.5 bg-card border border-line rounded-xl text-sm text-ink placeholder:text-ink-mute focus:outline-none focus:border-brand/50"
@@ -195,8 +201,8 @@ const TicketsTab = () => {
         /* CHƯA CÓ VÉ GÌ CẢ */
         <div className="bg-card border border-line rounded-2xl p-12 text-center min-h-[300px] flex flex-col items-center justify-center">
           <Ticket size={40} className="text-ink-mute mb-4" />
-          <p className="text-ink-soft text-lg">Chưa có vé nào trong mục này.</p>
-          <Link to="/" className="mt-4 text-brand-text font-semibold underline hover:text-brand-text">Khám phá thêm đêm diễn</Link>
+          <p className="text-ink-soft text-lg">{t('myShows.tickets.empty')}</p>
+          <Link to="/" className="mt-4 text-brand-text font-semibold underline hover:text-brand-text">{t('myShows.tickets.explore')}</Link>
         </div>
       ) : filteredTickets.length > 0 ? (
         <>
@@ -251,7 +257,7 @@ const TicketsTab = () => {
                     <div className="flex items-center justify-between gap-3 pt-2.5 mt-1 border-t border-line/70">
                       <div className="min-w-0">
                         <p className="text-sm text-brand-text font-medium truncate">{ev.tierName}</p>
-                        <p className="text-sm font-bold text-ink">{ev.pricePaid?.toLocaleString('vi-VN')}đ</p>
+                        <p className="text-sm font-bold text-ink">{formatMoney(ev.pricePaid)}</p>
                       </div>
 
                       {/* KHÁC NHAU THEO LOẠI VÉ.
@@ -266,11 +272,11 @@ const TicketsTab = () => {
                           to={`/livestream/${ev.showId}`}
                           className="relative z-10 flex-shrink-0 flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-purple-500/10 border border-purple-500/40 text-purple-400 text-xs font-bold hover:bg-purple-500/25 transition-colors"
                         >
-                          <Video size={14} /> Vào xem trực tuyến
+                          <Video size={14} /> {t('myShows.tickets.watchOnline')}
                         </Link>
                       ) : (
                         <span className="flex-shrink-0 flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-brand/10 border border-brand/40 text-brand-text text-xs font-bold group-hover:bg-brand-hover/20 transition-colors">
-                          <QrCode size={14} /> Xem mã QR vào cửa
+                          <QrCode size={14} /> {t('myShows.tickets.viewQr')}
                         </span>
                       )}
                     </div>
@@ -282,7 +288,7 @@ const TicketsTab = () => {
                       to={`/shows/${ev.showId}`}
                       className="relative z-10 self-start text-xs text-ink-mute hover:text-brand-text transition-colors"
                     >
-                      Xem trang buổi diễn →
+                      {t('myShows.tickets.viewShow')}
                     </Link>
                   </div>
                 </div>
@@ -295,10 +301,10 @@ const TicketsTab = () => {
         /* CÓ VÉ NHƯNG BỘ LỌC KHÔNG KHỚP */
         <div className="bg-card border border-dashed border-line rounded-2xl p-12 text-center">
           <Search size={36} className="mx-auto text-ink-mute mb-4" />
-          <p className="text-ink-soft mb-1">Không có vé nào khớp bộ lọc.</p>
-          <p className="text-ink-mute text-sm mb-5">Thử đổi từ khoá hoặc bộ lọc</p>
+          <p className="text-ink-soft mb-1">{t('myShows.tickets.noMatch')}</p>
+          <p className="text-ink-mute text-sm mb-5">{t('myShows.tickets.tryChange')}</p>
           <button onClick={resetFilters} className="text-brand-text font-semibold text-sm underline hover:text-brand-text">
-            Xoá mọi bộ lọc
+            {t('myShows.tickets.clearFilters')}
           </button>
         </div>
       )}

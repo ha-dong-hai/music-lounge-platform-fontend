@@ -11,11 +11,13 @@
 //   và giữ được chất "phòng trà" mà không làm cả trang tối.
 import { Link } from 'react-router-dom'
 import { Mail, Phone } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 const linkCls =
   'inline-flex items-center min-h-[44px] text-cream-mute hover:text-brand-on-dark transition-colors focus-visible:outline-brand-on-dark'
 
 const Footer = () => {
+  const { t } = useTranslation()
   return (
     <footer className="bg-espresso text-cream-mute mt-16">
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 py-12 grid grid-cols-1 md:grid-cols-3 gap-10">
@@ -24,24 +26,24 @@ const Footer = () => {
             Phòng Trà <span className="text-brand-on-dark">Sài Gòn</span>
           </p>
           <p className="text-sm leading-relaxed max-w-sm">
-            Nơi tìm và đặt vé những đêm nhạc thính phòng, bolero và acoustic tại các phòng trà Sài Gòn.
+            {t('footer.tagline')}
           </p>
         </div>
 
-        <nav aria-label="Liên kết">
-          <h3 className="text-sm font-semibold uppercase tracking-widest text-cream mb-3 font-sans">Khám phá</h3>
+        <nav aria-label={t('footer.links')}>
+          <h3 className="text-sm font-semibold uppercase tracking-widest text-cream mb-3 font-sans">{t('footer.explore')}</h3>
           <ul className="text-sm">
-            <li><Link to="/shows" className={linkCls}>Các đêm diễn</Link></li>
-            <li><Link to="/lounges" className={linkCls}>Phòng trà</Link></li>
-            <li><Link to="/complaints" className={linkCls}>Gửi &amp; tra cứu khiếu nại</Link></li>
-            <li><a href="#" className={linkCls}>Giới thiệu</a></li>
-            <li><a href="#" className={linkCls}>Điều khoản sử dụng</a></li>
-            <li><a href="#" className={linkCls}>Chính sách bảo mật</a></li>
+            <li><Link to="/shows" className={linkCls}>{t('footer.shows')}</Link></li>
+            <li><Link to="/lounges" className={linkCls}>{t('footer.lounges')}</Link></li>
+            <li><Link to="/complaints" className={linkCls}>{t('footer.complaints')}</Link></li>
+            <li><a href="#" className={linkCls}>{t('footer.about')}</a></li>
+            <li><a href="#" className={linkCls}>{t('footer.terms')}</a></li>
+            <li><a href="#" className={linkCls}>{t('footer.privacy')}</a></li>
           </ul>
         </nav>
 
         <div>
-          <h3 className="text-sm font-semibold uppercase tracking-widest text-cream mb-3 font-sans">Liên hệ</h3>
+          <h3 className="text-sm font-semibold uppercase tracking-widest text-cream mb-3 font-sans">{t('footer.contact')}</h3>
           <ul className="text-sm space-y-2">
             <li className="flex items-center gap-2">
               <Mail size={16} className="text-brand-on-dark" aria-hidden="true" />
@@ -57,7 +59,7 @@ const Footer = () => {
 
       <div className="border-t border-cream/10">
         <p className="max-w-[1600px] mx-auto px-4 sm:px-6 py-5 text-xs text-cream-mute text-center">
-          © {new Date().getFullYear()} Phòng Trà Sài Gòn. Bảo lưu mọi quyền.
+          {t('footer.rights', { year: new Date().getFullYear() })}
         </p>
       </div>
     </footer>
