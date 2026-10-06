@@ -19,8 +19,9 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import dayjs from 'dayjs'
-import { Loader2, Banknote, Receipt, Music2, Users, Store, Ticket, HeartHandshake, AlertTriangle, CheckCircle2 } from 'lucide-react'
-import { getPlatformAnalytics, getAdminOverview, getAdminDashboard } from '../../services/analyticsServices'
+import { Loader2, Banknote, Receipt, Music2, Users, Store, Ticket, HeartHandshake, AlertTriangle, CheckCircle2, Sparkles, MousePointerClick } from 'lucide-react'
+import { getPlatformAnalytics, getAdminOverview, getAdminDashboard, getAiRecommendationPerformance, getRecommenderEvaluation } from '../../services/analyticsServices'
+import KhoiDanhGiaGoiY from '../../components/admin/dashboard/KhoiDanhGiaGoiY'
 import { SOURCES, fmtMoney, fmtCompact } from '../../components/admin/dashboard/chartTokens'
 import KhungTai from '../../components/bang/KhungTai'
 import ChonKy from '../../components/bang/ChonKy'
@@ -117,6 +118,51 @@ const TheViecCanXuLy = () => {
   )
 }
 
+// TAB "GỢI Ý AI" (MLACP-695) — chuyển từ trang "Nội dung và tương tác" (/admin/insights) mà chủ dự án bỏ 06/10 vì dư thừa.
+// Chỉ giữ hai khối về tính năng gợi ý (bằng chứng AI có tác dụng, dùng cho báo cáo); phần tương tác khán giả và uy tín
+// phòng trà bỏ theo trang. Nằm trong TabsContent (Radix gỡ nội dung tab đang ẩn) nên chỉ gọi API khi Admin mở tab này.
+// Hai tỷ lệ tính trên cùng một kỳ, mẫu số là số cặp được gợi ý — đặt cạnh nhau nhưng KHÔNG cộng hay chia cho nhau.
+const cauMauSo = (soLuot, soCap) => (soCap > 0 ? `${soLuot.toLocaleString('vi-VN')} trên ${soCap.toLocaleString('vi-VN')} cặp` : 'Chưa có cặp gợi ý nào')
+
+const TabGoiY = ({ tu, den, truoc }) => {
+  const goiY = useQuery({ queryKey: ['admin-goi-y', tu, den], queryFn: () => boc(getAiRecommendationPerformance(thamSoApi(tu, den))), placeholderData: keepPreviousData })
+  const goiYTruoc = useQuery({ queryKey: ['admin-goi-y', truoc.tu, truoc.den], queryFn: () => boc(getAiRecommendationPerformance(thamSoApi(truoc.tu, truoc.den))) })
+  const moHinh = useQuery({ queryKey: ['admin-mo-hinh-goi-y'], queryFn: () => boc(getRecommenderEvaluation()), staleTime: 5 * 60_000 })
+  const a = goiY.data; const aT = goiYTruoc.data
+  return (
+    <div className="space-y-4">
+      <Card>
+        <CardHeader>
+          <CardTitle>Gợi ý buổi diễn có được dùng không</CardTitle>
+          <CardDescription>{nhanKhoang(tu, den)}. Một cặp = một người được gợi ý một buổi diễn.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <KhungTai dangTai={goiY.isPending} loi={goiY.isError} taiLai={goiY.refetch} tenVung="hiệu quả gợi ý" caoKhung="h-24">
+            {a && (
+              <div className="grid gap-4 sm:grid-cols-3">
+                <TheChiSo mau="goiy" icon={Sparkles} nhan="Cặp được gợi ý" so={a.recommendedPairCount.toLocaleString('vi-VN')} nay={a.recommendedPairCount} truoc={aT?.recommendedPairCount} />
+                <TheChiSo mau="khangia" icon={MousePointerClick} nhan="Tỷ lệ bấm vào" so={phanTram(a.clickThroughRatePercent)} ghiChu={cauMauSo(a.clickThroughCount, a.recommendedPairCount)} />
+                <TheChiSo mau="tien" icon={Ticket} nhan="Tỷ lệ thành mua vé" so={phanTram(a.conversionRatePercent)} ghiChu={cauMauSo(a.conversionCount, a.recommendedPairCount)} />
+              </div>
+            )}
+          </KhungTai>
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader>
+          <CardTitle>Mô hình gợi ý đoán đúng đến đâu</CardTitle>
+          <CardDescription>Không theo kỳ đã chọn: đo trên toàn bộ lịch sử mua vé.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <KhungTai dangTai={moHinh.isPending} loi={moHinh.isError} taiLai={moHinh.refetch} tenVung="chất lượng mô hình gợi ý" caoKhung="h-24">
+            {moHinh.data && <KhoiDanhGiaGoiY recommender={moHinh.data} khongKhung />}
+          </KhungTai>
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
+
 const AdminDashboard = () => {
   const { tu, den, truoc, datKy } = useKyBaoCao()
   const [measure, setMeasure] = useState('platformRevenue')
@@ -174,6 +220,7 @@ const AdminDashboard = () => {
             <TabsTrigger value="tien">Tiền theo nguồn</TabsTrigger>
             <TabsTrigger value="buoi-dien">Buổi diễn và thể loại</TabsTrigger>
             <TabsTrigger value="luy-ke">Từ khi vận hành</TabsTrigger>
+            <TabsTrigger value="goi-y">Gợi ý AI</TabsTrigger>
           </TabsList>
         </div>
 
@@ -344,6 +391,10 @@ const AdminDashboard = () => {
             <TheChiSo mau="tien" icon={Banknote} nhan="Tổng giá trị giao dịch" so={fmtMoney(p?.totalGrossMerchandiseValue)} />
             <TheChiSo mau="buoidien" icon={HeartHandshake} nhan="Tiền ủng hộ" so={fmtMoney(p?.totalDonationVolume)} />
           </div>
+        </TabsContent>
+
+        <TabsContent value="goi-y">
+          <TabGoiY tu={tu} den={den} truoc={truoc} />
         </TabsContent>
       </Tabs>
     </>

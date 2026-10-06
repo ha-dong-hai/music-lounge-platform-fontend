@@ -5,7 +5,7 @@
 // React.lazy — trình duyệt tải khi người dùng mở tới. Ranh giới chờ (Suspense) nằm ở GocUngDung (cả trang) và
 // PortalShell (giữ thanh bên, chỉ vùng nội dung chờ).
 import { lazy } from 'react'
-import { createBrowserRouter } from 'react-router-dom'
+import { createBrowserRouter, Navigate } from 'react-router-dom'
 import MainLayout from '../layouts/MainLayout'
 
 // Pages Public & Auth
@@ -39,7 +39,6 @@ const LivestreamWatchPage = lazy(() => import('../pages/livestream/LivestreamWat
 const AdminVenuesPage = lazy(() => import('../pages/admin/AdminVenuesPage'))
 const AdminFilterOptionsPage = lazy(() => import('../pages/admin/AdminFilterOptionsPage'))
 const AdminKycReviewsPage = lazy(() => import('../pages/admin/AdminKycReviewsPage'))
-const AdminInsightsPage = lazy(() => import('../pages/admin/AdminInsightsPage'))
 const AdminSystemConfigPage = lazy(() => import('../pages/admin/AdminSystemConfigPage'))
 const AdminLedgerPage = lazy(() => import('../pages/admin/AdminLedgerPage'))
 const AdminBankAccountsPage = lazy(() => import('../pages/admin/AdminBankAccountsPage'))
@@ -185,7 +184,9 @@ const AppRouter = createBrowserRouter([{ element: <GocUngDung />, children: [
       { path: 'venues', element: <AdminVenuesPage /> },
       { path: 'filter-options', element: <AdminFilterOptionsPage /> },
       { path: 'kyc-reviews', element: <AdminKycReviewsPage /> },
-      { path: 'insights', element: <AdminInsightsPage /> },
+      // MLACP-695: trang "Nội dung và tương tác" đã bỏ (chủ dự án 06/10: dư thừa); phần gợi ý AI chuyển thành tab trên
+      // Tổng quan. Giữ đường cũ chuyển về Tổng quan để dấu trang/đường dẫn đã gửi không rơi vào trang 404.
+      { path: 'insights', element: <Navigate to="/admin" replace /> },
       { path: 'system-config', element: <AdminSystemConfigPage /> },
       { path: 'ledger', element: <AdminLedgerPage /> },
       { path: 'bank-accounts', element: <AdminBankAccountsPage /> },
