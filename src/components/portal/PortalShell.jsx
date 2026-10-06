@@ -177,7 +177,12 @@ const PortalShell = ({ portalName, nhom = [], loiRa = [], footer, headerRight, c
         </header>
 
         {/* `man-van-hanh`: phạm vi ghi đè biến cỡ chữ + màu viền/nền/chữ phụ cho mắt người đọc số liệu (index.css, 05/10/2026). */}
-        <main className="man-van-hanh lg:flex-1 lg:overflow-y-auto p-4 sm:p-6 lg:p-8 bg-page min-w-0">
+        {/* MLACP-696 — `relative` là BẮT BUỘC: vùng này cuộn riêng (lg:overflow-y-auto) trong khung cao đúng một màn hình. Phần tử
+            `sr-only` (position: absolute — chú thích bảng, nhãn cho trình đọc màn hình) nằm sâu bên dưới mà không có tổ tiên
+            `relative` thì được định vị theo CẢ TRANG, không cuộn theo vùng này → kéo trang dài hơn màn hình và trình duyệt vẽ
+            thêm thanh cuộn thứ hai. Đo 06/10/2026 ở trang vận hành: mở "Danh sách khách đã mua vé" thì trang từ 900px thành
+            1146px. Đặt ở khung chung nên mọi trang chủ phòng trà/nhân viên đều hết, không vá từng bảng. */}
+        <main className="man-van-hanh relative lg:flex-1 lg:overflow-y-auto p-4 sm:p-6 lg:p-8 bg-page min-w-0">
           {/* Khung trang tối đa 1440px căn giữa (DESIGN.md › Bố cục) — trước không giới hạn nên trang biểu mẫu neo trái để trống cả nửa màn rộng. */}
           {/* MLACP-611: trang con tải theo yêu cầu — thanh bên đứng yên, chỉ vùng này hiện vòng chờ. */}
           <div className="max-w-[1440px] mx-auto">
