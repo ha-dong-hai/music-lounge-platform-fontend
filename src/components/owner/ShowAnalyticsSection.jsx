@@ -114,8 +114,24 @@ const ShowAnalyticsSection = ({ showId }) => {
             </div>
           </div>
 
+          {/* MLACP-689: vé đã bán rồi được hoàn / khách huỷ không nằm trong số "đã bán" — nói rõ, kẻo "0 vé" đọc thành
+              "không ai mua" (gặp thật 06/10: buổi phát bị cắt ngang, vé được hoàn tự động). Backend cũ không trả hai số
+              này → undefined → không in dòng (không in "0 vé hoàn" sai). */}
+          {(trend.ticketsRefunded > 0 || trend.ticketsCancelled > 0) && (
+            <p className="text-sm text-ink-soft mb-3">
+              Không tính vào số đã bán:
+              {trend.ticketsRefunded > 0 && <> <span className="font-semibold text-ink">{fmtSo(trend.ticketsRefunded)} vé đã hoàn tiền</span></>}
+              {trend.ticketsRefunded > 0 && trend.ticketsCancelled > 0 && ','}
+              {trend.ticketsCancelled > 0 && <> <span className="font-semibold text-ink">{fmtSo(trend.ticketsCancelled)} vé khách đã huỷ</span></>}.
+            </p>
+          )}
+
           {(trend.dailySales?.length ?? 0) === 0 ? (
-            <p className="text-sm text-ink-mute">Chưa có ngày nào bán được vé.</p>
+            <p className="text-sm text-ink-mute">
+              {trend.ticketsRefunded > 0 || trend.ticketsCancelled > 0
+                ? 'Hiện không còn vé nào đang có hiệu lực.'
+                : 'Chưa có ngày nào bán được vé.'}
+            </p>
           ) : (
             <div className="flex items-end gap-1 h-32">
               {trend.dailySales.map((d) => (
