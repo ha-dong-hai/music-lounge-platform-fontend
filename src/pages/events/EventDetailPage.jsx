@@ -1,7 +1,7 @@
 // src/pages/events/EventDetailPage.jsx
 import { useState, useRef, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { MapPin, Heart, Share2, Check, X, Copy, Star } from 'lucide-react'
+import { MapPin, Heart, Share2, Check, X, Copy, Star, MessageSquareWarning } from 'lucide-react'
 import toast from 'react-hot-toast'
 import BiaDia from '../../components/program/BiaDia'
 import { thuVietHoa, ngayDayDu, gioTrongNgay } from '../../utils/ngayVietNam'
@@ -305,6 +305,11 @@ const EventDetailPage = () => {
               <button type="button" onClick={() => setIsShareModalOpen(true)} className="inline-flex items-center gap-2 min-h-[44px] px-2 font-medium text-lamp-mute hover:text-lamp transition-colors">
                 <Share2 size={20} aria-hidden="true" /> Chia sẻ
               </button>
+              {/* MLACP-680: lối khiếu nại có điền sẵn buổi diễn — người dùng không phải đi tìm mã trong đường dẫn. */}
+              <Link to={`/complaints?loai=show&ma=${id}&ten=${encodeURIComponent(data.title ?? '')}`}
+                className="inline-flex items-center gap-2 min-h-[44px] px-2 font-medium text-lamp-mute hover:text-lamp transition-colors">
+                <MessageSquareWarning size={20} aria-hidden="true" /> Khiếu nại
+              </Link>
             </div>
           </div>
         </div>

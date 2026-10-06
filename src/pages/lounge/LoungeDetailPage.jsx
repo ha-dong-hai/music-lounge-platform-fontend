@@ -244,6 +244,11 @@ const LoungeDetailPage = () => {
               {coLich && <a href="#lich-dien" className={`${NUT_DAC} w-full sm:w-auto`}>Xem lịch diễn</a>}
               {nutTheoDoi(`${coLich ? NUT_VIEN : NUT_DAC} w-full sm:w-auto`)}
             </div>
+            {/* MLACP-680: lối khiếu nại có điền sẵn phòng trà — không bắt đi tìm mã trong đường dẫn. */}
+            <Link to={`/complaints?loai=venue&ma=${lounge.id}&ten=${encodeURIComponent(lounge.name ?? '')}`}
+              className="mt-3 inline-flex items-center min-h-[44px] text-sm text-lamp-mute underline underline-offset-4 hover:text-lamp">
+              Khiếu nại về phòng trà này
+            </Link>
             {/* Chưa ai theo dõi thì không in "0 người theo dõi": con số 0 không giúp ai quyết định điều gì. */}
             {lounge.followerCount > 0 && (
               <p className="mt-3 font-mono text-sm text-lamp-mute">{lounge.followerCount.toLocaleString('vi-VN')} người theo dõi</p>

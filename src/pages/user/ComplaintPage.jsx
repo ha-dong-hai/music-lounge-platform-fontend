@@ -24,15 +24,18 @@ import PhanTrang from '../../components/bang/PhanTrang'
 import { ngayDayDu, gioTrongNgay } from '../../utils/ngayVietNam'
 import { laGuid } from '../../utils/format'
 import LienKetMuiTen from '../../components/shared/LienKetMuiTen'
+import ChonDoiTuongKhieuNai from '../../components/complaints/ChonDoiTuongKhieuNai'
 
 // Đúng 6 giá trị targetType backend nhận.
 const TARGET_TYPES = [
-  { value: 'show', label: 'Buổi diễn', hint: 'Dãy mã ở cuối đường dẫn trang buổi diễn (…/shows/<mã>) — sao chép nguyên dãy.' },
-  { value: 'venue', label: 'Phòng trà', hint: 'Dãy mã ở cuối đường dẫn trang phòng trà (…/lounge/<mã>) — sao chép nguyên dãy.' },
-  { value: 'ticket', label: 'Vé', hint: 'Nhanh hơn: mở trang vé của bạn rồi bấm “Gửi khiếu nại về vé này” — vé được điền sẵn.' },
-  { value: 'donation', label: 'Lượt ủng hộ', hint: '' },
-  { value: 'livestream', label: 'Buổi phát trực tuyến', hint: '' },
-  { value: 'penalty', label: 'Án phạt', hint: '' },
+  // MLACP-680: gợi ý nói cách CHỌN, không nói về dãy mã. Mỗi trang buổi diễn / phòng trà / vé / khoản ủng hộ cũng có lối
+  // "Khiếu nại về …" mở thẳng trang này với đối tượng điền sẵn.
+  { value: 'show', label: 'Buổi diễn', hint: 'Buổi bạn đã mua vé có sẵn trong danh sách. Buổi khác: dán đường dẫn trang buổi diễn.' },
+  { value: 'venue', label: 'Phòng trà', hint: 'Chọn phòng trà trong danh sách.' },
+  { value: 'ticket', label: 'Vé', hint: 'Chọn vé của bạn trong danh sách.' },
+  { value: 'donation', label: 'Lượt ủng hộ', hint: 'Chọn khoản ủng hộ của bạn trong danh sách.' },
+  { value: 'livestream', label: 'Buổi phát trực tuyến', hint: 'Buổi bạn đã mua vé có sẵn trong danh sách. Buổi khác: dán đường dẫn trang xem trực tuyến.' },
+  { value: 'penalty', label: 'Án phạt', hint: 'Chủ phòng trà: chọn án phạt trong danh sách.' },
 ]
 
 // Đúng 8 giá trị ComplaintCategory của backend.
@@ -143,8 +146,8 @@ const ComplaintPage = () => {
   const kiemForm = () => {
     const l = {}
     const loai = TARGET_TYPES.find((t) => t.value === form.targetType)
-    // MLACP-516: mã là GUID dài, người dùng dán từ đường dẫn — báo rõ khi dán thiếu/sai thay vì để backend trả 400.
-    if (!laGuid(String(form.targetId))) l.targetId = `Dán nguyên mã ${loai.label.toLowerCase()} (dạng 00000000-0000-0000-0000-000000000000) từ đường dẫn.`
+    // MLACP-516/680: chưa chọn được đối tượng — nói cách làm, không nói về dạng mã.
+    if (!laGuid(String(form.targetId))) l.targetId = `Chọn ${loai.label.toLowerCase()} trong danh sách, hoặc dán nguyên đường dẫn trang ${loai.label.toLowerCase()}.`
     if (form.description.trim().length < MO_TA_TOI_THIEU) l.description = `Mô tả sự việc cần ít nhất ${MO_TA_TOI_THIEU} ký tự.`
     if (!user && !form.contactPhone.trim()) l.contactPhone = 'Bạn chưa đăng nhập, nên cần để lại số điện thoại để chúng tôi liên hệ lại.'
     return l
@@ -269,13 +272,15 @@ const ComplaintPage = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <OTruong nhan="Khiếu nại về">
                 {(p) => (
-                  <select {...p} value={form.targetType} onChange={(e) => set('targetType', e.target.value)}>
+                  <select {...p} value={form.targetType} onChange={(e) => { set('targetType', e.target.value); set('targetId', '') }}>
                     {TARGET_TYPES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
                   </select>
                 )}
               </OTruong>
-              <OTruong nhan={`Mã ${loaiHienTai?.label.toLowerCase()}`} batBuoc goiY={loaiHienTai?.hint || undefined} loi={loi.targetId}>
-                {(p) => <input {...p} value={form.targetId} onChange={(e) => set('targetId', e.target.value)} placeholder="Dán mã từ đường dẫn" spellCheck={false} autoComplete="off" className={`${p.className} font-mono`} />}
+              {/* MLACP-680: CHỌN trong danh sách của mình (hoặc dán cả đường dẫn trang) — không bắt dán một dãy mã. */}
+              <OTruong nhan={`Chọn ${loaiHienTai?.label.toLowerCase()}`} batBuoc goiY={loaiHienTai?.hint || undefined} loi={loi.targetId}>
+                {(p) => <ChonDoiTuongKhieuNai key={form.targetType} loai={form.targetType} giaTri={form.targetId} user={user}
+                  onChon={(id) => set('targetId', id)} p={p} />}
               </OTruong>
             </div>
             )}

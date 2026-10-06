@@ -101,6 +101,9 @@ const MyDonationsTab = () => {
               <div className="text-right flex-shrink-0">
                 <p className="text-lg font-bold text-ink tabular-nums">{fmtTien(d.gross)}</p>
                 <NhanTrangThai sacThai={tt?.sacThai ?? 'trung'} className="mt-1.5">{tt?.chu ?? d.status}</NhanTrangThai>
+                {/* MLACP-680: khiếu nại khoản này — điền sẵn, không phải đi tìm mã. */}
+                <Link to={`/complaints?loai=donation&ma=${d.id}&ten=${encodeURIComponent(`${fmtTien(d.gross)} cho ${d.performerName}`)}`}
+                  className="block mt-2 text-xs text-ink-soft underline underline-offset-4 hover:text-ink">Khiếu nại khoản này</Link>
               </div>
             </div>
           )
