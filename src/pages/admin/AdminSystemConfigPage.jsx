@@ -6,7 +6,7 @@
 //
 // Bản 2 (lớp hiển thị ở utils/thamSoHeThong.js — giá trị gửi lên KHÔNG đổi dạng):
 //  - Mỗi tham số: TÊN ĐỜI THƯỜNG + một câu "nó làm gì", giá trị kèm đơn vị ("15 phút", "5%"). Khoá kỹ thuật chỉ còn ở hộp sửa.
-//  - Nhóm theo VIỆC (Vé và giữ chỗ, Chi trả cho phòng trà…), có mục lục nhảy nhóm và ô tìm không dấu.
+//  - Nhóm theo VIỆC (Vé và giữ chỗ, Chi trả cho phòng trà…), có nút lọc theo nhóm (MLACP-694; bản 2 là mục lục chữ gạch chân) và ô tìm không dấu.
 //  - Ô sửa đúng loại: phần trăm có hậu tố %, số có đơn vị, Bật/Tắt là hai nút chọn, từ cấm mỗi dòng một từ; câu VÍ DỤ tính
 //    ngay theo giá trị đang gõ cho tham số tiền (GOV.UK: prefix/suffix cho đơn vị; inputmode thay type="number").
 //  - Lý do bắt buộc ≥ 10 ký tự (backend đòi vậy — bản 1 không nói, bấm Lưu mới bị từ chối) có bộ đếm.
@@ -25,10 +25,12 @@ import {
   getSystemConfigs, getSystemConfigHistory, updateSystemConfig, getConfigurationAudit,
 } from '../../services/adminServices'
 import { TrangLoiTai } from '../../components/bang/KhungTai'
+import NhomTab from '../../components/bang/NhomTab'
 import HopThoai, { TieuDeHop } from '../../components/shared/HopThoai'
 import { moTaThamSo, hienGiaTri, giaTriSua, guiLen, gomTheoNhom, khopTim } from '../../utils/thamSoHeThong'
 
 const LY_DO_TOI_THIEU = 10
+const TAT_CA = 'tat-ca'
 const O_NHAP = 'w-full min-h-[44px] px-3 py-2 bg-card border-2 border-ink text-ink focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2'
 
 const EditModal = ({ config, onClose, onSaved }) => {
@@ -266,6 +268,8 @@ const AdminSystemConfigPage = () => {
 
   const nhom = useMemo(() => gomTheoNhom(configs).map((n) => ({ ...n, muc: n.muc.filter(({ c, m }) => khopTim(m, c, tim)) })), [configs, tim])
   const soKhop = nhom.reduce((s, n) => s + n.muc.length, 0)
+  const [nhomChon, setNhomChon] = useState(TAT_CA)
+  const hien = nhom.filter((n) => n.muc.length > 0 && (nhomChon === TAT_CA || n.id === nhomChon))
 
   if (isLoading) return <div className="py-20 flex justify-center"><Loader2 size={32} className="animate-spin text-ink" /></div>
   if (loiTai) return <TrangLoiTai tieuDe="Cấu hình hệ thống" tenVung="cấu hình hệ thống" taiLai={load} />
@@ -288,22 +292,21 @@ const AdminSystemConfigPage = () => {
           <input type="search" value={tim} onChange={(e) => setTim(e.target.value)} aria-label="Tìm tham số"
             placeholder="Tìm: giữ chỗ, hoa hồng, khiếu nại…" className={`pl-9 ${O_NHAP}`} />
         </div>
-        <nav aria-label="Nhảy tới nhóm" className="flex flex-wrap gap-x-4 gap-y-1">
-          {nhom.filter((n) => n.muc.length > 0).map((n) => (
-            <a key={n.id} href={`#nhom-${n.id}`} className="text-sm font-semibold text-ink underline underline-offset-4 decoration-ink/30 hover:decoration-ink min-h-[44px] inline-flex items-center">
-              {n.ten} <span className="ml-1 font-normal text-ink-mute">{n.muc.length}</span>
-            </a>
-          ))}
-        </nav>
       </div>
 
-      {tim && soKhop === 0 && (
+      {/* MLACP-694: bản cũ là hàng chữ gạch chân nhảy neo — chủ dự án: "chỉ có gạch chân cũng không được". Nay là nhóm nút
+          lọc dùng chung (components/bang/NhomTab — 44px, số đếm, nút đang chọn tô đậm như mọi trang Admin khác): bấm một
+          nhóm thì CHỈ hiện nhóm đó. Số đếm theo ô tìm đang gõ; nhóm 0 kết quả vẫn bấm được và nói rõ là không khớp. */}
+      <NhomTab nhan="Lọc tham số theo nhóm" dangChon={nhomChon} onChon={setNhomChon}
+        cacTab={[{ khoa: TAT_CA, nhan: 'Tất cả', dem: soKhop }, ...nhom.map((n) => ({ khoa: n.id, nhan: n.ten, dem: n.muc.length }))]} />
+
+      {tim && hien.length === 0 && (
         <p className="bg-card border border-line p-6 text-ink-soft">
           Không có tham số nào khớp “{tim}”. <button type="button" onClick={() => setTim('')} className="font-semibold text-ink underline underline-offset-4 min-h-[44px]">Xoá ô tìm</button>
         </p>
       )}
 
-      {nhom.filter((n) => n.muc.length > 0).map((n) => (
+      {hien.map((n) => (
         <section key={n.id} id={`nhom-${n.id}`} aria-labelledby={`tieu-de-${n.id}`} className="bg-card border border-line px-5 sm:px-6 pt-5 pb-2 scroll-mt-24">
           <h2 id={`tieu-de-${n.id}`} className="text-2xl text-ink">{n.ten}</h2>
           {n.moTa && <p className="text-sm text-ink-mute mt-0.5">{n.moTa}</p>}
