@@ -36,8 +36,14 @@ import PhanTrang from '../../components/bang/PhanTrang'
 import KhungTai from '../../components/bang/KhungTai'
 import { tenDoiTuong } from '../../utils/tenDoiTuong'
 
+// MLACP-693: "Cần xử lý" = Chờ xử lý + Đang xem xét — ĐÚNG định nghĩa con số trên huy hiệu menu (backend
+// GetAdminWorkQueueQueryHandler đếm GetComplaintHistoryQuery([Open, Investigating])). Bản cũ chỉ lọc được một trạng thái
+// một lần nên huy hiệu "4" không có ô lọc nào ra đủ 4 dòng. Đây là MẶC ĐỊNH khi mở trang (bấm huy hiệu là thấy đúng các
+// việc nó đếm, như hàng đợi "chưa giải quyết" mặc định của Zendesk); xem hết thì chọn "Mọi trạng thái" (giá trị 'all').
+export const CAN_XU_LY = 'CanXuLy'
+const TRANG_THAI_CUA = { [CAN_XU_LY]: ['Open', 'Investigating'], all: undefined }
 const BO_LOC = {
-    trangThai: parseAsStringLiteral(Object.keys(STATUS_CONFIG)),
+    trangThai: parseAsStringLiteral([CAN_XU_LY, 'all', ...Object.keys(STATUS_CONFIG)]).withDefault(CAN_XU_LY),
     q: parseAsString.withDefault(''),
     tu: parseAsString,
     den: parseAsString,
@@ -47,7 +53,7 @@ const goiKhieuNai = ({ trangThai, q, tu, den, ...trang }) => {
     const ngay = k ? thamSoApi(k.tu, k.den) : null
     return getComplaintHistory({
         ...trang,
-        status: trangThai ? [trangThai] : undefined,
+        status: trangThai in TRANG_THAI_CUA ? TRANG_THAI_CUA[trangThai] : [trangThai],
         keyword: q.trim() || undefined,
         createdFrom: ngay?.from,
         createdTo: ngay?.to,
@@ -56,13 +62,13 @@ const goiKhieuNai = ({ trangThai, q, tu, den, ...trang }) => {
 
 const AdminComplaintPage = () => {
     const ds = useDanhSachMayChu({ khoa: ['admin-khieu-nai'], goi: goiKhieuNai, boLoc: BO_LOC, coMacDinh: 20 })
-    const statusFilter = ds.boLoc.trangThai ?? 'all'
-    const setStatusFilter = (v) => ds.datBoLoc({ trangThai: v === 'all' ? null : v })
+    const statusFilter = ds.boLoc.trangThai
+    const setStatusFilter = (v) => ds.datBoLoc({ trangThai: v === CAN_XU_LY ? null : v })
     // MLACP-685: số khiếu nại theo từng trạng thái, CÙNG từ khoá + khoảng ngày đang lọc (khoá truy vấn mang các giá trị đó).
     // Loại vấn đề lọc trong trang (backend chưa có tham số) nên không đếm được đúng — không in số cho ô đó.
     const { q: tuKhoa, tu: tuNgay, den: denNgay } = ds.boLoc
-    const demTT = useDemTab(`admin-khieu-nai-${tuKhoa}-${tuNgay}-${denNgay}`, Object.fromEntries(['all', ...Object.keys(STATUS_CONFIG)].map((k) =>
-        [k, () => goiKhieuNai({ trangThai: k === 'all' ? null : k, q: tuKhoa, tu: tuNgay, den: denNgay, page: 1, pageSize: 1 })])))
+    const demTT = useDemTab(`admin-khieu-nai-${tuKhoa}-${tuNgay}-${denNgay}`, Object.fromEntries([CAN_XU_LY, 'all', ...Object.keys(STATUS_CONFIG)].map((k) =>
+        [k, () => goiKhieuNai({ trangThai: k, q: tuKhoa, tu: tuNgay, den: denNgay, page: 1, pageSize: 1 })])))
 
     // Tìm kiếm chạy phía máy chủ (keyword); loại vấn đề vẫn lọc trong trang hiện tại (BE chưa có tham số).
     const [searchQuery, setSearchQuery] = useOTimTre(ds, 'q')
@@ -70,7 +76,8 @@ const AdminComplaintPage = () => {
     const kyLoc = khoangHopLe(ds.boLoc.tu, ds.boLoc.den)
     const cacChip = [
         ds.boLoc.q && { khoa: 'q', nhan: `Từ khoá: “${ds.boLoc.q}”`, xoa: () => { setSearchQuery(''); ds.datBoLoc({ q: null }) } },
-        ds.boLoc.trangThai && { khoa: 'tt', nhan: `Trạng thái: ${STATUS_CONFIG[ds.boLoc.trangThai]?.label ?? ds.boLoc.trangThai}`, xoa: () => ds.datBoLoc({ trangThai: null }) },
+        // Mặc định "Cần xử lý" không tính là bộ lọc đang áp (xoá chip = quay về mặc định).
+        ds.boLoc.trangThai !== CAN_XU_LY && { khoa: 'tt', nhan: `Trạng thái: ${ds.boLoc.trangThai === 'all' ? 'Mọi trạng thái' : STATUS_CONFIG[ds.boLoc.trangThai]?.label ?? ds.boLoc.trangThai}`, xoa: () => ds.datBoLoc({ trangThai: null }) },
         kyLoc && { khoa: 'ngay', nhan: `Ngày gửi: ${nhanKhoang(kyLoc.tu, kyLoc.den)}`, xoa: () => ds.datBoLoc({ tu: null, den: null }) },
     ].filter(Boolean)
 

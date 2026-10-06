@@ -10,7 +10,7 @@ const ComplaintsFilterBar = ({
   searchQuery, setSearchQuery,
   categoryFilter, setCategoryFilter,
   statusFilter, setStatusFilter,
-  demTrangThai = {}, // MLACP-685: { all, Open, Investigating, Resolved, Rejected } — số theo bộ lọc từ khoá/ngày đang áp
+  demTrangThai = {}, // MLACP-685/693: { CanXuLy, all, Open, Investigating, Resolved, Rejected } — số theo bộ lọc từ khoá/ngày đang áp
   // eslint-disable-next-line no-unused-vars -- xem ghi chú đầu tệp
   onExportCSV,
 }) => {
@@ -44,6 +44,8 @@ const ComplaintsFilterBar = ({
         onChange={(e) => setStatusFilter(e.target.value)}
         className="w-full lg:w-auto cursor-pointer min-h-[44px] px-3 py-2 bg-card border-2 border-ink text-ink focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2"
       >
+        {/* MLACP-693: gộp hai trạng thái còn việc — khớp con số trên huy hiệu menu; mặc định khi mở trang. */}
+        <option value="CanXuLy">Cần xử lý (chờ + đang xem xét){so('CanXuLy')}</option>
         <option value="all">Mọi trạng thái{so('all')}</option>
         {/* Trang dùng GET /admin/complaints (mọi trạng thái) và gửi lựa chọn này lên server qua tham số status.
             Đúng 4 giá trị Complaint.Status của backend — sai tên thì backend trả 422. */}
