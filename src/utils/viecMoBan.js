@@ -20,6 +20,9 @@ export const buocMoBan = ({ lounge, cccd, taiKhoan, soKhu, buoi } = {}) => {
   // 1. Hồ sơ phòng trà
   if (lounge === undefined) ds.push(B('phong-tra', 'Hồ sơ phòng trà', 'chua-ro', 'Chưa tải được.', '/owner/lounge'))
   else if (!lounge) ds.push(B('phong-tra', 'Hồ sơ phòng trà', 'lam', 'Khai tên, địa chỉ, ảnh và giấy phép kinh doanh rồi gửi duyệt.', '/owner/lounge'))
+  // MLACP-701: có phòng trà nhưng KHÔNG có trạng thái (vd. item của GET /lounges?mine=true — danh sách không trả status) là
+  // dữ liệu chưa đủ, không phải "đã duyệt". Trước đây rơi xuống nhánh cuối: chủ vừa nộp hồ sơ được báo "Xong · Đã được duyệt".
+  else if (!lounge.status) ds.push(B('phong-tra', 'Hồ sơ phòng trà', 'chua-ro', 'Chưa tải được.', '/owner/lounge'))
   else if (lounge.status === 'Pending') ds.push(B('phong-tra', 'Hồ sơ phòng trà', 'cho', 'Đã gửi, đang chờ quản trị viên duyệt.', '/owner/lounge'))
   else if (lounge.status === 'Rejected') ds.push(B('phong-tra', 'Hồ sơ phòng trà', 'tu-choi', 'Hồ sơ bị trả về. Xem lý do, sửa rồi gửi lại.', '/owner/lounge'))
   else ds.push(B('phong-tra', 'Hồ sơ phòng trà', 'xong', 'Đã được duyệt.', '/owner/lounge'))

@@ -42,6 +42,12 @@ const thieu = buocMoBan({ lounge: { status: 'Approved' }, cccd: undefined, taiKh
 ca(() => assert.equal(tt(thieu), 'xong,chua-ro,xong,xong,xong'))
 ca(() => assert.equal(daMoBanDuoc(thieu), false))
 
+// MLACP-701: phòng trà KHÔNG có trường status (dạng item của GET /lounges?mine=true — danh sách không trả status) → 'chua-ro'.
+// Trước đây rơi vào nhánh cuối 'xong · Đã được duyệt': chủ vừa nộp hồ sơ (đang Pending) được báo là đã duyệt.
+const itemDanhSach = { id: '01a11dd6', name: 'Phòng trà Đồng Dao', street: '164 Pasteur' }
+ca(() => assert.equal(buocMoBan({ lounge: itemDanhSach })[0].trangThai, 'chua-ro'))
+ca(() => assert.equal(daMoBanDuoc(buocMoBan({ lounge: itemDanhSach, cccd: { canSell: true }, taiKhoan: [{ isVerified: true }], soKhu: 3, buoi: { tong: 1, choDuyet: 0, daDang: 1 } })), false))
+
 // Đủ cả → ẩn danh sách
 const du = buocMoBan({ lounge: { status: 'Approved' }, cccd: { canSell: true, reviewStatus: 'Approved' }, taiKhoan: [{ isVerified: true }], soKhu: 3, buoi: { tong: 1, choDuyet: 0, daDang: 1 } })
 ca(() => assert.equal(daMoBanDuoc(du), true))
@@ -49,4 +55,4 @@ ca(() => assert.equal(buocKeTiep(du), null))
 ca(() => assert.equal(demXong(du), 5))
 // Mỗi bước có trang để làm
 ca(() => assert.ok(moi.every((b) => b.to.startsWith('/') && b.moTa.length > 10)))
-console.log(`viecMoBan: ${dat}/22 đạt`)
+console.log(`viecMoBan: ${dat}/24 đạt`)

@@ -6,13 +6,13 @@
 //  - Đủ cả 5 bước thì KHÔNG vẽ gì: chủ đang vận hành bình thường không phải nhìn danh sách này mỗi ngày.
 //  - Bước nên làm ngay được nêu thành một nút lớn; bước đang chờ quản trị viên ghi rõ là chờ, để chủ không ngồi đoán.
 //  - Trạng thái dùng NhanTrangThai chung (chữ + biểu tượng, không truyền nghĩa bằng màu).
-//  - Dữ liệu: TanStack Query, 5 nguồn có sẵn (không thêm API). Giữ 5 phút để không gọi lại mỗi lần đổi tab — backend giới
+//  - Dữ liệu: TanStack Query, 6 nguồn có sẵn (không thêm API; nguồn thứ 6 là chi tiết phòng trà để lấy trạng thái — MLACP-701). Giữ 5 phút để không gọi lại mỗi lần đổi tab — backend giới
 //    hạn tần suất theo IP. Nguồn nào lỗi thì bước đó ghi "chưa tải được", các bước khác vẫn hiện.
 import { Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { ArrowRight } from 'lucide-react'
 import NhanTrangThai from '../shared/NhanTrangThai'
-import { getLoungeZones } from '../../services/loungeServices'
+import { getLoungeDetail, getLoungeZones } from '../../services/loungeServices'
 import { getMyCitizenCard } from '../../services/userServices'
 import { getBankAccounts } from '../../services/bankAccountServices'
 import { getMyShows } from '../../services/showServices'
@@ -29,9 +29,12 @@ const NHAN = {
 const boc = async (p) => { const r = await p; if (!r?.success) throw new Error('tai'); return r.data }
 const CHUNG = { staleTime: 5 * 60_000, retry: false }
 
-// `lounge`: phòng trà của chủ (null = chưa có). Trang cha đã tải sẵn nên truyền vào, không gọi lại.
+// `lounge`: phòng trà của chủ (null = chưa có) — chỉ dùng để biết CÓ phòng trà và id của nó.
+// MLACP-701: trạng thái duyệt phải lấy từ chi tiết GET /lounges/{id}. Trang cha truyền vào item của GET /lounges?mine=true,
+// mà item danh sách KHÔNG có status — trước đây bước 1 vì thế luôn báo "Xong · Đã được duyệt", kể cả khi hồ sơ đang Pending.
 const ViecCanLamMoBan = ({ lounge }) => {
   const id = lounge?.id
+  const chiTiet = useQuery({ queryKey: ['mo-ban', 'phong-tra', id], queryFn: () => boc(getLoungeDetail(id)), enabled: !!id, ...CHUNG })
   const cccd = useQuery({ queryKey: ['mo-ban', 'cccd'], queryFn: () => boc(getMyCitizenCard()), ...CHUNG })
   const taiKhoan = useQuery({ queryKey: ['mo-ban', 'tk', id], queryFn: () => boc(getBankAccounts('Lounge', id)), enabled: !!id, ...CHUNG })
   const khu = useQuery({ queryKey: ['mo-ban', 'khu', id], queryFn: () => boc(getLoungeZones(id)), enabled: !!id, ...CHUNG })
@@ -50,11 +53,11 @@ const ViecCanLamMoBan = ({ lounge }) => {
 
   // Chưa có phòng trà thì các nguồn theo phòng trà không chạy — coi là "chưa có" (0), không phải "chưa tải được".
   const gt = (q, rong) => (!id ? rong : q.isError ? undefined : q.data)
-  const dangTai = cccd.isPending || (!!id && (taiKhoan.isPending || khu.isPending || buoi.isPending))
+  const dangTai = cccd.isPending || (!!id && (chiTiet.isPending || taiKhoan.isPending || khu.isPending || buoi.isPending))
   if (dangTai) return null
 
   const ds = buocMoBan({
-    lounge: lounge ?? null,
+    lounge: !id ? null : chiTiet.isError ? undefined : chiTiet.data,
     cccd: cccd.isError ? undefined : cccd.data,
     taiKhoan: gt(taiKhoan, []),
     soKhu: !id ? 0 : khu.isError ? undefined : (khu.data ?? []).length,
